@@ -81,12 +81,12 @@ main( int    argc,
      * some commonly used meshes are stored. It does not need to be used in general.
      * \code{.cpp}
      * std::string tPrefix = std::getenv("XTKROOT");
-     * std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
+     * std::string tMeshFileName = tPrefix + "/tutorial_exodus_files/sandwich.e";
      * \endcode
      *
      */
-    std::string tPrefix = std::getenv("XTKROOT");
-    std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
+    std::string tPrefix = std::getenv("MORISROOT");
+    std::string tMeshFileName = tPrefix + "/tutorial_exodus_files/sandwich.e";
 
     std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
 

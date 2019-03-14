@@ -249,6 +249,13 @@ public:
         return mVertexEnrichments(aVertexIndex);
     }
 
+    Vertex_Enrichment &
+    get_vertex_enrichment(moris::moris_index aVertexIndex)
+    {
+        MORIS_ASSERT(aVertexIndex<(moris::moris_index)mVertexEnrichments.size(), "Specifed vertex index is out of bounds");
+        return mVertexEnrichments(aVertexIndex);
+    }
+
     /*!
      * Get element to basis connectivity
      */

@@ -14,7 +14,7 @@ namespace mtk
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
-    XTK_Cell::XTK_Cell(moris::moris_id       aElementId,
+    Cell_XTK::Cell_XTK(moris::moris_id       aElementId,
                        moris::moris_index    aElementIndex,
                        moris::moris_index    aCMElementIndex,
                        xtk::Child_Mesh*      aChildMeshPtr,
@@ -29,7 +29,7 @@ namespace mtk
     // Cell get functions
     // ----------------------------------------------------------------------------------
     Matrix< DDRMat >
-    XTK_Cell::get_vertex_coords() const
+    Cell_XTK::get_vertex_coords() const
     {
         return mBackgroundMeshPtr->get_selected_node_coordinates_loc_inds(this->get_vertex_inds());
     }

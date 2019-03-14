@@ -10,6 +10,9 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_Sphere.hpp"
 
+#include "op_equal_equal.hpp"
+#include "fn_all_true.hpp"
+
 namespace xtk
 {
 
@@ -28,7 +31,7 @@ if(par_size() < 2)
 
     // Create Mesh --------------------------------------------------------------------
     std::string tMeshFileName = "generated:2x2x2";
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
 
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
@@ -41,19 +44,73 @@ if(par_size() < 2)
     tXTKModel.unzip_interface();
     tXTKModel.perform_basis_enrichment();
 
+    // return XTK as an mtk mesh
     moris::mtk::Mesh* tXTKToMTK = tXTKModel.get_xtk_as_mtk();
 
-    for(moris::moris_index i = 0; i<(moris::moris_index)tXTKToMTK->get_num_entities(EntityRank::NODE); i++)
+    // return XTK as an mtk mesh implemented by STK
+    moris::mtk::Mesh* tStkMesh = tXTKModel.get_output_mesh();
+
+
+    // Verify that the STK and XTK meshes return the same thing
+    // for certain
+    moris::uint tNumElemsXTK = tXTKToMTK->get_num_entities(EntityRank::ELEMENT);
+    moris::uint tNumElemsSTK = tStkMesh->get_num_entities(EntityRank::ELEMENT);
+
+    // TODO: figure out how to handle interface elements
+//    CHECK(tNumElemsXTK == tNumElemsSTK);
+
+    moris::uint tNumNodesXTK = tXTKToMTK->get_num_entities(EntityRank::NODE);
+    moris::uint tNumNodesSTK = tStkMesh->get_num_entities(EntityRank::NODE);
+    CHECK(tNumNodesSTK == tNumNodesXTK);
+
+    // get cells by index and verify their indices are the same
+    // check element to node connectivity
+    for(moris::uint iEl = 0; iEl<tNumElemsXTK; iEl++)
     {
-//        std::cout<<"i = "<<i<<std::endl;
-//        moris::print(tXTKToMTK->get_bspline_inds_of_node_loc_ind(i,EntityRank::INVALID),"basis functions");
-//        moris::print(tXTKToMTK->get_t_matrix_of_node_loc_ind(i,EntityRank::INVALID),"basis functions");
+        mtk::Cell  & tCell = tXTKToMTK->get_mtk_cell(iEl);
+        CHECK(tCell.get_index() == (moris_index)iEl);
+
+        // Get stk index using xtk cell id
+        moris::moris_index tXTKCellId = tCell.get_id();
+        moris::moris_index tSTKCellIndex = tStkMesh->get_loc_entity_ind_from_entity_glb_id(tXTKCellId,EntityRank::ELEMENT);
+
+        Matrix<IndexMat> tXTKCellNodesInds   = tCell.get_vertex_inds();
+        Matrix<IndexMat> tSTKCellNodesInds   = tStkMesh->get_entity_connected_to_entity_loc_inds(tSTKCellIndex,EntityRank::ELEMENT,EntityRank::NODE);
+        Matrix<IndexMat> tXTKCellToNodeInds2 = tXTKToMTK->get_entity_connected_to_entity_loc_inds(iEl,EntityRank::ELEMENT,EntityRank::NODE);
+        CHECK(all_true(tXTKCellNodesInds == tSTKCellNodesInds));
+        CHECK(all_true(tXTKCellToNodeInds2 == tXTKCellNodesInds));
+
+        Matrix<IndexMat> tXTKCellNodesIds = tCell.get_vertex_ids();
+        Matrix<IndexMat> tSTKCellNodesIds = tStkMesh->get_entity_connected_to_entity_glob_ids(tXTKCellId,EntityRank::ELEMENT,EntityRank::NODE);
+        CHECK(all_true(tXTKCellNodesIds == tSTKCellNodesIds));
     }
 
-    moris::print(tXTKToMTK->get_entity_connected_to_entity_loc_inds(0,EntityRank::ELEMENT,EntityRank::NODE),"elem 0 nodes");
+    // get vertex by index and verify their indices are the same
+    // verify their coordinates too
+     for(moris::uint iN = 0; iN<tNumNodesXTK; iN++)
+     {
+         mtk::Vertex  & tVertex = tXTKToMTK->get_mtk_vertex(iN);
+         CHECK(tVertex.get_index() == (moris_index)iN);
+         CHECK(tVertex.get_id() == tStkMesh->get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE));
+
+         moris::Matrix<moris::DDRMat> tXTKCoord = tVertex.get_coords();
+         moris::Matrix<moris::DDRMat> tSTKCoord = tStkMesh->get_node_coordinate((moris_index)iN);
+
+         CHECK(all_true(tXTKCoord == tSTKCoord));
+
+         // Accessing t-matrix
+         moris::mtk::Vertex_Interpolation * tVertexInterpolation = tVertex.get_interpolation(0);
+
+         moris::print(*tVertexInterpolation->get_weights()," weights ");
+         moris::print(tVertexInterpolation->get_indices()," indices ");
+
+     }
+
+
 
     delete tXTKToMTK;
     delete tMeshData;
+    delete tStkMesh;
 }
                 }
 }

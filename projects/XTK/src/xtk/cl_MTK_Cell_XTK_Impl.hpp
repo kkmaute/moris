@@ -33,7 +33,7 @@ namespace moris
          * provided by the mesh.
          */
 
-        class XTK_Cell: public Cell
+        class Cell_XTK: public Cell
         {
         private:
 
@@ -44,9 +44,9 @@ namespace moris
             /**
              * trivial constructor
              */
-            XTK_Cell(){};
+            Cell_XTK(){};
 
-            XTK_Cell(moris::moris_id       aElementId,
+            Cell_XTK(moris::moris_id       aElementId,
                      moris::moris_index    aElementIndex,
                      moris::moris_index    aCMElementIndex,
                      xtk::Child_Mesh*      aChildMeshPtr,
@@ -56,7 +56,7 @@ namespace moris
             /**
              * Destructor. Must be virtual.
              */
-            ~XTK_Cell(){};
+            ~Cell_XTK(){};
 
 //------------------------------------------------------------------------------
 
@@ -129,8 +129,7 @@ namespace moris
             Matrix< IdMat >
             get_vertex_ids() const
             {
-                MORIS_ERROR(0, "get_vertex_ids not implemented in XTK Cell");
-                return Matrix< IdMat >(0,0);
+                return mChildMeshPtr->get_element_to_node_glob_ids(mCMElementIndex);
             }
 
 //------------------------------------------------------------------------------

@@ -66,7 +66,7 @@ TEST_CASE("Tet background mesh analytic sphere","[TET_START_SPHERE]")
     Geometry_Engine tGeometryEngine({&tLevelSetSphere,&tLevelSetSphere2},tPhaseTable);
     tGeometryEngine.mComputeDxDp = false;
     // Load the mesh
-    std::string tPrefix = std::getenv("XTKROOT");
+    std::string tPrefix = std::getenv("MORISROOT");
     std::string tMeshFileName = tPrefix + "/TestExoFiles/tet_cube_mesh.e";
     moris::Cell<std::string> tFieldNames;
     mesh::Mesh_Builder_Stk<real, size_t, moris::DDRMat, moris::DDSTMat> tMeshBuilder;
