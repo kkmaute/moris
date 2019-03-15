@@ -40,7 +40,7 @@ namespace MSI
 //-----------------------------------------------------------------------------------------------------------
 
     void Pdof_Host::set_pdof_type( const enum Dof_Type      aDof_Type,
-                                   const Matrix< DDUMat > & aTimeSteps,
+                                   const uint             & aTimeStepsofDofType,
                                    const moris::uint        aNumUsedDofTypes,
                                    const Matrix< DDSMat > & aPdofTypeMap)
     {
@@ -53,10 +53,10 @@ namespace MSI
             // Set mPdofTypeExist to 1. ==> Dof type exists
             mPdofTypeExist( tDofTypeIndex ) = 1;
 
-            mListOfPdofTimePerType( tDofTypeIndex ).resize( aTimeSteps.length() );
+            mListOfPdofTimePerType( tDofTypeIndex ).resize( aTimeStepsofDofType );
 
             // Create new dof type. Add index and time
-            for ( moris::uint Ii = 0; Ii < aTimeSteps.length(); Ii++ )
+            for ( moris::uint Ii = 0; Ii < aTimeStepsofDofType; Ii++ )
             {
                 // Create pdof
                 mListOfPdofTimePerType( tDofTypeIndex )( Ii ) = new Pdof;
@@ -70,7 +70,7 @@ namespace MSI
         }
         else
         {
-            MORIS_ERROR( aTimeSteps.length() == mListOfPdofTimePerType( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
+            MORIS_ERROR( aTimeStepsofDofType == mListOfPdofTimePerType( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
         }
 
         // FIXME return pointer to pdof?

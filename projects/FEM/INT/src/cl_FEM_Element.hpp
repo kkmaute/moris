@@ -99,7 +99,7 @@ namespace moris
             mNodalWeakBCs.set_size( tNumOfNodes, 1 );
 
             // FIXME: Mathias, please comment
-            mTimeSteps.set_size( 1, 1, 0 );
+            mTimeSteps.set_size( 1, 1, 1 );
 
 
         };
