@@ -85,106 +85,106 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         tHMR.finalize();
 
-         // grab pointer to output field
-         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
+        // grab pointer to output field
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
 
-         // create field
-         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
+        // create field
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
 
-         // evaluate node values
-         tField->evaluate_scalar_function( LevelSetFunction );
+        // evaluate node values
+        tField->evaluate_scalar_function( LevelSetFunction );
 
-         tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
+        tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
 
-         moris::map< moris::moris_id, moris::moris_index > tMap;
-         tMesh->get_adof_map( tOrder, tMap );
-         //tMap.print("Adof Map");
+        moris::map< moris::moris_id, moris::moris_index > tMap;
+        tMesh->get_adof_map( tOrder, tMap );
+        //tMap.print("Adof Map");
 
          //-------------------------------------------------------------------------------------------
 
-         // create IWG object
-         Cell< fem::IWG* > tIWGs ( 1, nullptr );
-         tIWGs( 0 ) = new moris::fem::IWG_L2( );
+        // create IWG object
+        Cell< fem::IWG* > tIWGs ( 1, nullptr );
+        tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
-         map< moris_id, moris_index >   tCoefficientsMap;
-         Cell< fem::Node_Base* >        tNodes;
-         Cell< MSI::Equation_Object* >  tElements;
+        map< moris_id, moris_index >   tCoefficientsMap;
+        Cell< fem::Node_Base* >        tNodes;
+        Cell< MSI::Equation_Object* >  tElements;
 
-         // get map from mesh
-         tMesh->get_adof_map( tOrder, tCoefficientsMap );
+        // get map from mesh
+        tMesh->get_adof_map( tOrder, tCoefficientsMap );
 
-         // ask mesh about number of nodes on proc
-         luint tNumberOfNodes = tMesh->get_num_nodes();
+        // ask mesh about number of nodes on proc
+        luint tNumberOfNodes = tMesh->get_num_nodes();
 
-         // create node objects
-         tNodes.resize( tNumberOfNodes, nullptr );
+        // create node objects
+        tNodes.resize( tNumberOfNodes, nullptr );
 
-         for( luint k = 0; k < tNumberOfNodes; ++k )
-         {
-             tNodes( k ) = new fem::Node( &tMesh->get_mtk_vertex( k ) );
-         }
+        for( luint k = 0; k < tNumberOfNodes; ++k )
+        {
+            tNodes( k ) = new fem::Node( &tMesh->get_mtk_vertex( k ) );
+        }
 
-         // ask mesh about number of elements on proc
-         luint tNumberOfElements = tMesh->get_num_elems();
+        // ask mesh about number of elements on proc
+        luint tNumberOfElements = tMesh->get_num_elems();
 
          // create equation objects
          tElements.resize( tNumberOfElements, nullptr );
 
-         for( luint k=0; k<tNumberOfElements; ++k )
-         {
-             // create the element
-             tElements( k ) = new fem::Element_Bulk( & tMesh->get_mtk_cell( k ),
-                                                     tIWGs,
-                                                     tNodes );
-         }
+        for( luint k=0; k<tNumberOfElements; ++k )
+        {
+            // create the element
+            tElements( k ) = new fem::Element_Bulk( & tMesh->get_mtk_cell( k ),
+                                                    tIWGs,
+                                                    tNodes );
+        }
 
-         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
-                                                                                      tMesh->get_communication_table(),
-                                                                                      tCoefficientsMap,
-                                                                                      tMesh->get_num_coeffs( tOrder ),
-                                                                                      tMesh.get() );
+        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+                                                                                     tMesh->get_communication_table(),
+                                                                                     tCoefficientsMap,
+                                                                                     tMesh->get_num_coeffs( tOrder ),
+                                                                                     tMesh.get() );
 
-         tMSI->set_param("L2")= (sint)tOrder;
+        tMSI->set_param("L2")= (sint)tOrder;
 
-         tMSI->finalize( true );
+        MSI->finalize( true );
 
-         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
+        moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
 
 //---------------------------------------------------------------------------------------------------------------
 
-         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
+        Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-         NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, MapType::Petsc );
+        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, 0, true, MapType::Petsc );
 
-         // create factory for nonlinear solver
-         NLA::Nonlinear_Solver_Factory tNonlinFactory;
+        // create factory for nonlinear solver
+        NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
-         // create nonlinear solver
-         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        // create nonlinear solver
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-         // create factory for linear solver
-         dla::Solver_Factory  tSolFactory;
+        // create factory for linear solver
+        dla::Solver_Factory  tSolFactory;
 
-         // create linear solver
-         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+        // create linear solver
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
-         tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
-         //tLinearSolver->set_param("PCType")  = std::string( PCMG );
-         tLinearSolver->set_param("PCType")  = std::string( PCILU );
+        tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
+        //tLinearSolver->set_param("PCType")  = std::string( PCMG );
+        tLinearSolver->set_param("PCType")  = std::string( PCILU );
 
-         tLinearSolver->set_param("ILUFill")  = 3;
+        tLinearSolver->set_param("ILUFill")  = 3;
 
-         // create solver manager
-         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
-         Nonlinear_Solver  tNonLinSolManager;
+        // create solver manager
+        dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
+        Nonlinear_Solver  tNonLinSolManager;
 
-         // set manager and settings
-         tNonlinearSolver->set_linear_solver( mLinSolver );
+        // set manager and settings
+        tNonlinearSolver->set_linear_solver( mLinSolver );
 
-         // set first solver
-         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
+        // set first solver
+        mLinSolver->set_linear_algorithm( 0, tLinearSolver );
 
-         tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
+        tNonLinSolManager.set_nonlinear_algorithm( tNonlinearSolver, 0 );
 
          for( auto tElement : tElements )
          {
