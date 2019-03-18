@@ -69,14 +69,14 @@ namespace moris
 
         // Create pdof type enum and time step moris Mat
         enum Dof_Type tDofType = Dof_Type::TEMP;
-        Matrix< DDUMat >  tTimeSteps(1, 1, 0);
+        Matrix< DDUMat >  tTimeSteps(1, 1, 1);
         moris::uint tNumMaxPdofTypes = 1;
 
         Matrix< DDSMat >tDofTypeIndexMap( 4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
         //  Set pdof type and timestep
-        tPdofHost.set_pdof_type( tDofType, tTimeSteps, tNumMaxPdofTypes, tDofTypeIndexMap );
+        tPdofHost.set_pdof_type( tDofType, tTimeSteps( 0 ), tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Check size of type and time list
         CHECK( equal_to( tPdofHost.mListOfPdofTimePerType.size(), 1 ) );
@@ -130,14 +130,14 @@ namespace moris
 
         // Create pdof type enum and time step moris Mat
         enum Dof_Type tDofType = Dof_Type::TEMP;
-        Matrix< DDUMat >  tTimeSteps(1, 1, 0);
+        Matrix< DDUMat >  tTimeSteps(1, 1, 1);
         moris::uint tNumMaxPdofTypes = 1;
 
         Matrix< DDSMat >tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
         // Set pdof type and timestep
-        tPdofHost.set_pdof_type( tDofType, tTimeSteps, tNumMaxPdofTypes, tDofTypeIndexMap );
+        tPdofHost.set_pdof_type( tDofType, tTimeSteps( 0 ), tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Create external adof list
         moris::Cell< moris::Cell < Adof * > > tAdofList;

@@ -1,6 +1,6 @@
 #include "cl_FEM_IWG_L2.hpp"
 
-#include "cl_FEM_Element_Bulk.hpp"
+//#include "cl_FEM_Element_Bulk.hpp"
 #include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"  //LINALG/src
 #include "fn_trans.hpp" //LINALG/src
@@ -56,22 +56,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-//
-//        void
-//        IWG_L2::compute_jacobian_and_residual(
-//                Matrix< DDRMat >       & aJacobian,
-//                Matrix< DDRMat >       & aResidual,
-//                const Matrix< DDRMat > & aNodalDOF,
-//                const Matrix< DDRMat > & aNodalWeakBC,
-//                const uint             & aPointIndex )
-//        {
-//            ( this->*mComputeFunction )(
-//                    aJacobian,
-//                    aResidual,
-//                    aNodalDOF,
-//                    aNodalWeakBC,
-//                    aPointIndex );
-//        }
 
     void IWG_L2::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
                                                       Matrix< DDRMat >      & aResidual,
@@ -84,41 +68,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-//
-//        real
-//        IWG_L2::compute_integration_error(
-//                const Matrix< DDRMat >                    & aNodalDOF,
-//                real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
-//                const uint                                & aPointIndex )
-//        {
-//            mN->compute( aPointIndex );
-//
-//            Matrix< DDRMat > tCoords = mN->matrix_data() * mInterpolator->get_node_coords();
-//
-//            // get shape function
-//            Matrix< DDRMat > tPhiHat = mN->matrix_data() * aNodalDOF.matrix_data();
-//
-//            return std::pow( tPhiHat( 0 ) - aFunction( tCoords ), 2 );
-//        }
-
-//------------------------------------------------------------------------------
-//
-//        void
-//        IWG_L2::compute_jacobian_and_residual_without_alpha(
-//                Matrix< DDRMat >       & aJacobian,
-//                Matrix< DDRMat >       & aResidual,
-//                const Matrix< DDRMat > & aNodalDOF,
-//                const Matrix< DDRMat > & aNodalWeakBC,
-//                const uint             & aPointIndex )
-//        {
-//
-//            // get shape function
-//            mN->compute( aPointIndex );
-//
-//            // calculate Jacobian
-//            aJacobian = trans( mN ) * mN;
-//            aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
-//        }
 
         void IWG_L2::compute_jacobian_and_residual_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                                                   Matrix< DDRMat >            & aResidual,
@@ -133,30 +82,10 @@ namespace moris
             // compute residual
             //FIXME mNodalWeakBCs
             aResidual = aJacobians( 0 ) * ( tFI->get_coeff() - mNodalWeakBCs );
+
         }
 
 //------------------------------------------------------------------------------
-//
-//        void
-//        IWG_L2::compute_jacobian_and_residual_with_alpha(
-//                Matrix< DDRMat >       & aJacobian,
-//                Matrix< DDRMat >       & aResidual,
-//                const Matrix< DDRMat > & aNodalDOF,
-//                const Matrix< DDRMat > & aNodalWeakBC,
-//                const uint             & aPointIndex )
-//        {
-//
-//            // get shape function
-//            mN->compute( aPointIndex );
-//
-//            // compute derivative
-//            mB->compute( aPointIndex );
-//
-//            // calculate Jacobian
-//            aJacobian = trans( mN ) * mN + mAlpha * ( trans( mB ) * mB );
-//
-//            aResidual = aJacobian * ( aNodalDOF - aNodalWeakBC );
-//        }
 
         void IWG_L2::compute_jacobian_and_residual_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                                                Matrix< DDRMat >            & aResidual,
@@ -187,6 +116,23 @@ namespace moris
 //            return dot( mN->matrix() , aNodalWeakBC );
 //        }
 
+//------------------------------------------------------------------------------
+//
+//        real
+//        IWG_L2::compute_integration_error(
+//                const Matrix< DDRMat >                    & aNodalDOF,
+//                real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
+//                const uint                                & aPointIndex )
+//        {
+//            mN->compute( aPointIndex );
+//
+//            Matrix< DDRMat > tCoords = mN->matrix_data() * mInterpolator->get_node_coords();
+//
+//            // get shape function
+//            Matrix< DDRMat > tPhiHat = mN->matrix_data() * aNodalDOF.matrix_data();
+//
+//            return std::pow( tPhiHat( 0 ) - aFunction( tCoords ), 2 );
+//        }
 //------------------------------------------------------------------------------
 
         void IWG_L2::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
@@ -242,6 +188,7 @@ namespace moris
             // compute Jacobian
             //FIXME: mNodalWeakBCs
             aResidual = trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs );
+
         }
 
 //------------------------------------------------------------------------------

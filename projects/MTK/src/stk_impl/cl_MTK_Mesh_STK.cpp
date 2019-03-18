@@ -1081,11 +1081,11 @@ namespace mtk
         }
 
         // Setup Vertices interpolation
-        mMtkVerticeInterpolation = moris::Cell<Node_Interpolation_STK>(tNumNodes);
+        mMtkVerticeInterpolation = moris::Cell<Vertex_Interpolation_STK>(tNumNodes);
         for( moris::moris_index iVertInd = 0; iVertInd<(moris::moris_index)tNumNodes; iVertInd++)
         {
             // pass global node ids, node index and a pointer to this mesh into the vertex
-            mMtkVerticeInterpolation(iVertInd) = Node_Interpolation_STK(&this->get_mtk_vertex(iVertInd));
+            mMtkVerticeInterpolation(iVertInd) = Vertex_Interpolation_STK(&this->get_mtk_vertex(iVertInd));
 
             // set in vertex
             this->get_mtk_vertex_stk(iVertInd).set_vertex_interpolation(&mMtkVerticeInterpolation(iVertInd));

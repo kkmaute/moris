@@ -8,7 +8,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     void
-    Node_Interpolation_STK::set_weights( const Matrix< DDRMat > & aTMatrix )
+	Vertex_Interpolation_STK::set_weights( const Matrix< DDRMat > & aTMatrix )
     {
         mWeights = aTMatrix;
     }
@@ -16,7 +16,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     const Matrix< DDRMat > *
-	Node_Interpolation_STK::get_weights() const
+	Vertex_Interpolation_STK::get_weights() const
     {
         return & mWeights;
     }
@@ -24,7 +24,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     void
-    Node_Interpolation_STK::set_coefficients( moris::Cell< mtk::Vertex* > & aCoefficients )
+	Vertex_Interpolation_STK::set_coefficients( moris::Cell< mtk::Vertex* > & aCoefficients )
     {
         mCoefficients = aCoefficients;
     }
@@ -32,7 +32,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     moris::Cell< mtk::Vertex* > &
-    Node_Interpolation_STK::get_coefficients()
+	Vertex_Interpolation_STK::get_coefficients()
     {
         return mCoefficients;
     }
@@ -40,7 +40,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     const moris::Cell< mtk::Vertex* > &
-    Node_Interpolation_STK::get_coefficients() const
+	Vertex_Interpolation_STK::get_coefficients() const
     {
         return mCoefficients;
     }
@@ -48,7 +48,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     uint
-    Node_Interpolation_STK::get_number_of_coefficients() const
+	Vertex_Interpolation_STK::get_number_of_coefficients() const
     {
         //return mCoefficients.size();
         return 1;
@@ -57,7 +57,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     Matrix< IdMat >
-    Node_Interpolation_STK::get_ids() const
+    Vertex_Interpolation_STK::get_ids() const
     {
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();
@@ -78,7 +78,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     Matrix< IndexMat >
-    Node_Interpolation_STK::get_indices() const
+    Vertex_Interpolation_STK::get_indices() const
     {
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();
@@ -97,7 +97,7 @@ namespace moris
     }
 
     Matrix< IdMat >
-    Node_Interpolation_STK::get_owners() const
+    Vertex_Interpolation_STK::get_owners() const
     {
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();

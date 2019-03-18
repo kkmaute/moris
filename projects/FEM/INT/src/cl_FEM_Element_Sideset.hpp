@@ -9,43 +9,22 @@
 #define SRC_FEM_CL_FEM_ELEMENT_SIDESET_HPP_
 
 #include "assert.h"
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-
-#include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
-
-#include "cl_FEM_Enums.hpp"                 //FEM/INT/src
-#include "cl_FEM_Node.hpp"                  //FEM/INT/src
-#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
-#include "cl_FEM_Element.hpp"               //FEM/INT/src
+#include "cl_FEM_Element.hpp" //FEM/INT/src
 
 namespace moris
 {
-
-    // forward declaration of mtk classes
-    namespace mtk
-    {
-        class Cell;
-        enum class Geometry_Type;
-        enum class Interpolation_Order;
-    }
-
-//------------------------------------------------------------------------------
-
     namespace fem
     {
 //------------------------------------------------------------------------------
-
     /**
-     * \brief element class that communicates with the mesh interface
+     * \brief Element_Sideset class
      */
     class Element_Sideset : public Element
     {
 
+//------------------------------------------------------------------------------
     protected:
+//------------------------------------------------------------------------------
         //moris::Cell< mtk::Cell > mSidesetCell;
 
 //------------------------------------------------------------------------------
@@ -64,20 +43,26 @@ namespace moris
                          moris::Cell< Node_Base* > & aNodes );
 //------------------------------------------------------------------------------
         /**
-         * trivial destructor
+         * destructor
          */
         ~Element_Sideset();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian over the element
+         */
         void compute_jacobian();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute residual over the element
+         */
         void compute_residual();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian and residual over the element
+         */
         void compute_jacobian_and_residual();
 
 //------------------------------------------------------------------------------

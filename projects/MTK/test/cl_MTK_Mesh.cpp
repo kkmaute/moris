@@ -99,7 +99,8 @@ TEST_CASE("MTK Mesh from file via STK", "[moris],[mesh],[cl_Mesh],[Mesh]")
     {
         if( p_size == 1 ) // specify it is a serial test only
         {
-            const std::string fileName2 = "generated:8x8x8";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
+        	const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";
+            //const std::string fileName2 = "generated:8x8x8|sideset:xXyYzZ";    // 512 elements, 729 nodes, 1944 edges, 1728 faces
 
             // Create MORIS mesh using MTK database
             Mesh* tMesh3D_HEXs = create_mesh( MeshType::STK, fileName2, NULL );

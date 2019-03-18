@@ -429,7 +429,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
          }
     }
 }
-
+*/
 TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 {
     if( moris::par_size() == 1 )
@@ -444,7 +444,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
         tParameters.set_mesh_orders_simple( tOrder );
-        tParameters.set_refinement_buffer( 3 );
+        tParameters.set_refinement_buffer( 1 );
 
         // create HMR object
         moris::hmr::HMR tHMR( tParameters );
@@ -454,7 +454,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         // create field
         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
 
-        for( uint k=0; k<2; ++k )
+        for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
             tHMR.flag_surface_elements( tField );
@@ -467,153 +467,153 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
 
-        tHMR.save_to_exodus( "Sphere.exo" );
+        tHMR.save_to_exodus( "Sphere11.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
-         moris::map< moris::moris_id, moris::moris_index > tMap;
-         tMesh->get_adof_map( tOrder, tMap );
-         //tMap.print("Adof Map");
-
-         //-------------------------------------------------------------------------------------------
-
-         // create IWG object
-         fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
-
-         map< moris_id, moris_index >   tCoefficientsMap;
-         Cell< fem::Node_Base* >        tNodes;
-         Cell< MSI::Equation_Object* >  tElements;
-
-         // get map from mesh
-         tMesh->get_adof_map( tOrder, tCoefficientsMap );
-
-         // ask mesh about number of nodes on proc
-         luint tNumberOfNodes = tMesh->get_num_nodes();
-
-         // create node objects
-         tNodes.resize( tNumberOfNodes, nullptr );
-
-         for( luint k = 0; k < tNumberOfNodes; ++k )
-         {
-             tNodes( k ) = new fem::Node( &tMesh->get_mtk_vertex( k ) );
-         }
-
-         // ask mesh about number of elements on proc
-         luint tNumberOfElements = tMesh->get_num_elems();
-
-         // create equation objects
-         tElements.resize( tNumberOfElements, nullptr );
-
-         for( luint k=0; k<tNumberOfElements; ++k )
-         {
-             // create the element
-             tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
-                                                tIWG,
-                                                tNodes );
-         }
-
-         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
-                                                                                      tMesh->get_communication_table(),
-                                                                                      tCoefficientsMap,
-                                                                                      tMesh->get_num_coeffs( tOrder ),
-                                                                                      tMesh.get() );
-
-         tMSI->set_param("L2")= (sint)tOrder;
-
-         tMSI->finalize( true );
-
-         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
-
-//---------------------------------------------------------------------------------------------------------------
-
-         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
-
-         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
-
-         // create factory for nonlinear solver
-         NLA::Nonlinear_Solver_Factory tNonlinFactory;
-
-         // create nonlinear solver
-         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-         // create factory for linear solver
-         dla::Solver_Factory  tSolFactory;
-
-         // create linear solver
-         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
-
-         tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
-         tLinearSolver->set_param("PCType")  = std::string(PCMG);
-
-         tLinearSolver->set_param("ILUFill")  = 0;
-
-         // create solver manager
-         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
-
-         // set manager and settings
-         tNonlinearSolver->set_linear_solver( mLinSolver );
-
-         // set first solver
-         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
-
-         for( auto tElement : tElements )
-         {
-             Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
-             uint tNumberOfNodes = tElement->get_num_nodes();
-             tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-
-             for( uint k=0; k<tNumberOfNodes; ++k )
-             {
-                 // copy weakbc into element
-                 tNodalWeakBCs( k ) = tMesh->get_value_of_scalar_field( 3,
-                                                                        EntityRank::NODE,
-                                                                        tElement->get_node_index( k ) );
-             }
-         }
-
-         tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
-
-         moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
-         tExternalIndices( 0, 0 ) = 17;
-         tExternalIndices( 1, 0 ) = 18;
-         tExternalIndices( 2, 0 ) = 21;
-         tExternalIndices( 3, 0 ) = 22;
-         tExternalIndices( 4, 0 ) = 23;
-         tExternalIndices( 5, 0 ) = 25;
-         tExternalIndices( 6, 0 ) = 27;
-         tExternalIndices( 7, 0 ) = 26;
-         tExternalIndices( 8, 0 ) = 28;
-
-         moris::Matrix< DDSMat > tInternalIndices;
-
-         tMSI->read_multigrid_maps( 2, tExternalIndices, 0, tInternalIndices );
-
-         // get index of mesh
-         uint tMeshIndex = tHMR.get_mesh_index( tOrder,
-                                                tHMR.get_parameters()->get_lagrange_output_pattern() );
-
-         // dump mesh
-         tHMR.save_to_exodus ( tMeshIndex,  // index in database
-                               "Meshsphere.exo",  // path
-                               0.0 );       // timestep
-
-         delete tMSI;
-         delete tIWG;
-         delete tSolverInterface;
-
-         for( luint k=0; k<tNumberOfElements; ++k )
-         {
-             // create the element
-             delete tElements( k );
-         }
-
-         for( luint k = 0; k < tNumberOfNodes; ++k )
-         {
-             delete tNodes( k );
-         }
+//         moris::map< moris::moris_id, moris::moris_index > tMap;
+//         tMesh->get_adof_map( tOrder, tMap );
+//         //tMap.print("Adof Map");
+//
+//         //-------------------------------------------------------------------------------------------
+//
+//         // create IWG object
+//         fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
+//
+//         map< moris_id, moris_index >   tCoefficientsMap;
+//         Cell< fem::Node_Base* >        tNodes;
+//         Cell< MSI::Equation_Object* >  tElements;
+//
+//         // get map from mesh
+//         tMesh->get_adof_map( tOrder, tCoefficientsMap );
+//
+//         // ask mesh about number of nodes on proc
+//         luint tNumberOfNodes = tMesh->get_num_nodes();
+//
+//         // create node objects
+//         tNodes.resize( tNumberOfNodes, nullptr );
+//
+//         for( luint k = 0; k < tNumberOfNodes; ++k )
+//         {
+//             tNodes( k ) = new fem::Node( &tMesh->get_mtk_vertex( k ) );
+//         }
+//
+//         // ask mesh about number of elements on proc
+//         luint tNumberOfElements = tMesh->get_num_elems();
+//
+//         // create equation objects
+//         tElements.resize( tNumberOfElements, nullptr );
+//
+//         for( luint k=0; k<tNumberOfElements; ++k )
+//         {
+//             // create the element
+//             tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
+//                                                tIWG,
+//                                                tNodes );
+//         }
+//
+//         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+//                                                                                      tMesh->get_communication_table(),
+//                                                                                      tCoefficientsMap,
+//                                                                                      tMesh->get_num_coeffs( tOrder ),
+//                                                                                      tMesh.get() );
+//
+//         tMSI->set_param("L2")= (sint)tOrder;
+//
+//         tMSI->finalize( true );
+//
+//         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
+//
+////---------------------------------------------------------------------------------------------------------------
+//
+//         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
+//
+//         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, MapType::Petsc );
+//
+//         // create factory for nonlinear solver
+//         NLA::Nonlinear_Solver_Factory tNonlinFactory;
+//
+//         // create nonlinear solver
+//         std::shared_ptr< NLA::Nonlinear_Solver > tNonlinearSolver = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//
+//         // create factory for linear solver
+//         dla::Solver_Factory  tSolFactory;
+//
+//         // create linear solver
+//         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
+//
+//         tLinearSolver->set_param("KSPType") = std::string(KSPFGMRES);
+//         tLinearSolver->set_param("PCType")  = std::string(PCMG);
+//
+//         tLinearSolver->set_param("ILUFill")  = 0;
+//
+//         // create solver manager
+//         dla::Linear_Solver * mLinSolver = new dla::Linear_Solver();
+//
+//         // set manager and settings
+//         tNonlinearSolver->set_linear_solver( mLinSolver );
+//
+//         // set first solver
+//         mLinSolver->set_linear_algorithm( 0, tLinearSolver );
+//
+//         for( auto tElement : tElements )
+//         {
+//             Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
+//             uint tNumberOfNodes = tElement->get_num_nodes();
+//             tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+//
+//             for( uint k=0; k<tNumberOfNodes; ++k )
+//             {
+//                 // copy weakbc into element
+//                 tNodalWeakBCs( k ) = tMesh->get_value_of_scalar_field( 3,
+//                                                                        EntityRank::NODE,
+//                                                                        tElement->get_node_index( k ) );
+//             }
+//         }
+//
+//         tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
+//
+//         moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
+//         tExternalIndices( 0, 0 ) = 17;
+//         tExternalIndices( 1, 0 ) = 18;
+//         tExternalIndices( 2, 0 ) = 21;
+//         tExternalIndices( 3, 0 ) = 22;
+//         tExternalIndices( 4, 0 ) = 23;
+//         tExternalIndices( 5, 0 ) = 25;
+//         tExternalIndices( 6, 0 ) = 27;
+//         tExternalIndices( 7, 0 ) = 26;
+//         tExternalIndices( 8, 0 ) = 28;
+//
+//         moris::Matrix< DDSMat > tInternalIndices;
+//
+//         tMSI->read_multigrid_maps( 2, tExternalIndices, 0, tInternalIndices );
+//
+//         // get index of mesh
+//         uint tMeshIndex = tHMR.get_mesh_index( tOrder,
+//                                                tHMR.get_parameters()->get_lagrange_output_pattern() );
+//
+//         // dump mesh
+//         tHMR.save_to_exodus ( tMeshIndex,  // index in database
+//                               "Meshsphere_11.exo",  // path
+//                               0.0 );       // timestep
+//
+//         delete tMSI;
+//         delete tIWG;
+//         delete tSolverInterface;
+//
+//         for( luint k=0; k<tNumberOfElements; ++k )
+//         {
+//             // create the element
+//             delete tElements( k );
+//         }
+//
+//         for( luint k = 0; k < tNumberOfNodes; ++k )
+//         {
+//             delete tNodes( k );
+//         }
     }
 }
-
+/*
 
 TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 {

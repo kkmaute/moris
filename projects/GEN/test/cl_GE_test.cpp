@@ -48,6 +48,11 @@
 #include "op_equal_equal.hpp"
 
 //------------------------------------------------------------------------------
+// FEM includes
+#include "cl_FEM_Integrator.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+
+//------------------------------------------------------------------------------
 // other includes
 #include "cl_Stopwatch.hpp"
 #include "cl_Profiler.hpp"
@@ -57,7 +62,8 @@
 namespace moris
 {
 real
-circle_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
+circle_function( const Matrix< DDRMat > & aPoint,
+                 Cell< real > inputs )
 {
 	// inputs(0) = x location of center
 	// inputs(1) = y location of center
@@ -66,10 +72,12 @@ circle_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 	tCenterVec(0,0) = inputs(0);
 	tCenterVec(0,1) = inputs(1);
 	return norm( aPoint - tCenterVec ) - inputs(2);
+//	return (std::pow((aPoint(0,0) - inputs(0)),2) + std::pow((aPoint(0,1) - inputs(1)),2) - std::pow(inputs(2),2));
 }
 
 real
-linear_function( const Matrix< DDRMat > & aPoint, moris::Cell< real> inputs )
+linear_function( const Matrix< DDRMat > & aPoint,
+                 moris::Cell< real> inputs )
 {
 	// inputs(0) = slope
 	// inputs(1) = y_intercept
@@ -77,7 +85,8 @@ linear_function( const Matrix< DDRMat > & aPoint, moris::Cell< real> inputs )
 }
 
 real
-hyperboloid_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
+hyperboloid_function( const Matrix< DDRMat > & aPoint,
+                      Cell< real > inputs )
 {
 	// inputs(0) = offset in x
 	// inputs(1) = curvature in x
@@ -89,7 +98,8 @@ hyperboloid_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 }
 
 real
-sphere_function( const Matrix< DDRMat > & aPoint, Cell< real > aInputs )
+sphere_function( const Matrix< DDRMat > & aPoint,
+                 Cell< real > aInputs )
 {
     // aPoint     = point vector to determine value at
 	// aInputs(0) = x location of center
@@ -104,7 +114,8 @@ sphere_function( const Matrix< DDRMat > & aPoint, Cell< real > aInputs )
 }
 
 real
-plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
+plane_function( const Matrix< DDRMat > & aPoint,
+                Cell< real > inputs )
 {
 	return (aPoint(0,0) - inputs(0)) + (aPoint(0,1) - inputs(1)) + (aPoint(0,2) - inputs(2));
 }
@@ -113,7 +124,7 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 	{
 //------------------------------------------------------------------------------
 
-		TEST_CASE("nodal coordinate test","[GE],[GE_test1]")
+		TEST_CASE("nodal_coordinate_test","[GE],[GE_test1]")
 				{
 		        /* create GE node objects, create GE element object, check nodal coordinates */
 				mtk::Vertex* tVertex1 = new Node(0.0, 0.0);
@@ -155,7 +166,7 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 
 //------------------------------------------------------------------------------
 
-		TEST_CASE("2D circle LS intersection test","[GE],[GE_test2]")
+		TEST_CASE("2D_circle_LS_intersection_test","[GE],[GE_test2]")
 				{
 		        /* create 2D 4-element mesh, add circle function, check for intersection */
 				mtk::Vertex* tVertex1_1 = new Node(0.0, -1.0);
@@ -240,7 +251,7 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				}
 //------------------------------------------------------------------------------
 
-		TEST_CASE("GE multiple geometry LS intersection test","[GE],[GE_test3]")
+		TEST_CASE("GE_multiple_geometry_LS_intersection_test","[GE],[GE_test3]")
 				{
 		            /* create 2D 4-element mesh, add two LS fields (sphere and line), check for intersection
 		             * and flag elements appropriately
@@ -327,7 +338,7 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				}
 //------------------------------------------------------------------------------
 
-		TEST_CASE("GE multiple geometry intersection test, 3D with mtk mesh","[GE],[GE_test4]")
+		TEST_CASE("GE_multiple_geometry_intersection_test_3D_with_mtk_mesh","[GE],[GE_test4]")
 				{
 				/* create 3D mtk mesh, add two sphere LS functions, loop through all elements
 				 * and flag for intersection
@@ -417,13 +428,11 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				geometryEngine.set_geometry( type0 );
 				geometryEngine.set_geometry( type1 );
 
-				geometryEngine.set_mesh( tMesh3DHexs );
-
 				moris::Cell< uint > tFlags0; // create cell of flags for the elements: 1=flagged, 0=unflagged
 				moris::Cell< uint > tFlags1;
 
-				tFlags0 = geometryEngine.check_for_intersection( tInput1, 0 , 0 );
-				tFlags1 = geometryEngine.check_for_intersection( tInput2, 1 , 0 );
+				tFlags0 = geometryEngine.check_for_intersection( tInput1, tMesh3DHexs , 0 );
+				tFlags1 = geometryEngine.check_for_intersection( tInput2, tMesh3DHexs , 0 );
 
 				//------------------------------------------------------------------------------
 
@@ -453,7 +462,7 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				delete tMesh3DHexs;
 				}
 //------------------------------------------------------------------------------
-		TEST_CASE("2D quad4 edge normal test with specific mtk mesh","[GE],[GE_test5]")
+		TEST_CASE("2D_quad4_edge_normal_test_with_specific_mtk_mesh","[GE],[GE_test5]")
 				{
 				/*	create a 2D MORIS mesh of quad4's using mtk database and determine the edge normals */
 				//------------------------------------------------------------------------------
@@ -530,7 +539,7 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 				delete tMesh2D_Quad4;
 				}
 //------------------------------------------------------------------------------
-				TEST_CASE("GE test6","[GE],[GE_test6]")
+				TEST_CASE("GE_3D_mesh_edge_normal_test","[GE],[GE_test6]")
 						{
 					if(par_size()<=1)
 					{
@@ -547,12 +556,12 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 						//------------------------------------------------------------------------------
 						uint tInd = 1;
 						Matrix< IdMat > tTemp= tMesh3DHexs_norms->get_nodes_connected_to_element_glob_ids( tInd );
-						print( tTemp, "tempMatrix: ");
+//						print( tTemp, "tempMatrix: ");
 
 						for( uint w=0; w<6; w++ )
 						{
 						Matrix< DDRMat > tNodeCoords = tMesh3DHexs_norms->get_node_coordinate( tTemp( 0, w ) );
-						print( tNodeCoords, "node coords: ");
+//						print( tNodeCoords, "node coords: ");
 						}
 						//------------------------------------------------------------------------------
 //						std::string tOutputFile = "./ge_test7_edgeNorms.exo";
@@ -565,36 +574,123 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 					}
 						}
 //------------------------------------------------------------------------------
-				TEST_CASE("GE test7","[GE],[GE_test7]")
-						{
-					if(par_size()<=1)
-					{
-                        mtk::Vertex* tVertex1 = new Node( 0.0, 0.0, 0.0 );
-					    mtk::Vertex* tVertex2 = new Node( 3.0, 2.0, 0.0 );
 
-					    moris::Cell< mtk::Vertex * > tPoints(2);
-					    tPoints(0) = tVertex1;
-					    tPoints(1) = tVertex2;
+				TEST_CASE("GE_calculate_phi_values_at_nodes","[GE],[GE_test7]")
+				{
+                    if(par_size()<=1)
+                    {
+                        // create T-Matrix to be used for test
+                        //------------------------------------------------------------------------------
+                        Matrix< DDRMat > tTMat( 9, 9);
+                        tTMat(0,0) = 0.2500;        tTMat(0,1) = 0.0000;        tTMat(0,2) = 0.0000;
+                        tTMat(0,3) = 0.0000;        tTMat(0,4) = 0.2500;        tTMat(0,5) = 0.0000;
+                        tTMat(0,6) = 0.0000;        tTMat(0,7) = 0.2500;        tTMat(0,8) = 0.2500;
 
-					    moris::Matrix< DDRMat >     tSphereList(3,1);
-					    tSphereList(0,0) = 4;
-					    tSphereList(1,0) = 3;
-					    tSphereList(2,0) = 0;
+                        tTMat(1,0) = 0.0000;        tTMat(1,1) = 0.2500;        tTMat(1,2) = 0.0000;
+                        tTMat(1,3) = 0.0000;        tTMat(1,4) = 0.2500;        tTMat(1,5) = 0.2500;
+                        tTMat(1,6) = 0.0000;        tTMat(1,7) = 0.0000;        tTMat(1,8) = 0.2500;
 
-					    real tRadius = 1.0;
+                        tTMat(2,0) = 0.0000;        tTMat(2,1) = 0.0000;        tTMat(2,2) = 0.2500;
+                        tTMat(2,3) = 0.0000;        tTMat(2,4) = 0.0000;        tTMat(2,5) = 0.2500;
+                        tTMat(2,6) = 0.2500;        tTMat(2,7) = 0.0000;        tTMat(2,8) = 0.2500;
 
-					    GE tGeoObject;
-					    tGeoObject.seed_sphere_function( tPoints, tSphereList, tRadius );
+                        tTMat(3,0) = 0.0000;        tTMat(3,1) = 0.0000;        tTMat(3,2) = 0.0000;
+                        tTMat(3,3) = 0.2500;        tTMat(3,4) = 0.0000;        tTMat(3,5) = 0.0000;
+                        tTMat(3,6) = 0.2500;        tTMat(3,7) = 0.2500;        tTMat(3,8) = 0.2500;
 
+                        tTMat(4,0) = 0.0625;        tTMat(4,1) = 0.0625;        tTMat(4,2) = 0.0000;
+                        tTMat(4,3) = 0.0000;        tTMat(4,4) = 0.3750;        tTMat(4,5) = 0.0625;
+                        tTMat(4,6) = 0.0000;        tTMat(4,7) = 0.0625;        tTMat(4,8) = 0.3750;
 
+                        tTMat(5,0) = 0.0000;        tTMat(5,1) = 0.0625;        tTMat(5,2) = 0.0625;
+                        tTMat(5,3) = 0.0000;        tTMat(5,4) = 0.0625;        tTMat(5,5) = 0.3750;
+                        tTMat(5,6) = 0.0625;        tTMat(5,7) = 0.0000;        tTMat(5,8) = 0.3750;
 
-					    //------------------------------------------------------------------------------
-					    delete tVertex1;    delete tVertex2;
-					}
-						}
+                        tTMat(6,0) = 0.0000;        tTMat(6,1) = 0.0000;        tTMat(6,2) = 0.0625;
+                        tTMat(6,3) = 0.0625;        tTMat(6,4) = 0.0000;        tTMat(6,5) = 0.0625;
+                        tTMat(6,6) = 0.3750;        tTMat(6,7) = 0.0625;        tTMat(6,8) = 0.3750;
+
+                        tTMat(7,0) = 0.0625;        tTMat(7,1) = 0.0000;        tTMat(7,2) = 0.0000;
+                        tTMat(7,3) = 0.0625;        tTMat(7,4) = 0.0625;        tTMat(7,5) = 0.0000;
+                        tTMat(7,6) = 0.0625;        tTMat(7,7) = 0.3750;        tTMat(7,8) = 0.3750;
+
+                        tTMat(8,0) = 0.0156;        tTMat(8,1) = 0.0156;        tTMat(8,2) = 0.0156;
+                        tTMat(8,3) = 0.0156;        tTMat(8,4) = 0.0938;        tTMat(8,5) = 0.0938;
+                        tTMat(8,6) = 0.0938;        tTMat(8,7) = 0.0938;        tTMat(8,8) = 0.5625;
+                        //------------------------------------------------------------------------------
+
+                        // create mtk mesh to be used for test
+                        //------------------------------------------------------------------------------
+                        uint aNumElemTypes = 1;     // quad
+                        uint aNumDim = 2;       // specify number of spatial dimensions
+
+                        Matrix< IdMat > aElementConnQuad9 = {{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }};        // specify element connectivity of quad for mesh
+
+                        Matrix< IdMat > aElemLocalToGlobalQuad9 = {{ 1 }};      // specify the local to global element map for quads
+
+                        Matrix< DDRMat > aCoords = {{ 0.0, 0.0 },
+                                                    { 5.0, 0.0 },
+                                                    { 5.0, 5.0 },
+                                                    { 0.0, 5.0 },
+                                                    { 2.5, 0.0 },
+                                                    { 5.0, 2.5 },
+                                                    { 2.5, 5.0 },
+                                                    { 0.0, 2.5 },
+                                                    { 2.5, 2.5 }};      // Node coordinate matrix
+
+                        Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }};       // specify the local to global map
+
+                        // create MORIS mesh using MTK database
+                        mtk::MtkMeshData aMeshData( aNumElemTypes );
+                        aMeshData.CreateAllEdgesAndFaces = true;
+                        aMeshData.SpatialDim = & aNumDim;
+                        aMeshData.ElemConn(0) = & aElementConnQuad9;
+                        aMeshData.NodeCoords = & aCoords;
+                        aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad9;
+                        aMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
+
+                        mtk::Mesh* tMesh2D_Quad9 = create_mesh( MeshType::STK, aMeshData );
+                        //------------------------------------------------------------------------------
+
+                        // call function to determine phi values at nodes
+                        //------------------------------------------------------------------------------
+                        Matrix< DDRMat > tPhi;
+
+                        GE tGeometryEngine;
+
+                        tPhi = tGeometryEngine.determine_phi_values( tTMat, tMesh2D_Quad9 );
+                        print(tPhi, "phi values at nodes");
+
+                        //------------------------------------------------------------------------------
+
+                        // perform check
+                        //------------------------------------------------------------------------------
+                        real tEpsilon = 0.000000000001;    // error tolerance 1e-12
+                        Matrix< DDRMat > tCheckMatrix(9,1);
+                        tCheckMatrix(0,0) = -2.499999999999988;
+                        tCheckMatrix(1,0) =  2.500000000000021;
+                        tCheckMatrix(2,0) =  4.571067811865491;
+                        tCheckMatrix(3,0) =  2.500000000000006;
+                        tCheckMatrix(4,0) = -0.000000000000008;
+                        tCheckMatrix(5,0) =  3.090169943749464;
+                        tCheckMatrix(6,0) =  3.090169943749468;
+                        tCheckMatrix(7,0) = -0.000000000000005;
+                        tCheckMatrix(8,0) =  1.035533905932741;
+
+                        Matrix< DDRMat > tDiffMat = tPhi - tCheckMatrix;
+
+                        for (uint i=0; i<9; i++)
+                        {
+                            REQUIRE( tDiffMat(i) < tEpsilon);
+                        }
+                        //------------------------------------------------------------------------------
+                        delete tMesh2D_Quad9;
+                    }
+				}
+
 //------------------------------------------------------------------------------
 
-//				TEST_CASE("GE test8","[GE],[GE_test8]")
+//				TEST_CASE("GE_SDF_generator","[GE],[GE_test8]")
 //						{
 ////						Profiler tProf("/home/sonne/Desktop/temp_profile");
 //
@@ -651,14 +747,6 @@ plane_function( const Matrix< DDRMat > & aPoint, Cell< real > inputs )
 ////						tProf.stop();
 //						}
 
-//------------------------------------------------------------------------------
-				TEST_CASE("GE functionality with xtk setup","[GE],[GE_test9]")
-				{
-				    /* test of GE with xtk */
-				    // setup an analytical sphere
-
-				}
-//------------------------------------------------------------------------------
 
 	} /* namespace ge */
 } /* namespace moris */

@@ -9,12 +9,13 @@
 #define SRC_FEM_CL_FEM_ELEMENT_HPP_
 
 #include "assert.h"
+#include <cmath>
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_MTK_Cell.hpp"   //MTK/src
+#include "cl_MTK_Cell.hpp"                  //MTK/src
 
 #include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
@@ -22,23 +23,13 @@
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"    //FEM/INT/src
 
 namespace moris
 {
-    // forward declaration of mtk classes
-    namespace mtk
-    {
-        class Cell;
-        enum class Geometry_Type;
-        enum class Interpolation_Order;
-    }
-
-//------------------------------------------------------------------------------
-
     namespace fem
     {
 //------------------------------------------------------------------------------
-
     /**
      * \brief element class that communicates with the mesh interface
      */
@@ -108,7 +99,8 @@ namespace moris
             mNodalWeakBCs.set_size( tNumOfNodes, 1 );
 
             // FIXME: Mathias, please comment
-            mTimeSteps.set_size( 1, 1, 0 );
+            mTimeSteps.set_size( 1, 1, 1 );
+
 
         };
 //------------------------------------------------------------------------------
@@ -138,7 +130,84 @@ namespace moris
 //        real compute_element_average_of_scalar_field();
 
 //------------------------------------------------------------------------------
+
+        real get_element_nodal_pdof_value( moris_index   aVertexIndex,
+                                           moris::Cell< MSI::Dof_Type > aDofType )
+        {
+            // get pdofs values for the element
+            this->get_my_pdof_values();
+
+            // get a specific dof type profs values
+            Matrix< DDRMat > tPdofValues;
+            this->get_my_pdof_values( aDofType, tPdofValues );
+
+            // select the required nodal value
+            Matrix< IndexMat > tElemVerticesIndices = mCell->get_vertex_inds();
+            uint tElemNumOfVertices = mCell->get_number_of_vertices();
+
+            moris_index tVertexIndex;
+            for( uint i = 0; i < tElemNumOfVertices; i++ )
+            {
+                if ( tElemVerticesIndices( i ) == aVertexIndex )
+                {
+                    tVertexIndex =  i ;
+                    break;
+                }
+            }
+            return tPdofValues( tVertexIndex );
+
+        }
+
+//------------------------------------------------------------------------------
     protected:
+//------------------------------------------------------------------------------
+        /**
+         * compute element volume
+         */
+        real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
+        {
+            //FIXME: enforced Intergation_Type and Integration_Order
+            Integration_Rule tIntegrationRule( mCell->get_geometry_type(),
+                                               Integration_Type::GAUSS,
+                                               this->get_auto_integration_order(),
+                                               Integration_Type::GAUSS,
+                                               Integration_Order::BAR_1 );
+
+            // create an integrator for the ith IWG
+            Integrator tIntegrator( tIntegrationRule );
+
+            //get number of integration points
+            uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+            // get integration points
+            Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+
+            // get integration weights
+            Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+
+            // init volume
+            real tVolume = 0;
+
+            // loop over integration points
+            for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+            {
+                // compute integration point weight x detJ
+                real tWStar = aGeometryInterpolator->det_J( tIntegPoints.get_column( iGP ) )
+                            * tIntegWeights( iGP );
+
+                // add contribution to jacobian from evaluation point
+                //FIXME: include a thickness if 2D
+                tVolume = tVolume + tWStar;
+            }
+
+            // FIXME: compute the element size + switch 1D, 2D, 3D
+            //real he = std::pow( 6*tVolume/M_PI, 1.0/3.0 );
+            //real he = std::pow( 4*tVolume/M_PI, 1.0/2.0 );
+            //std::cout<<he<<std::endl;
+
+            return tVolume;
+        }
+
 //------------------------------------------------------------------------------
         /**
           * auto detect interpolation scheme

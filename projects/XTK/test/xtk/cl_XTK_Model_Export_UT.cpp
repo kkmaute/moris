@@ -55,9 +55,8 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
      *  - top_crust
      *  - bottom_crust
      */
-    std::string tPrefix;
-    tPrefix = std::getenv("XTKROOT");
-    std::string tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
+    std::string tPrefix = std::getenv("MORISROOT");
+    std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
     moris::Cell<std::string> tFieldNames;
 
     moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
