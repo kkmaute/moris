@@ -146,7 +146,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         tMSI->set_param("L2")= (sint)tOrder;
 
-        MSI->finalize( true );
+        tMSI->finalize( true );
 
         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
 

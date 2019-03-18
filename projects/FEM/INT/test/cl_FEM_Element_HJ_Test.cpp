@@ -108,7 +108,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 uint tNumOfNodes = tMesh->get_num_nodes();
 
                 //create a cell of fem nodes
-                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+                moris::Cell< fem::Node_Base* > tNodes( tNumOfNodes, nullptr );
 
                 // loop over the mesh nodes
                 for( uint k = 0; k < tNumOfNodes; k++ )
@@ -145,7 +145,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 //------------------------------------------------------------------------------
 
                 // a factory to create the elements
-                Element_Factory tElementFactory;
+                fem::Element_Factory tElementFactory;
 
                 // ask mesh about number of elements
                 uint tNumOfElements = tMesh->get_num_elems();
