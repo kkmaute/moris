@@ -1,0 +1,40 @@
+namespace moris {
+
+/** @defgroup NLANonlinearProblem Nonlinear Problem
+
+    A mapping \f$ f(x) = const \f$ is called linear if the following holds and nonlinear otherwise.
+    
+    - Additivity: \f$ f(x+y) = f(x)+f(y) \f$
+    - Homogenity \f$ f(\alpha x) = \alpha f(x) \f$
+    
+    The equation is called homogeneous if \f$ f(x) = const = 0 \f$
+
+    This class enables the building and modifying of the following system of nonlinear homogeneous equations. \f$ R_i \f$ is the nonlinear residual.
+
+    \f[ R_i(x_j) = 0 \f]
+
+    - Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
+    - Independent variables : \f$ x_j  \qquad j=1...N_a \f$
+    
+    As nonlinear system of equations are difficult to solve directly, the nonlinear problem is typically approximated by a linear system of equations (linearization).
+    
+    The linearized problem is the linear approximation of a nonlinear system about a given point. Therefore, an approximation can be build by using an earlier solution
+    or an initial guess as follows.
+    
+    \f[ R_i(x_j) = R_i(x_{j0}) + \frac{\partial R_i(x_{j0})}{\partial x_j} \cdot (x_j - x_{j0}) + \mathcal{O}(x_j - x_{j0})^2 \f]
+    
+    As the higher order terms are neglected, a linear approximation of \f$ R_i(x_j) = 0 \f$ is received. With \f$ J = \frac{\partial R_i(x_{j0})}{\partial x_j} \f$ being the Jacobian.
+    Furthermore, this class knows various ways to furter modify the Jacobian and the residual about a point.
+    
+    Examples therefore are:
+    
+    - The reuse of an previously computes Jacobian
+    - Modifying the Jacobian in the folowing way. \f$ J = J + \alpha I \f$
+    
+    
+
+
+
+
+*/
+}

@@ -377,6 +377,10 @@ namespace moris
                 {
                     mParameterList.set(  "use_multigrid", ( sint ) string_to_bool( tSecond( k ) ) );
                 }
+                else if ( tKey == "use_refinement_interrelation" )
+                {
+                    mParameterList.set(  "use_refinement_interrelation", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
                 else if ( tKey == "max_refinement_level" )
                 {
                     sint tValue = ( sint ) stoi( tSecond( k ) );
