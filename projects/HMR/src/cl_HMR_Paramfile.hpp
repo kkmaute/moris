@@ -147,7 +147,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            const uint
+            uint
             get_number_of_meshes() const
             {
                 return mMeshIDs.length();
