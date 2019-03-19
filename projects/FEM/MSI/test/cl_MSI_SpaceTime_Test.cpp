@@ -43,7 +43,10 @@ namespace moris
 {
 namespace MSI
 {
+TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
+{
 
+}/* TEST_CASE */
 
 }
 }
