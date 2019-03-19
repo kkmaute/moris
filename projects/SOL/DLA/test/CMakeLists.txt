@@ -1,6 +1,8 @@
 # Distributed Linear Algebra Tests ----------------------------------------
 # -------------------------------------------------------------------------
 
+    include_directories(DLA_Test_Proxy)
+    
 # List source files
 set(TEST_SOURCES
     test_main.cpp
@@ -9,6 +11,7 @@ set(TEST_SOURCES
     cl_Map_Epetra.cpp
     cl_Sparse_Matrix_Test.cpp
     cl_DLA_Multigrid_Test.cpp
+    DLA_Test_Proxy/cl_Solver_Interface_Proxy.cpp
     map.mtx
     matrix.mtx
     vector.mtx )

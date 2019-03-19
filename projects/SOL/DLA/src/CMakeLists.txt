@@ -25,7 +25,6 @@ set(HEADERS
     cl_Map_PETSc.hpp
     cl_MatrixPETSc.hpp
     cl_Matrix_Vector_Factory.hpp
-    cl_Solver_Interface_Proxy.hpp
     cl_Sparse_Matrix_EpetraFECrs.hpp
     cl_Sparse_Matrix.hpp
     cl_Vector_Epetra.hpp
@@ -69,7 +68,6 @@ set(LIB_SOURCES
     cl_MatrixPETSc.cpp
     cl_Matrix_Vector_Factory.cpp
     cl_DLA_Solver_Factory.cpp
-    cl_Solver_Interface_Proxy.cpp
     cl_Sparse_Matrix_EpetraFECrs.cpp
     cl_Vector_Epetra.cpp
     cl_VectorPETSc.cpp

@@ -87,11 +87,11 @@ state_initialize_mesh( const Arguments & aArguments )
 
     // write mesh
     dump_meshes( aArguments, tParams, tHMR );
-
-    if (tHMR->get_parameters()->get_refinement_interrelation() )
-    {
-        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
-    }
+//
+//    if (tHMR->get_parameters()->get_refinement_interrelation() )
+//    {
+//        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
+//    }
 
     // delete HMR object
     delete tHMR;
