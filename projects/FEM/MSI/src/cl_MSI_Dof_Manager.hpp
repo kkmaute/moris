@@ -33,7 +33,7 @@ namespace moris
 
             Matrix< DDUMat >               mPdofHostTimeLevelList; // List containing the number of time levels per dof type.
             Matrix< IdMat >                mCommTable;             // Communication table. As and input from the model.
-            Model_Solver_Interface        * mModelSolverInterface; // Model solver interface pointer
+            Model_Solver_Interface       * mModelSolverInterface;  // Model solver interface pointer
 
             const moris::map< moris::moris_id, moris::moris_index >  * mAdofGlobaltoLocalMap = nullptr;
             moris::sint mNumMaxAdofs = -1;

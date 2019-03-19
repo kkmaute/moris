@@ -1,8 +1,0 @@
-namespace moris {
-
-/** @defgroup NLA_Newton_User_Tutorial Newton User Tutorial
-
-    cl_NLA_Newton_Solver_Test.cpp
-
-*/
-}

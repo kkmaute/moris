@@ -629,7 +629,7 @@ namespace moris
     {
         this->initialize_pdof_host_time_level_list();
 
-        Matrix< DDUMat > tTimeLevelOffsets( mPdofHostTimeLevelList.length(), 1, 0);
+        Matrix< DDUMat > tTimeLevelOffsets( mPdofHostTimeLevelList.length(), 1, 0 );
         for ( moris::uint Ik = 1; Ik < mPdofHostTimeLevelList.length(); Ik++ )
         {
             tTimeLevelOffsets( Ik, 0 ) = tTimeLevelOffsets( Ik-1, 0 ) + mPdofHostTimeLevelList( Ik-1, 0 );
@@ -692,8 +692,9 @@ namespace moris
                 }
             }
 
-            // Multigrid Type time identifier to type map
+            // Multigrid Type time identifier to type map  -> Type for Type time identifier
             moris::uint tCounterTypeTime = 1;
+
             if ( tCounterTypeTime < tTimeLevelOffsets.length() )
             {
                 if ( Ik < tTimeLevelOffsets( tCounterTypeTime, 0 ))
