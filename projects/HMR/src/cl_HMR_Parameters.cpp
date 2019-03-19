@@ -212,7 +212,7 @@ namespace moris
         this->set_multigrid( aParameterList.get< sint >("use_multigrid") == 1 );
 
         // get refinement interrelation parameter
-        this->set_refinement_interrelation( aParameterList.get< sint >("use_refinement_interrelation") == 0 );
+        this->set_refinement_interrelation( aParameterList.get< sint >("use_refinement_interrelation") == 1 );
     }
 
 //--------------------------------------------------------------------------------
