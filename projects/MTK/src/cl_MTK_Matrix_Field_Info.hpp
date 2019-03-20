@@ -178,13 +178,13 @@ struct Matrix_Field_Info
 
     // -----------------------------------------------------------------------
 
-    uint const
+    uint
     get_num_rows() const
     {
         return mNumRows;
     }
 
-    uint const
+    uint
     get_num_cols() const
     {
         return mNumCols;

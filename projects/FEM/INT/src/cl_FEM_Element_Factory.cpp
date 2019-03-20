@@ -4,6 +4,8 @@
 #include "cl_FEM_Element_Sideset.hpp"      //FEM/INT/src
 #include "cl_FEM_Element_Time_Sideset.hpp" //FEM/INT/src
 
+#include "cl_MSI_Equation_Object.hpp" //FEM/MSI/src
+
 namespace moris
 {
     namespace fem

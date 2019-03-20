@@ -629,7 +629,7 @@ namespace moris
     {
         this->initialize_pdof_host_time_level_list();
 
-        Matrix< DDUMat > tTimeLevelOffsets( mPdofHostTimeLevelList.length(), 1, 0);
+        Matrix< DDUMat > tTimeLevelOffsets( mPdofHostTimeLevelList.length(), 1, 0 );
         for ( moris::uint Ik = 1; Ik < mPdofHostTimeLevelList.length(); Ik++ )
         {
             tTimeLevelOffsets( Ik, 0 ) = tTimeLevelOffsets( Ik-1, 0 ) + mPdofHostTimeLevelList( Ik-1, 0 );
@@ -674,7 +674,7 @@ namespace moris
         // Loop over all adofs determine the total number and the number of owned ones
         for ( moris::uint Ik = 0; Ik < tAdofListofTypes.size(); Ik++ )
         {
-            for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ik ).size(); Ia++ )
+             for ( moris::uint Ia = 0; Ia < tAdofListofTypes( Ik ).size(); Ia++ )
             {
                 // If pointer in temporary adof list exists. Add one to number of owned adofs
                 if ( ( tAdofListofTypes( Ik )( Ia ) != NULL ) )
@@ -692,8 +692,9 @@ namespace moris
                 }
             }
 
-            // Multigrid Type time identifier to type map
+            // Multigrid Type time identifier to type map  -> Type for Type time identifier
             moris::uint tCounterTypeTime = 1;
+
             if ( tCounterTypeTime < tTimeLevelOffsets.length() )
             {
                 if ( Ik < tTimeLevelOffsets( tCounterTypeTime, 0 ))
@@ -800,7 +801,7 @@ namespace moris
         // Get number of pdof hosts in pdof host list
         moris::uint tNumPdofHosts = mPdofHostList.size();
 
-        // Tell pdofs to get t their t matrix
+        // Tell pdofs to get the corresponding T matrix
         for ( moris::uint Ij = 0; Ij < tNumPdofHosts; Ij++ )
         {
             // all pdofs of this pdof host will ask for their t matrix

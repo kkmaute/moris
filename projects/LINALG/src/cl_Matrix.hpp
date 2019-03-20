@@ -388,4 +388,8 @@ public:
 #endif
 
 #include "fn_print.hpp"
+#include "op_minus.hpp"
+#include "op_plus.hpp"
+
+
 #endif /* PROJECTS_LINALG_SRC_CL_MATRIX_HPP_ */
