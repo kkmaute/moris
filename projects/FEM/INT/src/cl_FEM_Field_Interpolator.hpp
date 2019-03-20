@@ -78,7 +78,7 @@ namespace moris
             /**
              * get the number of fields
              */
-            uint const get_number_of_fields() const
+            uint get_number_of_fields() const
             {
                 return mNumberOfFields;
             }
@@ -87,7 +87,7 @@ namespace moris
             /**
              * get the number of space bases
              */
-            uint const get_number_of_space_bases() const
+            uint get_number_of_space_bases() const
             {
                 return mNSpaceBases;
             }
@@ -96,7 +96,7 @@ namespace moris
             /**
              * get the number of time bases
              */
-            uint const get_number_of_time_bases() const
+            uint get_number_of_time_bases() const
             {
                 return mNTimeBases;
             }
@@ -105,7 +105,7 @@ namespace moris
              /**
               * get the number of space time bases
               */
-             uint const get_number_of_space_time_bases() const
+             uint get_number_of_space_time_bases() const
              {
                  return mNFieldBases;
              }
@@ -114,7 +114,7 @@ namespace moris
              /**
               * get the number of space time coefficients
               */
-             uint const get_number_of_space_time_coefficients() const
+             uint get_number_of_space_time_coefficients() const
              {
                  return mNFieldCoeff;
              }

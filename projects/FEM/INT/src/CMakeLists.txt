@@ -12,6 +12,7 @@ set(HEADERS
     cl_FEM_Element.hpp
     cl_FEM_Element_Bulk.hpp
     cl_FEM_Element_Sideset.hpp
+    cl_FEM_Element_Time_Sideset.hpp
     cl_FEM_IWG_Factory.hpp
     cl_FEM_IWG.hpp
     cl_FEM_IWG_L2.hpp
@@ -92,6 +93,7 @@ set(LIB_SOURCES
     cl_FEM_Element_Factory.cpp
     cl_FEM_Element_Bulk.cpp
     cl_FEM_Element_Sideset.cpp
+    cl_FEM_Element_Time_Sideset.cpp
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp

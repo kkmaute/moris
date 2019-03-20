@@ -72,6 +72,7 @@ namespace moris
         {
             BULK,
             SIDESET,
+            TIME_SIDESET,
             UNDEFINED
         };
 

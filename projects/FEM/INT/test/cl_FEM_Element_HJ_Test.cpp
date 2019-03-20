@@ -157,7 +157,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 for( uint k = 0; k < tNumOfElements; k++ )
                 {
                     // create the element
-                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+                    tElements( k ) = tElementFactory.create_element( Element_Type::TIME_SIDESET,
                                                                      & tMesh->get_mtk_cell( k ),
                                                                      tIWGs,
                                                                      tNodes );
@@ -185,7 +185,6 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                                                               tNumCoeff,
                                                               tMesh );
 
-                tModelSolverInterface->set_param( "VX" )  = (sint)tDofOrder;
                 tModelSolverInterface->set_param( "LS1" )  = (sint)tDofOrder;
 
                 tModelSolverInterface->finalize();
@@ -241,29 +240,29 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-                // 7) Solve --------------------------------------------------------------------
-                std::cout<<" Solve "<<std::endl;
-                //------------------------------------------------------------------------------
-                Matrix<DDRMat> tSolution1;
-
-                // call solver
-                tNonlinearSolver->solve( tNonlinearProblem );
-
-                // temporary array for solver
-                Matrix< DDRMat > tSolution;
-                tNonlinearSolverAlgorithm->get_full_solution( tSolution );
-
-                // get length of array
-                uint tLength = tSolution.length();
-
-                // rearrange data into output
-                tSolution1.set_size( tLength, 1 );
-
-                for( uint k = 0; k < tLength; k++ )
-                {
-                    tSolution1( k ) = tSolution( tAdofMap( k ) );
-                }
-                print( tSolution1, "tSolution1" );
+//                // 7) Solve --------------------------------------------------------------------
+//                std::cout<<" Solve "<<std::endl;
+//                //------------------------------------------------------------------------------
+//                Matrix<DDRMat> tSolution1;
+//
+//                // call solver
+//                tNonlinearSolver->solve( tNonlinearProblem );
+//
+//                // temporary array for solver
+//                Matrix< DDRMat > tSolution;
+//                tNonlinearSolverAlgorithm->get_full_solution( tSolution );
+//
+//                // get length of array
+//                uint tLength = tSolution.length();
+//
+//                // rearrange data into output
+//                tSolution1.set_size( tLength, 1 );
+//
+//                for( uint k = 0; k < tLength; k++ )
+//                {
+//                    tSolution1( k ) = tSolution( tAdofMap( k ) );
+//                }
+//                print( tSolution1, "tSolution1" );
 
                 // 8) Clean up -----------------------------------------------------------------
                 std::cout<<" Clean up "<<std::endl;
@@ -291,7 +290,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 delete tLinSolver;
                 delete tNonlinearSolver;
 
-            }/* if( par_size() */
+            }/* if( par_size() ) */
         }/* TEST_CASE */
     }/* namespace fem */
 }/* namespace moris */

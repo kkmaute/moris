@@ -64,6 +64,202 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Matrix < DDRMat > Geometry_Interpolator::get_space_sideset_param_coords( const uint aSpaceOrdinal )
+        {
+            //FIXME check spaceOrdinal
+
+            // get space and time number of dimensions
+            uint tSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
+            uint tTimeDim  = mTimeInterpolation->get_number_of_dimensions();
+
+            // get space and time number of bases
+            uint tTimeBases  = mTimeInterpolation->get_number_of_bases();
+
+            // get space sideset vertex indices
+            moris::Cell< moris::moris_index > tVerticesIndices( 1, -1 );
+            switch ( tSpaceDim )
+            {
+                case ( 1 ):
+                {
+                    tVerticesIndices.resize( 1, -1 );
+                    switch ( aSpaceOrdinal )
+                    {
+                        case ( 0 ):
+                            tVerticesIndices = { 0 };
+                            break;
+                        case ( 1 ):
+                            tVerticesIndices = { 1 };
+                            break;
+                        default:
+                            MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - wrong spaceOrdinal for 1D " );
+                            break;
+                    }
+                    break;
+                }
+
+                case ( 2 ): // FIXME QUAD4 only
+                {
+                    tVerticesIndices.resize( 2, -1 );
+                    switch ( aSpaceOrdinal )
+                    {
+                        case ( 0 ):
+                            tVerticesIndices = { 0, 1 };
+                            break;
+                        case ( 1 ):
+                            tVerticesIndices = { 1, 2 };
+                            break;
+                        case ( 2 ):
+                            tVerticesIndices = { 2, 3 };
+                            break;
+                        case ( 3 ):
+                            tVerticesIndices = { 3, 0 };
+                            break;
+                        default:
+                            MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - wrong spaceOrdinal for 2D " );
+                            break;
+                    }
+                    break;
+                }
+
+                case ( 3 ): // FIXME HEX8 only
+                {
+                    tVerticesIndices.resize( 4, -1 );
+                    switch ( aSpaceOrdinal )
+                    {
+                        case ( 0 ):
+                            tVerticesIndices = { 0, 1, 5, 4 };
+                            break;
+                        case ( 1 ):
+                            tVerticesIndices = { 1, 2, 6, 5 };
+                            break;
+                        case ( 2 ):
+                            tVerticesIndices = { 2, 3, 7, 6 };
+                            break;
+                        case ( 3 ):
+                            tVerticesIndices = { 0, 4, 7, 3 };
+                            break;
+                        case ( 4 ):
+                            tVerticesIndices = { 0, 3, 2, 1 };
+                            break;
+                        case ( 5 ):
+                            tVerticesIndices = { 4, 5, 6, 7 };
+                            break;
+                        default:
+                            MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - wrong spaceOrdinal for 2D " );
+                            break;
+                    }
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - wrong space dimension " );
+                    break;
+                }
+            }
+
+            // initialize the time sideset parametric coordinates matrix
+            uint tNumOfVertices = tVerticesIndices.size();
+            Matrix< DDRMat > tSpaceParamCoords = mSpaceInterpolation->get_param_coords();
+            Matrix< DDRMat > tSidesetSpaceParamCoords( tSpaceDim, tNumOfVertices );
+            for( uint i = 0; i < tNumOfVertices; i++ )
+            {
+                moris_index tTreatedVertex = tVerticesIndices( i );
+                tSidesetSpaceParamCoords( { 0, tSpaceDim - 1 }, { i, i } )
+                    = tSpaceParamCoords( { 0, tSpaceDim - 1 }, { tTreatedVertex, tTreatedVertex } );
+            }
+
+            // get a vector of ones
+            Matrix< DDRMat > tParamCoords( tSpaceDim + tTimeDim, tNumOfVertices * tTimeBases );
+            Matrix< DDRMat > tTimeParamCoords  = mTimeInterpolation->get_param_coords();
+            Matrix< DDRMat > tOnes( 1, tNumOfVertices, 1.0 );
+            for( uint i = 0; i < tTimeBases; i++ )
+            {
+                tParamCoords( {0, tSpaceDim - 1 }, { i*tNumOfVertices, (i+1)*tNumOfVertices-1 } )
+                    = tSidesetSpaceParamCoords.matrix_data();
+
+                // fill the space time parametric coordinates matrix with time coordinates
+                tParamCoords( { tSpaceDim, tSpaceDim }, { i*tNumOfVertices, (i+1)*tNumOfVertices-1 } )
+                    = tTimeParamCoords( i ) * tOnes;
+            }
+
+            // return the parametric coordinates of the space sideset
+            return tParamCoords;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::get_time_sideset_param_coords( const uint aTimeOrdinal )
+        {
+            //FIXME check on the time ordinal only, 0 or 1
+
+            // get space and time number of dimensions
+            uint tSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
+            uint tTimeDim  = mTimeInterpolation->get_number_of_dimensions();
+
+            // get space and time number of bases
+            uint tSpaceBases = mSpaceInterpolation->get_number_of_bases();
+
+            // initialize the time sideset parametric coordinates matrix
+            Matrix< DDRMat > tParamCoords( tSpaceDim + tTimeDim, tSpaceBases );
+
+            // get a vector of ones
+            Matrix< DDRMat > tOnes( 1, tSpaceBases, 1.0 );
+
+            // fill the space time parametric coordinates matrix with space coordinates
+            tParamCoords( { 0, tSpaceDim-1 }, { 0, tSpaceBases-1 } )
+               = mSpaceInterpolation->get_param_coords().matrix_data();
+
+            // fill the space time parametric coordinates matrix with time coordinates
+            tParamCoords( { tSpaceDim, tSpaceDim }, { 0, tSpaceBases-1 })
+                = mTimeInterpolation->get_param_coords()( aTimeOrdinal ) * tOnes;
+
+            // return parametric coordinates
+            return tParamCoords;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::get_space_time_param_coords()
+        {
+            // get space and time number of dimensions
+            uint tSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
+            uint tTimeDim  = mTimeInterpolation->get_number_of_dimensions();
+
+            // get space and time number of bases
+            uint tSpaceBases = mSpaceInterpolation->get_number_of_bases();
+            uint tTimeBases  = mTimeInterpolation->get_number_of_bases();
+
+            // initialize the space time parametric coordinates matrix
+            Matrix< DDRMat > tParamCoords( tSpaceDim + tTimeDim, tSpaceBases * tTimeBases );
+
+            // get the soace parametric coordinates
+            Matrix< DDRMat > tSpaceParamCoords = mSpaceInterpolation->get_param_coords();
+
+            // get the time parametric coordinates
+            Matrix< DDRMat > tTimeParamCoords  = mTimeInterpolation->get_param_coords();
+
+            // get a vector of ones
+            Matrix< DDRMat > tOnes( 1, tSpaceBases, 1.0 );
+
+            // loop on the time bases
+            for( uint i = 0; i < tTimeBases; i++ )
+            {
+                // fill the space time parametric coordinates matrix with space coordinates
+                tParamCoords( { 0, tSpaceDim-1 }, { i * tSpaceBases, ( i + 1 ) * tSpaceBases-1 })
+                    = tSpaceParamCoords.matrix_data();
+
+                // fill the space time parametric coordinates matrix with time coordinates
+                tParamCoords( { tSpaceDim, tSpaceDim }, { i * tSpaceBases, ( i + 1 ) * tSpaceBases-1 })
+                    = tTimeParamCoords( i )*tOnes;
+            }
+
+            // return the space time parametric coordinates
+            return tParamCoords;
+        }
+
+//------------------------------------------------------------------------------
+
         Matrix < DDRMat > Geometry_Interpolator::NXi( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
@@ -145,7 +341,9 @@ namespace moris
                 // set input values
                 tXi( Ik ) = aParamPoint( Ik );
             }
-            //tXi( { 0, tNSpaceDim-1 }, { 0, 0 } ) = aParamPoint( { 0, tNSpaceDim-1 }, { 0, 0 } );
+            //print(aParamPoint,"aParamPoint");
+            //print(aParamPoint( { 0, tNSpaceDim }, { 0, 0 } ),"Testgeo");
+            //tXi = aParamPoint( { 0, tNSpaceDim-1 }, { 0, 0 } );
             Matrix< DDRMat > tTau( 1, 1, aParamPoint( tNSpaceDim ) );
 
             // get the space jacobian
@@ -160,6 +358,21 @@ namespace moris
             return det( tSpaceJt ) * det( tTimeJt );
 
         }
+
+//------------------------------------------------------------------------------
+
+        real Geometry_Interpolator::surf_det_J(const Matrix< DDRMat > & aParamPoint )
+        {
+            //MORIS_ERROR( false, " Geometry_Interpolator::surf_det_J - not implemented. " );
+            return 1.0;
+
+            // get underlying face geometry type
+            //FIXME forced
+            //mtk::Geometry_Type tSurfGeometryType = mtk::Geometry_Type::QUAD;
+
+            //
+        }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Geometry_Interpolator::valx( const Matrix< DDRMat > & aXi )

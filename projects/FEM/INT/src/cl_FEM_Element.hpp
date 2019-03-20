@@ -101,6 +101,107 @@ namespace moris
             // FIXME: Mathias, please comment
             mTimeSteps.set_size( 1, 1, 1 );
 
+            // begin: create an element active dof type list from IWGs----------------------
+
+            // get the number of IWGs
+            mNumOfIWGs = mIWGs.size();
+
+            // set the size of the element active dof type list
+            uint tCounter = 0;
+            for ( uint i = 0; i < mNumOfIWGs; i++ )
+            {
+                tCounter = tCounter + mIWGs( i )->get_residual_dof_type().size();
+            }
+            mEqnObjDofTypeList.resize( tCounter );
+
+            // loop over the IWGs
+            tCounter = 0;
+            for ( uint i = 0; i < mNumOfIWGs; i++ )
+            {
+                // get the residual dof type of the ith IWG
+                Cell< MSI::Dof_Type > tDofType = mIWGs( i )->get_residual_dof_type();
+
+                for ( uint j = 0; j < tDofType.size(); j++ )
+               {
+                   // get the residual dof type of the ith IWG
+                   mEqnObjDofTypeList( tCounter ) = tDofType( j );
+                   tCounter++;
+                }
+            }
+
+            // use std::unique and std::distance to create a unique list containing all used dof types
+            auto last = std::unique( ( mEqnObjDofTypeList.data() ).data(),
+                                     ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size() );
+            auto pos  = std::distance( ( mEqnObjDofTypeList.data() ).data(), last );
+            mEqnObjDofTypeList.resize( pos );
+
+            //------------------------------------------------------------------------------
+            // set the size of the element active dof type list
+            mInterpDofTypeList.resize( mNumOfIWGs );
+
+            // loop over the IWGs
+            for ( uint i = 0; i < mNumOfIWGs; i++ )
+            {
+                // get the residual dof type of the ith IWG
+                mInterpDofTypeList( i ) = mIWGs( i )->get_residual_dof_type();
+            }
+            // end: create an element active dof type list from IWGs------------------------
+
+            // begin: create a map of the element active dof type list----------------------
+//            // set number of unique pdof type of the element
+//            mNumOfElemDofTypes = mEqnObjDofTypeList.size();
+//
+//            // get maximal dof type enum number
+//            sint tMaxDofTypeEnumNumber = 0;
+//
+//            // loop over all pdof types to get the highest enum index
+//            for ( uint i = 0; i < mNumOfElemDofTypes; i++ )
+//            {
+//                tMaxDofTypeEnumNumber = std::max( tMaxDofTypeEnumNumber, static_cast< int >( mEqnObjDofTypeList( i ) ) );
+//            }
+//
+//            for ( uint i = 0; i < tNumOfInterp; i++ )
+//            {
+//                tMaxDofTypeEnumNumber2 = std::max( tMaxDofTypeEnumNumber2, static_cast< int >( mInterpDofTypeList( i )( 0 ) ) );
+//            }
+//
+//            // +1 because c++ is 0 based
+//            tMaxDofTypeEnumNumber = tMaxDofTypeEnumNumber + 1;
+//
+//            // set size of mapping matrix
+//            mElemDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
+//
+//            // loop over all dof types to create the mapping matrix
+//            for ( uint i = 0; i < mNumOfElemDofTypes; i++ )
+//            {
+//                mElemDofTypeMap( static_cast< int >( mEqnObjDofTypeList( i ) ), 0 ) = i;
+//            }
+
+            // set number of unique pdof type of the element
+            mNumOfInterp = mInterpDofTypeList.size();
+
+            // get maximal dof type enum number
+            sint tMaxDofTypeEnumNumber = 0;
+
+            // loop over all pdof types to get the highest enum index
+            for ( uint i = 0; i < mNumOfInterp; i++ )
+            {
+                tMaxDofTypeEnumNumber = std::max( tMaxDofTypeEnumNumber, static_cast< int >( mInterpDofTypeList( i )( 0 ) ) );
+            }
+
+            // +1 because c++ is 0 based
+            tMaxDofTypeEnumNumber = tMaxDofTypeEnumNumber + 1;
+
+            // set size of mapping matrix
+            mInterpDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
+
+            // loop over all dof types to create the mapping matrix
+            for ( uint i = 0; i < mNumOfInterp; i++ )
+            {
+                mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
+            }
+            // end: create a map of the element active dof type list------------------------
+
 
         };
 //------------------------------------------------------------------------------

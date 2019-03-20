@@ -200,6 +200,8 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
+        //print(trans( tTMatrix ), "trans( tTMatrix )");
+        //print(mResidual, "mResidual");
         aEqnObjRHS = trans( tTMatrix ) * mResidual;
     }
 

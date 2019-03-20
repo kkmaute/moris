@@ -178,7 +178,9 @@ class Dist_Vector;
 
                 this->compute_jacobian();
 
-                aEqnObjMatrix = trans( tTMatrix ) * mJacobian *  tTMatrix ;
+                //print( tTMatrix, "tTMatrix" );
+                //print( mJacobian, "mJacobian" );
+                aEqnObjMatrix = trans( tTMatrix ) * mJacobian * tTMatrix ;
 
             };
 

@@ -1,31 +1,35 @@
 /*
- * cl_FEM_Element_Bulk.hpp
+ * cl_FEM_Element_Time_Sideset.hpp
  *
- *  Created on: Jul 16, 2018
- *      Author: messe
+ *  Created on: Mar 19, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_
-#define SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_
+#ifndef SRC_FEM_CL_FEM_ELEMENT_TIME_SIDESET_HPP_
+#define SRC_FEM_CL_FEM_ELEMENT_TIME_SIDESET_HPP_
 
 #include "assert.h"
-#include "cl_FEM_Element.hpp"               //FEM/INT/src
+#include "cl_FEM_Element.hpp" //FEM/INT/src
 
 namespace moris
 {
     namespace fem
     {
-
 //------------------------------------------------------------------------------
     /**
-     * \brief element class that communicates with the mesh interface
+     * \brief Element_Sideset class
      */
-    class Element_Bulk : public Element
+    class Element_Time_Sideset : public Element
     {
+
+//------------------------------------------------------------------------------
+    protected:
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
+
         /**
          * constructor
          *
@@ -33,34 +37,32 @@ namespace moris
          * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
          * @param[ in ]     cell of pointer to fem nodes
          */
-        Element_Bulk( mtk::Cell                 * aCell,
-                      moris::Cell< IWG* >       & aIWGs,
-                      moris::Cell< Node_Base* > & aNodes );
+        Element_Time_Sideset( mtk::Cell                 * aCell,
+                              moris::Cell< IWG* >       & aIWGs,
+                              moris::Cell< Node_Base* > & aNodes );
 //------------------------------------------------------------------------------
         /**
-         * trivial destructor
+         * destructor
          */
-        ~Element_Bulk();
+        ~Element_Time_Sideset();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian over the element
+         */
         void compute_jacobian();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute residual over the element
+         */
         void compute_residual();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * compute jacobian and residual over the element
+         */
         void compute_jacobian_and_residual();
-
-//------------------------------------------------------------------------------
-
-//        real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
-
-//------------------------------------------------------------------------------
-
-//        real compute_element_average_of_scalar_field();
 
 //------------------------------------------------------------------------------
     protected:
@@ -68,7 +70,7 @@ namespace moris
         /**
          * create the field interpolators for the element
          */
-        moris::Cell< Field_Interpolator* >
+        Cell< Field_Interpolator* >
         create_element_field_interpolators
         ( Geometry_Interpolator* aGeometryInterpolator );
 
@@ -78,22 +80,22 @@ namespace moris
          */
         void
         set_element_field_interpolators_coefficients
-        ( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+        ( Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         /**
          * get the field interpolators for an IWG
          */
-        moris::Cell< Field_Interpolator* >
-        get_IWG_field_interpolators( IWG*                               & aIWG,
-                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+        Cell< Field_Interpolator* >
+        get_IWG_field_interpolators( IWG*                        & aIWG,
+                                     Cell< Field_Interpolator* > & aFieldInterpolators );
 //------------------------------------------------------------------------------
         /**
          * set the initial sizes and values for mJacobianElement and mResidualElement
          */
         void
         initialize_mJacobianElement_and_mResidualElement
-        ( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+        ( Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
     };
@@ -102,4 +104,5 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_ */
+
+#endif /* SRC_FEM_CL_FEM_ELEMENT_TIME_SIDESET_HPP_ */

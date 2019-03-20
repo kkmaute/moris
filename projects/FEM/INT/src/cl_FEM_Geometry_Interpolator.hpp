@@ -174,6 +174,25 @@ namespace moris
            {
                return mTHat;
            }
+
+//------------------------------------------------------------------------------
+        /**
+         * get the parametric coordinates of a space sideset
+         */
+        Matrix< DDRMat > get_space_sideset_param_coords( const uint aSpaceOrdinal );
+
+//------------------------------------------------------------------------------
+        /**
+         * get the parametric coordinates of a time sideset
+         */
+        Matrix< DDRMat > get_time_sideset_param_coords( const uint aTimeOrdinal );
+
+//------------------------------------------------------------------------------
+        /**
+         * get the space time parametric coordinates
+         */
+        Matrix< DDRMat > get_space_time_param_coords();
+
 //------------------------------------------------------------------------------
         /**
          * evaluates the space shape function at a given point
@@ -269,6 +288,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * evaluates the determinant of the Jacobian mapping
+         * in the case of a side interpolation
+         * at given space and time xi, tau
+         */
+         real surf_det_J( const Matrix< DDRMat > & aParamPoint );
+
+//------------------------------------------------------------------------------
+        /**
          * evaluates the geometry Jacobian and the matrices needed for the second
          * derivative
          *
@@ -302,7 +329,7 @@ namespace moris
         /**
          * evaluates the space geometry field at xi
          */
-         Matrix< DDRMat > valx( const Matrix< DDRMat > & aXi );
+        Matrix< DDRMat > valx( const Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
         /**
