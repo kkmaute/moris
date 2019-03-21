@@ -61,6 +61,7 @@ public:
     virtual moris::uint             get_num_my_dofs()         =0;
 
     virtual uint get_max_num_global_dofs() = 0;
+
     // local-to-global map
     virtual moris::Matrix< DDSMat > get_my_local_global_map() =0;
 

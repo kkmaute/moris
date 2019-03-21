@@ -539,7 +539,6 @@ namespace moris
 
                     MORIS_ASSERT( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(), "Dof_Manager::communicate_shared_adof_ids: Adof not owned by this processor");
 
-
                     tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ) )->get_adof_id();
 
                     //tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
@@ -694,7 +693,6 @@ namespace moris
 
             // Multigrid Type time identifier to type map  -> Type for Type time identifier
             moris::uint tCounterTypeTime = 1;
-
             if ( tCounterTypeTime < tTimeLevelOffsets.length() )
             {
                 if ( Ik < tTimeLevelOffsets( tCounterTypeTime, 0 ))
