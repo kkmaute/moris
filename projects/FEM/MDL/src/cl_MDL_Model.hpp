@@ -65,9 +65,9 @@ namespace moris
 
             MSI::Model_Solver_Interface                   * mModelSolverInterface;
             MSI::MSI_Solver_Interface                     * mSolverInterface;
-            NLA::Nonlinear_Problem                        * mNonlinerarProblem;
+            NLA::Nonlinear_Problem                        * mNonlinearProblem;
             NLA::Nonlinear_Solver                         * mNonlinearSolver;
-            std::shared_ptr< NLA::Nonlinear_Algorithm >     mNonlinerarSolverAlgorithm;
+            std::shared_ptr< NLA::Nonlinear_Algorithm >     mNonlinearSolverAlgorithm;
             std::shared_ptr< dla::Linear_Solver_Algorithm > mLinearSolverAlgorithm;
             dla::Linear_Solver                            * mLinSolver;
 

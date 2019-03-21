@@ -1,11 +1,14 @@
 # Non Linear Algebra Tests ----------------------------------------
 # -------------------------------------------------------------------------
-
+    include_directories(NLA_Test_Proxy)
+    
 # List source files
 set(TEST_SOURCES
     test_main.cpp
     cl_NLA_Newton_Solver_Test.cpp
-    cl_NLA_NonlinearDatabase.cpp)
+    cl_NLA_NonlinearDatabase.cpp
+    NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy.cpp
+    NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy2.cpp)
 
 # List test includes
 set(TEST_INCLUDES

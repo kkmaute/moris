@@ -32,28 +32,6 @@ namespace moris
             // pointer to interpolator
             Field_Interpolator * mInterpolator = nullptr;
 
-//            // N-Matrix
-//            //Interpolation_Matrix * mN = nullptr;
-//            Matrix< DDRMat > * mN = nullptr;
-//
-//            // B-Matrix
-//            //Interpolation_Matrix * mB = nullptr;
-//            Matrix< DDRMat > * mB = nullptr;
-
-//            void
-//            ( IWG_L2:: * mComputeFunction )(
-//                    Matrix< DDRMat >       & aJacobian,
-//                    Matrix< DDRMat >       & aResidual,
-//                    const Matrix< DDRMat > & aNodalDOF,
-//                    const Matrix< DDRMat > & aNodalWeakBC,
-//                    const uint             & aPointIndex );
-
-//            void
-//            ( IWG_L2:: * mComputeFunction )(       Matrix< DDRMat > & aJacobian,
-//                                                   Matrix< DDRMat > & aResidual,
-//                                             const Matrix< DDRMat > & aNodalDOF,
-//                                             const Matrix< DDRMat > & aNodalWeakBC );
-
             void
             ( IWG_L2:: * mComputeFunction )( Cell< Matrix< DDRMat > >    & aJacobians,
                                              Matrix< DDRMat >            & aResidual,
@@ -70,74 +48,52 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
-
-            /*
-             *  constructor
-             *
-             *  J = N'*N + alpha* B'*B
-             */
+            //constructor
              IWG_L2( const real aAlpha = 0.0 );
 
 //------------------------------------------------------------------------------
-
             // trivial destructor
             ~IWG_L2(){};
 
 //------------------------------------------------------------------------------
-
-//            /**
-//             * returns a cell with the dof types, assuming that all nodes
-//             * have the same type
-//             */
-//            Cell< MSI::Dof_Type > get_dof_types()
-//            {
-//                Cell< MSI::Dof_Type > aDofTypes( 1, MSI::Dof_Type::L2 );
-//                return aDofTypes;
-//            }
-
-//------------------------------------------------------------------------------
-
             /**
              * set the alpha value for the L2 parameter so that
-             *
              * A = M + alpha * K
              */
             void set_alpha( const real aAlpha );
 
 //------------------------------------------------------------------------------
-
+            /**
+             * get the alpha value for the L2 parameter
+             */
             real get_alpha() const
             {
                 return mAlpha;
             }
 
 //------------------------------------------------------------------------------
-
-//            void create_matrices( Field_Interpolator * aInterpolator );
-
-//------------------------------------------------------------------------------
-
-//            void delete_matrices();
-
-//------------------------------------------------------------------------------
-//
-//            void compute_jacobian_and_residual(
-//                    Matrix< DDRMat >       & aJacobian,
-//                    Matrix< DDRMat >       & aResidual,
-//                    const Matrix< DDRMat > & aNodalDOF,
-//                    const Matrix< DDRMat > & aNodalWeakBC,
-//                    const uint             & aPointIndex );
-
-//            void compute_jacobian_and_residual(       Matrix< DDRMat > & aJacobian,
-//                                                      Matrix< DDRMat > & aResidual,
-//                                                const Matrix< DDRMat > & aNodalDOF,
-//                                                const Matrix< DDRMat > & aNodalWeakBC );
-
+            /**
+             * compute jacobian and residual
+             */
             void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobian,
                                                 Matrix< DDRMat >            & aResidual,
                                                 Cell< Field_Interpolator* > & aFieldInterpolators );
+
 //------------------------------------------------------------------------------
-//
+            /**
+             * compute jacobian
+             */
+            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+            /**
+             * compute residual
+             */
+            void compute_residual( Matrix< DDRMat >            & aResidual,
+                                   Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
 //            /**
 //             * calculates the square of the error at a given point
 //             */
@@ -147,78 +103,33 @@ namespace moris
 //                                       const uint             & aPointIndex );
 
 //------------------------------------------------------------------------------
-
-            void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                   Cell< Field_Interpolator* > & aFieldInterpolators );
-
-//------------------------------------------------------------------------------
-
-            void compute_residual( Matrix< DDRMat >            & aResidual,
-                                   Cell< Field_Interpolator* > & aFieldInterpolators );
-
-//------------------------------------------------------------------------------
         private:
 //------------------------------------------------------------------------------
-//
-//            /**
-//             * J = N'*N
-//             */
-//            void
-//            compute_jacobian_and_residual_without_alpha(
-//                    Matrix< DDRMat >       & aJacobian,
-//                    Matrix< DDRMat >       & aResidual,
-//                    const Matrix< DDRMat > & aNodalDOF,
-//                    const Matrix< DDRMat > & aNodalWeakBC,
-//                    const uint             & aPointIndex );
-
-
             /**
-             * J = N'*N
+             * j = N'*N, r =
              */
-//            void compute_jacobian_and_residual_without_alpha(       Matrix< DDRMat > & aJacobian,
-//                                                                    Matrix< DDRMat > & aResidual,
-//                                                              const Matrix< DDRMat > & aNodalDOF,
-//                                                              const Matrix< DDRMat > & aNodalWeakBC );
-
             void compute_jacobian_and_residual_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                                               Matrix< DDRMat >            & aResidual,
                                                               Cell< Field_Interpolator* > & aFieldInterpolators );
 //------------------------------------------------------------------------------
-//
-//            /**
-//             * J = N'*N + alpha * B'*B
-//             */
-//            void
-//            compute_jacobian_and_residual_with_alpha(
-//                    Matrix< DDRMat >       & aJacobian,
-//                    Matrix< DDRMat >       & aResidual,
-//                    const Matrix< DDRMat > & aNodalDOF,
-//                    const Matrix< DDRMat > & aNodalWeakBC,
-//                    const uint        & aPointIndex );
-
             /**
-             * J = N'*N + alpha * B'*B
+             * j = N'*N + alpha * B'*B
              */
-//            void compute_jacobian_and_residual_with_alpha(       Matrix< DDRMat > & aJacobian,
-//                                                                 Matrix< DDRMat > & aResidual,
-//                                                           const Matrix< DDRMat > & aNodalDOF,
-//                                                           const Matrix< DDRMat > & aNodalWeakBC );
             void compute_jacobian_and_residual_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                                            Matrix< DDRMat >            & aResidual,
                                                            Cell< Field_Interpolator* > & aFieldInterpolators );
-//------------------------------------------------------------------------------
-//
-//            real
-//            interpolate_scalar_at_point(
-//                                const Matrix< DDRMat > & aNodalWeakBC,
-//                                const uint             & aPointIndex );
 
 //------------------------------------------------------------------------------
+            /**
+             * j = N'*N
+             */
             void compute_jacobian_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                                  Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
-
+            /**
+             * j = N'*N + alpha * B'*B
+             */
             void compute_jacobian_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
                                               Cell< Field_Interpolator* > & aFieldInterpolators );
 
@@ -231,6 +142,12 @@ namespace moris
 
             void compute_residual_with_alpha( Matrix< DDRMat >            & aResidual,
                                               Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+//            real
+//            interpolate_scalar_at_point(
+//                                const Matrix< DDRMat > & aNodalWeakBC,
+//                                const uint             & aPointIndex );
 
 //------------------------------------------------------------------------------
         };

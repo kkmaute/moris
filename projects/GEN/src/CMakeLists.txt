@@ -25,6 +25,7 @@ set(GEN_INCLUDES
     ${IOS}
     ${MTK}
     ${COM}
+    ${FEM}/${INT} # for L2
     )
 
 foreach(GEN_INCLUDE ${GEN_INCLUDES})

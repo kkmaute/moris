@@ -43,6 +43,7 @@ namespace moris
         aParameterList.insert( "truncate_bsplines", 1 );
 
         aParameterList.insert( "use_multigrid", 0 );
+        aParameterList.insert( "use_refinement_interrelation", 0 );
 
         aParameterList.insert( "initial_bspline_refinement", 0 );
         aParameterList.insert( "additional_lagrange_refinement", 0 );
@@ -125,6 +126,10 @@ namespace moris
             {
                 aParameterList.set(  "use_multigrid", ( sint ) string_to_bool( tSecond( k ) ) );
             }
+            else if ( tKey == "use_refinement_interrelation" )
+            {
+                aParameterList.set(  "use_refinement_interrelation", ( sint ) string_to_bool( tSecond( k ) ) );
+            }
         }
     }
 
@@ -205,6 +210,9 @@ namespace moris
 
         // get multigrid parameter
         this->set_multigrid( aParameterList.get< sint >("use_multigrid") == 1 );
+
+        // get refinement interrelation parameter
+        this->set_refinement_interrelation( aParameterList.get< sint >("use_refinement_interrelation") == 1 );
     }
 
 //--------------------------------------------------------------------------------
@@ -237,6 +245,7 @@ namespace moris
 
         aParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
 
+        aParameterList.set( "use_refinement_interrelation", ( sint ) aParameters->get_refinement_interrelation() );
 
 
         return aParameterList;
@@ -247,8 +256,6 @@ namespace moris
     void
     Parameters::copy_selected_parameters( const Parameters & aParameters )
     {
-
-
         // buffer size
         this->set_refinement_buffer( aParameters.get_refinement_buffer() );
         this->set_staircase_buffer( aParameters.get_staircase_buffer() );
@@ -275,6 +282,9 @@ namespace moris
         this->set_max_refinement_level( aParameters.get_max_refinement_level() );
 
         this->set_multigrid( aParameters.use_multigrid() );
+
+        // set refinement interrelation parameter
+        this->set_refinement_interrelation( aParameters.get_refinement_interrelation() );
     }
 
 //--------------------------------------------------------------------------------

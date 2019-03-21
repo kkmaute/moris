@@ -21,6 +21,7 @@ set(HEADERS
     cl_FEM_IWG_Helmholtz_Interface.hpp
     cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
     cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
     cl_FEM_IWG_LSNormal_Bulk.hpp
     cl_FEM_IWG_Olsson_CLS_Bulk.hpp
     cl_FEM_IWG_Olsson_CLS_Interface.hpp
@@ -75,7 +76,8 @@ set(INT_INCLUDES
     ${LINALG}
     ${MTK}
     ${COM}
-    ${FEM}/${MSI} )
+    ${FEM}/${MSI}
+    ${FEM}/${MDL} )
 
 # Include depedency directories
 foreach(INT_INCLUDE ${INT_INCLUDES})
@@ -98,6 +100,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Helmholtz_Interface.cpp
     cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
     cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
+    cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
     cl_FEM_IWG_LSNormal_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Interface.cpp
@@ -118,7 +121,8 @@ set(LIB_DEPENDENCIES
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_BASE_LIBS}
     ${MORIS_ARPACK_LIBS}
-    ${MSI}-lib)
+    ${MSI}-lib
+    ${MDL}-lib)
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

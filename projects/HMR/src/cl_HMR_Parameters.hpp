@@ -137,6 +137,9 @@ namespace moris
            //! by global constant
            uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
 
+           //! Generate information about mesh refinement level interrelation
+           bool mRefinementInterrelation = false;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -954,6 +957,21 @@ namespace moris
            set_max_refinement_level( const uint aLevel )
            {
                mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
+           }
+           //-------------------------------------------------------------------------------
+
+           bool
+           get_refinement_interrelation() const
+           {
+               return mRefinementInterrelation;
+           }
+
+           //-------------------------------------------------------------------------------
+
+           void
+           set_refinement_interrelation( const bool aSwitch )
+           {
+               mRefinementInterrelation = aSwitch;
            }
 
 //-------------------------------------------------------------------------------

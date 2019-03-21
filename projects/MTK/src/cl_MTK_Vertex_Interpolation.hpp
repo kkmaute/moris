@@ -23,6 +23,7 @@ namespace moris
 
         class Vertex_Interpolation
         {
+//------------------------------------------------------------------------------
         protected :
 
             //FIXME: MOVE THESE TO THE APPROPRIATE CHILD CLASSES
@@ -30,6 +31,7 @@ namespace moris
             //FIXME: STRUCTURE ON ALL IMPLEMENTATIONS.
             moris::Cell< mtk::Vertex* >    mCoefficients;
             moris::Matrix< moris::DDRMat > mWeights;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------

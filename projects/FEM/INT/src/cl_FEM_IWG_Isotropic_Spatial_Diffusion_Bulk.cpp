@@ -35,7 +35,7 @@ namespace moris
             Field_Interpolator* T  = aFieldInterpolators( 0 );
 
             // compute the residual r_T
-            aResidual = mKappa * trans( T->Bx() ) * T->gradx( 1 );
+            aResidual = trans( T->Bx() ) * mKappa * T->gradx( 1 );
         }
 
 //------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ namespace moris
             Field_Interpolator* T  = aFieldInterpolators( 0 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = mKappa * trans( T->Bx() ) * T->Bx();
+            aJacobians( 0 ) = trans( T->Bx() ) * mKappa * T->Bx();
         }
 
 //------------------------------------------------------------------------------
@@ -62,10 +62,10 @@ namespace moris
             Field_Interpolator* T  = aFieldInterpolators( 0 );
 
             // compute the residual r_T
-            aResidual = mKappa * trans( T->Bx() ) * T->gradx( 1 );
+            aResidual = trans( T->Bx() ) * mKappa * T->gradx( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = mKappa * trans( T->Bx() ) * T->Bx();
+            aJacobians( 0 ) = trans( T->Bx() ) * mKappa * T->Bx();
         }
 
 //------------------------------------------------------------------------------

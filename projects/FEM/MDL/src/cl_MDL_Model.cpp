@@ -180,7 +180,7 @@ namespace moris
             // STEP 5: create Nonlinear Problem
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mNonlinerarProblem =  new NLA::Nonlinear_Problem( mSolverInterface );
+            mNonlinearProblem =  new NLA::Nonlinear_Problem( mSolverInterface );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 6: create Solvers and solver manager
@@ -190,7 +190,7 @@ namespace moris
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
             // create nonlinear solver
-            mNonlinerarSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            mNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
             // create factory for linear solver
             dla::Solver_Factory  tSolFactory;
@@ -209,12 +209,12 @@ namespace moris
             mNonlinearSolver = new NLA::Nonlinear_Solver();
 
             // set manager and settings
-            mNonlinerarSolverAlgorithm->set_linear_solver( mLinSolver );
+            mNonlinearSolverAlgorithm->set_linear_solver( mLinSolver );
 
             // set first solver
             mLinSolver->set_linear_algorithm( 0, mLinearSolverAlgorithm );
 
-            mNonlinearSolver->set_nonlinear_algorithm( mNonlinerarSolverAlgorithm, 0 );
+            mNonlinearSolver->set_nonlinear_algorithm( mNonlinearSolverAlgorithm, 0 );
 
             if( par_rank() == 0)
             {
@@ -237,7 +237,7 @@ namespace moris
             delete mLinSolver;
 
             // delete problem
-            delete mNonlinerarProblem;
+            delete mNonlinearProblem;
 
             // delete NonLinSolverManager
             delete mNonlinearSolver;
@@ -279,7 +279,7 @@ namespace moris
                 uint tNumberOfNodes = tElement->get_num_nodes();
                 tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
-                for( uint k=0; k<tNumberOfNodes; ++k )
+                for( uint k=0; k < tNumberOfNodes; ++k )
                 {
                     // copy weakbc into element
                     tNodalWeakBCs( k ) = aWeakBCs( tElement->get_node_index( k ) );
@@ -315,11 +315,11 @@ namespace moris
         {
 
             // call solver
-            mNonlinearSolver->solve( mNonlinerarProblem );
+            mNonlinearSolver->solve( mNonlinearProblem );
 
             // temporary array for solver
             Matrix< DDRMat > tSolution;
-            mNonlinerarSolverAlgorithm->get_full_solution( tSolution );
+            mNonlinearSolverAlgorithm->get_full_solution( tSolution );
 
             // get length of array
             uint tLength = tSolution.length();

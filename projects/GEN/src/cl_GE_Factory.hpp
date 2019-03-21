@@ -30,7 +30,7 @@ namespace moris
 
     	public:
     		Ge_Factory(){
-//    			std::cout<<"factory constructor"<<std::endl;
+
     		};
     		~Ge_Factory(){
     		};
@@ -38,7 +38,7 @@ namespace moris
     	    /**
     	     * @brief factory member function building GE types
     	     *
-    	     * @param[in] aFlagType            Dermines the method to be used for flagging.
+    	     * @param[in] aFlagType            Determines the method to be used for flagging.
     	     * @param[out] tFlagPointer		   GE pointer to base class.
     	     *
     	     */

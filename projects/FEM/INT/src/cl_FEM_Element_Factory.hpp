@@ -16,12 +16,15 @@
 #include "cl_FEM_Enums.hpp"           //FEM/INT/src
 #include "cl_FEM_IWG.hpp"             //FEM/INT/src
 #include "cl_FEM_Node.hpp"            //FEM/INT/src
-#include "cl_MSI_Equation_Object.hpp" //FEM/MSI/src
 #include "cl_MTK_Cell.hpp" //MTK
 
 
 namespace moris
 {
+namespace MSI
+{
+    class Equation_Object;
+}
 //------------------------------------------------------------------------------
     namespace fem
     {

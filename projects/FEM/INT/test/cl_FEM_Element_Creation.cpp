@@ -139,7 +139,7 @@ namespace moris
             }
 
 
-            //4) Create the model solver interface -------------------------------------------------------
+            //4) Create the model solver interface -----------------------------------------
             std::cout<<" Create the model solver interface "<<std::endl;
             //------------------------------------------------------------------------------
             //FIXME force the communication table
@@ -149,7 +149,9 @@ namespace moris
             uint tDofOrder = 1;
             map< moris_id, moris_index > tCoefficientsMap;
             //tMesh2D_Quad4->get_adof_map( tDofOrder, tCoefficientsMap );
-            uint tNumCoeff = 10000; //= tMesh2D_Quad4->get_num_coeffs( 1 )
+
+            uint tNumCoeff = 1000000;
+            //= tMesh2D_Quad4->get_num_coeffs( 1 )
 
             moris::MSI::Model_Solver_Interface* tModelSolverInterface
                 = new moris::MSI::Model_Solver_Interface( tElements,
@@ -160,21 +162,87 @@ namespace moris
 
             tModelSolverInterface->set_param("L2") = (sint)tDofOrder;
 
-            std::cout<<"finalize"<<std::endl;
             tModelSolverInterface->finalize();
 
             // calculate AdofMap
             Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
 
-
-
-            //tElements( 0 )->compute_residual();
-
             //4) Create solver interface ---------------------------------------------------
+            std::cout<<" Create solver interface "<<std::endl;
             //------------------------------------------------------------------------------
 
-//            MSI::MSI_Solver_Interface * tSolverInterface
-//                = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
+            MSI::MSI_Solver_Interface * tSolverInterface
+                = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
+
+
+            // 5) Create Nonlinear Problem -------------------------------------------------
+            std::cout<<" Create Nonlinear Problem "<<std::endl;
+            //------------------------------------------------------------------------------
+
+            NLA::Nonlinear_Problem* tNonlinearProblem
+                = new NLA::Nonlinear_Problem( tSolverInterface );
+
+            // 6) Create Solvers and solver manager ----------------------------------------
+            std::cout<<" Create Solvers and solver manager "<<std::endl;
+            //------------------------------------------------------------------------------
+
+            // create factory for nonlinear solver
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+
+            // create nonlinear solver
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm
+                = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            // create factory for linear solver
+            dla::Solver_Factory  tSolFactory;
+
+            // create linear solver
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm
+                = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+            // set default parameters for linear solver
+            tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+            tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+
+            // create solver manager
+            dla::Linear_Solver*    tLinSolver       = new dla::Linear_Solver();
+            NLA::Nonlinear_Solver* tNonlinearSolver = new NLA::Nonlinear_Solver();
+
+            // set manager and settings
+            tNonlinearSolverAlgorithm->set_linear_solver( tLinSolver );
+
+            // set first solver
+            tLinSolver->set_linear_algorithm( 0, tLinearSolverAlgorithm );
+
+            tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+
+            // 7) Solve --------------------------------------------------------------------
+            std::cout<<" Solve "<<std::endl;
+            //------------------------------------------------------------------------------
+            Matrix<DDRMat> tSolution1;
+
+            // call solver
+            tNonlinearSolver->solve( tNonlinearProblem );
+
+            // temporary array for solver
+            Matrix< DDRMat > tSolution;
+            tNonlinearSolverAlgorithm->get_full_solution( tSolution );
+
+            // get length of array
+            uint tLength = tSolution.length();
+
+            // rearrange data into output
+            tSolution1.set_size( tLength, 1 );
+
+            for( uint k = 0; k < tLength; k++ )
+            {
+                tSolution1( k ) = tSolution( tAdofMap( k ) );
+            }
+
+            //Matrix< DDRMat > tEqnObjRHS;
+            //Dist_Vector * tSolutionVector;
+
+            //tElements( 0 )->get_equation_obj_residual( tEqnObjRHS, tSolutionVector );
 
             //clean up----------------------------------------------------------------------
             std::cout<<" Clean up "<<std::endl;
@@ -197,6 +265,14 @@ namespace moris
            }
 
            delete tModelSolverInterface;
+
+           delete tSolverInterface;
+
+           delete tNonlinearProblem;
+
+           delete tLinSolver;
+
+           delete tNonlinearSolver;
 
 //            //------------------------------------------------------------------------------
 //            // create nodes

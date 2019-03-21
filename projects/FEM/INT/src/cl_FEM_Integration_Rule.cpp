@@ -1,13 +1,11 @@
 
-#include "cl_FEM_Integration_Rule.hpp" //FEM/INT/src
-
-#include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_1.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_2.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_3.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_4.hpp" //FEM/INT/src
-#include "cl_FEM_Integration_Coeffs_Bar_5.hpp" //FEM/INT/src
+#include "cl_FEM_Integration_Rule.hpp"            //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs.hpp"          //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs_Bar_1.hpp"    //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs_Bar_2.hpp"    //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs_Bar_3.hpp"    //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs_Bar_4.hpp"    //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs_Bar_5.hpp"    //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Quad_5x5.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Quad_2x2.hpp" //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Quad_3x3.hpp" //FEM/INT/src
@@ -34,23 +32,7 @@ namespace moris
                                             mSpaceIntegrationType( aSpaceIntegrationType ),
                                             mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
                                             mTimeIntegrationType( aTimeIntegrationType ),
-                                            mTimeIntegrationOrder( aTimeIntegrationOrder ),
-                                            mSpaceOnlyFlag( false )
-        {
-
-        }
-
-//------------------------------------------------------------------------------
-
-        Integration_Rule::Integration_Rule( const mtk::Geometry_Type & aGeometryType,
-                                            const Integration_Type   & aSpaceIntegrationType,
-                                            const Integration_Order  & aSpaceIntegrationOrder)
-                                          : mGeometryType( aGeometryType ),
-                                            mSpaceIntegrationType( aSpaceIntegrationType ),
-                                            mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
-                                            mTimeIntegrationType ( Integration_Type::GAUSS ),
-                                            mTimeIntegrationOrder ( Integration_Order::BAR_1 ),
-                                            mSpaceOnlyFlag( true )
+                                            mTimeIntegrationOrder( aTimeIntegrationOrder )
         {
 
         }
@@ -75,10 +57,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Integration_Coeffs_Base * Integration_Rule::create_coeffs(
-                const mtk::Geometry_Type & aGeometryType,
-                const Integration_Type   & aIntegrationType,
-                const Integration_Order  & aIntegrationOrder ) const
+        Integration_Coeffs_Base *
+        Integration_Rule::create_coeffs( const mtk::Geometry_Type & aGeometryType,
+                                         const Integration_Type   & aIntegrationType,
+                                         const Integration_Order  & aIntegrationOrder ) const
         {
             switch( aIntegrationType )
             {
@@ -87,32 +69,28 @@ namespace moris
                     switch( aGeometryType )
                     {
                         case( mtk::Geometry_Type::LINE ) :
-                        {
                             return this->create_coeffs_gauss_bar( aIntegrationOrder );
                             break;
-                        }
+
                         case( mtk::Geometry_Type::QUAD ) :
-                        {
                             return this->create_coeffs_gauss_quad( aIntegrationOrder );
                             break;
-                        }
+
                         case( mtk::Geometry_Type::HEX ) :
-                        {
                             return this->create_coeffs_gauss_hex( aIntegrationOrder );
                             break;
-                        }
+
                         default :
-                        {
-                            MORIS_ERROR( false, "unknown geometry type");
+                            MORIS_ERROR( false, " Integration_Rule::create_coeffs - unknown geometry type. ");
                             return nullptr;
                             break;
-                        }
+
                     }
                     break;
                 }
                 default :
                 {
-                    MORIS_ERROR( false, "unknown integration type");
+                    MORIS_ERROR( false, " Integration_Rule::create_coeffs - unknown integration type. ");
                     return nullptr;
                     break;
                 }
@@ -122,143 +100,108 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Integration_Coeffs_Base *
-        Integration_Rule::create_coeffs_gauss_bar(
-               const Integration_Order & aIntegrationOrder ) const
+        Integration_Rule::create_coeffs_gauss_bar( const Integration_Order & aIntegrationOrder ) const
         {
             switch( aIntegrationOrder )
             {
                 case( Integration_Order::BAR_1 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::BAR_1 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::BAR_1 >();
                     break;
-                }
+
                 case( Integration_Order::BAR_2 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::BAR_2 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::BAR_2 >();
                     break;
-                }
+
                 case( Integration_Order::BAR_3 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::BAR_3 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::BAR_3 >();
                     break;
-                }
+
                 case( Integration_Order::BAR_4 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::BAR_4 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::BAR_4 >();
                     break;
-                }
+
                 case( Integration_Order::BAR_5 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::BAR_5 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::BAR_5 >();
                     break;
-                }
+
                 default :
-                {
-                    MORIS_ERROR( false,
-                            "integration order not implemented or not allowed for bar.");
+                    MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_bar - integration order not implemented/allowed for bar.");
                     return nullptr;
                     break;
-                }
             }
         }
 
 //------------------------------------------------------------------------------
 
         Integration_Coeffs_Base *
-        Integration_Rule::create_coeffs_gauss_quad(
-                const Integration_Order & aIntegrationOrder ) const
+        Integration_Rule::create_coeffs_gauss_quad( const Integration_Order & aIntegrationOrder ) const
         {
             switch( aIntegrationOrder )
             {
                 case( Integration_Order::QUAD_2x2 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::QUAD_2x2 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::QUAD_2x2 >();
                     break;
-                }
+
                 case( Integration_Order::QUAD_3x3 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::QUAD_3x3 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::QUAD_3x3 >();
                     break;
-                }
+
                 case( Integration_Order::QUAD_4x4 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::QUAD_4x4 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::QUAD_4x4 >();
                     break;
-                }
+
                 case( Integration_Order::QUAD_5x5 ) :
-                {
-                    return new Integration_Coeffs<
-                            Integration_Type::GAUSS,
-                            Integration_Order::QUAD_5x5 >();
+                    return new Integration_Coeffs< Integration_Type::GAUSS,
+                                                   Integration_Order::QUAD_5x5 >();
                     break;
-                }
+
                 default :
-                {
-                    MORIS_ERROR( false, "integration order not implemented or not allowed for quad.");
+                    MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_quad - integration order not implemented/allowed for quad.");
                     return nullptr;
                     break;
-                }
             }
         }
 
 //------------------------------------------------------------------------------
 
         Integration_Coeffs_Base *
-        Integration_Rule::create_coeffs_gauss_hex(
-                const Integration_Order & aIntegrationOrder ) const
+        Integration_Rule::create_coeffs_gauss_hex( const Integration_Order & aIntegrationOrder ) const
         {
             switch( aIntegrationOrder )
             {
             case( Integration_Order::HEX_2x2x2 ) :
-                       {
-                return new Integration_Coeffs<
-                        Integration_Type::GAUSS,
-                        Integration_Order::HEX_2x2x2 >();
+                return new Integration_Coeffs< Integration_Type::GAUSS,
+                                               Integration_Order::HEX_2x2x2 >();
                 break;
-                       }
+
             case( Integration_Order::HEX_3x3x3 ) :
-                       {
-                return new Integration_Coeffs<
-                        Integration_Type::GAUSS,
-                        Integration_Order::HEX_3x3x3 >();
+                return new Integration_Coeffs< Integration_Type::GAUSS,
+                                               Integration_Order::HEX_3x3x3 >();
                 break;
-                       }
+
             case( Integration_Order::HEX_4x4x4 ) :
-                       {
-                return new Integration_Coeffs<
-                        Integration_Type::GAUSS,
-                        Integration_Order::HEX_4x4x4 >();
+                return new Integration_Coeffs< Integration_Type::GAUSS,
+                                               Integration_Order::HEX_4x4x4 >();
                 break;
-                       }
+
             case( Integration_Order::HEX_5x5x5 ) :
-                       {
-                return new Integration_Coeffs<
-                        Integration_Type::GAUSS,
-                        Integration_Order::HEX_5x5x5 >();
+                return new Integration_Coeffs< Integration_Type::GAUSS,
+                                               Integration_Order::HEX_5x5x5 >();
                 break;
-                       }
+
             default :
-            {
-                MORIS_ERROR( false, "integration order not implemented or not allowed for hex.");
+                MORIS_ERROR( false, " Integration_Rule::create_coeffs_gauss_hex - integration order not implemented/allowed for hex.");
                 return nullptr;
                 break;
-            }
+
             }
         }
 
