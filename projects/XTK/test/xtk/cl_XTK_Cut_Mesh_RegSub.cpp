@@ -33,8 +33,61 @@
 
 namespace xtk
 {
+
+
+// note not written to be very efficient
+bool
+node_is_on_face(moris_index     aFaceIndex,
+                Row_View_Real const & aNodeCoord)
+{
+    Cell<Matrix<DDRMat>> tFaceNodeCoords(6);
+
+    // face node coordinates
+    tFaceNodeCoords(0) = Matrix<DDRMat>({{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}});
+    tFaceNodeCoords(1) = Matrix<DDRMat>({{1, 0, 0}, {1, 1, 0}, {1, 1, 1}, {1, 0, 1}});
+    tFaceNodeCoords(2) = Matrix<DDRMat>({{0, 1, 0}, {1, 1, 0}, {1, 1, 1}, {0, 1, 1}});
+    tFaceNodeCoords(3) = Matrix<DDRMat>({{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}});
+    tFaceNodeCoords(4) = Matrix<DDRMat>({{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}});
+    tFaceNodeCoords(5) = Matrix<DDRMat>({{0, 0, 1}, {1, 0, 1}, {1, 1, 1}, {0, 1, 1}});
+
+    // compute bounding box
+    Matrix<DDRMat> tFaceXCoords = tFaceNodeCoords(aFaceIndex).get_column(0);
+    Matrix<DDRMat> tFaceYCoords = tFaceNodeCoords(aFaceIndex).get_column(1);
+    Matrix<DDRMat> tFaceZCoords = tFaceNodeCoords(aFaceIndex).get_column(2);
+    real tXHigh = tFaceXCoords.max();
+    real tXLow  = tFaceXCoords.min();
+    real tYHigh = tFaceYCoords.max();
+    real tYLow  = tFaceYCoords.min();
+    real tZHigh = tFaceZCoords.max();
+    real tZLow  = tFaceZCoords.min();
+
+    // check x coordinate of node is within bounding box
+    bool tXInBox = false;
+    if(aNodeCoord(0) <= tXHigh && aNodeCoord(0) >= tXLow )
+    {
+        tXInBox = true;
+    }
+
+    // check y coordinate of node is within bounding box
+    bool tYInBox = false;
+    if(aNodeCoord(1) <= tYHigh && aNodeCoord(1) >= tYLow )
+    {
+        tYInBox = true;
+    }
+
+    // check z coordinate of node is within bounding box
+    bool tZInBox = false;
+    if(aNodeCoord(2) <= tZHigh && aNodeCoord(2) >= tZLow )
+    {
+        tZInBox = true;
+    }
+
+    return (tXInBox && tYInBox && tZInBox);
+}
+
 TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
 {
+
     // Model dimension
     size_t tModelDim = 3;
 
@@ -55,6 +108,9 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     tNodeCoords(12,0) = 0.5; tNodeCoords(12,1) = 0.5; tNodeCoords(12,2) = 0.0;
     tNodeCoords(13,0) = 0.5; tNodeCoords(13,1) = 0.5; tNodeCoords(13,2) = 1.0;
     tNodeCoords(14,0) = 0.5; tNodeCoords(14,1) = 0.5; tNodeCoords(14,2) = 0.5;
+
+
+    std::cout<<node_is_on_face(0,tNodeCoords.get_row(14))<<std::endl;
 
     // Initialize the Node Indices
     moris::Matrix< moris::IndexMat > tNodeIndex({{0, 1, 3, 2, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14}});
@@ -126,8 +182,6 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     CHECK(tValidTopo);
 
     // Check that the volume is 1
-    //TODO:
-
     // Parametric Coordinates (zeta, eta, xsi)
     // NOTE: these are ordered based on {0,1,3,2,4,6,5,7}
     moris::Matrix< moris::DDRMat > tParamCoords(15,3);
@@ -213,6 +267,23 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
         // Verify the interpolated coordinate is equal to the node coordinate row
         CHECK(moris::norm(tInterpNodeCoord - tNodeCoords.get_row(tNodeIndex)) < tTol);
     }
+
+    // verify edge ancestry
+    Matrix<IndexMat> const & tEdgeToNode = tRegSubChildMesh.get_edge_to_node();
+    moris::Matrix< moris::IndexMat > const & tEdgeParentIndices = tRegSubChildMesh.get_edge_parent_inds();
+    moris::Matrix< moris::DDSTMat >  const & tEdgeParentRanks   = tRegSubChildMesh.get_edge_parent_ranks();
+
+    for(moris::uint i = 0; i <tRegSubChildMesh.get_num_entities(EntityRank::EDGE); i++)
+    {
+        if(tEdgeParentRanks(i) == 2)
+        {
+            moris_index tFaceIndex = tEdgeParentIndices(i);
+            Row_View_Real const & tEdgeNodeCoord0 = tNodeCoords.get_row(tEdgeToNode(i,0));
+            Row_View_Real const & tEdgeNodeCoord1 = tNodeCoords.get_row(tEdgeToNode(i,1));
+            CHECK((node_is_on_face(tFaceIndex,tEdgeNodeCoord0) && node_is_on_face(tFaceIndex,tEdgeNodeCoord1)));
+        }
+    }
+
 }
 
 }

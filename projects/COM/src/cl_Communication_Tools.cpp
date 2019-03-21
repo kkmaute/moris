@@ -8,6 +8,12 @@
 
 namespace moris
 {
+    MPI_Comm
+    get_comm()
+    {
+        return gMorisComm.get_global_comm();
+    }
+
     //-----------------------------------------------------
 
     moris_id par_rank()

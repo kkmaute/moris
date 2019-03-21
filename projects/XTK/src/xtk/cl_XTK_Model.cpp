@@ -7,6 +7,8 @@
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
+#include "fn_all_true.hpp"
+#include "op_equal_equal.hpp"
 //#include "cl_XTK_Enrichment.hpp"
 namespace xtk
 {
@@ -95,7 +97,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
             std::clock_t start = std::clock();
 
             // Perform subdivision
-            this->subdivide(aMethods(iDecomp), tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
+            this->decompose_internal(aMethods(iDecomp), tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
 
             // Change the first subdivision flag as false
             tFirstSubdivisionFlag = false;
@@ -125,104 +127,54 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
 }
 
 void
-Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
-                   moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
-                   bool const & aFirstSubdivision,
-                   bool const & aSetIds)
+Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
+                 moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                 bool const &                       aFirstSubdivision,
+                 bool const &                       aSetIds)
     {
-        moris::mtk::Mesh & tXTKMeshData = mBackgroundMesh.get_mesh_data();
         switch (aSubdivisionMethod)
         {
         case (Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8):
         {
-            bool tCoordFlag = false;
 //            MORIS_ASSERT(tXTKMeshData.get_entity_connected_to_entity_loc_inds(0, moris::EntityRank::ELEMENT, moris::EntityRank::NODE).numel() == 8, "NC_REGULAR_SUBDIVISION_HEX8 is for HEX8 meshes only.");
             MORIS_ASSERT(aFirstSubdivision,"NC_REGULAR_SUBDIVISION_HEX8 needs to be the first subdivision routine for each geometry");
-
+            MORIS_ASSERT(mModelDimension == 3,"NC_REGULAR_SUBDIVISION_HEX8 needs to be done on a 3D mesh");
 
             // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones dont
             moris::Matrix< moris::IndexMat > tNewPairBool;
             run_first_cut_routine(TemplateType::HEX_8, 8,  aActiveChildMeshIndices,tNewPairBool);
 
-            // Initialize request list for faces and elements
+
+            // initialize a struct of all the data we are keeping track of in this decomposition
+            // intended to reduce the clutter of function inputs etc
+            Decomposition_Data tDecompData;
+            tDecompData.mSubdivisionMethod = Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8;
+
+            // number of intersected elements
             moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
-            moris::uint tNumFaceRequests = 6; // (one per face on each element)
-            moris::uint tNumElemRequests = 1; // (one internal element request)
-            moris::uint tNumChildAllow = 1; // (one child allowed per parent entity for this subdivision)
-            moris::uint tNumNewNodes = tNumFaceRequests + tNumElemRequests; //(7)
-            Request_Handler tFaceRequests(tIntersectedCount * tNumFaceRequests, tNumChildAllow, EntityRank::FACE, EntityRank::NODE, mBackgroundMesh, mCutMesh); // 6 face requests per element
-            Request_Handler tElemRequests(tIntersectedCount * tNumElemRequests, tNumChildAllow, EntityRank::ELEMENT, EntityRank::NODE, mBackgroundMesh, mCutMesh); // 1 face request per element
 
-            // Initialize topologies used in this method
-            Edge_Topology         tEdgeTopology;
-            Quad_4_Topology       tFaceTopology;
-            Hexahedron_8_Topology tElementTopology;
+            // make node requests for each intersected element
+            this->decompose_internal_reg_sub_make_requests(aActiveChildMeshIndices,tNewPairBool,tDecompData);
 
-            // Initialize a cell of pointers to future node index
-            Cell<moris::moris_index*> tNodeInds(tNumNewNodes);
-            moris::Matrix< moris::IndexMat > tFaceNodes(1,4);
-            moris::Matrix< moris::IndexMat > tElementNodes(1,8);
-            moris::Matrix< moris::IndexMat > tFaceIndices(1,6);
-            moris::Matrix< moris::DDRMat > tCoordinates(0,0);
-            moris::Matrix< moris::DDRMat > tNewNodeCoordinates(1,mModelDimension,0);
-            moris::Matrix< moris::DDRMat > tCenterFaceLocCoordinate(1,2,0.0);
-            moris::Matrix< moris::DDRMat > tCenterElementLocCoordinate(1,3,0.0);
+            // specify a dummy secondary id (not really needed for this type of decomposition)
+            tDecompData.tSecondaryIdentifiers = Cell<moris_index>(tDecompData.tNewNodeParentIndex.size(), MORIS_INDEX_MAX);
 
-            // Parametric coordinates for this subdivision routine
-            const moris::Matrix< moris::DDRMat > tParamCoords(
-                    {{ 0.0, -1.0,  0.0},
-                     { 1.0,  0.0,  0.0},
-                     { 0.0,  1.0,  0.0},
-                     {-1.0,  0.0,  0.0},
-                     { 0.0,  0.0, -1.0},
-                     { 0.0,  0.0,  1.0},
-                     { 0.0,  0.0,  0.0}});
+            moris_index tMessageTag = 60000; /*arbitrary tag for regular subdivision*/
+            assign_node_requests_identifiers(tDecompData,tMessageTag);
 
-            // Loop over xtk meshes and place a node request on each face and at center of element volume
-            for (moris::size_t i = 0; i < tIntersectedCount; i++)
-            {
-                if(tNewPairBool(0,i) == 0)
-                {
+            // Allocate interface flag space in XTK mesh even though these are not interface nodes
+            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
 
-                // Get element index
-                moris::moris_index tElemInd = mCutMesh.get_parent_element_index(aActiveChildMeshIndices(0,i));
-
-                // Get local index of faces connected to element using local element index
-                tFaceIndices = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
-
-                // Loop over faces (6 in a hex 8) and set a node request.
-                // Request will return a pointer to where the created node index will be placed
-                for (moris::size_t fi = 0; fi < 6; fi++)
-                {
-                    tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds((moris_index)tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE);
-                    tFaceTopology.set_node_indices(tFaceNodes);
-
-                    tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
-                    xtk::Interpolation::bilinear_interpolation(tCoordinates, tCenterFaceLocCoordinate,tNewNodeCoordinates);
-                    tNodeInds(fi) = tFaceRequests.set_request_info(tFaceIndices(fi), tFaceTopology, tNewNodeCoordinates, tCenterFaceLocCoordinate);
-                }
-
-                // Place node at center of element
-                tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
-                tElementTopology.set_node_indices(tElementNodes);
-                tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodes);
-                xtk::Interpolation::trilinear_interpolation(tCoordinates, tCenterElementLocCoordinate, tNewNodeCoordinates);
-                tNodeInds(6) = tElemRequests.set_request_info(tElemInd, tElementTopology, tNewNodeCoordinates, tCenterElementLocCoordinate);
+            // add nodes to child mesh
+            this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool,tDecompData);
 
 
+            // add nodes to the background mesh
+            mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeCoordinate);
 
-                // Give XTK Mesh pointers to where its node indices will be located
-                mCutMesh.set_pending_node_index_pointers(aActiveChildMeshIndices(i), tNodeInds, tParamCoords);
-                }
-            }
-            tFaceRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngine);
-            tElemRequests.handle_requests(tCoordFlag, mSameMesh, false, mGeometryEngine);
+            // associate new nodes with geometry objects
+            create_new_node_association_with_geometry(tDecompData);
 
-            // Allocate interface flag space in XTK mesh
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tFaceRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tElemRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
-            // Tell XTK mesh to retrieve pending node indices and generate tabulated meshes
-            mCutMesh.retrieve_pending_node_inds();
             for(moris::size_t i = 0; i< tIntersectedCount; i++)
             {
                 if(tNewPairBool(0,i) == 0)
@@ -230,19 +182,7 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
                 mCutMesh.generate_templated_mesh(aActiveChildMeshIndices(i),TemplateType::REGULAR_SUBDIVISION_HEX8);
                 }
             }
-            if(aSetIds)
-            {
-                moris::Matrix< moris::IdMat > tNodeIds;
-                for (moris::size_t j = 0; j < tIntersectedCount; j++)
-                    if(tNewPairBool(0,j) == 0)
-                {
-                    {
-                        moris::Matrix< moris::IndexMat > const & tNodeIndices = mCutMesh.get_node_indices(aActiveChildMeshIndices(j));
-                        tNodeIds = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index_range(tNodeIndices, EntityRank::NODE);
-                        mCutMesh.set_node_ids(aActiveChildMeshIndices(0,j),tNodeIds);
-                    }
-                }
-            }
+
             break;
         }
         case (Subdivision_Method::C_HIERARCHY_TET4):
@@ -272,61 +212,42 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
                 tDimParamCoord = 4;
             }
 
+            // initialize a struct of all the data we are keeping track of in this decomposition
+            // intended to reduce the clutter of function inputs etc
+            Decomposition_Data tDecompData;
+            tDecompData.mSubdivisionMethod = Subdivision_Method::C_HIERARCHY_TET4;
+            tDecompData.mConformalDecomp = true;
+            tDecompData.mHasSecondaryIdentifier = true;
+
             // Initialize
             moris::size_t tEdgeInd = INTEGER_MAX;
-            moris::size_t tNumMesh = aActiveChildMeshIndices.n_cols();
 
             // Initialize topologies used in this method (all local coordinates are with respect to an edge)
             Edge_Topology tEdgeTopology;
 
-            moris::Matrix< moris::DDRMat > tLocalCoord(1,1, 0); // ALong an edge
+            // initialize a couple of commonly used matrices in this method
+            moris::Matrix< moris::DDRMat > tLocalCoordRelativeToEdge(1,1, 0); // ALong an edge
+            moris::Matrix< moris::DDRMat > tGlobalCoord(1,3, 0); // ALong an edge
             moris::Matrix< moris::DDRMat > tEdgeNodeParamCoordinates(2,tDimParamCoord); // parametric coordinate of end nodes wrt parent element
-            moris::Matrix< moris::DDRMat > tNewNodeParamCoord(1,tDimParamCoord); // new node parametric coordinate wrt parent element
-            moris::Matrix< moris::DDRMat > tEdgeCoords(2, 3, REAL_MAX);
-            moris::Matrix< moris::DDRMat > tGlobalCoord(1, 3, REAL_MAX);
-
-            moris::Matrix< moris::IndexMat > tEdgeNodes(1, 2, INTEGER_MAX);
-            moris::Matrix< moris::IndexMat >  tParentInfo(1, 2, INTEGER_MAX);
-
-            // Initialize request list for faces and elements
-            // Number of children allowed on a parent mesh entity
-            moris::size_t tEdgeChildren = 4*2*10;
-            moris::size_t tFaceChildren = 4*4*10;
-            moris::size_t tElemChildren = 4*24*10;
-
-            // Of all the edges in a regular subdivision template 12 live on parent mesh edges, 24 live on parent mesh faces and 14 live in the parent mesh element
-            // the number of parent edges and faces were done by hand and are hardcoded here.
-            // TODO: Ask XTKMesh how many parents of each rank it has (This would eliminate the dependency on the regular subdivision coming first)
-            moris::size_t tNumParentEdge = 2*12;
-            moris::size_t tNumParentFace = 2*24;
-            moris::size_t tNumParentElem = 2*14;
-
-            //TODO: MAKE Request_Handler MORE MEMORY EFFICIENT!!!!!
-            Request_Handler tEdgeRequests(tNumMesh * tNumParentEdge, tEdgeChildren, EntityRank::EDGE, EntityRank::NODE, mBackgroundMesh, mCutMesh);
-            Request_Handler tFaceRequests(tNumMesh * tNumParentFace, tFaceChildren, EntityRank::FACE, EntityRank::NODE, mBackgroundMesh, mCutMesh);
-            Request_Handler tElemRequests(tNumMesh * tNumParentElem, tElemChildren, EntityRank::ELEMENT, EntityRank::NODE, mBackgroundMesh, mCutMesh);
-            // Tell XTKMesh to initialize intersection connectivity
-            mCutMesh.init_intersect_connectivity(aActiveChildMeshIndices);
 
             // Check type specified as conformal (could change this to enum)
             moris::size_t tCheckType = 1;
             moris::Matrix< moris::DDRMat > tNodeCoords = mBackgroundMesh.get_all_node_coordinates_loc_inds();
-            // Ask the geometry engine whether it has sensitivity information
-            bool tHasDxDp = mGeometryEngine.mComputeDxDp;
+
+            // resize child mesh to new node information
+            tDecompData.tCMNewNodeLoc.resize(aActiveChildMeshIndices.n_cols());
+            tDecompData.tCMNewNodeParamCoord.resize(aActiveChildMeshIndices.n_cols());
 
             for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
             {
+
                 // Initialize geometry objects
                 Cell<Geometry_Object> tGeoObjects;
 
                 // Get the child mesh that is active
                 Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(0,j));
 
-
-                // Get full edge to element connectivity from XTK Mesh (probably slow)
-                // 0 specifies XTK local indices if an analytic geometry
-                // Otherwise this needs to be the processor local index
-                // or even the ID
+                // edge to node connectivity from child mesh
                 moris::Matrix< moris::IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
 
                 // Ask geometry engine which edges are intersected (Simple mesh local indexed edges)
@@ -334,22 +255,22 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
 
                 // Initialize node index pointers based on number of intersected edges and parametric coordinates
                 uint tNumNewNodes = 0;
-                Cell<moris::moris_index*> tNodeInds(tGeoObjects.size());
-                moris::Matrix< moris::DDRMat > tParametricCoords(tGeoObjects.size(),tDimParamCoord);
+                Cell<moris::moris_index*>      tNodeInds(tGeoObjects.size());
+                moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem(tGeoObjects.size(),tDimParamCoord);
 
                 // get reference to child mesh edge parent information
                 moris::Matrix< moris::IndexMat > const & tEdgeParentIndices = tChildMesh.get_edge_parent_inds();
-                moris::Matrix< moris::DDSTMat > const & tEdgeParentRanks   = tChildMesh.get_edge_parent_ranks();
+                moris::Matrix< moris::DDSTMat >  const & tEdgeParentRanks   = tChildMesh.get_edge_parent_ranks();
+
                 for (moris::size_t k = 0; k < tGeoObjects.size(); k++)
                 {
-
                     if(!tGeoObjects(k).has_parent_nodes_on_interface())
                     {
                         // Local index to XTK Mesh
                         tEdgeInd = tGeoObjects(k).get_parent_entity_index();
 
                         // get a local coordinate along the intersected edge [-1,1]
-                        tLocalCoord(0,0) = tGeoObjects(k).get_interface_lcl_coord();
+                        tLocalCoordRelativeToEdge(0,0) = tGeoObjects(k).get_interface_lcl_coord();
 
                         // get the interpolated global coordinate
                         tGlobalCoord = tGeoObjects(k).get_interface_glb_coord();
@@ -358,20 +279,16 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
                         mCutMesh.add_entity_to_intersect_connectivity(aActiveChildMeshIndices(0,j), tNumNewNodes, tEdgeInd, 0);
 
                         // Edge nodes
-                        tEdgeNodes = tEdgeToNode.get_row(tEdgeInd);
+                        moris::Matrix<moris::IndexMat> tEdgeNodes = tEdgeToNode.get_row(tEdgeInd);
 
                         // Compute new node parametric coordinate with respect to the current parent element
                         tEdgeNodeParamCoordinates.set_row(0, tChildMesh.get_parametric_coordinates(tEdgeNodes(0)));
                         tEdgeNodeParamCoordinates.set_row(1, tChildMesh.get_parametric_coordinates(tEdgeNodes(1)));
-                        tParametricCoords.set_row(tNumNewNodes,Interpolation::linear_interpolation_location(tEdgeNodeParamCoordinates,tLocalCoord));
+                        moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem = Interpolation::linear_interpolation_location(tEdgeNodeParamCoordinates,tLocalCoordRelativeToEdge);
 
                         // Parent edge information
-                        moris::size_t tParentRank  = tEdgeParentRanks(0, tEdgeInd);
+                        moris::size_t      tParentRank  = tEdgeParentRanks(0, tEdgeInd);
                         moris::moris_index tParentIndex = tEdgeParentIndices(0, tEdgeInd);
-
-                        // Set parent edge topology information with process local indices
-                        // prior to converting to global ids for secondary id calculation.
-                        tEdgeTopology.set_node_indices(tEdgeNodes);
 
                         // Convert to global id using mesh
                         tEdgeNodes(0, 0) = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tEdgeNodes(0, 0), EntityRank::NODE);
@@ -385,66 +302,30 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
                             tEdgeNodes(0, 1) = tSwap;
                         }
 
-                        if (tParentRank == 1)
+                        // Intersected edge is an existing stk edge
+                        // Make request in edge requests
+                        // This does not require a supplemental identifier
+                        // TODO: ADD OVERFLOW CHECK IN CANTOR PAIRING!!!!!!
+                        moris::moris_index tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
+                        moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
+                        bool tRequestExist = tDecompData.request_exists(tParentIndex,tSecondaryId,(enum EntityRank)tParentRank,tNewNodeIndexInSubdivision);
+
+                        // location for this face in the map
+                        if(!tRequestExist)
                         {
-
-                            // Intersected edge is an existing stk edge
-                            // Make request in edge requests
-                            // This does not require a supplemental identifier
-                            // TODO: ADD OVERFLOW CHECK IN CANTOR PAIRING!!!!!!
-                            moris::moris_index tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
-
-                            tNodeInds(tNumNewNodes) = tEdgeRequests.set_request_info(tParentIndex,
-                                                                          tSecondaryId,
-                                                                          tEdgeTopology,
-                                                                          tGlobalCoord,
-                                                                          tLocalCoord,
-                                                                          tGeoObjects(k).get_sensitivity_dx_dp(),
-                                                                          tGeoObjects(k).get_node_adv_indices(),
-                                                                          tHasDxDp,
-                                                                          tHasDxDp);
+                            tNewNodeIndexInSubdivision = tDecompData.register_new_request(tParentIndex,
+                                                                                          tSecondaryId,
+                                                                                          (enum EntityRank)tParentRank,
+                                                                                          tGlobalCoord,
+                                                                                          new Edge_Topology(tEdgeToNode.get_row(tEdgeInd)), /*Note: this is deleted in the decomp data deconstructor*/
+                                                                                          tLocalCoordRelativeToEdge.get_row(0));
                         }
 
+                        // add to pending node pointers for child mesh
+                        tDecompData.tCMNewNodeLoc(j).push_back(tNewNodeIndexInSubdivision);
 
-                        else if (tParentRank == 2)
-                        {
-                            // Intersected edge was built on an stk face
-                            // Make request in face requests
-                            // This requires a supplemental identifier
-                            moris::moris_index tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
-
-                            tNodeInds(tNumNewNodes) = tFaceRequests.set_request_info(tParentIndex,
-                                                                          tSecondaryId,
-                                                                          tEdgeTopology,
-                                                                          tGlobalCoord,
-                                                                          tLocalCoord,
-                                                                          tGeoObjects(k).get_sensitivity_dx_dp(),
-                                                                          tGeoObjects(k).get_node_adv_indices(),
-                                                                          tHasDxDp,
-                                                                          tHasDxDp);
-                        }
-                        //
-                        else if (tParentRank == 3)
-                        {
-                            // Intersected edge was built in stk element
-                            // Make request in element requests
-                            // This requires a supplemental identifier
-                            moris::moris_index tSecondaryId = xtk::cantor_pairing(tEdgeNodes(0, 0),tEdgeNodes(0, 1));
-                            tNodeInds(tNumNewNodes) = tElemRequests.set_request_info(tParentIndex,
-                                                                          tSecondaryId,
-                                                                          tEdgeTopology,
-                                                                          tGlobalCoord,
-                                                                          tLocalCoord,
-                                                                          tGeoObjects(k).get_sensitivity_dx_dp(),
-                                                                          tGeoObjects(k).get_node_adv_indices(),
-                                                                          tHasDxDp,
-                                                                          tHasDxDp);
-                        }
-
-                        else
-                        {
-                            std::cout << "Invalid ancestry returned from XTK Mesh";
-                        }
+                        // add parametric coordinate to decomp data
+                        tDecompData.tCMNewNodeParamCoord(j).push_back(tParametricCoordsRelativeToParentElem);
 
                         // Creating a new node add 1 to count
                         tNumNewNodes++;
@@ -463,35 +344,31 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
                     }
                 } // geometry object
 
-                tNodeInds.resize(tNumNewNodes,NULL);
-                tParametricCoords.resize(tNumNewNodes,3);
-
-                mCutMesh.set_pending_node_index_pointers(aActiveChildMeshIndices(0,j), tNodeInds,tParametricCoords);
-
-                // Coincident edges have been marked, use this to create interface elements with side ordinal
-                tChildMesh.mark_interface_faces_from_interface_coincident_faces();
 
             } // XTK Mesh loop
 
-            bool tCoordinateFlag = false;
+            moris_index tMessageTag = 60001; /*arbitrary tag for regular subdivision*/
+            assign_node_requests_identifiers(tDecompData,tMessageTag);
 
-            // handle requests
-            tEdgeRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngine);
-            tFaceRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngine);
-            tElemRequests.handle_requests(tCoordinateFlag, mSameMesh, true, mGeometryEngine);
+            // Allocate interface flag space in XTK mesh even though these are not interface nodes
+            mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
 
-            // Allocate interface flag space in XTK mesh
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tEdgeRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tFaceRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
-            mBackgroundMesh.allocate_space_in_interface_node_flags(tElemRequests.get_num_requests(),mGeometryEngine.get_num_geometries());
+            // add nodes to child mesh
+            this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
 
-            // Mark these nodes as interface nodes with respect to the active geometry
-            tEdgeRequests.mark_pending_nodes_as_interface_nodes(mBackgroundMesh,mGeometryEngine.get_active_geometry_index());
-            tFaceRequests.mark_pending_nodes_as_interface_nodes(mBackgroundMesh,mGeometryEngine.get_active_geometry_index());
-            tElemRequests.mark_pending_nodes_as_interface_nodes(mBackgroundMesh,mGeometryEngine.get_active_geometry_index());
+            // add nodes to the background mesh
+            mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeCoordinate);
 
-            // Tell XTK mesh to grab the pending node indices and that these nodes are on the interface and have sensitivity
-            mCutMesh.retrieve_pending_node_inds();
+            // associate new nodes with geometry objects
+            create_new_node_association_with_geometry(tDecompData);
+
+            // mark nodes as interface nodes
+            moris_index tGeomIndex = mGeometryEngine.get_active_geometry_index();
+            for(moris::uint i = 0; i <tDecompData.tNewNodeId.size(); i++)
+            {
+                mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
+            }
+
 
             // Set Node Ids and tell the child mesh to update
             for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
@@ -502,8 +379,6 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
                 mCutMesh.set_node_ids(aActiveChildMeshIndices(0,j), tNodeIds);
                 mCutMesh.modify_templated_mesh(aActiveChildMeshIndices(0,j), TemplateType::HIERARCHY_TET4);
             }
-
-
 
             break;
         }
@@ -516,6 +391,265 @@ Model::subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
         }
     }
 
+
+void
+Model::decompose_internal_reg_sub_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                                moris::Matrix< moris::IndexMat > & tNewPairBool,
+                                                Decomposition_Data & tDecompData)
+{
+    // mesh data accessor
+    moris::mtk::Mesh & tXTKMeshData = mBackgroundMesh.get_mesh_data();
+
+    // number of intersected elements
+    moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
+
+    // allocate child mesh to new node location
+    tDecompData.tCMNewNodeLoc.resize(tIntersectedCount,7);
+    tDecompData.tCMNewNodeParamCoord.resize(tIntersectedCount);
+
+    // parametric coordinates relative to hex where we put the nodes
+    // Parametric coordinates for this subdivision routine
+    const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToElem(
+            {{ 0.0, -1.0,  0.0},
+             { 1.0,  0.0,  0.0},
+             { 0.0,  1.0,  0.0},
+             {-1.0,  0.0,  0.0},
+             { 0.0,  0.0, -1.0},
+             { 0.0,  0.0,  1.0},
+             { 0.0,  0.0,  0.0}});
+
+    const moris::Matrix< moris::DDRMat > tParamCoordsRelativeToFace(
+                {{ 0.0,  0.0},
+                 { 0.0,  0.0},
+                 { 0.0,  0.0},
+                 { 0.0,  0.0},
+                 { 0.0,  0.0},
+                 { 0.0,  0.0}});
+
+    // setup Child mesh to new node location
+    for (moris::size_t i = 0; i < tIntersectedCount; i++)
+    {
+        if(tNewPairBool(0,i) == 0)
+        {
+
+        // Get element index
+        moris::moris_index tElemInd = mCutMesh.get_parent_element_index(aActiveChildMeshIndices(0,i));
+
+        // Get local index of faces connected to element using local element index
+        moris::Matrix<moris::IndexMat> tFaceIndices = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
+
+        // Loop over faces (6 in a hex 8) and set a node request.
+        // Request will return a pointer to where the created node index will be placed
+        for (moris::size_t fi = 0; fi < 6; fi++)
+        {
+
+            moris_index tRequestLoc = MORIS_INDEX_MAX;
+            bool tRequestExists = tDecompData.request_exists(tFaceIndices(fi),EntityRank::FACE,tRequestLoc);
+
+            // if we haven't created a node on this face then create one
+            if(!tRequestExists)
+            {
+                // node indices attached to face fi
+                moris::Matrix<moris::IndexMat> tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE);
+
+                // coordinates of nodes attached to the nodes of this face
+                moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
+
+                // bilinearly interpolate to the center of this face fi
+                moris::Matrix<moris::DDRMat> tNewNodeCoordinates;
+                xtk::Interpolation::bilinear_interpolation(tCoordinates, tParamCoordsRelativeToFace.get_row(fi),tNewNodeCoordinates);
+
+                // location for this face in the map
+                moris_index tNewNodeIndexInSubdivision = tDecompData.register_new_request(tFaceIndices(fi),
+                                                                                          EntityRank::FACE,
+                                                                                          tNewNodeCoordinates,
+                                                                                          new Quad_4_Topology(tFaceNodes), /*Note: this is deleted in the decomp data deconstructor*/
+                                                                                          tParamCoordsRelativeToFace.get_row(fi));
+                // add to pending node pointers for child mesh
+                tDecompData.tCMNewNodeLoc(i)(fi) = tNewNodeIndexInSubdivision;
+
+                // add parametric coordinate to decomp data
+                tDecompData.tCMNewNodeParamCoord(i).push_back(tParamCoordsRelativeToElem.get_row(fi));
+            }
+
+            // if debug check the coordinate will be the same
+            else
+            {
+                tDecompData.tCMNewNodeLoc(i)(fi) = tRequestLoc;
+                tDecompData.tCMNewNodeParamCoord(i).push_back(tParamCoordsRelativeToElem.get_row(fi));
+#ifdef DEBUG
+                moris::uint tNewNodeIndexInSubdivision = tRequestLoc;
+
+                // node indices attached to face fi
+                moris::Matrix<moris::IndexMat> tFaceNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndices(fi), moris::EntityRank::FACE, moris::EntityRank::NODE);
+
+                // coordinates of nodes attached to the nodes of this face
+                moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tFaceNodes);
+
+                // bilinearly interpolate to the center of this face fi
+                moris::Matrix<moris::DDRMat> tNewNodeCoordinates;
+                xtk::Interpolation::bilinear_interpolation(tCoordinates, tParamCoordsRelativeToFace.get_row(fi),tNewNodeCoordinates);
+
+                // other coordinate
+                moris::Matrix<moris::DDRMat> tExistingNodeCoordinate = tDecompData.tNewNodeCoordinate(tNewNodeIndexInSubdivision);
+
+                MORIS_ASSERT(all_true(tNewNodeCoordinates == tExistingNodeCoordinate) ,"Node coordinates created on same face do not match");
+#endif
+
+            }
+        }
+
+        // Place node at center of element
+        // get the nodes attached to the element
+        moris::Matrix<moris::IndexMat>tElementNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tElemInd, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
+
+        // coordinates of nodes attached to element
+        moris::Matrix<moris::DDRMat> tCoordinates = mBackgroundMesh.get_selected_node_coordinates_loc_inds(tElementNodes);
+
+        // trilinearly interpolate to the center of the element
+        moris::Matrix<moris::DDRMat> tNewNodeCoordinates;
+        xtk::Interpolation::trilinear_interpolation(tCoordinates, tParamCoordsRelativeToElem.get_row(6), tNewNodeCoordinates);
+
+        // add the new node at center of element to the map
+        // location for this face in the map
+        moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
+
+        MORIS_ASSERT(!tDecompData.request_exists(tElemInd,EntityRank::ELEMENT,tNewNodeIndexInSubdivision),"All element requests should be unique, therefore tNewRequest is expected to be true here");
+
+
+        tNewNodeIndexInSubdivision = tDecompData.register_new_request(tElemInd,
+                                                                      EntityRank::ELEMENT,
+                                                                      tNewNodeCoordinates,
+                                                                      new Hexahedron_8_Topology(tElementNodes), /*Note: this is deleted in the decomp data deconstructor*/
+                                                                      tParamCoordsRelativeToElem.get_row(6));
+
+        // add child mesh new node location and parametric coordinate relative to element
+        tDecompData.tCMNewNodeLoc(i)(6) = tNewNodeIndexInSubdivision;
+        tDecompData.tCMNewNodeParamCoord(i).push_back(tParamCoordsRelativeToElem.get_row(6));
+
+        }
+
+    }
+
+}
+
+
+void
+Model::decompose_internal_set_new_nodes_in_child_mesh_reg_sub(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                                              moris::Matrix< moris::IndexMat > & tNewPairBool,
+                                                              Decomposition_Data &               tDecompData)
+{
+    // number of intersected elements
+    moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
+
+    // iterate through active child mesh indices
+    for(moris::uint i = 0 ; i <tIntersectedCount; i++)
+    {
+        // only regularly subdivide if it hasnt already been regularly subdivided
+        if(tNewPairBool(0,i) == 0)
+        {
+
+            // number of new nodes for child mesh i
+            moris::uint tNumNewNodesForCM = tDecompData.tCMNewNodeLoc(i).size();
+
+            // matrix of new node indices
+            moris::Matrix<IndexMat> tCMNewNodeInds(1,tNumNewNodesForCM);
+
+            // matrix of new node ids
+            moris::Matrix<IdMat> tCMNewNodeIds(1,tNumNewNodesForCM);
+
+            // iterate through new nodes for child mesh i to collect index and id
+            for(moris::uint iN =0; iN< tNumNewNodesForCM; iN++)
+            {
+                // location relative to the decomposition data
+                moris::moris_index tNodeIndexInRequestVect = tDecompData.tCMNewNodeLoc(i)(iN);
+
+                // retreive node index and id
+                tCMNewNodeInds(iN) = tDecompData.tNewNodeIndex(tNodeIndexInRequestVect);
+                tCMNewNodeIds(iN)  = tDecompData.tNewNodeId(tNodeIndexInRequestVect);
+            }
+
+            // retrieve child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
+
+
+            // add node indices and ids to child mesh
+            tChildMesh.add_node_indices(tCMNewNodeInds);
+            tChildMesh.add_node_ids(tCMNewNodeIds);
+
+            // allocate space for parametric coordinates
+            tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,3);
+
+            // iterate through nods and add parametric coordinate
+            for(moris::uint iN =0; iN< tNumNewNodesForCM; iN++)
+            {
+                tChildMesh.add_node_parametric_coordinate( tCMNewNodeInds(iN),tDecompData.tCMNewNodeParamCoord(i)(iN));
+            }
+        }
+    }
+
+}
+
+
+
+void
+Model::decompose_internal_set_new_nodes_in_child_mesh_nh(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                                         Decomposition_Data &               tDecompData)
+{
+    // number of intersected elements
+    moris::uint tIntersectedCount = aActiveChildMeshIndices.n_cols();
+
+    // iterate through active child mesh indices
+    for(moris::uint i = 0 ; i <tIntersectedCount; i++)
+    {
+            // number of new nodes for child mesh i
+            moris::uint tNumNewNodesForCM = tDecompData.tCMNewNodeLoc(i).size();
+
+            // matrix of new node indices
+            moris::Matrix<IndexMat> tCMNewNodeInds(1,tNumNewNodesForCM);
+
+            // matrix of new node ids
+            moris::Matrix<IdMat> tCMNewNodeIds(1,tNumNewNodesForCM);
+
+            // iterate through new nodes for child mesh i to collect index and id
+            for(moris::uint iN =0; iN< tNumNewNodesForCM; iN++)
+            {
+                // location relative to the decomposition data
+                moris::moris_index tNodeIndexInRequestVect = tDecompData.tCMNewNodeLoc(i)(iN);
+
+                // retreive node index and id
+                tCMNewNodeInds(iN) = tDecompData.tNewNodeIndex(tNodeIndexInRequestVect);
+                tCMNewNodeIds(iN)  = tDecompData.tNewNodeId(tNodeIndexInRequestVect);
+            }
+
+            // retrieve child mesh
+            Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
+
+            // add node indices and ids to child mesh
+            tChildMesh.add_node_indices(tCMNewNodeInds);
+            tChildMesh.add_node_ids(tCMNewNodeIds);
+
+            // allocate space for parametric coordinates
+            tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,3);
+
+            // iterate through nods and add parametric coordinate
+            for(moris::uint iN =0; iN< tNumNewNodesForCM; iN++)
+            {
+                tChildMesh.add_node_parametric_coordinate( tCMNewNodeInds(iN),tDecompData.tCMNewNodeParamCoord(i)(iN));
+            }
+    }
+}
+
+void
+Model::create_new_node_association_with_geometry(Decomposition_Data & tDecompData)
+{
+    // create geometry objects for each node
+    mGeometryEngine.create_new_node_geometry_objects(tDecompData.tNewNodeIndex,
+                                                     tDecompData.mConformalDecomp,
+                                                     tDecompData.tNewNodeParentTopology,
+                                                     tDecompData.tParamCoordRelativeToParent,
+                                                     tDecompData.tNewNodeCoordinate);
+}
 
 void
 Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
@@ -1324,10 +1458,7 @@ Model::unzip_interface_assign_element_identifiers()
 
                  for(moris::uint i = 0; i<tBackgroundSideSets.size(); i++)
                  {
-                     if(tSideSetData(i).numel() != 0)
-                     {
-                         tMtkMeshSets.add_side_set(&tBackgroundSideSets(i));
-                     }
+                     tMtkMeshSets.add_side_set(&tBackgroundSideSets(i));
                  }
              }
 

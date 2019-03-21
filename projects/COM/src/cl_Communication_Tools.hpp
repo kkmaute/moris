@@ -35,6 +35,8 @@ namespace moris
     //------------------------------------------------
     //  GENERAL MPI FUNCTIONS
 
+    MPI_Comm
+    get_comm();
 
     /*
      * Returns the current processor rank
@@ -97,12 +99,12 @@ namespace moris
      * @param[in]
      */
     void
-    communicate_info(Matrix< IdMat >       & aSendProcs,
-            Matrix< IdMat >                & aRecvProcs,
-            moris::Cell<moris::uint>       & aSendTags,
-            moris::Cell<moris::uint>       & aRecvTags,
-            moris::Cell<Matrix< DDUMat >>  & aSendMessage,
-            moris::Cell<Matrix< DDUMat >>  & aRecvMessage);
+    communicate_info(Matrix< IdMat >                & aSendProcs,
+                     Matrix< IdMat >                & aRecvProcs,
+                     moris::Cell<moris::uint>       & aSendTags,
+                     moris::Cell<moris::uint>       & aRecvTags,
+                     moris::Cell<Matrix< DDUMat >>  & aSendMessage,
+                     moris::Cell<Matrix< DDUMat >>  & aRecvMessage);
 
 
 

@@ -20,7 +20,7 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 #include <exodusII.h>
 
-    #include "fn_assert.hpp"
+#include "fn_assert.hpp"
 #include "fn_isempty.hpp"
 #include "fn_find.hpp"
 #include "op_equal_equal.hpp"
@@ -75,7 +75,7 @@ namespace mtk
 
         // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData;
-        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, this->get_aura_option() );
+        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, stk::mesh::BulkData::AutomaticAuraOption::NO_AUTO_AURA );
 
         // Set member variables as pointers to meta_data and bulk_data
         mMtkMeshMetaData = ( meshMeta );

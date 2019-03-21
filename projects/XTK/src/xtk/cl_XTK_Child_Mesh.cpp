@@ -295,6 +295,15 @@ Child_Mesh::get_edge_to_node()
 }
 
 // ----------------------------------------------------------------------------------
+
+moris::Matrix< moris::IndexMat > const &
+Child_Mesh::get_edge_to_node() const
+{
+   MORIS_ASSERT(mHasEdgeConn,"Edge connectivity has not been generated with call to generate_edge_connectivity");
+   return mEdgeToNode;
+}
+
+// ----------------------------------------------------------------------------------
 moris::Matrix< moris::IndexMat >
 Child_Mesh::get_edge_to_node_local() const
 {
@@ -967,6 +976,7 @@ Child_Mesh::add_node_indices(moris::Matrix< moris::IndexMat > const & aNewNodeIn
     moris::size_t tNumNewNodes = aNewNodeInds.n_cols();
     moris::size_t tNumCurrNodes = mNodeInds.n_cols();
 
+
     // add nodes to map
     add_nodes_to_map(aNewNodeInds);
 
@@ -990,6 +1000,7 @@ Child_Mesh::add_node_indices(moris::Matrix< moris::IndexMat > const & aNewNodeIn
 void
 Child_Mesh::add_node_ids(moris::Matrix< moris::IdMat > const & aNewNodeIds)
 {
+
     // Allocate space
     moris::size_t tNumNewNodes = aNewNodeIds.n_cols();
     moris::size_t tNumCurrNodes = mNodeIds.n_cols();
@@ -1001,6 +1012,7 @@ Child_Mesh::add_node_ids(moris::Matrix< moris::IdMat > const & aNewNodeIds)
     {
         mNodeIds(0,i+tNumCurrNodes) = aNewNodeIds(0,i);
     }
+
 }
 
 // ---------------------------------------------------------------------------------
@@ -1057,7 +1069,7 @@ Child_Mesh::set_child_element_inds(moris::moris_index & aElementInd)
 
 void
 Child_Mesh::add_node_parametric_coordinate( moris::size_t aNodeIndex,
-                                moris::Matrix< moris::DDRMat > const & aParamCoord )
+                                            moris::Matrix< moris::DDRMat > const & aParamCoord )
 {
     MORIS_ASSERT(aParamCoord(0) >= -1.0 && aParamCoord(0) <= 1.0, "Parametric coordinate is out of bounds - zeta");
     MORIS_ASSERT(aParamCoord(1) >= -1.0 && aParamCoord(1) <= 1.0, "Parametric coordinate is out of bounds - eta");
@@ -1287,13 +1299,6 @@ Child_Mesh::generate_connectivities(bool aGenerateFaceConn,
     }
 }
 
-// ---------------------------------------------------------------------------------
-
-void
-Child_Mesh::init_intersect_connectivity()
-{
-    mEdgeOnInterface = moris::Matrix< moris::IndexMat >(this->get_num_entities(EntityRank::EDGE), 1, 0);
-}
 
 // ---------------------------------------------------------------------------------
 

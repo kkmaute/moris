@@ -247,6 +247,58 @@ public:
         }
     }
 
+    void
+    create_new_node_geometry_objects(Cell< moris_index >  const & aNewNodeIndices,
+                                     bool                         aStoreParentTopo,
+                                     Cell<Topology*>      const & aParentTopo,
+                                     Cell<Matrix<DDRMat>> const & aParamCoordRelativeToParent,
+                                     Cell<Matrix<DDRMat>> const & aGlobalNodeCoord)
+    {
+        // Allocate space
+        moris::size_t tNumNewNodes = aNewNodeIndices.size();
+        moris::size_t tNumCurrNodes = mNodePhaseVals.n_rows();
+
+        // add space to the node phase value table
+        mNodePhaseVals.resize(tNumNewNodes+tNumCurrNodes,mGeometry.size());
+
+        Cell<Geometry_Object> tGeometryObjects(tNumNewNodes);
+
+        moris::Matrix< moris::IndexMat > tNodeIndex(1,tNumNewNodes);
+        for(moris::size_t i = 0; i<tNumNewNodes; i++)
+        {
+            tGeometryObjects(i).set_phase_val_row(i+tNumCurrNodes);
+            tNodeIndex(0,i) = aNewNodeIndices(i);
+            if(aStoreParentTopo)
+            {
+
+                tGeometryObjects(i).set_parent_entity_topology(aParentTopo(i)->copy());
+            }
+
+        }
+
+        if(tNumNewNodes !=0)
+        {
+            mGeometryObjects.store_geometry_objects(tNodeIndex,tGeometryObjects);
+        }
+
+        for(moris::size_t j = 0; j<get_num_geometries(); j++)
+        {
+
+            for(moris::size_t i = 0; i<tNumNewNodes; i++ )
+            {
+                // Ask the pending node about its parent
+                // This information is needed to know what to interpolate based on
+                moris::Matrix< moris::DDRMat >  tLevelSetValues(1,1);
+                this->interpolate_level_set_value_to_child_node_location(*aParentTopo(i), j, aParamCoordRelativeToParent(i),tLevelSetValues);
+                mNodePhaseVals(i+tNumCurrNodes,j) = tLevelSetValues(0,0);
+            }
+
+        }
+    }
+
+
+
+
     /**
      * Links new nodes with an existing geometry object. This is used for unzipped interfaces
      * where more than one node is at the same location
