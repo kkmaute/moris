@@ -170,7 +170,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
     MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
 
-    if(tProcSize<=2)
+    if(tProcSize<=4)
     {
             // Geometry Engine Setup ---------------------------------------------------------
             // Using a Levelset Sphere as the Geometry
@@ -184,7 +184,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
             // Create Mesh --------------------------------------------------------------------
-            std::string tMeshFileName = "generated:1x1x2";
+            std::string tMeshFileName = "generated:1x1x4";
             moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
             // Setup XTK Model ----------------------------------------------------------------
@@ -226,62 +226,23 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             size_t tNumNodesAfterDecompositionXTK    = tCutMesh.get_num_entities(EntityRank::NODE);
             size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
 
-            CHECK(tNumNodesAfterDecompositionXTK == 22 );
-            CHECK(tNumElementsAfterDecompositionXTK == 42);
+            if(par_size() == 1)
+            {
+                CHECK(tNumNodesAfterDecompositionXTK == 22 );
+                CHECK(tNumElementsAfterDecompositionXTK == 42);
 
-            // XTK does not add any additional Elements to the stk mesh
-            CHECK(tNumElementsAfterDecompositionSTK == 2);
-            // But it does add nodes because this is where the coordinates are stored
-            // There are 4 more nodes in the STK mesh because only 1/2 elements are decomposed
-            CHECK(tNumNodesAfterDecompositionSTK == 26);
+                // XTK does not add any additional Elements to the stk mesh
+                CHECK(tNumElementsAfterDecompositionSTK == 4);
+                // But it does add nodes because this is where the coordinates are stored
+                CHECK(tNumNodesAfterDecompositionSTK == 34);
+            }
 
             moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
-            moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates(
-           {{+0.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
-            {+1.000000000000000e+00,  +0.000000000000000e+00,  +0.000000000000000e+00},
-            {+0.000000000000000e+00,  +1.000000000000000e+00,  +0.000000000000000e+00},
-            {+1.000000000000000e+00,  +1.000000000000000e+00,  +0.000000000000000e+00},
-            {+0.000000000000000e+00,  +0.000000000000000e+00,  +1.000000000000000e+00},
-            {+1.000000000000000e+00,  +0.000000000000000e+00,  +1.000000000000000e+00},
-            {+0.000000000000000e+00,  +1.000000000000000e+00,  +1.000000000000000e+00},
-            {+1.000000000000000e+00,  +1.000000000000000e+00,  +1.000000000000000e+00},
-            {+0.000000000000000e+00,  +0.000000000000000e+00,  +2.000000000000000e+00},
-            {+1.000000000000000e+00,  +0.000000000000000e+00,  +2.000000000000000e+00},
-            {+0.000000000000000e+00,  +1.000000000000000e+00,  +2.000000000000000e+00},
-            {+1.000000000000000e+00,  +1.000000000000000e+00,  +2.000000000000000e+00},
-            {+5.000000000000000e-01,  +0.000000000000000e+00,  +5.000000000000000e-01},
-            {+1.000000000000000e+00,  +5.000000000000000e-01,  +5.000000000000000e-01},
-            {+5.000000000000000e-01,  +1.000000000000000e+00,  +5.000000000000000e-01},
-            {+0.000000000000000e+00,  +5.000000000000000e-01,  +5.000000000000000e-01},
-            {+5.000000000000000e-01,  +5.000000000000000e-01,  +0.000000000000000e+00},
-            {+5.000000000000000e-01,  +5.000000000000000e-01,  +1.000000000000000e+00},
-            {+5.000000000000000e-01,  +5.000000000000000e-01,  +5.000000000000000e-01},
-            {+1.000000000000000e+00,  +9.375000000000000e-01,  +0.000000000000000e+00},
-            {+1.000000000000000e+00,  +1.000000000000000e+00,  +6.250000000000000e-02},
-            {+9.375000000000000e-01,  +1.000000000000000e+00,  +0.000000000000000e+00},
-            {+1.000000000000000e+00,  +9.687500000000000e-01,  +3.125000000000000e-02},
-            {+9.687500000000000e-01,  +1.000000000000000e+00,  +3.125000000000000e-02},
-            {+9.687500000000000e-01,  +9.687500000000000e-01,  +0.000000000000000e+00},
-            {+9.791666666666666e-01,  +9.791666666666666e-01,  +2.083333333333334e-02}});
-
-
-//            CHECK(equal_to(tNodeCoordinates,tExpectedNodeCoordinates));
 
             // verify ancestry of child mesh
             verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
                                        tCutMesh);
 
-
-
-            moris::Matrix< moris::DDRMat > tSingleCoord(1,3);
-            moris::Matrix< moris::DDRMat > tLevelSetValues(1,tNumNodesAfterDecompositionXTK);
-            for(size_t i = 0;  i<tNumNodesAfterDecompositionXTK; i++)
-            {
-                (tLevelSetValues)(0,i) = tLevelsetSphere.evaluate_field_value_with_coordinate(i,tNodeCoordinates);
-            }
-
-            moris::Matrix< moris::DDRMat > tExpectedLevelSetValues({{1.9375, 0.9375, 0.9375, -0.0625, 2.9375, 1.9375, 1.9375, 0.9375, 5.9375, 4.9375, 4.9375, 3.9375, 1.4375, 0.4375, 0.4375, 1.4375, 0.4375, 1.4375, 0.6875, -0.05859375, -0.05859375, -0.05859375}});
-//            CHECK(xtk::equal_to(tLevelSetValues,tExpectedLevelSetValues));
 
             // Verify parametric coordinates reproduce the same results as tabulated in global node coordinates
 

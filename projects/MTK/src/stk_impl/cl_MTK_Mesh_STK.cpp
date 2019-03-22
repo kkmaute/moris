@@ -75,7 +75,7 @@ namespace mtk
 
         // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData;
-        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, stk::mesh::BulkData::AutomaticAuraOption::NO_AUTO_AURA );
+        stk::mesh::BulkData * meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, this->get_aura_option());
 
         // Set member variables as pointers to meta_data and bulk_data
         mMtkMeshMetaData = ( meshMeta );

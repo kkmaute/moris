@@ -731,6 +731,8 @@ private:
 
         mHasEdgeConn = true;
 
+        mEdgeOnInterface.resize(1,mEdgeToNode.n_rows());
+
 
         setup_edge_ancestry();
 

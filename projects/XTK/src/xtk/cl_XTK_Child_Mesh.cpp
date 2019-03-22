@@ -1324,6 +1324,7 @@ void
 Child_Mesh::mark_edge_as_on_interface(moris::moris_index aEdgeIndex)
 {
     MORIS_ASSERT(aEdgeIndex<(moris::moris_index)get_num_entities(EntityRank::EDGE),"Edge index out of bounds");
+    MORIS_ASSERT(mEdgeOnInterface.numel() == get_num_entities(EntityRank::EDGE),"mEdgeOnInterface has not been properly initialized");
     mEdgeOnInterface(aEdgeIndex) = 1;
     mHasCoincidentEdges = true;
 }
