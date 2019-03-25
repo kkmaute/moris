@@ -9,12 +9,14 @@
 
 #include <memory>
 #include <iostream>
+
+#include "cl_GE_Analytical.hpp"
+#include "cl_GE_Discrete.hpp"
 #include "cl_GE_Enums.hpp"
 #include "cl_GE_Geometry.hpp"
 #include "cl_GE_SDF.hpp"
-#include "cl_GE_LS.hpp"
+
 #include "assert.hpp"
-#include "cl_GE_Analytical.hpp"
 
 namespace moris
 {
@@ -23,11 +25,6 @@ namespace moris
 
     class Ge_Factory
     {
-    	private:
-    		int flagType = 0;
-
-    	protected:
-
     	public:
     		Ge_Factory(){
 
@@ -38,31 +35,33 @@ namespace moris
     	    /**
     	     * @brief factory member function building GE types
     	     *
-    	     * @param[in] aFlagType            Determines the method to be used for flagging.
-    	     * @param[out] tFlagPointer		   GE pointer to base class.
+    	     * @param[in]  aFlagType    - determines the type of geometry
+    	     * .
+    	     * @param[out] tFlagPointer - GE pointer to base class.
     	     *
     	     */
-    		Geometry* pick_flag(enum flagType aFlagType = flagType::LS)
+    		Geometry* set_geometry_type(enum type aGeomType = type::ANALYTIC)
     		{
-    			Geometry* tFlagPointer;
-    			switch(aFlagType)
+    			Geometry* tGeomPointer;
+    			switch(aGeomType)
     			{
-    			case(flagType::SDF):
-    					tFlagPointer = new SDF();
+    			case(type::ANALYTIC):
+    					tGeomPointer = new Analytical();
     					break;
-    			case(flagType::LS):
-    					tFlagPointer = new LS();
-    					break;
-    			case(flagType::Analytical):
-    					tFlagPointer = new Analytical();
-    					break;
+                case(type::DISCRETE):
+                        tGeomPointer = new Discrete();
+                        break;
     			default:
-    					MORIS_ERROR(false, "Ge_Factory::pickFlag() please input a valid flag method");
+    					MORIS_ERROR(false, "Ge_Factory::set_geometry_type() please input a valid geometry type");
     					break;
     			}
-    		return tFlagPointer;
+    		return tGeomPointer;
     		}
 
+        private:
+            int flagType = 0;
+
+        protected:
     };
     } /* namespace gen */
 } /* namespace moris */
