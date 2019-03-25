@@ -67,6 +67,14 @@ typedef arma::Mat< moris_index > IndexMat; // Index Matrix
 typedef arma::Mat< real > F33RMat; // Fixed 3x3 Real Mat (for arma this is the same as DDRMat)
 typedef arma::Mat< real > F31RMat; // Fixed 3x1 Real Mat (for arma this is the same as DDRMat)
 typedef arma::Mat< uint > F31UMat; // Fixed 3x1 Uint Mat (for arma this is the same as DDRMat)
+typedef arma::Col<real>        Col_View_Real;
+typedef arma::Col<moris_index> Col_View_Index;
+typedef arma::Col<moris_id>    Col_View_Id;
+
+// typedefs around submatrix views
+typedef arma::Row<real>        Row_View_Real;
+typedef arma::Row<moris_index> Row_View_Index;
+typedef arma::Row<moris_id>    Row_View_Id;
 #endif
 
 }

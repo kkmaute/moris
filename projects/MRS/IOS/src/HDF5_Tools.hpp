@@ -35,7 +35,6 @@ namespace moris
         std::string
         make_path_parallel( const std::string & aPath )
         {
-
             // test if running in parallel mode
             if ( par_size() > 1 )
             {
@@ -73,7 +72,7 @@ namespace moris
     {
         MORIS_ERROR( aPath.size() > 0, "No file path given." );
         return H5Fcreate(
-                make_path_parallel( aPath ).c_str(),
+                make_path_parallel(aPath).c_str(),
                 H5F_ACC_TRUNC,
                 H5P_DEFAULT,
                 H5P_DEFAULT);
@@ -85,7 +84,7 @@ namespace moris
      * open an existing hdf5 file
      */
     hid_t
-    open_hdf5_file(  const std::string & aPath )
+    open_hdf5_file( const std::string & aPath )
     {
         MORIS_ERROR( aPath.size() > 0, "No file path given." );
 
@@ -243,8 +242,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             const Matrix< T >   & aMatrix,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // check datatype
         MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
@@ -314,8 +312,6 @@ namespace moris
                 }
             }
 
-
-
             // write data into dataset
             aStatus = H5Dwrite(
                     tDataSet,
@@ -359,8 +355,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             Matrix< T >         & aMatrix,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // check datatype
         MORIS_ASSERT(  test_size_of_datatype( ( typename Matrix< T >::Data_Type ) 0 ),
@@ -422,7 +417,6 @@ namespace moris
                 tData[ i ] = tData[ 0 ]+ i*tDims[ 1 ];
             }
 
-
             // read data from file
             aStatus = H5Dread(
                     tDataSet,
@@ -455,7 +449,6 @@ namespace moris
         H5Dclose( tDataSet );
         H5Sclose( tDataSpace );
 
-
         // check for error
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_matrix_from_hdf5_file()" );
     }
@@ -476,8 +469,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             const T             & aValue,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // test if dataset exists
         if ( dataset_exists( aFileID, aLabel ) )
@@ -542,8 +534,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             const bool          & aValue,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // test if dataset exists
         if ( dataset_exists( aFileID, aLabel ) )
@@ -616,8 +607,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             T                   & aValue,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // test if dataset exists
         if ( ! dataset_exists( aFileID, aLabel ) )
@@ -677,8 +667,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             bool                & aValue,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // test if dataset exists
         if ( ! dataset_exists( aFileID, aLabel ) )
@@ -740,8 +729,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             const std::string   & aValue,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // test if dataset exists
         if ( dataset_exists( aFileID, aLabel ) )
@@ -775,7 +763,6 @@ namespace moris
                 H5P_DEFAULT,
                 H5P_DEFAULT );
 
-
         // write data into dataset
         aStatus = H5Dwrite(
                 tDataSet,
@@ -801,8 +788,7 @@ namespace moris
             hid_t               & aFileID,
             const std::string   & aLabel,
             std::string         & aValue,
-            herr_t              & aStatus
-    )
+            herr_t              & aStatus )
     {
         // test if dataset exists
         if ( ! dataset_exists( aFileID, aLabel ) )
@@ -853,10 +839,7 @@ namespace moris
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_string_from_hdf5_file()" );
     }
 
-
 //------------------------------------------------------------------------------
 }
-
-
 
 #endif /* PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_ */

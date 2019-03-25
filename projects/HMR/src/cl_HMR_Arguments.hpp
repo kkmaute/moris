@@ -62,7 +62,7 @@ namespace moris
             /**
              * return the timestep that is written into the exodus file
              */
-            const double
+            double
             get_timestep() const
             {
                 return mTimestep;

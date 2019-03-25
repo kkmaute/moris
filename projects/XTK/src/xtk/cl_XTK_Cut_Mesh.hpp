@@ -244,26 +244,8 @@ public:
         // Meshes have changed so counts are wrong
         mConsistentCounts = false;
     }
-    void
-    init_intersect_connectivity(moris::Matrix< moris::IndexMat > const & aChildMeshIndices)
-    {
-        moris::size_t tSizeActive =aChildMeshIndices.n_cols();
-        for(moris::size_t i = 0; i <tSizeActive; i++)
-        {
-            mChildrenMeshes(aChildMeshIndices(0,i)).init_intersect_connectivity();
-        }
 
-    }
 
-    void
-    init_intersect_connectivity()
-    {
-        for(moris::size_t i = 0; i <mNumberOfChildrenMesh; i++)
-        {
-            mChildrenMeshes(i).init_intersect_connectivity();
-        }
-
-    }
 
 
     /**
@@ -596,6 +578,32 @@ public:
         for(uint i = 0; i <this->get_num_child_meshes(); i++)
         {
            moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides();
+
+           tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
+           if(tNumElemsFromCM!=0)
+           {
+               tFullElementIdAndSideOrdinals({tCount,tCount+tNumElemsFromCM-1},{0,1}) = tSingleCMElementIdAndSideOrds({0,tNumElemsFromCM-1},{0,1});
+           }
+
+           tCount = tCount + tNumElemsFromCM;
+        }
+
+        tFullElementIdAndSideOrdinals.resize(tCount,2);
+        return tFullElementIdAndSideOrdinals;
+    }
+
+    moris::Matrix< moris::IndexMat >
+    pack_interface_sides_loc_inds() const
+    {
+        uint tNumElem = this->get_num_entities(EntityRank::ELEMENT);
+
+        moris::Matrix< moris::IdMat > tFullElementIdAndSideOrdinals(tNumElem,2);
+
+        uint tCount = 0;
+        uint tNumElemsFromCM = 0;
+        for(uint i = 0; i <this->get_num_child_meshes(); i++)
+        {
+           moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides_loc_inds();
 
            tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
            if(tNumElemsFromCM!=0)

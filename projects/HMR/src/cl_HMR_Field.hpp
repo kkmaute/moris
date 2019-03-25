@@ -304,6 +304,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
+            save_node_values_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
+
+//------------------------------------------------------------------------------
+
+            void
             load_field_from_hdf5(
                     const std::string & aFilePath,
                     const uint          aBSplineOrder=0 );

@@ -61,7 +61,7 @@ namespace moris
         /**
          * returns the integration primitive
          */
-        const mtk::Geometry_Type get_geometry_type() const
+        mtk::Geometry_Type get_geometry_type() const
         {
             return mGeometryType;
         }
@@ -70,7 +70,7 @@ namespace moris
         /**
          * returns the space integration order
          */
-        const fem::Integration_Order get_space_integration_order() const
+        fem::Integration_Order get_space_integration_order() const
         {
             return mSpaceIntegrationOrder;
         }
@@ -79,7 +79,7 @@ namespace moris
         /**
          * returns the time integration order
          */
-        const fem::Integration_Order get_time_integration_order() const
+        fem::Integration_Order get_time_integration_order() const
         {
             return mTimeIntegrationOrder;
         }
@@ -88,7 +88,7 @@ namespace moris
         /**
          * returns the space integration type
          */
-        const fem::Integration_Type get_space_integration_type() const
+        fem::Integration_Type get_space_integration_type() const
         {
             return mSpaceIntegrationType;
         }
@@ -97,7 +97,7 @@ namespace moris
         /**
          * returns the time integration type
          */
-        const fem::Integration_Type get_time_integration_type() const
+        fem::Integration_Type get_time_integration_type() const
         {
             return mTimeIntegrationType;
         }

@@ -1,10 +1,14 @@
 # Time Solver Algebra Tests ----------------------------------------
 # -------------------------------------------------------------------------
 
+    include_directories(TSA_Test_Proxy)
+    
 # List source files
 set(TEST_SOURCES
     cl_TSA_Time_Solver_Tests.cpp
     cl_TSA_Time_Solver_Staggered_Tests.cpp
+    TSA_Test_Proxy/cl_TSA_Solver_Interface_Proxy.cpp
+    TSA_Test_Proxy/cl_TSA_Solver_Interface_Proxy2.cpp
     test_main.cpp)
 
 # List test includes

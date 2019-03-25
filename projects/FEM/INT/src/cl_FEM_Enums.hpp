@@ -82,6 +82,7 @@ namespace moris
             UNDEFINED,
             L2,         // L2 projection
             HJ,         // Hamilton-Jacobi
+            HJTEST,     // FIXME for test only, to be deleted
             HELMHOLTZ,  // Helmholtz
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization

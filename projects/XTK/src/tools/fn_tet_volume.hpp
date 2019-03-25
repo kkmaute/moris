@@ -8,8 +8,6 @@
 #ifndef SRC_TOOLS_FN_TET_VOLUME_HPP_
 #define SRC_TOOLS_FN_TET_VOLUME_HPP_
 
-#include <memory>
-
 #include "cl_Matrix.hpp"
 #include "fn_det.hpp"
 

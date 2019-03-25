@@ -46,7 +46,7 @@ enum class Subdivision_Method
 };
 
 inline
-const char* get_enum_str(enum Subdivision_Method aSubdivisionEnum)
+const std::string get_enum_str(enum Subdivision_Method aSubdivisionEnum)
 {
     switch (aSubdivisionEnum)
     {

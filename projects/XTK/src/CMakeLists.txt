@@ -167,6 +167,9 @@ target_link_libraries(${XTK}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#############################################################################
+# Create executable for plato CDFEM
+#############################################################################
 # XTK Executable
 # List source files
 set(PLATO_EXE_SOURCES
@@ -187,9 +190,6 @@ set(PLATO_EXE_DEPENDENCIES
  
 # Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
-
-# Create executable
-
 
 add_executable(XTK_PLATO ${PLATO_EXE_SOURCES})
 target_link_libraries(XTK_PLATO ${PLATO_EXE_DEPENDENCIES})
@@ -218,9 +218,52 @@ set(HOLE_EXE_DEPENDENCIES
 # Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 
-# Create executable
+#############################################################################
+# Create executable for XFEM
+#############################################################################
+set(XTK_EXE_SOURCES
+        main.cpp)
+
+# List executable dependencies
+set(XTK_EXE_DEPENDENCIES
+    ${XTK}-lib
+    ${MTK}-lib
+    ${COM}-lib
+    ${ALG}-lib
+	${MORIS_BASE_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}	
+    )    
+
+add_executable(XTK_EXE ${XTK_EXE_SOURCES})
+target_link_libraries(XTK_EXE ${XTK_EXE_DEPENDENCIES})
+set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK.exe )
 
 
+
+#############################################################################
+# Create executable for hole seeding
+#############################################################################
+set(HOLE_SEED_EXE_SOURCES
+        main_hole_seed.cpp)
+
+# List executable dependencies
+set(HOLE_EXE_DEPENDENCIES
+    ${XTK}-lib
+    ${MTK}-lib
+    ${COM}-lib
+    ${ALG}-lib
+	${MORIS_BASE_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}	
+    )    
+ 
+# Set the output path for executable
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 add_executable(XTK_HOLE_SEED ${HOLE_SEED_EXE_SOURCES})
 target_link_libraries(XTK_HOLE_SEED ${HOLE_EXE_DEPENDENCIES})
 set_target_properties(XTK_HOLE_SEED PROPERTIES OUTPUT_NAME XTK_Hole_Seed.exe )
@@ -304,6 +347,13 @@ install(TARGETS XTK_PLATO
 install(TARGETS XTK_HOLE_SEED
     DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
+    
+    
+# Install executable
+install(TARGETS XTK_EXE
+    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
+    EXPORT ${XTK}Targets )
+    
     
 if(BUILD_HMR)
 install(TARGETS XTK_HMR

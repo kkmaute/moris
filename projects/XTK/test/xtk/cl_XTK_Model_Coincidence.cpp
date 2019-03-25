@@ -50,22 +50,15 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
             Cell<real> tR =  {2.0};
             Cell<real> tL =  {9.0};
             Cell<Cell<real>> tAxis = {{0.0,0.0,1.0}};
-            Multi_Cylinder tCylinder1(tCenter,
-                                                                                                  {tR},
-                                                                                                  {tL},
-                                                                                                  tAxis);
+            Multi_Cylinder tCylinder1(tCenter,{tR},{tL},tAxis);
 
             tCenter = {{2,2,5}};
             tR =  {2.0};
             tL =  {15.0};
             tAxis = {{0.0,0.0,1.0}};
-            Multi_Cylinder tCylinder2(tCenter,
-                                                                                                  {tR},
-                                                                                                  {tL},
-                                                                                                  tAxis);
+            Multi_Cylinder tCylinder2(tCenter,{tR},{tL},tAxis);
 
-            moris::Cell<Geometry*> tGeometryVector =
-                   {&tCylinder1, &tCylinder2};
+            moris::Cell<Geometry*> tGeometryVector = {&tCylinder1, &tCylinder2};
 
             Phase_Table tPhaseTable (2,  Phase_Table_Structure::EXP_BASE_2);
             Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);

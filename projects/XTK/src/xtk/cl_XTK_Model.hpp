@@ -34,6 +34,7 @@
 #include "cl_XTK_Sensitivity.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
+#include "cl_XTK_Decomposition_Data.hpp"
 
 
 #include "cl_XTK_Request_Handler.hpp"
@@ -62,6 +63,8 @@ class Enrichment_Parameters;
 }
 
 
+
+
 namespace xtk
 {
 class Model
@@ -73,7 +76,7 @@ public:
 
     // Forward declare the maximum value of moris::size_t and moris::real
     moris::real REAL_MAX    = MORIS_REAL_MAX;
-    moris::real INTEGER_MAX = MORIS_INDEX_MAX;
+    moris::moris_index INTEGER_MAX = MORIS_INDEX_MAX;
 
     Model(){};
 
@@ -135,8 +138,19 @@ public:
 
     // ----------------------------------------------------------------------------------
 
+    /*!
+     * returns the basis enrichment class constructed from call to perform basis enrichment
+     */
     Enrichment const &
     get_basis_enrichment();
+
+    // ----------------------------------------------------------------------------------
+
+    /*!
+     * Constructs the face oriented ghost penalization
+     */
+    void
+    construct_face_oriented_ghost_penalization();
 
     // ----------------------------------------------------------------------------------
 
@@ -264,15 +278,332 @@ private:
 
     // Private Functions
 private:
-    // Decomposition Functions------------------------------------------------------
+    // Internal Decomposition Functions------------------------------------------------------
     /*!
      * formulates node requests in the geometry objects. Dependent on the type of decomposition
      * @param[in] aReqType- specifies which template mesh is going to be used later on
      */
-    void subdivide(enum Subdivision_Method    const & aSubdivisionMethod,
-                   moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
-                   bool const & aFirstSubdivision = true,
-                   bool const & aSetIds = false);
+    void decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
+                            moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                            bool const & aFirstSubdivision = true,
+                            bool const & aSetIds = false);
+
+
+    void
+    decompose_internal_reg_sub_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                             moris::Matrix< moris::IndexMat > & tNewPairBool,
+                                             Decomposition_Data & tDecompData);
+
+    void
+    decompose_internal_set_new_nodes_in_child_mesh_reg_sub(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                                           moris::Matrix< moris::IndexMat > & tNewPairBool,
+                                                           Decomposition_Data &               tDecompData);
+
+    void
+    decompose_internal_set_new_nodes_in_child_mesh_nh(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                                      Decomposition_Data &               tDecompData);
+    void
+    create_new_node_association_with_geometry(Decomposition_Data & tDecompData);
+
+    /*
+     * Parallel assignment of node request identifiers
+     */
+    void
+    assign_node_requests_identifiers(Decomposition_Data & tDecompData,
+                                     moris::moris_index   aMPITag)
+    {
+        // asserts
+        MORIS_ASSERT(tDecompData.tNewNodeId.size() == tDecompData.tNewNodeIndex.size(),      "Dimension mismatch in assign_node_requests_identifiers");
+        MORIS_ASSERT(tDecompData.tNewNodeId.size() == tDecompData.tNewNodeParentRank.size(), "Dimension mismatch in assign_node_requests_identifiers");
+        MORIS_ASSERT(tDecompData.tNewNodeId.size() == tDecompData.tNewNodeParentIndex.size(),"Dimension mismatch in assign_node_requests_identifiers");
+
+        // owned requests and shared requests sorted by owning proc
+        Cell<uint> tOwnedRequest;
+        Cell<Cell<uint>> tSharedRequestFrom;
+        sort_new_node_requests_by_owned_and_not_owned(tDecompData,tOwnedRequest,tSharedRequestFrom);
+
+        // allocate ids for nodes I own
+        moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(tDecompData.tNewNodeId.size(), EntityRank::NODE);
+
+        // get first available index
+        moris::moris_id tNodeInd = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
+
+        // setup the sending data
+        Cell<Matrix<IndexMat>> tSendData;
+        assign_node_requests_owned_identifiers_and_setup_send(tDecompData, tOwnedRequest,tSendData,tNodeInd,tNodeId);
+
+        // send data to other processors
+        outward_communicate_node_requests(tSendData,aMPITag);
+        barrier();
+
+        //recieve
+        Cell<Matrix<IndexMat>> tReceivedData(par_size());
+        inward_receive_node_requests(tReceivedData,aMPITag);
+
+        // set received node ids
+        set_received_node_ids(tReceivedData,tDecompData,tNodeInd);
+
+        barrier();
+
+        // it is possible during the regular subdivision method that a hanging node appears at the processor boundary.
+        // this handles that case
+        if(tDecompData.mSubdivisionMethod ==Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 && tDecompData.mNumNewNodesWithIds != tDecompData.tNewNodeId.size())
+        {
+            handle_hanging_nodes_in_reg_sub(tDecompData, tNodeInd, tNodeId);
+        }
+
+        // Return the node indexes to the background mesh
+        mBackgroundMesh.update_first_available_index(tNodeInd,EntityRank::NODE);
+
+        MORIS_ASSERT(tDecompData.mNumNewNodesWithIds == tDecompData.tNewNodeId.size(),"Not all ids have been set at the end of the assign_node_requests_identifiers function");
+
+    }
+
+    void
+    sort_new_node_requests_by_owned_and_not_owned(Decomposition_Data & tDecompData,
+                                                  Cell<uint>         & aOwnedRequests,
+                                                  Cell<Cell<uint>>   & aSharedRequestFrom)
+    {
+        aSharedRequestFrom = Cell<Cell<uint>>(par_size());
+
+        // access the mesh data behind the background mesh
+        moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
+
+        // number of new nodes
+        moris::uint tNumNewNodes = tDecompData.tNewNodeParentIndex.size();
+
+        // Par rank
+        moris::moris_index tParRank = par_rank();
+
+        // iterate through each node request and figure out the owner
+        for(moris::uint i = 0; i <tNumNewNodes; i++)
+        {
+            // Parent Rank
+            enum EntityRank    tParentRank  = tDecompData.tNewNodeParentRank(i);
+            moris::moris_index tParentIndex = tDecompData.tNewNodeParentIndex(i);
+
+            // get the owner processor
+            moris::moris_index tOwnerProc = tMeshData.get_entity_owner(tParentIndex,tParentRank);
+
+            // If i own the request keep track of the index
+            if(tOwnerProc == tParRank)
+            {
+                aOwnedRequests.push_back(i);
+            }
+            else
+            {
+                aSharedRequestFrom(tOwnerProc).push_back(i);
+            }
+        }
+    }
+
+    void
+    assign_node_requests_owned_identifiers_and_setup_send(Decomposition_Data & aDecompData,
+                                                          Cell<uint> const &       aOwnedRequest,
+                                                          Cell<Matrix<IndexMat>> & aSendData,
+                                                          moris::moris_id &        aNodeInd,
+                                                          moris::moris_id &        aNodeId)
+    {
+        moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
+        moris::moris_index tParSize = par_size();
+        moris::moris_index tParRank = par_rank();
+
+        // Allocate data which needs to be sent
+        // outer cell proc index
+        aSendData = Cell<Matrix<IndexMat>>(tParSize);
+        Cell<uint> tSendDataSizes(tParSize,0);
+
+        // allocate send data
+        for(moris::uint i =0; i <(uint)tParSize; i++)
+        {
+            // in a given columns
+            //   r0 - parent entity index
+            //   r1 - parent entity rank
+            //   r2 - Secondary id
+            //   r3 - node id
+            aSendData(i) = moris::Matrix<IndexMat>(4,aOwnedRequest.size());
+        }
+
+        // iterate through node request owned by this proc and assign an Id
+        for(moris::uint iOwn = 0; iOwn<aOwnedRequest.size(); iOwn++)
+        {
+            // location in the requests
+            moris::moris_index tRequestIndex = aOwnedRequest(iOwn);
+
+            // set the new node index
+            aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
+            aNodeInd++;
+
+            // set the new node id
+            aDecompData.tNewNodeId(tRequestIndex) = aNodeId;
+            aNodeId++;
+
+            // increment number of new nodes with set ids (for assertion purposes)
+            aDecompData.mNumNewNodesWithIds++;
+
+            // determine who to tell about this node
+            enum EntityRank tParentRank  = aDecompData.tNewNodeParentRank(tRequestIndex);
+            moris_index tParentIndex     = aDecompData.tNewNodeParentIndex(tRequestIndex);
+            Matrix< IdMat > tSharedProcs;
+            tMeshData.get_processors_whom_share_entity(tParentIndex,tParentRank,tSharedProcs);
+
+
+            // iterate through the shared processors
+            for(moris::uint iShare = 0; iShare<tSharedProcs.numel(); iShare++)
+            {
+                // shared processor id
+                moris::moris_id tProcId = tSharedProcs(iShare);
+
+                if(tProcId != tParRank)
+                {
+                    // Count
+                    moris::uint tCount = tSendDataSizes(tProcId);
+
+                    //   r0 - parent entity index
+                    aSendData(tProcId)(0,tCount) = mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tParentIndex,tParentRank);
+                    //   r1 - parent entity rank (cast to an index)
+                    aSendData(tProcId)(1,tCount) = (moris_index) tParentRank;
+                    //   r2 - Secondary id
+                    aSendData(tProcId)(2,tCount) = aDecompData.tSecondaryIdentifiers(tRequestIndex);
+                    //   r3 - node id
+                    aSendData(tProcId)(3,tCount) = aDecompData.tNewNodeId(tRequestIndex);
+
+                    // increment the size
+                    tSendDataSizes(tProcId) ++;
+                }
+            }
+
+        }
+
+        // resize matrices in send data cell
+        for(moris::uint  i =0; i<aSendData.size(); i++)
+        {
+            aSendData(i).resize(4,tSendDataSizes(i));
+        }
+
+    }
+
+    void
+    outward_communicate_node_requests(Cell<Matrix<IndexMat>> & aSendData,
+                                      moris_index              aMPITag)
+    {
+        for(moris::uint i = 0; i <aSendData.size(); i++)
+        {
+            if(aSendData(i).numel()!=0)
+            {
+                nonblocking_send(aSendData(i),aSendData(i).n_rows(),aSendData(i).n_cols(),i,aMPITag);
+            }
+        }
+    }
+
+    void
+    inward_receive_node_requests(Cell<Matrix<IndexMat>> & aReceiveData,
+                                 moris_index              aMPITag)
+    {
+        moris::moris_index tNumRow = 4;
+        moris::moris_index tParRank = par_rank();
+
+        for(moris::uint i = 0; i<(moris::uint)par_size(); i++)
+        {
+            if((moris_index)i != tParRank)
+            {
+                // if there is a sent message from a processor go receive it
+                if(sent_message_exists(i,aMPITag))
+                {
+                    aReceiveData(i).resize(1,1);
+                    receive(aReceiveData(i),tNumRow, i,aMPITag);
+                }
+            }
+        }
+    }
+
+    void
+    set_received_node_ids(Cell<Matrix<IndexMat>> & aReceiveData,
+                          Decomposition_Data &     aDecompData,
+                          moris::moris_id &        aNodeInd)
+    {
+        moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
+
+        moris::uint tNumCells = aReceiveData.size();
+
+        for(moris::uint i = 0; i <tNumCells; i++)
+        {
+            moris::uint tNumNodeIdsReceived = aReceiveData(i).n_cols();
+
+            for(moris::uint iN =0; iN<tNumNodeIdsReceived; iN++)
+            {
+                moris::moris_index tParentRank      = aReceiveData(i)(1,iN);
+                moris::moris_index tParentEntityInd = tMeshData.get_loc_entity_ind_from_entity_glb_id(aReceiveData(i)(0,iN),(enum EntityRank)tParentRank);
+                moris::moris_index tSecondaryId     = aReceiveData(i)(2,iN);
+                moris::moris_index tNodeId          = aReceiveData(i)(3,iN);
+                moris::moris_index tRequestIndex    = MORIS_INDEX_MAX;
+                bool               tRequestExists   = false;
+
+                if(aDecompData.mHasSecondaryIdentifier)
+                {
+                    tRequestExists = aDecompData.request_exists(tParentEntityInd,tSecondaryId,(EntityRank)tParentRank,tRequestIndex);
+                }
+
+                else
+                {
+                    tRequestExists = aDecompData.request_exists(tParentEntityInd,(EntityRank)tParentRank,tRequestIndex);
+                }
+
+                if(tRequestExists)
+                {
+                    // set the new node index
+                    aDecompData.tNewNodeIndex(tRequestIndex) = aNodeInd;
+                    aNodeInd++;
+
+                    // set the new node id
+                    aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+
+                    aDecompData.mNumNewNodesWithIds++;
+                }
+#ifdef DEBUG
+                else
+                {
+                    MORIS_ASSERT(aDecompData.mSubdivisionMethod == Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8," The only known case where hanging nodes are allowed to show up is on a face during NC_REGULAR_SUBDIVISION_HEX8");
+                }
+#endif
+            }
+
+
+        }
+    }
+
+    /*!
+     * During the regular subdivision at the boundary of a processor mesh a hanging node can appear on a face. This happens if an element connected
+     * to a face on processor boundary is intersected but the element across the processor boundary is not. This function handles this case.
+     */
+    void
+    handle_hanging_nodes_in_reg_sub( Decomposition_Data & aDecompData,
+                                     moris::moris_id &    aNodeInd,
+                                     moris::moris_id &    aNodeId)
+    {
+        // iterate through node requests and assign node ids to nodes without one
+        for(moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++)
+        {
+            if(aDecompData.tNewNodeId(i) == MORIS_ID_MAX)
+            {
+                // TODO: Check that this face is on the boundary of the aura
+                MORIS_ASSERT(aDecompData.tNewNodeIndex(i)      == MORIS_INDEX_MAX,  "New Node index assigned when the node id has not been set");
+                MORIS_ASSERT(aDecompData.tNewNodeParentRank(i) == EntityRank::FACE, "Hanging node in regular subdivision can only be on a face");
+
+                // assign node index
+                aDecompData.tNewNodeIndex(i) = aNodeInd;
+                aNodeInd++;
+
+                //assign node id
+                // set the new node id
+                aDecompData.tNewNodeId(i) = aNodeId;
+                aNodeId++;
+
+                // increment tally
+                aDecompData.mNumNewNodesWithIds++;
+            }
+        }
+    }
 
     /*
      * Perform all tasks needed to finalize the decomposition process, such that the model is ready for enrichment, conversion to tet10 etc.
@@ -877,8 +1208,8 @@ private:
      * This algorithm sets up the active child mesh indices and registers new pairs in the downward inheritance
      */
 
-    void  run_first_cut_routine(enum TemplateType const & aTemplateType,
-                                moris::size_t const & tNumNodesPerElement,
+    void  run_first_cut_routine(enum TemplateType const &          aTemplateType,
+                                moris::size_t const &              aNumNodesPerElement,
                                 moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                                 moris::Matrix< moris::IndexMat > & aNewPairBool)
     {
@@ -888,18 +1219,15 @@ private:
         // Package up node to element connectivity
         moris::moris_index tParentElementIndex = INTEGER_MAX;
         moris::size_t tNumElements = mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
-        moris::Matrix< moris::IndexMat > tNodetoElemConnInd (tNumElements, tNumNodesPerElement);
-        moris::Matrix< moris::IndexMat > tNodetoElemConnVec (1, tNumNodesPerElement);
-        moris::Matrix< moris::IndexMat > tEdgetoElemConnInd (1, 1);
-        moris::Matrix< moris::IndexMat > tFacetoElemConnInd (1, 1);
-        moris::Matrix< moris::IndexMat > tElementMat(1, 1);
-        moris::Matrix< moris::IndexMat > tPlaceHolder(1, 1);
+
+        moris::Matrix< moris::IndexMat > tElementToNodeConnInd (tNumElements, aNumNodesPerElement);
+        moris::Matrix< moris::IndexMat > tElementToNodeVector (1, aNumNodesPerElement);
 
         for (moris::size_t i = 0; i < tNumElements; i++)
         {
-            tNodetoElemConnVec = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
+            tElementToNodeVector = tXTKMeshData.get_entity_connected_to_entity_loc_inds(i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
 
-            tNodetoElemConnInd.set_row(i, tNodetoElemConnVec);
+            tElementToNodeConnInd.set_row(i, tElementToNodeVector);
         }
 
         // Get the Node Coordinates
@@ -907,7 +1235,7 @@ private:
 
         // Intersected elements are flagged via the Geometry_Engine
         Cell<Geometry_Object> tGeoObjects;
-        mGeometryEngine.is_intersected(tAllNodeCoords, tNodetoElemConnInd, 0,tGeoObjects);
+        mGeometryEngine.is_intersected(tAllNodeCoords, tElementToNodeConnInd, 0,tGeoObjects);
 
         // Count number intersected
         moris::size_t tIntersectedCount = tGeoObjects.size();
@@ -947,6 +1275,8 @@ private:
         // Allocate space for more simple meshes in XTK mesh
         mCutMesh.inititalize_new_child_meshes(tNumNewChildMeshes, mModelDimension);
 
+
+        moris::Matrix< moris::IndexMat > tPlaceHolder(1, 1);
         for (moris::size_t j = 0; j < tIntersectedCount; j++)
         {
             if(aNewPairBool(0,j) == 0)
@@ -955,16 +1285,29 @@ private:
 
                 // Get information to provide ancestry
                 // This could be replaced with a proper topology implementation that knows faces, edges based on parent element nodes
-                tNodetoElemConnVec = tNodetoElemConnInd.get_row(tParentElementIndex);
-                tEdgetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::EDGE);
-                tFacetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
-                tElementMat(0,0) = tParentElementIndex;
+                Matrix< IndexMat > tNodetoElemConnVec = tElementToNodeConnInd.get_row(tParentElementIndex);
+                Matrix< IndexMat > tEdgetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::EDGE);
+                Matrix< IndexMat > tFacetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
+                Matrix< IndexMat > tElementMat        = {{tParentElementIndex}};
 
                 // Set parent element, nodes, and entity ancestry
-                moris::Matrix< moris::IndexMat > tElemToNodeMat(tNodetoElemConnVec);
+                moris::Matrix< moris::IndexMat > tElemToNodeIndices(tNodetoElemConnVec);
 
                 Cell<moris::Matrix< moris::IndexMat >> tAncestorInformation = {tPlaceHolder, tEdgetoElemConnInd, tFacetoElemConnInd, tElementMat};
                 mCutMesh.initialize_new_mesh_from_parent_element(aActiveChildMeshIndices(0,j), aTemplateType, tNodetoElemConnVec, tAncestorInformation);
+
+                // add node ids
+                mBackgroundMesh.convert_loc_entity_ind_to_glb_entity_ids(EntityRank::NODE,tNodetoElemConnVec);
+
+                // get child mesh
+                moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentElementIndex,EntityRank::ELEMENT);
+
+                // get child mesh
+                Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(tCMIndex);
+
+                // add node ids
+                tChildMesh.add_node_ids(tNodetoElemConnVec);
+
             }
         }
     }

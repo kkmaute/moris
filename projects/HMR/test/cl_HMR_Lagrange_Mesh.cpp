@@ -13,6 +13,8 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
+#include "HDF5_Tools.hpp"
+
 using namespace moris;
 using namespace hmr;
 
@@ -202,97 +204,304 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
 //-------------------------------------------------------------------------------
 } // end test
 
-TEST_CASE("HMR_T_Matrix_Perturb", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb1]")
+TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_lin]")
 {
     if(  moris::par_size() == 1 )
     {
-    moris::uint tBplineOrder = 2;
-    moris::uint tLagrangeOrder = 2;
-    moris::uint tMyCoeff = 1;
+        moris::uint tBplineOrder = 1;
+        moris::uint tLagrangeOrder = 1;
+        moris::uint tMyCoeff = 1;
 
-    std::cout<<"---"<<std::endl;
+        ParameterList tParameters = create_hmr_parameter_list();
+
+        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+        tParameters.set( "domain_dimensions", "3, 3" );
+        tParameters.set( "domain_offset", "-1.5, -1.5" );
+        tParameters.set( "verbose", 0 );
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "lagrange_orders", "1" );
+
+        tParameters.set( "use_multigrid", 1 );
+
+        tParameters.set( "refinement_buffer", 3 );
+        tParameters.set( "staircase_buffer", 1 );
 
 
+        HMR tHMR( tParameters );
 
-    ParameterList tParameters = create_hmr_parameter_list();
+        // std::shared_ptr< Database >
+        auto tDatabase = tHMR.get_database();
 
-    tParameters.set( "number_of_elements_per_dimension", "2, 2" );
-    tParameters.set( "domain_dimensions", "3, 3" );
-    tParameters.set( "domain_offset", "-1.5, -1.5" );
-    tParameters.set( "verbose", 0 );
-    tParameters.set( "truncate_bsplines", 1 );
-    tParameters.set( "bspline_orders", "2" );
-    tParameters.set( "lagrange_orders", "2" );
+        // manually select output pattern
+        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
 
-    //tParameters.set( "additional_lagrange_refinement", 2 );
+        tHMR.perform_initial_refinement();
 
-    HMR tHMR( tParameters );
+        // refine the first element three times
+        for( uint tLevel = 0; tLevel < 4; ++tLevel )
+        {
+            tDatabase->flag_element( 0 );
 
-    // std::shared_ptr< Database >
-    auto tDatabase = tHMR.get_database();
+            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+        }
 
-    // manually select output pattern
-    tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
-
-    tHMR.perform_initial_refinement();
-
-    //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
-    //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
-    //tDatabase->flag_element( 0 );
-
-    // refine the first element three times
-    for( uint tLevel = 0; tLevel < 4; ++tLevel )
-    {
-        tDatabase->flag_element( 0 );
-
-        // manually refine, do not reset pattern
-       // tDatabase->get_background_mesh()->perform_refinement();
+        // update database etc
         tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
-    }
 
-    // update database etc
-    tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+        tHMR.finalize();
 
-    //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
-    //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
+        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
 
-//    tHMR.flag_element( 0 );
-//    tHMR.get_database()->get_background_mesh()->get_element( 0 )->set_min_refimenent_level( 4 );
-//
-//    tHMR.perform_refinement(  moris::hmr::RefinementMode::LAGRANGE_REFINE );
-//    tHMR.perform_refinement(  moris::hmr::RefinementMode::BSPLINE_REFINE );
+        for( uint k=0; k<tNumCoeffs; ++k )
+        {
+            std::string tLabel = "BSPline_" + std::to_string( k );
 
-    tHMR.finalize();
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineOrder );
 
-    auto tMesh = tHMR.create_mesh( tLagrangeOrder );
-    uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+            Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-    for( uint k=0; k<tNumCoeffs; ++k )
-    {
+            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
 
-    	std::string tLabel = "BSPline_" + std::to_string( k );
+            tCoeffs( k ) = 1.0;
 
-    	auto tField = tMesh->create_field( tLabel, tBplineOrder );
+            tField->evaluate_node_values();
 
-		Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
+            Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
 
-		tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+            //tField->save_field_to_hdf5( "BSpline_Field_Values.hdf5", false );
+            //tField->save_node_values_to_hdf5( "Node_Field_Values_lin.hdf5", false );
+            Matrix< DDRMat > tNodalRefFieldValues;
 
-		tCoeffs( k ) = 1.0;
+            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tMeshFileName = tPrefix + "/projects/HMR/test/data/HMR_T_Matrix_Perturb-Reference_Values_Lin.hdf5";
 
-		tField->evaluate_node_values();
-    }
-    //tHMR.flag_volume_and_surface_elements( tField );
+            hid_t tFile    = open_hdf5_file( tMeshFileName );
+            herr_t tStatus = 0;
+            load_matrix_from_hdf5_file(
+                    tFile,
+                    tLabel,
+                    tNodalRefFieldValues,
+                    tStatus );
 
-    //tHMR.perform_refinement_and_map_fields();
+            tStatus = close_hdf5_file( tFile );
 
-    tHMR.save_to_exodus( "Mesh1.exo" );
-    tHMR.save_bsplines_to_vtk("Basis.vtk");
+            MORIS_ERROR( tStatus == 0, "HMR_T_Matrix_Perturb: Status returned != 0, Error in reading reference values");
 
-    //tHMR.save_last_step_to_exodus( "LastStep.exo" );
+            CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
+        }
 
-    //tHMR.save_to_hdf5( "Database.hdf5" );
+        //tHMR.save_to_exodus( "Mesh_lin.exo" );
 
-    tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
     }
 }
+
+TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_quad]")
+{
+    if(  moris::par_size() == 1 )
+    {
+        moris::uint tBplineOrder = 2;
+        moris::uint tLagrangeOrder = 2;
+        moris::uint tMyCoeff = 1;
+
+        ParameterList tParameters = create_hmr_parameter_list();
+
+        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+        tParameters.set( "domain_dimensions", "3, 3" );
+        tParameters.set( "domain_offset", "-1.5, -1.5" );
+        tParameters.set( "verbose", 0 );
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "bspline_orders", "2" );
+        tParameters.set( "lagrange_orders", "2" );
+
+        tParameters.set( "use_multigrid", 1 );
+
+        tParameters.set( "refinement_buffer", 3 );
+        tParameters.set( "staircase_buffer", 1 );
+
+
+        //tParameters.set( "additional_lagrange_refinement", 2 );
+
+        HMR tHMR( tParameters );
+
+        // std::shared_ptr< Database >
+        auto tDatabase = tHMR.get_database();
+
+        // manually select output pattern
+        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+
+        tHMR.perform_initial_refinement();
+
+        //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
+        //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
+        //tDatabase->flag_element( 0 );
+
+        // refine the first element three times
+        for( uint tLevel = 0; tLevel < 4; ++tLevel )
+        {
+            tDatabase->flag_element( 0 );
+
+            // manually refine, do not reset pattern
+            // tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+        }
+
+        // update database etc
+        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+
+        //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
+        //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
+
+//        tHMR.flag_element( 0 );
+//        tHMR.get_database()->get_background_mesh()->get_element( 0 )->set_min_refimenent_level( 4 );
+//
+//        tHMR.perform_refinement(  moris::hmr::RefinementMode::LAGRANGE_REFINE );
+//        tHMR.perform_refinement(  moris::hmr::RefinementMode::BSPLINE_REFINE );
+
+        tHMR.finalize();
+
+        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+
+        for( uint k=0; k<tNumCoeffs; ++k )
+        {
+            std::string tLabel = "BSPline_" + std::to_string( k );
+
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineOrder );
+
+            Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
+
+            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+
+            tCoeffs( k ) = 1.0;
+
+            tField->evaluate_node_values();
+
+            Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
+
+            //tField->save_field_to_hdf5( "BSpline_Field_Values.hdf5", false );
+            //tField->save_node_values_to_hdf5( "Node_Field_Values.hdf5", false );
+            Matrix< DDRMat > tNodalRefFieldValues;
+
+            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tMeshFileName = tPrefix + "/projects/HMR/test/data/HMR_T_Matrix_Perturb-Reference_Values_Quad.hdf5";
+
+            hid_t tFile    = open_hdf5_file( tMeshFileName );
+            herr_t tStatus = 0;
+            load_matrix_from_hdf5_file(
+                    tFile,
+                    tLabel,
+                    tNodalRefFieldValues,
+                    tStatus );
+
+            tStatus = close_hdf5_file( tFile );
+
+            MORIS_ERROR( tStatus == 0, "HMR_T_Matrix_Perturb: Status returned != 0, Error in reading reference values");
+
+            CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
+        }
+        //tHMR.flag_volume_and_surface_elements( tField );
+
+        //tHMR.perform_refinement_and_map_fields();
+
+        tHMR.save_to_exodus( "Mesh1.exo" );
+        //tHMR.save_bsplines_to_vtk("Basis.vtk");
+        //tHMR.save_last_step_to_exodus( "LastStep.exo" );
+        //tHMR.save_to_hdf5( "Database.hdf5" );
+        //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
+    }
+}
+
+TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_qub]")
+{
+    if(  moris::par_size() == 1 )
+    {
+        moris::uint tBplineOrder = 3;
+        moris::uint tLagrangeOrder = 3;
+        moris::uint tMyCoeff = 1;
+
+        ParameterList tParameters = create_hmr_parameter_list();
+
+        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+        tParameters.set( "domain_dimensions", "3, 3" );
+        tParameters.set( "domain_offset", "-1.5, -1.5" );
+        tParameters.set( "verbose", 0 );
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "bspline_orders", "3" );
+        tParameters.set( "lagrange_orders", "3" );
+
+        tParameters.set( "use_multigrid", 1 );
+
+        tParameters.set( "refinement_buffer", 3 );
+        tParameters.set( "staircase_buffer", 1 );
+
+        HMR tHMR( tParameters );
+
+        // std::shared_ptr< Database >
+        auto tDatabase = tHMR.get_database();
+
+        // manually select output pattern
+        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+
+        tHMR.perform_initial_refinement();
+
+        // refine the first element three times
+        for( uint tLevel = 0; tLevel < 4; ++tLevel )
+        {
+            tDatabase->flag_element( 0 );
+
+            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+        }
+
+        // update database etc
+        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+
+        tHMR.finalize();
+
+        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+
+        for( uint k=0; k<tNumCoeffs; ++k )
+        {
+            std::string tLabel = "BSPline_" + std::to_string( k );
+
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineOrder );
+
+            Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
+
+            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+
+            tCoeffs( k ) = 1.0;
+
+            tField->evaluate_node_values();
+
+            Matrix< DDRMat > tNodalFieldValues = tField->get_node_values();
+
+            //tField->save_field_to_hdf5( "BSpline_Field_Values.hdf5", false );
+            //tField->save_node_values_to_hdf5( "Node_Field_Values_Qub.hdf5", false );
+            Matrix< DDRMat > tNodalRefFieldValues;
+
+            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tMeshFileName = tPrefix + "/projects/HMR/test/data/HMR_T_Matrix_Perturb-Reference_Values_Qub.hdf5";
+
+            hid_t tFile    = open_hdf5_file( tMeshFileName );
+            herr_t tStatus = 0;
+            load_matrix_from_hdf5_file(
+                    tFile,
+                    tLabel,
+                    tNodalRefFieldValues,
+                    tStatus );
+
+            tStatus = close_hdf5_file( tFile );
+
+            MORIS_ERROR( tStatus == 0, "HMR_T_Matrix_Perturb: Status returned != 0, Error in reading reference values");
+
+            CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
+        }
+
+        //tHMR.save_to_exodus( "Mesh_qub.exo" );
+
+    }
+}
+

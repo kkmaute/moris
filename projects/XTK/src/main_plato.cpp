@@ -56,8 +56,8 @@ main(
 
     // Generate mesh from string
     std::string tMeshInputFileName  = argv[1];
-    std::string tMeshOutputFileName = "/home/doble/Documents/OptNeg/OptNeg/fromXTK.exo";
-    std::string tLSFName            = "LS_node";
+    std::string tMeshOutputFileName = argv[2];
+    std::string tLSFName            = argv[3];
 
     std::cout<<"Input: "<<tMeshInputFileName<<std::endl;
     std::cout<<"Output: "<<tMeshOutputFileName<<std::endl;

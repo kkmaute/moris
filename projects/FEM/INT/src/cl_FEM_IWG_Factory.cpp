@@ -7,6 +7,7 @@
 #include "cl_FEM_IWG_Helmholtz_Interface.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"   //FEM/INT/src
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"  //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"  //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_LSNormal_Bulk.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"        //FEM/INT/src
@@ -34,6 +35,10 @@ namespace moris
 
                 case ( IWG_Type::HJ ):
                     tIWG = new IWG_Hamilton_Jacobi_Bulk2();
+                    break;
+
+                case ( IWG_Type::HJTEST ):
+                    tIWG = new IWG_Hamilton_Jacobi_Bulk_Test();
                     break;
 
                 case ( IWG_Type::LSNORMAL ):
