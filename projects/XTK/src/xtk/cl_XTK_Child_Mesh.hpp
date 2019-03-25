@@ -16,6 +16,7 @@
 #include "fn_iscol.hpp"
 #include "fn_trans.hpp"
 
+#include "cl_Communication_Tools.hpp"
 
 #include "cl_Cell.hpp"
 
@@ -122,7 +123,8 @@ public:
     moris::Matrix< moris::IndexMat > &
     get_edge_to_node();
 
-
+    moris::Matrix< moris::IndexMat > const &
+    get_edge_to_node() const;
 
     /*
      * Return edge to node
@@ -422,11 +424,6 @@ public:
 
 
 
-    /**
-      * Tracks the intersection connectivty prior to adding templates to the mesh. Each intersected edge of an element tracks is flagged to have an
-      * intersection nod
-     */
-    void init_intersect_connectivity();
 
     /**
       * aFlag - 0 means the provided aDPrime1Ind is appended to the end of existing nodes
@@ -591,6 +588,35 @@ public:
          return tInterfaceSideSetInfo;
       }
 
+      moris::Matrix< moris::IdMat >
+      pack_interface_sides_loc_inds() const
+      {
+          // Loop bound and sizing
+          moris::size_t tNumElem = get_num_entities(EntityRank::ELEMENT);
+
+          moris::Matrix< moris::IdMat > tInterfaceSideSetInfo(tNumElem,2);
+
+          // Keep track of the number of interface sides
+          moris::size_t tCount = 0;
+
+         // Iterate over each element and if the element has an interface side it will be in mElementInferfaceSides vector
+         for(moris::size_t iEl =0 ; iEl<tNumElem; iEl++)
+         {
+             //TODO: NOTE THIS WILL NOT WORK WITH MULTI-MATERIAL YET (AT LEAST NOT SPLIT THEM UP)
+             if(mElementInterfaceSides(iEl) != std::numeric_limits<moris::size_t>::max())
+             {
+                 tInterfaceSideSetInfo(tCount,0) = mChildElementInds(iEl);
+                 tInterfaceSideSetInfo(tCount,1) = mElementInterfaceSides(iEl);
+                 tCount++;
+             }
+         }
+
+         // Size out space
+         tInterfaceSideSetInfo.resize(tCount,2);
+
+         return tInterfaceSideSetInfo;
+      }
+
 private:
     // Parent element index
     moris::moris_index              mParentElementIndex;
@@ -700,11 +726,13 @@ private:
                                           mNodeToEdge,
                                           mEdgeToElement);
 
-
         // convert back from local to proc indices
         mEdgeToNode = convert_to_proc_indices(mEdgeToNode);
 
         mHasEdgeConn = true;
+
+        mEdgeOnInterface.resize(1,mEdgeToNode.n_rows());
+
 
         setup_edge_ancestry();
 
@@ -757,7 +785,7 @@ private:
         for( moris::size_t i = 0; i<tNumNewNodes; i++)
         {
 
-            if(mNodeIndsToCMInd.find(aNodesToAdd(i)) == mNodeIndsToCMInd.end())
+            MORIS_ASSERT(mNodeIndsToCMInd.find(aNodesToAdd(i)) == mNodeIndsToCMInd.end(),"node already in this child mesh");
             {
                 mNodeIndsToCMInd[aNodesToAdd(i)] = i+tNumNodes;
             }

@@ -49,8 +49,9 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
     {
         // Get the nodes connected to this element
         if(tXTKBMesh.get_element_phase_index(tUnintersectedElements(i)) == aPhaseIndex &&
-                tBMMeshData.get_entity_owner(i,moris::EntityRank::ELEMENT) == tParRank)
+                tBMMeshData.get_entity_owner(tUnintersectedElements(i),moris::EntityRank::ELEMENT) == tParRank)
         {
+
             moris::Matrix< moris::IndexMat > tElementToNode
             = tBMMeshData.get_entity_connected_to_entity_loc_inds(i,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
             if(tParentTopo == CellTopology::HEX8)

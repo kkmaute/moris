@@ -17,6 +17,8 @@
 
 namespace moris
 {
+
+
 template<typename Type>
 class Matrix<arma::Mat<Type>>
 {

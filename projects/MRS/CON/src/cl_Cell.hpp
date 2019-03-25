@@ -9,6 +9,7 @@
 
 // MORIS library header files.
 #include "typedefs.hpp" // COR/src
+#include "assert.hpp"
 
 namespace moris
 {
@@ -132,6 +133,7 @@ namespace moris
 #endif
         )
         {
+            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
 #ifndef NDEBUG
             return( mCell.at( i_index ) );
 #else
@@ -153,6 +155,7 @@ namespace moris
 #endif
         )
         {
+            MORIS_ASSERT(i_index<this->size(),"Cell index out of bounds");
 #ifndef NDEBUG
             return( mCell.at( i_index ) );
 #else

@@ -105,6 +105,8 @@ namespace mtk
             return tNumElements;
         }
 
+
+
         /*
          * Get the number of nodes
          */
@@ -160,6 +162,16 @@ namespace mtk
             {
                 return true;
             }
+        }
+        void
+        print_details()
+        {
+            std::cout<<" Spatial Dimension: "<<*SpatialDim<<std::endl;
+            std::cout<<" Number of cells: "<<this->get_num_elements()<<std::endl;
+            std::cout<<" Number of vertices: "<<this->get_num_nodes()<<std::endl;
+            moris::print(collapse_element_map(), "Condensed element map");
+            moris::print(*LocaltoGlobalNodeMap, "Node map");
+            moris::print(*ElemConn(0),"element to node");
         }
 
     };

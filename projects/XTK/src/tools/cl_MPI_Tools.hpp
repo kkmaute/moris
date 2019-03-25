@@ -111,12 +111,33 @@ void nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
                       int aReceivingProc,
                       int aTag)
 {
-    int tNumToSend = aNumRows * aNumColumns;
+    int tNumToSend = aSendingMatrix.numel();
 
     MPI_Request tRequest;
 
 
     MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0,0)), aReceivingProc, aTag, MPI_COMM_WORLD, &tRequest);
+}
+
+
+bool
+sent_message_exists(int aOtherProc,
+                    int aTag)
+{
+
+    int flag = 1000;
+    MPI_Status tStatus;
+    MPI_Iprobe(aOtherProc, aTag, moris::get_comm(), &flag, &tStatus);
+
+
+    if(flag)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 template <typename Size_T_Matrix>
@@ -136,28 +157,13 @@ void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
     {
         MPI_Get_count(&tStatus, moris::get_comm_datatype(aReceivingMatrix(0,0)), &tNumSent);
 
-        // Allocate Buffer space
-        typename moris::Matrix<Size_T_Matrix>::Data_Type* tBuffer = new typename moris::Matrix<Size_T_Matrix>::Data_Type[tNumSent];
 
         size_t tNumColumns = tNumSent / aNumRows;
 
         // Resize the matrix
         aReceivingMatrix.resize(aNumRows, tNumColumns);
 
-        MPI_Recv(tBuffer, tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, MPI_COMM_WORLD, &tStatus);
-
-        // Modify the provided matrix
-        size_t k = 0;
-        for (size_t c = 0; c < tNumColumns; c++)
-        {
-            for (size_t r = 0; r < aNumRows; r++)
-            {
-                aReceivingMatrix(r, c) = tBuffer[k];
-                k++;
-            }
-        }
-
-        delete [] tBuffer;
+        MPI_Recv(aReceivingMatrix.data(), tNumSent, moris::get_comm_datatype(aReceivingMatrix(0,0)), aSendingProc, aTag, MPI_COMM_WORLD, &tStatus);
 
     }
 

@@ -32,6 +32,7 @@ namespace xtk
 class Topology
 {
 public:
+    virtual
     ~Topology()
     {
 

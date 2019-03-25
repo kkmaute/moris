@@ -72,7 +72,7 @@ namespace moris
     {
         MORIS_ERROR( aPath.size() > 0, "No file path given." );
         return H5Fcreate(
-                make_path_parallel( aPath ).c_str(),
+                make_path_parallel(aPath).c_str(),
                 H5F_ACC_TRUNC,
                 H5P_DEFAULT,
                 H5P_DEFAULT);
