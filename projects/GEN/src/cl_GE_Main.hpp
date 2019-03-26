@@ -18,8 +18,8 @@
 #include "cl_MTK_Mesh.hpp"
 
 // FEM includes
-#include "cl_FEM_Integrator.hpp"
-#include "cl_FEM_Field_Interpolator.hpp"
+#include "FEM/INT/src/cl_FEM_Integrator.hpp"
+#include "FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
 
 // LinAlg includes
 #include "op_minus.hpp"
@@ -39,19 +39,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 		private:
-			real
-			circle_function( const Matrix< DDRMat > & aPoint,
-			                 Cell< real > inputs )
-			{
-			    // inputs(0) = x location of center
-			    // inputs(1) = y location of center
-			    // inputs(2) = radius
-			    Matrix< DDRMat > tCenterVec(1,2);
-			    tCenterVec(0,0) = inputs(0);
-			    tCenterVec(0,1) = inputs(1);
-			    return norm( aPoint - tCenterVec ) - inputs(2);
-			//  return (std::pow((aPoint(0,0) - inputs(0)),2) + std::pow((aPoint(0,1) - inputs(1)),2) - std::pow(inputs(2),2));
-			}
+
 
 //------------------------------------------------------------------------------
 		protected:
@@ -101,7 +89,7 @@ namespace moris
 					Matrix< DDRMat > mFlag(j,1);
 					for( uint k=0; k<j; k++ )
 					{
-						mFlag(k,0) = mListOfGeoms(aWhichGeometry)->get_val_at_vertex( aElementList(i)->get_vertex_pointers()(k)->get_coords() , aConstant );
+						mFlag(k,0) = mListOfGeoms(aWhichGeometry)->get_field_val_at_coordinate( aElementList(i)->get_vertex_pointers()(k)->get_coords() , aConstant );
 					}
 
 					if ( mFlag.max() > mThresholds(aWhichGeometry) && mFlag.min() < mThresholds(aWhichGeometry) )
@@ -117,7 +105,7 @@ namespace moris
 			};
 //------------------------------------------------------------------------------
     	    /**
-    	     * @brief similar to flag_element_list_for_refinement(), has the ability to check over multiple meshs
+    	     * @brief similar to flag_element_list_for_refinement()
     	     *
     	     * @param[in] aConstant				cell of real consant relevant to the LS function (analytical)
     	     * @param[in] aWhichGeometry		switch to determine which geometry function is being used from the list of geometries
@@ -129,7 +117,7 @@ namespace moris
 			moris::Cell< uint >
 			check_for_intersection( moris::Cell< real > &   aConstant,
 			                        mtk::Mesh*          &   aMeshPointer,
-										 uint               aWhichGeometry)
+			                        uint                    aWhichGeometry)
 			{
 				uint mNumElements = aMeshPointer->get_num_elems();
 				moris::Cell< mtk::Cell* > aEleList( mNumElements );
@@ -220,7 +208,11 @@ namespace moris
 			};
 
 //------------------------------------------------------------------------------
-
+			/*
+			 * @brief determines volume elements (cells)
+			 *
+			 *
+			 */
             void
             find_cells_within_levelset(
                           Cell< mtk::Cell * >      & aCells,
@@ -276,6 +268,11 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+            /*
+             * @brief determines elements (cells) intersected by the level set
+             *
+             *
+             */
 
             void
             find_cells_intersected_by_levelset(
@@ -332,18 +329,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 //fixme need to add default values for parts of this function (such as integration/interpolation rules, time evolution domain, etc.)
-//fixme need to add link to specific LS geometry (current calls the private circle function with hard-coded values)
-            Matrix< DDRMat >
-            determine_phi_values( Matrix< DDRMat > & aTMatrix,
-                                  mtk::Mesh* & aMeshPointer )
-            {
-                // Define parameters for LS (circle)
-                //------------------------------------------------------------------------------
-                moris::Cell< real > tInputs(3);
-                tInputs(0) = 0.00; // x location of center
-                tInputs(1) = 0.00; // y location of center
-                tInputs(2) = 2.50; // radius of sphere
 
+            /*@brief function to determine adof values (phi) at the nodal locations
+             *
+             * @param[in]    aTMatrix     - TMatrix to be used
+             * @param[in]    aMeshPointer - pointer to mtk mesh
+             * @param[in]    aGeomParams  - constant needed for specific geometry
+             * @param[in]    aWhichGeom   - which geometry to analyze
+             *
+             * @param[out]   tPhiHat      - Bspline coefficient vector
+             */
+            Matrix< DDRMat >
+            determine_phi_hat( Matrix< DDRMat >      & aTMatrix,
+                                  mtk::Mesh*            & aMeshPointer,
+                                  moris::Cell< real >   & aGeomParams,
+                                  uint                  aWhichGeom )
+            {
                 // create a space time integration rule and interpolation rules for Geometry and LS field
                 //------------------------------------------------------------------------------
                 // set up the integration rule to be used
@@ -353,7 +354,7 @@ namespace moris
                                                        fem::Integration_Type::GAUSS,        // these last two are for the time integration
                                                        fem::Integration_Order::BAR_1);      // using BAR_1 as defailt since we are not evolving in time
 
-                fem::Integrator tFieldIntegrator( tFieldIntegRule );    // field integration object
+                fem::Integrator tFieldIntegrator( tFieldIntegRule );                        // field integration object
 
                 // interpolation rule for geometry
                 fem::Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
@@ -384,10 +385,10 @@ namespace moris
                 // evaluate LS at GP and Nodes
                 //------------------------------------------------------------------------------
                 uint tNumNodes = aMeshPointer->get_num_nodes();     // determine number of nodes in mesh
-                Matrix< DDRMat > tTempCoord(1,2);       // temporary coordinate used to fill coordinate matrix
-                Matrix< DDRMat > tXHat(tNumNodes,2);        // global coordinate matrix
+                Matrix< DDRMat > tTempCoord(1,2);                   // temporary coordinate used to fill coordinate matrix
+                Matrix< DDRMat > tXHat(tNumNodes,2);                // global coordinate matrix
 
-                for (uint j=0; j<tNumNodes; j++)
+                for (uint j=0; j<tNumNodes; j++)                    // create global coordinate matrix
                 {
                     tTempCoord = aMeshPointer->get_node_coordinate(j);
                     uint k = 0;
@@ -407,67 +408,62 @@ namespace moris
                 tGeomInterpolator->set_coeff( tXHat, tTHat );       //set the coefficients xHat:(x,y), tHat:(t_0,t_f)
 
                 Matrix< DDRMat > tPhiSAtNodes(1,tNumNodes);
-                Matrix< DDRMat > tPoint;        // temporary argument to be passed into LS function
+                Matrix< DDRMat > tPoint;                            // temporary argument to be passed into LS function
                 Matrix< DDRMat > tPhiS(1,tNumNodes);
 
                 for (uint i=0; i<tNumNodes; i++)
                 {
-                    tPhiSAtNodes(i) = circle_function( aMeshPointer->get_node_coordinate(i), tInputs );
+                    tPhiSAtNodes(i) = mListOfGeoms(aWhichGeom)->get_field_val_at_coordinate( aMeshPointer->get_node_coordinate(i) , aGeomParams );
 
                     //evaluate space and time at xi, tau
-                    tPoint = tGeomInterpolator->valx( tSpaceIntegPoints.get_column(i) );    // N * ( x,y ) (determines global coordinates of the GPs)
-                    tPhiS(i) = circle_function( tPoint, tInputs );
+                    tPoint   = tGeomInterpolator->valx( tSpaceIntegPoints.get_column(i) );    // N * ( x,y ) (determines global coordinates of the GPs)
+                    tPhiS(i) = mListOfGeoms(aWhichGeom)->get_field_val_at_coordinate( tPoint, aGeomParams );
                 }
                 //------------------------------------------------------------------------------
 
-                // compute phi_hat and use it to determine phi
+                // compute phi_hat
                 //------------------------------------------------------------------------------
-//fixme change N-R loop to a while loop so that number of iterations is not constant
-                uint tNumIters = 1; // number of iterations for N-R algorithm
-                real tTol = 0.0;  // tolerance value to be satisfied for N-R loop
 
                 Matrix< DDRMat > tPhiHat(tNumNodes,1);
-                tPhiHat.fill( 0 );
+                tPhiHat.fill( 1 );
+                Matrix< DDRMat > tPhi(tNumNodes,1);
+                tPhi.fill( 1 );
 
-                for (uint k=0; k<tNumIters; k++)
+                real tTol = 1.0;
+
+                for (uint k=0; k<10; k++)
                 {
                     Matrix< DDRMat > tJacobian(tNumNodes,tNumNodes);
                     tJacobian.fill( 0 );
                     Matrix< DDRMat > tResidual(9,1);
                     tResidual.fill( 0 );
 
-                    for (uint j=0; j<tNumNodes; j++)
+                    for(uint i=0; i<tNumNodes; i++)
                     {
-                        tFieldInterpolator.set_space_time( tSpaceIntegPoints.get_column(j) );  // sets up the integration points
-                        Matrix< DDRMat > tN = tFieldInterpolator.N();       // create the shape function vector
+                        tFieldInterpolator.set_space_time( tSpaceIntegPoints.get_column(i)); // sets up the integration points
+                        Matrix< DDRMat > tN = tFieldInterpolator.N(); // create the shape function vector
 
-                        real tMultFactor = tGeomInterpolator->det_J( tSpaceIntegPoints.get_column(j) ) * tSpaceIntegWeights(j);  // multiplication factor for Jacobian and Residual
-
-                        tJacobian = tJacobian + tMultFactor * trans(tN) * tN;  // determine the Jacobian
-                        tResidual = tResidual + tMultFactor * trans(tN) * (tFieldInterpolator.val() - tN * trans(tPhiSAtNodes));  // determine the residual
+                        real tMultFactor = tGeomInterpolator->det_J( tSpaceIntegPoints.get_column(i) ) * tSpaceIntegWeights(i); // multiplication factor for Jacobian and Residual
+                        tJacobian        = tJacobian + tMultFactor*trans(tN)*tN;
+                        tResidual        = tResidual + tMultFactor*trans(tN)*( tN*tPhi - tN*trans(tPhiSAtNodes));
                     }
-
                     Matrix< DDRMat > tJBar = trans(aTMatrix)*tJacobian*aTMatrix;  // in B-spline space (Tmatrix)
                     Matrix< DDRMat > tRBar = trans(aTMatrix)*tResidual;  // in B-spline space (Tmatrix)
-
                     if (k==1)
                     {
-                        tTol = norm(tRBar)*0.00000001;      // create the tolerance value
+                        tTol = norm(tRBar*0.000001);
                     }
 
-                    Matrix< DDRMat > tDeltaPhi = -inv(tJBar)*tRBar;  // solve Ax = B problem
-                    tPhiHat = tPhiHat + tDeltaPhi;  // change in phi
-
-                    if (norm(tRBar) < tTol)     // additional ending criterion
+                    if (norm(tRBar)<tTol)
                     {
                         break;
                     }
-                }  // end iteration loop
-
-                Matrix< DDRMat > tPhi = aTMatrix*tPhiHat;
+                    tPhiHat = tPhiHat - inv(tJBar)*tRBar;  // solve Ax=B problem
+                    tPhi    = aTMatrix*tPhiHat;            // determine tPhi for iteration loop
+                }
 
                 delete tGeomInterpolator;
-                return tPhi;
+                return tPhiHat;
             }
 
 //------------------------------------------------------------------------------

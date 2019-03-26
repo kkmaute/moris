@@ -6,17 +6,16 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_GEN_Geometry_Engine.hpp
-    cl_GE_Geometry.hpp
- 	cl_GE_Enums.hpp
-  	cl_GE_Factory.hpp
-  	cl_GE_LS.hpp
- 	cl_GE_SDF.hpp
- 	cl_GE_Node.hpp
-    cl_GE_Element.hpp
     cl_GE_Analytical.hpp
-    cl_GE_Main.hpp
-)
+    cl_GE_Discrete.hpp
+    cl_GE_Element.hpp
+    cl_GE_Enums.hpp
+    cl_GE_Factory.hpp
+    cl_GE_Geometry.hpp
+  	cl_GE_Main.hpp
+  	cl_GE_Node.hpp
+ 	cl_GE_SDF.hpp 
+    )
 
 # List header dependencies
 set(GEN_INCLUDES
@@ -40,11 +39,9 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # List library source files
 set(LIB_SOURCES
-    cl_GEN_Dummy.cpp
     cl_GE_Factory.cpp
     cl_GE_Main.cpp
     cl_GE_SDF.cpp
-    cl_GEN_Geometry_Engine.cpp
     )
 
 # List library dependencies
