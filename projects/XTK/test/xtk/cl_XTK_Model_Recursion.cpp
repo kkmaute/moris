@@ -263,6 +263,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        tXTKModel.mVerbose = true;
 
         //Specify your decomposition methods and start cutting
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
@@ -270,7 +271,7 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 
 
         // Verify that the tets created have correct topology
-        Cut_Mesh        & tCutMesh   = tXTKModel.get_cut_mesh();
+        Cut_Mesh   & tCutMesh   = tXTKModel.get_cut_mesh();
         Child_Mesh & tChildMesh = tCutMesh.get_child_mesh(0);
 
         bool tValidTopo = verify_tet4_topology(tChildMesh.get_element_to_node(),
@@ -290,6 +291,8 @@ TEST_CASE("2 Intersecting Geometries","[2_Phase][OVER]")
 
         std::string tPrefix = std::getenv("MORISOUTPUT");
         std::string tMeshOutputFile = tPrefix + "/unit_recursive_intersect.e";
+        tCutMeshData->create_output_mesh(tMeshOutputFile);
+
 
         delete tMeshData;
         delete tCutMeshData;

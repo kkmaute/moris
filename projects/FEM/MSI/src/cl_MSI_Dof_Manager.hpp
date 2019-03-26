@@ -42,6 +42,8 @@ namespace moris
 
             bool mUseHMR = false;
 
+            Matrix< DDUMat >               mTimePerDofType; // List containing the number of time levels per dof type. // FIXME
+
 //------------------------------------------------------------------------------
             /**
              * @brief Returns the maximal number of pdof hosts. This function is tested by the test [Dof_Manager_Max_Pdof_Host]
@@ -118,8 +120,8 @@ namespace moris
              *
              */
             void communicate_shared_adof_ids(const moris::Cell< moris::Cell < Adof * > > & aAdofListofTypes,
-                                                   Matrix< DDUMat >             & aListSharedAdofIds,
-                                                   Matrix< DDUMat >             & aListSharedAdofPos);
+                                                   Matrix< DDUMat >                      & aListSharedAdofIds,
+                                                   Matrix< DDUMat >                      & aListSharedAdofPos);
 
             /**
              * @brief This functon determines the maximal adof index
@@ -170,6 +172,26 @@ namespace moris
              */
             void initialize_pdof_type_list( moris::Cell < Equation_Object* > & aListEqnObj );
 
+//-----------------------------------------------------------------------------------------------------------
+
+            void set_time_levels_for_type( const enum Dof_Type aDofType,
+                                           const moris::uint   aNumTimeLevels )
+            {
+                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aDofType ) );
+
+                MORIS_ASSERT( tDofTypeIndex != -1, "Dof_Manager::set_time_levels_for_type(), Requested dof type does not exist");
+
+                mTimePerDofType( tDofTypeIndex, 0 ) = aNumTimeLevels;
+            };
+
+//-----------------------------------------------------------------------------------------------------------
+
+            moris::uint get_time_levels_for_type( const enum Dof_Type aDofType )
+            {
+                moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aDofType ) );
+
+                return mTimePerDofType( tDofTypeIndex, 0 );
+            };
 //-----------------------------------------------------------------------------------------------------------
             /**
              * @brief Initializes list with pdof hosts. This function is tested by the test   [Dof_Mgn_ini_pdof_host_list]

@@ -35,6 +35,7 @@
 #include "cl_XTK_Model.hpp"
 #include "xtk/cl_XTK_Output_Options.hpp"
 #include "xtk/fn_compute_xtk_model_volumes.hpp"
+#include "Child_Mesh_Verification_Utilities.hpp"
 
 namespace xtk
 {
@@ -162,10 +163,10 @@ TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
  *
  * Will test: signed surface area to make sure it's 0
  */
-TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
+TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
 {
    // Geometry Engine Setup -----------------------
-    moris::real tRadius  = 1.5;
+    moris::real tRadius  = 0.5;
     moris::real tXCenter = 1.0;
     moris::real tYCenter = 1.0;
     moris::real tZCenter = 2.0;
@@ -176,7 +177,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
 
 
     // Setup XTK Model -----------------------------
@@ -192,6 +193,10 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
     std::string tMeshOutputFile = tPrefix + "/volume_check_rs.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
+
+    verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
+                               tXTKModel.get_cut_mesh());
+
     //
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
@@ -219,10 +224,10 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK]")
 }
 
 
-TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK]")
+TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
 {
    // Geometry Engine Setup -----------------------
-    moris::real tRadius  = 1.5;
+    moris::real tRadius  = 0.5;
     moris::real tXCenter = 1.0;
     moris::real tYCenter = 1.0;
     moris::real tZCenter = 2.0;
@@ -234,7 +239,6 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK]")
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
     moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
-
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
@@ -249,6 +253,9 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK]")
     std::string tMeshOutputFile = tPrefix + "/volume_check_nh.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
+    verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
+                               tXTKModel.get_cut_mesh());
+
     //
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
@@ -276,7 +283,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK]")
 }
 
 
-TEST_CASE("Node Hierarchy Geometry Check","[REGULAR_SUBDIVISION][TEMPLATE]")
+TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
 {
     if(par_size() == 1)
     {

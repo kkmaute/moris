@@ -104,6 +104,23 @@ Background_Mesh::get_mtk_cell(moris::moris_index aCellIndex)
 }
 // ----------------------------------------------------------------------------------
 
+moris::mtk::Cell const &
+Background_Mesh::get_mtk_cell(moris::moris_index aCellIndex) const
+{
+
+    if(!this->is_background_cell(aCellIndex) || entity_has_children(aCellIndex,EntityRank::ELEMENT))
+    {
+        return get_child_element_mtk_cell(aCellIndex);
+    }
+    // otherwise the cell comes from the background mesh
+    else
+    {
+        return mMeshData->get_mtk_cell(aCellIndex);
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
 moris::moris_id
 Background_Mesh::allocate_entity_ids(moris::size_t         aNumReqs,
                     enum EntityRank aChildEntityRank)
@@ -131,6 +148,7 @@ Background_Mesh::update_first_available_index(moris::size_t         aNewFirstAva
 
 // ----------------------------------------------------------------------------------
 
+//TODO: REMOVE THIS PENDING NODE STUFF WHEN FINISHED WITH DECOMP REFACTOR
 void
 Background_Mesh::batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & aPendingNodes)
 {
@@ -145,6 +163,27 @@ Background_Mesh::batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & a
     {
         mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aPendingNodes(i).get_node_id(),
                                                           aPendingNodes(i).get_node_index(),
+                                                          this));
+    }
+}
+
+void
+Background_Mesh::batch_create_new_nodes(Cell<moris_index> const & aNewNodeIds,
+                                        Cell<moris_index> const & aNewNodeIndices,
+                                        Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
+{
+    // Batch create the new copied nodes in the mesh external data
+    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,aNewNodeCoordinates);
+
+    moris::uint tNumNewNodes = aNewNodeIds.size();
+
+    // Allocate space in the vertex interpolations
+    mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
+
+    for(moris::uint i = 0; i <tNumNewNodes; i++)
+    {
+        mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
+                                                          aNewNodeIndices(i),
                                                           this));
     }
 }

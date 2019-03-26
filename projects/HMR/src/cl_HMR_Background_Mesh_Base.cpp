@@ -2224,12 +2224,10 @@ namespace moris
          * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
          */
         void
-        Background_Mesh_Base::collect_side_set_elements(
-                const uint                         & aPattern,
-                const uint                         & aSideOrdinal,
-                Cell< Background_Element_Base *  > & aElements )
+        Background_Mesh_Base::collect_side_set_elements( const uint                              & aPattern,
+                                                         const uint                              & aSideOrdinal,
+                                                               Cell< Background_Element_Base * > & aElements )
         {
-
             luint tElementCounter = 0;
 
             // step 1: collect elements on coarsest level

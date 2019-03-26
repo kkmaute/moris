@@ -48,11 +48,9 @@ namespace moris
             // empty constructor
             Domain(){};
 //--------------------------------------------------------------------------------
-            Domain(
-                    const Matrix< DDLUMat > & aDomainIJK,
-                    const      luint     aPaddingSize )
+            Domain( const Matrix< DDLUMat > & aDomainIJK,
+                    const luint               aPaddingSize )
             {
-
                 mNumberOfElementsOnLevelZero = 1;
 
                 // loop over all dimensions
@@ -67,13 +65,10 @@ namespace moris
                     mAuraIJK[ 0 ][ k ][ 1 ]   = aDomainIJK( 1, k ) + aPaddingSize;
 
                     // element per dimension counter for first level
-                    mNumberOfElementsPerDimension[ 0 ][ k ]
-                                         =   mAuraIJK[ 0 ][ k ][ 1 ]
-                                           - mAuraIJK[ 0 ][ k ][ 0 ] + 1;
+                    mNumberOfElementsPerDimension[ 0 ][ k ] = mAuraIJK[ 0 ][ k ][ 1 ] - mAuraIJK[ 0 ][ k ][ 0 ] + 1;
 
                     // element counter for fist level
-                    mNumberOfElementsOnLevelZero
-                        *=  mNumberOfElementsPerDimension[ 0 ][ k ] ;
+                    mNumberOfElementsOnLevelZero *=  mNumberOfElementsPerDimension[ 0 ][ k ] ;
 
                     // create frame
                     mFrameIJK[ 0 ][ k ][ 0 ] = aPaddingSize;
@@ -85,8 +80,7 @@ namespace moris
                 {
                     for ( luint k=0; k<N; ++k )
                     {
-                        mNumberOfElementsPerDimension[ l ][ k ] =
-                                2* mNumberOfElementsPerDimension[ l-1 ][ k ];
+                        mNumberOfElementsPerDimension[ l ][ k ] = 2 * mNumberOfElementsPerDimension[ l-1 ][ k ];
 
                         mDomainIJK[ l ][ k ][ 0 ] = 2*mDomainIJK[ l-1 ][ k ][ 0 ];
                         mDomainIJK[ l ][ k ][ 1 ] = 2*mDomainIJK[ l-1 ][ k ][ 1 ] + 1;

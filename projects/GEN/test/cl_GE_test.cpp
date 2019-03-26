@@ -4,16 +4,14 @@
  *  Created on: Dec 28, 2018
  *      Author: sonne
  */
-
 #include "catch.hpp"
 
 // GE includes
 //------------------------------------------------------------------------------
-#include "cl_GE_Factory.hpp"
 #include "cl_GE_Main.hpp"
 #include "cl_GE_Element.hpp"
+#include "cl_GE_Factory.hpp"
 #include "cl_GE_Node.hpp"
-#include "fn_equal_to.hpp"
 
 #include "cl_SDF_Generator.hpp"
 
@@ -41,11 +39,11 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "op_plus.hpp"
-#include "cl_Matrix.hpp"
-#include "fn_print.hpp"
 #include "fn_all_true.hpp"
+#include "fn_equal_to.hpp"
+#include "fn_print.hpp"
 #include "op_equal_equal.hpp"
+#include "op_plus.hpp"
 
 //------------------------------------------------------------------------------
 // FEM includes
@@ -95,22 +93,6 @@ hyperboloid_function( const Matrix< DDRMat > & aPoint,
 	// inputs(4) = offset in z
 	// inputs(5) = curvature in z
 	return std::pow(( aPoint(0,0) - inputs(0) )/inputs(1),2.0) + std::pow(( aPoint(0,1) - inputs(2))/inputs(3),2.0) - std::pow(( aPoint(0,2) - inputs(4))/inputs(5),2.0);
-}
-
-real
-sphere_function( const Matrix< DDRMat > & aPoint,
-                 Cell< real > aInputs )
-{
-    // aPoint     = point vector to determine value at
-	// aInputs(0) = x location of center
-	// aInputs(1) = y location of center
-	// aInputs(2) = z location of center
-	// aInputs(3) = radius
-	Matrix< DDRMat > tCenterVec(1,3);
-	tCenterVec(0,0) = aInputs(0);
-	tCenterVec(0,1) = aInputs(1);
-	tCenterVec(0,2) = aInputs(2);
-	return norm( aPoint - tCenterVec ) - aInputs(3);
 }
 
 real
@@ -226,7 +208,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				tInputs(2) = 1.2;   //define the radius of the circle
 
 				Ge_Factory tFactory;
-				Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
+				Geometry*  type0 = tFactory.set_geometry_type(type::ANALYTIC);
 				type0->set_analytical_function( circle_function );
 
 				GE geometryEngine;
@@ -248,6 +230,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				delete tVertex4_3; delete tVertex4_4;
 				delete tElement1;  delete tElement2;
 				delete tElement3;  delete tElement4;
+//				delete type0;
 				}
 //------------------------------------------------------------------------------
 
@@ -309,10 +292,10 @@ plane_function( const Matrix< DDRMat > & aPoint,
 					//------------------------------------------------------------------------------
 
 					Ge_Factory tFactory;
-					Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
+					Geometry* type0 = tFactory.set_geometry_type(type::ANALYTIC);
 					type0->set_analytical_function(circle_function);
 
-					Geometry* type1 = tFactory.pick_flag(flagType::Analytical);
+					Geometry* type1 = tFactory.set_geometry_type(type::ANALYTIC);
 					type1->set_analytical_function(linear_function);
 
 					GE geometryEngine;
@@ -335,6 +318,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 					delete tVertex2_2; delete tVertex2_3;  delete tVertex3_3; delete tVertex3_4;
 					delete tVertex4_4;
 					delete tElement1;  delete tElement2;   delete tElement3;  delete tElement4;
+//					delete type0;      delete type1;
 				}
 //------------------------------------------------------------------------------
 
@@ -417,11 +401,11 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				//------------------------------------------------------------------------------
 
 				Ge_Factory tFactory;
-				Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
-				type0->set_analytical_function(sphere_function);
+				Geometry* type0 = tFactory.set_geometry_type(type::ANALYTIC);
+				type0->set_analytical_function( type::SPHERE );
 
-				Geometry* type1 = tFactory.pick_flag(flagType::Analytical);
-				type1->set_analytical_function(sphere_function);
+				Geometry* type1 = tFactory.set_geometry_type(type::ANALYTIC);
+				type1->set_analytical_function( type::SPHERE );
 
 				GE geometryEngine;
 
@@ -460,6 +444,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				/* fixme need to add checks for test */
 
 				delete tMesh3DHexs;
+//				delete type0;       delete type1;
 				}
 //------------------------------------------------------------------------------
 		TEST_CASE("2D_quad4_edge_normal_test_with_specific_mtk_mesh","[GE],[GE_test5]")
@@ -539,38 +524,44 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				delete tMesh2D_Quad4;
 				}
 //------------------------------------------------------------------------------
-				TEST_CASE("GE_3D_mesh_edge_normal_test","[GE],[GE_test6]")
+				TEST_CASE("GE_analytical_function_pointer_checks","[GE],[GE_test6]")
 						{
 					if(par_size()<=1)
 					{
-						/*	create a 3D Hex MORIS mesh using MTK database and determine the edge normals */
-						//------------------------------------------------------------------------------
-						const std::string tFileName2 = "generated:1x1x1";
-					    // Initialize field information container
-					    moris::mtk::MtkFieldsInfo tFieldsInfo;
-					    // Declare some supplementary fields
-					    mtk::MtkMeshData tMeshData;
-					    tMeshData.FieldsInfo = &tFieldsInfo;
-						// Create MORIS mesh using MTK database
-						mtk::Mesh* tMesh3DHexs_norms = mtk::create_mesh( MeshType::STK, tFileName2, &tMeshData );
-						//------------------------------------------------------------------------------
-						uint tInd = 1;
-						Matrix< IdMat > tTemp= tMesh3DHexs_norms->get_nodes_connected_to_element_glob_ids( tInd );
-//						print( tTemp, "tempMatrix: ");
+					    Ge_Factory tFactory;
+					    Geometry*  tSphere_1 = tFactory.set_geometry_type(type::ANALYTIC);
+					    tSphere_1->set_analytical_function(type::COMPOSITE_FIBER_STRAIGHT_1);
+//					    tSphere_1->set_analytical_function_dphi_dx(type::SPHERE);
 
-						for( uint w=0; w<6; w++ )
-						{
-						Matrix< DDRMat > tNodeCoords = tMesh3DHexs_norms->get_node_coordinate( tTemp( 0, w ) );
-//						print( tNodeCoords, "node coords: ");
-						}
-						//------------------------------------------------------------------------------
-//						std::string tOutputFile = "./ge_test7_edgeNorms.exo";
-//						tMesh3DHexs_norms->create_output_mesh(tOutputFile);
+					    Matrix< DDRMat > tCoord(1,3);
+					    tCoord(0,0) = 1.0;
+					    tCoord(0,1) = 1.0;
+					    tCoord(0,2) = 1.0;
+//
+//					    moris::Cell< real > tInput(4);
+//					    tInput(0) = 0.0;
+//					    tInput(1) = 0.0;
+//					    tInput(2) = 0.0;
+//					    tInput(3) = 3.0;
 
-						/* fixme make function for GE to compute the edge normals in 3D
-						 * fixme need to add checks for test */
+					    moris::Cell< real > tInput(9);
+					    tInput(0) = 0.25;
+					    tInput(1) = 2.0;
+					    tInput(2) = 0.5;
+					    tInput(3) = 3.0;
+					    tInput(4) = 1.0;
+					    tInput(5) = 0.01;
+					    tInput(6) = 0.2;
+					    tInput(7) = 0.0;
+					    tInput(8) = 0.0;
+					    tInput(9) = 0.0;
 
-						delete tMesh3DHexs_norms;
+					    real tVal = tSphere_1->get_field_val_at_coordinate( tCoord, tInput );
+					    std::cout<<"val at coord: "<<tVal<<std::endl;
+
+//					    Matrix< DDRMat > tDphiDp = tSphere_1->get_sensitivity_dphi_dp_at_coordinate( tCoord, tInput );
+//					    print(tDphiDp,"dphi/dp");
+
 					}
 						}
 //------------------------------------------------------------------------------
@@ -649,25 +640,39 @@ plane_function( const Matrix< DDRMat > & aPoint,
                         aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad9;
                         aMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
 
-                        mtk::Mesh* tMesh2D_Quad9 = create_mesh( MeshType::STK, aMeshData );
+                        mtk::Mesh* tMesh2D_Quad9 = create_mesh( MeshType::STK, aMeshData);
                         //------------------------------------------------------------------------------
 
-                        // call function to determine phi values at nodes
+                        // setup the geometry engine and specify LS function parameters (circle)
                         //------------------------------------------------------------------------------
-                        Matrix< DDRMat > tPhi;
+                        Ge_Factory tFactory;
+                        Geometry*  tGeomType = tFactory.set_geometry_type(type::ANALYTIC);
+                        tGeomType->set_analytical_function(circle_function);
 
                         GE tGeometryEngine;
+                        tGeometryEngine.set_geometry( tGeomType );
 
-                        tPhi = tGeometryEngine.determine_phi_values( tTMat, tMesh2D_Quad9 );
-                        print(tPhi, "phi values at nodes");
+                        moris::Cell< real > tCircleInputs(3);
+                        tCircleInputs(0) = 0.00; // x location of center
+                        tCircleInputs(1) = 0.00; // y location of center
+                        tCircleInputs(2) = 2.50; // radius of circle
+                        //------------------------------------------------------------------------------
+
+                        // call function to determine phiHat and use it to check phi values at nodes
+                        //------------------------------------------------------------------------------
+                        Matrix< DDRMat > tPhiHat;
+                        tPhiHat = tGeometryEngine.determine_phi_hat( tTMat, tMesh2D_Quad9, tCircleInputs, 0 );
+
+                        Matrix< DDRMat > tPhi = tTMat*tPhiHat;
 
                         //------------------------------------------------------------------------------
 
                         // perform check
                         //------------------------------------------------------------------------------
-                        real tEpsilon = 0.000000000001;    // error tolerance 1e-12
+                        real tEpsilon     = 0.000000000001;    // error tolerance 1e-12
+
                         Matrix< DDRMat > tCheckMatrix(9,1);
-                        tCheckMatrix(0,0) = -2.499999999999988;
+                        tCheckMatrix(0,0) =  2.499999999999988;
                         tCheckMatrix(1,0) =  2.500000000000021;
                         tCheckMatrix(2,0) =  4.571067811865491;
                         tCheckMatrix(3,0) =  2.500000000000006;
@@ -683,6 +688,10 @@ plane_function( const Matrix< DDRMat > & aPoint,
                         {
                             REQUIRE( tDiffMat(i) < tEpsilon);
                         }
+                        //------------------------------------------------------------------------------
+
+//                        std::string tOutputFile = "./phiVals.exo";
+//                        tMesh2D_Quad9->create_output_mesh(tOutputFile);
                         //------------------------------------------------------------------------------
                         delete tMesh2D_Quad9;
                     }

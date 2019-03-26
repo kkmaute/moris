@@ -229,24 +229,20 @@ namespace moris
                mStaircaseBuffer = aBufferSize;
            }
 
-
 //--------------------------------------------------------------------------------
 
            auto
-           get_staircase_buffer() const  -> decltype( mStaircaseBuffer )
+           get_staircase_buffer() const -> decltype( mStaircaseBuffer )
            {
                if( mBSplineTruncationFlag )
                {
-                   return std::max(
-                           std::max( mStaircaseBuffer, mMaxPolynomial ),
-                           mRefinementBuffer );
+                   return std::max( std::max( mStaircaseBuffer, mMaxPolynomial ), mRefinementBuffer );
                }
                else
                {
                    return std::max( mStaircaseBuffer, mRefinementBuffer );
                }
            }
-
 
 //--------------------------------------------------------------------------------
 
@@ -261,7 +257,6 @@ namespace moris
            {
                return mRefinementBuffer;
            }
-
 
 //--------------------------------------------------------------------------------
 

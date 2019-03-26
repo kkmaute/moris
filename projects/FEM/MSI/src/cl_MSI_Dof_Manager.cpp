@@ -172,6 +172,10 @@ namespace moris
 
         // Bcast unique mPdofTypeList to all processors
         MPI_Bcast( (mPdofTypeList.data()).data(), mPdofTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+
+        //------------------------------------------------------------------------------------------------------
+
+        mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );
     }
 
     //-----------------------------------------------------------------------------------------------------------
@@ -215,7 +219,7 @@ namespace moris
          // Loop over all equation objects. Ask them to create their pdof hosts. Pdof hosts are stored in tPdofHostList
          for ( moris::uint Ii=0; Ii < tNumEquationObj; Ii++ )
          {
-             aListEqnObj( Ii )->create_my_pdof_hosts( tNumUsedDofTypes, mPdofTypeMap, tPdofHostList );
+             aListEqnObj( Ii )->create_my_pdof_hosts( tNumUsedDofTypes, mPdofTypeMap, mTimePerDofType, tPdofHostList );
          }
 
          // Determine number of Pdof Hosts
@@ -539,7 +543,6 @@ namespace moris
 
                     MORIS_ASSERT( ( aAdofListofTypes( Ij )( tLocalAdofInd )->get_adof_owning_processor() ) == par_rank(), "Dof_Manager::communicate_shared_adof_ids: Adof not owned by this processor");
 
-
                     tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tLocalAdofInd ) )->get_adof_id();
 
                     //tSharesAdofIdList( Ik )( Ii, 0 ) = ( aAdofListofTypes( Ij )( tMatsToReceive( Ik )( Ii ) ) )->get_adof_id();
@@ -694,7 +697,6 @@ namespace moris
 
             // Multigrid Type time identifier to type map  -> Type for Type time identifier
             moris::uint tCounterTypeTime = 1;
-
             if ( tCounterTypeTime < tTimeLevelOffsets.length() )
             {
                 if ( Ik < tTimeLevelOffsets( tCounterTypeTime, 0 ))

@@ -40,12 +40,15 @@ namespace MSI
 //-----------------------------------------------------------------------------------------------------------
 
     void Pdof_Host::set_pdof_type( const enum Dof_Type      aDof_Type,
-                                   const uint             & aTimeStepsofDofType,
+                                   const Matrix< DDUMat > & aTimePerDofType,
                                    const moris::uint        aNumUsedDofTypes,
                                    const Matrix< DDSMat > & aPdofTypeMap)
     {
         // Get global dof type index
         moris::sint tDofTypeIndex = aPdofTypeMap( static_cast< int >( aDof_Type ) );
+
+        // Get number of time levels for dof type
+        moris::uint tNumTimeLevelforDofType = aTimePerDofType( tDofTypeIndex, 0 );
 
         // if dof type does not exist set new dof type.
         if( mPdofTypeExist( tDofTypeIndex ) == 0 )
@@ -53,10 +56,10 @@ namespace MSI
             // Set mPdofTypeExist to 1. ==> Dof type exists
             mPdofTypeExist( tDofTypeIndex ) = 1;
 
-            mListOfPdofTimePerType( tDofTypeIndex ).resize( aTimeStepsofDofType );
+            mListOfPdofTimePerType( tDofTypeIndex ).resize( tNumTimeLevelforDofType );
 
             // Create new dof type. Add index and time
-            for ( moris::uint Ii = 0; Ii < aTimeStepsofDofType; Ii++ )
+            for ( moris::uint Ii = 0; Ii < tNumTimeLevelforDofType; Ii++ )
             {
                 // Create pdof
                 mListOfPdofTimePerType( tDofTypeIndex )( Ii ) = new Pdof;
@@ -70,7 +73,7 @@ namespace MSI
         }
         else
         {
-            MORIS_ERROR( aTimeStepsofDofType == mListOfPdofTimePerType( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
+            MORIS_ERROR( tNumTimeLevelforDofType == mListOfPdofTimePerType( tDofTypeIndex ).size(), " Pdof_Host::set_pdof_type(). Time Levels are not consistent.");
         }
 
         // FIXME return pointer to pdof?

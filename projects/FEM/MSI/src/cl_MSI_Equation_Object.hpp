@@ -117,6 +117,7 @@ class Dist_Vector;
              */
             void create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
                                        const Matrix< DDSMat >           & aPdofTypeMap,
+                                       const Matrix< DDUMat >           & aTimePerDofType,
                                              moris::Cell< Pdof_Host * > & aPdofHostList );
 
 //-------------------------------------------------------------------------------------------------

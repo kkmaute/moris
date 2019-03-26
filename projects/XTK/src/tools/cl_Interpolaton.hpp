@@ -86,19 +86,19 @@ public:
      * @param[in] aInterpVars - Interpolation Vars (x,y,z are treated as independent interpolation variables
      * @param[in] aLclCoords  - Local coordinates to interpolate to (a point at the center of edge has {{0}}
      */
-    template<typename Matrix_Type>
-    static void bilinear_interpolation(const moris::Matrix< Matrix_Type > & aInterpVars,
-                                       const moris::Matrix< Matrix_Type > & aLocation,
-                                       moris::Matrix< Matrix_Type > & aInterpolationResult)
+    template<typename Matrix_View>
+    static void bilinear_interpolation(const moris::Matrix< moris::DDRMat > & aInterpVars,
+                                       Matrix_View & aLocation,
+                                       moris::Matrix< moris::DDRMat > & aInterpolationResult)
     {
         // Get parametric coordinate
-        typename moris::Matrix< Matrix_Type >::Data_Type xi  = aLocation(0);
-        typename moris::Matrix< Matrix_Type >::Data_Type eta = aLocation(1);
+        moris::real xi  = aLocation(0);
+        moris::real eta = aLocation(1);
         size_t tNumInt = aInterpVars.n_cols();
         aInterpolationResult.set_size(1, tNumInt);
         for(size_t i = 0; i < tNumInt; i++)
         {
-            moris::Matrix< Matrix_Type > tTmpVar = aInterpVars.get_column(i);
+            auto tTmpVar = aInterpVars.get_column(i);
 
             aInterpolationResult(0, i) = (tTmpVar(0) * (1 - xi) * (1 - eta)
                                         + tTmpVar(1) * (1 + xi) * (1 - eta)
@@ -114,20 +114,20 @@ public:
      * @param[in] aInterpVars - Interpolation Vars (x,y,z are treated as independent interpolation variables
      * @param[in] aLclCoords  - Local coordinates to interpolate to (a point at the center of edge has {{0}}
      */
-    template<typename Real_Matrix>
-    static void trilinear_interpolation(const moris::Matrix< Real_Matrix > & aInterpVars,
-                                        const moris::Matrix< Real_Matrix > & aLocation,
-                                        moris::Matrix< Real_Matrix > & aInterpolationResult)
+    template<typename Matrix_View>
+    static void trilinear_interpolation(const moris::Matrix< moris::DDRMat > & aInterpVars,
+                                        Matrix_View & aLocation,
+                                        moris::Matrix< moris::DDRMat > & aInterpolationResult)
     {
-        typename moris::Matrix< Real_Matrix >::Data_Type xi  = aLocation(0);
-        typename moris::Matrix< Real_Matrix >::Data_Type eta = aLocation(1);
-        typename moris::Matrix< Real_Matrix >::Data_Type mu  = aLocation(2);
+        moris::real xi  = aLocation(0);
+        moris::real eta = aLocation(1);
+        moris::real mu  = aLocation(2);
         size_t tNumInt = aInterpVars.n_cols();
         aInterpolationResult.set_size(1, tNumInt);
 
         for(size_t i = 0; i < tNumInt; i++)
         {
-            moris::Matrix< Real_Matrix > tTmpVar = aInterpVars.get_column(i);
+            auto tTmpVar = aInterpVars.get_column(i);
 
             aInterpolationResult(0, i) = (tTmpVar(0) * (1 - xi) * (1 - eta) * (1 - mu)
                                         + tTmpVar(1) * (1 + xi) * (1 - eta) * (1 - mu)

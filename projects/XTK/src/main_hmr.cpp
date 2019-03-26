@@ -26,7 +26,8 @@
 //------------------------------------------------------------------------------
 
 // geometry engine
-#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
+//#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
+#include "GEN/src/cl_GE_Main.hpp"
 
 //------------------------------------------------------------------------------
 // HMR

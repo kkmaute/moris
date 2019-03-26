@@ -123,6 +123,14 @@ public:
     batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & aPendingNodes);
 
     /*!
+     * Create a batch of new nodes
+     */
+    void
+    batch_create_new_nodes(Cell<moris_index> const & aNewNodeIds,
+                           Cell<moris_index> const & aNewNodeIndices,
+                           Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates);
+
+    /*!
      * Batch create a copy node (used in unzipping)
      */
     void
@@ -154,7 +162,7 @@ public:
      * Get the global entity id from local index
      */
     moris::size_t
-    get_glb_entity_id_from_entity_loc_index(moris::size_t         aEntityIndex,
+    get_glb_entity_id_from_entity_loc_index(moris::size_t   aEntityIndex,
                                             enum EntityRank aEntityRank) const;
     /*!
      * From a vector of entity ids and ranks, return the global ids of these entities
