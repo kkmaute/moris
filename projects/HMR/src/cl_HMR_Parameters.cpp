@@ -140,41 +140,32 @@ namespace moris
      */
     Parameters::Parameters( ParameterList & aParameterList )
     {
-        string_to_mat(
-                aParameterList.get< std::string >("number_of_elements_per_dimension"),
+        string_to_mat( aParameterList.get< std::string >("number_of_elements_per_dimension"),
                 mNumberOfElementsPerDimension );
 
         // check sanity of input
-        MORIS_ERROR(
-                mNumberOfElementsPerDimension.length() == 2 ||
-                mNumberOfElementsPerDimension.length() == 3,
+        MORIS_ERROR( mNumberOfElementsPerDimension.length() == 2 || mNumberOfElementsPerDimension.length() == 3,
                 "Number of elements must be a matrix of length 2 or 3.");
 
         // get domain dimensions
-        string_to_mat(
-                        aParameterList.get< std::string >("domain_dimensions"),
-                        mDomainDimensions );
+        string_to_mat( aParameterList.get< std::string >("domain_dimensions"),
+                       mDomainDimensions );
 
         // check sanity of input
-        MORIS_ERROR(
-                mNumberOfElementsPerDimension.length() ==
-                mDomainDimensions.length(),
+        MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainDimensions.length(),
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension.");
 
         // get domain offset
-        string_to_mat(
-                aParameterList.get< std::string >("domain_offset"),
-                mDomainOffset );
+        string_to_mat( aParameterList.get< std::string >("domain_offset"),
+                       mDomainOffset );
 
         // check sanity of input
-        MORIS_ERROR(
-                mNumberOfElementsPerDimension.length() ==
-                mDomainOffset.length(),
+        MORIS_ERROR( mNumberOfElementsPerDimension.length() == mDomainOffset.length(),
                 "length of domain_offset must be equal to number_of_elements_per_dimension.");
 
         // set buffer sizes
-        this->set_refinement_buffer(  aParameterList.get< sint >("refinement_buffer") );
-        this->set_staircase_buffer(  aParameterList.get< sint >("staircase_buffer") );
+        this->set_refinement_buffer( aParameterList.get< sint >("refinement_buffer") );
+        this->set_staircase_buffer ( aParameterList.get< sint >("staircase_buffer") );
 
         // set interpolation orders
         Matrix< DDUMat > tBSplineOrders;
@@ -258,7 +249,7 @@ namespace moris
     {
         // buffer size
         this->set_refinement_buffer( aParameters.get_refinement_buffer() );
-        this->set_staircase_buffer( aParameters.get_staircase_buffer() );
+        this->set_staircase_buffer ( aParameters.get_staircase_buffer() );
 
         // verbosity flag
         this->set_verbose( aParameters.is_verbose() );
@@ -362,7 +353,7 @@ namespace moris
                     std::fprintf( stdout, "  elements per dimension ....... : %lu x %lu x %lu\n",
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 0 ),
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 1 ),
-                            ( long unsigned int ) mNumberOfElementsPerDimension ( 3 )
+                            ( long unsigned int ) mNumberOfElementsPerDimension ( 2 )
                     );
                 }
                 std::fprintf( stdout,     "  refinement buffer............. : %lu\n", ( long unsigned int ) mRefinementBuffer );
@@ -425,9 +416,8 @@ namespace moris
         void
         Parameters::update_max_polynomial_and_truncated_buffer()
         {
-            mMaxPolynomial =
-                    ( mLagrangeOrders.max() > mBSplineOrders.max() ) ?
-                            ( mLagrangeOrders.max() ) : ( mBSplineOrders.max() );
+            mMaxPolynomial = ( mLagrangeOrders.max() > mBSplineOrders.max() ) ?
+                                   ( mLagrangeOrders.max() ) : ( mBSplineOrders.max() );
         }
 
 //--------------------------------------------------------------------------------
@@ -437,8 +427,8 @@ namespace moris
         {
             // returns the larger value of max polynomial and buffer size.
             // in the future, filter with will be regarded here
-            return ( mStaircaseBuffer > mMaxPolynomial )
-                    ? ( mStaircaseBuffer ) : ( mMaxPolynomial );
+            return std::max( std::max( mStaircaseBuffer, mMaxPolynomial ), mRefinementBuffer );                    // FIXME
+            //return ( mStaircaseBuffer > mMaxPolynomial ) ? ( mStaircaseBuffer ) : ( mMaxPolynomial );
         }
 
 //--------------------------------------------------------------------------------
@@ -451,9 +441,7 @@ namespace moris
             this->error_if_locked("set_number_of_elements_per_dimension");
 
             // check sanity of input
-            MORIS_ERROR(
-                    aNumberOfElementsPerDimension.length() == 2 ||
-                    aNumberOfElementsPerDimension.length() == 3,
+            MORIS_ERROR( aNumberOfElementsPerDimension.length() == 2 || aNumberOfElementsPerDimension.length() == 3,
                     "Number of elements must be a matrix of length 2 or 3.");
 
             mNumberOfElementsPerDimension = aNumberOfElementsPerDimension;
@@ -664,8 +652,7 @@ namespace moris
             for ( uint k=0; k<tNumberOfDimensions; ++k )
             {
                 aDomain( 0, k ) = tPaddingSize;
-                aDomain( 1, k ) = aDomain( 0, k )
-                        + mNumberOfElementsPerDimension( k ) - 1;
+                aDomain( 1, k ) = aDomain( 0, k ) + mNumberOfElementsPerDimension( k ) - 1;
             }
 
             return aDomain;
@@ -692,8 +679,7 @@ namespace moris
                 // use default setting:
 
                 // dimensions
-                uint tNumberOfDimensions
-                    = mNumberOfElementsPerDimension.length();
+                uint tNumberOfDimensions = mNumberOfElementsPerDimension.length();
 
                 // return defalult values
                 Matrix< DDRMat > aDimensions( tNumberOfDimensions, 1 );

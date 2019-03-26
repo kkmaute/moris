@@ -137,8 +137,7 @@ namespace moris
                 {
                     for ( uint k=0; k<N; ++k )
                     {
-                        aMat( k, l ) =
-                             mMySubDomain.mNumberOfElementsPerDimension[ l ][ k ];
+                        aMat( k, l ) = mMySubDomain.mNumberOfElementsPerDimension[ l ][ k ];
                     }
                 }
                 return aMat;
@@ -162,8 +161,7 @@ namespace moris
                 {
                     for ( uint k=0; k<N; ++k )
                     {
-                        aMat( k, l ) =
-                                mDomain.mNumberOfElementsPerDimension[ l ][ k ];
+                        aMat( k, l ) = mDomain.mNumberOfElementsPerDimension[ l ][ k ];
                     }
                 }
                 return aMat;
@@ -545,6 +543,7 @@ namespace moris
                 // calculate decomposition domain
                 // set owned and shared limits
                 Matrix< DDLUMat > tDomainIJK( 2, N );
+
                 for ( uint k=0; k<N; ++k )
                 {
                     tDomainIJK( 0, k ) =   mPaddingSize
@@ -632,9 +631,7 @@ namespace moris
                     // loop over all dimensions and copy elements
                     for( uint k=0; k<tNumberOfDimensions; ++k )
                     {
-                        tProcSplit( k )
-                                =     mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ]
-                                  - 2*mPaddingSize;
+                        tProcSplit( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ] - 2*mPaddingSize;
 
                         if ( tProcSplit( k ) < mPaddingSize )
                         {
@@ -734,8 +731,7 @@ namespace moris
                 Matrix< DDLUMat > aNumberOfElements( N, 1 );
                 for( uint k=0; k<N; ++k )
                 {
-                    aNumberOfElements( k )
-                          =  mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ];
+                    aNumberOfElements( k ) =  mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ];
                 }
                 return aNumberOfElements;
             }
