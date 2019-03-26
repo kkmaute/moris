@@ -69,8 +69,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
             // refine a few elements in the mesh
             for( moris::uint l=0; l<tLevel; ++l  )
             {
-                auto tNumberOfElements
-                =  tBackgroundMesh->get_number_of_active_elements_on_proc();
+                auto tNumberOfElements =  tBackgroundMesh->get_number_of_active_elements_on_proc();
 
                 // refine every other element
                 for( moris::luint k=0; k<tNumberOfElements; k += 3 )
@@ -227,6 +226,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 1 );
 
+        tParameters.set("domain_sidesets", "1, 2, 3, 4" );
 
         HMR tHMR( tParameters );
 
@@ -292,8 +292,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
 
-        //tHMR.save_to_exodus( "Mesh_lin.exo" );
-
+        tHMR.save_to_exodus( "Mesh_lin_old.exo" );
     }
 }
 

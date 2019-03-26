@@ -1255,9 +1255,8 @@ namespace moris
              * level for a side
              */
             virtual void
-            collect_coarsest_elements_on_side(
-                    const uint                       & aSideOrdinal,
-                    Cell< Background_Element_Base* > & aCoarsestElementsOnSide ) = 0;
+            collect_coarsest_elements_on_side( const uint                             & aSideOrdinal,
+                                                     Cell< Background_Element_Base* > & aCoarsestElementsOnSide ) = 0;
 
 //--------------------------------------------------------------------------------
         private:

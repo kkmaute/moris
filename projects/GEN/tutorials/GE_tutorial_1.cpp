@@ -316,10 +316,10 @@ main(
 	 */
 
 	Ge_Factory tFactory;
-	Geometry* type0 = tFactory.pick_flag(flagType::Analytical);
+	Geometry* type0 = tFactory.set_geometry_type(type::ANALYTIC);
 	type0->set_analytical_function(sphere_function);
 
-	Geometry* type1 = tFactory.pick_flag(flagType::Analytical);
+	Geometry* type1 = tFactory.set_geometry_type(type::ANALYTIC);
 	type1->set_analytical_function(sphere_function);
 
 	/*!
