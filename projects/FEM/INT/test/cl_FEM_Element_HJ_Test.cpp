@@ -37,25 +37,6 @@
 
 namespace moris
 {
-
-moris::real
-LevelSetCircleFunction( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    return std::sqrt( std::pow(aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) ) - 2.5;
-}
-
-moris::real
-LevelSetSphereFunction( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    return  std::pow(aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) - std::pow( 2.5, 2 );
-}
-
-moris::real
-LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    return aPoint( 0 ) - 2.5;
-}
-
     namespace fem
     {
 
@@ -161,6 +142,12 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                                                                      & tMesh->get_mtk_cell( k ),
                                                                      tIWGs,
                                                                      tNodes );
+
+                    // create list of time ordinals
+                    Matrix< IndexMat > tListOfTimeOrdinals = { { 1 } };
+
+                    // set the element list of time ordinals
+                    tElements( k )->set_list_of_time_ordinals( tListOfTimeOrdinals );
                 }
 
                 //4) Create the model solver interface -----------------------------------------
@@ -240,29 +227,29 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-//                // 7) Solve --------------------------------------------------------------------
-//                std::cout<<" Solve "<<std::endl;
-//                //------------------------------------------------------------------------------
-//                Matrix<DDRMat> tSolution1;
-//
-//                // call solver
-//                tNonlinearSolver->solve( tNonlinearProblem );
-//
-//                // temporary array for solver
-//                Matrix< DDRMat > tSolution;
-//                tNonlinearSolverAlgorithm->get_full_solution( tSolution );
-//
-//                // get length of array
-//                uint tLength = tSolution.length();
-//
-//                // rearrange data into output
-//                tSolution1.set_size( tLength, 1 );
-//
-//                for( uint k = 0; k < tLength; k++ )
-//                {
-//                    tSolution1( k ) = tSolution( tAdofMap( k ) );
-//                }
-//                print( tSolution1, "tSolution1" );
+                // 7) Solve --------------------------------------------------------------------
+                std::cout<<" Solve "<<std::endl;
+                //------------------------------------------------------------------------------
+                Matrix<DDRMat> tSolution1;
+
+                // call solver
+                tNonlinearSolver->solve( tNonlinearProblem );
+
+                // temporary array for solver
+                Matrix< DDRMat > tSolution;
+                tNonlinearSolverAlgorithm->get_full_solution( tSolution );
+
+                // get length of array
+                uint tLength = tSolution.length();
+
+                // rearrange data into output
+                tSolution1.set_size( tLength, 1 );
+
+                for( uint k = 0; k < tLength; k++ )
+                {
+                    tSolution1( k ) = tSolution( tAdofMap( k ) );
+                }
+                print( tSolution1, "tSolution1" );
 
                 // 8) Clean up -----------------------------------------------------------------
                 std::cout<<" Clean up "<<std::endl;

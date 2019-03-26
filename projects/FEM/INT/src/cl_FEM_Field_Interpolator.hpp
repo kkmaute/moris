@@ -12,7 +12,6 @@
 #include "cl_Matrix.hpp" //LNA/src
 #include "cl_Cell.hpp"
 #include "linalg_typedefs.hpp" //LNA/src
-#include "assert.h"
 
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src

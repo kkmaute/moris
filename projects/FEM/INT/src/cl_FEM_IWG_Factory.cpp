@@ -9,6 +9,8 @@
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"  //FEM/INT/src
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"  //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp" //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Sideset.hpp" //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_LSNormal_Bulk.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"        //FEM/INT/src
 #include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"   //FEM/INT/src
@@ -54,7 +56,11 @@ namespace moris
                     break;
 
                 case ( IWG_Type::SPATIALDIFF_SIDESET ):
-                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Bulk();
+                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Sideset();
+                    break;
+
+                case ( IWG_Type::SPATIALDIFF_DIRICHLET ):
+                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Dirichlet();
                     break;
 
                 default:

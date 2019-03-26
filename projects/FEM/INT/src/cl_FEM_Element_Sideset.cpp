@@ -10,10 +10,10 @@ namespace moris
 
         Element_Sideset::Element_Sideset( mtk::Cell                 * aCell,
                                           moris::Cell< IWG* >       & aIWGs,
-                                          moris::Cell< Node_Base* > & aNodes )
+                                          moris::Cell< Node_Base* > & aNodes)
                                         : Element( aCell, aIWGs, aNodes )
         {
-            //create a geometry interpolation rule
+            //create the element geometry interpolation rule
             //FIXME: forced interpolation type and order
             Interpolation_Rule tGeometryInterpolationRule( mCell->get_geometry_type(),
                                                            Interpolation_Type::LAGRANGE,
@@ -21,16 +21,14 @@ namespace moris
                                                            Interpolation_Type::LAGRANGE,
                                                            mtk::Interpolation_Order::LINEAR );
 
-            // create a geometry intepolator
-            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule );
+            // create the element geometry intepolator
+            bool tSpaceSideset = true;
+            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule,
+                                                               tSpaceSideset );
 
-            // set the geometry interpolator coefficients xHat and tHat
-            //FIXME: tHat are set by default but should come from solver
-            Matrix< DDRMat > tTHat( 2, 1 ); tTHat( 0 ) = 0.0; tTHat( 1 ) = 1.0;
-            mGeometryInterpolator->set_coeff( mCell->get_vertex_coords(), tTHat );
+            // create the element field interpolators
+            mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
 
-            // create field interpolators for the element
-            mFieldInterpolators = this->create_element_field_interpolators( mGeometryInterpolator );
         }
 
 //------------------------------------------------------------------------------
@@ -57,11 +55,8 @@ namespace moris
 
         void Element_Sideset::compute_residual()
         {
-            //MORIS_ERROR( false, " Element_Sideset::compute_residual - not implemented. ");
-
-            // FIXME: get the ordinal of the faces
-            Matrix< IndexMat > tSidesetOrdinals = { { 0, 1, 2, 3, 4, 5 } };
-            uint tNumOfSideSets = tSidesetOrdinals.numel();
+            // get the number of side ordinals
+            uint tNumOfSideSets = mListOfSideOrdinals.numel();
 
             // initialize mJacobianElement and mResidualElement
             this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
@@ -70,46 +65,44 @@ namespace moris
             this->get_my_pdof_values();
 
             // set field interpolators coefficients
-            this->set_element_field_interpolators_coefficients( mFieldInterpolators );
+            this->set_field_interpolators_coefficients( mFieldInterpolators );
+
+            // set the geometry interpolator coefficients
+            //FIXME: tHat are set by default but should come from solver
+            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
+            mGeometryInterpolator->set_coeff( mCell->get_vertex_coords(), tTHat );
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
             {
-                // get sideset coordinates in the parent parametric space
-                //FIXME forced
-                Matrix< DDRMat > tSidesetCoord( 2, 4, 1.0 );
-
-                // create a geometry interpolation rule for the sideset
-                // FIXME geometry type forced to QUAD
-                Interpolation_Rule tSidesetGeoInterpRule( mtk::Geometry_Type::QUAD,
-                                                          Interpolation_Type::LAGRANGE,
-                                                          this->get_auto_interpolation_order(),
-                                                          Interpolation_Type::LAGRANGE,
-                                                          mtk::Interpolation_Order::LINEAR );
-
-
-                // create a geometry interpolator for the sideset
-                Geometry_Interpolator tSidesetGeoInterp = Geometry_Interpolator( tSidesetGeoInterpRule );
+                // get the treatedSideOrdinal
+                moris_index tTreatedSideOrdinal = mListOfSideOrdinals( iSideset );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
                 {
+                    // get the treated IWG
+                    IWG* tTreatedIWG = mIWGs( iIWG );
+
+                    // FIXME
+                    tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
+
                     // get the index of the residual dof type for the ith IWG in the list of element dof type
                     uint tIWGResDofIndex
-                        = mInterpDofTypeMap( static_cast< int >( mIWGs( iIWG )->get_residual_dof_type()( 0 ) ) );
+                        = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
 
-                    Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = mIWGs( iIWG )->get_active_dof_types();
+                    Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = tTreatedIWG->get_active_dof_types();
                     uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
 
                     // get the field interpolators for the ith IWG in the list of element dof type
                     Cell< Field_Interpolator* > tIWGInterpolators
-                        = this->get_IWG_field_interpolators( mIWGs( iIWG ), mFieldInterpolators );
+                        = this->get_IWG_field_interpolators( tTreatedIWG, mFieldInterpolators );
 
                     // create an integration rule for the ith IWG
-                    //FIXME: set by default
-                    Integration_Rule tIntegrationRule( mtk::Geometry_Type::QUAD,
+                    mtk::Geometry_Type tSideGeometryType = mGeometryInterpolator->get_side_geometry_type();
+                    Integration_Rule tIntegrationRule( tSideGeometryType,
                                                        Integration_Type::GAUSS,
-                                                       this->get_auto_integration_order(),
+                                                       this->get_auto_integration_order( tSideGeometryType ),
                                                        Integration_Type::GAUSS,
                                                        Integration_Order::BAR_1 );
 
@@ -129,10 +122,10 @@ namespace moris
                    {
                        // get integration point location in the reference surface
                        Matrix< DDRMat > tSurfRefIntegPointI = tSurfRefIntegPoints.get_column( iGP );
-                       //FIXME: il faut enlever le temps
 
                        // get integration point location in the reference volume
-                       Matrix< DDRMat > tVolRefIntegPointI = tSidesetGeoInterp.NXi( tSurfRefIntegPointI ) * tSidesetCoord;
+                       Matrix< DDRMat > tVolRefIntegPointI
+                           = mGeometryInterpolator->surf_val( tSurfRefIntegPointI, tTreatedSideOrdinal );
 
                        // set integration point
                        for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -140,15 +133,20 @@ namespace moris
                            tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
                        }
 
-                       // compute determinant of Jacobian mapping
-                       real tSurfDetJ = mGeometryInterpolator->surf_det_J( tSurfRefIntegPointI );
-
                        // compute integration point weight x detJ
+                       real tSurfDetJ;
+                       Matrix< DDRMat > tNormal;
+                       mGeometryInterpolator->surf_det_J( tSurfDetJ,
+                                                          tNormal,
+                                                          tSurfRefIntegPointI,
+                                                          tTreatedSideOrdinal );
+                       tTreatedIWG->set_normal( tNormal );
+
                        real tWStar = tIntegWeights( iGP ) * tSurfDetJ;
 
                        // compute jacobian at evaluation point
                        Matrix< DDRMat > tResidual;
-                       mIWGs( iIWG )->compute_residual( tResidual, tIWGInterpolators );
+                       tTreatedIWG->compute_residual( tResidual, tIWGInterpolators );
 
                        // add contribution to jacobian from evaluation point
                        mResidualElement( tIWGResDofIndex )
@@ -156,13 +154,162 @@ namespace moris
                    }
                 }
             }
+            // residual assembly
+            uint tCounterI = 0;
+            uint startI, stopI;
+
+            // loop over the field interpolators
+            for ( uint iBuild = 0; iBuild < mNumOfInterp; iBuild++ )
+            {
+                // get the row position in the residual matrix
+                startI = tCounterI;
+                stopI  = tCounterI + mFieldInterpolators( iBuild )->get_number_of_space_time_coefficients() - 1;
+
+                // fill the global residual
+                mResidual( { startI, stopI }, { 0 , 0 } ) = mResidualElement( iBuild ).matrix_data();
+
+                // update the row counter
+                tCounterI = stopI + 1;
+            }
         }
 
 //------------------------------------------------------------------------------
 
         void Element_Sideset::compute_jacobian()
         {
-            MORIS_ERROR( false, " Element_Sideset::compute_jacobian - not implemented. ");
+            // get the number of side ordinals
+            uint tNumOfSideSets = mListOfSideOrdinals.numel();
+
+            // initialize mJacobianElement and mResidualElement
+            this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
+
+            // get pdofs values for the element
+            this->get_my_pdof_values();
+
+            // set field interpolators coefficients
+            this->set_field_interpolators_coefficients( mFieldInterpolators );
+
+            // set the geometry interpolator coefficients
+            //FIXME: tHat are set by default but should come from solver
+            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
+            mGeometryInterpolator->set_coeff( mCell->get_vertex_coords(), tTHat );
+
+            // loop over the sideset faces
+            for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
+            {
+                // get the treated side ordinal
+                moris_index tTreatedSideOrdinal = mListOfSideOrdinals( iSideset );
+
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
+                {
+                    // get the treated IWG
+                    IWG* tTreatedIWG = mIWGs( iIWG );
+
+                    // FIXME
+                    tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
+
+                    // get the index of the residual dof type for the ith IWG in the list of element dof type
+                    uint tIWGResDofIndex
+                        = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
+
+                    Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = tTreatedIWG->get_active_dof_types();
+                    uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
+
+                    // get the field interpolators for the ith IWG in the list of element dof type
+                    Cell< Field_Interpolator* > tIWGInterpolators
+                        = this->get_IWG_field_interpolators( tTreatedIWG, mFieldInterpolators );
+
+                    // create an integration rule for the ith IWG
+                    mtk::Geometry_Type tSideGeometryType = mGeometryInterpolator->get_side_geometry_type();
+                    Integration_Rule tIntegrationRule( tSideGeometryType,
+                                                       Integration_Type::GAUSS,
+                                                       this->get_auto_integration_order( tSideGeometryType ),
+                                                       Integration_Type::GAUSS,
+                                                       Integration_Order::BAR_1 );
+
+                    // create an integrator for the ith IWG
+                    Integrator tIntegrator( tIntegrationRule );
+
+                    //get number of integration points
+                    uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+                    // get integration points
+                    Matrix< DDRMat > tSurfRefIntegPoints = tIntegrator.get_points();
+
+                   // get integration weights
+                   Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+
+                   for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+                   {
+                       // get integration point location in the reference surface
+                       Matrix< DDRMat > tSurfRefIntegPointI = tSurfRefIntegPoints.get_column( iGP );
+
+                       // get integration point location in the reference volume
+                       Matrix< DDRMat > tVolRefIntegPointI
+                           = mGeometryInterpolator->surf_val( tSurfRefIntegPointI,
+                                                              tTreatedSideOrdinal );
+
+                       // set integration point
+                       for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
+                       {
+                           tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
+                       }
+
+                       // compute integration point weight x detJ
+                       real tSurfDetJ;
+                       Matrix< DDRMat > tNormal;
+                       mGeometryInterpolator->surf_det_J( tSurfDetJ,
+                                                          tNormal,
+                                                          tSurfRefIntegPointI,
+                                                          tTreatedSideOrdinal );
+                       tTreatedIWG->set_normal( tNormal );
+
+                       real tWStar = tIntegWeights( iGP ) * tSurfDetJ;
+
+                       // compute jacobian at evaluation point
+                       Cell< Matrix< DDRMat > > tJacobians;
+                       tTreatedIWG->compute_jacobian( tJacobians, tIWGInterpolators );
+
+                       // add contribution to jacobian from evaluation point
+                       for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++)
+                       {
+                           uint tIWGActiveDofIndex
+                               = mInterpDofTypeMap( static_cast< int >( tIWGActiveDofType( iIWGFI )( 0 ) ) );
+
+                           uint tJacIndex
+                               = tIWGResDofIndex * mNumOfInterp + tIWGActiveDofIndex;
+
+                           mJacobianElement( tJacIndex )
+                               = mJacobianElement( tJacIndex ) + tWStar * tJacobians( iIWGFI );
+                       }
+                   }
+                }
+            }
+
+            // jacobian assembly
+            uint tCounterI = 0;
+            uint tCounterJ = 0;
+            uint startI, stopI, startJ, stopJ;
+
+            for ( uint i = 0; i < mNumOfInterp; i++ )
+            {
+                startI = tCounterI;
+                stopI  = tCounterI + mFieldInterpolators( i )->get_number_of_space_time_coefficients() - 1;
+
+                tCounterJ = 0;
+                for ( uint j = 0; j < mNumOfInterp; j++ )
+                {
+                    startJ = tCounterJ;
+                    stopJ  = tCounterJ + mFieldInterpolators( j )->get_number_of_space_time_coefficients() - 1;
+
+                    mJacobian({ startI, stopI },{ startJ, stopJ }) = mJacobianElement( i * mNumOfInterp + j ).matrix_data();
+
+                    tCounterJ = stopJ + 1;
+                }
+                tCounterI = stopI + 1;
+            }
+            //print(mJacobian,"mJacobian");
         }
 
 //------------------------------------------------------------------------------
@@ -174,119 +321,58 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< fem::Field_Interpolator* >
-        Element_Sideset::create_element_field_interpolators
-        ( fem::Geometry_Interpolator* aGeometryInterpolator )
-        {
-            // cell of field interpolators
-            Cell< Field_Interpolator* > tFieldInterpolators( mNumOfInterp, nullptr );
-
-            // loop on the dof type groups and create a field interpolator for each
-            for( uint i = 0; i < mNumOfInterp; i++ )
-            {
-                // get the ith dof type group
-                Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
-
-                // create the field interpolation rule for the ith dof type group
-                //FIXME: space interpolation based on the mtk::Cell
-                //FIXME: time  interpolation set to constant
-                Interpolation_Rule tFieldInterpolationRule( mCell->get_geometry_type(),
-                                                            Interpolation_Type::LAGRANGE,
-                                                            this->get_auto_interpolation_order(),
-                                                            Interpolation_Type::CONSTANT,
-                                                            mtk::Interpolation_Order::CONSTANT );
-
-                // get number of field interpolated by the ith field interpolator
-                uint tNumOfFields = tDofTypeGroup.size();
-
-                // create an interpolator for the ith dof type group
-                tFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
-                                                                   tFieldInterpolationRule,
-                                                                   aGeometryInterpolator );
-            }
-            return tFieldInterpolators;
-        }
-
-//------------------------------------------------------------------------------
-
-        void
-        Element_Sideset::set_element_field_interpolators_coefficients
-        ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-        {
-            // loop on the dof types
-            for( uint i = 0; i < mNumOfInterp; i++ )
-            {
-                // get the ith dof type group
-                Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
-
-                //FIXME:forced coefficients
-                // get the pdof values for the ith dof type group
-                Matrix< DDRMat > tCoeff;
-                this->get_my_pdof_values( tDofTypeGroup, tCoeff );
-
-                // set the field coefficients
-                aFieldInterpolators( i )->set_coeff( tCoeff );
-            }
-        }
+//        moris::Cell< fem::Field_Interpolator* > Element_Sideset::create_field_interpolators
+//            ( fem::Geometry_Interpolator* aGeometryInterpolator )
+//        {
+//            // cell of field interpolators
+//            moris::Cell< Field_Interpolator* > tFieldInterpolators( mNumOfInterp, nullptr );
+//
+//            // loop on the dof type groups and create a field interpolator for each
+//            for( uint i = 0; i < mNumOfInterp; i++ )
+//            {
+//                // get the ith dof type group
+//                Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
+//
+//                // create the field interpolation rule for the ith dof type group
+//                //FIXME: space interpolation based on the mtk::Cell
+//                //FIXME: time  interpolation set to constant
+//                Interpolation_Rule tFieldInterpolationRule( mCell->get_geometry_type(),
+//                                                            Interpolation_Type::LAGRANGE,
+//                                                            this->get_auto_interpolation_order(),
+//                                                            Interpolation_Type::CONSTANT,
+//                                                            mtk::Interpolation_Order::CONSTANT );
+//
+//                // get number of field interpolated by the ith field interpolator
+//                uint tNumOfFields = tDofTypeGroup.size();
+//
+//                // create an interpolator for the ith dof type group
+//                tFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
+//                                                                   tFieldInterpolationRule,
+//                                                                   aGeometryInterpolator );
+//            }
+//            return tFieldInterpolators;
+//        }
 
 //------------------------------------------------------------------------------
-        void
-        Element_Sideset::initialize_mJacobianElement_and_mResidualElement
-        ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-        {
-            mJacobianElement.resize( mNumOfInterp * mNumOfInterp );
-            mResidualElement.resize( mNumOfInterp );
 
-            uint tTotalDof = 0;
-            for( uint i = 0; i < mNumOfInterp; i++ )
-            {
-                // get number of pdofs for the ith dof type
-                uint tNumOfDofi = aFieldInterpolators( i )->get_number_of_space_time_coefficients();
-
-                // get total number of dof
-                tTotalDof = tTotalDof + tNumOfDofi;
-
-                // set mResidualElement size
-                mResidualElement( i ).set_size( tNumOfDofi, 1, 0.0 );
-
-                for( uint j = 0; j < mNumOfInterp; j++ )
-                {
-                    // get number of pdofs for the ith dof type
-                    uint tNumOfDofj = aFieldInterpolators( j )->get_number_of_space_time_coefficients();
-
-                    // set mResidualElement size
-                    mJacobianElement( i * mNumOfInterp + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
-                }
-            }
-
-            mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
-            mResidual.set_size( tTotalDof, 1, 0.0 );
-        }
-
-
-//------------------------------------------------------------------------------
-        moris::Cell< Field_Interpolator* >
-        Element_Sideset::get_IWG_field_interpolators( IWG*                               & aIWG,
-                                                      moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-        {
-            // ask the IWG for its active dof types
-            Cell< Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
-
-            // number of active dof type for the IWG
-            uint tNumOfIWGActiveDof = tIWGActiveDof.size();
-
-            // select associated active interpolators
-            Cell< Field_Interpolator* > tIWGFieldInterpolators( tNumOfIWGActiveDof, nullptr );
-            for( uint i = 0; i < tNumOfIWGActiveDof; i++ )
-            {
-                // find the index of active dof type in the list of element dof type
-                uint tIWGDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDof( i )( 0 ) ) );
-
-                // select the corresponding interpolator
-                tIWGFieldInterpolators( i ) = aFieldInterpolators( tIWGDofIndex );
-            }
-            return tIWGFieldInterpolators;
-        }
+//        void
+//        Element_Sideset::set_field_interpolators_coefficients
+//        ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+//        {
+//            // loop on the dof types
+//            for( uint i = 0; i < mNumOfInterp; i++ )
+//            {
+//                // get the ith dof type group
+//                Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
+//
+//                // get the pdof values for the ith dof type group
+//                Matrix< DDRMat > tCoeff;
+//                this->get_my_pdof_values( tDofTypeGroup, tCoeff );
+//
+//                // set the field coefficients
+//                aFieldInterpolators( i )->set_coeff( tCoeff );
+//            }
+//        }
 
 //------------------------------------------------------------------------------
 

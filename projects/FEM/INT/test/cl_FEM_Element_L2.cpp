@@ -191,7 +191,6 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                         // copy weak bc into element
                         tNodalWeakBCs( l ) = tNodalValues( tNodeIndices( l ) );
                     }
-                    //print( tNodalWeakBCs, "tNodalWeakBCs" );
                 }
 
                 //4) Create the model solver interface -----------------------------------------

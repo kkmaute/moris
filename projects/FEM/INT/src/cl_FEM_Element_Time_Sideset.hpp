@@ -25,6 +25,8 @@ namespace moris
 //------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
+//        // a member list of time side ordinals
+//        moris::Cell< moris_index > mListOfTimeOrdinals;
 
 //------------------------------------------------------------------------------
     public:
@@ -37,9 +39,9 @@ namespace moris
          * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
          * @param[ in ]     cell of pointer to fem nodes
          */
-        Element_Time_Sideset( mtk::Cell                 * aCell,
-                              moris::Cell< IWG* >       & aIWGs,
-                              moris::Cell< Node_Base* > & aNodes );
+        Element_Time_Sideset( mtk::Cell                  * aCell,
+                              moris::Cell< IWG* >        & aIWGs,
+                              moris::Cell< Node_Base* >  & aNodes );
 //------------------------------------------------------------------------------
         /**
          * destructor
@@ -67,35 +69,20 @@ namespace moris
 //------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
-        /**
-         * create the field interpolators for the element
-         */
-        Cell< Field_Interpolator* >
-        create_element_field_interpolators
-        ( Geometry_Interpolator* aGeometryInterpolator );
+//        /**
+//         * create the field interpolators for the element
+//         */
+//        Cell< Field_Interpolator* > create_field_interpolators
+//            ( Geometry_Interpolator* aGeometryInterpolator );
 
 //------------------------------------------------------------------------------
-        /**
-         * set the field interpolators coefficients
-         */
-        void
-        set_element_field_interpolators_coefficients
-        ( Cell< Field_Interpolator* > & aFieldInterpolators );
-
-//------------------------------------------------------------------------------
-        /**
-         * get the field interpolators for an IWG
-         */
-        Cell< Field_Interpolator* >
-        get_IWG_field_interpolators( IWG*                        & aIWG,
-                                     Cell< Field_Interpolator* > & aFieldInterpolators );
-//------------------------------------------------------------------------------
-        /**
-         * set the initial sizes and values for mJacobianElement and mResidualElement
-         */
-        void
-        initialize_mJacobianElement_and_mResidualElement
-        ( Cell< Field_Interpolator* > & aFieldInterpolators );
+//        /**
+//         * set the field interpolators coefficients
+//         */
+//        void
+//        set_field_interpolators_coefficients
+//        ( Cell< Field_Interpolator* > & aFieldInterpolators );
+//
 
 //------------------------------------------------------------------------------
     };

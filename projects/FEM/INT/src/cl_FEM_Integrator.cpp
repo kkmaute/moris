@@ -52,13 +52,13 @@ namespace moris
             Matrix< DDRMat > tSpacePoints  = mSpaceCoeffs->get_points();
 
             // matrix with time points
-            Matrix< DDRMat > tTimePoints = mTimeCoeffs->get_points();
+            Matrix< DDRMat > tTimePoints   = mTimeCoeffs->get_points();
 
             // get number of points in space
-            uint tNumOfSpacePoints =  mSpaceCoeffs->get_number_of_points();
+            uint tNumOfSpacePoints = mSpaceCoeffs->get_number_of_points();
 
             // get number of points in time
-            uint tNumOfTimePoints = mTimeCoeffs->get_number_of_points();
+            uint tNumOfTimePoints  = mTimeCoeffs->get_number_of_points();
 
             // get number of dimensions in space
             uint tNumOfSpaceDim = mSpaceCoeffs->get_number_of_dimensions();
@@ -96,10 +96,12 @@ namespace moris
                 stopCol  = ( k + 1 ) * tNumOfSpacePoints - 1;
 
                 // fill in the space points coordinates
-                tPoints( { 0, tNumOfSpaceDim-1 }, { startCol, stopCol } ) = tSpacePoints.matrix_data();
+                tPoints( { 0, tNumOfSpaceDim-1 }, { startCol, stopCol } )
+                    = tSpacePoints.matrix_data();
 
                 // fill in the time point coordinates
-                tPoints( { tNumOfSpaceDim, tNumOfSpaceDim }, { startCol, stopCol } ) = tTimePoints( k ) * tOnes;
+                tPoints( { tNumOfSpaceDim, tNumOfSpaceDim }, { startCol, stopCol } )
+                    = tTimePoints( k ) * tOnes;
             }
             return tPoints;
         }

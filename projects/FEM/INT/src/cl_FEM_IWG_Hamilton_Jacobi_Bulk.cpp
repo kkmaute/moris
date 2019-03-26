@@ -42,6 +42,9 @@ namespace moris
             Field_Interpolator* phi = aFieldInterpolators( 0 );
             Field_Interpolator* vN  = aFieldInterpolators( 1 );
 
+            // set the jacobian size
+            aJacobians.resize( 2 );
+
             // compute the jacobian Jphiphi
             aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val() * phi->Bx() );
 
@@ -62,6 +65,9 @@ namespace moris
 
             //compute the residual
             aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute the jacobian Jphiphi
             aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val() * phi->Bx() );

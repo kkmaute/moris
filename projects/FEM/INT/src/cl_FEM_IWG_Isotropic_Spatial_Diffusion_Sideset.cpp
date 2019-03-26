@@ -15,7 +15,7 @@ namespace moris
         {
             //FIXME forced diffusion parameter
             //      forced dimensions for 3D
-            eye( 3, 3, mKappa );
+            eye( mSpaceDim, mSpaceDim, mKappa );
             mKappa = 1.0 * mKappa;
 
             // set the residual dof type
@@ -31,50 +31,48 @@ namespace moris
         IWG_Isotropic_Spatial_Diffusion_Sideset::compute_residual( Matrix< DDRMat >            & aResidual,
                                                                    Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-            // set field interpolator
-            Field_Interpolator* T  = aFieldInterpolators( 0 );
 
-            // FIXME: set normal value for 3D
-            Matrix < DDRMat > aNormal( 3, 1, 1.0 );
+            // set field interpolator
+            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 
             // compute the residual r_T
-            aResidual = trans( T->N() ) * dot( mKappa * T->gradx( 1 ), aNormal );
+            aResidual = - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal );
         }
 
 //------------------------------------------------------------------------------
 
         void
-		IWG_Isotropic_Spatial_Diffusion_Sideset::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                Cell< Field_Interpolator* > & aFieldInterpolators )
+        IWG_Isotropic_Spatial_Diffusion_Sideset::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                   Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
-            Field_Interpolator* T  = aFieldInterpolators( 0 );
+            Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
 
-            // FIXME: set normal value for 3D
-            Matrix < DDRMat > aNormal( 3, 1, 1.0 );
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = trans( T->N() ) *  trans( trans( T->Bx() ) * mKappa * aNormal ) ;
+            aJacobians( 0 ) = - trans( tTemp->N() ) *  trans( trans( tTemp->Bx() ) * mKappa * mNormal ) ;
         }
 
 //------------------------------------------------------------------------------
 
         void
-		IWG_Isotropic_Spatial_Diffusion_Sideset::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                                 Matrix< DDRMat >            & aResidual,
-                                                                                 Cell< Field_Interpolator* > & aFieldInterpolators )
+        IWG_Isotropic_Spatial_Diffusion_Sideset::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                                Matrix< DDRMat >            & aResidual,
+                                                                                Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
-            Field_Interpolator* T  = aFieldInterpolators( 0 );
-
-            // FIXME: set normal value for 3D
-            Matrix < DDRMat > aNormal( 3, 1, 1.0 );
+            Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
 
             // compute the residual r_T
-            aResidual = trans( T->N() ) * dot( mKappa * T->gradx( 1 ), aNormal );
+            aResidual = trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = trans( T->N() ) *  trans( trans( T->Bx() ) * mKappa * aNormal ) ;
+            aJacobians( 0 ) = - trans( tTemp->N() ) *  trans( trans( tTemp->Bx() ) * mKappa * mNormal ) ;
         }
 
 //------------------------------------------------------------------------------

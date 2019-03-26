@@ -21,9 +21,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         MSI::Equation_Object * Element_Factory::create_element( Element_Type         aElementType,
-                                                                mtk::Cell          * aCell,
-                                                                Cell< IWG* >       & aIWGs,
-                                                                Cell< Node_Base* > & aNodes )
+                                                                mtk::Cell           * aCell,
+                                                                Cell< IWG* >        & aIWGs,
+                                                                Cell< Node_Base* >  & aNodes )
         {
             MSI::Equation_Object * tElement = nullptr;
 

@@ -22,16 +22,16 @@ namespace moris
         return arma::dot( aA , aB );
     }
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    dot( Matrix< Matrix_Type > const & aA,
-         ET &  aB)
+    dot( Matrix< Matrix_Type > & aA,
+         const ET   aB)
     ->decltype(arma::dot(aA.matrix_data(), aB))
     {
         return arma::dot(aA.matrix_data(), aB);
     }
 
-    template< typename Type, typename Matrix_Type, typename ET >
+    template<typename Matrix_Type, typename ET >
     auto
     dot( ET & aA,
          Matrix< Matrix_Type > const &  aB)

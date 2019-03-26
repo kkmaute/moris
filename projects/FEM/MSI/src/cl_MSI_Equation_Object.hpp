@@ -58,6 +58,11 @@ class Dist_Vector;
             Model_Solver_Interface * mModelSolverInterface = nullptr;
 
             moris::uint mEqnObjInd;
+
+            // sideset information
+            Matrix< IndexMat > mListOfSideOrdinals;
+            Matrix< IndexMat > mListOfTimeOrdinals;
+
 //-------------------------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------------------------
@@ -261,6 +266,24 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             /**
+             * set the list of side ordinals
+             */
+            void set_list_of_side_ordinals( const Matrix< IndexMat > & aListOfSideOrdinals )
+            {
+                mListOfSideOrdinals = aListOfSideOrdinals;
+            }
+
+//-------------------------------------------------------------------------------------------------
+            /**
+             * set the list of time ordinals
+             */
+            void set_list_of_time_ordinals( const Matrix< IndexMat > & aListOfTimeOrdinals )
+            {
+                mListOfTimeOrdinals = aListOfTimeOrdinals;
+            }
+
+//-------------------------------------------------------------------------------------------------
+            /**
              * how many nodes are connected to this element
              */
             uint get_num_nodes() const
@@ -273,7 +296,7 @@ class Dist_Vector;
             virtual moris::real get_element_nodal_pdof_value( moris_index   aVertexIndex,
                                                        moris::Cell< MSI::Dof_Type > aDofType )
             {
-                MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_valuethis function does nothing");
+                MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing");
                 return 0.0;
             }
         };
