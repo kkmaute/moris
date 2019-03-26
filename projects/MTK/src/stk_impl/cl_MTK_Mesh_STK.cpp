@@ -1504,9 +1504,6 @@ namespace mtk
                 uint tNumBlockSets  = aMeshData.SetsInfo->get_num_block_sets();
 
                 // Communicate with other processors and see which one has the maximum
-
-                // TODO: It is not clear why this is needed, not only would
-                // TODO: I need the proc with the maximum block sets but also the names?
                 uint tNumGlobalBlockSets = gather_value_and_bcast_max( tNumBlockSets );
                 mSetRankFlags[2]         = true;
                 mSetNames[2].resize( tNumGlobalBlockSets );
@@ -1539,11 +1536,11 @@ namespace mtk
             // Checks for side sets //
             ///////////////////////////
             uint tNumSideSets = aMeshData.SetsInfo->get_num_side_sets();
-
             if ( tNumSideSets != 0 )
             {
                 mSetRankFlags[1]  = true;
 
+                // size the mtk mesh member data
                 mSetNames[1].resize( tNumSideSets );
 
                 // Loop over the number of block sets
@@ -1563,7 +1560,6 @@ namespace mtk
                     }
 
                     // Check if side set specific info was provided
-                    std::string tTest = "Number of columns in side set should be equal to 2." ;
                     MORIS_ASSERT( ( tSideSet->mElemIdsAndSideOrds->n_cols() == 2 ) ||
                                   ( tSideSet->mElemIdsAndSideOrds->n_cols() == 0 ) ,
                                   "Number of columns in side set should be equal to 2. "
@@ -1575,7 +1571,6 @@ namespace mtk
             // Checks for node sets //
             ///////////////////////////
             uint tNumNodeSets = aMeshData.SetsInfo->get_num_node_sets();
-
             if ( tNumNodeSets != 0 )
             {
                 mSetRankFlags[0]  = true;
@@ -1587,7 +1582,6 @@ namespace mtk
                 {
                     // Get node set
                     MtkNodeSetInfo* tNodeSet = aMeshData.SetsInfo->get_node_set(iNSet);
-
 
                     // Check if set names were provided
                     if ( !tNodeSet->nodeset_has_name() )

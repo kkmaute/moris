@@ -344,7 +344,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
                     }
                 } // geometry object
 
-
+                tChildMesh.mark_interface_faces_from_interface_coincident_faces();
             } // XTK Mesh loop
 
             moris_index tMessageTag = 60001; /*arbitrary tag for regular subdivision*/
@@ -1441,7 +1441,6 @@ Model::unzip_interface_assign_element_identifiers()
              moris::mtk::MtkSideSetInfo tInterfaceSideSet;
              if(aOutputOptions.mHaveInterface)
              {
-                 moris::mtk::MtkSideSetInfo tInterfaceSideSet;
                  tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
                  tInterfaceSideSet.mSideSetName        = "iside" ;
 
@@ -1475,7 +1474,7 @@ Model::unzip_interface_assign_element_identifiers()
             tMeshDataInput.LocaltoGlobalElemMap = moris::Cell<moris::Matrix<IdMat>*>(tNumElemTypes);
 
             tMeshDataInput.CreateAllEdgesAndFaces  = false;
-            tMeshDataInput.Verbose                 = true;
+            tMeshDataInput.Verbose                 = mVerbose;
             tMeshDataInput.SpatialDim              = &tSpatialDim;
 
             tCount = 0;

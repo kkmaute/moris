@@ -186,6 +186,27 @@ namespace moris
         }
 
 // -----------------------------------------------------------------------------
+
+        bool
+        to_bool(std::string const & aStr)
+        {
+            if(aStr == "true" || aStr == "1")
+            {
+                return true;
+            }
+            else if(aStr == "false" || aStr == "0")
+            {
+                 return false;
+            }
+            else
+            {
+                MORIS_ERROR(0,"Unrecognized string passed into to_bool. Needs to be true or 1 for bool = true or false or 0 for bool = false, be sure to check for extraneous spaces");
+                return false;
+            };
+
+
+        }
+// -----------------------------------------------------------------------------
     };
 }
 

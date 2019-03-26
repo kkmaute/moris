@@ -144,7 +144,8 @@ set(LIB_SOURCES
        xtk/cl_MTK_Cell_XTK_Impl.cpp
        xtk/cl_MTK_Mesh_XTK_Impl.cpp
        xtk/cl_MTK_Vertex_XTK_Impl.cpp
-       xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp)
+       xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
+       xtk/cl_XTK_Paramfile.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
