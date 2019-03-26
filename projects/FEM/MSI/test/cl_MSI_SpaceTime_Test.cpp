@@ -173,6 +173,8 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         tModelSolverInterface->set_param( "VX" )  = (sint)tDofOrder;
         tModelSolverInterface->set_param( "LS1" )  = (sint)tDofOrder;
 
+        tModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::LS1, 2 );
+
         tModelSolverInterface->finalize();
 
         CHECK( equal_to( tModelSolverInterface->mDofMgn.mPdofHostList.size(), 8 ) );

@@ -236,8 +236,6 @@ namespace moris
            {
                if( mBSplineTruncationFlag )
                {
-                   // FIXME second line breaks the code sometimes.
-//                   return std::max( std::max( mStaircaseBuffer, mMaxPolynomial ), (luint) 1 );
                    return std::max( std::max( mStaircaseBuffer, mMaxPolynomial ), mRefinementBuffer );
                }
                else
