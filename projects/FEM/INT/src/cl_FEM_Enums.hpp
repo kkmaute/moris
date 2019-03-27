@@ -38,6 +38,7 @@ namespace moris
         enum class Integration_Order
         {
             UNDEFINED,
+			POINT,
             BAR_1,
             BAR_2,
             BAR_3,

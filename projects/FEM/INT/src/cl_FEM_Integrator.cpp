@@ -67,24 +67,6 @@ namespace moris
             Matrix< DDRMat > tPoints( tNumOfSpaceDim + 1,
                                       tNumOfSpacePoints*tNumOfTimePoints );
 
-//            // initialize counter
-//            uint tCount = 0;
-//            // loop over time
-//            for( uint k = 0; k < tNumOfTimePoints; ++k )
-//            {
-//                // loop over space
-//                for( uint j = 0; j < tNumOfSpacePoints; ++j )
-//                {
-//                    // loop over dimensions in space
-//                    for( uint i = 0; i < tNumOfSpaceDim; ++i )
-//                    {
-//                        tPoints( i, tCount ) = tSpacePoints( i, j );
-//                    }
-//                    // time
-//                    tPoints( tNumOfSpaceDim, tCount++ ) = tTimePoints( k );
-//                }
-//            }
-
             Matrix< DDRMat > tOnes( 1, tNumOfSpacePoints, 1.0 );
 
             // loop over time
@@ -130,23 +112,7 @@ namespace moris
             // get number of points in time
             uint tNumOfTimePoints  = mTimeCoeffs->get_number_of_points();
 
-//            // create output matrix for weights
-//            Matrix< DDRMat > tWeights( 1, tNumOfSpacePoints*tNumOfTimePoints );
-//
-//            // initialize counter
-//            uint tCount = 0;
-//
-//            // loop over time
-//            for( uint k = 0; k < tNumberOfTimePoints; ++k )
-//            {
-//                // loop over space
-//                for( uint j = 0; j < tNumberOfSpacePoints; ++j )
-//                {
-//                    // weight
-//                    tWeights( tCount++ ) = tSpaceWeights( j ) * tTimeWeights( k );
-//                }
-//            }
-
+            // get weights
             Matrix< DDRMat > tWeights = reshape ( trans( tSpaceWeights ) * tTimeWeights, 1, tNumOfSpacePoints*tNumOfTimePoints );
 
             return tWeights;

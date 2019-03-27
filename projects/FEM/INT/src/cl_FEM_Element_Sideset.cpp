@@ -87,12 +87,8 @@ namespace moris
                     // FIXME
                     tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
 
-                    // get the index of the residual dof type for the ith IWG in the list of element dof type
-                    uint tIWGResDofIndex
-                        = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
-
-                    Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = tTreatedIWG->get_active_dof_types();
-                    uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
+                    // get the number of active Dof_type for the ith IWG
+                    uint tNumOfIWGActiveDof = tTreatedIWG->get_active_dof_types().size();
 
                     // get the field interpolators for the ith IWG in the list of element dof type
                     Cell< Field_Interpolator* > tIWGInterpolators
@@ -115,43 +111,47 @@ namespace moris
                     // get integration points
                     Matrix< DDRMat > tSurfRefIntegPoints = tIntegrator.get_points();
 
-                   // get integration weights
-                   Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+                    // get integration weights
+                    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
 
-                   for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-                   {
-                       // get integration point location in the reference surface
-                       Matrix< DDRMat > tSurfRefIntegPointI = tSurfRefIntegPoints.get_column( iGP );
+                    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+                    {
+                        // get integration point location in the reference surface
+                        Matrix< DDRMat > tSurfRefIntegPointI = tSurfRefIntegPoints.get_column( iGP );
 
-                       // get integration point location in the reference volume
-                       Matrix< DDRMat > tVolRefIntegPointI
-                           = mGeometryInterpolator->surf_val( tSurfRefIntegPointI, tTreatedSideOrdinal );
+                        // get integration point location in the reference volume
+                        Matrix< DDRMat > tVolRefIntegPointI
+                            = mGeometryInterpolator->surf_val( tSurfRefIntegPointI, tTreatedSideOrdinal );
 
-                       // set integration point
-                       for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
-                       {
-                           tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
-                       }
+                        // set integration point
+                        for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
+                        {
+                            tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
+                        }
 
-                       // compute integration point weight x detJ
-                       real tSurfDetJ;
-                       Matrix< DDRMat > tNormal;
-                       mGeometryInterpolator->surf_det_J( tSurfDetJ,
-                                                          tNormal,
-                                                          tSurfRefIntegPointI,
-                                                          tTreatedSideOrdinal );
-                       tTreatedIWG->set_normal( tNormal );
+                        // compute integration point weight x detJ
+                        real tSurfDetJ;
+                        Matrix< DDRMat > tNormal;
+                        mGeometryInterpolator->surf_det_J( tSurfDetJ,
+                                                           tNormal,
+                                                           tSurfRefIntegPointI,
+                                                           tTreatedSideOrdinal );
+                        tTreatedIWG->set_normal( tNormal );
 
-                       real tWStar = tIntegWeights( iGP ) * tSurfDetJ;
+                        real tWStar = tIntegWeights( iGP ) * tSurfDetJ;
 
-                       // compute jacobian at evaluation point
-                       Matrix< DDRMat > tResidual;
-                       tTreatedIWG->compute_residual( tResidual, tIWGInterpolators );
+                        // compute jacobian at evaluation point
+                        Matrix< DDRMat > tResidual;
+                        tTreatedIWG->compute_residual( tResidual, tIWGInterpolators );
 
-                       // add contribution to jacobian from evaluation point
-                       mResidualElement( tIWGResDofIndex )
-                           = mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;
-                   }
+                        // get the index of the residual dof type for the ith IWG in the list of element dof type
+                        uint tIWGResDofIndex
+                            = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
+
+                        // add contribution to jacobian from evaluation point
+                        mResidualElement( tIWGResDofIndex )
+                            = mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;
+                    }
                 }
             }
             // residual assembly

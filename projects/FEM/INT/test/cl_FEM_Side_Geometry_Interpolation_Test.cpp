@@ -24,6 +24,16 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
         Matrix< DDRMat > tTHat = {{ 0.0 },
                                   { 1.0 }};
 
+        // get side surface for comparison
+        Matrix< IndexMat > tSideListOfNodes = {{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 }};
+        Matrix< DDRMat >   tSideSurfaceExact( 4, 1, 0.0 );
+        for( uint iSide = 0; iSide < 4; iSide++ )
+        {
+            Matrix< IndexMat > tTreatedNodes = tSideListOfNodes.get_row( iSide );
+            tSideSurfaceExact( iSide ) = norm( tXHat.get_row( tTreatedNodes( 0 ) ) - tXHat.get_row( tTreatedNodes( 1 ) ) )
+                                       * ( tTHat( 1 ) - tTHat( 0 ) );
+        }
+
         // create a space and time geometry interpolation rule
         Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
                                             Interpolation_Type::LAGRANGE,
@@ -41,7 +51,7 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
         //------------------------------------------------------------------------------
 
         mtk::Geometry_Type tSideGeometryType = mtk::Geometry_Type::LINE;
-        moris::moris_index tSideOrdinal = 3;
+        Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3};
 
         // create a side integration
         Integration_Rule tSideIntegrationRule( tSideGeometryType,
@@ -57,37 +67,49 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
         uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
         Matrix< DDRMat > tSideIntegPoints  = tSideIntegrator.get_points();
         Matrix< DDRMat > tSideIntegWeights = tSideIntegrator.get_weights();
-        //print( tSideIntegWeights, "tSideIntegWeights" );
 
-        // init the side surface
-        real tSideSurface = 0;
 
-        // loop over the integration points
-        for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+        bool tSideSurfaceCheck = true;
+
+        for( uint iSide = 0; iSide < tListOfSideOrdinals.size(); iSide++ )
         {
-            // get the treated integration point location in the surface ref space
-            Matrix< DDRMat > tSideIntegPointI = tSideIntegPoints.get_column( iGP );
 
-            // get the treated integration point location in the volume ref space
-            Matrix< DDRMat > tVolIntegPointI = tGeomInterpolator.surf_val( tSideIntegPointI,
-                                                                           tSideOrdinal );
+            // get treated side ordinal
+            moris_index tSideOrdinal = tListOfSideOrdinals( iSide );
 
-            // evaluate surfDetJ and normal
-            real tSurfDetJ;
-            Matrix< DDRMat > tNormal;
-            tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
-                                          tSideIntegPointI, tSideOrdinal );
-            //print( tNormal, "tNormal" );
+            // init the side surface
+            real tSideSurface = 0;
 
-            // add contribution to the surface
-            tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
+            // loop over the integration points
+            for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+            {
+                // get the treated integration point location in the surface ref space
+                Matrix< DDRMat > tSideIntegPointI = tSideIntegPoints.get_column( iGP );
+
+                // get the treated integration point location in the volume ref space
+                Matrix< DDRMat > tVolIntegPointI = tGeomInterpolator.surf_val( tSideIntegPointI,
+                                                                               tSideOrdinal );
+
+                // evaluate surfDetJ and normal
+                real tSurfDetJ;
+                Matrix< DDRMat > tNormal;
+                tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
+                                              tSideIntegPointI, tSideOrdinal );
+                //print( tNormal, "tNormal" );
+
+                // add contribution to the surface
+                tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
+            }
+
+            tSideSurfaceCheck = tSideSurfaceCheck && ( std::abs( tSideSurface - tSideSurfaceExact( iSide ) ) < tEpsilon );
+            //std::cout<<tSideSurface<<std::endl;
         }
-        //std::cout<<tSideSurface<<std::endl;
+        REQUIRE( tSideSurfaceCheck );
 
         // time side geometry type and space ordinal------------------------------------
         //------------------------------------------------------------------------------
 
-        moris::moris_index tTimeSideOrdinal = 0;
+        Matrix< IndexMat > tListOfTimeOrdinals = {{ 0 }, { 1 }};
 
         // create a side integration
         Integration_Rule tTimeSideIntegrationRule( mtk::Geometry_Type::QUAD,
@@ -103,30 +125,43 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
         uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
         Matrix< DDRMat > tTimeSideIntegPoints  = tTimeSideIntegrator.get_points();
         Matrix< DDRMat > tTimeSideIntegWeights = tTimeSideIntegrator.get_weights();
-        //print( tSideIntegWeights, "tSideIntegWeights" );
 
-        // init the side surface
-        real tTimeSideSurface = 0;
+        // init surface check
+        bool tTimeSurfaceCheck = true;
 
-        // loop over the integration points
-        for ( uint iGP = 0; iGP < tNumOfTimeIntegPoints; iGP++ )
+        // loop over the time side
+        for ( uint iTimeSide = 0; iTimeSide < tListOfTimeOrdinals.numel(); iTimeSide++ )
         {
-            // get the treated integration point location in the surface ref space
-            Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
+            // get the time ordinal
+            moris_index tTimeSideOrdinal = tListOfTimeOrdinals( iTimeSide );
 
-            // get the treated integration point location in the volume ref space
-            Matrix< DDRMat > tTimeVolIntegPointI = tGeomInterpolator.time_surf_val( tTimeSideIntegPointI,
-                                                                                    tTimeSideOrdinal );
+            // init the side surface
+            real tTimeSideSurface = 0;
 
-            // evaluate surfDetJ and normal
-            real tSurfDetJ;
-            tGeomInterpolator.time_surf_det_J( tSurfDetJ,
-                                               tTimeSideIntegPointI,
-                                               tTimeSideOrdinal );
-            // add contribution to the surface
-            tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );
+            // loop over the integration points
+            for ( uint iGP = 0; iGP < tNumOfTimeIntegPoints; iGP++ )
+            {
+                // get the treated integration point location in the surface ref space
+                Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
+
+                // get the treated integration point location in the volume ref space
+                Matrix< DDRMat > tTimeVolIntegPointI = tGeomInterpolator.time_surf_val( tTimeSideIntegPointI,
+                                                                                        tTimeSideOrdinal );
+
+                // evaluate surfDetJ and normal
+                real tSurfDetJ;
+                tGeomInterpolator.time_surf_det_J( tSurfDetJ,
+                                                   tTimeSideIntegPointI,
+                                                   tTimeSideOrdinal );
+
+                // add contribution to the surface
+                tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );
+            }
+            // check the surface value
+            tTimeSurfaceCheck = tTimeSurfaceCheck && ( std::abs( tTimeSideSurface - 8.5 ) < tEpsilon );
+            //std::cout<<tTimeSideSurface<<std::endl;
         }
-        //std::cout<<tTimeSideSurface<<std::endl;
+        REQUIRE( tTimeSurfaceCheck );
 
     }
 
@@ -143,7 +178,8 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
 //                                   { 4.0, 2.25, 1.5 },
 //                                   { 5.5, 5.0,  2.0 },
 //                                   { 2.0, 4.25, 3.0 }};
-    	Matrix< DDRMat > tXHat = { { 0.0, 0.0,  0.0 },
+
+    	Matrix< DDRMat > tXHat = { { 0.0, 0.0, 0.0 },
     	                           { 1.0, 0.0, 0.0 },
     	                           { 1.0, 1.0, 0.0 },
     	                           { 0.0, 1.0, 0.0 },
@@ -151,9 +187,13 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
     	                           { 1.0, 0.0, 1.0 },
     	                           { 1.0, 1.0, 1.0 },
     	                           { 0.0, 1.0, 1.0 }};
+
         //create a line time element
         Matrix< DDRMat > tTHat = { { 0.0 },
                                    { 1.0 } };
+
+        // get side surface for comparison
+        Matrix< DDRMat >   tSideSurfaceExact( 6, 1, 1.0 );
 
         // create a space and time geometry interpolation rule
         Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::HEX,
@@ -170,7 +210,7 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
 
         // side geometry type and space ordinal
         mtk::Geometry_Type tSideGeometryType = mtk::Geometry_Type::QUAD;
-        moris::moris_index tSideOrdinal = 0;
+        Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3, 4, 5 };
 
         // create a side integration
         Integration_Rule tSideIntegrationRule( tSideGeometryType,
@@ -187,35 +227,47 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
         Matrix< DDRMat > tSideIntegPoints  = tSideIntegrator.get_points();
         Matrix< DDRMat > tSideIntegWeights = tSideIntegrator.get_weights();
 
-        // init the side surface
-        real tSideSurface = 0;
+        bool tSideSurfaceCheck = true;
 
-        // loop over the integration points
-        for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+        for( uint iSide = 0; iSide < tListOfSideOrdinals.size(); iSide++ )
         {
-            // get the treated integration point location in the surface ref space
-            Matrix< DDRMat > tSideIntegPointI = tSideIntegPoints.get_column( iGP );
 
-            // get the treated integration point location in the volume ref space
-            Matrix< DDRMat > tVolIntegPointI = tGeomInterpolator.surf_val( tSideIntegPointI,
-                                                                           tSideOrdinal );
+            // get treated side ordinal
+            moris_index tSideOrdinal = tListOfSideOrdinals( iSide );
 
-            // evaluate surfDetJ and normal
-            real tSurfDetJ;
-            Matrix< DDRMat > tNormal;
-            tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
-                                          tSideIntegPointI, tSideOrdinal );
-            //print( tNormal, "tNormal" );
+            // init the side surface
+            real tSideSurface = 0;
 
-            // add contribution to the surface
-            tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
+            // loop over the integration points
+            for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+            {
+                // get the treated integration point location in the surface ref space
+                Matrix< DDRMat > tSideIntegPointI = tSideIntegPoints.get_column( iGP );
+
+                // get the treated integration point location in the volume ref space
+                Matrix< DDRMat > tVolIntegPointI = tGeomInterpolator.surf_val( tSideIntegPointI,
+                                                                               tSideOrdinal );
+
+                // evaluate surfDetJ and normal
+                real tSurfDetJ;
+                Matrix< DDRMat > tNormal;
+                tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
+                                              tSideIntegPointI, tSideOrdinal );
+                //print( tNormal, "tNormal" );
+
+                // add contribution to the surface
+                tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
+            }
+
+            tSideSurfaceCheck = tSideSurfaceCheck && ( std::abs( tSideSurface - tSideSurfaceExact( iSide ) ) < tEpsilon );
+            //std::cout<<tSideSurface<<std::endl;
         }
-        //std::cout<<tSideSurface<<std::endl;
+        REQUIRE( tSideSurfaceCheck );
 
         // time side geometry type and space ordinal------------------------------------
         //------------------------------------------------------------------------------
 
-        moris::moris_index tTimeSideOrdinal = 0;
+        Matrix< IndexMat > tListOfTimeOrdinals = {{ 0 }, { 1 }};
 
         // create a side integration
         Integration_Rule tTimeSideIntegrationRule( mtk::Geometry_Type::HEX,
@@ -233,31 +285,42 @@ TEST_CASE( "Side_Geometry_Interpolation", "[moris],[fem],[SideGeoInterp]" )
         Matrix< DDRMat > tTimeSideIntegWeights = tTimeSideIntegrator.get_weights();
         //print( tSideIntegWeights, "tSideIntegWeights" );
 
-        // init the side surface
-        real tTimeSideSurface = 0;
+        // init surface check
+        bool tTimeSurfaceCheck = true;
 
-        // loop over the integration points
-        for ( uint iGP = 0; iGP < tNumOfTimeIntegPoints; iGP++ )
+        // loop over the time side
+        for ( uint iTimeSide = 0; iTimeSide < tListOfTimeOrdinals.numel(); iTimeSide++ )
         {
-            // get the treated integration point location in the surface ref space
-            Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
+            // get the time ordinal
+            moris_index tTimeSideOrdinal = tListOfTimeOrdinals( iTimeSide );
 
-            // get the treated integration point location in the volume ref space
-            Matrix< DDRMat > tTimeVolIntegPointI = tGeomInterpolator.time_surf_val( tTimeSideIntegPointI,
-                                                                                    tTimeSideOrdinal );
+            // init the side surface
+            real tTimeSideSurface = 0;
 
-            // evaluate surfDetJ and normal
-            real tSurfDetJ;
-            tGeomInterpolator.time_surf_det_J( tSurfDetJ,
-                                               tTimeSideIntegPointI,
-                                               tTimeSideOrdinal );
+            // loop over the integration points
+            for ( uint iGP = 0; iGP < tNumOfTimeIntegPoints; iGP++ )
+            {
+                // get the treated integration point location in the surface ref space
+                Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
-            // add contribution to the surface
-            tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );
-            std::cout<<tSurfDetJ<<std::endl;
+                // get the treated integration point location in the volume ref space
+                Matrix< DDRMat > tTimeVolIntegPointI = tGeomInterpolator.time_surf_val( tTimeSideIntegPointI,
+                                                                                        tTimeSideOrdinal );
+
+                // evaluate surfDetJ and normal
+                real tSurfDetJ;
+                tGeomInterpolator.time_surf_det_J( tSurfDetJ,
+                                                   tTimeSideIntegPointI,
+                                                   tTimeSideOrdinal );
+
+                // add contribution to the surface
+                tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );
+            }
+            // check the surface value
+            tTimeSurfaceCheck = tTimeSurfaceCheck && ( std::abs( tTimeSideSurface - 1.0 ) < tEpsilon );
+            //std::cout<<tTimeSideSurface<<std::endl;
         }
-        std::cout<<tTimeSideSurface<<std::endl;
-
+        REQUIRE( tTimeSurfaceCheck );
 
     }
 //------------------------------------------------------------------------------

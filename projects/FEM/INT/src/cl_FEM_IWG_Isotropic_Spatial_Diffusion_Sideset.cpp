@@ -66,7 +66,7 @@ namespace moris
             Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
 
             // compute the residual r_T
-            aResidual = trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal );
+            aResidual = - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal );
 
             // set the jacobian size
             aJacobians.resize( 1 );

@@ -360,7 +360,7 @@ namespace moris
                                                      const Matrix< DDRMat > & aSideParamPoint,
                                                      const moris_index      & aTimeOrdinal )
         {
-            // FIXME time sideset only and LINE, QUAD, HEX only
+            // FIXME time sideset QUAD, HEX only
 
             // get the space shape function first derivatives wrt the parametric coordinates
             Matrix< DDRMat > tdNSideSpacedXi = this->dNdXi( aSideParamPoint );
@@ -373,28 +373,56 @@ namespace moris
 
             // get the location of the side integration point in the reference parent element
             Matrix< DDRMat > tParentParamPoint = this->time_surf_val( aSideParamPoint, aTimeOrdinal );
+            Matrix< DDRMat > tParentXi  = tParentParamPoint( { 0, mNumSpaceDim-1 }, { 0, 0 });
+            //Matrix< DDRMat > tParentTau = tParentParamPoint( { mNumSpaceDim, mNumSpaceDim }, { 0, 0 });
 
             // get the jacobian
-            Matrix< DDRMat > tdNVolSpacedXi = this->dNdXi(  tParentParamPoint( { 0, mNumSpaceDim-1 }, { 0, 0 }) );
-            Matrix< DDRMat > tdNVolTimedTau = this->dNdTau( tParentParamPoint( { mNumSpaceDim, mNumSpaceDim }, { 0, 0 }) );
+            Matrix< DDRMat > tdNVolSpacedXi = this->dNdXi(  tParentXi );
+            //Matrix< DDRMat > tdNVolTimedTau = this->dNdTau( tParentTau );
             Matrix< DDRMat > tJt( mNumSpaceDim + mNumTimeDim, mNumSpaceDim + mNumTimeDim, 0.0 );
             tJt( {0,mNumSpaceDim-1}, {0,mNumSpaceDim-1} )
                 = this->space_jacobian( tdNVolSpacedXi ).matrix_data();
-            tJt( {mNumSpaceDim, mNumSpaceDim}, {mNumSpaceDim, mNumSpaceDim} )
-                = this->time_jacobian( tdNVolTimedTau ).matrix_data();
+            //tJt( {mNumSpaceDim, mNumSpaceDim}, {mNumSpaceDim, mNumSpaceDim} )
+            //    = this->time_jacobian( tdNVolTimedTau ).matrix_data();
 
             // evaluation of tangent vectors to the time sideset in the physical space
             Matrix< DDRMat > tRealTangentVectors = trans( tJt ) * trans( tTangentVectors );
 
-            Matrix< DDRMat > tMatrixForDet( mNumSpaceDim + mNumTimeDim, mNumSpaceDim + mNumTimeDim, 1.0 );
-            tMatrixForDet({ 1, mNumSpaceDim + mNumTimeDim -1 },{ 0, mNumSpaceDim + mNumTimeDim - 1 })
-                = trans( tRealTangentVectors );
+            // switch on geometry type
+            switch ( mGeometryType )
+            {
+                case ( mtk::Geometry_Type::QUAD ):
+                {
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tTReal1 = tRealTangentVectors.get_column( 0 );
+                    Matrix< DDRMat > tTReal2 = tRealTangentVectors.get_column( 1 );
+                    // FIXME /2.0
+                    aTimeSurfDetJ = norm( cross( tTReal1, tTReal2 ) ) / 2.0;
+                    break;
+                }
 
-            //FIXME abs and /2 because bar1 and not point
-            aTimeSurfDetJ =  std::abs( det( tMatrixForDet ) ) / 2.0;
+                case ( mtk::Geometry_Type::HEX ):
+                {
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tVector( 4, 1, 0.0 );
+                    for( uint i = 0; i < 4; i++ )
+                    {
+                        Matrix< DDRMat > tMatrixForDet( 4, 4, 0.0 );
+                        tMatrixForDet({ 1, 3 },{ 0, 3 }) = trans( tRealTangentVectors );
+                        tMatrixForDet( 0, i ) = 1.0;
+                        tVector( i ) = det( tMatrixForDet );
+                    }
+                    // FIXME /2.0
+                    aTimeSurfDetJ = norm( tVector ) / 2.0;
+                    break;
+                }
 
-            // FIXME switch on geometry type, cause only valid for line, quad, hex
-            // FIXME check that determinant is greater than zero
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Interpolator::surf_det_J - wrong geometry type or geometry type not implemented");
+                    break;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -513,10 +541,10 @@ namespace moris
             // build the space time dNdTau row by row
             Matrix< DDRMat > tdNdTau = reshape( trans( tNSideSpace ) * tdNTimedTau, 1, tSideBases);
 
-            // get the sideset parametric coordinates in the reference volume space
+            // get the side parametric coordinates in the reference volume space
             Matrix< DDRMat > tSideParamCoords = this->get_space_sideset_param_coords( aSpaceOrdinal );
 
-            // evaluation of tangent vectors to the space sideset
+            // evaluation of tangent vectors to the space side in the reference volume space
             Matrix< DDRMat > tTangentVectors( tSideSpaceDim + mNumTimeDim, mNumSpaceDim + mNumTimeDim );
             tTangentVectors( { 0, tSideSpaceDim-1 }, { 0, mNumSpaceDim + mNumTimeDim-1 } )
                 = tdNdXi * trans( tSideParamCoords );
@@ -530,89 +558,64 @@ namespace moris
 
             // get the location of the side integration point in the reference parent element
             Matrix< DDRMat > tParentParamPoint = this->surf_val( aSideParamPoint, aSpaceOrdinal );
+            Matrix< DDRMat > tParentXi  = tParentParamPoint( { 0, mNumSpaceDim-1 }, { 0, 0 });
+            Matrix< DDRMat > tParentTau = tParentParamPoint( { mNumSpaceDim, mNumSpaceDim }, { 0, 0 });
+
+            // get the jacobian mapping from volume reference space to volume physical space
+            Matrix< DDRMat > tdNParentSpacedXi = this->dNdXi(  tParentXi );
+            Matrix< DDRMat > tdNParentTimedTau = this->dNdTau( tParentTau );
+            Matrix< DDRMat > tJParentt( mNumSpaceDim + mNumTimeDim, mNumSpaceDim + mNumTimeDim, 0.0 );
+            tJParentt( {0, mNumSpaceDim-1}, {0, mNumSpaceDim-1} )
+                = this->space_jacobian( tdNParentSpacedXi ).matrix_data();
+            tJParentt( {mNumSpaceDim, mNumSpaceDim}, {mNumSpaceDim, mNumSpaceDim} )
+                = this->time_jacobian( tdNParentTimedTau ).matrix_data();
+
+            // evaluation of tangent vectors to the space side in the physical space
+            Matrix< DDRMat > tRealTangentVectors = trans( tJParentt ) * tTangentVectors;
 
             // switch on geometry type
             switch ( mGeometryType )
             {
-                case ( mtk::Geometry_Type::LINE ):
-                {
-                    // get the time jacobian
-                    Matrix< DDRMat > tdNTimedTau2 = this->dNdTau( {{tParentParamPoint( 2 )}} );
-                    Matrix< DDRMat > tTimeJt = this->time_jacobian( tdNTimedTau2 );
-
-                    aSurfDetJ = tTangentVectors( 1 ) * tTimeJt( 0 );
-                    break;
-                }
-
                 case ( mtk::Geometry_Type::QUAD ):
                 {
-                    Matrix< DDRMat > tTRef1 = tTangentVectors.get_column( 0 );
-                    Matrix< DDRMat > tTRef2 = tTangentVectors.get_column( 1 );
-
-                    // get the jacobian
-                    Matrix< DDRMat > tdNSpacedXi  = this->dNdXi( tParentParamPoint({ 0, 1 },{ 0, 0 }) );
-                    Matrix< DDRMat > tdNTimedTau2 = this->dNdTau( {{tParentParamPoint( 2 )}} );
-
-                    Matrix< DDRMat > tJt( 3, 3, 0.0 );
-                    tJt( {0,1}, {0,1} ) = this->space_jacobian( tdNSpacedXi ).matrix_data();
-                    tJt( {2,2}, {2,2} ) = this->time_jacobian( tdNTimedTau2 ).matrix_data();
-
-                    Matrix< DDRMat > tTReal1 = trans( tJt ) * tTRef1;
-                    Matrix< DDRMat > tTReal2 = trans( tJt ) * tTRef2;
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tTReal1 = tRealTangentVectors.get_column( 0 );
+                    Matrix< DDRMat > tTReal2 = tRealTangentVectors.get_column( 1 );
                     aSurfDetJ = norm( cross( tTReal1, tTReal2 ) );
 
-//                    Matrix< DDRMat > tMatrixForDet( 3, 3, 1.0 );
-//                    tMatrixForDet( {1,1}, {0,2} ) = trans( tTReal1 );
-//                    tMatrixForDet( {2,2}, {0,2} ) = trans( tTReal2 );
-//                    real aSurfDetJ2 =  std::abs( det( tMatrixForDet ) );
-//                    std::cout<<aSurfDetJ2<<std::endl;
-
-                    // FIXME computing the normal
+                    // FIXME computing the normal from the tangent vector in the physical space
                     aNormal = {{ -tTReal1( 1 ) },
                                {  tTReal1( 0 ) }};
                     aNormal = -1.0 * aNormal / norm( aNormal );
-                    //print(tNormal,"tNormal");
                     break;
                 }
 
                 case ( mtk::Geometry_Type::HEX ):
                 {
-                    Matrix< DDRMat > tTRef1 = tTangentVectors.get_column( 0 );
-                    Matrix< DDRMat > tTRef2 = tTangentVectors.get_column( 1 );
-                    Matrix< DDRMat > tTRef3 = tTangentVectors.get_column( 2 );
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tVector( 4, 1, 0.0 );
+                    for( uint i = 0; i < 4; i++ )
+                    {
+                        Matrix< DDRMat > tMatrixForDet( 4, 4, 0.0 );
+                        tMatrixForDet({ 1, 3 },{ 0, 3 }) = trans( tRealTangentVectors );
+                        tMatrixForDet( 0, i ) = 1.0;
+                        tVector( i ) = det( tMatrixForDet );
+                    }
+                    aSurfDetJ = norm( tVector );
 
-                    // get the jacobian
-                    Matrix< DDRMat > tdNSpacedXi  = this->dNdXi( tParentParamPoint({ 0, 2 },{ 0, 0 }) );
-                    Matrix< DDRMat > tdNTimedTau2 = this->dNdTau( {{tParentParamPoint( 3 )}} );
-
-                    Matrix< DDRMat > tJt( 4, 4, 0.0 );
-                    tJt( {0,2}, {0,2} ) = this->space_jacobian( tdNSpacedXi ).matrix_data();
-                    tJt( {3,3}, {3,3} ) = this->time_jacobian( tdNTimedTau2 ).matrix_data();
-
-                    Matrix< DDRMat > tTReal1 = trans( tJt ) * tTRef1;
-                    Matrix< DDRMat > tTReal2 = trans( tJt ) * tTRef2;
-                    Matrix< DDRMat > tTReal3 = trans( tJt ) * tTRef3;
-
-                    Matrix< DDRMat > tMatrixForDet( 4, 4, 1.0 );
-                    tMatrixForDet( {1,1}, {0,3} ) = trans( tTReal1 );
-                    tMatrixForDet( {2,2}, {0,3} ) = trans( tTReal2 );
-                    tMatrixForDet( {3,3}, {0,3} ) = trans( tTReal3 );
-                    // FIXME abs?
-                    aSurfDetJ = std::abs( det( tMatrixForDet ) );
-
-                    // FIXME normal
+                    // FIXME computing the normal from the tangent vector in the physical space
+                    Matrix< DDRMat > tTReal1 = tRealTangentVectors.get_column( 0 );
+                    Matrix< DDRMat > tTReal2 = tRealTangentVectors.get_column( 1 );
                     aNormal = cross( tTReal1({0,2},{0,0}), tTReal2({0,2},{0,0}));
                     aNormal = aNormal / norm( aNormal );
-                    //print(aNormal,"aNormal");
                     break;
                 }
 
                 default:
                 {
-                    MORIS_ERROR( false, "Geometry_Interpolator::surf_det_J - wrong space dimension");
+                    MORIS_ERROR( false, "Geometry_Interpolator::surf_det_J - wrong geometry type or geometry type not implemented");
                     break;
                 }
-
             }
         }
 

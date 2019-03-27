@@ -162,7 +162,7 @@ namespace moris
                 map< moris_id, moris_index > tCoefficientsMap;
                 //tMesh->get_adof_map( tDofOrder, tCoefficientsMap );
 
-                uint tNumCoeff = 1000000;
+                uint tNumCoeff = 100;
                 //= tMesh->get_num_coeffs( 1 )
 
                 moris::MSI::Model_Solver_Interface* tModelSolverInterface
@@ -173,6 +173,8 @@ namespace moris
                                                               tMesh );
 
                 tModelSolverInterface->set_param( "LS1" )  = (sint)tDofOrder;
+
+                tModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::LS1, 2 );
 
                 tModelSolverInterface->finalize();
 

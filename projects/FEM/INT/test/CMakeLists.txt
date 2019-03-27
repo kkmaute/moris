@@ -17,7 +17,6 @@ set(TEST_SOURCES
     cl_FEM_Field_Interpolator_Test.cpp
     cl_FEM_Integrator_Test.cpp
     cl_FEM_Element_L2.cpp
-    cl_FEM_Element_HJ_Test.cpp
     cl_FEM_Element_Diffusion_Test.cpp
     )
 
