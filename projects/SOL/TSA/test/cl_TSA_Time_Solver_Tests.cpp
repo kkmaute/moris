@@ -27,6 +27,8 @@ namespace tsa
 {
     TEST_CASE("TimeSolverRest","[TSA],[TimeSolver]")
     {
+        if ( par_size() == 1 )
+        {
         Time_Solver_Algorithm * tTimesolver = new Monolithic_Time_Solver();
 
         // Create solver interface
@@ -53,6 +55,7 @@ namespace tsa
         tTimesolver ->get_full_solution( tSol );
 
         CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
+        }
     }
 }}
 
