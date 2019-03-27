@@ -450,7 +450,7 @@ public:
     moris::Cell<Field1CompReal*> mRealNodeScalarFieldsToAddToOutput;
 
     // Dummy Block
-    Block* mDummyBlock;
+//    Block* mDummyBlock;
 
     //##############################################
     // Private functions to build mesh

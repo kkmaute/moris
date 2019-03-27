@@ -1152,7 +1152,6 @@ namespace moris
             if( mMesh->get_activation_pattern()
                     == mMesh->get_parameters()->get_lagrange_output_pattern() )
             {
-
                 // get ref to set
                 const Side_Set & tSet = mDatabase->get_output_side_set( aSetName );
 

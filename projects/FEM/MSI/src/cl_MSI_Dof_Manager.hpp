@@ -158,6 +158,7 @@ namespace moris
             }
 
 //-----------------------------------------------------------------------------------------------------------
+
             void set_max_num_adofs( const moris::sint & aNumMaxAdofs )
             {
                 mNumMaxAdofs = aNumMaxAdofs;

@@ -132,6 +132,12 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 std::cout<<" Create the fem nodes "<<std::endl;
                 //------------------------------------------------------------------------------
 
+//                Cell< fem::IWG_Type >tIWGType( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+//
+//                // create model
+//                mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
+                //------------------------------------------------------------------------------
+
                 // number of mesh nodes
                 uint tNumOfNodes = tMesh->get_num_nodes();
 
@@ -180,7 +186,11 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 Element_Factory tElementFactory;
 
                 // ask mesh about number of elements
-                uint tNumOfElements = tMesh->get_num_elems();
+//                uint tNumOfElements = tMesh->get_num_elems();
+
+                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+                Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
+                luint tNumOfElements = tBlockSetElementInd.numel();
 
                 // create equation objects
                 Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
