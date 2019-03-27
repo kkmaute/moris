@@ -51,6 +51,14 @@ namespace mtk
 
 //------------------------------------------------------------------------------
 
+            void set_time_levels_for_type( const enum Dof_Type aDofType,
+                                           const moris::uint   aNumTimeLevels )
+            {
+                mDofMgn->set_time_levels_for_type( aDofType, aNumTimeLevels );
+            };
+
+//------------------------------------------------------------------------------
+
              moris::uint get_num_my_dofs()
              {
                  return mDofMgn->get_num_adofs();
