@@ -272,6 +272,53 @@ namespace moris
                     Matrix< IndexMat >     & aSidesetOrdinals );
 
 //-------------------------------------------------------------------------------
+
+            moris::Cell<std::string>
+            get_set_names(enum EntityRank aSetEntityRank) const
+            {
+                if (aSetEntityRank == EntityRank::ELEMENT)
+                {
+                    std::string tDummy = "HMR_dummy";
+
+                    moris::Cell<std::string> tSetNames(1, tDummy );
+
+                    return tSetNames;
+                }
+                else
+                {
+                    MORIS_ERROR(false, "Mesh::get_set_names(), only EntityRank::ELEMENT is implemented for HMR. Rest can be implemented by you.");
+                }
+
+                return moris::Cell<std::string>(0);
+            }
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                     std::string     aSetName) const
+            {
+                if (aSetEntityRank == EntityRank::ELEMENT)
+                {
+                    moris::uint tNumEntities = this->get_num_elems();
+
+                    Matrix< IndexMat >  tOutputEntityInds ( tNumEntities, 1 );
+
+                    for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
+                    {
+                        tOutputEntityInds( iEntity ) = mMesh->get_element( iEntity )->get_index();
+                    }
+
+                    return tOutputEntityInds;
+                }
+                else
+                {
+                    MORIS_ERROR(false, "Mesh::get_set_entity_loc_inds(), only EntityRank::ELEMENT is implemented for HMR. Rest can be implemented by you.");
+                }
+
+                return Matrix< IndexMat >(0,0);
+            }
+//-------------------------------------------------------------------------------
 //           Pointer Functions for FEM
 //-------------------------------------------------------------------------------
 

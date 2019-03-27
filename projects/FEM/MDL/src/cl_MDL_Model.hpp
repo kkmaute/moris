@@ -26,6 +26,7 @@ namespace moris
     {
         class IWG;
         class Node_Base;
+        enum class IWG_Type;
     }
 
     namespace dla
@@ -84,16 +85,9 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-//           Model(
-//                   mtk::Mesh         * aMesh,
-//                   fem::IWG          * aIWG );
-
-//            Model(
-//                    mtk::Mesh   * aMesh,
-//                    fem::IWG    * aIWG,
-//                    const uint    aBSplineOrder);
             Model(       mtk::Mesh   * aMesh,
-                   const uint          aBSplineOrder);
+                   const uint          aBSplineOrder,
+                   Cell< fem::IWG_Type > aIWGTypeList );
 
 //------------------------------------------------------------------------------
 
