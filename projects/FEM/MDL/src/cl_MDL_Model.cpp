@@ -148,17 +148,20 @@ namespace moris
 
             for( luint Ik = 0; Ik < tSideSetsNames.size(); ++Ik )
             {
-                Matrix< IndexMat > tSideSetElementInd = aMesh->get_set_entity_loc_inds( EntityRank::FACE, tSideSetsNames( Ik ) );
+                moris::Cell< mtk::Cell * > tSideSetElement;
+                Matrix< IndexMat >  aSidesetOrdinals;
 
-                for( luint k=0; k < tSideSetElementInd.numel(); ++k )
+                aMesh->get_sideset_cells_and_ords( tSideSetsNames( Ik ), tSideSetElement, aSidesetOrdinals );
+
+                for( luint k=0; k < tSideSetElement.size(); ++k )
                 {
                     // create the element
                     mElements( tEquationObjectCounter ) = tElementFactory.create_element( fem::Element_Type::SIDESET,
-                                                                     & aMesh->get_mtk_cell( k ),
+                                                                     tSideSetElement( k ),
                                                                      mIWGs ( 1 ),
                                                                      mNodes );
 
-                    tElements( tEquationObjectCounter++ )->set_list_of_side_ordinals( tListOfSideOrdinals );
+                    mElements( tEquationObjectCounter++ )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );
                 }
             }
 

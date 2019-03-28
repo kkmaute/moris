@@ -719,27 +719,6 @@ namespace mtk
 
     }
 
-
-    void
-    Mesh_STK::get_sideset_cells_and_ords(
-            const  std::string & aSetName,
-            moris::Cell< mtk::Cell const* > & aCells,
-            Matrix< IndexMat > &       aSidesetOrdinals ) const
-    {
-        Matrix<IndexMat> tCellInds;
-
-        this->get_sideset_elems_loc_inds_and_ords(aSetName, tCellInds,aSidesetOrdinals);
-
-        aCells.resize(tCellInds.numel());
-
-        // iterate through cell inds and get cell ptrs
-        for(moris::uint i = 0; i <tCellInds.numel(); i++)
-        {
-            aCells(i) = &this->get_mtk_cell(tCellInds(i));
-        }
-
-    }
-
     // ----------------------------------------------------------------------------
 
     Matrix< DDRMat >

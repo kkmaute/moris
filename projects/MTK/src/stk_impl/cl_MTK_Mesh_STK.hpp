@@ -270,14 +270,6 @@ public:
             Matrix< IndexMat > & aElemIndices,
             Matrix< IndexMat > & aSidesetOrdinals ) const;
 
-    void
-    get_sideset_cells_and_ords(
-            const  std::string & aSetName,
-            moris::Cell< mtk::Cell const* > & aCells,
-            Matrix< IndexMat > &       aSidesetOrdinals ) const;
-
-
-
     //##############################################
     // Field Access
     //##############################################

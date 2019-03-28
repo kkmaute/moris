@@ -943,13 +943,17 @@ namespace moris
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
             //------------------------------------------------------------------------------
-                Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
-                tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK);
-                tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_SIDESET);
-                tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET);
-
-                // create model
-                mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
+//                Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
+//                tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK);
+//                tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_SIDESET);
+//                tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET);
+//
+//                // create model
+//                mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
+//
+//                // set weakBC
+//
+//                //solve
             //------------------------------------------------------------------------------
 
             // number of mesh nodes
