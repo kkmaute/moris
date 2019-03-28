@@ -682,6 +682,64 @@ namespace mtk
         return tOutputEntityInds;
     }
 
+    void
+    Mesh_STK::get_sideset_elems_loc_inds_and_ords(const  std::string & aSetName,
+                                                  Matrix< IndexMat > & aElemIndices,
+                                                  Matrix< IndexMat > & aSidesetOrdinals ) const
+    {
+        // Entity rank of a facet
+        enum EntityRank tFacetRank = this->get_facet_rank();
+
+        // Get facets in side set
+        Matrix<IndexMat> tSidesInSideSetInds = this->get_set_entity_loc_inds(tFacetRank,aSetName);
+
+        // allocate space in inputs
+        aElemIndices.resize(1,tSidesInSideSetInds.numel()*2);
+        aSidesetOrdinals.resize(1,tSidesInSideSetInds.numel()*2);
+
+        // loop through sides and get cells attached, then figure out the ordinal
+        uint tCount = 0;
+
+        for(moris::uint  i = 0 ; i <tSidesInSideSetInds.numel(); i++)
+        {
+            Matrix<IndexMat> tElementConnectedToFace = this->get_entity_connected_to_entity_loc_inds(tSidesInSideSetInds(i),tFacetRank,EntityRank::ELEMENT);
+
+            // iterate through the cells
+            for(moris::uint j = 0; j<tElementConnectedToFace.numel(); j++)
+            {
+                aElemIndices(tCount) = tElementConnectedToFace(j);
+                aSidesetOrdinals(tCount) = this->get_facet_ordinal_from_cell_and_facet_loc_inds(tSidesInSideSetInds(i),tElementConnectedToFace(j));
+                tCount++;
+            }
+
+        }
+
+        aElemIndices.resize(1,tCount);
+        aSidesetOrdinals.resize(1,tCount);
+
+    }
+
+
+    void
+    Mesh_STK::get_sideset_cells_and_ords(
+            const  std::string & aSetName,
+            moris::Cell< mtk::Cell const* > & aCells,
+            Matrix< IndexMat > &       aSidesetOrdinals ) const
+    {
+        Matrix<IndexMat> tCellInds;
+
+        this->get_sideset_elems_loc_inds_and_ords(aSetName, tCellInds,aSidesetOrdinals);
+
+        aCells.resize(tCellInds.numel());
+
+        // iterate through cell inds and get cell ptrs
+        for(moris::uint i = 0; i <tCellInds.numel(); i++)
+        {
+            aCells(i) = &this->get_mtk_cell(tCellInds(i));
+        }
+
+    }
+
     // ----------------------------------------------------------------------------
 
     Matrix< DDRMat >
@@ -785,6 +843,13 @@ namespace mtk
 
     mtk::Cell &
     Mesh_STK::get_mtk_cell(moris_index aCellIndex)
+    {
+        MORIS_ASSERT(aCellIndex<(moris_index)mMtkCells.size(),"Provided cell index out of bounds: aCellIndex = %u , mMtkCells.size() = %u ",aCellIndex,mMtkCells.size());
+        return mMtkCells(aCellIndex);
+    }
+
+    mtk::Cell const &
+    Mesh_STK::get_mtk_cell(moris_index aCellIndex) const
     {
         MORIS_ASSERT(aCellIndex<(moris_index)mMtkCells.size(),"Provided cell index out of bounds: aCellIndex = %u , mMtkCells.size() = %u ",aCellIndex,mMtkCells.size());
         return mMtkCells(aCellIndex);
@@ -1061,7 +1126,6 @@ namespace mtk
             mEntitySendList((uint)aEntityRank)(pr).resize(1,tSendCount);
             mEntityReceiveList((uint)aEntityRank)(pr).resize(1,tRecvCount);
         }
-
     }
 
     void

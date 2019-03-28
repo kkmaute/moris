@@ -201,6 +201,11 @@ private:
         return Geometry_Type::SPHERE;
       }
 
+      else if(aGeometryStr == "Plane")
+      {
+        return Geometry_Type::PLANE;
+      }
+
       else
       {
         MORIS_ERROR(0,"Geometry str not recognized: %s.", aGeometryStr);

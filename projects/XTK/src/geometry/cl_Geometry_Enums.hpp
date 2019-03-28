@@ -14,6 +14,7 @@ namespace xtk
 enum class Geometry_Type
 {
     SPHERE,
+    PLANE,
     INVALID
 };
 }

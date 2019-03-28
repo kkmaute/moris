@@ -265,6 +265,19 @@ public:
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const;
 
+    void
+    get_sideset_elems_loc_inds_and_ords(
+            const  std::string & aSetName,
+            Matrix< IndexMat > & aElemIndices,
+            Matrix< IndexMat > & aSidesetOrdinals ) const;
+
+    void
+    get_sideset_cells_and_ords(
+            const  std::string & aSetName,
+            moris::Cell< mtk::Cell const* > & aCells,
+            Matrix< IndexMat > &       aSidesetOrdinals ) const;
+
+
 
     //##############################################
     // Field Access
@@ -300,6 +313,9 @@ public:
      */
     mtk::Cell &
     get_mtk_cell(moris_index aCellIndex);
+
+    mtk::Cell const &
+    get_mtk_cell(moris_index aCellIndex) const ;
 
     /*
      * get an mtk vertex by index

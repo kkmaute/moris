@@ -27,6 +27,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_Sphere.hpp"
+#include "cl_Plane.hpp"
 #include "cl_Discrete_Level_Set.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "typedefs.hpp"
@@ -45,6 +46,16 @@ using namespace xtk;
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 
+moris_index
+get_index_in_cell(Cell<std::string> & aLabels,
+                  std::string         aStr)
+{
+    auto  tIt = std::find(aLabels.begin(), aLabels.end(), aStr);
+    MORIS_ERROR(tIt != aLabels.end(),"Radius not found in labels for sphere, please use r as the label");
+    auto tPos = std::distance(aLabels.begin(), tIt);
+    return tPos;
+}
+
 
 Geometry*
 geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
@@ -62,35 +73,61 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
 
       // find the radius in real parameters
       std::string tStr = "r";
-      auto  tIt = std::find(aXTKProblemParams.mRealGeomLabels.begin(), aXTKProblemParams.mRealGeomLabels.end(), tStr);
-      MORIS_ERROR(tIt != aXTKProblemParams.mRealGeomLabels.end(),"Radius not found in labels for sphere, please use r as the label");
-      auto tPos = std::distance(aXTKProblemParams.mRealGeomLabels.begin(), tIt);
+      moris_index tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
       moris::real tR =aXTKProblemParams.mRealGeomParams(tPos);
 
       // find the xc in real parameters
       tStr = "xc";
-      tIt = std::find(aXTKProblemParams.mRealGeomLabels.begin(), aXTKProblemParams.mRealGeomLabels.end(), tStr);
-      MORIS_ERROR(tIt != aXTKProblemParams.mRealGeomLabels.end(),"x-center not found in labels for sphere, please use xc as the label");
-      tPos = std::distance(aXTKProblemParams.mRealGeomLabels.begin(), tIt);
+      tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
       moris::real tXc =aXTKProblemParams.mRealGeomParams(tPos);
 
       // find the yc in real parameters
       tStr = "yc";
-      tIt = std::find(aXTKProblemParams.mRealGeomLabels.begin(), aXTKProblemParams.mRealGeomLabels.end(), tStr);
-      MORIS_ERROR(tIt != aXTKProblemParams.mRealGeomLabels.end(),"y-center not found in labels for sphere, please use yc as the label");
-      tPos = std::distance(aXTKProblemParams.mRealGeomLabels.begin(), tIt);
+      tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
       moris::real tYc = aXTKProblemParams.mRealGeomParams(tPos);
 
       // find the zc in real parameters
       tStr = "zc";
-      tIt = std::find(aXTKProblemParams.mRealGeomLabels.begin(), aXTKProblemParams.mRealGeomLabels.end(), tStr);
-      MORIS_ERROR(tIt != aXTKProblemParams.mRealGeomLabels.end(),"z-center not found in labels for sphere, please use zc as the label");
-      tPos = std::distance(aXTKProblemParams.mRealGeomLabels.begin(), tIt);
+      tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
       moris::real tZc =aXTKProblemParams.mRealGeomParams(tPos);
 
       tGeometry = new Sphere(tR,tXc,tYc,tZc);
 
       break;
+
+    }
+    case Geometry_Type::PLANE:
+    {
+        std::string tStr = "xc";
+        moris_index tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tXc =aXTKProblemParams.mRealGeomParams(tPos);
+
+        // find the yc in real parameters
+        tStr = "yc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tYc = aXTKProblemParams.mRealGeomParams(tPos);
+
+        // find the zc in real parameters
+        tStr = "zc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tZc =aXTKProblemParams.mRealGeomParams(tPos);
+
+        // find the x normal
+        tStr = "xnorm";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tXn = aXTKProblemParams.mRealGeomParams(tPos);
+
+        tStr = "ynorm";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tYn = aXTKProblemParams.mRealGeomParams(tPos);
+
+        tStr = "znorm";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tZn = aXTKProblemParams.mRealGeomParams(tPos);
+
+        tGeometry = new Plane(tXc,tYc,tZc,tXn,tYn,tZn);
+
+        break;
 
     }
 
@@ -183,7 +220,9 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
           // perform ghost stabilization
           if(aXTKProblemParams.mGhost)
           {
-              // placeholder
+              tOpTimer = std::clock();
+              tXTKModel.construct_face_oriented_ghost_penalization_cells();
+              tGhostTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
           }
 
           // perform ghost stabilization

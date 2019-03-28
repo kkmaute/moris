@@ -2,12 +2,12 @@
 <moris>
 	<xtk_problem>
 		<mesh_input>
-			<path>generated:20x20x20</path>
+			<path>generated:10x10x10</path>
 			<type>STK</type>
 		</mesh_input>
 		<geometry>
 			<geometry_type>Sphere</geometry_type>
-			<real_parameters>5.2,10.0,10.0,10.0</real_parameters>
+			<real_parameters>9.2,10.0,10.0,10.0</real_parameters>
 			<real_labels>r,xc,yc,zc</real_labels>
 		</geometry>
 		<refine>

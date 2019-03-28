@@ -43,6 +43,7 @@ set(TEST_SOURCES
 	xtk/UT_XTK_Downward_Inheritance.cpp
 	xtk/UT_XTK_Element_Tie_Constraints.cpp
 	xtk/UT_XTK_Enrichment.cpp
+	xtk/UT_XTK_Ghost_Stabilization.cpp
 	#xtk/cl_XTK_Multigrid.cpp
 	xtk/UT_XTK_Model.cpp
 	xtk/UT_XTK_Model_Coincidence.cpp

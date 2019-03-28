@@ -406,7 +406,7 @@ namespace moris
              virtual
              moris::moris_index
              get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
-                                                               moris::moris_index aCellIndex) const
+                                                            moris::moris_index aCellIndex) const
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_facet_ordinal_from_cell_and_facet_id_loc_inds is not implemented)");
                  return 0;
@@ -607,6 +607,27 @@ namespace moris
              {
                  MORIS_ERROR(0," get_set_entity_ids has no base implementation");
                  return Matrix< IndexMat >(0,0);
+             }
+
+             virtual
+             void
+             get_sideset_elems_loc_inds_and_ords(
+                     const  std::string     & aSetName,
+                     Matrix< IndexMat >     & aElemIndices,
+                     Matrix< IndexMat >     & aSidesetOrdinals ) const
+             {
+                 MORIS_ERROR(0," get_sideset_elems_loc_inds_and_ords has no base implementation");
+             }
+
+
+             virtual
+             void
+             get_sideset_cells_and_ords(
+                     const  std::string & aSetName,
+                     moris::Cell< mtk::Cell const * > & aCells,
+                     Matrix< IndexMat > &       aSidesetOrdinals ) const
+             {
+                 MORIS_ERROR(0,"get_sideset_cells_and_ords not implemented");
              }
 
              //##############################################

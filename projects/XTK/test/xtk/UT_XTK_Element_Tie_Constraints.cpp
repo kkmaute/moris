@@ -87,8 +87,8 @@ TEST_CASE("Generate shared face element pairs","[SHARED_FACE_ELEM_PAIRS]")
     size_t tMeshIndex0 = 0;
     size_t tMeshIndex1 = 1;
     size_t tDummy = std::numeric_limits<size_t>::max();
-
-    moris::Matrix< moris::IndexMat > tElementPairs = generate_shared_face_element_pairs(tParentFaceIndex, tMeshIndex0, tMeshIndex1, tCutMesh);
+    moris::Matrix< moris::IndexMat > tElementPairsOrds;
+    moris::Matrix< moris::IndexMat > tElementPairs = generate_shared_face_element_pairs(tParentFaceIndex, tMeshIndex0, tMeshIndex1, tCutMesh,tElementPairsOrds);
 
     if(par_size() == 1)
 

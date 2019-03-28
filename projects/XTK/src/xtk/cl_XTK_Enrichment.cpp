@@ -310,8 +310,9 @@ Enrichment::construct_subphase_bin_to_subphase_bin_2_child_interface(
     moris::Matrix< moris::IndexMat > const & tChildElements1BinMembership = tChildMesh1.get_elemental_subphase_bin_membership();
 
     // Construct element pairs across shared parent face
+    moris::Matrix< moris::IndexMat > tBoundaryElementPairsOrds;
     moris::Matrix< moris::IndexMat > tBoundaryElementPairs =
-        generate_shared_face_element_pairs(aSharedFaceIndex,tChildMeshIndex0,tChildMeshIndex1,*mCutMeshPtr);
+        generate_shared_face_element_pairs(aSharedFaceIndex,tChildMeshIndex0,tChildMeshIndex1,*mCutMeshPtr,tBoundaryElementPairsOrds);
 
     // iterate over pairs and create a relationship between their elements buckets
     for(moris::size_t k = 0; k<tBoundaryElementPairs.n_cols(); k++)
