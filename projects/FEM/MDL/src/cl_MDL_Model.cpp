@@ -110,31 +110,50 @@ namespace moris
             // ask mesh about number of elements on proc
 //            luint tNumberOfElements = aMesh->get_num_elems();
 
+            //  Create Blockset Elements ----------------------------------------
+            std::cout<<" Create Blockset Elements "<<std::endl;
+            //------------------------------------------------------------------------------
+
             moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
-            Matrix< IndexMat > tBlockSetElementInd = aMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
-            luint tNumberOfElements = tBlockSetElementInd.numel();
 
-            // create equation objects
-            mElements.resize( tNumberOfElements, nullptr );
-
-            for( luint k=0; k<tNumberOfElements; ++k )
+            for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
             {
-                // create the element
-                mElements( k ) = tElementFactory.create_element( fem::Element_Type::BULK,
-                                                                 & aMesh->get_mtk_cell( k ),
-                                                                 mIWGs,
-                                                                 mNodes );
+                Matrix< IndexMat > tBlockSetElementInd = aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                luint tNumberOfElements = tBlockSetElementInd.numel();
+
+                // create equation objects
+                mElements.resize( tNumberOfElements, nullptr );
+
+                for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                {
+                    // create the element
+                    mElements( k ) = tElementFactory.create_element( fem::Element_Type::BULK,
+                                                                     & aMesh->get_mtk_cell( k ),
+                                                                     mIWGs,
+                                                                     mNodes );
+                }
             }
+
+            moris::Cell<std::string> tSideSetsNames = aMesh->get_set_names( EntityRank::FACE);
+
+////            Matrix< IndexMat > tSideSetElementInd = aMesh->get_set_entity_loc_inds(EntityRank::FACE, tSideSetsNames(0));
+//            luint tNumberOfElements = tBlockSetElementInd.numel();
+//
+//            // create equation objects
+//            mElements.resize( tNumberOfElements, nullptr );
+
+
 
             if( par_rank() == 0)
             {
                 // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+//                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
-                        ( unsigned int ) tNumberOfElements,
-                        ( double ) tElapsedTime / 1000 );
+//                std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
+//                        ( unsigned int ) tNumberOfElements,
+//                        ( double ) tElapsedTime / 1000 );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

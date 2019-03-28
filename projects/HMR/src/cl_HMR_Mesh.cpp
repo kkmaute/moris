@@ -1183,6 +1183,40 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        moris::Cell<std::string>
+        Mesh::get_set_names(enum EntityRank aSetEntityRank) const
+        {
+            if ( aSetEntityRank == EntityRank::ELEMENT )
+            {
+                std::string tDummy = "HMR_dummy";
+
+                moris::Cell<std::string> tSetNames(1, tDummy );
+
+                return tSetNames;
+            }
+            else if ( aSetEntityRank == EntityRank::FACE )
+            {
+                moris::uint tNumSideSets = mDatabase->get_side_sets().size();
+
+                moris::Cell<std::string> tSetNames( tNumSideSets );
+
+                for ( uint iEntity = 0; iEntity < tNumSideSets; ++iEntity )
+                {
+                    tSetNames( iEntity ) = mDatabase->get_side_sets()( iEntity ).mInfo.mSideSetName;
+                }
+
+                return tSetNames;
+            }
+            else
+            {
+                MORIS_ERROR(false, "Mesh::get_set_names(), only EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you.");
+            }
+
+            return moris::Cell<std::string>(0);
+        }
+
+//-------------------------------------------------------------------------------
+
         uint
         Mesh::get_level_of_entity_loc_ind(
                 const enum EntityRank aEntityRank,

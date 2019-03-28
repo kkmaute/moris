@@ -274,23 +274,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             moris::Cell<std::string>
-            get_set_names(enum EntityRank aSetEntityRank) const
-            {
-                if (aSetEntityRank == EntityRank::ELEMENT)
-                {
-                    std::string tDummy = "HMR_dummy";
-
-                    moris::Cell<std::string> tSetNames(1, tDummy );
-
-                    return tSetNames;
-                }
-                else
-                {
-                    MORIS_ERROR(false, "Mesh::get_set_names(), only EntityRank::ELEMENT is implemented for HMR. Rest can be implemented by you.");
-                }
-
-                return moris::Cell<std::string>(0);
-            }
+            get_set_names(enum EntityRank aSetEntityRank) const;
 
 //-------------------------------------------------------------------------------
 
@@ -311,6 +295,8 @@ namespace moris
 
                     return tOutputEntityInds;
                 }
+
+
                 else
                 {
                     MORIS_ERROR(false, "Mesh::get_set_entity_loc_inds(), only EntityRank::ELEMENT is implemented for HMR. Rest can be implemented by you.");
