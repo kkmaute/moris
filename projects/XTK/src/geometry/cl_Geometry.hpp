@@ -26,6 +26,7 @@ class Geometry
 {
 public:
 
+    virtual	
     ~Geometry()
     {
     }
