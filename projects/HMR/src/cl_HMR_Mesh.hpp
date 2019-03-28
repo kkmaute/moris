@@ -280,30 +280,8 @@ namespace moris
 
             Matrix< IndexMat >
             get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
-                                     std::string     aSetName) const
-            {
-                if (aSetEntityRank == EntityRank::ELEMENT)
-                {
-                    moris::uint tNumEntities = this->get_num_elems();
+                                     std::string     aSetName) const;
 
-                    Matrix< IndexMat >  tOutputEntityInds ( tNumEntities, 1 );
-
-                    for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
-                    {
-                        tOutputEntityInds( iEntity ) = mMesh->get_element( iEntity )->get_index();
-                    }
-
-                    return tOutputEntityInds;
-                }
-
-
-                else
-                {
-                    MORIS_ERROR(false, "Mesh::get_set_entity_loc_inds(), only EntityRank::ELEMENT is implemented for HMR. Rest can be implemented by you.");
-                }
-
-                return Matrix< IndexMat >(0,0);
-            }
 //-------------------------------------------------------------------------------
 //           Pointer Functions for FEM
 //-------------------------------------------------------------------------------

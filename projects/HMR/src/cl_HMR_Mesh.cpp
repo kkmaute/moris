@@ -683,7 +683,6 @@ namespace moris
         Matrix< IndexMat >
         Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
         {
-
             // collect memory indices of active neighbors
             Matrix< DDLUMat> tMemoryIndices;
             luint tNumberOfNeighbors;
@@ -1215,6 +1214,39 @@ namespace moris
             return moris::Cell<std::string>(0);
         }
 
+//-------------------------------------------------------------------------------
+
+        Matrix< IndexMat >
+        Mesh::get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                 std::string     aSetName) const
+        {
+            if (aSetEntityRank == EntityRank::ELEMENT)
+            {
+                moris::uint tNumEntities = this->get_num_elems();
+
+                Matrix< IndexMat >  tOutputEntityInds ( tNumEntities, 1 );
+
+                for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
+                {
+                    tOutputEntityInds( iEntity ) = mMesh->get_element( iEntity )->get_index();
+                }
+
+                return tOutputEntityInds;
+            }
+            if (aSetEntityRank == EntityRank::FACE)
+            {
+                Matrix< IndexMat > tSideSetElementInd = mDatabase->get_output_side_set( aSetName ).mElemIndices;
+
+                return tSideSetElementInd;
+            }
+
+            else
+            {
+                MORIS_ERROR(false, "Mesh::get_set_entity_loc_inds(), only EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you.");
+            }
+
+            return Matrix< IndexMat >(0,0);
+        }
 //-------------------------------------------------------------------------------
 
         uint

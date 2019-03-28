@@ -130,7 +130,6 @@ public:
     get_num_entities(
             enum EntityRank aEntityRank) const;
 
-
     //##############################################
     // Access Mesh Data by index Functions
     //##############################################

@@ -137,6 +137,24 @@ namespace moris
             {
                 return get_num_entities(EntityRank::FACE);
             }
+
+            //------------------------------------------------------------------------------
+
+            uint
+            get_sidesets_num_faces() const
+            {
+                moris::uint tNumSideSetFaces = 0;
+
+                moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
+
+                for( luint Ik=0; Ik < tSideSetsNames.size(); ++Ik )
+                {
+                    Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tSideSetsNames( Ik ) );
+
+                    tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
+                }
+                return tNumSideSetFaces;
+            }
             //------------------------------------------------------------------------------
             /*
              * Get number of elements

@@ -943,7 +943,10 @@ namespace moris
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
             //------------------------------------------------------------------------------
-                Cell< fem::IWG_Type >tIWGType( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+                Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
+                tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK);
+                tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_SIDESET);
+                tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET);
 
                 // create model
                 mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
@@ -996,10 +999,10 @@ namespace moris
             tNodalValues( 12 ) = 5.0;
             tNodalValues( 25 ) = 5.0;
             tNodalValues( 15 ) = 5.0;
-            tNodalValues( 4 ) = 5.0;
+            tNodalValues( 4 )  = 5.0;
             tNodalValues( 17 ) = 5.0;
             tNodalValues( 19 ) = 5.0;
-            tNodalValues( 8 ) = 5.0;
+            tNodalValues( 8 )  = 5.0;
             tNodalValues( 21 ) = 5.0;
 
             // a factory to create the elements
