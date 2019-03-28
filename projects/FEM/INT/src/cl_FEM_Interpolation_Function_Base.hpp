@@ -92,7 +92,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * returns the number of basis for this shape function
+             * returns the number of bases for this shape function
              */
             virtual uint get_number_of_bases() const = 0;
 

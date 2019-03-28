@@ -89,7 +89,7 @@ namespace moris
          *
          */
         void set_pdof_type( const enum Dof_Type         aDof_Type,
-                            const uint                & aTimeStepsofDofType,
+                            const Matrix< DDUMat >    & aTimePerDofType,
                             const moris::uint           aNumUsedDofTypes,
                             const Matrix< DDSMat >    & aPdofTypeMap);
 

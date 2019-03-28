@@ -64,6 +64,9 @@ namespace moris
             //FIXME set the interface normal
             Matrix< DDRMat > aInterfaceNormal( phi->gradx( 1 ).n_cols() , 1, 1.0 );
 
+            // set the jacobian size
+            aJacobians.resize( 2 );
+
             // compute the jacobian
             aJacobians( 0 ) = trans( phi->N() )
                             * ( ( mPhiLB + mPhiUB - 2 * phi->val()( 0 ) ) * phi->N() - mEpsilon * trans( nPhi->val() ) * phi->Bx() )
@@ -90,6 +93,9 @@ namespace moris
             aResidual = trans( phi->N() )
                       * ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) ) - mEpsilon * dot( phi->gradx( 1 ), nPhi->val() ) )
                       * trans( nPhi->val() ) * aInterfaceNormal;
+
+            // set the jacobian size
+            aJacobians.resize( 2 );
 
             // compute the jacobian
             aJacobians( 0 ) = phi->N()

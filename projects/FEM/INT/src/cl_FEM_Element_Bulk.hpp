@@ -26,7 +26,6 @@ namespace moris
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
-
         /**
          * constructor
          *
@@ -38,39 +37,10 @@ namespace moris
                       moris::Cell< IWG* >       & aIWGs,
                       moris::Cell< Node_Base* > & aNodes );
 //------------------------------------------------------------------------------
-
-
         /**
          * trivial destructor
          */
         ~Element_Bulk();
-//------------------------------------------------------------------------------
-
-//        /**
-//         * returns the element geometry type
-//         */
-//        mtk::Geometry_Type get_geometry_type() const ;
-
-//------------------------------------------------------------------------------
-
-//        /**
-//         * returns the node coordinates of the element
-//         */
-//        Matrix< DDRMat > get_node_coords() const ;
-
-//------------------------------------------------------------------------------
-
-//        /**
-//         * returns the interpolation order of the underlying cell
-//         */
-//        mtk::Interpolation_Order get_interpolation_order() const;
-
-//------------------------------------------------------------------------------
-
-//        /**
-//         * returns a moris::Mat with ids of vertices that are connected to this element
-//         */
-//        Matrix< IdMat > get_vertex_ids() const;
 
 //------------------------------------------------------------------------------
 
@@ -91,39 +61,6 @@ namespace moris
 //------------------------------------------------------------------------------
 
 //        real compute_element_average_of_scalar_field();
-
-//------------------------------------------------------------------------------
-    protected:
-//------------------------------------------------------------------------------
-        /**
-         * create the field interpolators for the element
-         */
-        moris::Cell< Field_Interpolator* >
-        create_element_field_interpolators
-        ( Geometry_Interpolator* aGeometryInterpolator );
-
-//------------------------------------------------------------------------------
-        /**
-         * set the field interpolators coefficients
-         */
-        void
-        set_element_field_interpolators_coefficients
-        ( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
-
-//------------------------------------------------------------------------------
-        /**
-         * get the field interpolators for an IWG
-         */
-        moris::Cell< Field_Interpolator* >
-        get_IWG_field_interpolators( IWG*                               & aIWG,
-                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators );
-//------------------------------------------------------------------------------
-        /**
-         * set the initial sizes and values for mJacobianElement and mResidualElement
-         */
-        void
-        initialize_mJacobianElement_and_mResidualElement
-        ( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
     };

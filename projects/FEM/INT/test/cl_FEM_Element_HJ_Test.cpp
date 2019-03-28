@@ -37,25 +37,6 @@
 
 namespace moris
 {
-
-moris::real
-LevelSetCircleFunction( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    return std::sqrt( std::pow(aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) ) - 2.5;
-}
-
-moris::real
-LevelSetSphereFunction( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    return  std::pow(aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) - std::pow( 2.5, 2 );
-}
-
-moris::real
-LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    return aPoint( 0 ) - 2.5;
-}
-
     namespace fem
     {
 
@@ -157,10 +138,16 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 for( uint k = 0; k < tNumOfElements; k++ )
                 {
                     // create the element
-                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+                    tElements( k ) = tElementFactory.create_element( Element_Type::TIME_SIDESET,
                                                                      & tMesh->get_mtk_cell( k ),
                                                                      tIWGs,
                                                                      tNodes );
+
+                    // create list of time ordinals
+                    Matrix< IndexMat > tListOfTimeOrdinals = { { 1 } };
+
+                    // set the element list of time ordinals
+                    tElements( k )->set_list_of_time_ordinals( tListOfTimeOrdinals );
                 }
 
                 //4) Create the model solver interface -----------------------------------------
@@ -175,7 +162,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 map< moris_id, moris_index > tCoefficientsMap;
                 //tMesh->get_adof_map( tDofOrder, tCoefficientsMap );
 
-                uint tNumCoeff = 1000000;
+                uint tNumCoeff = 100;
                 //= tMesh->get_num_coeffs( 1 )
 
                 moris::MSI::Model_Solver_Interface* tModelSolverInterface
@@ -185,8 +172,9 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                                                               tNumCoeff,
                                                               tMesh );
 
-                tModelSolverInterface->set_param( "VX" )  = (sint)tDofOrder;
                 tModelSolverInterface->set_param( "LS1" )  = (sint)tDofOrder;
+
+                tModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::LS1, 2 );
 
                 tModelSolverInterface->finalize();
 
@@ -291,7 +279,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
                 delete tLinSolver;
                 delete tNonlinearSolver;
 
-            }/* if( par_size() */
+            }/* if( par_size() ) */
         }/* TEST_CASE */
     }/* namespace fem */
 }/* namespace moris */

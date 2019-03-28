@@ -12,7 +12,6 @@
 #include "cl_Matrix.hpp" //LNA/src
 #include "cl_Cell.hpp"
 #include "linalg_typedefs.hpp" //LNA/src
-#include "assert.h"
 
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
@@ -78,8 +77,7 @@ namespace moris
             /**
              * get the number of fields
              */
-            uint
-            get_number_of_fields() const
+            uint get_number_of_fields() const
             {
                 return mNumberOfFields;
             }
@@ -88,8 +86,7 @@ namespace moris
             /**
              * get the number of space bases
              */
-            uint
-            get_number_of_space_bases() const
+            uint get_number_of_space_bases() const
             {
                 return mNSpaceBases;
             }
@@ -98,8 +95,7 @@ namespace moris
             /**
              * get the number of time bases
              */
-            uint
-            get_number_of_time_bases() const
+            uint get_number_of_time_bases() const
             {
                 return mNTimeBases;
             }
@@ -108,8 +104,7 @@ namespace moris
              /**
               * get the number of space time bases
               */
-             uint
-             get_number_of_space_time_bases() const
+             uint get_number_of_space_time_bases() const
              {
                  return mNFieldBases;
              }
@@ -118,8 +113,7 @@ namespace moris
              /**
               * get the number of space time coefficients
               */
-             uint
-             get_number_of_space_time_coefficients() const
+             uint get_number_of_space_time_coefficients() const
              {
                  return mNFieldCoeff;
              }

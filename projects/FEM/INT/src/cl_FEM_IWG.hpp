@@ -34,11 +34,17 @@ namespace moris
             // nodal weak BCs
             Matrix< DDRMat > mNodalWeakBCs;
 
+            // normal
+            Matrix< DDRMat > mNormal;
+
             // residual dof type
             Cell< MSI::Dof_Type > mResidualDofType;
 
             // active dof types
             Cell< Cell< MSI::Dof_Type > > mActiveDofTypes;
+
+            // FIXME temporary until other way
+            uint mSpaceDim = 3;
 
 //------------------------------------------------------------------------------
         public :
@@ -65,6 +71,11 @@ namespace moris
             void set_nodal_weak_bcs( Matrix< DDRMat > & aNodalWeakBCs )
             {
                 mNodalWeakBCs = aNodalWeakBCs;
+            }
+
+            void set_normal( Matrix< DDRMat > & aNormal )
+            {
+                mNormal = aNormal;
             }
 
 //------------------------------------------------------------------------------

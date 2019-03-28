@@ -292,7 +292,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
 
-        tHMR.save_to_exodus( "Mesh_lin_old.exo" );
+        //tHMR.save_to_exodus( "Mesh_lin_old.exo" );
     }
 }
 
@@ -318,7 +318,6 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 1 );
-
 
         //tParameters.set( "additional_lagrange_refinement", 2 );
 
@@ -500,7 +499,6 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         }
 
         //tHMR.save_to_exodus( "Mesh_qub.exo" );
-
     }
 }
 

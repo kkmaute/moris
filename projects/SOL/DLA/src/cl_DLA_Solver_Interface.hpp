@@ -48,6 +48,10 @@ public:
     virtual void set_solution_vector( Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
 
+    void set_time_levels_for_type( const enum MSI::Dof_Type aDofType,
+                                   const moris::uint   aNumTimeLevels )
+    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+
     virtual void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
 

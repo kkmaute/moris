@@ -99,6 +99,9 @@ namespace moris
                 tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
             }
 
+            // set the jacobian size
+            aJacobians.resize( 2 );
+
             // compute the jacobian j_vN_vN
             aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
 
@@ -148,6 +151,9 @@ namespace moris
             // compute the residual r_vN
             aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
                       + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
+
+            // set the jacobian size
+            aJacobians.resize( 2 );
 
             // compute the jacobian j_vN_vN
             aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;

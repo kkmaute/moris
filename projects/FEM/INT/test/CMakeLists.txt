@@ -13,10 +13,10 @@ set(TEST_SOURCES
     cl_FEM_Interpolation_Function_Lagrange_Hex27.cpp
     cl_FEM_Interpolation_Function_Lagrange_Hex64.cpp
     cl_FEM_Geometry_Interpolator_Test.cpp
+    cl_FEM_Side_Geometry_Interpolation_Test.cpp
     cl_FEM_Field_Interpolator_Test.cpp
     cl_FEM_Integrator_Test.cpp
     cl_FEM_Element_L2.cpp
-    cl_FEM_Element_HJ_Test.cpp
     cl_FEM_Element_Diffusion_Test.cpp
     )
 

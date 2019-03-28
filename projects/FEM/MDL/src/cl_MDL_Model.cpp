@@ -7,9 +7,11 @@
 #include "cl_Stopwatch.hpp" //CHR/src
 
 #include "MTK_Tools.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
+#include "cl_FEM_Enums.hpp"               //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
@@ -40,26 +42,14 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-//        Model::Model(
-//                mtk::Mesh           * aMesh,
-//                fem::IWG            * aIWG,
-//                const uint    aBSplineOrder) : mMesh( aMesh )
-
-        Model::Model(       mtk::Mesh * aMesh,
-                      const uint        aBSplineOrder) : mMesh( aMesh )
+        Model::Model(       mtk::Mesh *     aMesh,
+                      const uint            aBSplineOrder,
+                      Cell< fem::IWG_Type > aIWGTypeList) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;
 
             mDofOrder = aBSplineOrder;
-
-            if ( mDofOrder == 0 )
-            {
-                mDofOrder  = this->get_lagrange_order_from_mesh();
-            }
-
-            // get map from mesh
-            mMesh->get_adof_map( mDofOrder, mCoefficientsMap );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create nodes
@@ -91,12 +81,8 @@ namespace moris
             // STEP 1.5: create IWGs
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            //FIXME create IWGs- create L2 only
-            // input a cell of IWG types to be created
-            Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::L2 };
-
             // number of IWGs to be created
-            uint tNumOfIWGs = tIWGTypeList.size();
+            uint tNumOfIWGs = aIWGTypeList.size();
 
             // a factory to create the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -108,7 +94,7 @@ namespace moris
             for( uint i = 0; i < tNumOfIWGs; i++)
             {
                 // create an IWG with the factory for the ith IWG type
-                mIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
+                mIWGs( i ) = tIWGFactory.create_IWGs( aIWGTypeList( i ) );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -122,7 +108,11 @@ namespace moris
             fem::Element_Factory tElementFactory;
 
             // ask mesh about number of elements on proc
-            luint tNumberOfElements = aMesh->get_num_elems();
+//            luint tNumberOfElements = aMesh->get_num_elems();
+
+            moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
+            Matrix< IndexMat > tBlockSetElementInd = aMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
+            luint tNumberOfElements = tBlockSetElementInd.numel();
 
             // create equation objects
             mElements.resize( tNumberOfElements, nullptr );
@@ -154,15 +144,44 @@ namespace moris
             // start timer
             tic tTimer3;
 
+
+            //--------------------------FIXME------------------------------------
+            // This part should not be needed anymore when MTK has all the functionalities
+            Matrix< IdMat > tCommTable;
+            moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
+            moris::uint tMaxNumAdofs;
+
+            if ( mMesh->get_mesh_type() == MeshType::HMR )
+            {
+                if ( mDofOrder == 0 )
+                {
+                    mDofOrder  = this->get_lagrange_order_from_mesh();
+                }
+
+                // get map from mesh
+                mMesh->get_adof_map( mDofOrder, mCoefficientsMap );
+
+                tCommTable   = aMesh->get_communication_table();
+                tIdToIndMap  = mCoefficientsMap;
+                tMaxNumAdofs = aMesh->get_num_coeffs( mDofOrder );
+            }
+            else
+            {
+                tCommTable.set_size( 1, 1, 0 );
+                tMaxNumAdofs = 1000000;
+            }
+            //--------------------------END FIXME--------------------------------
+
             mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElements,
-                                                                            aMesh->get_communication_table(),
-                                                                            mCoefficientsMap,
-                                                                            aMesh->get_num_coeffs( mDofOrder ),      //FIXME
+                                                                            tCommTable,
+                                                                            tIdToIndMap,
+                                                                            tMaxNumAdofs,      //FIXME
                                                                             mMesh );
 
-            mModelSolverInterface->set_param("L2")= (sint)mDofOrder;
-
-            //mModelSolverInterface->set_param("L2") = (sint)aBSplineOrder;
+            if ( mMesh->get_mesh_type() == MeshType::HMR )
+            {
+                mModelSolverInterface->set_param("L2")= (sint)mDofOrder;
+            }
 
             mModelSolverInterface->finalize();
 

@@ -38,6 +38,7 @@ namespace moris
 //-------------------------------------------------------------------------------------------------
     void Equation_Object::create_my_pdof_hosts( const moris::uint                  aNumUsedDofTypes,
                                                 const Matrix< DDSMat >           & aPdofTypeMap,
+                                                const Matrix< DDUMat >           & aTimePerDofType,
                                                       moris::Cell< Pdof_Host * > & aPdofHostList )
     {
         // Determine size of list containing this equations objects pdof hosts
@@ -66,7 +67,7 @@ namespace moris
             // FIXME rewrite this function
             for ( moris::uint Ik=0; Ik < mEqnObjDofTypeList.size(); Ik++ )
             {
-                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), mTimeSteps( Ik ), aNumUsedDofTypes, aPdofTypeMap );
+                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), aTimePerDofType, aNumUsedDofTypes, aPdofTypeMap );
             }
         }
 
@@ -200,6 +201,8 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
+        //print(trans( tTMatrix ), "trans( tTMatrix )");
+        //print(mResidual, "mResidual");
         aEqnObjRHS = trans( tTMatrix ) * mResidual;
     }
 

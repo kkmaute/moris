@@ -1,3 +1,9 @@
+#include "fn_norm.hpp"
+#include "fn_cross.hpp"
+#include "fn_dot.hpp"
+#include "fn_sum.hpp"
+#include "op_div.hpp"
+
 
 #include "cl_FEM_Geometry_Interpolator.hpp"
 
@@ -15,13 +21,64 @@ namespace moris
             // create member pointer to time interpolation function
             mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
 
-            // set default xHat
-            mXHat.set_size( mSpaceInterpolation->get_number_of_bases(),
-                            mSpaceInterpolation->get_number_of_dimensions(), 0.0);
+            // number of space bases and dimensions
+            mNumSpaceBases = mSpaceInterpolation->get_number_of_bases();
+            mNumSpaceDim   = mSpaceInterpolation->get_number_of_dimensions();
 
-            // set default tHat
-            mTHat.set_size( mTimeInterpolation->get_number_of_bases(),
-                            mTimeInterpolation->get_number_of_dimensions(), 0.0);
+            // number of time bases and dimensions
+            mNumTimeBases = mTimeInterpolation->get_number_of_bases();
+            mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
+
+            // set default xHat and tHat
+            mXHat.set_size( mNumSpaceBases, mNumSpaceDim, 0.0);
+            mTHat.set_size( mNumTimeBases,  mNumTimeDim,  0.0);
+
+            // set member geometry type
+            mGeometryType = aInterpolationRule.get_geometry_type();
+
+            // set pointers for second derivative depending on space and time dimensions
+            this->set_function_pointers();
+        }
+
+        Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
+                                                      const bool aSpaceSideset )
+        {
+        	// set bool for side interpolation to true
+        	mSpaceSideset = true;
+
+            // create member pointer to space interpolation function
+            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
+
+            // create member pointer to time interpolation function
+            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
+
+            // number of space bases and dimensions
+            mNumSpaceBases = mSpaceInterpolation->get_number_of_bases();
+            mNumSpaceDim   = mSpaceInterpolation->get_number_of_dimensions();
+
+            // number of time bases and dimensions
+            mNumTimeBases = mTimeInterpolation->get_number_of_bases();
+            mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
+
+            // set default xHat and tHat
+            mXHat.set_size( mNumSpaceBases, mNumSpaceDim, 0.0 );
+            mTHat.set_size( mNumTimeBases,  mNumTimeDim,  0.0 );
+
+            // set member geometry type
+            mGeometryType = aInterpolationRule.get_geometry_type();
+
+            // set member side geometry type
+            this->get_auto_side_geometry_type();
+
+            // create side interpolation rule
+            Interpolation_Rule tSideInterpolationRule( mSideGeometryType,
+                                                       aInterpolationRule.get_space_interpolation_type(),
+                                                       aInterpolationRule.get_space_interpolation_order(),
+                                                       aInterpolationRule.get_time_interpolation_type(),
+                                                       aInterpolationRule.get_time_interpolation_order() );
+
+            // create member pointer to side space interpolation function
+            mSideSpaceInterpolation = tSideInterpolationRule.create_space_interpolation_function();
 
             // set pointers for second derivative depending on space and time dimensions
             this->set_function_pointers();
@@ -36,9 +93,15 @@ namespace moris
              {
                  delete mSpaceInterpolation;
              }
+
              if( mTimeInterpolation != NULL )
              {
                  delete mTimeInterpolation;
+             }
+
+             if( mSideSpaceInterpolation != NULL )
+             {
+                 delete mSideSpaceInterpolation;
              }
         }
 
@@ -48,18 +111,157 @@ namespace moris
                                                const Matrix< DDRMat > & aTHat )
         {
             //check the space coefficients input size
-            MORIS_ASSERT( ( ( aXHat.n_cols() == mXHat.n_cols() ) && ( aXHat.n_rows() == mXHat.n_rows() )),
+            MORIS_ASSERT( ( ( aXHat.n_cols() == mNumSpaceDim ) && ( aXHat.n_rows() == mNumSpaceBases )),
                           " Geometry_Interpolator::set_coeff - Wrong input size (aXHat). ");
 
             // set the space coefficients
             mXHat = aXHat;
 
             //check the time coefficients input size
-            MORIS_ASSERT( ( ( aTHat.n_cols() == mTHat.n_cols() ) && ( aTHat.n_rows() == mTHat.n_rows() )),
+            MORIS_ASSERT( ( ( aTHat.n_cols() == mNumTimeDim ) && ( aTHat.n_rows() == mNumTimeBases )),
                            " Geometry_Interpolator::set_coeff - Wrong input size (aTHat). ");
 
             // set the time coefficients
             mTHat = aTHat;
+        }
+
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::get_space_sideset_param_coords( const moris_index aSpaceOrdinal )
+        {
+            //FIXME check spaceOrdinal
+
+            // get space sideset vertex indices
+            moris::Cell< moris::moris_index > tVerticesIndices;
+            switch ( mGeometryType )
+            {
+                case ( mtk::Geometry_Type::LINE ): //FIXME LINE2 only
+                {
+                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesLine2
+                        = { { 0 },
+                            { 1 } };
+                    tVerticesIndices.resize( 1, -1 );
+                    tVerticesIndices = tVerticesIndicesLine2( aSpaceOrdinal );
+                    break;
+                }
+
+                case ( mtk::Geometry_Type::QUAD ): //FIXME QUAD4 only
+                {
+                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesQuad4
+                        = { { 0, 1 },
+                            { 1, 2 },
+                            { 2, 3 },
+                            { 3, 0 } };
+                    tVerticesIndices.resize( 2, -1 );
+                    tVerticesIndices = tVerticesIndicesQuad4( aSpaceOrdinal );
+                    break;
+                }
+
+                case ( mtk::Geometry_Type::HEX ): // FIXME HEX8 only
+                {
+                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesHex8
+                        = { { 0, 1, 5, 4 },
+                            { 1, 2, 6, 5 },
+                            { 2, 3, 7, 6 },
+                            { 0, 4, 7, 3 },
+                            { 0, 3, 2, 1 },
+                            { 4, 5, 6, 7 } };
+                    tVerticesIndices.resize( 4, -1 );
+                    tVerticesIndices = tVerticesIndicesHex8( aSpaceOrdinal );
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - undefined geometry type " );
+                    break;
+                }
+            }
+
+            // initialize the time sideset parametric coordinates matrix
+            uint tNumOfVertices = tVerticesIndices.size();
+            Matrix< DDRMat > tSpaceParamCoords = mSpaceInterpolation->get_param_coords();
+            Matrix< DDRMat > tSidesetSpaceParamCoords( mNumSpaceDim, tNumOfVertices );
+            for( uint i = 0; i < tNumOfVertices; i++ )
+            {
+                moris_index tTreatedVertex = tVerticesIndices( i );
+                tSidesetSpaceParamCoords( { 0, mNumSpaceDim - 1 }, { i, i } )
+                    = tSpaceParamCoords( { 0, mNumSpaceDim - 1 }, { tTreatedVertex, tTreatedVertex } );
+            }
+
+            // get a vector of ones
+            Matrix< DDRMat > tParamCoords( mNumSpaceDim + mNumTimeDim, tNumOfVertices * mNumTimeBases );
+            Matrix< DDRMat > tTimeParamCoords  = mTimeInterpolation->get_param_coords();
+            Matrix< DDRMat > tOnes( 1, tNumOfVertices, 1.0 );
+            for( uint i = 0; i < mNumTimeBases; i++ )
+            {
+                tParamCoords( {0, mNumSpaceDim - 1 }, { i*tNumOfVertices, (i+1)*tNumOfVertices-1 } )
+                    = tSidesetSpaceParamCoords.matrix_data();
+
+                // fill the space time parametric coordinates matrix with time coordinates
+                tParamCoords( { mNumSpaceDim, mNumSpaceDim }, { i*tNumOfVertices, (i+1)*tNumOfVertices-1 } )
+                    = tTimeParamCoords( i ) * tOnes;
+            }
+
+            // return the parametric coordinates of the space sideset
+            return tParamCoords;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::get_time_sideset_param_coords( const moris_index aTimeOrdinal )
+        {
+            //FIXME check on the time ordinal only, 0 or 1
+
+            // initialize the time sideset parametric coordinates matrix
+            Matrix< DDRMat > tParamCoords( mNumSpaceDim + mNumTimeDim, mNumSpaceBases );
+
+            // get a vector of ones
+            Matrix< DDRMat > tOnes( 1, mNumSpaceBases, 1.0 );
+
+            // fill the space time parametric coordinates matrix with space coordinates
+            tParamCoords( { 0, mNumSpaceDim-1 }, { 0, mNumSpaceBases-1 } )
+               = mSpaceInterpolation->get_param_coords().matrix_data();
+
+            // fill the space time parametric coordinates matrix with time coordinates
+            tParamCoords( { mNumSpaceDim, mNumSpaceDim }, { 0, mNumSpaceBases-1 })
+                = mTimeInterpolation->get_param_coords()( aTimeOrdinal ) * tOnes;
+
+            // return parametric coordinates
+            return tParamCoords;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::get_space_time_param_coords()
+        {
+            // initialize the space time parametric coordinates matrix
+            Matrix< DDRMat > tParamCoords( mNumSpaceDim + mNumTimeDim, mNumSpaceBases * mNumTimeBases );
+
+            // get the soace parametric coordinates
+            Matrix< DDRMat > tSpaceParamCoords = mSpaceInterpolation->get_param_coords();
+
+            // get the time parametric coordinates
+            Matrix< DDRMat > tTimeParamCoords  = mTimeInterpolation->get_param_coords();
+
+            // get a vector of ones
+            Matrix< DDRMat > tOnes( 1, mNumSpaceBases, 1.0 );
+
+            // loop on the time bases
+            for( uint i = 0; i < mNumTimeBases; i++ )
+            {
+                // fill the space time parametric coordinates matrix with space coordinates
+                tParamCoords( { 0, mNumSpaceDim-1 }, { i * mNumSpaceBases, ( i + 1 ) * mNumSpaceBases-1 })
+                    = tSpaceParamCoords.matrix_data();
+
+                // fill the space time parametric coordinates matrix with time coordinates
+                tParamCoords( { mNumSpaceDim, mNumSpaceDim }, { i * mNumSpaceBases, ( i + 1 ) * mNumSpaceBases-1 })
+                    = tTimeParamCoords( i )*tOnes;
+            }
+
+            // return the space time parametric coordinates
+            return tParamCoords;
         }
 
 //------------------------------------------------------------------------------
@@ -135,18 +337,9 @@ namespace moris
 
         real Geometry_Interpolator::det_J( const Matrix< DDRMat > & aParamPoint )
         {
-            // get space dimension
-            uint tNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
-
             // get tXi and tTau
-            Matrix< DDRMat > tXi( tNSpaceDim, 1, 0.0 );
-            for ( moris::uint Ik = 0; Ik < tNSpaceDim; Ik++ )
-            {
-                // set input values
-                tXi( Ik ) = aParamPoint( Ik );
-            }
-            //tXi( { 0, tNSpaceDim-1 }, { 0, 0 } ) = aParamPoint( { 0, tNSpaceDim-1 }, { 0, 0 } );
-            Matrix< DDRMat > tTau( 1, 1, aParamPoint( tNSpaceDim ) );
+            Matrix< DDRMat > tXi = aParamPoint( { 0, mNumSpaceDim-1 }, { 0, 0 } );
+            Matrix< DDRMat > tTau( 1, 1, aParamPoint( mNumSpaceDim ) );
 
             // get the space jacobian
             Matrix< DDRMat > tdNSpacedXi = this->dNdXi( tXi );
@@ -160,13 +353,276 @@ namespace moris
             return det( tSpaceJt ) * det( tTimeJt );
 
         }
+
+//------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::time_surf_det_J(       real             & aTimeSurfDetJ,
+                                                     const Matrix< DDRMat > & aSideParamPoint,
+                                                     const moris_index      & aTimeOrdinal )
+        {
+            // FIXME time sideset QUAD, HEX only
+
+            // get the space shape function first derivatives wrt the parametric coordinates
+            Matrix< DDRMat > tdNSideSpacedXi = this->dNdXi( aSideParamPoint );
+
+            // get the parametric coordinates of the time sideset
+            Matrix< DDRMat > tTimeSidesetParamCoords = this->get_time_sideset_param_coords( aTimeOrdinal );
+
+            // evaluation of tangent vectors to the time sideset in the reference space
+            Matrix< DDRMat > tTangentVectors = tdNSideSpacedXi * trans( tTimeSidesetParamCoords );
+
+            // get the location of the side integration point in the reference parent element
+            Matrix< DDRMat > tParentParamPoint = this->time_surf_val( aSideParamPoint, aTimeOrdinal );
+            Matrix< DDRMat > tParentXi  = tParentParamPoint( { 0, mNumSpaceDim-1 }, { 0, 0 });
+            //Matrix< DDRMat > tParentTau = tParentParamPoint( { mNumSpaceDim, mNumSpaceDim }, { 0, 0 });
+
+            // get the jacobian
+            Matrix< DDRMat > tdNVolSpacedXi = this->dNdXi(  tParentXi );
+            //Matrix< DDRMat > tdNVolTimedTau = this->dNdTau( tParentTau );
+            Matrix< DDRMat > tJt( mNumSpaceDim + mNumTimeDim, mNumSpaceDim + mNumTimeDim, 0.0 );
+            tJt( {0,mNumSpaceDim-1}, {0,mNumSpaceDim-1} )
+                = this->space_jacobian( tdNVolSpacedXi ).matrix_data();
+            //tJt( {mNumSpaceDim, mNumSpaceDim}, {mNumSpaceDim, mNumSpaceDim} )
+            //    = this->time_jacobian( tdNVolTimedTau ).matrix_data();
+
+            // evaluation of tangent vectors to the time sideset in the physical space
+            Matrix< DDRMat > tRealTangentVectors = trans( tJt ) * trans( tTangentVectors );
+
+            // switch on geometry type
+            switch ( mGeometryType )
+            {
+                case ( mtk::Geometry_Type::QUAD ):
+                {
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tTReal1 = tRealTangentVectors.get_column( 0 );
+                    Matrix< DDRMat > tTReal2 = tRealTangentVectors.get_column( 1 );
+                    // FIXME /2.0
+                    aTimeSurfDetJ = norm( cross( tTReal1, tTReal2 ) ) / 2.0;
+                    break;
+                }
+
+                case ( mtk::Geometry_Type::HEX ):
+                {
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tVector( 4, 1, 0.0 );
+                    for( uint i = 0; i < 4; i++ )
+                    {
+                        Matrix< DDRMat > tMatrixForDet( 4, 4, 0.0 );
+                        tMatrixForDet({ 1, 3 },{ 0, 3 }) = trans( tRealTangentVectors );
+                        tMatrixForDet( 0, i ) = 1.0;
+                        tVector( i ) = det( tMatrixForDet );
+                    }
+                    // FIXME /2.0
+                    aTimeSurfDetJ = norm( tVector ) / 2.0;
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Interpolator::surf_det_J - wrong geometry type or geometry type not implemented");
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::surf_val( const Matrix< DDRMat > & aSideParamPoint,
+                                                           const moris_index      & aSpaceOrdinal )
+        {
+            // check that there is a side interpolation
+            MORIS_ASSERT( mSpaceSideset, "Geometry_Interpolator::surf_val - no side interpolation." );
+
+            // fixme check input size and value
+
+            // get the number of dimensions and bases in space for the side
+            uint tSideSpaceDim   = mSideSpaceInterpolation->get_number_of_dimensions();
+            uint tSideSpaceBases = mSideSpaceInterpolation->get_number_of_bases();
+
+            // get tXi and tTau
+            Matrix< DDRMat > tXi = aSideParamPoint( { 0, tSideSpaceDim-1 }, { 0, 0 } );
+            Matrix< DDRMat > tTau( 1, 1, aSideParamPoint( tSideSpaceDim ) );
+
+            // evaluate side space interpolation shape functions at aParamPoint
+            Matrix< DDRMat > tNSideSpace = mSideSpaceInterpolation->eval_N( tXi );
+
+            // evaluate time interpolation shape functions at aParamPoint
+            Matrix< DDRMat > tNTime = mTimeInterpolation->eval_N( tTau );
+
+            // build space time interpolation functions for side
+            Matrix< DDRMat > tN = reshape( trans( tNSideSpace ) * tNTime, 1, mNumTimeBases*tSideSpaceBases );
+
+            // get the parametric coordinates of the side in the parent reference element
+            Matrix< DDRMat > tSideParentParamCoords = this->get_space_sideset_param_coords( aSpaceOrdinal );
+
+            // compute the parametric coordinates of the SideParamPoint in the parent reference element
+            Matrix< DDRMat > tParentParamPoint = tN * trans( tSideParentParamCoords );
+
+            return trans( tParentParamPoint );
+          }
+
+//------------------------------------------------------------------------------
+
+        Matrix < DDRMat > Geometry_Interpolator::time_surf_val( const Matrix< DDRMat > & aSideParamPoint,
+                                                                const moris_index      & aTimeOrdinal )
+        {
+            // fixme check input size and value
+
+            // get tXi and tTau
+            Matrix< DDRMat > tXi = aSideParamPoint( { 0, mNumSpaceDim-1 }, { 0, 0 } );
+            Matrix< DDRMat > tTau( 1, 1, aSideParamPoint( mNumSpaceDim ) );
+
+            // build space time interpolation functions for side
+            Matrix< DDRMat > tN = mSpaceInterpolation->eval_N( tXi );
+
+            // get the parametric coordinates of the side in the parent reference element
+            Matrix< DDRMat > tSideParentParamCoords = this->get_time_sideset_param_coords( aTimeOrdinal );
+
+            // compute the parametric coordinates of the SideParamPoint in the parent reference element
+            Matrix< DDRMat > tParentParamPoint = tN * trans( tSideParentParamCoords );
+
+            //FIXME when computed -1 and 1 are slightly off
+            if ( aTimeOrdinal == 0 )
+            {
+                tParentParamPoint( mNumSpaceDim ) = -1.0;
+            }
+            else
+            {
+                tParentParamPoint( mNumSpaceDim ) = 1.0;
+            }
+
+            return trans( tParentParamPoint );
+        }
+
+
+//------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::surf_det_J(       real             & aSurfDetJ,
+                                                      Matrix< DDRMat > & aNormal,
+                                                const Matrix< DDRMat > & aSideParamPoint,
+                                                const moris_index      & aSpaceOrdinal )
+        {
+            // check that there is a side interpolation
+            MORIS_ASSERT( mSpaceSideset, "Geometry_Interpolator::surf_val - no side interpolation." );
+
+            // fixme check input size and value
+
+            // get the number of dimensions and bases in space for the side
+            uint tSideSpaceDim   = mSideSpaceInterpolation->get_number_of_dimensions();
+            uint tSideSpaceBases = mSideSpaceInterpolation->get_number_of_bases();
+
+            // get the number of space time bases
+            uint tSideBases = tSideSpaceBases * mNumTimeBases;
+
+            // get tXi and tTau
+            Matrix< DDRMat > tXi = aSideParamPoint( { 0, tSideSpaceDim-1 }, { 0, 0 } );
+            Matrix< DDRMat > tTau( 1, 1, aSideParamPoint( tSideSpaceDim ) );
+
+            // evaluate side space interpolation shape functions at aParamPoint
+            Matrix< DDRMat > tNSideSpace = mSideSpaceInterpolation->eval_N( tXi );
+
+            // evaluate time interpolation shape functions at aParamPoint
+            Matrix< DDRMat > tNTime      = mTimeInterpolation->eval_N( tTau );
+
+            // evaluate side space interpolation shape functions first parametric derivatives at aParamPoint
+            Matrix< DDRMat > tdNSideSpacedXi = mSideSpaceInterpolation->eval_dNdXi( tXi );
+            tdNSideSpacedXi = trans( tdNSideSpacedXi );
+
+            // evaluate time interpolation shape functions first parametric derivatives at aParamPoint
+            Matrix< DDRMat > tdNTimedTau     = mTimeInterpolation->eval_dNdXi( tTau );
+
+            // build the space time dNdXi row by row
+            Matrix< DDRMat > tdNdXi( tSideSpaceDim, tSideBases );
+            for ( uint Ik = 0; Ik < tSideSpaceDim; Ik++ )
+            {
+                tdNdXi.get_row( Ik ) = reshape( tdNSideSpacedXi.get_column( Ik ) * tNTime , 1, tSideBases );
+            }
+
+            // build the space time dNdTau row by row
+            Matrix< DDRMat > tdNdTau = reshape( trans( tNSideSpace ) * tdNTimedTau, 1, tSideBases);
+
+            // get the side parametric coordinates in the reference volume space
+            Matrix< DDRMat > tSideParamCoords = this->get_space_sideset_param_coords( aSpaceOrdinal );
+
+            // evaluation of tangent vectors to the space side in the reference volume space
+            Matrix< DDRMat > tTangentVectors( tSideSpaceDim + mNumTimeDim, mNumSpaceDim + mNumTimeDim );
+            tTangentVectors( { 0, tSideSpaceDim-1 }, { 0, mNumSpaceDim + mNumTimeDim-1 } )
+                = tdNdXi * trans( tSideParamCoords );
+            tTangentVectors( { tSideSpaceDim, tSideSpaceDim }, { 0, mNumSpaceDim + mNumTimeDim-1 } )
+                = tdNdTau * trans( tSideParamCoords );
+            tTangentVectors = trans( tTangentVectors );
+
+            // initialize the determinant of the Jacobian mapping
+            aSurfDetJ = -1.0;
+            aNormal.set_size( mNumSpaceDim, 1, 0.0 );
+
+            // get the location of the side integration point in the reference parent element
+            Matrix< DDRMat > tParentParamPoint = this->surf_val( aSideParamPoint, aSpaceOrdinal );
+            Matrix< DDRMat > tParentXi  = tParentParamPoint( { 0, mNumSpaceDim-1 }, { 0, 0 });
+            Matrix< DDRMat > tParentTau = tParentParamPoint( { mNumSpaceDim, mNumSpaceDim }, { 0, 0 });
+
+            // get the jacobian mapping from volume reference space to volume physical space
+            Matrix< DDRMat > tdNParentSpacedXi = this->dNdXi(  tParentXi );
+            Matrix< DDRMat > tdNParentTimedTau = this->dNdTau( tParentTau );
+            Matrix< DDRMat > tJParentt( mNumSpaceDim + mNumTimeDim, mNumSpaceDim + mNumTimeDim, 0.0 );
+            tJParentt( {0, mNumSpaceDim-1}, {0, mNumSpaceDim-1} )
+                = this->space_jacobian( tdNParentSpacedXi ).matrix_data();
+            tJParentt( {mNumSpaceDim, mNumSpaceDim}, {mNumSpaceDim, mNumSpaceDim} )
+                = this->time_jacobian( tdNParentTimedTau ).matrix_data();
+
+            // evaluation of tangent vectors to the space side in the physical space
+            Matrix< DDRMat > tRealTangentVectors = trans( tJParentt ) * tTangentVectors;
+
+            // switch on geometry type
+            switch ( mGeometryType )
+            {
+                case ( mtk::Geometry_Type::QUAD ):
+                {
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tTReal1 = tRealTangentVectors.get_column( 0 );
+                    Matrix< DDRMat > tTReal2 = tRealTangentVectors.get_column( 1 );
+                    aSurfDetJ = norm( cross( tTReal1, tTReal2 ) );
+
+                    // FIXME computing the normal from the tangent vector in the physical space
+                    aNormal = {{ -tTReal1( 1 ) },
+                               {  tTReal1( 0 ) }};
+                    aNormal = -1.0 * aNormal / norm( aNormal );
+                    break;
+                }
+
+                case ( mtk::Geometry_Type::HEX ):
+                {
+                    // evaluate the surfDetJ from the physical tangent vectors
+                    Matrix< DDRMat > tVector( 4, 1, 0.0 );
+                    for( uint i = 0; i < 4; i++ )
+                    {
+                        Matrix< DDRMat > tMatrixForDet( 4, 4, 0.0 );
+                        tMatrixForDet({ 1, 3 },{ 0, 3 }) = trans( tRealTangentVectors );
+                        tMatrixForDet( 0, i ) = 1.0;
+                        tVector( i ) = det( tMatrixForDet );
+                    }
+                    aSurfDetJ = norm( tVector );
+
+                    // FIXME computing the normal from the tangent vector in the physical space
+                    Matrix< DDRMat > tTReal1 = tRealTangentVectors.get_column( 0 );
+                    Matrix< DDRMat > tTReal2 = tRealTangentVectors.get_column( 1 );
+                    aNormal = cross( tTReal1({0,2},{0,0}), tTReal2({0,2},{0,0}));
+                    aNormal = aNormal / norm( aNormal );
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Interpolator::surf_det_J - wrong geometry type or geometry type not implemented");
+                    break;
+                }
+            }
+        }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Geometry_Interpolator::valx( const Matrix< DDRMat > & aXi )
         {
-//            // evaluate the space time shape functions at Xi, Tau
-//            Matrix< DDRMat > tN = this->NXi( aXi );
-
             //evaluate the field
             return this->NXi( aXi ) * mXHat ;
         }
@@ -175,9 +631,6 @@ namespace moris
 
         Matrix< DDRMat > Geometry_Interpolator::valt( const Matrix< DDRMat > & aTau )
         {
-//            // evaluate the space time shape functions at Xi, Tau
-//            Matrix< DDRMat > tN = this->NTau( aTau );
-
             //evaluate the field
             return this->NTau( aTau ) * mTHat ;
         }
@@ -189,7 +642,7 @@ namespace moris
                       Matrix< DDRMat > & aKt,
                       Matrix< DDRMat > & aLt,
                 const Matrix< DDRMat > & adNdXi,
-                const Matrix< DDRMat > & ad2NdXi2) const
+                const Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // evaluate transposed of geometry Jacobian
             aJt = this->space_jacobian( adNdXi );
@@ -209,7 +662,7 @@ namespace moris
                       Matrix< DDRMat > & aKt,
                       Matrix< DDRMat > & aLt,
                 const Matrix< DDRMat > & adNdTau,
-                const Matrix< DDRMat > & ad2NdTau2) const
+                const Matrix< DDRMat > & ad2NdTau2 ) const
         {
             // evaluate transposed of geometry Jacobian
             aJt = this->time_jacobian( adNdTau );
@@ -219,7 +672,7 @@ namespace moris
                                                  aKt,
                                                  aLt,
                                                  ad2NdTau2,
-                                                 mTHat);
+                                                 mTHat );
         }
 
 //------------------------------------------------------------------------------
@@ -318,7 +771,7 @@ namespace moris
         {
             // get number of dimensions and set pointer to function
             // for second space derivative
-            switch ( mSpaceInterpolation->get_number_of_dimensions() )
+            switch ( mNumSpaceDim )
             {
                 case( 1 ) :
                 {
@@ -344,7 +797,7 @@ namespace moris
 
             // get number of dimensions and set pointer to function
             // for second time derivative
-            switch ( mTimeInterpolation->get_number_of_dimensions() )
+            switch ( mNumTimeDim )
             {
                 case( 1 ) :
                 {
@@ -365,6 +818,32 @@ namespace moris
                 {
                     MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - unknown number of dimensions. " );
                     break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::get_auto_side_geometry_type()
+        {
+            // depending on the parent geometry type
+            switch ( mGeometryType )
+            {
+                // FIXME only QUAD and HEX
+                case ( mtk::Geometry_Type::QUAD ):
+                {
+                    mSideGeometryType = mtk::Geometry_Type::LINE;
+                    break;
+                }
+                case ( mtk::Geometry_Type::HEX ):
+                {
+                    mSideGeometryType = mtk::Geometry_Type::QUAD;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, " Geometry_Interpolator::get_side_geometry_type - undefined geometry type. " );
+                    mSideGeometryType = mtk::Geometry_Type::UNDEFINED;
                 }
             }
         }

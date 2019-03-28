@@ -74,7 +74,6 @@ state_initialize_mesh( const Arguments & aArguments )
             // activate extra pattern for exodus
             tHMR->get_database()->add_extra_refinement_step_for_exodus();
         }
-
     }
     else
     {
@@ -84,8 +83,6 @@ state_initialize_mesh( const Arguments & aArguments )
 
     // finalize database
     tHMR->finalize();
-
-    tHMR->save_to_exodus( "Mesh_test_init.exo" );
 
     // write mesh
     dump_meshes( aArguments, tParams, tHMR );
@@ -155,8 +152,6 @@ state_refine_mesh( const Arguments & aArguments )
 
     // finalize mesh
     tHMR->finalize();
-
-       tHMR->save_to_exodus( "Mesh_test_refine.exo" );
 
     if( aArguments.map_while_refine() )
     {

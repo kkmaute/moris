@@ -172,6 +172,10 @@ namespace moris
 
         // Bcast unique mPdofTypeList to all processors
         MPI_Bcast( (mPdofTypeList.data()).data(), mPdofTypeList.size(), MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+
+        //------------------------------------------------------------------------------------------------------
+
+        mTimePerDofType.set_size( tPdofTypeListSize, 1, 1 );
     }
 
     //-----------------------------------------------------------------------------------------------------------
@@ -215,7 +219,7 @@ namespace moris
          // Loop over all equation objects. Ask them to create their pdof hosts. Pdof hosts are stored in tPdofHostList
          for ( moris::uint Ii=0; Ii < tNumEquationObj; Ii++ )
          {
-             aListEqnObj( Ii )->create_my_pdof_hosts( tNumUsedDofTypes, mPdofTypeMap, tPdofHostList );
+             aListEqnObj( Ii )->create_my_pdof_hosts( tNumUsedDofTypes, mPdofTypeMap, mTimePerDofType, tPdofHostList );
          }
 
          // Determine number of Pdof Hosts
