@@ -67,7 +67,7 @@ public:
 
     void replace_diagonal_values( const moris::Dist_Vector & aDiagVec );
 
-    void  print_matrix_to_screen() const;
+    void  print() const;
 
     void save_matrix_to_matlab_file( char* aFilename );
 

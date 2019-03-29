@@ -35,7 +35,7 @@ namespace dla
 
         mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector);
 
-        //mMat->print_matrix_to_screen();
+        //mMat->print();
         //std::cout<<*mVectorRHS->get_vector()<<std::endl;
     }
 
@@ -56,7 +56,7 @@ namespace dla
 
         mInput->assemble_jacobian( mMat, aFullSolutionVector);
 
-        //mMat->print_matrix_to_screen();
+        //mMat->print();
     }
 
 //----------------------------------------------------------------------------------------
