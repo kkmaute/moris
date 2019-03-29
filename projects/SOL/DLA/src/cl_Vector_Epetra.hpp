@@ -71,6 +71,8 @@ public:
                             const moris::uint               & aRowOffsets,
                                   moris::Matrix< DDRMat > & LHSValues );
 
+    void print() const;
+
     void save_vector_to_matrix_market_file( const char* aFilename );
 
     void save_vector_to_HDF5( const char* aFilename );

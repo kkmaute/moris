@@ -194,7 +194,7 @@ void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const Dist_Vector & aDi
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-void  Sparse_Matrix_EpetraFECrs::print_matrix_to_screen() const
+void  Sparse_Matrix_EpetraFECrs::print() const
 {
     std::cout << *mEpetraMat <<std::endl;
 }

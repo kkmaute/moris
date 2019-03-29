@@ -148,6 +148,8 @@ public:
      */
     virtual moris::real vec_norm2() = 0;
 
+    virtual void print() const = 0;
+
     virtual void save_vector_to_matrix_market_file( const char* aFilename ) = 0;
 
     virtual void save_vector_to_HDF5( const char* aFilename ) = 0;

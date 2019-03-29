@@ -68,7 +68,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     // Call Global Asemby to ship information between processes
     tMat->matrix_global_asembly();
 
-    //tMat->print_matrix_to_screen();
+    //tMat->print();
 
     // Set up output matrix
     sint tGlobalRow = 8;    sint tLength = 13;    sint tNumEntries = 5;
@@ -144,7 +144,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     // Call Global Asemby to ship information between processes
     tMat->matrix_global_asembly();
 
-    //tMat->print_matrix_to_screen();
+    //tMat->print();
 
     // Put Values in scaling vector
     tVectorScale->vec_put_scalar( 2.25 );
@@ -225,7 +225,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     // Call Global Asemby to ship information between processes
     tMat->matrix_global_asembly();
 
-    //tMat->print_matrix_to_screen();
+    //tMat->print();
 
     // extract diagonal value into Dist Vector
     tMat->get_diagonal( *tVectorDiagonal );
