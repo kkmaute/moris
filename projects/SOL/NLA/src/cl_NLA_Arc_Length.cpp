@@ -64,12 +64,26 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
 {
     //------------------------------------------------------------------------------
     moris::real tB  = 0.50;
-    moris::real tDa = 0.50;
+    moris::real tDeltaA = 0.50;
 
+    moris::real tArcNumer = 0.0;
+    moris::real tArcDenom = 0.0;
     moris::real tF_tilde;
-    moris::real tArcNumer,tArcDenom;
+
+    moris::real tDeltaLambda;
+    moris::real tLambdaK;
+
+    moris::real tLambdaSolve        = 0.0;
+    moris::real tLambdaSolveNMinus1 = 0.0;
+    moris::real tLambdaSolveNMinus2 = 0.0;
 
     Dist_Vector* tFext = mNonlinearProblem->get_f_ext();
+    moris::uint tNumDof = 1;
+    moris::Matrix< DDSMat > tEleConn;
+    tEleConn(0,0) = 0;
+    moris::Matrix< DDRMat > tFextVal;
+    tFextVal(0,0) = 8.0;
+    tFext->sum_into_global_values( tNumDof,tEleConn,tFextVal );
     //------------------------------------------------------------------------------
 
     mNonlinearProblem = aNonlinearProblem;
@@ -85,6 +99,9 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
     moris::real tMaxAssemblyTime = 0.0;
     //moris::real tErrorStatus     = 0;
 
+    //--------------------get all vectors and matrices------------------------------
+
+    //------------------------------------------------------------------------------
     for ( sint timeStep = 1; timeStep < 10; timeStep++ )
     {   // temporary time step loop
         //------------------------------------------------------------------------------
@@ -94,8 +111,8 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
          * 3) store K_tilde0 and d_tilde0
          */
         mNonlinearProblem->build_linearized_problem( tRebuildJacobian, timeStep ); // rebuild the linearized problem
-        bool tHartBreak = false;
-        this->solve_linear_system( timeStep, tHartBreak );                         // solve linearized problem
+        bool tHardBreak = false;
+        this->solve_linear_system( timeStep, tHardBreak );                         // solve linearized problem
         //------------------------------------------------------------------------------
 
         mNonlinearProblem->get_linearized_problem()->assemble_residual_and_jacobian();  // assemble linear problem
@@ -108,7 +125,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
         Dist_Vector* tD_tilde = mNonlinearProblem->get_d_tilde();                       // displacement vector
         tD_tilde = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();
         tD_tilde->vec_plus_vec(1,*tFext,0);
-        mNonlinearProblem->get_linearized_problem()->solve_linear_system();
+        this->solve_linear_system( timeStep, tHardBreak );
 
 
         Dist_Vector* tK_tilde0Val = mNonlinearProblem->get_k0_diag();
@@ -120,15 +137,34 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
         }
 
         uint k = 1;     // iteration counter
+        //------------------------------------------------------------------------------
         // procedure 1
         //------------------------------------------------------------------------------
+        Dist_Vector* tDSolve        = mNonlinearProblem->get_d_solve();
+        tDSolve->vec_put_scalar( 0 );
+
+        Dist_Vector* tDSolveNMinus1 = mNonlinearProblem->get_d_solve_n_minus_1();
+        Dist_Vector* tDSolveNMinus2 = mNonlinearProblem->get_d_solve_n_minus_2();
+
+        Dist_Vector* tDK = mNonlinearProblem->get_d_k();
+
         sint tSize = tD_tilde->vec_local_length();
         if ( timeStep < 3 )
         {
             for ( sint i=0; i<tSize; i++ )
             {
-
+                tArcNumer += tD_tilde->get_values_pointer()[i] * tK_tilde0Val->get_values_pointer()[i] * tD_tilde->get_values_pointer()[i];
+                tArcDenom += tD_tilde0->get_values_pointer()[i] * tK_tilde0Val->get_values_pointer()[i] * tD_tilde0->get_values_pointer()[i];
             }
+            tF_tilde = std::sqrt((1-tB)*(tArcNumer/tArcDenom)+tB);
+
+            tDeltaLambda = tDeltaA/tF_tilde;
+            tD_tilde->scale_vector( tDeltaLambda );     // this is now DeltaD; DeltaD=DeltaLambda*Dtilde
+
+            tLambdaK = tLambdaSolve+tDeltaLambda;
+
+            tDK->vec_plus_vec(1,tDSolve,0);
+            tDK->vec_plus_vec(1,tD_tilde,1);            // D_k = D_n + DeltaD
         }
         else
         {
@@ -136,6 +172,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
         }
         //------------------------------------------------------------------------------
         // procedure 2
+        //------------------------------------------------------------------------------
 
         //------------------------------------------------------------------------------
 
@@ -165,7 +202,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
 
             tMaxAssemblyTime = this->calculate_time_needed( tStartAssemblyTime );
 
-            tHartBreak = false;
+            tHardBreak = false;
 //------------------------------------------------------------------------------
             /*
              * 1) update Fint value --- N/A
@@ -209,11 +246,11 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
                     mMyNonLinSolverManager->get_residual_norm(),
                     tMaxAssemblyTime,
                     tMaxNewTime,
-                    tHartBreak ) ;
+                    tHardBreak ) ;
 
             if ( tIsConverged )
             {
-                if ( tHartBreak )
+                if ( tHardBreak )
                 {
                     continue;
                 }
@@ -221,7 +258,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
             }
 
             // Solve linear system
-            this->solve_linear_system( iter, tHartBreak );
+            this->solve_linear_system( iter, tHardBreak );
 
             //PreconTime
             //SolveTime

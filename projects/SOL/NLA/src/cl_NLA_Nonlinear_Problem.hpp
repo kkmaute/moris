@@ -43,6 +43,12 @@ namespace NLA
         Dist_Vector * mDTildeVec        = nullptr;
         Dist_Vector * mDTilde0Vec       = nullptr;
 
+        Dist_Vector * mDK               = nullptr;
+        Dist_Vector * mDSolve           = nullptr;
+        Dist_Vector * mDSolveNMinus1    = nullptr;
+        Dist_Vector * mDSolveNMinus2    = nullptr;
+
+
         Dist_Vector * mFext             = nullptr;
         //-------------------------------------------------
 
@@ -157,6 +163,26 @@ namespace NLA
         Dist_Vector * get_d_tilde0()
         {
             return mDTilde0Vec;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_d_solve()
+        {
+            return mDSolve;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_d_solve_n_minus_1()
+        {
+            return mDSolveNMinus1;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_d_solve_n_minus_2()
+        {
+            return mDSolveNMinus2;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_d_k()
+        {
+            return mDK;
         }
         //--------------------------------------------------------------------------------------------------
         Dist_Vector * get_f_ext()
