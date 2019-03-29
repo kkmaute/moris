@@ -15,6 +15,7 @@ namespace moris
         {
             NEWTON_SOLVER,   //< Wrapper around Aztec Solver
             NLBGS_SOLVER,   //< Wrapper around Aztec Solver
+            ARC_LENGTH_SOLVER,
             END_ENUM
         };
     }

@@ -34,6 +34,18 @@ namespace NLA
 
         void  delete_pointers();
 
+        //--------------------Arc Length-------------------
+        Sparse_Matrix * mFullForKTilde  = nullptr;
+
+        Dist_Vector * mFullForKDiag     = nullptr;
+        Dist_Vector * mFullForK0Diag    = nullptr;
+
+        Dist_Vector * mDTildeVec        = nullptr;
+        Dist_Vector * mDTilde0Vec       = nullptr;
+
+        Dist_Vector * mFext             = nullptr;
+        //-------------------------------------------------
+
     protected:
         Dist_Vector * mFullVector = nullptr;
 
@@ -51,6 +63,7 @@ namespace NLA
 
         //! Nonlinear solver manager index. only for output purposes
         moris::sint mNonlinearSolverManagerIndex = -1;
+
 
     public:
 
@@ -118,6 +131,38 @@ namespace NLA
                                 const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                 const moris::uint             & aBlockRowOffsets,
                                       moris::Matrix< DDRMat > & LHSValues );
+
+        //--------------------------------------------------------------------------------------------------
+        //--------------------------------Arc-Length 'get' functions----------------------------------------
+        Dist_Vector * get_k_diag()
+        {
+            return mFullForKDiag;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_k0_diag()
+        {
+            return mFullForK0Diag;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Sparse_Matrix * get_full_for_consistent_tangent()
+        {
+            return mFullForKTilde;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_d_tilde()
+        {
+            return mDTildeVec;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_d_tilde0()
+        {
+            return mDTilde0Vec;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_f_ext()
+        {
+            return mFext;
+        }
     };
 }
 }

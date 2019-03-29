@@ -65,22 +65,7 @@ using namespace dla;
         moris::real tMaxAssemblyTime = 0.0;
         //moris::real tErrorStatus     = 0;
 
-        // Newton retry loop
-//        for ( moris::sint Ir = 0; Ir < tRebuildIterations; ++ Ir)
-//        {
-//            // Reset the old state
-//            if ( Ir > 0 )
-//            {
-//                tRelaxation *= mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_multiplier_on_fail" );
-//                tMaxIts      = (moris::sint) ( tMaxIts * mParameterListNonlinearSolver.get< moris::sint >( "NLA_maxits_multiplier_on_fail" ));
-//
-//                mFullVector->vec_plus_vec( 1.0, *mPrevVectorFreeSol, 0.0 );
-//
-//                if ( par_rank() == 0 )
-//                {
-//                    fprintf( stdout,"\n ... Previous nonlinear solve failed ... Retrying with: max nonlinear iterations = %i; relaxation = %f\n", tMaxIts, tRelaxation );
-//                }
-//            }
+
 
             // Newton loop
             for ( moris::sint It = 1; It <= tMaxIts; ++It )
@@ -138,7 +123,9 @@ using namespace dla;
                 //PreconTime
                 //SolveTime
 
-                ( mNonlinearProblem->get_full_vector())->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
+                ( mNonlinearProblem->get_full_vector())
+                                   ->vec_plus_vec( -tRelaxation, *mNonlinearProblem->get_linearized_problem()
+                                                                                   ->get_full_solver_LHS(), 1.0 );
 
                 // Update the SolVecNorm
                 // solNorm = mVectorFreeSol.Norm2();

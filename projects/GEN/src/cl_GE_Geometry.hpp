@@ -16,8 +16,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_norm.hpp"
-#include "op_minus.hpp"
-#include "op_plus.hpp"
 //------------------------------------------------------------------------------
 // other includes
 #include <cmath>

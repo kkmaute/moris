@@ -54,6 +54,7 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
     // create map object FIXME ask liner problem for map
     mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
 
+
     // create solver object
     if ( mBuildLinerSystemFlag )
     {
@@ -88,6 +89,8 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+//    mFullForDiag = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
     mFullVector->vec_put_scalar( 0.0 );
 

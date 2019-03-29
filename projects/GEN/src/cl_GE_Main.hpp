@@ -10,20 +10,21 @@
 
 // moris includes
 #include "cl_Cell.hpp"
-
+//------------------------------------------------------------------------------
 // GE includes
 #include "cl_GE_Geometry.hpp"
-
+//------------------------------------------------------------------------------
 // MTK includes
 #include "cl_MTK_Mesh.hpp"
-
+//------------------------------------------------------------------------------
 // FEM includes
 #include "FEM/INT/src/cl_FEM_Integrator.hpp"
 #include "FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
-
+//------------------------------------------------------------------------------
 // LinAlg includes
 #include "op_minus.hpp"
 #include "fn_norm.hpp"
+//------------------------------------------------------------------------------
 
 namespace moris
 {
@@ -341,9 +342,9 @@ namespace moris
              */
             Matrix< DDRMat >
             determine_phi_hat( Matrix< DDRMat >      & aTMatrix,
-                                  mtk::Mesh*            & aMeshPointer,
-                                  moris::Cell< real >   & aGeomParams,
-                                  uint                  aWhichGeom )
+                               mtk::Mesh*            & aMeshPointer,
+                               moris::Cell< real >   & aGeomParams,
+                               uint                  aWhichGeom )
             {
                 // create a space time integration rule and interpolation rules for Geometry and LS field
                 //------------------------------------------------------------------------------
