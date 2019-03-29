@@ -126,7 +126,6 @@ namespace moris
                 mDatabase->add_extra_refinement_step_for_exodus();
             }
 
-
             // update database
             mDatabase->update_bspline_meshes();
             mDatabase->update_lagrange_meshes();
@@ -143,7 +142,6 @@ namespace moris
 
         void
         HMR::finalize()
-
         {
             // if mesh has not been refined, copy input to output before finalizing
             if( ! mDatabase->have_refined_at_least_one_element() )
@@ -173,14 +171,12 @@ namespace moris
 
             // finish database
             mDatabase->finalize();
-
         }
 // -----------------------------------------------------------------------------
 
         void
         HMR::save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
         {
-
             uint tOutputOrder = MORIS_UINT_MAX;
             uint tIndex = MORIS_UINT_MAX;
 
@@ -272,7 +268,6 @@ namespace moris
 
             // delete file
             delete tSTK;
-
         }
 
 // -----------------------------------------------------------------------------
@@ -294,7 +289,6 @@ namespace moris
 
             // remember active pattern
             auto tActivePattern = tBackgroundMesh->get_activation_pattern();
-
 
             // save output pattern into file
             tHDF5.save_refinement_pattern( tBackgroundMesh );
@@ -449,7 +443,6 @@ namespace moris
                                     tLabel,
                                     tWeights,
                                     tStatus );
-
                         }
                     }
 
@@ -507,7 +500,6 @@ namespace moris
                 // populate matrix
                 for( uint k=0; k<tNumberOfBasis; ++k )
                 {
-
                     tHMRDomainIDs( k ) = tMesh->get_basis_by_index( k )->get_hmr_id();
 
                     tHMRIDs( k ) = tMesh->get_basis_by_index( k )->get_id();
@@ -569,7 +561,6 @@ namespace moris
                          tWeights.set_size( 1, 1, -1 );
                      }
 
-
                      moris_id tID= tMesh->get_basis_by_index( k )->get_id();
 
                      // save ids to file
@@ -604,7 +595,6 @@ namespace moris
                         tIndices( 0, Ia ) = tCoarseDofIndex;
                     }
 
-
                      if ( tIndices.n_cols() == 0 )
                      {
                          tIndices.set_size( 1, 1, -1 );
@@ -632,13 +622,11 @@ namespace moris
                       Cell< mtk::Cell* > & aElements,
                 const uint                  aMinRefinementLevel )
         {
-
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
-
 
             // use Lagrange pattern for flagging
             tBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
@@ -698,7 +686,6 @@ namespace moris
                     break;
                 }
             }
-
         }
 
 // -----------------------------------------------------------------------------

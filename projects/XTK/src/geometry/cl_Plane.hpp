@@ -44,7 +44,7 @@ public:
 
 
     moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
-                                              moris::Matrix< moris::DDRMat > const & aCoordinates) const
+                                                     moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
         moris::real tDist = mXn*(aCoordinates(aRowIndex,0)-mXc) + mYn*(aCoordinates(aRowIndex,1)-mYc) + mZn*(aCoordinates(aRowIndex,2)-mZc);
 

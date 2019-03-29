@@ -33,7 +33,7 @@ namespace xtk
 {
 
 
-TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
+TEST_CASE("Cylinders coincident with each other ","[COINCIDENT]")
 {
 
 
@@ -70,6 +70,7 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;
             Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+            tXTKModel.mVerbose = true;
 
             //Specify your decomposition methods and start cutting
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
@@ -78,11 +79,60 @@ TEST_CASE("Plane coincident to regular subdivision plane","[COINCIDENT]")
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-            std::string tPrefix = std::getenv("XTKOUTPUT");
+            std::string tPrefix = std::getenv("MORISOUTPUT");
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_coincident.e";
+            std::cout<<"Output mesh: "<<tMeshOutputFile<<std::endl;
             tCutMeshData->create_output_mesh(tMeshOutputFile);
             delete tCutMeshData;
             delete tMeshData;
+    }
+}
+
+TEST_CASE("Plane coincident with background mesh ","[COINCIDENT_PLANE]")
+{
+
+
+    int tProcRank = 0;
+    int tProcSize = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
+
+    if(tProcSize==1)
+    {
+        real tXc = 0.0;
+        real tYc = 0.0;
+        real tZc = 0.0;
+        real tXn = 0.0;
+        real tYn = 1.0;
+        real tZn = 0.0;
+
+        Plane tPlane(tXc,tYc,tZc,tXn,tYn,tZn);
+
+        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
+
+        // Create Mesh ---------------------------------
+        std::string tMeshFileName = "generated:1x1x10";
+        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+
+        // Setup XTK Model -----------------------------
+        size_t tModelDimension = 3;
+        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+        tXTKModel.mVerbose = true;
+
+        //Specify your decomposition methods and start cutting
+        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+                                                               Subdivision_Method::C_HIERARCHY_TET4};
+        tXTKModel.decompose(tDecompositionMethods);
+
+        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+
+        std::string tPrefix = std::getenv("MORISOUTPUT");
+        std::string tMeshOutputFile = tPrefix + "/xtk_test_output_coincident_plane.e";
+        std::cout<<"Output mesh: "<<tMeshOutputFile<<std::endl;
+        tCutMeshData->create_output_mesh(tMeshOutputFile);
+        delete tCutMeshData;
+        delete tMeshData;
     }
 }
 

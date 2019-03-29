@@ -295,6 +295,80 @@ public:
     void
     create_multilevel_enrichments();
 
+//    void
+//    declare_enrichment_fields_in_output_options(size_t aNumBasis,
+//                                                Cell<std::string> & aOutputElementIntFields)
+//    {
+//        // declare  enrichment fields
+//        Cell<std::string> tEnrichmentFields(aNumBasis);
+//        std::string tBaseEnrich = "subphase_";
+//        for(size_t i = 0; i<aNumBasis; i++)
+//        {
+//            tEnrichmentFields(i) = tBaseEnrich + std::to_string(i);
+//        }
+//
+//        aOutputElementIntFields = tEnrichmentFields;
+//
+//        // Add local floodfill field to the output mesh
+//        std::string tLocalFFStr = "local_ff";
+//        aOutputElementIntFields.push_back(tLocalFFStr);
+//    }
+
+//    void
+//    write_enrichment_data_to_fields(size_t aNumBasis,
+//                                    Cut_Mesh           & aCutMesh,
+//                                    moris::mtk::Mesh                                                           & aOutputMesh,
+//                                    Enrichment   const & aEnrichment,
+//                                    Cell<std::string> aEnrichmentFieldStrs)
+//    {
+//
+//        // Local subphas bins
+//        moris::Matrix<moris::DDRMat> tLocalSubphaseVal(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),0);
+//        for(size_t i = 0; i<aCutMesh.get_num_simple_meshes(); i++)
+//        {
+//
+//            Child_Mesh_Test & tChildMesh = aCutMesh.get_child_mesh(i);
+//
+//            moris::Matrix< moris::IndexMat > const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
+//
+//            moris::Matrix< moris::IdMat > const & tChildElementIds = tChildMesh.get_element_ids();
+//
+//
+//            for(size_t j = 0; j<tChildElementIds.n_cols(); j++)
+//            {
+//                moris::moris_index tElementInd = aOutputMesh.get_loc_entity_ind_from_entity_glb_id(tChildElementIds(0,j),moris::EntityRank::ELEMENT);
+//                moris::moris_index tBulkPhaseInd = tChildMesh.get_element_phase_index(j);
+//                tLocalSubphaseVal(tElementInd) = (real)(tElementSubphases(0,j));
+//
+//            }
+//        }
+//        std::string tLocalFFStr = "local_ff";
+//        aOutputMesh.add_mesh_field_real_scalar_data_loc_inds(tLocalFFStr, moris::EntityRank::ELEMENT, tLocalSubphaseVal);
+//
+//
+//
+//        // Enrichment values
+//        Cell<moris::Matrix< moris::IndexMat >> const & tElementIdsInBasis = aEnrichment.get_element_ids_in_basis_support();
+//        Cell<moris::Matrix< moris::IndexMat >> const & tElementEnrichmentInBasis = aEnrichment.get_element_enrichment_levels_in_basis_support();
+//
+//        for(size_t i = 0; i<aNumBasis; i++)
+//        {
+//            moris::Matrix<moris::DDRMat> tEnrichmentLevels(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),10);
+//
+//            for(size_t j = 0; j<tElementIdsInBasis(i).n_cols(); j++)
+//            {
+//                size_t tElementId = (tElementIdsInBasis(i))(0,j);
+//                size_t tElementInd = aOutputMesh.get_loc_entity_ind_from_entity_glb_id(tElementId,moris::EntityRank::ELEMENT);
+//                tEnrichmentLevels(tElementInd) = (real)(((tElementEnrichmentInBasis(i)))(0,j));
+//
+//            }
+//
+//            aOutputMesh.add_mesh_field_real_scalar_data_loc_inds(aEnrichmentFieldStrs(i), moris::EntityRank::ELEMENT, tEnrichmentLevels);
+//
+//        }
+//    }
+
+
 
 private:
     moris::size_t mNumBulkPhases;

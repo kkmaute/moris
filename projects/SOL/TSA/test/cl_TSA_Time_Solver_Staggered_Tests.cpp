@@ -33,6 +33,8 @@ namespace tsa
 {
     TEST_CASE("TimeSolverStaggered","[TSA],[TimeSolverStaggered]")
     {
+        if ( par_size() == 1 )
+        {
         /*!
          * Create solver warehouse
          *
@@ -289,6 +291,7 @@ namespace tsa
         print( tSol, "tSol");
         CHECK( equal_to( tSol( 0, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
         CHECK( equal_to( tSol( 1, 0 ), -8.869937049794211e-01, 1.0e+08 ) );
+        }
     }
 }
 }

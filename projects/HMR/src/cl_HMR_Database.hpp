@@ -379,6 +379,16 @@ namespace moris
             }
 
 // -----------------------------------------------------------------------------
+            /**
+             * returns list of all side sets
+             */
+            const Cell< Side_Set > &
+            get_side_sets() const
+            {
+                return mOutputSideSets;
+            }
+
+// -----------------------------------------------------------------------------
 
             void
             calculate_t_matrices_for_input();

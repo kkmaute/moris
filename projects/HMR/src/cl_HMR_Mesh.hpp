@@ -272,6 +272,17 @@ namespace moris
                     Matrix< IndexMat >     & aSidesetOrdinals );
 
 //-------------------------------------------------------------------------------
+
+            moris::Cell<std::string>
+            get_set_names(enum EntityRank aSetEntityRank) const;
+
+//-------------------------------------------------------------------------------
+
+            Matrix< IndexMat >
+            get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                     std::string     aSetName) const;
+
+//-------------------------------------------------------------------------------
 //           Pointer Functions for FEM
 //-------------------------------------------------------------------------------
 

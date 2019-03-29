@@ -89,6 +89,9 @@ namespace moris
                 tDNormPhiDPhiHat.set_size( tNPhiBases, 1, 0.0 );
             }
 
+            // set the jacobian size
+            aJacobians.resize( 2 );
+
             // compute j_nPhi_nPhi
             aJacobians( 0 ) = trans( tNNPhi ) * tNNPhi;
 

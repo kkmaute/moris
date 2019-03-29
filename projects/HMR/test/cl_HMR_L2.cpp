@@ -73,6 +73,19 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // set mesh order
                 tParameters.set_mesh_orders_simple( tOrder );
 
+//                moris::Matrix< moris::DDUMat > tSideSetsUsed;
+//
+//                if( tDimension == 2 )
+//                {
+//                    tSideSetsUsed = {{ 1, 2, 3, 4 }};
+//                }
+//                else
+//                {
+//                    tSideSetsUsed = {{ 1, 2, 3, 4 , 5, 6 }};
+//                }
+//
+//                tParameters.set_side_sets( tSideSetsUsed );
+
 //------------------------------------------------------------------------------
 //  HMR Initialization
 //------------------------------------------------------------------------------

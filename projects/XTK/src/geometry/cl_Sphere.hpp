@@ -21,7 +21,10 @@ class Sphere : public Geometry
 public:
     Sphere(){}
 
-    Sphere(moris::real const & aRadius, moris::real const & aXCenter, moris::real const & aYCenter, moris::real const & aZCenter) :
+    Sphere(moris::real const & aRadius,
+           moris::real const & aXCenter,
+           moris::real const & aYCenter,
+           moris::real const & aZCenter) :
             mRadius(aRadius),
             mXCenter(aXCenter),
             mYCenter(aYCenter),

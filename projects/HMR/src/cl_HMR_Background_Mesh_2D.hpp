@@ -38,9 +38,7 @@ namespace moris
                 else
                 {
                     // calculate domain id
-                    return  mDomain.mLevelOffset[ aLevel ]
-                        + tI
-                        + tJ
+                    return  mDomain.mLevelOffset[ aLevel ] + tI + tJ
                         * mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
                 }
             }
@@ -72,7 +70,7 @@ namespace moris
                 else
                 {
                     // calculate element ID
-                    return mMySubDomain.mLevelOffset[ aLevel ] + aI + aJ*
+                    return mMySubDomain.mLevelOffset[ aLevel ] + aI + aJ *
                             mMySubDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
                 }
             }
@@ -718,21 +716,18 @@ namespace moris
 
         template<>
         void
-        Background_Mesh< 2 >::collect_coarsest_elements_on_side(
-                        const uint                       & aSideOrdinal,
-                        Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
+        Background_Mesh< 2 >::collect_coarsest_elements_on_side( const uint                             & aSideOrdinal,
+                                                                       Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
         {
             // clear output cell
             aCoarsestElementsOnSide.clear();
 
             // number of elements
-            luint tNumberOfElementsI
-                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
-                      - 2 * mParameters->get_padding_size();
+            luint tNumberOfElementsI = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 0 ]
+                                              - 2 * mParameters->get_padding_size();
 
-            luint tNumberOfElementsJ
-                = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
-                     - 2 * mParameters->get_padding_size();
+            luint tNumberOfElementsJ = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ]
+                                              - 2 * mParameters->get_padding_size();
 
             switch( aSideOrdinal )
             {

@@ -41,8 +41,8 @@ public:
 
     void replace_global_values();
 
-    void sum_into_global_values(const moris::uint               & aNumMyDofs,
-                                const moris::Matrix< DDSMat >         & aElementTopology,
+    void sum_into_global_values(const moris::uint             & aNumMyDofs,
+                                const moris::Matrix< DDSMat > & aElementTopology,
                                 const moris::Matrix< DDRMat > & aRHSVal);
 
     void vector_global_asembly();
@@ -76,6 +76,16 @@ public:
     void save_vector_to_HDF5( const char* aFilename );
 
     void read_vector_from_HDF5( const char* aFilename );
+
+    moris::real* get_values_pointer()
+    {
+        return mValuesPtr;
+    };
+
+    moris::real* get_values_pointer() const
+    {
+        return mValuesPtr;
+    };
 //----------------------------------------------------------------------------------------------
 
     void check_vector();

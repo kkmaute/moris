@@ -76,6 +76,9 @@ namespace moris
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
+            // set the jacobian size
+            aJacobians.resize( 1 );
+
             // compute Jacobian
             aJacobians( 0 ) = trans( tFI->N() ) * tFI->N();
 
@@ -93,6 +96,9 @@ namespace moris
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute Jacobian
             aJacobians( 0 ) = trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->Bx() ) * tFI->Bx() );
@@ -151,6 +157,9 @@ namespace moris
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
 
+            // set the jacobian size
+            aJacobians.resize( 1 );
+
             // compute Jacobian
             aJacobians( 0 ) = trans( tFI->N() ) * tFI->N();
         }
@@ -162,6 +171,9 @@ namespace moris
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute Jacobian
             aJacobians( 0 ) = trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->Bx() ) * tFI->Bx() );

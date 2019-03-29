@@ -38,7 +38,8 @@ moris::Matrix< moris::IndexMat >
 generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
                                    moris::moris_index const & aChildMeshIndex0,
                                    moris::moris_index const & aChildMeshIndex1,
-                                   Cut_Mesh    const & aCutMesh)
+                                   Cut_Mesh    const & aCutMesh,
+                                   Matrix<IndexMat>  & aElementPairOrdinals)
                                    {
     // Get references to the child meshes and needed connectivities
     Child_Mesh const & tChildMesh0 = aCutMesh.get_child_mesh(aChildMeshIndex0);
@@ -61,6 +62,7 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
                                                             tFaceOrdinals);
     // Allocate output where top row is a child element indices in first child mesh and second row is for second child mesh index
     moris::Matrix< moris::IndexMat > tChildElementPairs(2,tChildrenElementCMInds.n_cols());
+    aElementPairOrdinals.resize(2,tChildrenElementCMInds.n_cols());
 
     // Allocate downward map
     std::unordered_map<moris::moris_index,moris::moris_index> tChildElement0Map;
@@ -91,6 +93,7 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
     for(moris::size_t j = 0; j<tChildrenElementCMInds.n_rows(); j++)
     {
         (tChildElementPairs)(0,j) = tChildrenElementCMInds(j,0);
+        aElementPairOrdinals(0,j) = tFaceOrdinals(j);
     }
 
     // Get children elements attached to aFaceIndex on the side of child mesh index 0
@@ -114,6 +117,7 @@ generate_shared_face_element_pairs(moris::moris_index const & aFaceIndex,
         moris::size_t tIndexInPairs = tChildElement0Map[tElementFrom0OnFace];
 
         (tChildElementPairs)(1,tIndexInPairs) = tChildrenElementCMInds(i);
+        aElementPairOrdinals(1,tIndexInPairs) = tFaceOrdinals(i);
     }
 
 

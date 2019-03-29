@@ -75,8 +75,10 @@ namespace moris
         Matrix< DDSMat >tDofTypeIndexMap( 4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
+        Matrix< DDUMat >tTimePerDofType( 4, 1, 1);
+
         //  Set pdof type and timestep
-        tPdofHost.set_pdof_type( tDofType, tTimeSteps( 0 ), tNumMaxPdofTypes, tDofTypeIndexMap );
+        tPdofHost.set_pdof_type( tDofType, tTimePerDofType, tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Check size of type and time list
         CHECK( equal_to( tPdofHost.mListOfPdofTimePerType.size(), 1 ) );
@@ -136,8 +138,10 @@ namespace moris
         Matrix< DDSMat >tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
+        Matrix< DDUMat >tTimePerDofType(4, 1, 1);
+
         // Set pdof type and timestep
-        tPdofHost.set_pdof_type( tDofType, tTimeSteps( 0 ), tNumMaxPdofTypes, tDofTypeIndexMap );
+        tPdofHost.set_pdof_type( tDofType, tTimePerDofType, tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Create external adof list
         moris::Cell< moris::Cell < Adof * > > tAdofList;

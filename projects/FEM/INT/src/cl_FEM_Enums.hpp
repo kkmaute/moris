@@ -38,6 +38,7 @@ namespace moris
         enum class Integration_Order
         {
             UNDEFINED,
+			POINT,
             BAR_1,
             BAR_2,
             BAR_3,
@@ -72,6 +73,7 @@ namespace moris
         {
             BULK,
             SIDESET,
+            TIME_SIDESET,
             UNDEFINED
         };
 
@@ -87,7 +89,9 @@ namespace moris
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK, // spatial diffusion bulk
-            SPATIALDIFF_SIDESET // spatial diffusion bulk
+            SPATIALDIFF_SIDESET, // spatial diffusion sideset
+            SPATIALDIFF_DIRICHLET, // spatial diffusion sideset
+            END_IWG
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */

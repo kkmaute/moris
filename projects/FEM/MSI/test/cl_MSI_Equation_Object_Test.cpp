@@ -170,7 +170,9 @@ namespace moris
         Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
-        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList );
+        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
         // Check if right pdof host was created in given pdof host list
         CHECK( equal_to( tPdofHostList( 0 )->mNodeID, 0 ) );
@@ -260,7 +262,9 @@ namespace moris
         tDofTypeIndexMap(0, 0) = 0;
         tDofTypeIndexMap(3, 0) = 1;
 
-        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList);
+        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
         // resize pdof host list. Shortcut. Functionality is tested in another test
         tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );
@@ -352,7 +356,9 @@ namespace moris
         Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
         tDofTypeIndexMap(3, 0) = 0;
 
-        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tPdofHostList );
+        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
         // resize pdof host list. Shortcut. Functionality is tested in another test
         tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );

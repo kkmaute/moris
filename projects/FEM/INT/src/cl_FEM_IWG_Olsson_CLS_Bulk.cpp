@@ -59,6 +59,9 @@ namespace moris
             Field_Interpolator* phi  = aFieldInterpolators( 0 );
             Field_Interpolator* nPhi = aFieldInterpolators( 1 );
 
+            // set the jacobian size
+            aJacobians.resize( 2 );
+
             //compute the jacobians
             aJacobians( 0 ) = trans( phi->N() )  * phi->Bt()
                             - trans( phi->Bx() ) * ( ( mPhiUB + mPhiLB - 2 * phi->val()( 0 ) ) * trans( nPhi->val() ) * phi->N()
@@ -72,6 +75,7 @@ namespace moris
            {
                tNNPhi({i,i},{i * tNBasesNPhi, (i+1) * tNBasesNPhi - 1}) = nPhi->N().get_row( 0 );
            }
+
 
             aJacobians( 1 ) = - trans( phi->Bx() ) *(
                              ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) ) * tNNPhi
@@ -94,6 +98,9 @@ namespace moris
             aResidual = trans( phi->N() ) * phi->gradt( 1 )
                       - trans( phi->Bx() ) * ( ( phi->val()( 0 ) - mPhiLB ) * (mPhiUB - phi->val()( 0 ) )
                       - mEpsilon  * dot( phi->gradx( 1 ), nPhi->val() ) ) * nPhi->val();
+
+            // set the jacobian size
+            aJacobians.resize( 2 );
 
             //compute the jacobians
             aJacobians( 0 ) = trans( phi->N() )  * phi->Bt()

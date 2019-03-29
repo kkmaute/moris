@@ -16,17 +16,17 @@ namespace moris
 template<typename ET >
 auto
 det( const ET &  A)
-->decltype( A.determinant() )
+->decltype( arma::det( A ))
 {
-    return arma::det( A );
+	return arma::det( A );
 }
 
 template<typename ET >
 auto
 det( ET &  A)
-->decltype( A.determinant() )
+->decltype( arma::det( A ))
 {
-    return arma::det( A );
+	return arma::det( A );
 }
 }
 

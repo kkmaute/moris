@@ -21,6 +21,11 @@ Model::~Model()
     {
         delete mEnrichment;
     }
+
+    if(mGhost)
+    {
+        delete mGhostStabilization;
+    }
 }
 
 Model::Model(uint aModelDimension,
@@ -344,7 +349,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
                     }
                 } // geometry object
 
-
+                tChildMesh.mark_interface_faces_from_interface_coincident_faces();
             } // XTK Mesh loop
 
             moris_index tMessageTag = 60001; /*arbitrary tag for regular subdivision*/
@@ -1131,6 +1136,29 @@ Model::unzip_interface_assign_element_identifiers()
     }
 
     void
+    Model::construct_face_oriented_ghost_penalization_cells()
+    {
+        MORIS_ERROR(mDecomposed,"Mesh needs to be decomposed prior to calling ghost penalization");
+        MORIS_ERROR(!mGhost,"Ghost penalization has already been called");
+
+        std::clock_t start = std::clock();
+
+        mGhostStabilization = new Ghost_Stabilization(this);
+
+        mGhostStabilization->setup_ghost_stabilization_facets();
+
+        mGhost = true;
+
+        if(moris::par_rank() == 0  && mVerbose)
+        {
+            std::cout<<"XTK: Ghost stabilization setup completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        }
+
+
+    }
+
+
+    void
     Model::perform_multilevel_enrichment_internal()
     {
         mEnrichment->create_multilevel_enrichments();
@@ -1441,12 +1469,30 @@ Model::unzip_interface_assign_element_identifiers()
              moris::mtk::MtkSideSetInfo tInterfaceSideSet;
              if(aOutputOptions.mHaveInterface)
              {
-                 moris::mtk::MtkSideSetInfo tInterfaceSideSet;
                  tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
                  tInterfaceSideSet.mSideSetName        = "iside" ;
 
                  // Add side side set to mesh sets
                  tMtkMeshSets.add_side_set(&tInterfaceSideSet);
+             }
+
+
+             Cell<moris::mtk::MtkSideSetInfo> tGhostSideSets;
+             Cell<Matrix<IdMat>> tGhostElementsAndSideOrds;
+             if(mGhost)
+             {
+                 tGhostSideSets.resize(mGeometryEngine.get_num_bulk_phase());
+
+                 tGhostElementsAndSideOrds = this->pack_ghost_as_side_set();
+
+                 // set up ghost names
+                 for(moris::uint i = 0; i <tGhostElementsAndSideOrds.size(); i++)
+                 {
+                     tGhostSideSets(i).mElemIdsAndSideOrds = &tGhostElementsAndSideOrds(i);
+                     tGhostSideSets(i).mSideSetName = "ghost_" + std::to_string(i);
+                     tMtkMeshSets.add_side_set(&tGhostSideSets(i));
+                 }
+
              }
 
              // propogate side sets from background mesh
@@ -1475,7 +1521,7 @@ Model::unzip_interface_assign_element_identifiers()
             tMeshDataInput.LocaltoGlobalElemMap = moris::Cell<moris::Matrix<IdMat>*>(tNumElemTypes);
 
             tMeshDataInput.CreateAllEdgesAndFaces  = false;
-            tMeshDataInput.Verbose                 = true;
+            tMeshDataInput.Verbose                 = mVerbose;
             tMeshDataInput.SpatialDim              = &tSpatialDim;
 
             tCount = 0;
@@ -1765,6 +1811,56 @@ Model::unzip_interface_assign_element_identifiers()
 
         return tCombinedElementsByPhase;
 
+    }
+
+    //------------------------------------------------------------------------------
+
+    Cell<Matrix<IdMat>>
+    Model::pack_ghost_as_side_set()
+    {
+        MORIS_ASSERT(mGhost,"Trying to pack ghost side set on a mesh without ghost setup");
+
+        // number of bulk phases
+        moris::uint tNumBulkPhase = mGeometryEngine.get_num_bulk_phase();
+
+        Cell<Matrix<IdMat>> tGhostCellIdsAndSideOrdByBulkPhase(tNumBulkPhase);
+
+        // iterate through bulk phases
+        for(moris::uint i = 0 ; i<tNumBulkPhase; i++)
+        {
+            // get the bulk phase ghost elements
+            Cell<Ghost_Cell> const & tBulkPhaseGhostCells = mGhostStabilization->get_ghost_cells_by_bulk_phase(i);
+
+            tGhostCellIdsAndSideOrdByBulkPhase(i).resize(tBulkPhaseGhostCells.size()*2,2);
+
+            // iterate through cells and extract the side set information
+            uint tCount = 0;
+            for(moris::uint j = 0; j <tBulkPhaseGhostCells.size(); j++)
+            {
+                // Ghost cell reference
+                Ghost_Cell const & tGhostCell = tBulkPhaseGhostCells(j);
+
+                // figure out left cell topology
+
+                // left cell element id and side ordinal
+//                moris::mtk::Cell const & tLeftCell = tGhostCell.get_left_cell();
+
+//                if(tLeftCell.get_geometry_type() != moris::mtk::Geometry_Type::HEX)
+//                {
+                    tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,0) = tGhostCell.get_left_cell().get_id();
+                    tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,1) = tGhostCell.get_left_cell_side_ordinal();
+                    tCount++;
+//                }
+
+                // right cell element id and side ordinal
+                tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,0) = tGhostCell.get_right_cell().get_id();
+                tGhostCellIdsAndSideOrdByBulkPhase(i)(tCount,1) = tGhostCell.get_right_cell_side_ordinal();
+                tCount++;
+            }
+
+        }
+
+        return tGhostCellIdsAndSideOrdByBulkPhase;
     }
 
     //------------------------------------------------------------------------------

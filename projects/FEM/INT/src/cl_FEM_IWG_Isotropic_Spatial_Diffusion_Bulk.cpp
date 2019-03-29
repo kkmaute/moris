@@ -15,7 +15,7 @@ namespace moris
         {
             //FIXME forced diffusion parameter
             //      forced dimensions for 3D
-            eye( 3, 3, mKappa );
+            eye( mSpaceDim, mSpaceDim, mKappa );
             mKappa = 1.0 * mKappa;
 
             // set the residual dof type
@@ -32,10 +32,10 @@ namespace moris
                                                                 Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
-            Field_Interpolator* T  = aFieldInterpolators( 0 );
+            Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
 
             // compute the residual r_T
-            aResidual = trans( T->Bx() ) * mKappa * T->gradx( 1 );
+            aResidual = - trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 );
         }
 
 //------------------------------------------------------------------------------
@@ -45,10 +45,13 @@ namespace moris
                                                                 Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
-            Field_Interpolator* T  = aFieldInterpolators( 0 );
+            Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = trans( T->Bx() ) * mKappa * T->Bx();
+            aJacobians( 0 ) = - trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
         }
 
 //------------------------------------------------------------------------------
@@ -58,14 +61,18 @@ namespace moris
                                                                              Matrix< DDRMat >            & aResidual,
                                                                              Cell< Field_Interpolator* > & aFieldInterpolators )
         {
+
             // set field interpolator
-            Field_Interpolator* T  = aFieldInterpolators( 0 );
+            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 
             // compute the residual r_T
-            aResidual = trans( T->Bx() ) * mKappa * T->gradx( 1 );
+            aResidual = - trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = trans( T->Bx() ) * mKappa * T->Bx();
+            aJacobians( 0 ) = - trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
         }
 
 //------------------------------------------------------------------------------

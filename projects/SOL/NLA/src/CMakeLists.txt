@@ -8,12 +8,9 @@ set(${NLA}_VERSION ${MORIS_VERSION})
 set(HEADERS
     cl_NLA_Arc_Length.hpp
     cl_NLA_Newton_Solver.hpp
-    #cl_NLA_Solver_Interface_Proxy.hpp
-    #cl_NLA_Solver_Interface_Proxy2.hpp
     cl_NLA_Nonlinear_Solver_Enums.hpp
     cl_NLA_Nonlinear_Algorithm.hpp
     cl_NLA_Nonlinear_Solver.hpp
-    #cl_SOL_Warehouse.hpp
     cl_NLA_Nonlinear_Problem.hpp
     cl_NLA_Newton_Solver_Factory.hpp
     cl_NLA_Convergence.hpp
@@ -41,12 +38,9 @@ endforeach()
 set(LIB_SOURCES
     cl_NLA_Arc_Length.cpp   
     cl_NLA_Newton_Solver.cpp
-    #cl_NLA_Solver_Interface_Proxy.cpp
-    #cl_NLA_Solver_Interface_Proxy2.cpp
     cl_NLA_Nonlinear_Solver_Factory.cpp
     cl_NLA_Nonlinear_Algorithm.cpp
     cl_NLA_Nonlinear_Solver.cpp
-    #cl_SOL_Warehouse.cpp
     cl_NLA_Nonlinear_Problem.cpp
     cl_NLA_Convergence.cpp
     cl_NLA_NLBGS.cpp )

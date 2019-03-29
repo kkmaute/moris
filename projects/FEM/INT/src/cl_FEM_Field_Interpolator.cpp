@@ -42,7 +42,7 @@ namespace moris
             // get number of space, time, and space time basis
             mNSpaceBases = mSpaceInterpolation->get_number_of_bases();
             mNTimeBases  = mTimeInterpolation->get_number_of_bases();
-            mNFieldBases = mNSpaceBases*mNTimeBases;
+            mNFieldBases = mNSpaceBases * mNTimeBases;
 
             // get number of coefficients
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
@@ -59,6 +59,7 @@ namespace moris
 
         Field_Interpolator::~Field_Interpolator()
         {
+            // delete interpolation functions
             if( mSpaceInterpolation != NULL )
             {
                 delete mSpaceInterpolation;
@@ -78,22 +79,16 @@ namespace moris
             MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNSpaceDim + mNTimeDim )),
                          "Field_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");
 
-            //check input values are between -1 and 1 for aXi
+            //check input values are between -1 and 1
             for ( moris::uint Ik = 0; Ik < mNSpaceDim + mNTimeDim; Ik++ )
             {
                 MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1 ) && ( aParamPoint( Ik ) >= -1 ) ),
                              "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
-
-                // set input values
-                if ( Ik < mNSpaceDim )
-                {
-                    mXi( Ik ) = aParamPoint( Ik );
-                }
-                else
-                {
-                    mTau( Ik - mNSpaceDim ) = aParamPoint( Ik );
-                }
             }
+
+            // set input values
+            mXi.matrix_data()  = aParamPoint( { 0, mNSpaceDim-1 }, { 0, 0 } );
+            mTau.matrix_data() = aParamPoint( mNSpaceDim );
         }
 
 //------------------------------------------------------------------------------
@@ -117,8 +112,7 @@ namespace moris
              Matrix < DDRMat > tNTime  = mTimeInterpolation->eval_N( mTau );
 
              //evaluate space time SF by multiplying space and time SF
-             Matrix < DDRMat > tNField = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases);
-             return tNField;
+             return reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
 
          }
 //------------------------------------------------------------------------------
@@ -146,9 +140,7 @@ namespace moris
             Matrix< DDRMat > tJGeot    = mGeometryInterpolator->space_jacobian( tdNGeodXi );
 
             // compute first derivative of the SF wrt x
-            Matrix< DDRMat> tdNFielddx( mNSpaceDim, mNFieldBases );
-            tdNFielddx = inv( tJGeot ) * tdNFielddXi;
-            return tdNFielddx;
+            return inv( tJGeot ) * tdNFielddXi;
         }
 
 //------------------------------------------------------------------------------
@@ -188,27 +180,26 @@ namespace moris
             }
 
             //build the second derivatives of the space time SF wrt x
-            Matrix< DDRMat > td2NFielddx2 = inv( tLGeot ) * ( td2NFielddxi2 - tKGeot * tdNFielddx );
-            return td2NFielddx2;
+            return inv( tLGeot ) * ( td2NFielddxi2 - tKGeot * tdNFielddx );
         }
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Field_Interpolator::Bt()
         {
-            //set first derivative of SF wrt t matrix
-            Matrix< DDRMat > tdNFielddt( mNTimeDim, mNFieldBases );
-
             // evaluate dNdTau for the field time interpolation
             Matrix< DDRMat > tdNTimedTau = mTimeInterpolation->eval_dNdXi( mTau );
 
             // evaluate N for the field space interpolation
             Matrix < DDRMat > tNSpace = mSpaceInterpolation->eval_N( mXi );
+            tNSpace = trans( tNSpace );
 
-            // build the space time dNdXi row by row
-            tNSpace = trans(tNSpace);
+            // set size tdNFielddTau for the field
+            Matrix< DDRMat> tdNFielddTau ( mNTimeDim, mNFieldBases );
+
+            // build the space time dNdTau row by row
             for ( moris::uint Ik = 0; Ik < mNTimeDim; Ik++ )
             {
-                 tdNFielddt.get_row(Ik) = reshape( tNSpace * tdNTimedTau.get_row(Ik), 1, mNFieldBases);
+                tdNFielddTau.get_row( Ik ) = reshape( tNSpace * tdNTimedTau.get_row(Ik), 1, mNFieldBases);
             }
 
             // evaluate the Jacobian from the space geometry interpolator
@@ -216,17 +207,13 @@ namespace moris
             Matrix< DDRMat > tJGeot = mGeometryInterpolator->time_jacobian( tdNGeodTau );
 
             // transform output matrix to dNdX
-            tdNFielddt = inv( tJGeot ) * tdNFielddt;
-            return tdNFielddt;
+            return inv( tJGeot ) * tdNFielddTau;
         }
 
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Field_Interpolator::eval_d2Ndt2()
         {
-            //set second derivative of SF wrt t matrix
-            Matrix< DDRMat > d2NFielddt2;
-
             // get first and second derivatives of space SF wrt tau
             Matrix< DDRMat > tdNGeodtau   = mGeometryInterpolator->dNdTau( mTau );
             Matrix< DDRMat > td2NGeodtau2 = mGeometryInterpolator->d2NdTau2( mTau );
@@ -237,7 +224,7 @@ namespace moris
                                                                                       tKGeot,
                                                                                       tLGeot,
                                                                                       tdNGeodtau,
-                                                                                      td2NGeodtau2);
+                                                                                      td2NGeodtau2 );
 
             // get the derivatives of the space time SF wrt t
             Matrix< DDRMat > tdNFielddt = this->Bt();
@@ -245,7 +232,7 @@ namespace moris
             //get the second derivatives of the space time SF wrt tau
 
             // get N for the field space interpolation and transpose
-            Matrix< DDRMat > tNSpace       = mSpaceInterpolation->eval_N( mXi );
+            Matrix< DDRMat > tNSpace = mSpaceInterpolation->eval_N( mXi );
             tNSpace = trans( tNSpace );
 
             // get d2Ndtau2 for the field time interpolation
@@ -256,14 +243,13 @@ namespace moris
 
             // compute second derivatives of the space time SF wrt tau row by row
             Matrix< DDRMat > td2NFielddtau2( tNSecondDerivatives, mNFieldBases );
-            for ( moris::uint Ik = 0; Ik < tNSecondDerivatives; Ik++ )
+            for ( uint Ik = 0; Ik < tNSecondDerivatives; Ik++ )
             {
                 td2NFielddtau2.get_row(Ik) = reshape( tNSpace * td2NTimedtau2.get_row(Ik) , 1, mNFieldBases );
             }
 
             //build the second derivatives of the space time SF wrt t
-            d2NFielddt2 = inv( tLGeot ) * (td2NFielddtau2 - tKGeot * tdNFielddt);
-            return d2NFielddt2;
+            return inv( tLGeot ) * (td2NFielddtau2 - tKGeot * tdNFielddt);
         }
 //------------------------------------------------------------------------------
 

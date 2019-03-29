@@ -34,23 +34,24 @@
 
 set(TEST_SOURCES
 	main.cpp
-	xtk/cl_MTK_Mesh_XTK_Impl_UT.cpp
-	xtk/cl_XTK_Child_Mesh_NH_Permutations.cpp
-	xtk/cl_XTK_Child_Mesh.cpp
-	xtk/cl_XTK_Cut_Mesh_Modification.cpp
-	xtk/cl_XTK_Cut_Mesh_RegSub.cpp
-	xtk/cl_XTK_Cut_Mesh.cpp
-	xtk/cl_XTK_Downward_Inheritance.cpp
-	xtk/cl_XTK_Element_Tie_Constraints.cpp
-	xtk/cl_XTK_Enrichment_UT.cpp
+	xtk/UT_MTK_Mesh_XTK_Impl.cpp
+	xtk/UT_XTK_Child_Mesh_NH_Permutations.cpp
+	xtk/UT_XTK_Child_Mesh.cpp
+	xtk/UT_XTK_Cut_Mesh_Modification.cpp
+	xtk/UT_XTK_Cut_Mesh_RegSub.cpp
+	xtk/UT_XTK_Cut_Mesh.cpp
+	xtk/UT_XTK_Downward_Inheritance.cpp
+	xtk/UT_XTK_Element_Tie_Constraints.cpp
+	xtk/UT_XTK_Enrichment.cpp
+	xtk/UT_XTK_Ghost_Stabilization.cpp
 	#xtk/cl_XTK_Multigrid.cpp
-	xtk/cl_XTK_Model_UT.cpp
-	xtk/cl_XTK_Model_Coincidence.cpp
-	xtk/cl_XTK_Model_Recursion.cpp
-	xtk/cl_XTK_Sensitivity.cpp
+	xtk/UT_XTK_Model.cpp
+	xtk/UT_XTK_Model_Coincidence.cpp
+	xtk/UT_XTK_Model_Recursion.cpp
+	xtk/UT_XTK_Sensitivity.cpp
 	#xtk/cl_XTK_Tetra4_Connectivity.cpp
-	xtk/cl_XTK_Model_Unzip.cpp
-	xtk/cl_XTK_Model_Export_UT.cpp
+	xtk/UT_XTK_Model_Unzip.cpp
+	xtk/UT_XTK_Model_Export.cpp
 	)
 
 # List additional includes

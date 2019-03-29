@@ -10,10 +10,13 @@
 
 #include <memory>
 #include "typedefs.hpp" //MRS/COR/src
-#include "cl_MTK_Block.hpp" //MTK/src
+//#include "cl_MTK_Block.hpp" //MTK/src
 #include "cl_Mesh_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Facet_Cluster.hpp"
+#include "cl_Map.hpp"
+#include "cl_MTK_Vertex.hpp" //MTK/src
+#include "cl_MTK_Cell.hpp" //MTK/src
 
 namespace moris
 {
@@ -133,6 +136,24 @@ namespace moris
             get_num_faces() const
             {
                 return get_num_entities(EntityRank::FACE);
+            }
+
+            //------------------------------------------------------------------------------
+
+            uint
+            get_sidesets_num_faces() const
+            {
+                moris::uint tNumSideSetFaces = 0;
+
+                moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
+
+                for( luint Ik=0; Ik < tSideSetsNames.size(); ++Ik )
+                {
+                    Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tSideSetsNames( Ik ) );
+
+                    tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
+                }
+                return tNumSideSetFaces;
             }
             //------------------------------------------------------------------------------
             /*
@@ -406,7 +427,7 @@ namespace moris
              virtual
              moris::moris_index
              get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
-                                                               moris::moris_index aCellIndex) const
+                                                            moris::moris_index aCellIndex) const
              {
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_facet_ordinal_from_cell_and_facet_id_loc_inds is not implemented)");
                  return 0;
@@ -607,6 +628,37 @@ namespace moris
              {
                  MORIS_ERROR(0," get_set_entity_ids has no base implementation");
                  return Matrix< IndexMat >(0,0);
+             }
+
+             virtual
+             void
+             get_sideset_elems_loc_inds_and_ords(
+                     const  std::string     & aSetName,
+                     Matrix< IndexMat >     & aElemIndices,
+                     Matrix< IndexMat >     & aSidesetOrdinals ) const
+             {
+                 MORIS_ERROR(0," get_sideset_elems_loc_inds_and_ords has no base implementation");
+             }
+
+
+             virtual
+             void
+             get_sideset_cells_and_ords(
+                     const  std::string & aSetName,
+                     moris::Cell< mtk::Cell * > & aCells,
+                     Matrix< IndexMat > &       aSidesetOrdinals )
+             {
+                 Matrix<IndexMat> tCellInds;
+
+                 this->get_sideset_elems_loc_inds_and_ords(aSetName, tCellInds,aSidesetOrdinals);
+
+                 aCells.resize(tCellInds.numel());
+
+                 // iterate through cell inds and get cell ptrs
+                 for(moris::uint i = 0; i <tCellInds.numel(); i++)
+                 {
+                     aCells(i) = &this->get_mtk_cell(tCellInds(i));
+                 }
              }
 
              //##############################################

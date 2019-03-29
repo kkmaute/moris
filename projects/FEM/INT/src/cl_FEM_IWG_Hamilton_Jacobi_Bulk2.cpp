@@ -67,6 +67,9 @@ namespace moris
                 tDNormPhiDPhiHat.set_size( tNPhiCoeff, 1, 0.0 );
             }
 
+            // set the jacobian size
+            aJacobians.resize( 2 );
+
             // compute the jacobian Jphiphi
             aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
 
@@ -99,6 +102,9 @@ namespace moris
 
             //compute the residual
             aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi );
+
+            // set the jacobian size
+            aJacobians.resize( 2 );
 
             // compute the jacobian Jphiphi
             aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );

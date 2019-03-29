@@ -74,7 +74,6 @@ state_initialize_mesh( const Arguments & aArguments )
             // activate extra pattern for exodus
             tHMR->get_database()->add_extra_refinement_step_for_exodus();
         }
-
     }
     else
     {

@@ -45,6 +45,9 @@ namespace moris
             // set field interpolator
             Field_Interpolator* vN = aFieldInterpolators( 0 );
 
+            // set the jacobian size
+            aJacobians.resize( 1 );
+
             // compute the jacobian
             aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
                             + trans( vN->N() ) * vN->N();
@@ -65,6 +68,9 @@ namespace moris
             // compute the residual
             aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
                       + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute the residual
             aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()

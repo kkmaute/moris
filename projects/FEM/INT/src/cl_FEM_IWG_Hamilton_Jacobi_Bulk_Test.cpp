@@ -45,6 +45,9 @@ namespace moris
             // velocity field value
             Matrix< DDRMat > aVN( 1, 3, 1.0 );
 
+            // set the jacobian size
+            aJacobians.resize( 1 );
+
             // compute the jacobian Jphiphi
             aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + aVN * phi->Bx() );
 
@@ -64,6 +67,9 @@ namespace moris
 
             //compute the residual
             aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + aVN * phi->gradx( 1 ) );
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
 
             // compute the jacobian Jphiphi
             aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + aVN * phi->Bx() );
