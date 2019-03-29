@@ -161,6 +161,18 @@ public:
                                     const moris::uint             & aBlockRowOffsets,
                                           moris::Matrix< DDRMat > & LHSValues ) = 0;
 
+    virtual moris::real* get_values_pointer()
+    {
+        MORIS_ASSERT( false, "Not implemented");
+        return nullptr;
+    };
+
+    virtual moris::real* get_values_pointer() const
+    {
+        MORIS_ASSERT( false, "Not implemented");
+        return nullptr;
+    };
+
     //------------------------------------------------------------------------------------------
     /**
      * @brief Get vector.
