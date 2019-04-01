@@ -33,6 +33,7 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Sensitivity.hpp"
 #include "cl_XTK_Enrichment.hpp"
+#include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_XTK_Decomposition_Data.hpp"
 
@@ -60,6 +61,7 @@ namespace xtk
 {
 class Enrichment;
 class Enrichment_Parameters;
+class Ghost_Stabilization;
 }
 
 
@@ -150,7 +152,7 @@ public:
      * Constructs the face oriented ghost penalization
      */
     void
-    construct_face_oriented_ghost_penalization();
+    construct_face_oriented_ghost_penalization_cells();
 
     // ----------------------------------------------------------------------------------
 
@@ -258,11 +260,12 @@ public:
 
 
 private:
-    uint            mModelDimension;
-    Background_Mesh mBackgroundMesh;
-    Cut_Mesh        mCutMesh;
-    Geometry_Engine mGeometryEngine;
-    Enrichment*     mEnrichment;
+    uint                 mModelDimension;
+    Background_Mesh      mBackgroundMesh;
+    Cut_Mesh             mCutMesh;
+    Geometry_Engine      mGeometryEngine;
+    Enrichment*          mEnrichment;
+    Ghost_Stabilization* mGhostStabilization;
 
     // XTK Model State Flags
     bool mLinkedBackground  = false; // Model background mesh linked to geometry model
@@ -271,6 +274,7 @@ private:
     bool mConvertedToTet10s = false; // Model has been converted from tet4's to tet10s
     bool mEnriched          = false; // Model has been enriched
     bool mUnzipped          = false; // Model has been unzipped
+    bool mGhost             = false; // Model has setup ghost stabilization
 
     // The midside nodes are stored here currently but this may change
     moris::Matrix< moris::IndexMat > mMidsideElementToNode;
@@ -686,6 +690,9 @@ private:
      */
     void
     link_vertex_enrichment_to_vertex_interpolation();
+
+
+    // internal ghost functions -------------------------------------------------------
 
     /*
      * Convert the child meshes into tet4's
@@ -1362,6 +1369,12 @@ private:
     Cell<moris::Matrix<moris::IdMat>>
     combine_interface_and_non_interface_blocks(Cell<moris::Matrix<moris::IdMat>> & tChildElementsByPhase,
                                                Cell<moris::Matrix<moris::IdMat>> & tNoChildElementsByPhase);
+
+    /*!
+     * Pack the ghost stabilization cells as a side set
+     */
+    Cell<Matrix<IdMat>>
+    pack_ghost_as_side_set();
 
     bool
     output_node(moris::moris_index aNodeIndex,

@@ -72,7 +72,8 @@ namespace moris
                 // create IWG object
                 //mIWG = new moris::fem::IWG_L2( aAlpha );
 
-                Cell< fem::IWG_Type >tIWGType( 1, fem::IWG_Type::L2 );
+                Cell< Cell< fem::IWG_Type > >tIWGType( 1 );
+                tIWGType( 0 ).resize( 1, fem::IWG_Type::L2 );
 
                 // create model
                 //mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );

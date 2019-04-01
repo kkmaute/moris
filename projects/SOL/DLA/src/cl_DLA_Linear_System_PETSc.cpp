@@ -119,7 +119,7 @@ void Linear_System_PETSc::build_linear_system()
      // Set matrix. solution vector and RHS
      //KSPSetOperators( tPetscKSPProblem, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
 
-//     mMat->print_matrix_to_screen();
+//     mMat->print();
 //     std::cout<<*mVectorRHS->get_vector()<<std::endl;
  }
 

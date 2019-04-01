@@ -148,6 +148,8 @@ public:
      */
     virtual moris::real vec_norm2() = 0;
 
+    virtual void print() const = 0;
+
     virtual void save_vector_to_matrix_market_file( const char* aFilename ) = 0;
 
     virtual void save_vector_to_HDF5( const char* aFilename ) = 0;
@@ -160,6 +162,18 @@ public:
                                     const moris::Matrix< DDSMat > & aGlobalBlockRows,
                                     const moris::uint             & aBlockRowOffsets,
                                           moris::Matrix< DDRMat > & LHSValues ) = 0;
+
+    virtual moris::real* get_values_pointer()
+    {
+        MORIS_ASSERT( false, "Not implemented");
+        return nullptr;
+    };
+
+    virtual moris::real* get_values_pointer() const
+    {
+        MORIS_ASSERT( false, "Not implemented");
+        return nullptr;
+    };
 
     //------------------------------------------------------------------------------------------
     /**

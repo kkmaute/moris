@@ -38,7 +38,7 @@ namespace moris
         enum class Integration_Order
         {
             UNDEFINED,
-			POINT,
+            POINT,
             BAR_1,
             BAR_2,
             BAR_3,
@@ -91,8 +91,8 @@ namespace moris
             SPATIALDIFF_BULK, // spatial diffusion bulk
             SPATIALDIFF_SIDESET, // spatial diffusion sideset
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
-            SPATIALDIFF_NEUMANN // spatial diffusion Neumann
-
+            SPATIALDIFF_NEUMANN, // spatial diffusion Neumann
+            END_IWG
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */

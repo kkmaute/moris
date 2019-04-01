@@ -44,7 +44,7 @@ namespace moris
 
         Model::Model(       mtk::Mesh *     aMesh,
                       const uint            aBSplineOrder,
-                      Cell< fem::IWG_Type > aIWGTypeList) : mMesh( aMesh )
+                      Cell< Cell< fem::IWG_Type > > aIWGTypeList) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;
@@ -88,13 +88,18 @@ namespace moris
             fem::IWG_Factory tIWGFactory;
 
             // create a cell of IWGs for the problem considered
-            mIWGs.resize( tNumOfIWGs , nullptr );
+            mIWGs.resize( tNumOfIWGs );
 
             // loop over the IWG types
             for( uint i = 0; i < tNumOfIWGs; i++)
             {
-                // create an IWG with the factory for the ith IWG type
-                mIWGs( i ) = tIWGFactory.create_IWGs( aIWGTypeList( i ) );
+                mIWGs( i ).resize( aIWGTypeList( i ).size(), nullptr );
+
+                for( uint Ki = 0; Ki < aIWGTypeList( i ).size(); Ki++)
+                {
+                    // create an IWG with the factory for the ith IWG type
+                    mIWGs( i )( Ki ) = tIWGFactory.create_IWGs( aIWGTypeList( i )( Ki) );
+                }
             }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -107,23 +112,57 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            // ask mesh about number of elements on proc
-//            luint tNumberOfElements = aMesh->get_num_elems();
+            luint tNumberOfEquationObjects = aMesh->get_num_elems() + aMesh->get_sidesets_num_faces();
 
-            moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
-            Matrix< IndexMat > tBlockSetElementInd = aMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
-            luint tNumberOfElements = tBlockSetElementInd.numel();
+            //luint tNumberOfElements = tBlockSetElementInd.numel();
 
             // create equation objects
-            mElements.resize( tNumberOfElements, nullptr );
+            mElements.resize( tNumberOfEquationObjects, nullptr );
 
-            for( luint k=0; k<tNumberOfElements; ++k )
+            //  Create Blockset Elements ----------------------------------------
+            std::cout<<" Create Blockset Elements "<<std::endl;
+            //------------------------------------------------------------------------------
+            // ask mesh about number of elements on proc
+            moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
+
+            moris::uint tEquationObjectCounter = 0;
+            for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
             {
-                // create the element
-                mElements( k ) = tElementFactory.create_element( fem::Element_Type::BULK,
-                                                                 & aMesh->get_mtk_cell( k ),
-                                                                 mIWGs,
-                                                                 mNodes );
+                Matrix< IndexMat > tBlockSetElementInd = aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                {
+                    // create the element
+                    mElements( tEquationObjectCounter++ ) = tElementFactory.create_element( fem::Element_Type::BULK,
+                                                                     & aMesh->get_mtk_cell( k ),                      // FIXME need block->get_mtk_cell(0)
+                                                                     mIWGs( 0 ),
+                                                                     mNodes );
+                }
+            }
+
+            //  Create Blockset Elements ----------------------------------------
+            std::cout<<" Create Sideset Elements "<<std::endl;
+            //------------------------------------------------------------------------------
+
+            moris::Cell<std::string> tSideSetsNames = aMesh->get_set_names( EntityRank::FACE);
+
+            for( luint Ik = 0; Ik < tSideSetsNames.size(); ++Ik )
+            {
+                moris::Cell< mtk::Cell * > tSideSetElement;
+                Matrix< IndexMat >  aSidesetOrdinals;
+
+                aMesh->get_sideset_cells_and_ords( tSideSetsNames( Ik ), tSideSetElement, aSidesetOrdinals );
+
+                for( luint k=0; k < tSideSetElement.size(); ++k )
+                {
+                    // create the element
+                    mElements( tEquationObjectCounter ) = tElementFactory.create_element( fem::Element_Type::SIDESET,
+                                                                     tSideSetElement( k ),
+                                                                     mIWGs ( 1 ),
+                                                                     mNodes );
+
+                    mElements( tEquationObjectCounter++ )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );
+                }
             }
 
             if( par_rank() == 0)
@@ -133,7 +172,7 @@ namespace moris
 
                 // print output
                 std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
-                        ( unsigned int ) tNumberOfElements,
+                        ( unsigned int ) tNumberOfEquationObjects,
                         ( double ) tElapsedTime / 1000 );
             }
 
@@ -143,7 +182,6 @@ namespace moris
 
             // start timer
             tic tTimer3;
-
 
             //--------------------------FIXME------------------------------------
             // This part should not be needed anymore when MTK has all the functionalities
@@ -270,7 +308,7 @@ namespace moris
             // delete IWGs
             for( auto tIWG : mIWGs )
             {
-                delete tIWG;
+                tIWG.clear();
             }
 
             // delete elements

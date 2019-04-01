@@ -221,6 +221,12 @@ void Vector_Epetra::extract_my_values( const moris::uint             & aNumIndic
 }
 
 //----------------------------------------------------------------------------------------------
+void Vector_Epetra::print() const
+{
+    std::cout << *mEpetraVector <<std::endl;
+}
+
+//----------------------------------------------------------------------------------------------
 void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 {
     EpetraExt::MultiVectorToMatrixMarketFile( aFilename, *mEpetraVector );
