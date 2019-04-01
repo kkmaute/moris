@@ -43,7 +43,7 @@ namespace moris
             // compute the residual r_T
             aResidual = mGamma * trans( tTemp->N() ) * ( tTemp->val()( 0 ) - tTBar( 0 ) )
                       - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal )
-                      + trans( mKappa * tTemp->Bx() ) * mNormal * ( tTemp->val()( 0 ) - tTBar( 0 ) );
+                      + trans( mKappa * tTemp->Bx() ) * mNormal * ( tTemp->val()( 0 ) + tTBar( 0 ) );
         }
 
 //------------------------------------------------------------------------------
@@ -62,6 +62,7 @@ namespace moris
             aJacobians( 0 ) = mGamma * trans( tTemp->N() ) * tTemp->N()
                             - trans( tTemp->N() ) * trans( mNormal ) * mKappa * tTemp->Bx()
                             + trans( mKappa * tTemp->Bx() ) * mNormal * tTemp->N();
+
         }
 
 //------------------------------------------------------------------------------

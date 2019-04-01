@@ -261,7 +261,7 @@ namespace moris
                 luint tNumOfElements = tBlockSetElementInd.numel();
 
                 // create equation objects
-                Cell< MSI::Equation_Object* > tElements( 8, nullptr );
+                Cell< MSI::Equation_Object* > tElements( 20, nullptr );
 
                 // init the number of elements
                 uint tNumElementsCount = 0;
@@ -281,79 +281,78 @@ namespace moris
                 // update the total number of element
                 tNumElementsCount = tNumElementsCount + tNumOfElements;
 
-//                // select the IWG list for the sideset------------------------------------------
-//                //------------------------------------------------------------------------------
-//                Cell< fem::IWG* > tIWGsSideset = { tIWGs( 1 ) };
-//
-//                //sideset ordinals
-//                Cell< Matrix< IndexMat > > tListsOfSideOrdinals = { {{ 0, 3, 4 }},
-//                                                                    {{ 0, 1, 4 }},
-//                                                                    {{ 2, 3, 4 }},
-//                                                                    {{ 1, 2, 4 }},
-//                                                                    {{ 0, 3, 5 }},
-//                                                                    {{ 0, 1, 5 }},
-//                                                                    {{ 2, 3, 5 }},
-//                                                                    {{ 1, 2, 5 }} };
-//
-//
-//                // loop over the elements to create sideset elements
-//                for( uint k = 0; k < tNumOfElements; k++ )
-//                {
-//
-//                    // create a sideset element
-//                    tElements( tNumElementsCount + k ) = tElementFactory.create_element(   Element_Type::SIDESET,
-//                                                                                         & tMesh->get_mtk_cell( k ),
-//                                                                                           tIWGsSideset,
-//                                                                                           tNodes );
-//                    // create and set the list of side ordinals
-//                    Matrix< IndexMat > tListOfSideOrdinals = tListsOfSideOrdinals( k );
-//                    tElements( tNumOfElements + k )->set_list_of_side_ordinals( tListOfSideOrdinals );
-//                }
-//                // update the total number of element
-//                tNumElementsCount = tNumElementsCount + tNumOfElements;
+                // select the IWG list for the sideset------------------------------------------
+                //------------------------------------------------------------------------------
+                Cell< fem::IWG* > tIWGsSideset = { tIWGs( 1 ) };
 
-//                // select the IWG list for the Dirichlet sideset
-//                Cell< fem::IWG* > tIWGsDirichletSideset = { tIWGs( 2 ) };
-//
-//                // elements included in the Dirichlet sideset
-//                Cell< moris_index > tListOfDirichletElements = { 0, 2, 4, 6 };
-//
-//                // side ordinal for the Dirichlet sideset
-//                Matrix< IndexMat > tListOfSideOrdinals2 = { { 3 } };
-//
-//                for( uint iDirichlet = 0; iDirichlet < tListOfDirichletElements.size(); iDirichlet++ )
-//                {
-//                    moris_index tTreatedMeshElement = tListOfDirichletElements( iDirichlet );
-//
-//                    tElements( tNumElementsCount + iDirichlet )
-//                        = tElementFactory.create_element(   Element_Type::SIDESET,
-//                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
-//                                                            tIWGsDirichletSideset,
-//                                                            tNodes );
-//
-//                    tElements( tNumElementsCount + iDirichlet )->set_list_of_side_ordinals( tListOfSideOrdinals2 );
-//
-//                    // get the nodal weak bcs of the element
-//                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumElementsCount + iDirichlet )->get_weak_bcs();
-//
-//                    // get the element number of nodes
-//                    uint tNumberOfNodes = tElements( tNumElementsCount + iDirichlet )->get_num_nodes();
-//
-//                    // set size of the element nodal weak bc
-//                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-//
-//                    // loop over the element nodes
-//                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tTreatedMeshElement ).get_vertex_inds();
-//
-//                    for( uint l = 0; l < tNumberOfNodes; l++ )
-//                    {
-//                        // copy weak bc into element
-//                        tNodalWeakBCs( l ) = tNodalValues( tNodeIndices( l ) );
-//                    }
-//                }
-//                // update the total number of element
-//                tNumElementsCount = tNumElementsCount + tListOfDirichletElements.size();
-//
+                //sideset ordinals
+                Cell< Matrix< IndexMat > > tListsOfSideOrdinals = { {{ 0, 3, 4 }},
+                                                                    {{ 0, 1, 4 }},
+                                                                    {{ 2, 3, 4 }},
+                                                                    {{ 1, 2, 4 }},
+                                                                    {{ 0, 3, 5 }},
+                                                                    {{ 0, 1, 5 }},
+                                                                    {{ 2, 3, 5 }},
+                                                                    {{ 1, 2, 5 }} };
+
+                // loop over the elements to create sideset elements
+                for( uint k = 0; k < tNumOfElements; k++ )
+                {
+
+                    // create a sideset element
+                    tElements( tNumElementsCount + k ) = tElementFactory.create_element(   Element_Type::SIDESET,
+                                                                                         & tMesh->get_mtk_cell( k ),
+                                                                                           tIWGsSideset,
+                                                                                           tNodes );
+                    // create and set the list of side ordinals
+                    Matrix< IndexMat > tListOfSideOrdinals = tListsOfSideOrdinals( k );
+                    tElements( tNumOfElements + k )->set_list_of_side_ordinals( tListOfSideOrdinals );
+                }
+                // update the total number of element
+                tNumElementsCount = tNumElementsCount + tNumOfElements;
+
+                // select the IWG list for the Dirichlet sideset
+                Cell< fem::IWG* > tIWGsDirichletSideset = { tIWGs( 2 ) };
+
+                // elements included in the Dirichlet sideset
+                Cell< moris_index > tListOfDirichletElements = { 0, 2, 4, 6 };
+
+                // side ordinal for the Dirichlet sideset
+                Matrix< IndexMat > tListOfSideOrdinals2 = { { 3 } };
+
+                for( uint iDirichlet = 0; iDirichlet < tListOfDirichletElements.size(); iDirichlet++ )
+                {
+                    moris_index tTreatedMeshElement = tListOfDirichletElements( iDirichlet );
+
+                    tElements( tNumElementsCount + iDirichlet )
+                        = tElementFactory.create_element(   Element_Type::SIDESET,
+                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
+                                                            tIWGsDirichletSideset,
+                                                            tNodes );
+
+                    tElements( tNumElementsCount + iDirichlet )->set_list_of_side_ordinals( tListOfSideOrdinals2 );
+
+                    // get the nodal weak bcs of the element
+                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumElementsCount + iDirichlet )->get_weak_bcs();
+
+                    // get the element number of nodes
+                    uint tNumberOfNodes = tElements( tNumElementsCount + iDirichlet )->get_num_nodes();
+
+                    // set size of the element nodal weak bc
+                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+
+                    // loop over the element nodes
+                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tTreatedMeshElement ).get_vertex_inds();
+
+                    for( uint l = 0; l < tNumberOfNodes; l++ )
+                    {
+                        // copy weak bc into element
+                        tNodalWeakBCs( l ) = tNodalValues( tNodeIndices( l ) );
+                    }
+                }
+                // update the total number of element
+                tNumElementsCount = tNumElementsCount + tListOfDirichletElements.size();
+
 //                // select the IWG list for the Neumann sideset
 //                Cell< fem::IWG* > tIWGsNeumannSideset = { tIWGs( 3 ) };
 //
