@@ -90,7 +90,37 @@ class Dist_Vector;
              * @param[in] aDofType   List of dof types.
              *
              */
-            void get_dof_types( moris::Cell< enum Dof_Type > & aDofType ) { aDofType = mEqnObjDofTypeList; }
+            void get_dof_types( moris::Cell< enum Dof_Type > & aDofType )
+            {
+                aDofType = mEqnObjDofTypeList;
+
+//                // get the number of groups of dof types
+//                uint tNumOfDofTypeGropups = mEqnObjDofTypeList.size();
+//
+//                // get the total number of dof types
+//                uint tCounter = 0;
+//                for ( uint i = 0; i < tNumOfDofTypeGropups; i++ )
+//                {
+//                    tCounter = tCounter + mEqnObjDofTypeList( i ).size();
+//                }
+//
+//                // set the size of aDofType
+//                aDofType.resize( tCounter );
+//
+//                // loop over the groups of dof types
+//                tCounter = 0;
+//                for ( uint i = 0; i < tNumOfDofTypeGropups; i++ )
+//                {
+//                    Cell< MSI::Dof_Type > tDofTypeGroup = mEqnObjDofTypeList( i );
+//                    uint tNumOfDofTypesInGroupI = tDofTypeGroup.size();
+//
+//                    for( uint j = 0; j < tNumOfDofTypesInGroupI; j++ )
+//                    {
+//                        aDofType( tCounter ) = tDofTypeGroup( j );
+//                        tCounter++;
+//                    }
+//                }
+            }
 //-------------------------------------------------------------------------------------------------
             /**
              * @brief Returns the number of nodes, elements and ghosts related to this equation object.

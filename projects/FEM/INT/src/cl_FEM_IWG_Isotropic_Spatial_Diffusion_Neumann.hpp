@@ -25,10 +25,6 @@ namespace moris
 
         class IWG_Isotropic_Spatial_Diffusion_Neumann : public IWG
         {
-
-            // diffusion parameter
-            Matrix< DDRMat > mKappa;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------

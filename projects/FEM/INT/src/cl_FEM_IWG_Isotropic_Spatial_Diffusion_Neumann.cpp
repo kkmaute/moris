@@ -13,6 +13,7 @@ namespace moris
 
         IWG_Isotropic_Spatial_Diffusion_Neumann::IWG_Isotropic_Spatial_Diffusion_Neumann()
         {
+
             // set the residual dof type
             mResidualDofType = { MSI::Dof_Type::TEMP };
 
@@ -26,7 +27,11 @@ namespace moris
             ( Matrix< DDRMat >            & aResidual,
               Cell< Field_Interpolator* > & aFieldInterpolators )
         {
+            // set field interpolator
+            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 
+            // compute the residual r_T
+            aResidual = - trans( tTemp->N() ) * tTemp->N() * mNodalWeakBCs;
         }
 
 //------------------------------------------------------------------------------
@@ -35,7 +40,15 @@ namespace moris
             ( Cell< Matrix< DDRMat > >    & aJacobians,
               Cell< Field_Interpolator* > & aFieldInterpolators )
         {
+            // set field interpolator
+            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 
+            // set the jacobian size
+            aJacobians.resize( 1 );
+
+            // compute the jacobian j_T_T
+            uint tNumOfBases = tTemp->get_number_of_space_time_bases();
+            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
         }
 
 //------------------------------------------------------------------------------
@@ -45,7 +58,18 @@ namespace moris
               Matrix< DDRMat >            & aResidual,
               Cell< Field_Interpolator* > & aFieldInterpolators )
         {
+            // set field interpolator
+            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 
+            // compute the residual r_T
+            aResidual = - trans( tTemp->N() ) * tTemp->N() * mNodalWeakBCs;
+
+            // set the jacobian size
+            aJacobians.resize( 1 );
+
+            // compute the jacobian j_T_T
+            uint tNumOfBases = tTemp->get_number_of_space_time_bases();
+            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
         }
 
 //------------------------------------------------------------------------------

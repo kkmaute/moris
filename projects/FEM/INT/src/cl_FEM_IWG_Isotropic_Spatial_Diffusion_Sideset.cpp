@@ -31,7 +31,6 @@ namespace moris
         IWG_Isotropic_Spatial_Diffusion_Sideset::compute_residual( Matrix< DDRMat >            & aResidual,
                                                                    Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-
             // set field interpolator
             Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 

@@ -18,6 +18,7 @@ set(TEST_SOURCES
     cl_FEM_Integrator_Test.cpp
     cl_FEM_Element_L2.cpp
     cl_FEM_Element_Diffusion_Test.cpp
+    cl_FEM_Field_IWG_SpatialDiffusion.cpp
     )
 
 # List test includes
