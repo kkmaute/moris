@@ -72,17 +72,14 @@ namespace moris
             //this->init_gauss_points();
             //this->init_mass_matrices();
 
-
             // set function pointer
             if ( aParameters->truncate_bsplines() )
             {
-                mTMatrixFunction =
-                        & T_Matrix::calculate_truncated_t_matrix;
+                mTMatrixFunction = & T_Matrix::calculate_truncated_t_matrix;
             }
             else
             {
-                mTMatrixFunction =
-                        & T_Matrix::calculate_untruncated_t_matrix;
+                mTMatrixFunction = & T_Matrix::calculate_untruncated_t_matrix;
             }
         }
 
@@ -97,9 +94,9 @@ namespace moris
 
         void
         T_Matrix::calculate_t_matrix(
-                const luint    & aMemoryIndex,
-                Matrix< DDRMat >    & aTMatrixTransposed,
-                Cell< Basis* > & aDOFs  )
+                const luint      & aMemoryIndex,
+                Matrix< DDRMat > & aTMatrixTransposed,
+                Cell< Basis* >   & aDOFs  )
         {
             ( this->*mTMatrixFunction )(
                     aMemoryIndex,
@@ -111,9 +108,9 @@ namespace moris
 
         void
         T_Matrix::calculate_untruncated_t_matrix(
-                const luint    & aMemoryIndex,
-                Matrix< DDRMat >    & aTMatrixTransposed,
-                Cell< Basis* > & aDOFs  )
+                const luint      & aMemoryIndex,
+                Matrix< DDRMat > & aTMatrixTransposed,
+                Cell< Basis* >   & aDOFs  )
         {
             aDOFs.clear();
 
@@ -123,8 +120,7 @@ namespace moris
             auto tLevel = tElement->get_level();
 
             // get number of basis per element
-            auto tNumberOfBasisPerElement
-                = mBSplineMesh->get_number_of_basis_per_element();
+            auto tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
 
             // counter for basis
             uint tCount = 0;
@@ -176,7 +172,7 @@ namespace moris
                 for( uint k=0; k<tNumberOfBasisPerElement; ++k )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tParent->get_basis( k );
+                    Basis * tBasis = tParent->get_basis( k );
 
                     // test if basis is active
                     if ( tBasis->is_active() )
@@ -187,7 +183,6 @@ namespace moris
                         // copy pointer to basis into output array
                         aDOFs( tCount++ ) = tBasis;
                     }
-
                 }
 
                 // left-multiply T-Matrix with child matrix
@@ -701,8 +696,7 @@ namespace moris
         }
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_truncation_weights()
+        void T_Matrix::init_truncation_weights()
         {
             // get order of mesh
             uint tOrder = mBSplineMesh->get_order();
@@ -765,10 +759,8 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
-        void
-        T_Matrix::init_lagrange_parameter_coordinates()
+        void T_Matrix::init_lagrange_parameter_coordinates()
         {
-
             // get dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
@@ -786,7 +778,6 @@ namespace moris
 
             // assign memory for parameter coordinates
             mLagrangeParam.set_size( tNumberOfDimensions, mNumberOfNodes );
-
 
             // scaling factor
             real tScale = 1.0/( ( real ) mLagrangeMesh->get_order() );
@@ -817,9 +808,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-        void
-        T_Matrix::init_lagrange_matrix()
+        void T_Matrix::init_lagrange_matrix()
         {
             // get number of dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -842,7 +831,6 @@ namespace moris
                 // loop over all B-Spline Basis
                 for( uint j=0; j<tNumberOfBasis; ++j )
                 {
-
                     // loop over all dimensions
                     for( uint i=0; i<tNumberOfDimensions; ++i )
                     {
@@ -854,9 +842,6 @@ namespace moris
                 }
             }
         }
-
-//-------------------------------------------------------------------------------
-
 
 //-------------------------------------------------------------------------------
 
@@ -1041,8 +1026,6 @@ namespace moris
                 }
             }
 
-
-
             // invert the Vandermonde matrix and store coefficients
             mLagrangeCoefficients.set_size( tNumberOfNodes, tNumberOfNodes, 1 );
 
@@ -1104,7 +1087,6 @@ namespace moris
                     aN( k ) =    tNxi( mLagrangeIJK( 0, k ) )
                               * tNeta( mLagrangeIJK( 1, k ) );
             }
-
         }
 
 //-------------------------------------------------------------------------------

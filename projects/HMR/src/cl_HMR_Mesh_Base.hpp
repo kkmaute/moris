@@ -272,8 +272,7 @@ namespace moris
         /**
          * returns the number of basis per element
          */
-        auto
-        get_number_of_basis_per_element() const
+        auto get_number_of_basis_per_element() const
             -> decltype ( mNumberOfBasisPerElement )
         {
             return mNumberOfBasisPerElement;
@@ -284,8 +283,7 @@ namespace moris
         /**
          * returns a pointer to the parent of an element
          */
-        Element*
-        get_parent_of_element( Element* aElement )
+        Element * get_parent_of_element( Element* aElement )
         {
             if ( aElement->get_level() > 0 )
             {
@@ -310,8 +308,7 @@ namespace moris
          *
          * containing the coordinates of the mesh
          */
-        void
-        get_basis_coords_of_element(
+        void get_basis_coords_of_element(
                 Matrix< DDRMat >   & aBasisCoords,
                 const luint & aElementIndex );
 
@@ -321,24 +318,21 @@ namespace moris
         /**
          * unset the flag of all nodes on proc
          */
-        void
-        unflag_all_basis();
+        void unflag_all_basis();
 
 // ----------------------------------------------------------------------------
 
         /**
          * unset the used flag of all basis on proc
          */
-        void
-        unuse_all_basis();
+        void unuse_all_basis();
 
 // ----------------------------------------------------------------------------
 
         /**
          * set the flag of all nodes on proc
          */
-        void
-        flag_all_basis();
+        void flag_all_basis();
 
 // ----------------------------------------------------------------------------
 
@@ -356,8 +350,7 @@ namespace moris
         /**
          * tell background to activate pattern of this mesh
          */
-        void
-        select_activation_pattern()
+        void select_activation_pattern()
         {
             mBackgroundMesh->set_activation_pattern( mActivationPattern );
         }
@@ -373,8 +366,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        uint
-        get_max_level() const
+        uint get_max_level() const
         {
             return mMaxLevel;
         }

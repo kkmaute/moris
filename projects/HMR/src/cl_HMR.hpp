@@ -121,6 +121,17 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
+             * renumber nodes for femdoc and save the mesh to an exodus file. HACK with consent of Kurt
+             */
+            void
+            renumber_and_save_to_exodus(
+                    const std::string & aPath,
+                    const double aTimeStep = 0.0,
+                    const uint aOutputOrder = 0 );
+
+// -----------------------------------------------------------------------------
+
+            /**
              * save the mesh to an exodus file
              */
             void
@@ -144,6 +155,11 @@ namespace moris
              */
             void
             save_coeffs_to_hdf5_file( const std::string & aFilePath );
+
+            // -----------------------------------------------------------------------------
+
+            void
+            renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 

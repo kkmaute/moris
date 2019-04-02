@@ -59,6 +59,8 @@ namespace moris
             Cell< MSI::Equation_Object* >     mElements;
             Cell< Cell< fem::IWG* > >         mIWGs;
 
+            Cell< fem::IWG* >         mIWGs1;
+
             //
             // by default, this value is set to the order of the
             // Lagrange modes
