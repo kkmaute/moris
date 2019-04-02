@@ -68,7 +68,7 @@ namespace moris
                                             { 0.0, 2.0, 1.0 }};
 
                 // specify the local to global map
-                Matrix< IdMat > aNodeLocalToGlobal = {{ 1,  2,  3,  4,  5,  6,  7,  8 }};
+                Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8 }};
 
                 // create mesh MTK database
                 mtk::MtkMeshData tMeshData( aNumElemTypes );
@@ -138,13 +138,13 @@ namespace moris
                 for( uint k = 0; k < tNumOfElements; k++ )
                 {
                     // create the element
-                    tElements( k ) = tElementFactory.create_element( Element_Type::TIME_SIDESET,
+                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
                                                                      & tMesh->get_mtk_cell( k ),
                                                                      tIWGs,
                                                                      tNodes );
 
                     // create list of time ordinals
-                    Matrix< IndexMat > tListOfTimeOrdinals = { { 1 } };
+                    Matrix< IndexMat > tListOfTimeOrdinals = {{ 1 }};
 
                     // set the element list of time ordinals
                     tElements( k )->set_list_of_time_ordinals( tListOfTimeOrdinals );

@@ -49,69 +49,6 @@ namespace moris
                 // Create a 3D mesh of HEX8 using MTK ------------------------------------------
                 std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
                 //------------------------------------------------------------------------------
-//                uint aNumElemTypes = 1; // only 1 element type ( hex )
-//                uint aNumDim = 3;       // number of spatial dimensions
-//
-//                // element connectivity
-//                Matrix< IdMat > aElementConnQuad = {{ 1, 2, 3, 4, 5, 6, 7, 8 }};
-//
-//                // local to global element map
-//                Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1 }};
-//
-//                // node coordinates
-//                Matrix< DDRMat > aCoords = {{ 0.0, 0.0, 0.0 },
-//                                            { 1.0, 0.0, 0.0 },
-//                                            { 1.0, 1.0, 0.0 },
-//                                            { 0.0, 1.0, 0.0 },
-//                                            { 0.0, 0.0, 1.0 },
-//                                            { 1.0, 0.0, 1.0 },
-//                                            { 1.0, 1.0, 1.0 },
-//                                            { 0.0, 1.0, 1.0 }};
-//
-//                // specify the local to global map
-//                Matrix< IdMat > aNodeLocalToGlobal = {{ 1,  2,  3,  4,  5,  6,  7,  8 }};
-//
-//                // create mesh MTK database
-//                mtk::MtkMeshData tMeshData( aNumElemTypes );
-//                tMeshData.CreateAllEdgesAndFaces  = true;
-//                tMeshData.SpatialDim              = & aNumDim;
-//                tMeshData.ElemConn( 0 )           = & aElementConnQuad;
-//                tMeshData.NodeCoords              = & aCoords;
-//                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
-//                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
-//
-//                mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
-
-//                uint aNumElemTypes = 1; // quad
-//                uint aNumDim = 2;       // specify number of spatial dimensions
-//
-//                // specify element connectivity of quad for mesh
-//                Matrix< IdMat > aElementConnQuad = { { 1, 2, 3, 4 } };
-//
-//                // specify the local to global element map for quads
-//                Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1 }};
-//
-//                // Node coordinate matrix
-//                Matrix< DDRMat > aCoords = {{ 0.0, 0.0 },
-//                                            { 1.0, 0.0 },
-//                                            { 1.0, 1.0 },
-//                                            { -1.0, 1.0 }};
-//
-//                // specify the local to global map
-//                Matrix< IdMat > aNodeLocalToGlobal = { { 1, 2, 3, 4 } };
-//
-//                //------------------------------------------------------------------------------
-//                // create MORIS mesh using MTK database
-//                mtk::MtkMeshData aMeshData( aNumElemTypes );
-//                aMeshData.CreateAllEdgesAndFaces  = true;
-//                aMeshData.SpatialDim              = & aNumDim;
-//                aMeshData.ElemConn( 0 )           = & aElementConnQuad;
-//                aMeshData.NodeCoords              = & aCoords;
-//                aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
-//                aMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
-//
-//                mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
-
                 uint aNumElemTypes = 1; // only 1 element type ( quad )
                 uint aNumDim = 3;       // number of spatial dimensions
 
@@ -129,33 +66,15 @@ namespace moris
                 Matrix< IdMat > aElemLocalToGlobalQuad = { { 1, 2, 3, 4, 5, 6, 7, 8 } };
 
                 // node coordinates
-                Matrix< DDRMat > aCoords = {{ 0.0, 0.0, 0.0 },
-                                            { 1.0, 0.0, 0.0 },
-                                            { 2.0, 0.0, 0.0 },
-                                            { 0.0, 1.0, 0.0 },
-                                            { 1.0, 1.0, 0.0 },
-                                            { 2.0, 1.0, 0.0 },
-                                            { 0.0, 2.0, 0.0 },
-                                            { 1.0, 2.0, 0.0 },
-                                            { 2.0, 2.0, 0.0 },
-                                            { 0.0, 0.0, 1.0 },
-                                            { 1.0, 0.0, 1.0 },
-                                            { 2.0, 0.0, 1.0 },
-                                            { 0.0, 1.0, 1.0 },
-                                            { 1.0, 1.0, 1.0 },
-                                            { 2.0, 1.0, 1.0 },
-                                            { 0.0, 2.0, 1.0 },
-                                            { 1.0, 2.0, 1.0 },
-                                            { 2.0, 2.0, 1.0 },
-                                            { 0.0, 0.0, 2.0 },
-                                            { 1.0, 0.0, 2.0 },
-                                            { 2.0, 0.0, 2.0 },
-                                            { 0.0, 1.0, 2.0 },
-                                            { 1.0, 1.0, 2.0 },
-                                            { 2.0, 1.0, 2.0 },
-                                            { 0.0, 2.0, 2.0 },
-                                            { 1.0, 2.0, 2.0 },
-                                            { 2.0, 2.0, 2.0 } };
+                Matrix< DDRMat > aCoords = {{ 0.0, 0.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 2.0, 0.0, 0.0 },
+                                            { 0.0, 1.0, 0.0 }, { 1.0, 1.0, 0.0 }, { 2.0, 1.0, 0.0 },
+                                            { 0.0, 2.0, 0.0 }, { 1.0, 2.0, 0.0 }, { 2.0, 2.0, 0.0 },
+                                            { 0.0, 0.0, 1.0 }, { 1.0, 0.0, 1.0 }, { 2.0, 0.0, 1.0 },
+                                            { 0.0, 1.0, 1.0 }, { 1.0, 1.0, 1.0 }, { 2.0, 1.0, 1.0 },
+                                            { 0.0, 2.0, 1.0 }, { 1.0, 2.0, 1.0 }, { 2.0, 2.0, 1.0 },
+                                            { 0.0, 0.0, 2.0 }, { 1.0, 0.0, 2.0 }, { 2.0, 0.0, 2.0 },
+                                            { 0.0, 1.0, 2.0 }, { 1.0, 1.0, 2.0 }, { 2.0, 1.0, 2.0 },
+                                            { 0.0, 2.0, 2.0 }, { 1.0, 2.0, 2.0 }, { 2.0, 2.0, 2.0 }};
 
                 // specify the local to global map
                 Matrix< IdMat > aNodeLocalToGlobal = {{ 1,  2,  3,  4,  5,  6,  7,  8,  9,
@@ -246,9 +165,7 @@ namespace moris
                 // a factory to create the elements
                 Element_Factory tElementFactory;
 
-                // ask mesh about number of elements
-//                uint tNumOfElements = tMesh->get_num_elems();
-
+                // ask mesh about number of elements in a blockset (here the full mesh)
                 moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
                 Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
                 luint tNumOfElements = tBlockSetElementInd.numel();
@@ -358,7 +275,6 @@ namespace moris
                         tNodalWeakBCs( l ) = tHeatNodalValues( tNodeIndices( l ) );
                     }
                 }
-
 
                 //4) Create the model solver interface -----------------------------------------
                 std::cout<<" Create the model solver interface "<<std::endl;
