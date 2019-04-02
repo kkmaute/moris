@@ -30,8 +30,11 @@ namespace moris
             // set field interpolator
             Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 
+            // compute the normal flux
+            Matrix < DDRMat > tNormalFlux = tTemp->N() * mNodalWeakBCs;
+
             // compute the residual r_T
-            aResidual = - trans( tTemp->N() ) * tTemp->N() * mNodalWeakBCs;
+            aResidual = - trans( tTemp->N() ) * tNormalFlux;
         }
 
 //------------------------------------------------------------------------------

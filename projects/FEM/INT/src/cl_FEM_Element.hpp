@@ -24,7 +24,7 @@
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Integrator.hpp"    //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
 namespace moris
 {
@@ -103,8 +103,7 @@ namespace moris
             // FIXME: Mathias, please comment
             mTimeSteps.set_size( 1, 1, 1 );
 
-            // begin: create an element active dof type list from IWGs----------------------
-
+            //create an element active dof type list from IWGs----------------------
             // get the number of IWGs
             mNumOfIWGs = mIWGs.size();
 

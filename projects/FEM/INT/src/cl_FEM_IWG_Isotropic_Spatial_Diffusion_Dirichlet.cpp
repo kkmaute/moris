@@ -41,9 +41,9 @@ namespace moris
             Matrix< DDRMat > tTBar = tTemp->N() * mNodalWeakBCs;
 
             // compute the residual r_T
-            aResidual = mGamma * trans( tTemp->N() ) * ( tTemp->val()( 0 ) - tTBar( 0 ) )
-                      - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal )
-                      + trans( mKappa * tTemp->Bx() ) * mNormal * ( tTemp->val()( 0 ) + tTBar( 0 ) );
+            aResidual = - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal )
+                        + trans( mKappa * tTemp->Bx() ) * mNormal * ( tTemp->val()( 0 ) - tTBar( 0 ) )
+                        + mGamma * trans( tTemp->N() ) * ( tTemp->val()( 0 ) - tTBar( 0 ) );
         }
 
 //------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ namespace moris
             aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = mGamma * trans( tTemp->N() ) * tTemp->N()
-                            - trans( tTemp->N() ) * trans( mNormal ) * mKappa * tTemp->Bx()
-                            + trans( mKappa * tTemp->Bx() ) * mNormal * tTemp->N();
+            aJacobians( 0 ) = - trans( tTemp->N() ) * trans( mNormal ) * mKappa * tTemp->Bx()
+                              + trans( mKappa * tTemp->Bx() ) * mNormal * tTemp->N()
+                              + mGamma * trans( tTemp->N() ) * tTemp->N();
 
         }
 
@@ -72,7 +72,24 @@ namespace moris
               Matrix< DDRMat >            & aResidual,
               Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-           MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual - not implemented.");
+            // set field interpolator
+            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+
+            // interpolated TBar from nodal values
+            Matrix< DDRMat > tTBar = tTemp->N() * mNodalWeakBCs;
+
+            // compute the residual r_T
+            aResidual = - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal )
+                        + trans( mKappa * tTemp->Bx() ) * mNormal * ( tTemp->val()( 0 ) - tTBar( 0 ) )
+                        + mGamma * trans( tTemp->N() ) * ( tTemp->val()( 0 ) - tTBar( 0 ) );
+
+            // set the jacobian size
+                       aJacobians.resize( 1 );
+
+            // compute the jacobian j_T_T
+            aJacobians( 0 ) = - trans( tTemp->N() ) * trans( mNormal ) * mKappa * tTemp->Bx()
+                              + trans( mKappa * tTemp->Bx() ) * mNormal * tTemp->N()
+                              + mGamma * trans( tTemp->N() ) * tTemp->N();
         }
 
 //------------------------------------------------------------------------------
