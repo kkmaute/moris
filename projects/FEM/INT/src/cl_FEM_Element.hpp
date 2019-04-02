@@ -512,6 +512,7 @@ namespace moris
                  }
              }
 
+             std::cout<<tTotalDof<<std::endl;
              mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
              mResidual.set_size( tTotalDof, 1, 0.0 );
          }

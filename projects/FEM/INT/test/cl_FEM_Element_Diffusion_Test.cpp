@@ -950,10 +950,12 @@ namespace moris
 //
 //                // create model
 //                mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
-//
-//                // set weakBC
-//
-//                //solve
+////
+////                // set weakBC
+////
+//                Matrix< DDRMat > tSolution11;
+//               tModel->solve(tSolution11);
+//               print(tSolution11,"tSolution");
             //------------------------------------------------------------------------------
 
             // number of mesh nodes
