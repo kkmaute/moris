@@ -1352,7 +1352,6 @@ namespace moris
                 this->synchronize_flags( aCommTable );
             }
 
-
             // reset all indices on the proc
             for ( Basis * tBasis : mAllBasisOnProc )
             {
@@ -1414,7 +1413,6 @@ namespace moris
 
             if ( tNumberOfProcs == 1 )
             {
-
                 // reset counter
                 tCount = 0;
 
@@ -1442,7 +1440,6 @@ namespace moris
             } // end serial
             else
             {
-
                 // Step 3: count flagged basis that are owned
 
                 // reset counters
@@ -1468,7 +1465,7 @@ namespace moris
                         // test if basis is active, flagged and owned
                         if ( tBasis->get_owner() == tMyRank && tBasis->is_flagged() )
                         {
-                            tBasis->set_domain_index( tRefinedCount++ );
+                            tBasis->set_domain_index( tRefinedCount++ );                          //FIXME should this be active count too?
                         }
                     }
                 }
@@ -1503,7 +1500,6 @@ namespace moris
 
                 // reset basis counter
                 tActiveBasisCount.fill( 0 );
-
 
                 // loop over all basis
                 for( Basis * tBasis : mActiveBasisOnProc )
@@ -1573,9 +1569,9 @@ namespace moris
                 Matrix< DDUMat > tEmptyUint;
 
                 // create cells for basis and element indices to send
-                Cell< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
-                Cell< Matrix< DDUMat > > tSendBasis( tCommLength, tEmptyUint );
-                Cell<  Matrix< DDUMat > > tSendPedigree( tCommLength, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tSendIndex   ( tCommLength, tEmptyLuint );
+                Cell< Matrix< DDUMat > >  tSendBasis   ( tCommLength, tEmptyUint  );
+                Cell< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint  );
 
                 // assign memory for Index and Basis
                 for( uint p=0; p<tCommLength; ++p )
@@ -2441,7 +2437,6 @@ namespace moris
                    else if ( tBasis->is_refined() )
                    {
                        tState = 1;
-
                    }
                    tIChar = swap_byte_endian( tState );
 

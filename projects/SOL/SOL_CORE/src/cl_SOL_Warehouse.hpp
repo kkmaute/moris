@@ -8,9 +8,13 @@
 #define MORIS_DISTLINALG_CL_SOL_WAREHOUSE_HPP_
 
 // MORIS header files.
+// MORIS header files.
 #include "typedefs.hpp" // CON/src
 #include "cl_Cell.hpp"
 #include <memory>
+
+#include "cl_MSI_Dof_Type_Enums.hpp"
+
 //#include "cl_MSI_Dof_Type_Enums.hpp"
 //#include "cl_NLA_Nonlinear_Solver.hpp"
 //#include "cl_Map_Class.hpp"

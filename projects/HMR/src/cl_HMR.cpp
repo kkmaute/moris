@@ -191,7 +191,7 @@ namespace moris
 
             if( tOutputOrder > 2 )
             {
-                // we cant output a cubic mesh
+                // we can't output a cubic mesh
                 tIndex = mParameters->get_refined_output_mesh();
             }
             else
@@ -204,6 +204,47 @@ namespace moris
 
             MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
                     "Picked wrong mesh for output");
+
+            this->save_to_exodus(
+                    tIndex,
+                    aPath,
+                    aTimeStep );
+        }
+
+// -----------------------------------------------------------------------------
+
+        void
+        HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
+        {
+            uint tOutputOrder = MORIS_UINT_MAX;
+            uint tIndex = MORIS_UINT_MAX;
+
+            if( aOutputOrder == 0 )
+            {
+                tOutputOrder = mParameters->get_lagrange_orders().max();
+            }
+            else
+            {
+                tOutputOrder = aOutputOrder;
+            }
+
+            if( tOutputOrder > 2 )
+            {
+                // we can't output a cubic mesh
+                tIndex = mParameters->get_refined_output_mesh();
+            }
+            else
+            {
+                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );
+            }
+
+            MORIS_ERROR( tIndex != MORIS_UINT_MAX,
+                    "Something went wrong while trying to find mesh for exodus file" );
+
+            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
+                    "Picked wrong mesh for output");
+
+            mDatabase->get_lagrange_mesh_by_index( tIndex )->nodes_renumbering_hack_for_femdoc();
 
             this->save_to_exodus(
                     tIndex,
@@ -312,6 +353,158 @@ namespace moris
 
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k )
             {
+                mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();         //FIXME
+
+                tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+
+                if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
+                {
+
+                    // add order to path
+                    std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+                    +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+
+                    // make path parallel
+                    tFilePath = parallelize_path( tFilePath );
+
+                    // Create a new file using default properties
+                    herr_t tFileID = H5Fcreate(
+                            tFilePath.c_str(),
+                            H5F_ACC_TRUNC,
+                            H5P_DEFAULT,
+                            H5P_DEFAULT);
+
+                    // error handler
+                    herr_t tStatus;
+
+                    // save mesh order
+                    save_scalar_to_hdf5_file(
+                            tFileID,
+                            "LagrangeOrder",
+                            tMesh->get_order(),
+                            tStatus );
+
+                    // get number of nodes of this mesh
+                    uint tNumberOfNodes = tMesh->get_number_of_nodes_on_proc();
+
+                    // allocate matrix with ids
+                    Matrix< IdMat > tIDs( tNumberOfNodes, 1 );
+
+                    // populate matrix
+                    for( uint k=0; k<tNumberOfNodes; ++k )
+                    {
+                        tIDs( k ) = tMesh->get_node_by_index( k )->get_id();
+                    }
+
+                    // save ids to file
+                    save_matrix_to_hdf5_file(
+                            tFileID,
+                            "NodeID",
+                            tIDs,
+                            tStatus );
+
+                    // loop over all B-Spline meshes
+                    uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
+
+                    for ( uint m=0; m<tNumberOfBSplineMeshes; ++m )
+                    {
+                        // get pointer to mesh
+                        BSpline_Mesh_Base * tBMesh = tMesh->get_bspline_mesh( m );
+
+                        if ( tBMesh != NULL )
+                        {
+                            // get order of mesh
+                            uint tOrder = tBMesh->get_order();
+
+
+                            // generate label
+                            std::string tLabel = "NumberOfCoefficients_" + std::to_string( tOrder );
+
+                            // count number of coefficients per node
+                            Matrix< DDUMat > tNumberOfCoeffs( tNumberOfNodes, 1, 0 );
+
+                            // populate matrix
+                            for( uint k=0; k<tNumberOfNodes; ++k )
+                            {
+                                tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )
+                                                                            ->get_interpolation( tOrder )
+                                                                            ->get_number_of_coefficients();
+                            }
+
+                            // save number of coeffs to file
+                            save_matrix_to_hdf5_file(
+                                    tFileID,
+                                    tLabel,
+                                    tNumberOfCoeffs,
+                                    tStatus );
+
+                            // get max number of coeffs
+                            uint tMaxNumCoeffs = tNumberOfCoeffs.max();
+
+                            Matrix< IdMat > tCoeffIDs( tNumberOfNodes, tMaxNumCoeffs, gNoID );
+                            Matrix< DDRMat >  tWeights( tNumberOfNodes, tMaxNumCoeffs, 0.0 );
+
+                            // populate matrix
+                            for( uint k=0; k<tNumberOfNodes; ++k )
+                            {
+                                // get max number of dofs
+                                uint tMaxI = tNumberOfCoeffs( k );
+
+                                // get pointer to interpolation object
+                                mtk::Vertex_Interpolation * tInterp = tMesh
+                                        ->get_node_by_index( k )
+                                        ->get_interpolation( tOrder );
+
+
+                                Matrix< IdMat >    tLocalIDs = tInterp->get_ids();
+                                const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
+
+                                // copy data into global matrix
+                                for( uint i=0; i<tMaxI; ++i )
+                                {
+                                    tCoeffIDs( k, i ) = tLocalIDs( i );
+                                    tWeights( k, i ) = tLocalWeights( i );
+                                }
+                            }
+                            // generate label
+                            tLabel = "BSplineIDs_" + std::to_string( tOrder );
+
+                            // save ids to file
+                            save_matrix_to_hdf5_file(
+                                    tFileID,
+                                    tLabel,
+                                    tCoeffIDs,
+                                    tStatus );
+
+                            // generate  label
+                            tLabel = "InterpolationWeights_" + std::to_string( tOrder );
+
+                            // save weights to file
+                            save_matrix_to_hdf5_file(
+                                    tFileID,
+                                    tLabel,
+                                    tWeights,
+                                    tStatus );
+                        }
+                    }
+
+                    // close file
+                    tStatus = H5Fclose( tFileID );
+                }
+            }
+        }
+
+        void
+        HMR::renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath )
+        {
+            // get pointer to output mesh
+            Lagrange_Mesh_Base * tMesh = nullptr;
+
+            for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k )
+            {
+                mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();         //FIXME
+
                 tMesh = mDatabase->get_lagrange_mesh_by_index( k );
 
                 if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )

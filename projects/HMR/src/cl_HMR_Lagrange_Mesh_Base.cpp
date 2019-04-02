@@ -3501,8 +3501,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::init_t_matrices()
         {
-
-
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
                 if( tMesh != NULL )
@@ -3549,9 +3547,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
         {
-
-
-
             MORIS_ASSERT(
                     mBSplineMeshes( aBSplineOrder  ) != NULL,
                     "B-Spline Mesh does not exist" );
@@ -3608,6 +3603,65 @@ namespace moris
             }
             MORIS_ERROR( false, "HMR: side set not found on mesh" );
         } */
+
+//------------------------------------------------------------------------------
+
+        // BIG HACK for femdoc with explicit consent of Kurt. Only tested in serial and linear meshes.
+        void Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc()
+        {
+            moris::uint tCounter = 0;
+            moris::uint tCounter2 = 0;
+
+            moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+
+            BSpline_Mesh_Base * tBslpinemesh = this->get_bspline_mesh( 1 );
+
+            uint tNumBSplineBasis = tBslpinemesh->get_number_of_indexed_basis();
+
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                bool tBasisFound = false;
+
+                for( uint Ik = 0; Ik< tNumBSplineBasis; Ik++ )
+                {
+                    bool tIsActive = tBslpinemesh->get_basis_by_index( Ik )->is_active();
+
+                    if ( tIsActive )
+                    {
+                        if( tBasis->get_xyz()[0] == tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] )
+                        {
+                            if( tBasis->get_xyz()[1] == tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] )
+                            {
+                                moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
+                                moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+
+                                tBasis->set_local_index( tIndex );
+                                tBasis->set_domain_index( tID );
+
+                                tBasisFound = true;
+
+                                tCounter++;
+
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (tBasisFound == false)
+                {
+                    tNonBSplineBasis( tCounter2++ ) = tBasis;
+                }
+            }
+
+            tNonBSplineBasis.resize( tCounter2 );
+
+            for( Basis * tBasis : tNonBSplineBasis )
+            {
+                tBasis->set_local_index( tCounter );
+                tBasis->set_domain_index( tCounter++ );
+            }
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

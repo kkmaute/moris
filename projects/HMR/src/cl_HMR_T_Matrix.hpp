@@ -90,13 +90,13 @@ namespace moris
             //Matrix< DDRMat > mLagrangeMass;
 
             //! pointer to T-Matrix calculation function
-            //! pounts to either calculate_untruncated_t_matrix
+            //! points to either calculate_untruncated_t_matrix
             //! or calculate_truncated_t_matrix
             void
             ( T_Matrix:: * mTMatrixFunction )(
-                    const luint    & aMemoryIndex,
-                    Matrix< DDRMat >    & aTMatrixTransposed,
-                    Cell< Basis* > & aDOFs );
+                    const luint      & aMemoryIndex,
+                    Matrix< DDRMat > & aTMatrixTransposed,
+                    Cell< Basis* >   & aDOFs );
 
             //! pointer to function for geometry interpolation
             void ( * mEvalNGeo )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
@@ -123,8 +123,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_lagrange_matrix()
+            Matrix< DDRMat > get_lagrange_matrix()
             {
                 return mTMatrixLagrange;
             }
@@ -172,10 +171,10 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             const Matrix< DDRMat > &
-			get_child_matrix( const uint aChildIndex ) const
-			{
-            	return mChild( aChildIndex );
-			}
+            get_child_matrix( const uint aChildIndex ) const
+            {
+                return mChild( aChildIndex );
+            }
 
 //-------------------------------------------------------------------------------
             void
@@ -208,13 +207,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void
-            init_truncation_weights();
+            void init_truncation_weights();
 
 //------------------------------------------------------------------------------
 
-            void
-            init_lagrange_parameter_coordinates();
+            void init_lagrange_parameter_coordinates();
 
 //------------------------------------------------------------------------------
 
@@ -222,26 +219,22 @@ namespace moris
              * calculates the matrix that converts B-Spline DOFs per element
              * to Lagrange DOFs.
              */
-            void
-            init_lagrange_matrix();
+            void init_lagrange_matrix();
 
 //------------------------------------------------------------------------------
 
-            void
-            init_lagrange_refinement_matrices();
+            void init_lagrange_refinement_matrices();
 
 //-------------------------------------------------------------------------------
 
-            void
-            init_lagrange_change_order_matrices();
+            void init_lagrange_change_order_matrices();
 
 //-------------------------------------------------------------------------------
 
             /**
              * initializes interpolation coefficiens for Lagrange interpolation
              */
-            void
-            init_lagrange_coefficients();
+            void init_lagrange_coefficients();
 
 //-------------------------------------------------------------------------------
 
