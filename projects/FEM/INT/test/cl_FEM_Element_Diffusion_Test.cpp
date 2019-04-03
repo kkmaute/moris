@@ -943,6 +943,77 @@ namespace moris
 
         }/* if( par_size() */
     }
+
+        TEST_CASE( "Element_Diffusion_4", "[moris],[fem],[ElemDiff_4]" )
+        {
+        if(par_size() == 1 )
+        {
+            // Create a 3D mesh of HEX8 using MTK ------------------------------------------
+            std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
+            //------------------------------------------------------------------------------
+
+            std::string tPrefix = std::getenv("MORISROOT");
+            std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets_40.g";
+//            std::string tMeshFileName = "generated:2x2x2|sideset:xXyYzZ";
+
+            std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
+
+            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+            std::string tFieldName1 = "Temp_Field";
+            tNodeField1.set_field_name(tFieldName1);
+            tNodeField1.set_field_entity_rank(EntityRank::NODE);
+
+            // Initialize field information container
+            moris::mtk::MtkFieldsInfo tFieldsInfo;
+
+            // Place the node field into the field info container
+            add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+
+            // Declare some supplementary fields
+            mtk::MtkMeshData tMeshData;
+            tMeshData.FieldsInfo = &tFieldsInfo;
+
+            moris::mtk::Mesh* tMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+
+            //1) Create the fem nodes ------------------------------------------------------
+            std::cout<<" Create the fem nodes "<<std::endl;
+            //------------------------------------------------------------------------------
+            Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
+            tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+            tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+            tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+            // create model
+            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
+
+            //solve
+            moris::Matrix< DDRMat > tSolution11;
+            tModel->solve( tSolution11 );
+            print(tSolution11,"tSolution11");
+
+//            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
+
+            tModel->output_solution( tFieldName1 );
+
+        }/* if( par_size() */
+    }
 	
      TEST_CASE( "Element_Diffusion_3", "[moris],[fem],[ElemDiff_3]" )
         {
@@ -958,7 +1029,7 @@ namespace moris
 
             hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
+            tParameters.set( "number_of_elements_per_dimension", "10, 2A, 2" );
             tParameters.set( "domain_dimensions", "2, 2, 2" );
             tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
 			tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6");
