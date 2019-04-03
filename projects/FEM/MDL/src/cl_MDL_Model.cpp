@@ -42,9 +42,9 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Model::Model(       mtk::Mesh *     aMesh,
-                      const uint            aBSplineOrder,
-                      Cell< Cell< fem::IWG_Type > > aIWGTypeList) : mMesh( aMesh )
+        Model::Model(       mtk::Mesh *                   aMesh,
+                      const uint                          aBSplineOrder,
+                            Cell< Cell< fem::IWG_Type > > aIWGTypeList) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;
@@ -101,14 +101,6 @@ namespace moris
                     mIWGs( i )( Ki ) = tIWGFactory.create_IWGs( aIWGTypeList( i )( Ki) );
                 }
             }
-
-//            if ( tNumOfIWGs > 1 )
-//            {
-//                mIWGs1.resize( 2, nullptr );
-//                mIWGs1( 0 ) = mIWGs( 1 )( 0 );
-//                mIWGs1( 1 ) = mIWGs( 2 )( 0 );
-//
-//            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create elements
