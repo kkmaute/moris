@@ -269,7 +269,7 @@ namespace moris
             get_sideset_elems_loc_inds_and_ords(
                     const  std::string     & aSetName,
                     Matrix< IndexMat >     & aElemIndices,
-                    Matrix< IndexMat >     & aSidesetOrdinals );
+                    Matrix< IndexMat >     & aSidesetOrdinals ) const;
 
 //-------------------------------------------------------------------------------
 
