@@ -27,6 +27,7 @@ namespace moris
         class IWG;
         class Node_Base;
         enum class IWG_Type;
+        enum class BC_Type;
     }
 
     namespace dla
@@ -86,10 +87,15 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-            Model(       mtk::Mesh   * aMesh,
-                   const uint          aBSplineOrder,
-                   Cell< Cell< fem::IWG_Type > >aIWGTypeList );
+//            Model(       mtk::Mesh   * aMesh,
+//                   const uint          aBSplineOrder,
+//                   Cell< Cell< fem::IWG_Type > >aIWGTypeList );
 
+            Model(       mtk::Mesh *                   aMesh,
+                   const uint                          aBSplineOrder,
+                         Cell< Cell< fem::IWG_Type > > aIWGTypeList,
+                         Cell< moris_index >           aSidesetList,
+                         Cell< fem::BC_Type >          aSidesetBCTypeList );
 //------------------------------------------------------------------------------
 
             void
@@ -103,7 +109,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
-            set_weak_bcs( const Matrix<DDRMat> & aWeakBCs );
+            set_weak_bcs( const Matrix< DDRMat > & aWeakBCs );
 
 //------------------------------------------------------------------------------
 
@@ -113,7 +119,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
-            solve( Matrix<DDRMat> & aSolution );
+            solve( Matrix< DDRMat > & aSolution );
 
 //------------------------------------------------------------------------------
 

@@ -932,6 +932,12 @@ namespace moris
         }/* if( par_size() */
     }
 
+
+
+
+
+
+
         TEST_CASE( "Element_Diffusion_2", "[moris],[fem],[ElemDiff_2]" )
         {
         if(par_size() == 1 )
@@ -967,8 +973,16 @@ namespace moris
             tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
             tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+            // create a list of active sidesets
+            moris::Cell< moris_index >  tSidesetList = { 3, 5 };
+
+            // create a list of BC type for the sidesets
+            moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
+                                                               fem::BC_Type::NEUMANN };
+
             // create model
-            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGTypeList );
+            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGTypeList,
+                                                  tSidesetList, tSidesetBCTypeList );
 
             //solve
             moris::Matrix< DDRMat > tSolution11;
@@ -1006,12 +1020,12 @@ namespace moris
             // check bool is true
             REQUIRE( tCheckNodalSolution );
 
-            //tModel->output_solution( tFieldName1 );
+            tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
     }
 
-        TEST_CASE( "Element_Diffusion_4", "[moris],[fem],[ElemDiff_4]" )
+        TEST_CASE( "Element_Diffusion_3", "[moris],[fem],[ElemDiff_3]" )
         {
         if(par_size() == 1 )
         {
@@ -1021,7 +1035,6 @@ namespace moris
 
             std::string tPrefix = std::getenv("MORISROOT");
             std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets_40k.g";
-//            std::string tMeshFileName = "generated:2x2x2|sideset:xXyYzZ";
 
             std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
 
@@ -1045,44 +1058,32 @@ namespace moris
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
             //------------------------------------------------------------------------------
-            Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
-            tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-            tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+            tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+            // create a list of active sidesets
+            moris::Cell< moris_index >  tSidesetList = { 3, 5 };
+
+            // create a list of BC type for the sidesets
+            moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
+                                                               fem::BC_Type::NEUMANN };
 
             // create model
-            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
+            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGTypeList,
+                                                  tSidesetList, tSidesetBCTypeList );
 
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            //print(tSolution11,"tSolution11");
 
-//            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
-
-              tModel->output_solution( tFieldName1 );
+            tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
     }
 	
-     TEST_CASE( "Element_Diffusion_3", "[moris],[fem],[ElemDiff_3]" )
+     TEST_CASE( "Element_Diffusion_4", "[moris],[fem],[ElemDiff_4]" )
         {
         if(par_size() == 1 )
         {
@@ -1135,39 +1136,28 @@ namespace moris
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
             //------------------------------------------------------------------------------
-            Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
-            tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-            tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+            tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+            // create a list of active sidesets
+            Cell< moris_index >  tSidesetList = { 3, 5 };
+
+            // create a list of BC type for the sidesets
+            Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
+                                                        fem::BC_Type::NEUMANN };
 
             // create model
-            mdl::Model * tModel = new mdl::Model( tMesh.get(), 1, tIWGType );
+            mdl::Model * tModel = new mdl::Model( tMesh.get(), 1, tIWGTypeList,
+                                                  tSidesetList, tSidesetBCTypeList );
 
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
             //print(tSolution11,"tSolution11");
-//
-//            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
-//
-//            tModel->output_solution( "Circle" );
+
+            //tModel->output_solution( "Circle" );
 
         }/* if( par_size() */
     }
