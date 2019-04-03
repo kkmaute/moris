@@ -112,7 +112,7 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            luint tNumberOfEquationObjects = aMesh->get_num_elems() + aMesh->get_sidesets_num_faces() - 16;
+            luint tNumberOfEquationObjects = aMesh->get_num_elems() + aMesh->get_sidesets_num_faces() - 208;
 
             //luint tNumberOfElements = tBlockSetElementInd.numel();
 

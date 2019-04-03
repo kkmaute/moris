@@ -51,6 +51,7 @@ set(TEST_DEPENDENCIES
     ${MTK}-lib
     ${TOL}-lib
 	${HMR}-lib
+	${MAP}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

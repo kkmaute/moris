@@ -41,9 +41,17 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
-//#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
+
+#include "fn_norm.hpp"
+
+moris::real
+LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    return norm( aPoint ) - 0.5;
+}
 
 namespace moris
 {
@@ -1029,10 +1037,10 @@ namespace moris
 
             hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "10, 2A, 2" );
-            tParameters.set( "domain_dimensions", "2, 2, 2" );
-            tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
-			tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6");
+            tParameters.set( "number_of_elements_per_dimension", "10, 4, 4" );
+            tParameters.set( "domain_dimensions", "10, 4, 4" );
+            tParameters.set( "domain_offset", "-5.0, -2.0, -2.0" );
+            tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
             tParameters.set( "verbose", 0 );
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "bspline_orders", "1" );
@@ -1040,34 +1048,30 @@ namespace moris
 
             tParameters.set( "use_multigrid", 0 );
 
-            tParameters.set( "refinement_buffer", 3 );
+            tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
-
 
              hmr::HMR tHMR( tParameters );
 
-            // std::shared_ptr< Database >
-            auto tDatabase = tHMR.get_database();
+             std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
 
-            // manually select output pattern
-            tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+             // create field
+             std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
 
-            tHMR.perform_initial_refinement();
+             for( uint k=0; k<2; ++k )
+             {
+                 tField->evaluate_scalar_function( LevelSetFunction );
+                 tHMR.flag_surface_elements( tField );
+                 tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+                 tHMR.update_refinement_pattern();
+             }
 
-            // refine the first element three times
-            for( uint tLevel = 0; tLevel < 4; ++tLevel )
-            {
-            tDatabase->flag_element( 0 );
+             tHMR.finalize();
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
-            }
-
-            // update database etc
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
-
-            tHMR.finalize();
-
-            auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+             // evaluate node values
+//             tField->evaluate_scalar_function( LevelSetFunction );
+//
+//             tHMR.save_to_exodus( "Circle_diff.exo" );
 
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
@@ -1084,27 +1088,27 @@ namespace moris
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
             print(tSolution11,"tSolution11");
-
-            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
-
-            //tModel->output_solution( tFieldName1 );
+//
+//            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
+//
+//            tModel->output_solution( "Circle" );
 
         }/* if( par_size() */
     }

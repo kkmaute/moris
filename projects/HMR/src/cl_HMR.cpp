@@ -38,7 +38,7 @@
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
-//#include "cl_MTK_Mapper.hpp"
+#include "cl_MTK_Mapper.hpp"
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
@@ -1742,7 +1742,6 @@ namespace moris
         void
         HMR::perform_refinement_and_map_fields()
         {
-			/*
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 0: perform simple refinement
             // - - - - - - - - - - - - - - - - - - - - - -
@@ -1912,13 +1911,14 @@ namespace moris
             {
                 delete tMapper;
             }
-			*/
+
         }
 // ----------------------------------------------------------------------------
 
         void
         HMR::map_field_to_output( std::shared_ptr< Field > aField )
-        {/*
+        {
+
             // grab orders of meshes
             uint tLagrangeOrder = aField->get_lagrange_order();
             uint tBSplineOrder =  aField->get_bspline_order();
@@ -2009,7 +2009,7 @@ namespace moris
             aField->change_mesh(
                     tOutputField->get_mesh(),
                     tOutputField->get_field_index() );
-					*/
+
         }
 
 // ----------------------------------------------------------------------------
