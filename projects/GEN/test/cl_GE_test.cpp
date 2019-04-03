@@ -41,14 +41,12 @@
 #include "linalg_typedefs.hpp"
 #include "fn_all_true.hpp"
 #include "fn_equal_to.hpp"
-#include "fn_print.hpp"
 #include "op_equal_equal.hpp"
-#include "op_plus.hpp"
 
 //------------------------------------------------------------------------------
 // FEM includes
-#include "cl_FEM_Integrator.hpp"
-#include "cl_FEM_Field_Interpolator.hpp"
+#include "FEM/INT/src/cl_FEM_Integrator.hpp"
+#include "FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
 
 //------------------------------------------------------------------------------
 // other includes
@@ -529,38 +527,26 @@ plane_function( const Matrix< DDRMat > & aPoint,
 					if(par_size()<=1)
 					{
 					    Ge_Factory tFactory;
-					    Geometry*  tSphere_1 = tFactory.set_geometry_type(type::ANALYTIC);
-					    tSphere_1->set_analytical_function(type::COMPOSITE_FIBER_STRAIGHT_1);
-//					    tSphere_1->set_analytical_function_dphi_dx(type::SPHERE);
+					    Geometry*  tGeom_1 = tFactory.set_geometry_type(type::ANALYTIC);
+					    tGeom_1->set_analytical_function(type::SPHERE);
+					    tGeom_1->set_analytical_function_dphi_dx(type::SPHERE);
 
 					    Matrix< DDRMat > tCoord(1,3);
 					    tCoord(0,0) = 1.0;
 					    tCoord(0,1) = 1.0;
 					    tCoord(0,2) = 1.0;
-//
-//					    moris::Cell< real > tInput(4);
-//					    tInput(0) = 0.0;
-//					    tInput(1) = 0.0;
-//					    tInput(2) = 0.0;
-//					    tInput(3) = 3.0;
 
-					    moris::Cell< real > tInput(9);
-					    tInput(0) = 0.25;
-					    tInput(1) = 2.0;
-					    tInput(2) = 0.5;
+					    moris::Cell< real > tInput(4);
+					    tInput(0) = 0.0;
+					    tInput(1) = 0.0;
+					    tInput(2) = 0.0;
 					    tInput(3) = 3.0;
-					    tInput(4) = 1.0;
-					    tInput(5) = 0.01;
-					    tInput(6) = 0.2;
-					    tInput(7) = 0.0;
-					    tInput(8) = 0.0;
-					    tInput(9) = 0.0;
 
-					    real tVal = tSphere_1->get_field_val_at_coordinate( tCoord, tInput );
+					    real tVal = tGeom_1->get_field_val_at_coordinate( tCoord, tInput );
 					    std::cout<<"val at coord: "<<tVal<<std::endl;
 
-//					    Matrix< DDRMat > tDphiDp = tSphere_1->get_sensitivity_dphi_dp_at_coordinate( tCoord, tInput );
-//					    print(tDphiDp,"dphi/dp");
+					    Matrix< DDRMat > tDphiDp = tGeom_1->get_sensitivity_dphi_dp_at_coordinate( tCoord, tInput );
+					    print(tDphiDp,"dphi/dp");
 
 					}
 						}

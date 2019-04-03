@@ -37,12 +37,14 @@ namespace NLA
         Dist_Vector * mSolutionVector;
         Matrix< DDRMat > mMySolVec;
 
-        Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
+        Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
         Matrix< DDRMat > ( *mFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd );
         Matrix< DDSMat > ( *mFunctionTopology )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd );
 
         moris::sint mNX;
         moris::sint mNY;
+
+        moris::real mLambda;
 
         moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
 
@@ -53,7 +55,7 @@ namespace NLA
                                     const moris::uint aNumElements,
                                     const moris::sint aNX,
                                     const moris::sint aNY,
-                                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+                                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                     Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                     Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
 
@@ -61,6 +63,10 @@ namespace NLA
 
         // ----------------------------------------------------------------------------------------------
         ~NLA_Solver_Interface_Proxy(){};
+
+        // ----------------------------------------------------------------------------------------------
+
+        void set_lambda_value( const moris::real & aLambda );
 
         // ----------------------------------------------------------------------------------------------
 
@@ -72,7 +78,6 @@ namespace NLA
         {
            mListOfDofTypes = aListOfDofTypes;
         };
-
 
         // ----------------------------------------------------------------------------------------------
         // local dimension of the problem
@@ -120,7 +125,8 @@ namespace NLA
         void get_element_rhs( const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS )
         {
-            aElementRHS = mFunctionRes( mNX, mNY, mMySolVec, aMyElementInd );
+//            this->set_lambda_value( aLambda );
+            aElementRHS = mFunctionRes( mNX, mNY, mLambda, mMySolVec, aMyElementInd );
         };
 
         // ----------------------------------------------------------------------------------------------

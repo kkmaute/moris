@@ -28,7 +28,9 @@ namespace moris
 			COMPOSITE_FIBER_STRAIGHT_1,
 			COMPOSITE_FIBER_STRAIGHT_2,
 			COMPOSITE_FIBER_STRAIGHT_3,
-			MULTI_CYLINDER
+			MULTI_CYLINDER,
+// end of enums
+			END_ENUM
 		};
 	} /* namespace gen */
 } /* namespace moris */

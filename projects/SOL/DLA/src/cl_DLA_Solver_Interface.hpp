@@ -100,7 +100,14 @@ public:
                                             moris::Matrix< DDSMat > & aElementTopology) =0;
 
     virtual void get_element_rhs(const moris::uint             & aMyElementInd,
-                                       moris::Matrix< DDRMat > & aElementRHS) =0;
+                                       moris::Matrix< DDRMat > & aElementRHS ) =0;
+
+    //------------------------------------------------------------
+    virtual void set_lambda_value( const moris::real & aLambda )
+    {
+        MORIS_ERROR( false, "Solver_Interface::set_lambda_value: not set.");
+    }
+    //------------------------------------------------------------
 
     virtual void use_matrix_market_files( ) { MORIS_ERROR(false,"error in use_matrix_market_files"); }
 
@@ -167,7 +174,7 @@ public:
 
 //---------------------------------------------------------------------------------------------------------
     void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
-                              moris::Dist_Vector   * aVectorRHS);
+                              moris::Dist_Vector   * aVectorRHS );
 
 //---------------------------------------------------------------------------------------------------------
     void fill_matrix_and_RHS( moris::Sparse_Matrix * aMat,
