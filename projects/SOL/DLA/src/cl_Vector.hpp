@@ -73,7 +73,7 @@ public:
     virtual void replace_global_values() = 0;
 
     /**
-     * @brief Add global valued to the distrinuted vector.
+     * @brief Add global valued to the distributed vector.
      *
      * @param[in] aNumMyDof            Number of entries which will be inserted.
      * @param[in] aEleDofConectivity   Position where to place the entriess.

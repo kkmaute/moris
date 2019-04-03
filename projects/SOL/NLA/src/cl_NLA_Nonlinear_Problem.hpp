@@ -35,24 +35,34 @@ namespace NLA
         void  delete_pointers();
 
         //--------------------Arc Length-------------------
-        Sparse_Matrix * mFullForKTilde  = nullptr;
+        Sparse_Matrix * mJacobian    = nullptr;
 
-        Dist_Vector * mFullForKDiag     = nullptr;
-        Dist_Vector * mFullForK0Diag    = nullptr;
+        Dist_Vector * mJacVals       = nullptr;
+        Dist_Vector * mJacVals0      = nullptr;
 
-        Dist_Vector * mDTildeVec        = nullptr;
-        Dist_Vector * mDTilde0Vec       = nullptr;
+        Dist_Vector * mDTildeVec     = nullptr;
+        Dist_Vector * mDTilde0Vec    = nullptr;
 
-        Dist_Vector * mDK               = nullptr;
-        Dist_Vector * mDSolve           = nullptr;
-        Dist_Vector * mDSolveNMinus1    = nullptr;
-        Dist_Vector * mDSolveNMinus2    = nullptr;
+        Dist_Vector * mDK            = nullptr;
+        Dist_Vector * mDSolve        = nullptr;
+        Dist_Vector * mDSolveNMinus1 = nullptr;
+        Dist_Vector * mDSolveNMinus2 = nullptr;
 
+        Dist_Vector * mGlobalRHS     = nullptr;
 
-        Dist_Vector * mFext             = nullptr;
+        Dist_Vector * mDFArcDDeltaD  = nullptr;
+
+        Dist_Vector * mDelLamNum     = nullptr;
+        Dist_Vector * mDelLamDen     = nullptr;
+        Dist_Vector * mDeltaD        = nullptr;
+        Dist_Vector * mdeltaD        = nullptr;
+
+        Dist_Vector * mFext          = nullptr;
         //-------------------------------------------------
 
     protected:
+        Solver_Interface * mSolverInterface;
+
         Dist_Vector * mFullVector = nullptr;
 
         Map_Class   * mMap = nullptr;
@@ -111,13 +121,13 @@ namespace NLA
         void set_interface( Solver_Interface * aSolverInterface );
 
         //--------------------------------------------------------------------------------------------------
-        void build_linearized_problem( const bool & aRebuildJacobian,
-                                             sint   aNonLinearIt );
+        void build_linearized_problem( const bool        & aRebuildJacobian,
+                                             sint          aNonLinearIt );
 
         //--------------------------------------------------------------------------------------------------
-        void build_linearized_problem( const bool & aRebuildJacobian,
-                                       const sint   aNonLinearIt,
-                                       const sint   aRestart );
+        void build_linearized_problem( const bool        & aRebuildJacobian,
+                                       const sint          aNonLinearIt,
+                                       const sint          aRestart );
 
         //--------------------------------------------------------------------------------------------------
         void print_sol_vec( const sint aNonLinearIt );
@@ -139,20 +149,24 @@ namespace NLA
                                       moris::Matrix< DDRMat > & LHSValues );
 
         //--------------------------------------------------------------------------------------------------
-        //--------------------------------Arc-Length 'get' functions----------------------------------------
-        Dist_Vector * get_k_diag()
+        void set_lambda_value( const moris::real & aLambda);
+
+        //--------------------------------------------------------------------------------------------------
+        //--------------------------------arc-length 'get' functions----------------------------------------
+        //--------------------------------------------------------------------------------------------------
+        Sparse_Matrix * get_full_for_jacobian()
         {
-            return mFullForKDiag;
+            return mJacobian;
         }
         //--------------------------------------------------------------------------------------------------
-        Dist_Vector * get_k0_diag()
+        Dist_Vector * get_jacobian_diag()
         {
-            return mFullForK0Diag;
+            return mJacVals;
         }
         //--------------------------------------------------------------------------------------------------
-        Sparse_Matrix * get_full_for_consistent_tangent()
+        Dist_Vector * get_jacobian_diag_0()
         {
-            return mFullForKTilde;
+            return mJacVals0;
         }
         //--------------------------------------------------------------------------------------------------
         Dist_Vector * get_d_tilde()
@@ -185,10 +199,44 @@ namespace NLA
             return mDK;
         }
         //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_df_dDeltaD()
+        {
+            return mDFArcDDeltaD;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_del_lam_num()
+        {
+            return mDelLamNum;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_del_lam_den()
+        {
+            return mDelLamDen;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_del_d_upper()
+        {
+            return mDeltaD;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_del_d()
+        {
+            return mdeltaD;
+        }
+        //--------------------------------------------------------------------------------------------------
+        Dist_Vector * get_global_rhs()
+        {
+            return mGlobalRHS;
+        }
+
+        //--------------------------------------------------------------------------------------------------
         Dist_Vector * get_f_ext()
         {
             return mFext;
         }
+        //--------------------------------------------------------------------------------------------------
+
+        //--------------------------------------------------------------------------------------------------
     };
 }
 }

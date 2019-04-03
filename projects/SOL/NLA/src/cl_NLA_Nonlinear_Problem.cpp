@@ -31,6 +31,8 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
                                                                                  mMapType( aMapType ),
                                                                                  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
+    mSolverInterface = aSolverInterface;
+
     if( mMapType == MapType::Petsc )
     {
         // Initialize petsc solvers
@@ -72,6 +74,8 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
                                                                                mMapType( aMapType ),
                                                                                mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
+    mSolverInterface = aSolverInterface;
+
     if( mMapType == MapType::Petsc )
     {
         // Initialize petsc solvers
@@ -89,6 +93,34 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
 
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    //---------------------------arc-length vectors---------------------------------
+    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+
+    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
+    //------------------------------------------------------------------------------
+    //---------------------------arc-length matrices--------------------------------
+    mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
+
+    //------------------------------------------------------------------------------
 
 //    mFullForDiag = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
@@ -144,7 +176,8 @@ void Nonlinear_Problem::delete_pointers()
     }
 }
 
-void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt )
+void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
+                                                  const sint aNonLinearIt )
 {
     // Set VectorFreeSol and LHS
     mLinearProblem->set_free_solver_LHS( mFullVector );
@@ -159,7 +192,9 @@ void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
     mLinearProblem->assemble_residual( mFullVector );
 }
 
-void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian, const sint aNonLinearIt, const sint aRestart )
+void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
+                                                  const sint aNonLinearIt,
+                                                  const sint aRestart )
 {
     delete( mFullVector );
 
@@ -218,4 +253,12 @@ void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 
     mFullVector->read_vector_from_HDF5( SolVector );
 }
+
+//--------------------------------------------------------------------------------------------------
+void Nonlinear_Problem::set_lambda_value( const moris::real & aLambda)
+{
+    mSolverInterface->set_lambda_value( aLambda );
+}
+
+
 

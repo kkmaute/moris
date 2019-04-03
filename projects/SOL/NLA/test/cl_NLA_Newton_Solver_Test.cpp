@@ -31,6 +31,7 @@ namespace moris
 {
     Matrix< DDRMat > test_residual1( const moris::sint        aNX,
                                      const moris::sint        aNY,
+                                     const moris::real        aLambda,
                                      const Matrix< DDRMat > & tMyValues,
                                      const moris::uint        aEquationObjectInd )
     {
@@ -72,6 +73,7 @@ namespace moris
 
     Matrix< DDRMat > test_residual_bratu( const moris::sint        aNX,
                                           const moris::sint        aNY,
+                                          const moris::real        aLambda,
                                           const Matrix< DDRMat > & tMyValues,
                                           const moris::uint        aEquationObjectInd )
     {
@@ -197,21 +199,23 @@ namespace moris
 
     //------------------------------------------------------------------------------
     Matrix< DDRMat >
-    cubic_force_function( const moris::sint        aNX,
-                          const moris::sint        aNY,
-                          const Matrix< DDRMat > & tMyValues,
-                          const moris::uint        aEquationObjectInd )
+    cubic_residual( const moris::sint        aNX,
+                    const moris::sint        aNY,
+                    const moris::real        aLambda,
+                    const Matrix< DDRMat > & tMyValues,
+                    const moris::uint        aEquationObjectInd )
     {
         Matrix< DDRMat > tRes(1,1);
-        tRes(0,0) = 0.2*std::pow(tMyValues(0,0),3) - 2.1*std::pow(tMyValues(0,0),2) + 6*tMyValues(0,0) - 0.25;
+        tRes(0,0) = aLambda*8 - (0.2*std::pow(tMyValues(0,0),3) - 2.1*std::pow(tMyValues(0,0),2) + 6*tMyValues(0,0));
+//        tRes(0,0) = 0.2*std::pow(tMyValues(0,0),3) - 2.1*std::pow(tMyValues(0,0),2) + 6*tMyValues(0,0);
         return tRes;
     }
 
     Matrix< DDRMat >
-    cubic_force_function_dF_dd( const moris::sint        aNX,
-                                const moris::sint        aNY,
-                                const Matrix< DDRMat > & tMyValues,
-                                const moris::uint        aEquationObjectInd )
+    cubic_jacobian( const moris::sint        aNX,
+                    const moris::sint        aNY,
+                    const Matrix< DDRMat > & tMyValues,
+                    const moris::uint        aEquationObjectInd )
     {
         Matrix< DDRMat > tJac(1,1);
         tJac(0,0) = 0.6*std::pow(tMyValues(0,0),2) - 4.2*tMyValues(0,0) + 6;
@@ -670,7 +674,8 @@ namespace moris
             //                                        Residual function pointer,
             //                                        Jacobian function pointer,
             //                                        Topology function pointer );
-            Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 1, 1, 1, 1, cubic_force_function, cubic_force_function_dF_dd, test_topo2 );
+
+            Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 1, 1, 1, 1, cubic_residual, cubic_jacobian, test_topo2 );
 
             // specify the linear solver and create the linear solver manager
             dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
@@ -682,7 +687,7 @@ namespace moris
 
             // create nonlinear solver factory. Build nonlinear solver.
             Nonlinear_Solver_Factory tNonlinFactory;
-            std::shared_ptr< Nonlinear_Algorithm > tNonLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< Nonlinear_Algorithm > tNonLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::ARC_LENGTH_SOLVER );
 
             // set nonlinear solver parameters
             tNonLinSolverAlgorithm->set_linear_solver( tLinSolManager );
@@ -717,7 +722,6 @@ namespace moris
             Matrix< DDRMat > tMyValues;
 
             tNonLinSolverAlgorithm->get_full_solution( tMyValues );
-
             print(tMyValues, "tMyValues");
         }
     } // end arc-length solver test case

@@ -19,7 +19,7 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
                                                         const moris::uint aNumElements,
                                                         const moris::sint aNX,
                                                         const moris::sint aNY,
-                                                        Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+                                                        Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                                         Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
                                                         Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) )
 {
@@ -31,6 +31,8 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
 
     mNX = aNX;
     mNY = aNY;
+
+    mLambda = 1.0;
 
     mNumMyDofs = aNumMyDofs/par_size();
     mNumElements = aNumElements;
@@ -59,5 +61,9 @@ void NLA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVec
 
     mSolutionVector->extract_copy( mMySolVec );
 }
-
-
+//-------------------------------------------------
+void NLA_Solver_Interface_Proxy::set_lambda_value( const moris::real & aLambda )
+{
+    mLambda = aLambda;
+}
+//-------------------------------------------------
