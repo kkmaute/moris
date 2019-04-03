@@ -1146,7 +1146,7 @@ namespace moris
         Mesh::get_sideset_elems_loc_inds_and_ords(
                            const  std::string     & aSetName,
                            Matrix< IndexMat >     & aElemIndices,
-                           Matrix< IndexMat >     & aSideOrdinals )
+                           Matrix< IndexMat >     & aSideOrdinals ) const
         {
             if( mMesh->get_activation_pattern()
                     == mMesh->get_parameters()->get_lagrange_output_pattern() )

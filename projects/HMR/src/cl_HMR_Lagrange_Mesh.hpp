@@ -194,7 +194,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         /**
-         * calculates domain wide unique node ID (1D case)
+         * calculates domain wide unique node ID (3D case)
          * Useful for debugging.
          *
          * @param[in]  aLevel    level of node

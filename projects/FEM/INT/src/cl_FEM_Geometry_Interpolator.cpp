@@ -599,8 +599,10 @@ namespace moris
                         Matrix< DDRMat > tMatrixForDet( 4, 4, 0.0 );
                         tMatrixForDet({ 1, 3 },{ 0, 3 }) = trans( tRealTangentVectors );
                         tMatrixForDet( 0, i ) = 1.0;
+                        //FIXME check that matrix is not singular before doing det()
                         tVector( i ) = det( tMatrixForDet );
                     }
+                    //print(tVector,"tVector");
                     aSurfDetJ = norm( tVector );
 
                     // FIXME computing the normal from the tangent vector in the physical space

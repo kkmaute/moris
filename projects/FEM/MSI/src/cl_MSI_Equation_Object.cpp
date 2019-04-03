@@ -129,7 +129,7 @@ namespace moris
             tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
 
             // Add number if these adofs to number of assembled adofs
-            tAdofPosCounter =tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length();
+            tAdofPosCounter = tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length();
         }
 
         // make list of unique Ids
@@ -201,8 +201,6 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
-        //print(trans( tTMatrix ), "trans( tTMatrix )");
-        //print(mResidual, "mResidual");
         aEqnObjRHS = trans( tTMatrix ) * mResidual;
     }
 

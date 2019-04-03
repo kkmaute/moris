@@ -14,6 +14,7 @@
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+#include "cl_Cell.hpp"
 
 #include "cl_MTK_Cell.hpp"                  //MTK/src
 
@@ -23,7 +24,7 @@
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Integrator.hpp"    //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
 namespace moris
 {
@@ -60,8 +61,9 @@ namespace moris
 
         moris::Cell< Field_Interpolator* >   mFieldInterpolators;
         moris::Cell< Cell< MSI::Dof_Type > > mInterpDofTypeList;
-        moris::Matrix< DDSMat >              mInterpDofTypeMap;
         uint                                 mNumOfInterp;
+
+        moris::Matrix< DDSMat >              mInterpDofTypeMap;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -101,8 +103,7 @@ namespace moris
             // FIXME: Mathias, please comment
             mTimeSteps.set_size( 1, 1, 1 );
 
-            // begin: create an element active dof type list from IWGs----------------------
-
+            //create an element active dof type list from IWGs----------------------
             // get the number of IWGs
             mNumOfIWGs = mIWGs.size();
 
@@ -135,50 +136,36 @@ namespace moris
             auto pos  = std::distance( ( mEqnObjDofTypeList.data() ).data(), last );
             mEqnObjDofTypeList.resize( pos );
 
-            //------------------------------------------------------------------------------
-            // set the size of the element active dof type list
-            mInterpDofTypeList.resize( mNumOfIWGs );
+            // create a list of the groups of dof types provided by the IWGs----------------
+            // FIXME works as long as the dof type are always grouped in the same way
+            moris::Cell< MSI::Dof_Type > tInterpDofTypeListBuild( mNumOfIWGs );
 
             // loop over the IWGs
             for ( uint i = 0; i < mNumOfIWGs; i++ )
             {
-                // get the residual dof type of the ith IWG
-                mInterpDofTypeList( i ) = mIWGs( i )->get_residual_dof_type();
+                // get the first dof type of each group
+                tInterpDofTypeListBuild( i ) = mIWGs( i )->get_residual_dof_type()( 0 );
             }
-            // end: create an element active dof type list from IWGs------------------------
 
-            // begin: create a map of the element active dof type list----------------------
-//            // set number of unique pdof type of the element
-//            mNumOfElemDofTypes = mEqnObjDofTypeList.size();
-//
-//            // get maximal dof type enum number
-//            sint tMaxDofTypeEnumNumber = 0;
-//
-//            // loop over all pdof types to get the highest enum index
-//            for ( uint i = 0; i < mNumOfElemDofTypes; i++ )
-//            {
-//                tMaxDofTypeEnumNumber = std::max( tMaxDofTypeEnumNumber, static_cast< int >( mEqnObjDofTypeList( i ) ) );
-//            }
-//
-//            for ( uint i = 0; i < tNumOfInterp; i++ )
-//            {
-//                tMaxDofTypeEnumNumber2 = std::max( tMaxDofTypeEnumNumber2, static_cast< int >( mInterpDofTypeList( i )( 0 ) ) );
-//            }
-//
-//            // +1 because c++ is 0 based
-//            tMaxDofTypeEnumNumber = tMaxDofTypeEnumNumber + 1;
-//
-//            // set size of mapping matrix
-//            mElemDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
-//
-//            // loop over all dof types to create the mapping matrix
-//            for ( uint i = 0; i < mNumOfElemDofTypes; i++ )
-//            {
-//                mElemDofTypeMap( static_cast< int >( mEqnObjDofTypeList( i ) ), 0 ) = i;
-//            }
+            // get a unique list of the first dof type of each group
+            Cell<moris::moris_index> tUniqueDofTypeGroupsIndices = unique_index( tInterpDofTypeListBuild );
 
+            // get the number of unique dof type groups
+            uint tNumOfUniqueDofTypeGroupsIndices = tUniqueDofTypeGroupsIndices.size();
+
+            // set the size of the list of unique dof type groups
+            mInterpDofTypeList.resize( tNumOfUniqueDofTypeGroupsIndices );
+
+            // loop over the list of unique dof type groups
+            for ( uint i = 0; i < tNumOfUniqueDofTypeGroupsIndices; i++ )
+            {
+                // get the unique residual dof type groups
+                mInterpDofTypeList( i ) = mIWGs( tUniqueDofTypeGroupsIndices( i ) )->get_residual_dof_type();
+            }
+
+            // create a map of the element active dof type list------------------------
             // set number of unique pdof type of the element
-            mNumOfInterp = mInterpDofTypeList.size();
+            mNumOfInterp = tNumOfUniqueDofTypeGroupsIndices;
 
             // get maximal dof type enum number
             sint tMaxDofTypeEnumNumber = 0;
@@ -200,9 +187,6 @@ namespace moris
             {
                 mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
             }
-            // end: create a map of the element active dof type list------------------------
-
-
         };
 //------------------------------------------------------------------------------
         /**
@@ -512,6 +496,7 @@ namespace moris
                  }
              }
 
+//             std::cout<<tTotalDof<<std::endl;
              mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
              mResidual.set_size( tTotalDof, 1, 0.0 );
          }

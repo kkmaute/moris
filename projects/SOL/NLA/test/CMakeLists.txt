@@ -16,6 +16,7 @@ set(TEST_INCLUDES
     ${LINALG}
     ${COM}
     ${SOL}/${NLA}
+    ${SOL}/${SOL_CORE}
     ${ALG}
     ${FEM}/${MSI} )
 

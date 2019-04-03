@@ -34,7 +34,6 @@ namespace moris
         protected:
 //------------- -----------------------------------------------------------------
 
-
             //! Level on which basis is defined
             const uint       mLevel;
 
@@ -196,8 +195,7 @@ namespace moris
              *
              * @return void
              */
-             void
-             flag()
+             void flag()
              {
                  mFlag = true;
              }
@@ -209,8 +207,7 @@ namespace moris
               *
               * @return void
               */
-              void
-              unflag()
+              void unflag()
               {
                   mFlag = false;
               }
@@ -222,8 +219,7 @@ namespace moris
                *
                * @return bool
                */
-              bool
-              is_flagged() const
+              bool is_flagged() const
               {
                   return mFlag;
               }
@@ -236,8 +232,7 @@ namespace moris
              *
              * @return   uint level of basis
              */
-            uint
-            get_level() const
+            uint get_level() const
             {
                 return mLevel;
             }

@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp
+ * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp
  *
  *  Created on: Mar 22, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_NEUMANN_HPP_
+#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_NEUMANN_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -23,27 +23,21 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Dirichlet : public IWG
+        class IWG_Isotropic_Spatial_Diffusion_Neumann : public IWG
         {
-            // Nitsche's penalty parameter
-            real mGamma;
-
-            // diffusion tensor
-            Matrix< DDRMat > mKappa;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Dirichlet();
+            IWG_Isotropic_Spatial_Diffusion_Neumann();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Dirichlet(){};
+            ~IWG_Isotropic_Spatial_Diffusion_Neumann(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -88,4 +82,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_DIRICHLET_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_NEUMANN_HPP_ */

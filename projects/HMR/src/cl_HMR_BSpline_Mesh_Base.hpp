@@ -161,7 +161,7 @@ namespace moris
             Basis *
             get_basis_by_index( const luint & aIndex )
             {
-            	return mIndexedBasis( aIndex );
+                return mIndexedBasis( aIndex );
             }
 
 // ----------------------------------------------------------------------------

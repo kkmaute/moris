@@ -6,6 +6,8 @@
  */
 #include "cl_DLA_Solver_Interface.hpp"
 
+#include "cl_NLA_Nonlinear_Solver.hpp"
+
 #include "cl_SOL_Warehouse.hpp"
 
 #include "cl_Vector.hpp"
