@@ -65,6 +65,10 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
     //------------------------------------------------------------------------------
     mNonlinearProblem = aNonlinearProblem;
 
+//    moris::real tTolR = 0.00000001;
+//    moris::real tTolF = 0.00000001;
+//    moris::real tR0   = 1.0;
+
     moris::real tB      = 0.5;
     moris::real tDeltaA = 0.1;
 
@@ -81,7 +85,6 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
     moris::real tLambdaSolveNMinus2 = 0;
 
     moris::real tDFArcDDeltaLambda = 0;
-//    moris::real tR,tR0;
 
     moris::real tDelLambdaNum = 0;
     moris::real tDelLambdaDen = 0;
@@ -101,9 +104,9 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
 
     bool tIsConverged            = false;
     bool tRebuildJacobian        = true;
+    bool tHardBreak              = false;
     moris::real tMaxNewTime      = 0.0;
     moris::real tMaxAssemblyTime = 0.0;
-    //moris::real tErrorStatus     = 0;
 
     //------------------------------------------------------------------------------
     //--------------------get all vectors and matrices------------------------------
@@ -114,6 +117,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
 
     Dist_Vector* tJacVal0  = mNonlinearProblem->get_jacobian_diag_0();
     Dist_Vector* tD_tilde0 = mNonlinearProblem->get_d_tilde0();
+    Dist_Vector* tDK       = mNonlinearProblem->get_d_k();
 
     Dist_Vector* tDSolve        = mNonlinearProblem->get_d_solve();
     tDSolve->vec_put_scalar( 0 );
@@ -132,50 +136,57 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
     Dist_Vector* tDeltaD    = mNonlinearProblem->get_del_d_upper();
     Dist_Vector* tdeltaD    = mNonlinearProblem->get_del_d();
     //------------------------------------------------------------------------------
+    sint tDummy = 1;
+    mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tDummy );      // build the linearized problem
+    this->solve_linear_system( tDummy, tHardBreak );                              // solve linearized problem
+
+    tGlobalRHS = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();   // set pointer to RHS
+    tJac       = mNonlinearProblem->get_linearized_problem()->get_matrix();       // set pointer to jacobian matrix
     //------------------------------------------------------------------------------
-    for ( sint timeStep = 1; timeStep < 5; timeStep++ )
+    for ( sint timeStep = 1; timeStep < 6; timeStep++ )
     {   // temporary time step loop
         //------------------------------------------------------------------------------
         /*
          * 1) build jacobian
          * 2) use jacobian to solve for d_tilde
          * 3) store jacobian_0 vals, d_tilde0 vals, and arc function denominator
+         * 4) run initialization procedures
          */
-        mNonlinearProblem->build_linearized_problem( tRebuildJacobian, timeStep );      // rebuild the linearized problem
-        bool tHardBreak = false;
-        this->solve_linear_system( timeStep, tHardBreak );                              // solve linearized problem
         //------------------------------------------------------------------------------
 
-        mNonlinearProblem->get_linearized_problem()->assemble_jacobian( tDSolve );  // assemble linear problem
+        mNonlinearProblem->get_linearized_problem()->assemble_jacobian( tDSolve );  // reassemble jacobian
+        mNonlinearProblem->get_linearized_problem()->assemble_residual( tDSolve );  // reassemble residual
 
-        tJac = mNonlinearProblem->get_linearized_problem()->get_matrix();       // get the Jacobian matrix
+        tJac->get_diagonal( *tJacVal );                                             // fill vector with diagonal values
+std::cout<<"++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
+std::cout<<"K_tilde:  "<<tJacVal->get_values_pointer()[0]<<std::endl;
 
-        tJac->get_diagonal( *tJacVal );                                     // fill vector with diagonal values
+        if ( timeStep < 3 )
+        { // since tD_tilde is only used in the first initialization step, only compute it while timeStep < 3
+            tGlobalRHS->vec_plus_vec(1,*tFext,0);
+            this->solve_linear_system( timeStep, tHardBreak );                      // inv(Ktilde)*Fext
 
-        tGlobalRHS = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();
-        tGlobalRHS->vec_plus_vec(1,*tFext,0);
-        this->solve_linear_system( timeStep, tHardBreak );                              // inv(Ktilde)*Fext
-
-        tD_tilde->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
+            tD_tilde->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
+            mNonlinearProblem->get_linearized_problem()->assemble_residual( tDSolve );  // rebuild residual since it was changed above
+        }
 
         sint tSize = tDeltaD->vec_local_length();
         if ( timeStep==1 )
         {   // store K_tilde0 diagonal values, d_tilde0 vectorm, and r_arc denominator ( all constant throughout )
-            tJacVal0  = tJacVal;
-            tD_tilde0 = tD_tilde;
+            tJacVal0->vec_plus_vec(1,*tJacVal,0);
+            tD_tilde0->vec_plus_vec(1,*tD_tilde,0);
             for ( sint i=0; i<tSize; i++ )
             {
                 tArcDenom += tD_tilde0->get_values_pointer()[i] * tJacVal0->get_values_pointer()[i] * tD_tilde0->get_values_pointer()[i];
             }
         }
 
-        Dist_Vector* tDK = mNonlinearProblem->get_d_k();
-
         if ( timeStep < 3 )
         {
             //------------------------------------------------------------------------------
             // procedure 1
             //------------------------------------------------------------------------------
+            tArcNumer = 0.0;
             for ( sint i=0; i<tSize; i++ )
             {
                 tArcNumer += tD_tilde->get_values_pointer()[i] * tJacVal0->get_values_pointer()[i] * tD_tilde->get_values_pointer()[i];
@@ -183,7 +194,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
             tF_tilde = std::sqrt((1-tB)*(tArcNumer/tArcDenom)+tB);
 
             tDeltaLambda = tDeltaA/tF_tilde;
-            tDeltaD = tD_tilde;
+            tDeltaD->vec_plus_vec(1,*tD_tilde,0);
             tDeltaD->scale_vector( tDeltaLambda );      // DeltaD=DeltaLambda*Dtilde
 
             tLambdaK = tLambdaSolve+tDeltaLambda;
@@ -216,10 +227,12 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
 
         tFArc = std::sqrt((1-tB)*(tArcNumer/tArcDenom)+tB*std::pow(tDeltaLambda,2));
         mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()->vec_put_scalar(0.0);
+std::cout<<"d_k going in:  "<<tDK->get_values_pointer()[0]<<std::endl;
+std::cout<<"++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
         //------------------------------------------------------------------------------
         // Arc Length loop
         //------------------------------------------------------------------------------
-        // while ( (std::abs(tResidual/tResidualO) > tResTolerance) || ( (tF_arc-tDeltaA)/tDeltaA > tArcTol ) ) && (  iter < tMaxIts)
+//        while ( std::abs(tGlobalRHS->get_values_pointer()[0]/) )
         for ( sint iter=1; iter<=tMaxIts; iter++ )
         {
             clock_t tArcLengthLoopStart = clock();
@@ -231,7 +244,9 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
             mNonlinearProblem->get_linearized_problem()->assemble_jacobian( tDK );
 
             tMaxAssemblyTime = this->calculate_time_needed( tStartAssemblyTime );
-
+std::cout<<"=========================================="<<std::endl;
+std::cout<<"R:  "<<tGlobalRHS->get_values_pointer()[0]<<std::endl;
+std::cout<<"=========================================="<<std::endl;
             tHardBreak = false;
             //------------------------------------------------------------------------------
             /* Iteration Steps:
@@ -323,7 +338,8 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
             tDeltaD->vec_plus_vec(1,*tdeltaD,1);
 
             tDeltaLambda = tDeltaLambda + tdeltaLambda;
-
+std::cout<<"d_k at end of iteration:  "<<tDK->get_values_pointer()[0]<<std::endl;
+std::cout<<"=========================================="<<std::endl;
             tArcNumer = 0.0;    // reset arc numerator
             for ( sint i=0; i<tSize; i++ )
             {
@@ -333,6 +349,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
 
             mNonlinearProblem->set_lambda_value( tLambdaK );
             mNonlinearProblem->get_linearized_problem()->assemble_residual( tDK );
+
             //------------------------------------------------------------------------------
 
             Convergence tConvergence;
@@ -370,15 +387,24 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
         // store previously converged values
         if ( timeStep > 1 )
         {
-            tDSolveNMinus2      = tDSolveNMinus1;
+            tDSolveNMinus2->vec_plus_vec(1,*tDSolveNMinus1,0);
             tLambdaSolveNMinus2 = tLambdaSolveNMinus1;
 
-            tDSolveNMinus1      = tDSolve;
+            tDSolveNMinus1->vec_plus_vec(1,*tDSolve,0);
             tLambdaSolveNMinus1 = tLambdaSolve;
         }
         // update converged values
-        tDSolve      = tDK;
+        tDSolve->vec_plus_vec(1,*tDK,0);
         tLambdaSolve = tLambdaK;
+std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
+std::cout<<"dSolve:  "<<tDSolve->get_values_pointer()[0]<<std::endl;
+std::cout<<"lambdaSolve:  "<<tLambdaSolve<<std::endl;
+std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
+        // clear iteration loop variables
+        tDK->scale_vector( 0 );
+        tLambdaK     = 0.0;
+        tDeltaLambda = 0.0;
+
         //------------------------------------------------------------------------------
     }// end timeStep loop
 

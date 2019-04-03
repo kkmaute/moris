@@ -692,7 +692,7 @@ namespace moris
             // set nonlinear solver parameters
             tNonLinSolverAlgorithm->set_linear_solver( tLinSolManager );
 
-            tNonLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+            tNonLinSolverAlgorithm->set_param("NLA_max_iter")   = 5;
             tNonLinSolverAlgorithm->set_param("NLA_hard_break") = false;
             tNonLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
 
