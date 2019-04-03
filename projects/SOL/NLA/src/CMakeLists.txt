@@ -6,6 +6,7 @@ set(${NLA}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+    cl_NLA_Arc_Length.hpp
     cl_NLA_Newton_Solver.hpp
     cl_NLA_Nonlinear_Solver_Enums.hpp
     cl_NLA_Nonlinear_Algorithm.hpp
@@ -35,6 +36,7 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+    cl_NLA_Arc_Length.cpp   
     cl_NLA_Newton_Solver.cpp
     cl_NLA_Nonlinear_Solver_Factory.cpp
     cl_NLA_Nonlinear_Algorithm.cpp
