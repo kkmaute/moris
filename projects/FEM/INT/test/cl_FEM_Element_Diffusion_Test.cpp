@@ -1077,7 +1077,7 @@ namespace moris
 //            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
 //            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
 
-            //tModel->output_solution( tFieldName1 );
+              tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
     }
