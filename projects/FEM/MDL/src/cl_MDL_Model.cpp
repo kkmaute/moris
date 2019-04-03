@@ -42,14 +42,16 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-//        Model::Model(       mtk::Mesh *                   aMesh,
-//                      const uint                          aBSplineOrder,
-//                            Cell< Cell< fem::IWG_Type > > aIWGTypeList,
-//                            Cell< moris_index >           aSidesetList,
-//                            Cell< fem::BC_Type >          aSidesetBCTypeList ) : mMesh( aMesh )
-    Model::Model(       mtk::Mesh *                   aMesh,
-                  const uint                          aBSplineOrder,
-                        Cell< Cell< fem::IWG_Type > > aIWGTypeList ) : mMesh( aMesh )
+        Model::Model(       mtk::Mesh *                   aMesh,
+                      const uint                          aBSplineOrder,
+                            Cell< Cell< fem::IWG_Type > > aIWGTypeList,
+                            Cell< moris_index >           aSidesetList,
+                            Cell< fem::BC_Type >          aSidesetBCTypeList ) : mMesh( aMesh )
+
+
+//    Model::Model(       mtk::Mesh *                   aMesh,
+//                  const uint                          aBSplineOrder,
+//                        Cell< Cell< fem::IWG_Type > > aIWGTypeList ) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;
@@ -125,26 +127,9 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            // create a list of active sidesets
-            moris::Cell< moris_index >  tSidesetList;
-            moris::Cell< fem::BC_Type > tSidesetBCTypeList;
-            moris::Cell< moris_index >  tSidesetIWG;
-
-            //FIXME
-            if ( mMesh->get_mesh_type() == MeshType::HMR )
-            {
-            }
-            else
-            {
-                //FIXME forced active sidesets list
-                tSidesetList = { 3, 5 };
-                tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
-                                       fem::BC_Type::NEUMANN };
-            }
-
             // get the number of element to create
             luint tNumberOfEquationObjects = aMesh->get_num_elems()
-                                           + aMesh->get_sidesets_num_faces( tSidesetList );
+                                           + aMesh->get_sidesets_num_faces( aSidesetList );
 
             //luint tNumberOfElements = tBlockSetElementInd.numel();
 
@@ -180,10 +165,10 @@ namespace moris
 
             moris::Cell<std::string> tSideSetsNames = aMesh->get_set_names( EntityRank::FACE);
 
-            for( luint Ik = 0; Ik < tSidesetList.size(); ++Ik )
+            for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
                 // get the treated sideset name
-                std::string tTreatedSidesetName = tSideSetsNames( tSidesetList( Ik ) );
+                std::string tTreatedSidesetName = tSideSetsNames( aSidesetList( Ik ) );
 
                 // create a cell of sideset element
                 moris::Cell< mtk::Cell * > tSideSetElement;
@@ -220,12 +205,12 @@ namespace moris
                     //--------------------------------------------------------------------------------------------
                     for( uint l = 0; l < tNumberOfNodes; l++ )
                     {
-                        if ( tSidesetBCTypeList( Ik ) == fem::BC_Type::DIRICHLET )
+                        if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::DIRICHLET )
                         {
                         // copy weak bc into element
                         tNodalWeakBCs( l ) = 5.0;
                         }
-                        else if ( tSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
+                        else if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
 		                {
                             // copy weak bc into element
                             tNodalWeakBCs( l ) = 20.0;
