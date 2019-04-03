@@ -93,7 +93,7 @@ namespace moris
                 mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
 
                 //1) Create the fem nodes ------------------------------------------------------
-                std::cout<<" Create the fem nodes "<<std::endl;
+                //std::cout<<" Create the fem nodes "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // number of mesh nodes
@@ -110,7 +110,7 @@ namespace moris
                 }
 
                 //2) Create the IWGs -----------------------------------------------------------
-                std::cout<<" Create the IWGs "<<std::endl;
+                //std::cout<<" Create the IWGs "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // input a cell of IWG types to be created
@@ -135,9 +135,9 @@ namespace moris
                 }
 
                 //3) Create the elements -------------------------------------------------------
-                std::cout<<" Create the elements "<<std::endl;
+                //std::cout<<" Create the elements "<<std::endl;
                 //------------------------------------------------------------------------------
-                // nodal weak bc
+                // nodal weak bc for Dirichlet
                 Matrix< DDRMat > tNodalValues( tNumOfNodes, 1, 0.0 );
                 real tTempValue = 5.0;
                 tNodalValues( 0 ) = tTempValue;
@@ -150,6 +150,7 @@ namespace moris
                 tNodalValues( 21 ) = tTempValue;
                 tNodalValues( 24 ) = tTempValue;
 
+                // nodal weak bc for Neumann
                 Matrix< DDRMat > tHeatNodalValues( tNumOfNodes, 1, 0.0 );
                 real tHeatValue = 20.0;
                 tHeatNodalValues( 2 ) = tHeatValue;
@@ -277,7 +278,7 @@ namespace moris
                 }
 
                 //4) Create the model solver interface -----------------------------------------
-                std::cout<<" Create the model solver interface "<<std::endl;
+                //std::cout<<" Create the model solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 //FIXME force the communication table
@@ -305,22 +306,22 @@ namespace moris
                 // calculate AdofMap
                 Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
 
-                //4) Create solver interface ---------------------------------------------------
-                std::cout<<" Create solver interface "<<std::endl;
+                //5) Create solver interface ---------------------------------------------------
+                //std::cout<<" Create solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 MSI::MSI_Solver_Interface * tSolverInterface
                     = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
 
-                // 5) Create Nonlinear Problem -------------------------------------------------
-                std::cout<<" Create Nonlinear Problem "<<std::endl;
+                // 6) Create Nonlinear Problem -------------------------------------------------
+                //std::cout<<" Create Nonlinear Problem "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 NLA::Nonlinear_Problem* tNonlinearProblem
                     = new NLA::Nonlinear_Problem( tSolverInterface );
 
-                // 6) Create Solvers and solver manager ----------------------------------------
-                std::cout<<" Create Solvers and solver manager "<<std::endl;
+                // 7) Create Solvers and solver manager ----------------------------------------
+                //std::cout<<" Create Solvers and solver manager "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // create factory for nonlinear solver
@@ -353,8 +354,8 @@ namespace moris
 
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-                // 7) Solve --------------------------------------------------------------------
-                std::cout<<" Solve "<<std::endl;
+                // 8) Solve --------------------------------------------------------------------
+                //std::cout<<" Solve "<<std::endl;
                 //------------------------------------------------------------------------------
                 Matrix<DDRMat> tSolution1;
 
@@ -376,9 +377,10 @@ namespace moris
                     tSolution1( k ) = tSolution( tAdofMap( k ) );
                 }
 
-                print(tSolution1, "tSolution1");
+                // 9) postprocessing------------------------------------------------------------
+                //std::cout<<" Postprocessing "<<std::endl;
+                //------------------------------------------------------------------------------
 
-                // 8) Postprocessing
                 // dof type list for the solution to write on the mesh
                 moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
 
@@ -413,26 +415,35 @@ namespace moris
                     // fill the solution matrix with the node value
                     tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
                 }
-                print( tTempSolutionField, "tTempSolutionField" );
 
-//                CHECK( equal_to( tTempSolutionField( 0, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 1, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 2, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 3, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 4, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 5, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 6, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 7, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 8, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 9, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 10, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 11, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 12, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 13, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 14, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 15, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 16, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 17, 0 ),5.00, 1.0e+08 ) );
+                // checking the solution--------------------------------------------------------
+                //------------------------------------------------------------------------------
+                // Expected solution
+                Matrix< DDRMat > tExpectedSolution = {{ 5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0 }};
+
+                // define an epsilon environment
+                double tEpsilon = 1E-12;
+
+                // define a bool for solution check
+                bool tCheckNodalSolution = true;
+
+                // loop over the node and chyeck solution
+                for ( uint i = 0; i < tNumOfNodes; i++ )
+                {
+                    // check solution
+                    tCheckNodalSolution = tCheckNodalSolution
+                                       && ( std::abs( tTempSolutionField( i ) - tExpectedSolution( i ) ) < tEpsilon );
+                }
+                // check bool is true
+                REQUIRE( tCheckNodalSolution );
 
                 // initialize Scalar_Field_Info structure with a DDRMat as the template type
                 moris::mtk::Scalar_Field_Info<DDRMat> tTempField;
@@ -494,9 +505,6 @@ namespace moris
 
             }/* if( par_size() */
         }/* TEST_CASE */
-
-
-
 
 
 
@@ -802,7 +810,6 @@ namespace moris
             {
                 tSolution1( k ) = tSolution( tAdofMap( k ) );
             }
-            print( tSolution1, "tSolution1" );
 
             // 8) Postprocessing
             // dof type list for the solution to write on the mesh
@@ -839,32 +846,41 @@ namespace moris
                 // fill the solution matrix with the node value
                 tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
             }
-            print( tTempSolutionField, "tTempSolutionField" );
 
-//            CHECK( equal_to( tTempSolutionField( 0, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 1, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 2, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 3, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 4, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 5, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 6, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 7, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 8, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 9, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 10, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 11, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 12, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 13, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 14, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 15, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 16, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 17, 0 ),5.00, 1.0e+08 ) );
+            // checking the solution--------------------------------------------------------
+            //------------------------------------------------------------------------------
+            // Expected solution
+            Matrix< DDRMat > tExpectedSolution = {{ 25.0, 25.0, 25.0,
+                                                    25.0,  5.0, 25.0,
+                                                    45.0, 25.0,  5.0,
+                                                    25.0, 45.0, 25.0,
+                                                     5.0, 25.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0 }};
+
+            // define an epsilon environment
+            double tEpsilon = 1E-12;
+
+            // define a bool for solution check
+            bool tCheckNodalSolution = true;
+
+            // loop over the node and chyeck solution
+            for ( uint i = 0; i < tNumOfNodes; i++ )
+            {
+                // check solution
+                tCheckNodalSolution = tCheckNodalSolution
+                                   && ( std::abs( tTempSolutionField( i ) - tExpectedSolution( i ) ) < tEpsilon );
+            }
+            // check bool is true
+            REQUIRE( tCheckNodalSolution );
 
 
             // add field to the mesh
             tMesh->add_mesh_field_real_scalar_data_loc_inds( tFieldName1,
-                                                                      EntityRank::NODE,
-                                                                      tTempSolutionField );
+                                                             EntityRank::NODE,
+                                                             tTempSolutionField );
 
             // create output mesh
             std::string tOutputFile = "./int_ElemDiff_test_1.exo";
@@ -895,6 +911,7 @@ namespace moris
             delete tNonlinearProblem;
             delete tLinSolver;
             delete tNonlinearSolver;
+
         }/* if( par_size() */
     }
 
@@ -912,8 +929,8 @@ namespace moris
 
             moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
             std::string tFieldName1 = "Temp_Field";
-            tNodeField1.set_field_name(tFieldName1);
-            tNodeField1.set_field_entity_rank(EntityRank::NODE);
+            tNodeField1.set_field_name( tFieldName1 );
+            tNodeField1.set_field_entity_rank( EntityRank::NODE );
 
             // Initialize field information container
             moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -939,29 +956,43 @@ namespace moris
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            print(tSolution11,"tSolution11");
 
-            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 4, 0 ),  5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 8, 0 ),  5.00, 1.0e+08 ) );
+            // checking the solution--------------------------------------------------------
+            //------------------------------------------------------------------------------
+            // Expected solution
+            Matrix< DDRMat > tExpectedSolution = {{ 25.0, 25.0, 25.0,
+                                                    25.0,  5.0, 25.0,
+                                                    45.0, 25.0,  5.0,
+                                                    25.0, 45.0, 25.0,
+                                                     5.0, 25.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0 }};
 
-            CHECK( equal_to( tSolution11( 9, 0 ),  25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 10, 0 ), 45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 11, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 12, 0 ),  5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 13, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 14, 0 ), 45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 15, 0 ),  5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 16, 0 ), 45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 17, 0 ),  5.00, 1.0e+08 ) );
+            // define an epsilon environment
+            double tEpsilon = 1E-12;
 
-            tModel->output_solution( tFieldName1 );
+            // define a bool for solution check
+            bool tCheckNodalSolution = true;
+
+            // number of mesh nodes
+            uint tNumOfNodes = tMesh->get_num_nodes();
+
+            // loop over the node and chyeck solution
+            for ( uint i = 0; i < tNumOfNodes; i++ )
+            {
+                // check solution
+                tCheckNodalSolution = tCheckNodalSolution
+                                   && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
+                std::cout<<tSolution11( i )<<std::endl;
+                std::cout<<tExpectedSolution( i )<<std::endl;
+
+            }
+            // check bool is true
+            REQUIRE( tCheckNodalSolution );
+
+            //tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
     }

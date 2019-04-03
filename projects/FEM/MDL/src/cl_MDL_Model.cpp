@@ -42,9 +42,9 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Model::Model(       mtk::Mesh *                   aMesh,
-                      const uint                          aBSplineOrder,
-                            Cell< Cell< fem::IWG_Type > > aIWGTypeList) : mMesh( aMesh )
+        Model::Model(       mtk::Mesh *     aMesh,
+                      const uint            aBSplineOrder,
+                      Cell< Cell< fem::IWG_Type > > aIWGTypeList) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;
@@ -102,6 +102,14 @@ namespace moris
                 }
             }
 
+//            if ( tNumOfIWGs > 1 )
+//            {
+//                mIWGs1.resize( 2, nullptr );
+//                mIWGs1( 0 ) = mIWGs( 1 )( 0 );
+//                mIWGs1( 1 ) = mIWGs( 2 )( 0 );
+//
+//            }
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create elements
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -155,7 +163,7 @@ namespace moris
 
                 for( luint k=0; k < tSideSetElement.size(); ++k )
                 {
-                    if ( Ik == 3)
+                    if ( Ik == 4)
                     {
                         // create the element
                         mElements( tEquationObjectCounter ) = tElementFactory.create_element( fem::Element_Type::SIDESET,
@@ -177,8 +185,6 @@ namespace moris
                         // loop over the element nodes
                         Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
 
-                        print(tNodeIndices,"tNodeIndices");
-
                         //--------------------------------------------------------------------------------------------
                         for( uint l = 0; l < tNumberOfNodes; l++ )
                         {
@@ -192,7 +198,7 @@ namespace moris
                         // create the element
                         mElements( tEquationObjectCounter ) = tElementFactory.create_element( fem::Element_Type::SIDESET,
                                                                          tSideSetElement( k ),
-                   	                                                     mIWGs ( 2 ),
+                   													     mIWGs ( 2 ),
                                                                          mNodes );
                         mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );       //FIXME
 
@@ -207,8 +213,6 @@ namespace moris
 
                         // loop over the element nodes
                         Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
-
-                        print(tNodeIndices,"tNodeIndices");
 
                         //--------------------------------------------------------------------------------------------
                         for( uint l = 0; l < tNumberOfNodes; l++ )
@@ -354,6 +358,7 @@ namespace moris
 
         Model::~Model()
         {
+
             // delete manager
             delete mLinSolver;
 
@@ -499,58 +504,7 @@ namespace moris
         Model::compute_element_average( const uint aElementIndex )
         {
             return mElements( aElementIndex )->compute_element_average_of_scalar_field();
-        }
 
-        //------------------------------------------------------------------------------
-
-        void
-        Model::output_solution( const std::string & aFilePath )
-        {
-            // 8) Postprocessing
-            // dof type list for the solution to write on the mesh
-            moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
-
-            uint tNumOfNodes = mNodes.size();
-
-            // create a matrix to be filled  with the solution
-            Matrix< DDRMat > tTempSolutionField( tNumOfNodes, 1 );
-
-            // loop over the nodes
-            for( uint i = 0; i < tNumOfNodes; i++ )
-            {
-                // get a list of elements connected to the ith node
-                Matrix<IndexMat> tConnectedElements =
-                    mMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
-                                                                    EntityRank::NODE,
-                                                                    EntityRank::ELEMENT );
-
-                // number of connected element
-                uint tNumConnectElem = tConnectedElements.numel();
-
-                // reset the nodal value
-                real tNodeVal = 0.0;
-
-                // loop over the connected elements
-                for( uint j = 0; j < tNumConnectElem; j++ )
-                {
-                    // extract the field value at the ith node for the jth connected element
-                    real tElemVal = mElements( tConnectedElements( j ) )->get_element_nodal_pdof_value( i, tDofTypeList);
-                    // add up the contribution of each element to the node value
-                    tNodeVal = tNodeVal + tElemVal;
-                }
-                // fill the solution matrix with the node value
-                tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
-            }
-            //print( tTempSolutionField, "tTempSolutionField" );
-
-            // add field to the mesh
-            mMesh->add_mesh_field_real_scalar_data_loc_inds( aFilePath,
-                                                             EntityRank::NODE,
-                                                             tTempSolutionField );
-
-            // create output mesh
-            std::string tOutputFile = "./int_ElemDiff_test_11.exo";
-            mMesh->create_output_mesh( tOutputFile );
         }
 
     } /* namespace mdl */
