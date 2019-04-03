@@ -120,7 +120,12 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            luint tNumberOfEquationObjects = aMesh->get_num_elems() + aMesh->get_sidesets_num_faces() - 16;
+            // create a list of active sidesets
+            //FIXME forced active sidesets list
+            moris::Cell< moris_index > tSidesetOrdinalList  = { 4, 5 };
+
+            // get the number of element to create
+            luint tNumberOfEquationObjects = aMesh->get_num_elems() + aMesh->get_sidesets_num_faces( tSidesetOrdinalList );
 
             //luint tNumberOfElements = tBlockSetElementInd.numel();
 
@@ -136,15 +141,17 @@ namespace moris
             moris::uint tEquationObjectCounter = 0;
             for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
             {
-                Matrix< IndexMat > tBlockSetElementInd = aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+                Matrix< IndexMat > tBlockSetElementInd
+                    = aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
 
                 for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
                 {
                     // create the element
-                    mElements( tEquationObjectCounter++ ) = tElementFactory.create_element( fem::Element_Type::BULK,
-                                                                     & aMesh->get_mtk_cell( k ),                      // FIXME need block->get_mtk_cell(0)
-                                                                     mIWGs( 0 ),
-                                                                     mNodes );
+                    mElements( tEquationObjectCounter++ )
+                        = tElementFactory.create_element(   fem::Element_Type::BULK,
+                                                          & aMesh->get_mtk_cell( k ), // FIXME need block->get_mtk_cell(0)
+                                                            mIWGs( 0 ),
+                                                            mNodes );
                 }
             }
 
@@ -166,12 +173,13 @@ namespace moris
                     if ( Ik == 4)
                     {
                         // create the element
-                        mElements( tEquationObjectCounter ) = tElementFactory.create_element( fem::Element_Type::SIDESET,
-                                                                         tSideSetElement( k ),
-                                                                         mIWGs ( 1 ),
-                                                                         mNodes );
+                        mElements( tEquationObjectCounter )
+                            = tElementFactory.create_element( fem::Element_Type::SIDESET,
+                                                              tSideSetElement( k ),
+                                                              mIWGs ( 1 ),
+                                                              mNodes );
 
-                        mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );       //FIXME
+                        mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} ); //FIXME
 
                         // get the nodal weak bcs of the element
                         Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
@@ -196,11 +204,13 @@ namespace moris
                     if ( Ik == 5 )
                     {
                         // create the element
-                        mElements( tEquationObjectCounter ) = tElementFactory.create_element( fem::Element_Type::SIDESET,
-                                                                         tSideSetElement( k ),
-                   													     mIWGs ( 2 ),
-                                                                         mNodes );
-                        mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );       //FIXME
+                        mElements( tEquationObjectCounter )
+                            = tElementFactory.create_element( fem::Element_Type::SIDESET,
+                                                              tSideSetElement( k ),
+                                                              mIWGs ( 2 ),
+                                                              mNodes );
+
+                        mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );//FIXME
 
                         // get the nodal weak bcs of the element
                         Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
@@ -221,16 +231,6 @@ namespace moris
                             tNodalWeakBCs( l ) = 20;
                         }
                     }
-//                    else
-//                    {
-//                        // create the element
-//                        mElements( tEquationObjectCounter ) = tElementFactory.create_element( fem::Element_Type::SIDESET,
-//                                                                         tSideSetElement( k ),
-//                                                                         mIWGs ( 1 ),
-//                                                                         mNodes );
-//
-//                        mElements( tEquationObjectCounter++ )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );
-//                    }
                 }
             }
 
