@@ -180,17 +180,6 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-
-            uint get_sideset_num_faces( moris_index aSidesetOrdinal ) const
-            {
-                moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
-
-                Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tSideSetsNames( aSidesetOrdinal ) );
-
-                return tSideSetElementInd.numel();;
-            }
-
-            //------------------------------------------------------------------------------
             /*
              * Get number of elements
              */

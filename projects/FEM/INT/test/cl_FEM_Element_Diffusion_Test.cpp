@@ -994,9 +994,6 @@ namespace moris
                 // check solution
                 tCheckNodalSolution = tCheckNodalSolution
                                    && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
-                std::cout<<tSolution11( i )<<std::endl;
-                std::cout<<tExpectedSolution( i )<<std::endl;
-
             }
             // check bool is true
             REQUIRE( tCheckNodalSolution );
