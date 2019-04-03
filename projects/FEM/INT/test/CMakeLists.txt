@@ -16,7 +16,6 @@ set(TEST_SOURCES
     cl_FEM_Field_Interpolator_Test.cpp
     cl_FEM_Integrator_Test.cpp
     cl_FEM_Element_L2.cpp
-    cl_FEM_Element_HJ_Test.cpp
     cl_FEM_Element_Diffusion_Test.cpp
     )
 
@@ -51,6 +50,7 @@ set(TEST_DEPENDENCIES
     ${MTK}-lib
     ${TOL}-lib
 	${HMR}-lib
+	${MAP}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}

@@ -41,9 +41,17 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
-//#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
+
+#include "fn_norm.hpp"
+
+moris::real
+LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    return norm( aPoint ) - 0.5;
+}
 
 namespace moris
 {
@@ -102,7 +110,7 @@ namespace moris
                 mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
 
                 //1) Create the fem nodes ------------------------------------------------------
-                std::cout<<" Create the fem nodes "<<std::endl;
+                //std::cout<<" Create the fem nodes "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // number of mesh nodes
@@ -119,7 +127,7 @@ namespace moris
                 }
 
                 //2) Create the IWGs -----------------------------------------------------------
-                std::cout<<" Create the IWGs "<<std::endl;
+                //std::cout<<" Create the IWGs "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // input a cell of IWG types to be created
@@ -144,9 +152,9 @@ namespace moris
                 }
 
                 //3) Create the elements -------------------------------------------------------
-                std::cout<<" Create the elements "<<std::endl;
+                //std::cout<<" Create the elements "<<std::endl;
                 //------------------------------------------------------------------------------
-                // nodal weak bc
+                // nodal weak bc for Dirichlet
                 Matrix< DDRMat > tNodalValues( tNumOfNodes, 1, 0.0 );
                 real tTempValue = 5.0;
                 tNodalValues( 0 ) = tTempValue;
@@ -159,6 +167,7 @@ namespace moris
                 tNodalValues( 21 ) = tTempValue;
                 tNodalValues( 24 ) = tTempValue;
 
+                // nodal weak bc for Neumann
                 Matrix< DDRMat > tHeatNodalValues( tNumOfNodes, 1, 0.0 );
                 real tHeatValue = 20.0;
                 tHeatNodalValues( 2 ) = tHeatValue;
@@ -286,7 +295,7 @@ namespace moris
                 }
 
                 //4) Create the model solver interface -----------------------------------------
-                std::cout<<" Create the model solver interface "<<std::endl;
+                //std::cout<<" Create the model solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 //FIXME force the communication table
@@ -314,22 +323,22 @@ namespace moris
                 // calculate AdofMap
                 Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
 
-                //4) Create solver interface ---------------------------------------------------
-                std::cout<<" Create solver interface "<<std::endl;
+                //5) Create solver interface ---------------------------------------------------
+                //std::cout<<" Create solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 MSI::MSI_Solver_Interface * tSolverInterface
                     = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
 
-                // 5) Create Nonlinear Problem -------------------------------------------------
-                std::cout<<" Create Nonlinear Problem "<<std::endl;
+                // 6) Create Nonlinear Problem -------------------------------------------------
+                //std::cout<<" Create Nonlinear Problem "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 NLA::Nonlinear_Problem* tNonlinearProblem
                     = new NLA::Nonlinear_Problem( tSolverInterface );
 
-                // 6) Create Solvers and solver manager ----------------------------------------
-                std::cout<<" Create Solvers and solver manager "<<std::endl;
+                // 7) Create Solvers and solver manager ----------------------------------------
+                //std::cout<<" Create Solvers and solver manager "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // create factory for nonlinear solver
@@ -362,8 +371,8 @@ namespace moris
 
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-                // 7) Solve --------------------------------------------------------------------
-                std::cout<<" Solve "<<std::endl;
+                // 8) Solve --------------------------------------------------------------------
+                //std::cout<<" Solve "<<std::endl;
                 //------------------------------------------------------------------------------
                 Matrix<DDRMat> tSolution1;
 
@@ -385,9 +394,10 @@ namespace moris
                     tSolution1( k ) = tSolution( tAdofMap( k ) );
                 }
 
-                print(tSolution1, "tSolution1");
+                // 9) postprocessing------------------------------------------------------------
+                //std::cout<<" Postprocessing "<<std::endl;
+                //------------------------------------------------------------------------------
 
-                // 8) Postprocessing
                 // dof type list for the solution to write on the mesh
                 moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
 
@@ -422,26 +432,35 @@ namespace moris
                     // fill the solution matrix with the node value
                     tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
                 }
-                print( tTempSolutionField, "tTempSolutionField" );
 
-//                CHECK( equal_to( tTempSolutionField( 0, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 1, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 2, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 3, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 4, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 5, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 6, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 7, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 8, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 9, 0 ), 5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 10, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 11, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 12, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 13, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 14, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 15, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 16, 0 ),5.00, 1.0e+08 ) );
-//                CHECK( equal_to( tTempSolutionField( 17, 0 ),5.00, 1.0e+08 ) );
+                // checking the solution--------------------------------------------------------
+                //------------------------------------------------------------------------------
+                // Expected solution
+                Matrix< DDRMat > tExpectedSolution = {{ 5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0,
+                                                        5.0, 25.0, 45.0 }};
+
+                // define an epsilon environment
+                double tEpsilon = 1E-12;
+
+                // define a bool for solution check
+                bool tCheckNodalSolution = true;
+
+                // loop over the node and chyeck solution
+                for ( uint i = 0; i < tNumOfNodes; i++ )
+                {
+                    // check solution
+                    tCheckNodalSolution = tCheckNodalSolution
+                                       && ( std::abs( tTempSolutionField( i ) - tExpectedSolution( i ) ) < tEpsilon );
+                }
+                // check bool is true
+                REQUIRE( tCheckNodalSolution );
 
                 // initialize Scalar_Field_Info structure with a DDRMat as the template type
                 moris::mtk::Scalar_Field_Info<DDRMat> tTempField;
@@ -505,6 +524,9 @@ namespace moris
         }/* TEST_CASE */
 
 
+
+
+
         TEST_CASE( "Element_Diffusion_1", "[moris],[fem],[ElemDiff_1]" )
         {
         if(par_size() == 1 )
@@ -515,7 +537,6 @@ namespace moris
 
             std::string tPrefix = std::getenv("MORISROOT");
             std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets.g";
-//            std::string tMeshFileName = "generated:2x2x2|sideset:xXyYzZ";
 
             std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
 
@@ -539,12 +560,6 @@ namespace moris
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
             //------------------------------------------------------------------------------
-//                Cell< fem::IWG_Type >tIWGType( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-//
-//                // create model
-//                mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
-            //------------------------------------------------------------------------------
-
             // number of mesh nodes
             uint tNumOfNodes = tMesh->get_num_nodes();
 
@@ -564,8 +579,8 @@ namespace moris
 
             // input a cell of IWG types to be created
             Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::SPATIALDIFF_BULK,
-                                                   fem::IWG_Type::SPATIALDIFF_SIDESET,
-                                                   fem::IWG_Type::SPATIALDIFF_DIRICHLET };
+                                                   fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+                                                   fem::IWG_Type::SPATIALDIFF_NEUMANN };
 
             // number of IWGs to be created
             uint tNumOfIWGs = tIWGTypeList.size();
@@ -583,87 +598,85 @@ namespace moris
                 tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
             }
 
+            // select the IWG list for each element type
+            Cell< fem::IWG* > tIWGsBulk             = { tIWGs( 0 ) };
+            Cell< fem::IWG* > tIWGsDirichletSideset = { tIWGs( 1 ) };
+            Cell< fem::IWG* > tIWGsNeumannSideset   = { tIWGs( 2 ) };
+
             //3) Create the elements -------------------------------------------------------
             std::cout<<" Create the elements "<<std::endl;
             //------------------------------------------------------------------------------
-            // nodal weak bc
+            // nodal weak bc for Dirichlet BC
             Matrix< DDRMat > tNodalValues( tNumOfNodes, 1, 0.0 );
-            tNodalValues( 23 ) = 5.0;
-            tNodalValues( 12 ) = 5.0;
-            tNodalValues( 25 ) = 5.0;
-            tNodalValues( 15 ) = 5.0;
-            tNodalValues( 4 ) = 5.0;
-            tNodalValues( 17 ) = 5.0;
-            tNodalValues( 19 ) = 5.0;
-            tNodalValues( 8 ) = 5.0;
-            tNodalValues( 21 ) = 5.0;
+            real tTempValue = 5.0;
+            tNodalValues( 23 ) = tTempValue;
+            tNodalValues( 12 ) = tTempValue;
+            tNodalValues( 25 ) = tTempValue;
+            tNodalValues( 15 ) = tTempValue;
+            tNodalValues( 4 ) = tTempValue;
+            tNodalValues( 17 ) = tTempValue;
+            tNodalValues( 19 ) = tTempValue;
+            tNodalValues( 8 ) = tTempValue;
+            tNodalValues( 21 ) = tTempValue;
+
+            // nodal weak bc for Neumann BC
+            Matrix< DDRMat > tHeatNodalValues( tNumOfNodes, 1, 0.0 );
+            real tHeatValue = 20.0;
+            tHeatNodalValues( 24 ) = tHeatValue;
+            tHeatNodalValues( 14 ) = tHeatValue;
+            tHeatNodalValues( 26 ) = tHeatValue;
+            tHeatNodalValues( 16 ) = tHeatValue;
+            tHeatNodalValues( 6 ) = tHeatValue;
+            tHeatNodalValues( 18 ) = tHeatValue;
+            tHeatNodalValues( 20 ) = tHeatValue;
+            tHeatNodalValues( 10 ) = tHeatValue;
+            tHeatNodalValues( 22 ) = tHeatValue;
 
             // a factory to create the elements
             Element_Factory tElementFactory;
 
             // ask mesh about number of elements
-            // uint tNumOfElements = tMesh->get_num_elems();
-
             moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
             Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
             luint tNumOfElements = tBlockSetElementInd.numel();
 
             // create equation objects
-            Cell< MSI::Equation_Object* > tElements( 2 * tNumOfElements + 4, nullptr );
+            Cell< MSI::Equation_Object* > tElements( 2 * tNumOfElements, nullptr );
 
-            Cell< fem::IWG* > tIWGs1 = { tIWGs( 0 ) };
-            Cell< fem::IWG* > tIWGs2 = { tIWGs( 1 ) };
-            Cell< fem::IWG* > tIWGs3 = { tIWGs( 2 ) };
-
-            Cell< Matrix< IndexMat > > tListsOfSideOrdinals = { {{ 0, 3, 4 }},
-                                                                {{ 0, 1, 4 }},
-                                                                {{ 2, 3, 4 }},
-                                                                {{ 1, 2, 4 }},
-                                                                {{ 0, 3, 5 }},
-                                                                {{ 0, 1, 5 }},
-                                                                {{ 2, 3, 5 }},
-                                                                {{ 1, 2, 5 }} };
+            // set element counter
+            uint tElemCounter = 0;
 
             // loop over the mesh elements
             for( uint k = 0; k < tNumOfElements; k++ )
             {
-                // create a bulk element-----------------------------------------
-                tElements( k )
+                // create a bulk element
+                tElements( tElemCounter )
                     = tElementFactory.create_element(   Element_Type::BULK,
                                                       & tMesh->get_mtk_cell( k ),
-                                                        tIWGs1,
+                                                        tIWGsBulk,
                                                         tNodes );
-
-                // create a sideset element---------------------------------------
-                tElements( tNumOfElements + k )
-                    = tElementFactory.create_element(   Element_Type::SIDESET,
-                                                      & tMesh->get_mtk_cell( k ),
-                                                        tIWGs2,
-                                                        tNodes );
-                // create and set the list of side ordinals
-                Matrix< IndexMat > tListOfSideOrdinals = tListsOfSideOrdinals( k );
-
-                tElements( tNumOfElements + k )->set_list_of_side_ordinals( tListOfSideOrdinals );
+                tElemCounter++;
             }
 
             Cell< moris_index > tListOfBCElements = { 0, 1, 2, 3 };
             for( uint iDirichlet = 0; iDirichlet < 4; iDirichlet++ )
             {
+                // create a bulk element
                 moris_index tTreatedMeshElement = tListOfBCElements( iDirichlet );
 
-                tElements( 2 * tNumOfElements + iDirichlet )
+                tElements( tElemCounter )
                     = tElementFactory.create_element(   Element_Type::SIDESET,
                                                       & tMesh->get_mtk_cell( tTreatedMeshElement ),
-                                                        tIWGs3,
+                                                        tIWGsDirichletSideset,
                                                         tNodes );
-                Matrix< IndexMat > tListOfSideOrdinals2 = { { 4 } };
-                tElements( 2 * tNumOfElements + iDirichlet )->set_list_of_side_ordinals( tListOfSideOrdinals2 );
+
+                tElements( tElemCounter )->set_list_of_side_ordinals( {{ 4 }} );
 
                 // get the nodal weak bcs of the element
-                Matrix< DDRMat > & tNodalWeakBCs = tElements( 2 * tNumOfElements + iDirichlet )->get_weak_bcs();
+                Matrix< DDRMat > & tNodalWeakBCs = tElements( tElemCounter )->get_weak_bcs();
 
                 // get the element number of nodes
-                uint tNumberOfNodes = tElements( 2 * tNumOfElements + iDirichlet )->get_num_nodes();
+                uint tNumberOfNodes = tElements( tElemCounter )->get_num_nodes();
 
                 // set size of the element nodal weak bc
                 tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
@@ -676,6 +689,43 @@ namespace moris
                     // copy weak bc into element
                     tNodalWeakBCs( l ) = tNodalValues( tNodeIndices( l ) );
                 }
+
+                tElemCounter++;
+            }
+
+            Cell< moris_index > tListOfNeumannBCElements = { 4, 5, 6, 7 };
+            for( uint iNeumann = 0; iNeumann < 4; iNeumann++ )
+            {
+                // create a bulk element
+                moris_index tTreatedMeshElement = tListOfNeumannBCElements( iNeumann );
+
+                tElements( tElemCounter )
+                    = tElementFactory.create_element(   Element_Type::SIDESET,
+                                                      & tMesh->get_mtk_cell( tTreatedMeshElement ),
+                                                        tIWGsNeumannSideset,
+                                                        tNodes );
+
+                tElements( tElemCounter )->set_list_of_side_ordinals( {{ 5 }} );
+
+                // get the nodal weak bcs of the element
+                Matrix< DDRMat > & tNodalWeakBCs = tElements( tElemCounter )->get_weak_bcs();
+
+                // get the element number of nodes
+                uint tNumberOfNodes = tElements( tElemCounter )->get_num_nodes();
+
+                // set size of the element nodal weak bc
+                tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+
+                // loop over the element nodes
+                Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tTreatedMeshElement ).get_vertex_inds();
+
+                for( uint l = 0; l < tNumberOfNodes; l++ )
+                {
+                    // copy weak bc into element
+                    tNodalWeakBCs( l ) = tHeatNodalValues( tNodeIndices( l ) );
+                }
+
+                tElemCounter++;
             }
 
             //4) Create the model solver interface -----------------------------------------
@@ -777,7 +827,6 @@ namespace moris
             {
                 tSolution1( k ) = tSolution( tAdofMap( k ) );
             }
-//            print( tSolution1, "tSolution1" );
 
             // 8) Postprocessing
             // dof type list for the solution to write on the mesh
@@ -814,32 +863,41 @@ namespace moris
                 // fill the solution matrix with the node value
                 tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
             }
-            print( tTempSolutionField, "tTempSolutionField" );
 
-//            CHECK( equal_to( tTempSolutionField( 0, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 1, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 2, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 3, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 4, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 5, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 6, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 7, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 8, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 9, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 10, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 11, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 12, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 13, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 14, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 15, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 16, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tTempSolutionField( 17, 0 ),5.00, 1.0e+08 ) );
+            // checking the solution--------------------------------------------------------
+            //------------------------------------------------------------------------------
+            // Expected solution
+            Matrix< DDRMat > tExpectedSolution = {{ 25.0, 25.0, 25.0,
+                                                    25.0,  5.0, 25.0,
+                                                    45.0, 25.0,  5.0,
+                                                    25.0, 45.0, 25.0,
+                                                     5.0, 25.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0 }};
+
+            // define an epsilon environment
+            double tEpsilon = 1E-12;
+
+            // define a bool for solution check
+            bool tCheckNodalSolution = true;
+
+            // loop over the node and chyeck solution
+            for ( uint i = 0; i < tNumOfNodes; i++ )
+            {
+                // check solution
+                tCheckNodalSolution = tCheckNodalSolution
+                                   && ( std::abs( tTempSolutionField( i ) - tExpectedSolution( i ) ) < tEpsilon );
+            }
+            // check bool is true
+            REQUIRE( tCheckNodalSolution );
 
 
             // add field to the mesh
             tMesh->add_mesh_field_real_scalar_data_loc_inds( tFieldName1,
-                                                                      EntityRank::NODE,
-                                                                      tTempSolutionField );
+                                                             EntityRank::NODE,
+                                                             tTempSolutionField );
 
             // create output mesh
             std::string tOutputFile = "./int_ElemDiff_test_1.exo";
@@ -870,6 +928,7 @@ namespace moris
             delete tNonlinearProblem;
             delete tLinSolver;
             delete tNonlinearSolver;
+
         }/* if( par_size() */
     }
 
@@ -883,14 +942,12 @@ namespace moris
 
             std::string tPrefix = std::getenv("MORISROOT");
             std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets.g";
-//            std::string tMeshFileName = "generated:2x2x2|sideset:xXyYzZ";
-
-            std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
+            std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
 
             moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
             std::string tFieldName1 = "Temp_Field";
-            tNodeField1.set_field_name(tFieldName1);
-            tNodeField1.set_field_entity_rank(EntityRank::NODE);
+            tNodeField1.set_field_name( tFieldName1 );
+            tNodeField1.set_field_entity_rank( EntityRank::NODE );
 
             // Initialize field information container
             moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -904,42 +961,52 @@ namespace moris
 
             moris::mtk::Mesh* tMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
-            //1) Create the fem nodes ------------------------------------------------------
-            std::cout<<" Create the fem nodes "<<std::endl;
-            //------------------------------------------------------------------------------
-            Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
-            tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-            tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+            // create a list of IWG type
+            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+            tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
             // create model
-            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
+            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGTypeList );
 
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            print(tSolution11,"tSolution11");
 
-            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
+            // checking the solution--------------------------------------------------------
+            //------------------------------------------------------------------------------
+            // Expected solution
+            Matrix< DDRMat > tExpectedSolution = {{ 25.0, 25.0, 25.0,
+                                                    25.0,  5.0, 25.0,
+                                                    45.0, 25.0,  5.0,
+                                                    25.0, 45.0, 25.0,
+                                                     5.0, 25.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0,
+                                                     5.0, 45.0,  5.0,
+                                                    45.0,  5.0, 45.0 }};
 
-            tModel->output_solution( tFieldName1 );
+            // define an epsilon environment
+            double tEpsilon = 1E-12;
+
+            // define a bool for solution check
+            bool tCheckNodalSolution = true;
+
+            // number of mesh nodes
+            uint tNumOfNodes = tMesh->get_num_nodes();
+
+            // loop over the node and chyeck solution
+            for ( uint i = 0; i < tNumOfNodes; i++ )
+            {
+                // check solution
+                tCheckNodalSolution = tCheckNodalSolution
+                                   && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
+            }
+            // check bool is true
+            REQUIRE( tCheckNodalSolution );
+
+            //tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
     }
@@ -989,7 +1056,7 @@ namespace moris
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            print(tSolution11,"tSolution11");
+            //print(tSolution11,"tSolution11");
 
 //            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
 //            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
@@ -1010,7 +1077,7 @@ namespace moris
 //            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
 //            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
 
-            tModel->output_solution( tFieldName1 );
+            //tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
     }
@@ -1029,10 +1096,10 @@ namespace moris
 
             hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "10, 2A, 2" );
-            tParameters.set( "domain_dimensions", "2, 2, 2" );
-            tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
-			tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6");
+            tParameters.set( "number_of_elements_per_dimension", "10, 4, 4" );
+            tParameters.set( "domain_dimensions", "10, 4, 4" );
+            tParameters.set( "domain_offset", "-5.0, -2.0, -2.0" );
+            tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
             tParameters.set( "verbose", 0 );
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "bspline_orders", "1" );
@@ -1040,34 +1107,30 @@ namespace moris
 
             tParameters.set( "use_multigrid", 0 );
 
-            tParameters.set( "refinement_buffer", 3 );
+            tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
-
 
              hmr::HMR tHMR( tParameters );
 
-            // std::shared_ptr< Database >
-            auto tDatabase = tHMR.get_database();
+             std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
 
-            // manually select output pattern
-            tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+             // create field
+             std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
 
-            tHMR.perform_initial_refinement();
+             for( uint k=0; k<2; ++k )
+             {
+                 tField->evaluate_scalar_function( LevelSetFunction );
+                 tHMR.flag_surface_elements( tField );
+                 tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+                 tHMR.update_refinement_pattern();
+             }
 
-            // refine the first element three times
-            for( uint tLevel = 0; tLevel < 4; ++tLevel )
-            {
-            tDatabase->flag_element( 0 );
+             tHMR.finalize();
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
-            }
-
-            // update database etc
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
-
-            tHMR.finalize();
-
-            auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+             // evaluate node values
+//             tField->evaluate_scalar_function( LevelSetFunction );
+//
+//             tHMR.save_to_exodus( "Circle_diff.exo" );
 
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
@@ -1083,28 +1146,28 @@ namespace moris
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            print(tSolution11,"tSolution11");
-
-            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
-
-            //tModel->output_solution( tFieldName1 );
+            //print(tSolution11,"tSolution11");
+//
+//            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
+//            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
+//
+//            tModel->output_solution( "Circle" );
 
         }/* if( par_size() */
     }
