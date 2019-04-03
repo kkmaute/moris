@@ -120,6 +120,7 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
+<<<<<<< HEAD
             // create a list of active sidesets
             //FIXME forced active sidesets list
             moris::Cell< moris_index > tSidesetList = { 3, 5 };
@@ -130,6 +131,9 @@ namespace moris
             // get the number of element to create
             luint tNumberOfEquationObjects = aMesh->get_num_elems()
                                            + aMesh->get_sidesets_num_faces( tSidesetList );
+=======
+            luint tNumberOfEquationObjects = aMesh->get_num_elems() + aMesh->get_sidesets_num_faces() - 208;
+>>>>>>> 571b70fd88f9e6f0f9318ac60a5b189f53934c72
 
             //luint tNumberOfElements = tBlockSetElementInd.numel();
 
