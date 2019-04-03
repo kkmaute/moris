@@ -953,7 +953,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             std::string tPrefix = std::getenv("MORISROOT");
-            std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets_40.g";
+            std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets_40k.g";
 //            std::string tMeshFileName = "generated:2x2x2|sideset:xXyYzZ";
 
             std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
