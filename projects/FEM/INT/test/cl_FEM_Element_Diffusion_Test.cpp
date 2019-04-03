@@ -1020,7 +1020,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             std::string tPrefix = std::getenv("MORISROOT");
-            std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets_40.g";
+            std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Cube_with_side_sets_40k.g";
 //            std::string tMeshFileName = "generated:2x2x2|sideset:xXyYzZ";
 
             std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
@@ -1056,7 +1056,7 @@ namespace moris
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            print(tSolution11,"tSolution11");
+            //print(tSolution11,"tSolution11");
 
 //            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
 //            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
@@ -1146,7 +1146,7 @@ namespace moris
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            print(tSolution11,"tSolution11");
+            //print(tSolution11,"tSolution11");
 //
 //            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
 //            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );

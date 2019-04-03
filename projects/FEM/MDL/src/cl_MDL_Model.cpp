@@ -98,7 +98,7 @@ namespace moris
                 for( uint Ki = 0; Ki < aIWGTypeList( i ).size(); Ki++)
                 {
                     // create an IWG with the factory for the ith IWG type
-                    mIWGs( i )( Ki ) = tIWGFactory.create_IWGs( aIWGTypeList( i )( Ki) );
+                    mIWGs( i )( Ki ) = tIWGFactory.create_IWGs( aIWGTypeList( i )( Ki ) );
                 }
             }
 
@@ -120,20 +120,28 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-<<<<<<< HEAD
             // create a list of active sidesets
-            //FIXME forced active sidesets list
-            moris::Cell< moris_index > tSidesetList = { 3, 5 };
-            moris::Cell< bool >        tDirichletBC = { true, false };
-            moris::Cell< bool >        tNeumannBC   = { false, true };
-            moris::Cell< moris_index > tSidesetIWG  = { 1, 2 };
+            moris::Cell< moris_index > tSidesetList;
+            moris::Cell< bool >        tDirichletBC;
+            moris::Cell< bool >        tNeumannBC;
+            moris::Cell< moris_index > tSidesetIWG;
+
+            //FIXME
+            if ( mMesh->get_mesh_type() == MeshType::HMR )
+            {
+            }
+            else
+            {
+                //FIXME forced active sidesets list
+                tSidesetList = { 3, 5 };
+                tDirichletBC = { true, false };
+                tNeumannBC   = { false, true };
+                tSidesetIWG  = { 1, 2 };
+            }
 
             // get the number of element to create
             luint tNumberOfEquationObjects = aMesh->get_num_elems()
                                            + aMesh->get_sidesets_num_faces( tSidesetList );
-=======
-            luint tNumberOfEquationObjects = aMesh->get_num_elems() + aMesh->get_sidesets_num_faces() - 208;
->>>>>>> 571b70fd88f9e6f0f9318ac60a5b189f53934c72
 
             //luint tNumberOfElements = tBlockSetElementInd.numel();
 
@@ -222,71 +230,6 @@ namespace moris
                     }
                 }
             }
-//                for( luint k=0; k < tSideSetElement.size(); ++k )
-//                {
-//                    if ( Ik == 4)
-//                    {
-//                        // create the element
-//                        mElements( tEquationObjectCounter )
-//                            = tElementFactory.create_element( fem::Element_Type::SIDESET,
-//                                                              tSideSetElement( k ),
-//                                                              mIWGs ( 1 ),
-//                                                              mNodes );
-//
-//                        mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} ); //FIXME
-//
-//                        // get the nodal weak bcs of the element
-//                        Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
-//
-//                        // get the element number of nodes
-//                        uint tNumberOfNodes = mElements( tEquationObjectCounter++ )->get_num_nodes();
-//
-//                        // set size of the element nodal weak bc
-//                        tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-//
-//                        // loop over the element nodes
-//                        Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
-//
-//                        //--------------------------------------------------------------------------------------------
-//                        for( uint l = 0; l < tNumberOfNodes; l++ )
-//                        {
-//                            // copy weak bc into element
-//                            tNodalWeakBCs( l ) = 5;
-//                        }
-//                    }
-//
-//                    if ( Ik == 5 )
-//                    {
-//                        // create the element
-//                        mElements( tEquationObjectCounter )
-//                            = tElementFactory.create_element( fem::Element_Type::SIDESET,
-//                                                              tSideSetElement( k ),
-//                                                              mIWGs ( 2 ),
-//                                                              mNodes );
-//
-//                        mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} );//FIXME
-//
-//                        // get the nodal weak bcs of the element
-//                        Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
-//
-//                        // get the element number of nodes
-//                        uint tNumberOfNodes = mElements( tEquationObjectCounter++ )->get_num_nodes();
-//
-//                        // set size of the element nodal weak bc
-//                        tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-//
-//                        // loop over the element nodes
-//                        Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
-//
-//                        //--------------------------------------------------------------------------------------------
-//                        for( uint l = 0; l < tNumberOfNodes; l++ )
-//                        {
-//                            // copy weak bc into element
-//                            tNodalWeakBCs( l ) = 20;
-//                        }
-//                    }
-//                }
-//            }
 
             if( par_rank() == 0)
             {
@@ -354,7 +297,6 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
-
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 5: create Nonlinear Problem
