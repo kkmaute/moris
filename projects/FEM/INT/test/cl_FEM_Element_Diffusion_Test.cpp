@@ -1146,7 +1146,11 @@ namespace moris
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
-            //print(tSolution11,"tSolution11");
+            print(tSolution11,"tSolution11");
+
+            tField->put_scalar_values_on_field( tSolution11 );
+
+            tHMR.save_to_exodus( "Circle_diff_temp.exo" );
 //
 //            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
 //            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
