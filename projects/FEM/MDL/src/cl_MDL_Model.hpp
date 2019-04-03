@@ -61,7 +61,6 @@ namespace moris
 
             Cell< fem::IWG* >         mIWGs1;
 
-            //
             // by default, this value is set to the order of the
             // Lagrange modes
             moris::uint                       mDofOrder = 0;
@@ -133,6 +132,10 @@ namespace moris
 
            real
            compute_element_average( const uint aElementIndex );
+
+//------------------------------------------------------------------------------
+
+           void output_solution( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
         };

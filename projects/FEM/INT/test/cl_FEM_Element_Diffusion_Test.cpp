@@ -927,41 +927,41 @@ namespace moris
 
             moris::mtk::Mesh* tMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
-
             // create a list of IWG type
             Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
             tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
             tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
-            // create the model
+            // create model
             mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGTypeList );
-//
-//                // set weakBC
-//
+
             //solve
             moris::Matrix< DDRMat > tSolution11;
             tModel->solve( tSolution11 );
             print(tSolution11,"tSolution11");
 
-//            CHECK( equal_to( tSolution11( 0, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 1, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 2, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 3, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 5, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 6, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 7, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 9, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 10, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 11, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 13, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 14, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 16, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 4, 0 ),  5.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 8, 0 ),  5.00, 1.0e+08 ) );
+
+            CHECK( equal_to( tSolution11( 9, 0 ),  25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 10, 0 ), 45.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 11, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 12, 0 ),  5.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 13, 0 ), 25.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 14, 0 ), 45.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 15, 0 ),  5.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 16, 0 ), 45.00, 1.0e+08 ) );
+            CHECK( equal_to( tSolution11( 17, 0 ),  5.00, 1.0e+08 ) );
+
+            tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
     }
