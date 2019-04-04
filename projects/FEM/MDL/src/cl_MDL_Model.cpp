@@ -42,9 +42,16 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Model::Model(       mtk::Mesh *     aMesh,
-                      const uint            aBSplineOrder,
-                      Cell< Cell< fem::IWG_Type > > aIWGTypeList) : mMesh( aMesh )
+        Model::Model(       mtk::Mesh *                   aMesh,
+                      const uint                          aBSplineOrder,
+                            Cell< Cell< fem::IWG_Type > > aIWGTypeList,
+                            Cell< moris_index >           aSidesetList,
+                            Cell< fem::BC_Type >          aSidesetBCTypeList ) : mMesh( aMesh )
+
+
+//    Model::Model(       mtk::Mesh *                   aMesh,
+//                  const uint                          aBSplineOrder,
+//                        Cell< Cell< fem::IWG_Type > > aIWGTypeList ) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;
@@ -57,6 +64,8 @@ namespace moris
 
             // ask mesh about number of nodes on proc
             luint tNumberOfNodes = aMesh->get_num_nodes();
+
+            std::cout<<tNumberOfNodes<<" Number of nodes"<<std::endl;
 
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
@@ -120,28 +129,9 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            // create a list of active sidesets
-            moris::Cell< moris_index > tSidesetList;
-            moris::Cell< bool >        tDirichletBC;
-            moris::Cell< bool >        tNeumannBC;
-            moris::Cell< moris_index > tSidesetIWG;
-
-            //FIXME
-            if ( mMesh->get_mesh_type() == MeshType::HMR )
-            {
-            }
-            else
-            {
-                //FIXME forced active sidesets list
-                tSidesetList = { 3, 5 };
-                tDirichletBC = { true, false };
-                tNeumannBC   = { false, true };
-                tSidesetIWG  = { 1, 2 };
-            }
-
             // get the number of element to create
             luint tNumberOfEquationObjects = aMesh->get_num_elems()
-                                           + aMesh->get_sidesets_num_faces( tSidesetList );
+                                           + aMesh->get_sidesets_num_faces( aSidesetList );
 
             //luint tNumberOfElements = tBlockSetElementInd.numel();
 
@@ -177,10 +167,10 @@ namespace moris
 
             moris::Cell<std::string> tSideSetsNames = aMesh->get_set_names( EntityRank::FACE);
 
-            for( luint Ik = 0; Ik < tSidesetList.size(); ++Ik )
+            for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
                 // get the treated sideset name
-                std::string tTreatedSidesetName = tSideSetsNames( tSidesetList( Ik ) );
+                std::string tTreatedSidesetName = tSideSetsNames( aSidesetList( Ik ) );
 
                 // create a cell of sideset element
                 moris::Cell< mtk::Cell * > tSideSetElement;
@@ -197,7 +187,7 @@ namespace moris
                     mElements( tEquationObjectCounter )
                         = tElementFactory.create_element( fem::Element_Type::SIDESET,
                                                           tSideSetElement( k ),
-                                                          mIWGs ( tSidesetIWG( Ik ) ),
+                                                          mIWGs ( Ik + 1 ),
                                                           mNodes );
 
                     mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} ); //FIXME
@@ -217,12 +207,12 @@ namespace moris
                     //--------------------------------------------------------------------------------------------
                     for( uint l = 0; l < tNumberOfNodes; l++ )
                     {
-                        if ( tDirichletBC( Ik ) == true )
+                        if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::DIRICHLET )
                         {
                         // copy weak bc into element
                         tNodalWeakBCs( l ) = 5.0;
                         }
-                        else if ( tNeumannBC( Ik ) == true )
+                        else if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
 		                {
                             // copy weak bc into element
                             tNodalWeakBCs( l ) = 20.0;
@@ -507,6 +497,32 @@ namespace moris
         void
         Model::output_solution( const std::string & aFilePath )
         {
+            if ( mMesh->get_mesh_type() == MeshType::HMR )
+            {
+                mSolHMR.set_size(mMesh->get_num_nodes(),1,-1.0);
+
+                moris::Cell<std::string> tBlockSetsNames = mMesh->get_set_names( EntityRank::ELEMENT);
+
+                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
+                {
+                    Matrix< IndexMat > tBlockSetElementInd
+                        = mMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                    {
+                       uint tNumVert = mMesh->get_mtk_cell( k ).get_number_of_vertices();
+
+                       for( luint Jk=0; Jk < tNumVert; ++Jk )
+                       {
+                           moris_index tID= mMesh->get_mtk_cell( k ).get_vertex_pointers()( Jk) ->get_index();
+
+                           mSolHMR(tID) = mElements(k)->get_pdof_values()(Jk);
+                       }
+                    }
+                }
+            }
+            else
+            {
             // 8) Postprocessing
             // dof type list for the solution to write on the mesh
             moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
@@ -552,6 +568,7 @@ namespace moris
             // create output mesh
             std::string tOutputFile = "./int_ElemDiff_test_11.exo";
             mMesh->create_output_mesh( tOutputFile );
+            }
         }
 
     } /* namespace mdl */

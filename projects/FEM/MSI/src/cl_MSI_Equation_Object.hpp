@@ -83,6 +83,15 @@ class Dist_Vector;
             };
 
 //-------------------------------------------------------------------------------------------------
+
+            Matrix< DDRMat > & get_pdof_values( )
+            {
+                this->get_my_pdof_values();
+
+                return mPdofValues;
+            };
+
+//-------------------------------------------------------------------------------------------------
             /**
              * @brief Get function to get the dof types used by this equation object. This function is tested by the test [Dof_Mgn_create_unique_dof_type_list]
              * [Dof_Mgn_create_unique_dof_type_map_matrix]
