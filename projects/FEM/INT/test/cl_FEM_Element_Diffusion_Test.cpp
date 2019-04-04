@@ -1166,76 +1166,64 @@ namespace moris
 
 
 
-	// Nils' test for understanding tests
+	// Test for understanding tests
 	TEST_CASE( "Element_Diffusion_5", "[moris],[fem],[ElemDiff_5]" )
         {
-        if(par_size() == 2 )
+        if(par_size() == 1 )
         {
-            // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-            std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
-            //------------------------------------------------------------------------------
+        	// Create a 3D mesh of HEX8 using MTK ------------------------------------------
+        	std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
+        	//------------------------------------------------------------------------------
 
-            std::string tPrefix = std::getenv("MORISROOT");
-            std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Bar_30x1x1.g";
+        	std::string tPrefix = std::getenv("MORISROOT");
+        	std::string tMeshFileName = tPrefix + "projects/FEM/INT/test/data/Bar_30x1x1.g";
 
-            std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
+        	std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
 
-            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-            std::string tFieldName1 = "Temp_Field";
-            tNodeField1.set_field_name(tFieldName1);
-            tNodeField1.set_field_entity_rank(EntityRank::NODE);
+        	moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+        	std::string tFieldName1 = "Temp_Field";
+        	tNodeField1.set_field_name(tFieldName1);
+        	tNodeField1.set_field_entity_rank(EntityRank::NODE);
 
-            // Initialize field information container
-            moris::mtk::MtkFieldsInfo tFieldsInfo;
+        	// Initialize field information container
+        	moris::mtk::MtkFieldsInfo tFieldsInfo;
 
-            // Place the node field into the field info container
-            add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+        	// Place the node field into the field info container
+        	add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
 
-            // Declare some supplementary fields
-            mtk::MtkMeshData tMeshData;
-            tMeshData.FieldsInfo = &tFieldsInfo;
+        	// Declare some supplementary fields
+        	mtk::MtkMeshData tMeshData;
+        	tMeshData.FieldsInfo = &tFieldsInfo;
 
-            moris::mtk::Mesh* tMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+        	moris::mtk::Mesh* tMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tMeshData );
 
-            //1) Create the fem nodes ------------------------------------------------------
-            std::cout<<" Create the fem nodes "<<std::endl;
-            //------------------------------------------------------------------------------
-            Cell< Cell< fem::IWG_Type > >tIWGType( 3 );
-            tIWGType( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWGType( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-            tIWGType( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        	//1) Create the fem nodes ------------------------------------------------------
+        	std::cout<<" Create the fem nodes "<<std::endl;
+        	//------------------------------------------------------------------------------
+        	Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+        	tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+        	tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        	tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
-            // create model
-            mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGType );
+        	// create a list of active sidesets
+        	moris::Cell< moris_index >  tSidesetList = { 3, 5 };
 
-            //solve
-            moris::Matrix< DDRMat > tSolution11;
-            tModel->solve( tSolution11 );
-            //print(tSolution11,"tSolution11");
+        	// create a list of BC type for the sidesets
+        	moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::NEUMANN,
+        													   fem::BC_Type::DIRICHLET};
 
-//            CHECK( equal_to( tSolution11( 0, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 1, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 2, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 3, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 4, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 5, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 6, 0 ), 45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 7, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 8, 0 ), 5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 9, 0 ), 25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 10, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 11, 0 ),25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 12, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 13, 0 ),25.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 14, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 15, 0 ),5.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 16, 0 ),45.00, 1.0e+08 ) );
-//            CHECK( equal_to( tSolution11( 17, 0 ),5.00, 1.0e+08 ) );
+        	// create model
+        	mdl::Model * tModel = new mdl::Model( tMesh, 1, tIWGTypeList,
+        			tSidesetList, tSidesetBCTypeList );
 
-              tModel->output_solution( tFieldName1 );
+        	//solve
+        	moris::Matrix< DDRMat > tSolution11;
+        	tModel->solve( tSolution11 );
+
+        	tModel->output_solution( tFieldName1 );
 
         }/* if( par_size() */
-    }
+        }
 
     }/* namespace fem */
 }/* namespace moris */
