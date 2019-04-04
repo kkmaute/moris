@@ -65,6 +65,8 @@ namespace moris
             // ask mesh about number of nodes on proc
             luint tNumberOfNodes = aMesh->get_num_nodes();
 
+            std::cout<<tNumberOfNodes<<" Number of nodes"<<std::endl;
+
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
 
@@ -495,6 +497,32 @@ namespace moris
         void
         Model::output_solution( const std::string & aFilePath )
         {
+            if ( mMesh->get_mesh_type() == MeshType::HMR )
+            {
+                mSolHMR.set_size(mMesh->get_num_nodes(),1,-1.0);
+
+                moris::Cell<std::string> tBlockSetsNames = mMesh->get_set_names( EntityRank::ELEMENT);
+
+                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
+                {
+                    Matrix< IndexMat > tBlockSetElementInd
+                        = mMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                    {
+                       uint tNumVert = mMesh->get_mtk_cell( k ).get_number_of_vertices();
+
+                       for( luint Jk=0; Jk < tNumVert; ++Jk )
+                       {
+                           moris_index tID= mMesh->get_mtk_cell( k ).get_vertex_pointers()( Jk) ->get_index();
+
+                           mSolHMR(tID) = mElements(k)->get_pdof_values()(Jk);
+                       }
+                    }
+                }
+            }
+            else
+            {
             // 8) Postprocessing
             // dof type list for the solution to write on the mesh
             moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
@@ -540,6 +568,7 @@ namespace moris
             // create output mesh
             std::string tOutputFile = "./int_ElemDiff_test_11.exo";
             mMesh->create_output_mesh( tOutputFile );
+            }
         }
 
     } /* namespace mdl */

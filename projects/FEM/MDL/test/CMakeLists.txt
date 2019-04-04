@@ -3,6 +3,7 @@
 
 # List source files
 set(TEST_SOURCES
+    cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     test_main.cpp
     )
 
@@ -13,6 +14,7 @@ set(TEST_INCLUDES
     ${COM}
     ${MTK}
     ${HMR}
+    ${ALG}
     ${FEM}/${INT}
     ${FEM}/${MSI}
     ${FEM}/${MDL}
@@ -30,6 +32,13 @@ set(TEST_DEPENDENCIES
     ${MDL}-lib
     ${MSI}-lib
     ${INT}-lib
+    ${MTK}-lib
+    ${TOL}-lib
+    ${HMR}-lib
+    ${MAP}-lib
+    ${MORIS_BASE_LIBS}
+    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
 # Set the output path for test
@@ -48,11 +57,11 @@ add_test(NAME ${MDL_TEST}
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	set(MDL_TEST_PROCS ${MORIS_TEST_PROCS})
-	foreach(PROCS ${MDL_TEST_PROCS})
-		set(MDL_PARALLEL_TEST ${MDL_TEST}-${PROCS}-procs)
-		add_test(NAME ${MDL_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${MDL_TEST}${EXE_EXT}>)
-	endforeach()
+    set(MDL_TEST_PROCS ${MORIS_TEST_PROCS})
+    foreach(PROCS ${MDL_TEST_PROCS})
+        set(MDL_PARALLEL_TEST ${MDL_TEST}-${PROCS}-procs)
+        add_test(NAME ${MDL_PARALLEL_TEST} 
+            COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${MDL_TEST}${EXE_EXT}>)
+    endforeach()
 endif()
 

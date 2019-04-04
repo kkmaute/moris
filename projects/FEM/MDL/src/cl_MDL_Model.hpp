@@ -78,6 +78,8 @@ namespace moris
             map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
+            Matrix< DDRMat> mSolHMR;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -97,6 +99,12 @@ namespace moris
                          Cell< moris_index >           aSidesetList,
                          Cell< fem::BC_Type >          aSidesetBCTypeList );
 //------------------------------------------------------------------------------
+
+            Matrix< DDRMat> &
+            get_mSolHMR( )
+            {
+                return mSolHMR;
+            };
 
             void
             set_dof_order( const uint aOrder );
