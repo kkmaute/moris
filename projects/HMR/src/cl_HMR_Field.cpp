@@ -345,6 +345,25 @@ namespace moris
             }
         }
 
+        void
+        Field::put_scalar_values_on_field( const Matrix< DDRMat > & aValues )
+        {
+            // get pointer to node values
+            Matrix< DDRMat > & tNodeValues = this->get_node_values();
+
+            // get number of nodes on block
+            uint tNumberOfVertices = mMesh->get_num_nodes();
+
+            // set size of node values
+            tNodeValues.set_size( tNumberOfVertices, 1 );
+
+            // loop over all vertices
+            for( uint k=0; k<tNumberOfVertices; ++k )
+            {
+                tNodeValues( k ) = aValues( k );
+            }
+        }
+
 //------------------------------------------------------------------------------
 
         void
