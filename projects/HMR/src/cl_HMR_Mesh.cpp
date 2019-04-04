@@ -27,6 +27,8 @@ namespace moris
             // get number of meshes
             uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
 
+            std::cout<<tNumberOfMeshes<<std::endl;
+
             // find correct block
             for( uint k=0; k<tNumberOfMeshes; ++k )
             {
@@ -36,6 +38,7 @@ namespace moris
                 if ( tMesh->get_activation_pattern() == aLagrangePattern &&
                      tMesh->get_order() == aLagrangeOrder )
                 {
+                    std::cout<<k<<std::endl;
                     mMesh = tMesh;
                     break;
                 }

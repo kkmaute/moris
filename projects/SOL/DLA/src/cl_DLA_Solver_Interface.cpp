@@ -85,7 +85,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
         Matrix< DDRMat > tElementRHS;
         this->get_element_rhs( Ii, tElementRHS );
 
-        //print(tElementRHS,"tElementRHS");
+        //print(tElementTopology,"tElementTopology");
 
         // Fill elementRHS in distributed RHS
         aVectorRHS->sum_into_global_values( tElementTopology.length(),
@@ -111,6 +111,8 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
     {
         moris::Matrix< DDSMat > tElementTopology;
         this->get_element_topology( Ii, tElementTopology );
+
+        //print(tElementTopology,"tElementTopology");
 
         Matrix< DDRMat > tElementMatrix;
         this->get_element_matrix( Ii, tElementMatrix );

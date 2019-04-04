@@ -191,8 +191,8 @@ namespace moris
 //        }/* if( par_size() */
 //    }
 	
-     TEST_CASE( "Diffusion_hm_10x4x4", "[moris],[fem],[Diffusion_hm_10x4x4]" )
-        {
+     TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
+     {
         if(par_size() == 1 )
         {
             // Create a 3D mesh of HEX8 using MTK ------------------------------------------
@@ -257,7 +257,7 @@ namespace moris
                                                         fem::BC_Type::NEUMANN };
 
             // create model
-            mdl::Model * tModel = new mdl::Model( tMesh.get(), 1, tIWGTypeList,
+            mdl::Model * tModel = new mdl::Model( tMesh.get(), tBplineOrder, tIWGTypeList,
                                                   tSidesetList, tSidesetBCTypeList );
 
             //solve
@@ -304,6 +304,241 @@ namespace moris
             REQUIRE( tCheckNodalSolution );
         }/* if( par_size() */
     }
+
+    TEST_CASE( "Diffusion_hmr2_10x4x4", "[moris],[mdl],[Diffusion_hmr2_10x4x4]" )
+    {
+       if(par_size() == 1 )
+       {
+           // Create a 3D mesh of HEX8 using MTK ------------------------------------------
+           std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
+           //------------------------------------------------------------------------------
+
+           moris::uint tBplineOrder = 2;
+           moris::uint tLagrangeOrder = 1;
+           moris::uint tMyCoeff = 1;
+
+           hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+
+           tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
+           tParameters.set( "domain_dimensions", "2, 2, 2" );
+           tParameters.set( "domain_offset", "0, 0.0, 0.0" );
+           tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
+           tParameters.set( "verbose", 0 );
+           tParameters.set( "truncate_bsplines", 1 );
+           tParameters.set( "bspline_orders", "2" );
+           tParameters.set( "lagrange_orders", "1" );
+
+           tParameters.set( "use_multigrid", 0 );
+
+           tParameters.set( "refinement_buffer", 2 );
+           tParameters.set( "staircase_buffer", 1 );
+
+            hmr::HMR tHMR( tParameters );
+
+            std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+
+            // create field
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
+
+            for( uint k=0; k<0; ++k )
+            {
+                tField->evaluate_scalar_function( LevelSetFunction );
+                tHMR.flag_surface_elements( tField );
+                tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+                tHMR.update_refinement_pattern();
+            }
+
+            tHMR.finalize();
+
+           // evaluate node values
+           tField->evaluate_scalar_function( LevelSetFunction );
+
+           tHMR.save_to_exodus( 2,"Circle_diff.exo" );
+
+           tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
+
+           //1) Create the fem nodes ------------------------------------------------------
+           std::cout<<" Create the fem nodes "<<std::endl;
+           //------------------------------------------------------------------------------
+           Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+           tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+           tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+           tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+           // create a list of active sidesets
+           Cell< moris_index >  tSidesetList = { 3, 5 };
+
+           // create a list of BC type for the sidesets
+           Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
+                                                       fem::BC_Type::NEUMANN };
+
+           // create model
+           mdl::Model * tModel = new mdl::Model( tMesh.get(), tBplineOrder, tIWGTypeList,
+                                                 tSidesetList, tSidesetBCTypeList );
+
+           //solve
+           moris::Matrix< DDRMat > tSolution11;
+           tModel->solve( tSolution11 );
+
+           print(tSolution11,"tSolution11");
+
+           tModel->output_solution( "Circle" );
+
+           tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
+
+           tHMR.save_to_exodus( 2,"Circle_diff_temp.exo" );
+
+           // Expected solution
+           Matrix< DDRMat > tExpectedSolution = {{ 5.000000000439168e+00,    2.499999999484336e+01,    4.499999998931914e+01,
+                                                   6.499999998398192e+01,    8.499999997909634e+01,    1.049999999750879e+02,
+                                                   1.249999999726532e+02,    1.349999999677999e+02,    1.349999999669917e+02,
+                                                   1.349999999688249e+02,    1.349999999678056e+02,    1.449999999632745e+02,
+                                                   1.549999999576012e+02,    1.449999999607157e+02,    1.549999999559840e+02,
+                                                   1.449999999644306e+02,    1.549999999607020e+02,    1.449999999638932e+02,
+                                                   1.549999999578126e+02,    1.649999999541855e+02,    1.749999999460777e+02,
+                                                   1.649999999497775e+02,    1.749999999406942e+02,    1.649999999575286e+02,
+                                                   1.749999999499552e+02,    1.649999999538873e+02,    1.749999999470990e+02,
+                                                   1.849999999366943e+02,    1.949999999299542e+02,    1.849999999312525e+02,
+                                                   1.949999999239139e+02,    1.849999999408975e+02,    1.949999999326252e+02,
+                                                   1.849999999358517e+02,    1.949999999274455e+02,    2.049999999278416e+02,
+                                                   2.049999999213750e+02,    2.049999999302681e+02,    2.049999999247313e+02,
+                                                   5.000000000440735e+00,    2.499999999481117e+01,    4.499999998922714e+01,
+                                                   6.499999998376413e+01,    8.499999997856834e+01,    1.049999999739319e+02 }};
+
+           // define an epsilon environment
+           double tEpsilon = 1E-12;
+
+           // define a bool for solution check
+           bool tCheckNodalSolution = true;
+
+           // loop over the node and chyeck solution
+           for ( uint i = 0; i < 45; i++ )
+           {
+               // check solution
+               tCheckNodalSolution = tCheckNodalSolution
+                                  && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
+           }
+           // check bool is true
+           REQUIRE( tCheckNodalSolution );
+       }/* if( par_size() */
+   }
+
+    TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
+        {
+           if(par_size() == 1 )
+           {
+               // Create a 3D mesh of HEX8 using MTK ------------------------------------------
+               std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
+               //------------------------------------------------------------------------------
+
+               moris::uint tBplineOrder = 2;
+               moris::uint tLagrangeOrder = 2;
+               moris::uint tMyCoeff = 1;
+
+               hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+
+               tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
+               tParameters.set( "domain_dimensions", "2, 2, 2" );
+               tParameters.set( "domain_offset", "0, 0.0, 0.0" );
+               tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
+               tParameters.set( "verbose", 0 );
+               tParameters.set( "truncate_bsplines", 1 );
+               tParameters.set( "bspline_orders", "2" );
+               tParameters.set( "lagrange_orders", "2" );
+
+               tParameters.set( "use_multigrid", 0 );
+
+               tParameters.set( "refinement_buffer", 2 );
+               tParameters.set( "staircase_buffer", 1 );
+
+                hmr::HMR tHMR( tParameters );
+
+                std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+
+                // create field
+                std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
+
+                for( uint k=0; k<0; ++k )
+                {
+                    tField->evaluate_scalar_function( LevelSetFunction );
+                    tHMR.flag_surface_elements( tField );
+                    tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+                    tHMR.update_refinement_pattern();
+                }
+
+                tHMR.finalize();
+
+               // evaluate node values
+               tField->evaluate_scalar_function( LevelSetFunction );
+
+               tHMR.save_to_exodus( 2,"Circle_diff.exo" );
+
+
+               //1) Create the fem nodes ------------------------------------------------------
+               std::cout<<" Create the fem nodes "<<std::endl;
+               //------------------------------------------------------------------------------
+               Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+               tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+               tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+               tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+               // create a list of active sidesets
+               Cell< moris_index >  tSidesetList = { 3, 5 };
+
+               // create a list of BC type for the sidesets
+               Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
+                                                           fem::BC_Type::NEUMANN };
+
+               // create model
+               mdl::Model * tModel = new mdl::Model( tMesh.get(), tBplineOrder, tIWGTypeList,
+                                                     tSidesetList, tSidesetBCTypeList );
+
+               //solve
+               moris::Matrix< DDRMat > tSolution11;
+               tModel->solve( tSolution11 );
+
+               print(tSolution11,"tSolution11");
+
+               tModel->output_solution( "Circle" );
+
+               tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
+
+               tHMR.save_to_exodus( 2,"Circle_diff_temp.exo" );
+
+               // Expected solution
+               Matrix< DDRMat > tExpectedSolution = {{ 5.000000000439168e+00,    2.499999999484336e+01,    4.499999998931914e+01,
+                                                       6.499999998398192e+01,    8.499999997909634e+01,    1.049999999750879e+02,
+                                                       1.249999999726532e+02,    1.349999999677999e+02,    1.349999999669917e+02,
+                                                       1.349999999688249e+02,    1.349999999678056e+02,    1.449999999632745e+02,
+                                                       1.549999999576012e+02,    1.449999999607157e+02,    1.549999999559840e+02,
+                                                       1.449999999644306e+02,    1.549999999607020e+02,    1.449999999638932e+02,
+                                                       1.549999999578126e+02,    1.649999999541855e+02,    1.749999999460777e+02,
+                                                       1.649999999497775e+02,    1.749999999406942e+02,    1.649999999575286e+02,
+                                                       1.749999999499552e+02,    1.649999999538873e+02,    1.749999999470990e+02,
+                                                       1.849999999366943e+02,    1.949999999299542e+02,    1.849999999312525e+02,
+                                                       1.949999999239139e+02,    1.849999999408975e+02,    1.949999999326252e+02,
+                                                       1.849999999358517e+02,    1.949999999274455e+02,    2.049999999278416e+02,
+                                                       2.049999999213750e+02,    2.049999999302681e+02,    2.049999999247313e+02,
+                                                       5.000000000440735e+00,    2.499999999481117e+01,    4.499999998922714e+01,
+                                                       6.499999998376413e+01,    8.499999997856834e+01,    1.049999999739319e+02 }};
+
+               // define an epsilon environment
+               double tEpsilon = 1E-12;
+
+               // define a bool for solution check
+               bool tCheckNodalSolution = true;
+
+               // loop over the node and chyeck solution
+               for ( uint i = 0; i < 45; i++ )
+               {
+                   // check solution
+                   tCheckNodalSolution = tCheckNodalSolution
+                                      && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
+               }
+               // check bool is true
+               REQUIRE( tCheckNodalSolution );
+           }/* if( par_size() */
+       }
 
     }/* namespace fem */
 }/* namespace moris */
