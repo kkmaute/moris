@@ -318,7 +318,7 @@ namespace moris
                                                     6.499999998376413e+01,    8.499999997856834e+01,    1.049999999739319e+02 }};
 
             // define an epsilon environment
-            double tEpsilon = 1E-12;
+            double tEpsilon = 1E-8;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -330,6 +330,9 @@ namespace moris
                 tCheckNodalSolution = tCheckNodalSolution
                                    && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
             }
+
+            print(tSolution11, "Solution");
+
             // check bool is true
             REQUIRE( tCheckNodalSolution );
         }/* if( par_size() */
