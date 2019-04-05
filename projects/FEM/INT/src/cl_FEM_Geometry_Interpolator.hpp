@@ -214,6 +214,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get the vertices ordinals of a space sideset
+         */
+        moris::Cell< moris::moris_index > get_face_vertices_ordinals( const moris_index aSpaceOrdinal );
+
+//------------------------------------------------------------------------------
+        /**
          * get the parametric coordinates of a time sideset
          */
         Matrix< DDRMat > get_time_sideset_param_coords( const moris_index aTimeOrdinal );

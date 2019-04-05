@@ -17,6 +17,12 @@
 #include "cl_FEM_Interpolation_Function_Lagrange_Hex64.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Constant_Bar2.hpp" //FEM/INT/src
 
+#include "cl_FEM_Interpolation_Function_Lagrange_Tri3.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Function_Lagrange_Tri6.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Function_Lagrange_Tri10.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Function_Lagrange_Tet4.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Function_Lagrange_Tet10.hpp" //FEM/INT/src
+
 
 namespace moris
 {
@@ -24,9 +30,10 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-    Interpolation_Function_Base * Interpolation_Function_Factory::create_interpolation_function( const mtk::Geometry_Type       & aGeometryType,
-                                                                                                 const Interpolation_Type       & aInterpolationType,
-                                                                                                 const mtk::Interpolation_Order & aInterpolationOrder )
+    Interpolation_Function_Base * Interpolation_Function_Factory::create_interpolation_function
+        ( const mtk::Geometry_Type       & aGeometryType,
+          const Interpolation_Type       & aInterpolationType,
+          const mtk::Interpolation_Order & aInterpolationOrder )
         {
             // select type
             switch ( aInterpolationType )
@@ -49,6 +56,16 @@ namespace moris
                         {
                         	return this->create_lagrange_hex( aInterpolationOrder );
                         	break;
+                        }
+                        case( mtk::Geometry_Type::TRI ) :
+                        {
+                            return this->create_lagrange_tri( aInterpolationOrder );
+                            break;
+                        }
+                        case( mtk::Geometry_Type::TET ) :
+                        {
+                            return this->create_lagrange_tet( aInterpolationOrder );
+                            break;
                         }
                         default :
                         {
@@ -190,6 +207,70 @@ namespace moris
                 }
             }
         }
+
+//------------------------------------------------------------------------------
+
+    Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_tri
+        ( const mtk::Interpolation_Order  & aInterpolationOrder )
+        {
+            switch ( aInterpolationOrder )
+            {
+                case ( mtk::Interpolation_Order::LINEAR ) :
+                {
+                    return new Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 3 >();
+                    break;
+                }
+                case ( mtk::Interpolation_Order::QUADRATIC ) :
+                {
+                    return new Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 6 >();
+                    break;
+                }
+                case ( mtk::Interpolation_Order::CUBIC ) :
+                {
+                    return new Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 10 >();
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Interpolation_Function_Factory::create_lagrange_tri - unknown interpolation order for TRI" );
+                    return nullptr;
+                    break;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+
+        Interpolation_Function_Base * Interpolation_Function_Factory::create_lagrange_tet
+            ( const mtk::Interpolation_Order  & aInterpolationOrder )
+            {
+                switch ( aInterpolationOrder )
+                {
+                    case ( mtk::Interpolation_Order::LINEAR ) :
+                    {
+                        return new Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 4 >();
+                        break;
+                    }
+                    case ( mtk::Interpolation_Order::QUADRATIC ) :
+                    {
+                        return new Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 10 >();
+                        break;
+                    }
+//                    case ( mtk::Interpolation_Order::CUBIC ) :
+//                    {
+//                        return new Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 20 >();
+//                        break;
+//                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "Interpolation_Function_Factory::create_lagrange_tet - unknown interpolation order for TET" );
+                        return nullptr;
+                        break;
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
 
     Interpolation_Function_Base *
     Interpolation_Function_Factory::create_constant_bar( const mtk::Interpolation_Order  & aInterpolationOrder)

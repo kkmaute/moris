@@ -77,6 +77,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
             Interpolation_Function_Base *
+            create_lagrange_tri( const mtk::Interpolation_Order   & aInterpolationOrder );
+
+//------------------------------------------------------------------------------
+
+            Interpolation_Function_Base *
+            create_lagrange_tet( const mtk::Interpolation_Order   & aInterpolationOrder );
+
+//------------------------------------------------------------------------------
+
+            Interpolation_Function_Base *
             create_constant_bar( const mtk::Interpolation_Order   & aInterpolationOrder );
 
 //------------------------------------------------------------------------------

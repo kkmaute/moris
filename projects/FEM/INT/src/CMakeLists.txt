@@ -66,6 +66,11 @@ set(HEADERS
     cl_FEM_Interpolation_Function_Lagrange_Quad4.hpp
     cl_FEM_Interpolation_Function_Lagrange_Quad8.hpp
     cl_FEM_Interpolation_Function_Lagrange_Quad9.hpp
+    cl_FEM_Interpolation_Function_Lagrange_Tri3.hpp
+    cl_FEM_Interpolation_Function_Lagrange_Tri6.hpp
+    cl_FEM_Interpolation_Function_Lagrange_Tri10.hpp
+    cl_FEM_Interpolation_Function_Lagrange_Tet4.hpp
+    cl_FEM_Interpolation_Function_Lagrange_Tet10.hpp
     cl_FEM_Interpolation_Function_Constant_Bar2.hpp
     cl_FEM_Interpolation_Rule.hpp
     cl_FEM_Node_Base.hpp

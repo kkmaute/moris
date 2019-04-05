@@ -1042,6 +1042,8 @@ namespace moris
                     // dump mesh
                     mDatabase->get_lagrange_mesh_by_index( k )
                             ->get_bspline_mesh( mDatabase->get_lagrange_mesh_by_index( k )->get_order() )->save_to_vtk( aFilePath );
+//                    mDatabase->get_lagrange_mesh_by_index( k )
+//                            ->get_bspline_mesh( 2 )->save_to_vtk( aFilePath );
                     break;
                 }
             }

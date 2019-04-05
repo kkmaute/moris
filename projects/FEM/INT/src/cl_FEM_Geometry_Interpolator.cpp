@@ -130,62 +130,62 @@ namespace moris
 
         Matrix < DDRMat > Geometry_Interpolator::get_space_sideset_param_coords( const moris_index aSpaceOrdinal )
         {
-            //FIXME check spaceOrdinal
+            // get space sideset vertex ordinals
+            moris::Cell< moris::moris_index > tVerticesOrdinals = get_face_vertices_ordinals( aSpaceOrdinal );
 
-            // get space sideset vertex indices
-            moris::Cell< moris::moris_index > tVerticesIndices;
-            switch ( mGeometryType )
-            {
-                case ( mtk::Geometry_Type::LINE ): //FIXME LINE2 only
-                {
-                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesLine2
-                        = { { 0 },
-                            { 1 } };
-                    tVerticesIndices.resize( 1, -1 );
-                    tVerticesIndices = tVerticesIndicesLine2( aSpaceOrdinal );
-                    break;
-                }
-
-                case ( mtk::Geometry_Type::QUAD ): //FIXME QUAD4 only
-                {
-                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesQuad4
-                        = { { 0, 1 },
-                            { 1, 2 },
-                            { 2, 3 },
-                            { 3, 0 } };
-                    tVerticesIndices.resize( 2, -1 );
-                    tVerticesIndices = tVerticesIndicesQuad4( aSpaceOrdinal );
-                    break;
-                }
-
-                case ( mtk::Geometry_Type::HEX ): // FIXME HEX8 only
-                {
-                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesHex8
-                        = { { 0, 1, 5, 4 },
-                            { 1, 2, 6, 5 },
-                            { 2, 3, 7, 6 },
-                            { 0, 4, 7, 3 },
-                            { 0, 3, 2, 1 },
-                            { 4, 5, 6, 7 } };
-                    tVerticesIndices.resize( 4, -1 );
-                    tVerticesIndices = tVerticesIndicesHex8( aSpaceOrdinal );
-                    break;
-                }
-
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - undefined geometry type " );
-                    break;
-                }
-            }
+//            moris::Cell< moris::moris_index > tVerticesIndices;
+//            switch ( mGeometryType )
+//            {
+//                case ( mtk::Geometry_Type::LINE ): //FIXME LINE2 only
+//                {
+//                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesLine2
+//                        = { { 0 },
+//                            { 1 } };
+//                    tVerticesIndices.resize( 1, -1 );
+//                    tVerticesIndices = tVerticesIndicesLine2( aSpaceOrdinal );
+//                    break;
+//                }
+//
+//                case ( mtk::Geometry_Type::QUAD ): //FIXME QUAD4 only
+//                {
+//                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesQuad4
+//                        = { { 0, 1 },
+//                            { 1, 2 },
+//                            { 2, 3 },
+//                            { 3, 0 } };
+//                    tVerticesIndices.resize( 2, -1 );
+//                    tVerticesIndices = tVerticesIndicesQuad4( aSpaceOrdinal );
+//                    break;
+//                }
+//
+//                case ( mtk::Geometry_Type::HEX ): // FIXME HEX8 only
+//                {
+//                    moris::Cell< moris::Cell< moris::moris_index > > tVerticesIndicesHex8
+//                        = { { 0, 1, 5, 4 },
+//                            { 1, 2, 6, 5 },
+//                            { 2, 3, 7, 6 },
+//                            { 0, 4, 7, 3 },
+//                            { 0, 3, 2, 1 },
+//                            { 4, 5, 6, 7 } };
+//                    tVerticesIndices.resize( 4, -1 );
+//                    tVerticesIndices = tVerticesIndicesHex8( aSpaceOrdinal );
+//                    break;
+//                }
+//
+//                default:
+//                {
+//                    MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - undefined geometry type " );
+//                    break;
+//                }
+//            }
 
             // initialize the time sideset parametric coordinates matrix
-            uint tNumOfVertices = tVerticesIndices.size();
+            uint tNumOfVertices = tVerticesOrdinals.size();
             Matrix< DDRMat > tSpaceParamCoords = mSpaceInterpolation->get_param_coords();
             Matrix< DDRMat > tSidesetSpaceParamCoords( mNumSpaceDim, tNumOfVertices );
             for( uint i = 0; i < tNumOfVertices; i++ )
             {
-                moris_index tTreatedVertex = tVerticesIndices( i );
+                moris_index tTreatedVertex = tVerticesOrdinals( i );
                 tSidesetSpaceParamCoords( { 0, mNumSpaceDim - 1 }, { i, i } )
                     = tSpaceParamCoords( { 0, mNumSpaceDim - 1 }, { tTreatedVertex, tTreatedVertex } );
             }
@@ -206,6 +206,95 @@ namespace moris
 
             // return the parametric coordinates of the space sideset
             return tParamCoords;
+        }
+
+//------------------------------------------------------------------------------
+
+        moris::Cell< moris::moris_index > Geometry_Interpolator::get_face_vertices_ordinals
+            ( const moris_index aSpaceOrdinal )
+        {
+            // init the cell of vertices ordinals of the face
+            moris::Cell< moris::moris_index > tVerticesOrdinals;
+
+            // init the map with vertices ordinals of each face of the parent element
+            moris::Cell< moris::Cell< moris::moris_index > > tFaceVerticesOrdinalMap;
+
+            // depending on the parent geometry
+            switch ( mGeometryType )
+            {
+                case ( mtk::Geometry_Type::LINE ): //FIXME LINE2 only
+                {
+                    switch ( mNumSpaceBases )
+                    {
+                        case ( 2 ):
+                            tFaceVerticesOrdinalMap = { { 0 }, { 1 } };
+                            tVerticesOrdinals = tFaceVerticesOrdinalMap( aSpaceOrdinal );
+                            break;
+
+                        default:
+                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - order not implemented " );
+                            break;
+                    }
+                    break;
+                }
+
+                case ( mtk::Geometry_Type::QUAD ): //FIXME QUAD4 only
+                {
+                    switch ( mNumSpaceBases )
+                    {
+                        case ( 4 ):
+                            tFaceVerticesOrdinalMap = { { 0, 1 },
+                                                        { 1, 2 },
+                                                        { 2, 3 },
+                                                        { 3, 0 } };
+                            tVerticesOrdinals = tFaceVerticesOrdinalMap( aSpaceOrdinal );
+                            break;
+
+                        default:
+                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - order not implemented " );
+                            break;
+                    }
+                    break;
+                }
+
+                case ( mtk::Geometry_Type::HEX ): // FIXME HEX8 only
+                {
+                    switch( mNumSpaceBases )
+                    {
+                        case ( 8 ):
+                            tFaceVerticesOrdinalMap = { { 0, 1, 5, 4 },
+                                                        { 1, 2, 6, 5 },
+                                                        { 2, 3, 7, 6 },
+                                                        { 0, 4, 7, 3 },
+                                                        { 0, 3, 2, 1 },
+                                                        { 4, 5, 6, 7 } };
+                            tVerticesOrdinals = tFaceVerticesOrdinalMap( aSpaceOrdinal );
+                            break;
+
+                        case ( 27 ):
+                            tFaceVerticesOrdinalMap = { { 0, 1, 5, 4, 8, 13, 16, 12, 23 },
+                                                        { 1, 2, 6, 5, 9, 14, 17, 13, 24 },
+                                                        { 2, 3, 7, 6, 10, 15, 18, 14, 26 },
+                                                        { 0, 4, 7, 3, 12, 19, 15, 11, 23 },
+                                                        { 0, 3, 2, 1, 11, 10, 9, 8, 21 },
+                                                        { 4, 5, 6, 7, 16, 17, 18, 19, 22 } };
+                            tVerticesOrdinals = tFaceVerticesOrdinalMap( aSpaceOrdinal );
+                            break;
+
+                        default:
+                            MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - order not implemented " );
+                            break;
+                    }
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Interpolator::get_space_sideset_param_coords - undefined geometry type " );
+                    break;
+                }
+            }
+            return tVerticesOrdinals;
         }
 
 //------------------------------------------------------------------------------

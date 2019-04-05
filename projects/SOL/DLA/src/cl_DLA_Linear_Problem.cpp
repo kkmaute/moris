@@ -46,7 +46,7 @@ namespace dla
 
         mInput->assemble_RHS( mVectorRHS, aFullSolutionVector );
 
-        //std::cout<<*mVectorRHS->get_vector()<<std::endl;
+        //mVectorRHS->print();
     }
 
 //----------------------------------------------------------------------------------------
@@ -55,6 +55,9 @@ namespace dla
         mMat->mat_put_scalar( 0.0 );
 
         mInput->assemble_jacobian( mMat, aFullSolutionVector);
+
+        //std::string tString = "singular_matrix";
+        //mMat->save_matrix_to_matlab_file( tString.c_str());
 
         //mMat->print();
     }

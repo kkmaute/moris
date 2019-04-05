@@ -269,12 +269,13 @@ namespace moris
             mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElements,
                                                                             tCommTable,
                                                                             tIdToIndMap,
-                                                                            tMaxNumAdofs,      //FIXME
+                                                                            tMaxNumAdofs,
                                                                             mMesh );
 
             if ( mMesh->get_mesh_type() == MeshType::HMR )
             {
                 mModelSolverInterface->set_param("L2")= (sint)mDofOrder;
+                mModelSolverInterface->set_param("TEMP")= (sint)mDofOrder;
             }
 
             mModelSolverInterface->finalize();
@@ -513,6 +514,8 @@ namespace moris
                     for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
                     {
                        uint tNumVert = mMesh->get_mtk_cell( k ).get_number_of_vertices();
+
+                       //print( mElements(k)->get_pdof_values(), "Element");
 
                        for( luint Jk=0; Jk < tNumVert; ++Jk )
                        {
