@@ -155,6 +155,30 @@ namespace moris
                 }
                 return tNumSideSetFaces;
             }
+
+            //------------------------------------------------------------------------------
+
+            uint get_sidesets_num_faces( moris::Cell< moris_index > aSidesetOrdinalList ) const
+            {
+                moris::uint tNumSideSetFaces = 0;
+
+                moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
+
+                for( luint Ik=0; Ik < aSidesetOrdinalList.size(); ++Ik )
+                {
+                    // get the treated sideset name
+                    std::string tTreatedSideset = tSideSetsNames( aSidesetOrdinalList ( Ik ) );
+
+                    // get the sideset face indices
+                    Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tTreatedSideset );
+
+                    // add up the sideset number of faces
+                    tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
+                }
+
+                return tNumSideSetFaces;
+            }
+
             //------------------------------------------------------------------------------
             /*
              * Get number of elements

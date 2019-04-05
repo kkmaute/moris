@@ -75,7 +75,7 @@ namespace moris
             BULK,
             SIDESET,
             TIME_SIDESET,
-            END_ELEMENT
+            END_ELEMENT_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -93,8 +93,19 @@ namespace moris
             SPATIALDIFF_SIDESET,   // spatial diffusion sideset
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
-            END_IWG
+            END_IWG_TYPE
         };
+
+//------------------------------------------------------------------------------
+
+        enum class BC_Type
+        {
+            UNDEFINED,
+            DIRICHLET,
+            NEUMANN,
+            END_BC_TYPE
+        };
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

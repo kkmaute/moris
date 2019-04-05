@@ -166,7 +166,6 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
 
-
                 // map input to output
                 tHMR.map_field_to_output( tField  );
 
@@ -175,8 +174,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 //------------------------------------------------------------------------------
 
                 // determine coefficient of determination
-                moris::real tR2 = moris::r2( tExact->get_node_values(),
-                                             tField->get_node_values() );
+                moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
                 std::cout << "R2 " << tR2 << std::endl;
 
