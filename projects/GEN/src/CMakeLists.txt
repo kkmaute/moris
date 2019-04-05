@@ -12,6 +12,7 @@ set(HEADERS
     cl_GE_Enums.hpp
     cl_GE_Factory.hpp
     cl_GE_Geometry.hpp
+    cl_GE_Interface.hpp
   	cl_GE_Main.hpp
   	cl_GE_Node.hpp
  	cl_GE_SDF.hpp 
@@ -40,6 +41,7 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 # List library source files
 set(LIB_SOURCES
     cl_GE_Factory.cpp
+    cl_GE_Interface.cpp
     cl_GE_Main.cpp
     cl_GE_SDF.cpp
     )

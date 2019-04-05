@@ -18,9 +18,12 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     uint tTimeSteps = 1000;
     moris::real tTime = 0;
 
+    real tStepSize = 0.01;
+
+
     for ( uint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
-        tTime = tTime + 0.01;
+        tTime = tTime + tStepSize;
         mSolverInterface->set_time( tTime );
 
         mSolverInterface->set_solution_vector_prev_time_step( mPrevFullVector );

@@ -24,17 +24,21 @@ namespace moris{
 		    /*
 		     * function needs to be set with set_analytical_function because class is constructed through the factory
 		     */
-
 			Analytical(){};
 
 			~Analytical(){};
-
 			/*
 			 * *****************************************************************************
 			 * pass in a user-defined function
 			 * *****************************************************************************
 			 */
-
+//------------------------------------------------------------------------------
+			/*
+			 * @brief sets the analytic function \phi for the analytic geometry class
+			 *
+			 * @param[in] *funcPointer - pointer to the user defined function
+			 *
+			 */
             void
             set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ) )
             {
@@ -42,8 +46,13 @@ namespace moris{
             };
 
             //------------------------------------------------------------------------------
-            /* used when the function needs multiple cells as inputs
+            /*
+             * @brief sets the analytic function \phi for the analytic geometry class
+             * note: this type is used when the function needs multiple cells as inputs
              * ( currently only multi_cylinder_function() requires this )
+             *
+             * @param[in] *funcPointer - pointer to the user defined function
+             *
              */
             void
             set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat >        & aCoordinates,
@@ -56,7 +65,12 @@ namespace moris{
             };
 
             //------------------------------------------------------------------------------
-
+            /*
+             * @brief sets the sensitivity function d\phi/dx for the analytic geometry class
+             *
+             * @param[in] *funcPointer - pointer to the user defined sensitivity function
+             *
+             */
             void
             set_analytical_function_dphi_dx( Matrix< DDRMat > ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ) )
             {
@@ -69,34 +83,23 @@ namespace moris{
              * use function from list of standardized functions
              * *****************************************************************************
              */
+//------------------------------------------------------------------------------
+            /*
+             * @brief sets the function \phi for the analytic geometry class
+             *
+             * @param[in] aGeomType - enum which names a function from the list of known standardized functions
+             *
+             */
             void
             set_analytical_function( type aGeomType )
             {
                 switch(aGeomType)
                 {
-                case( type::SPHERE ):
-                        this->set_analytical_function( sphere_function );
-                        break;
-                case( type::PLANE ):
-                        this->set_analytical_function( plane_function );
-                        break;
-                case( type::SPIRAL ):
-                        this->set_analytical_function( spiral_function );
-                        break;
-                case( type::GYROID ):
-                        this->set_analytical_function( gyroid_function );
+                case(type::CIRCLE):
+                        this->set_analytical_function( circle_function );
                         break;
                 case( type::COMPOSITE_FIBER ):
                         this->set_analytical_function( composite_fiber_function );
-                        break;
-                case( type::COMPOSITE_FIBER_WAVE_1 ):
-                        this->set_analytical_function( composite_fiber_wave_1_function );
-                        break;
-                case( type::COMPOSITE_FIBER_WAVE_2 ):
-                        this->set_analytical_function( composite_fiber_wave_2_function );
-                        break;
-                case( type::COMPOSITE_FIBER_WAVE_3 ):
-                        this->set_analytical_function( composite_fiber_wave_3_function );
                         break;
                 case( type::COMPOSITE_FIBER_STRAIGHT_1 ):
                         this->set_analytical_function( composite_fiber_straight_1_function );
@@ -107,9 +110,31 @@ namespace moris{
                 case( type::COMPOSITE_FIBER_STRAIGHT_3 ):
                         this->set_analytical_function( composite_fiber_straight_3_function );
                         break;
+                case( type::COMPOSITE_FIBER_WAVE_1 ):
+                        this->set_analytical_function( composite_fiber_wave_1_function );
+                        break;
+                case( type::COMPOSITE_FIBER_WAVE_2 ):
+                        this->set_analytical_function( composite_fiber_wave_2_function );
+                        break;
+                case( type::COMPOSITE_FIBER_WAVE_3 ):
+                        this->set_analytical_function( composite_fiber_wave_3_function );
+                        break;
+                case( type::GYROID ):
+                        this->set_analytical_function( gyroid_function );
+                        break;
                 case( type::MULTI_CYLINDER ):
                         this->set_analytical_function( multi_cylinder_function );
                         break;
+                case( type::PLANE ):
+                        this->set_analytical_function( plane_function );
+                        break;
+                case( type::SPHERE ):
+                        this->set_analytical_function( sphere_function );
+                        break;
+                case( type::SPIRAL ):
+                        this->set_analytical_function( spiral_function );
+                        break;
+
                 default:
                         MORIS_ERROR(false, "cl_GE_Analytical::set_analytical_function() please choose from standardized functions or pass in your own function");
                         break;
@@ -118,34 +143,22 @@ namespace moris{
             };
 
             //------------------------------------------------------------------------------
+            /*
+             * @brief sets the sensitivity function d\phi/dx for the analytic geometry class
+             *
+             * @param[in] aGeomType - enum which names a sensitivity function from the list of known standardized functions
+             *
+             */
             void
             set_analytical_function_dphi_dx( type aGeomType )
             {
                 switch(aGeomType)
                 {
-                case(type::SPHERE):
-                        this->set_analytical_function_dphi_dx( sphere_function_dphi_dx );
-                        break;
-                case(type::PLANE):
-                        MORIS_ERROR(false, "dphi/dx currently not set for plane_function");
-                        break;
-                case( type::SPIRAL ):
-                        MORIS_ERROR(false, "dphi/dx currently not set for spiral_function");
-                        break;
-                case( type::GYROID ):
-                        MORIS_ERROR(false, "dphi/dx currently not set for gyroid_function");
+                case( type::CIRCLE ):
+                        MORIS_ERROR(false, "dphi/dx currently not set for circle_function");
                         break;
                 case( type::COMPOSITE_FIBER ):
                         MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_function");
-                        break;
-                case( type::COMPOSITE_FIBER_WAVE_1 ):
-                        MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_wave_1_function");
-                        break;
-                case( type::COMPOSITE_FIBER_WAVE_2 ):
-                        MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_wave_2_function");
-                        break;
-                case( type::COMPOSITE_FIBER_WAVE_3 ):
-                        MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_wave_3_function");
                         break;
                 case( type::COMPOSITE_FIBER_STRAIGHT_1 ):
                         MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_straight_1_function");
@@ -156,9 +169,31 @@ namespace moris{
                 case( type::COMPOSITE_FIBER_STRAIGHT_3 ):
                         MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_straight_3_function");
                         break;
+                case( type::COMPOSITE_FIBER_WAVE_1 ):
+                        MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_wave_1_function");
+                        break;
+                case( type::COMPOSITE_FIBER_WAVE_2 ):
+                        MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_wave_2_function");
+                        break;
+                case( type::COMPOSITE_FIBER_WAVE_3 ):
+                        MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_wave_3_function");
+                        break;
+                case( type::GYROID ):
+                        MORIS_ERROR(false, "dphi/dx currently not set for gyroid_function");
+                        break;
                 case( type::MULTI_CYLINDER ):
                         MORIS_ERROR(false, "dphi/dx currently not set for mutli_cylinder_function");
                         break;
+                case(type::PLANE):
+                        MORIS_ERROR(false, "dphi/dx currently not set for plane_function");
+                        break;
+                case( type::SPIRAL ):
+                        MORIS_ERROR(false, "dphi/dx currently not set for spiral_function");
+                        break;
+                case(type::SPHERE):
+                        this->set_analytical_function_dphi_dx( sphere_function_dphi_dx );
+                        break;
+
                 default:
                         MORIS_ERROR(false, "cl_GE_Analytical::set_analytical_function() please choose from standardized functions or pass in your own function");
                         break;
@@ -167,28 +202,33 @@ namespace moris{
             };
 
             //------------------------------------------------------------------------------
-
+            /*
+             * @brief determines the value of the function at a specified coordinate
+             *
+             * @param[in] aPoint - point for value to be determined at
+             * @oaram[in] aConst - cell of real values which describe functional constants (such as the radius of a sphere)
+             *
+             * @param[out] real - function value at specified coordinate
+             */
 			real
 			get_field_val_at_coordinate( const Matrix< DDRMat >  & aPoint,
-			                                   moris::Cell< real > aConst )
+			                                   moris::Cell< real > aConst = 0.0 )
 			{
 				return mFuncAnalytic( aPoint, aConst );
 			};
 
             //------------------------------------------------------------------------------
-			/* used when the function does not require any constants as inputs ( e.g. gyroid_function() ) */
-            real
-            get_field_val_at_coordinate( const Matrix< DDRMat >  & aPoint )
-            {
-                moris::Cell< real > aConst(1);
-                aConst(1) = 0.0;
-                return mFuncAnalytic( aPoint, aConst );
-            };
-
-            //------------------------------------------------------------------------------
-            /* used when the function requires multiple cell inputs ( e.g. multi_cylinder_function )
-             * ---update/add defaults if needed---
+            /*
+             * @brief determines the value of the function at a specified coordinate;
+             * used when the function requires multiple cell inputs ( e.g. multi_cylinder_function )
+             *
+             * @param[in] aPoint - point for value to be determined at
+             * @oaram[in] aConst - cell of real values which describe functional constants (such as the radius of a sphere)
+             *
+             * @param[out] real - function value at specified coordinate
+             *
              */
+			//fixme update/add default argument values if needed
             real
             get_field_val_at_coordinate( const Matrix< DDRMat >        & aCoordinates,
                                                Cell<Cell<moris::real>> & aCenter,
@@ -199,7 +239,14 @@ namespace moris{
                 return mFuncAnalyticExtra( aCoordinates, aCenter, aRadius, aLength, aAxis );
             };
             //------------------------------------------------------------------------------
-
+            /*
+             * @brief determines the sensitivity value of the function at a specified coordinate
+             *
+             * @param[in] aPoint - point for value to be determined at
+             * @oaram[in] aConst - cell of real values which describe functional constants (such as the radius of a sphere)
+             *
+             * @param[out] real - function sensitivty value at specified coordinate
+             */
 			Matrix< DDRMat >
 			get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint,
 			                                             moris::Cell< real > aConst)
@@ -227,8 +274,8 @@ namespace moris{
                                                 Cell<Cell<moris::real>> & aAxis );
             //------------------------------------------------------------------------------
 
-
         protected:
+
 
 		};
 	} /* namespace gen */

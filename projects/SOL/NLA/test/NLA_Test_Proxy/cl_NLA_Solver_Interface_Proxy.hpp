@@ -125,7 +125,6 @@ namespace NLA
         void get_element_rhs( const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS )
         {
-//            this->set_lambda_value( aLambda );
             aElementRHS = mFunctionRes( mNX, mNY, mLambda, mMySolVec, aMyElementInd );
         };
 

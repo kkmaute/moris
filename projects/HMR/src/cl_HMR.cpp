@@ -1654,7 +1654,7 @@ namespace moris
 
             // create geometry engine
 
-            ge::GE tRefMan;
+            ge::GE_Main tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell*  > tCandidates;
@@ -1706,7 +1706,7 @@ namespace moris
 
             // create geometry engine
 
-            ge::GE tRefMan;
+            ge::GE_Main tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell* > tCandidates;

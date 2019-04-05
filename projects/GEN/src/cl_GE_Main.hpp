@@ -30,25 +30,13 @@ namespace moris
 {
 	namespace ge
 	{
-		class GE
+		class GE_Main : public Geometry_Engine_Interface
 		{
 //------------------------------------------------------------------------------
-
-			// member variables
-			moris::Cell< Geometry* > 		mListOfGeoms;
-			moris::Cell< real > 			mThresholds;
-
-//------------------------------------------------------------------------------
-		private:
-
-
-//------------------------------------------------------------------------------
-		protected:
-//------------------------------------------------------------------------------
 		public:
-			GE(){};
+			GE_Main(){};
 
-			~GE(){};
+			~GE_Main(){};
 
 			/**
 			 *  @brief  set the current geometry and threshold
@@ -57,8 +45,8 @@ namespace moris
 			 *  @param[in]  aThreshold              threshold value for current geometry LS function
 			 *
 			 */
-			void set_geometry( Geometry* & aGeomPointer,
-			                   real        aThreshold   = 0.0)
+			void set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
+			                                          real   aThreshold   = 0.0)
 			{
 				mListOfGeoms.push_back( aGeomPointer );
 				mThresholds.push_back(aThreshold);
@@ -467,9 +455,18 @@ namespace moris
                 return tPhiHat;
             }
 
+        //------------------------------------------------------------------------------
+		private:
+            // member variables
+            moris::Cell< std::shared_ptr< Geometry > >        mListOfGeoms;
+            moris::Cell< real >             mThresholds;
+
+        //------------------------------------------------------------------------------
+        protected:
+
 //------------------------------------------------------------------------------
 
-		};	/* ge class */
+		};	/* GE_Main class */
 	}	/* ge namespace */
 }	/* moris namespace */
 

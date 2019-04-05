@@ -45,8 +45,8 @@
 
 //------------------------------------------------------------------------------
 // FEM includes
-#include "FEM/INT/src/cl_FEM_Integrator.hpp"
-#include "FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Integrator.hpp" //FEM/INT/src/
+#include "cl_FEM_Field_Interpolator.hpp"
 
 //------------------------------------------------------------------------------
 // other includes
@@ -57,49 +57,6 @@
 
 namespace moris
 {
-real
-circle_function( const Matrix< DDRMat > & aPoint,
-                 Cell< real > inputs )
-{
-	// inputs(0) = x location of center
-	// inputs(1) = y location of center
-	// inputs(2) = radius
-	Matrix< DDRMat > tCenterVec(1,2);
-	tCenterVec(0,0) = inputs(0);
-	tCenterVec(0,1) = inputs(1);
-	return norm( aPoint - tCenterVec ) - inputs(2);
-//	return (std::pow((aPoint(0,0) - inputs(0)),2) + std::pow((aPoint(0,1) - inputs(1)),2) - std::pow(inputs(2),2));
-}
-
-real
-linear_function( const Matrix< DDRMat > & aPoint,
-                 moris::Cell< real> inputs )
-{
-	// inputs(0) = slope
-	// inputs(1) = y_intercept
-	return inputs(0)*aPoint(0,0) + inputs(1) - aPoint(0,1);
-}
-
-real
-hyperboloid_function( const Matrix< DDRMat > & aPoint,
-                      Cell< real > inputs )
-{
-	// inputs(0) = offset in x
-	// inputs(1) = curvature in x
-	// inputs(2) = offset in y
-	// inputs(3) = curvature in y
-	// inputs(4) = offset in z
-	// inputs(5) = curvature in z
-	return std::pow(( aPoint(0,0) - inputs(0) )/inputs(1),2.0) + std::pow(( aPoint(0,1) - inputs(2))/inputs(3),2.0) - std::pow(( aPoint(0,2) - inputs(4))/inputs(5),2.0);
-}
-
-real
-plane_function( const Matrix< DDRMat > & aPoint,
-                Cell< real > inputs )
-{
-	return (aPoint(0,0) - inputs(0)) + (aPoint(0,1) - inputs(1)) + (aPoint(0,2) - inputs(2));
-}
-
 	namespace ge
 	{
 //------------------------------------------------------------------------------
@@ -205,11 +162,13 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				tInputs(1) = 0.0;   // y location of center
 				tInputs(2) = 1.2;   //define the radius of the circle
 
+				//------------------------------------------------------------------------------
 				Ge_Factory tFactory;
-				Geometry*  type0 = tFactory.set_geometry_type(type::ANALYTIC);
-				type0->set_analytical_function( circle_function );
 
-				GE geometryEngine;
+				std::shared_ptr< Geometry > type0 = tFactory.set_geometry_type(type::ANALYTIC);
+				type0->set_analytical_function( type::CIRCLE );
+
+				GE_Main geometryEngine;
 				geometryEngine.set_geometry( type0 );
 
 				moris::Cell< uint > tRefFlag;
@@ -228,99 +187,11 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				delete tVertex4_3; delete tVertex4_4;
 				delete tElement1;  delete tElement2;
 				delete tElement3;  delete tElement4;
-//				delete type0;
 				}
+
 //------------------------------------------------------------------------------
 
-		TEST_CASE("GE_multiple_geometry_LS_intersection_test","[GE],[GE_test3]")
-				{
-		            /* create 2D 4-element mesh, add two LS fields (sphere and line), check for intersection
-		             * and flag elements appropriately
-		             */
-					moris::Cell< real > tInput1(3);		// define inputs for circle function
-					tInput1(0) = 0.0;   // x location of center
-					tInput1(1) = 0.0;   // y location of center
-					tInput1(2) = 1.5; //radius of circle 1
-					//------------------------------------------------------------------------------
-
-					moris::Cell< real > linInputs(2); //define parameters for the linear function
-					linInputs(0) = 1.0;
-					linInputs(1) = 0.5;
-					//------------------------------------------------------------------------------
-
-					mtk::Vertex* tVertex1_1 = new Node(0.0, -1.0);
-					mtk::Vertex* tVertex1_2 = new Node(1.0, -1.0);
-					mtk::Vertex* tVertex1_3 = new Node(1.0,  0.0);
-					mtk::Vertex* tVertex1_4 = new Node(0.0,  0.0);
-
-					mtk::Vertex* tVertex2_2 = new Node(2.0, -1.0);
-					mtk::Vertex* tVertex2_3 = new Node(2.0,  0.0);
-
-					mtk::Vertex* tVertex3_3 = new Node(2.0,  1.0);
-					mtk::Vertex* tVertex3_4 = new Node(1.0,  1.0);
-
-					mtk::Vertex* tVertex4_4 = new Node(0.0,  1.0);
-					//------------------------------------------------------------------------------
-
-					moris::Cell< mtk::Vertex* > nodes1(4);		// define the nodes in each element
-					nodes1(0) = tVertex1_1; nodes1(1) = tVertex1_2;
-					nodes1(2) = tVertex1_3; nodes1(3) = tVertex1_4;
-
-					moris::Cell< mtk::Vertex* > nodes2(4);
-					nodes2(0) = tVertex1_2; nodes2(1) = tVertex2_2;
-					nodes2(2) = tVertex2_3; nodes2(3) = tVertex1_3;
-
-					moris::Cell< mtk::Vertex* > nodes3(4);
-					nodes3(0) = tVertex1_3; nodes3(1) = tVertex2_3;
-					nodes3(2) = tVertex3_3; nodes3(3) = tVertex3_4;
-
-					moris::Cell< mtk::Vertex* > nodes4(4);
-					nodes4(0) = tVertex1_4; nodes4(1) = tVertex1_3;
-					nodes4(2) = tVertex3_4; nodes4(3) = tVertex4_4;
-					//------------------------------------------------------------------------------
-
-					mtk::Cell* tElement1 = new Element(nodes1);
-					mtk::Cell* tElement2 = new Element(nodes2);
-					mtk::Cell* tElement3 = new Element(nodes3);
-					mtk::Cell* tElement4 = new Element(nodes4);
-
-					moris::Cell< mtk::Cell* > Elems(4);
-					Elems(0) = tElement1; Elems(1) = tElement2;
-					Elems(2) = tElement3; Elems(3) = tElement4;
-					//------------------------------------------------------------------------------
-
-					Ge_Factory tFactory;
-					Geometry* type0 = tFactory.set_geometry_type(type::ANALYTIC);
-					type0->set_analytical_function(circle_function);
-
-					Geometry* type1 = tFactory.set_geometry_type(type::ANALYTIC);
-					type1->set_analytical_function(linear_function);
-
-					GE geometryEngine;
-
-					geometryEngine.set_geometry( type0 );
-					geometryEngine.set_geometry( type1 );
-
-					moris::Cell< uint > tRefFlag0;
-					moris::Cell< uint > tRefFlag1;
-
-					tRefFlag0 = geometryEngine.flag_element_list_for_refinement( Elems, tInput1, 0 );
-					tRefFlag1 = geometryEngine.flag_element_list_for_refinement( Elems, linInputs, 1 );
-					//------------------------------------------------------------------------------
-					CHECK( equal_to( tRefFlag0( 0 ), 0 ) );			CHECK( equal_to( tRefFlag1( 0 ), 0 ) );
-					CHECK( equal_to( tRefFlag0( 1 ), 1 ) );			CHECK( equal_to( tRefFlag1( 1 ), 0 ) );
-					CHECK( equal_to( tRefFlag0( 2 ), 1 ) );			CHECK( equal_to( tRefFlag1( 2 ), 0 ) );
-					CHECK( equal_to( tRefFlag0( 3 ), 0 ) );			CHECK( equal_to( tRefFlag1( 3 ), 1 ) );
-					//------------------------------------------------------------------------------
-					delete tVertex1_1; delete tVertex1_2;  delete tVertex1_3; delete tVertex1_4;
-					delete tVertex2_2; delete tVertex2_3;  delete tVertex3_3; delete tVertex3_4;
-					delete tVertex4_4;
-					delete tElement1;  delete tElement2;   delete tElement3;  delete tElement4;
-//					delete type0;      delete type1;
-				}
-//------------------------------------------------------------------------------
-
-		TEST_CASE("GE_multiple_geometry_intersection_test_3D_with_mtk_mesh","[GE],[GE_test4]")
+		TEST_CASE("GE_multiple_geometry_intersection_test_3D_with_mtk_mesh","[GE],[GE_test3]")
 				{
 				/* create 3D mtk mesh, add two sphere LS functions, loop through all elements
 				 * and flag for intersection
@@ -377,6 +248,12 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				tInput2(2) = 2.00;
 				tInput2(3) = 1.50;
 				//------------------------------------------------------------------------------
+                Ge_Factory tFactory;
+                std::shared_ptr< Geometry > type0 = tFactory.set_geometry_type(type::ANALYTIC);
+                type0->set_analytical_function( type::SPHERE );
+
+                std::shared_ptr< Geometry > type1 = tFactory.set_geometry_type(type::ANALYTIC);
+                type1->set_analytical_function( type::SPHERE );
 
 				// Compute nodal sphere values for mesh
 				uint tNumNodes = tMesh3DHexs->get_num_entities(EntityRank::NODE);
@@ -388,9 +265,8 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				{
 					Matrix< DDRMat > tNodeCoord = tMesh3DHexs->get_node_coordinate(i);
 
-					tNodeSphere1Vals(i) = sphere_function(tNodeCoord,tInput1);
-
-					tNodeSphere2Vals(i) = sphere_function(tNodeCoord,tInput2);
+					tNodeSphere1Vals(i) = type0->get_field_val_at_coordinate( tNodeCoord,tInput1 );
+					tNodeSphere2Vals(i) = type1->get_field_val_at_coordinate( tNodeCoord,tInput2 );
 				}
 				// add nodal sphere values to mesh
 				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tSphere1FieldName, EntityRank::NODE, tNodeSphere1Vals);
@@ -398,14 +274,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 
 				//------------------------------------------------------------------------------
 
-				Ge_Factory tFactory;
-				Geometry* type0 = tFactory.set_geometry_type(type::ANALYTIC);
-				type0->set_analytical_function( type::SPHERE );
-
-				Geometry* type1 = tFactory.set_geometry_type(type::ANALYTIC);
-				type1->set_analytical_function( type::SPHERE );
-
-				GE geometryEngine;
+				GE_Main geometryEngine;
 
 				geometryEngine.set_geometry( type0 );
 				geometryEngine.set_geometry( type1 );
@@ -414,7 +283,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				moris::Cell< uint > tFlags1;
 
 				tFlags0 = geometryEngine.check_for_intersection( tInput1, tMesh3DHexs , 0 );
-				tFlags1 = geometryEngine.check_for_intersection( tInput2, tMesh3DHexs , 0 );
+				tFlags1 = geometryEngine.check_for_intersection( tInput2, tMesh3DHexs , 1 );
 
 				//------------------------------------------------------------------------------
 
@@ -445,7 +314,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 //				delete type0;       delete type1;
 				}
 //------------------------------------------------------------------------------
-		TEST_CASE("2D_quad4_edge_normal_test_with_specific_mtk_mesh","[GE],[GE_test5]")
+		TEST_CASE("2D_quad4_edge_normal_test_with_specific_mtk_mesh","[GE],[GE_test4]")
 				{
 				/*	create a 2D MORIS mesh of quad4's using mtk database and determine the edge normals */
 				//------------------------------------------------------------------------------
@@ -483,7 +352,7 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				mtk::Mesh* tMesh2D_Quad4 = create_mesh( MeshType::STK, aMeshData );
 				//------------------------------------------------------------------------------
 
-				GE geometryEngine;
+				GE_Main geometryEngine;
 
 				Matrix< DDRMat > tNormal( 16, 2 );
 
@@ -522,37 +391,37 @@ plane_function( const Matrix< DDRMat > & aPoint,
 				delete tMesh2D_Quad4;
 				}
 //------------------------------------------------------------------------------
-				TEST_CASE("GE_analytical_function_pointer_checks","[GE],[GE_test6]")
+				TEST_CASE("GE_analytical_function_pointer_checks","[GE],[GE_test5]")
 						{
 					if(par_size()<=1)
 					{
 					    Ge_Factory tFactory;
-					    Geometry*  tGeom_1 = tFactory.set_geometry_type(type::ANALYTIC);
-					    tGeom_1->set_analytical_function(type::SPHERE);
-					    tGeom_1->set_analytical_function_dphi_dx(type::SPHERE);
+					    std::shared_ptr< Geometry > tGeom_1 = tFactory.set_geometry_type(type::ANALYTIC);
+					    tGeom_1->set_analytical_function(type::GYROID);
+//					    tGeom_1->set_analytical_function_dphi_dx(type::SPHERE);
 
 					    Matrix< DDRMat > tCoord(1,3);
 					    tCoord(0,0) = 1.0;
 					    tCoord(0,1) = 1.0;
 					    tCoord(0,2) = 1.0;
 
-					    moris::Cell< real > tInput(4);
-					    tInput(0) = 0.0;
-					    tInput(1) = 0.0;
-					    tInput(2) = 0.0;
-					    tInput(3) = 3.0;
+//					    moris::Cell< real > tInput(4);
+//					    tInput(0) = 0.0;
+//					    tInput(1) = 0.0;
+//					    tInput(2) = 0.0;
+//					    tInput(3) = 3.0;
 
-					    real tVal = tGeom_1->get_field_val_at_coordinate( tCoord, tInput );
+					    real tVal = tGeom_1->get_field_val_at_coordinate( tCoord );
 					    std::cout<<"val at coord: "<<tVal<<std::endl;
 
-					    Matrix< DDRMat > tDphiDp = tGeom_1->get_sensitivity_dphi_dp_at_coordinate( tCoord, tInput );
-					    print(tDphiDp,"dphi/dp");
+//					    Matrix< DDRMat > tDphiDp = tGeom_1->get_sensitivity_dphi_dp_at_coordinate( tCoord, tInput );
+//					    print(tDphiDp,"dphi/dp");
 
 					}
 						}
 //------------------------------------------------------------------------------
 
-				TEST_CASE("GE_calculate_phi_values_at_nodes","[GE],[GE_test7]")
+				TEST_CASE("GE_calculate_phi_values_at_nodes","[GE],[GE_test5]")
 				{
                     if(par_size()<=1)
                     {
@@ -632,10 +501,10 @@ plane_function( const Matrix< DDRMat > & aPoint,
                         // setup the geometry engine and specify LS function parameters (circle)
                         //------------------------------------------------------------------------------
                         Ge_Factory tFactory;
-                        Geometry*  tGeomType = tFactory.set_geometry_type(type::ANALYTIC);
-                        tGeomType->set_analytical_function(circle_function);
+                        std::shared_ptr< Geometry > tGeomType = tFactory.set_geometry_type(type::ANALYTIC);
+                        tGeomType->set_analytical_function( type::CIRCLE );
 
-                        GE tGeometryEngine;
+                        GE_Main tGeometryEngine;
                         tGeometryEngine.set_geometry( tGeomType );
 
                         moris::Cell< real > tCircleInputs(3);
@@ -658,15 +527,15 @@ plane_function( const Matrix< DDRMat > & aPoint,
                         real tEpsilon     = 0.000000000001;    // error tolerance 1e-12
 
                         Matrix< DDRMat > tCheckMatrix(9,1);
-                        tCheckMatrix(0,0) =  2.499999999999988;
-                        tCheckMatrix(1,0) =  2.500000000000021;
-                        tCheckMatrix(2,0) =  4.571067811865491;
-                        tCheckMatrix(3,0) =  2.500000000000006;
-                        tCheckMatrix(4,0) = -0.000000000000008;
-                        tCheckMatrix(5,0) =  3.090169943749464;
-                        tCheckMatrix(6,0) =  3.090169943749468;
-                        tCheckMatrix(7,0) = -0.000000000000005;
-                        tCheckMatrix(8,0) =  1.035533905932741;
+                        tCheckMatrix(0,0) = -6.249999999999949;
+                        tCheckMatrix(1,0) = 18.750000000000099;
+                        tCheckMatrix(2,0) = 43.750000000000121;
+                        tCheckMatrix(3,0) = 18.750000000000085;
+                        tCheckMatrix(4,0) = -0.000000000000035;
+                        tCheckMatrix(5,0) = 24.999999999999936;
+                        tCheckMatrix(6,0) = 24.999999999999943;
+                        tCheckMatrix(7,0) = -0.000000000000039;
+                        tCheckMatrix(8,0) =  6.250000000000020;
 
                         Matrix< DDRMat > tDiffMat = tPhi - tCheckMatrix;
 

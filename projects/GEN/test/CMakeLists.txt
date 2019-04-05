@@ -1,5 +1,6 @@
 # Geometry Engine Tests ---------------------------------------------------
 # -------------------------------------------------------------------------
+    include_directories(GE_Test_Proxy)
 
 # List source files
 set(TEST_SOURCES
@@ -9,7 +10,10 @@ set(TEST_SOURCES
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
+    
+    GE_Test_Proxy/cl_GE_Interface_Proxy.cpp
     cl_GE_test.cpp
+    cl_GE_test_with_interface.cpp
     )
 
 # List test includes
@@ -43,6 +47,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+    ${GEN}-lib
     ${HMR}-lib
     ${MAP}-lib
     ${MTK}-lib
