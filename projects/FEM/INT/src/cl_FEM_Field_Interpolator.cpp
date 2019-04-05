@@ -80,9 +80,12 @@ namespace moris
                          "Field_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");
 
             //check input values are between -1 and 1
+
+            moris::real tEpsilon = 1E-12;
+
             for ( moris::uint Ik = 0; Ik < mNSpaceDim + mNTimeDim; Ik++ )
             {
-                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1 ) && ( aParamPoint( Ik ) >= -1 ) ),
+                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1+tEpsilon ) && ( aParamPoint( Ik ) >= -1-tEpsilon ) ),
                              "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
             }
 

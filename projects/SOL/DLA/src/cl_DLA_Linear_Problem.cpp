@@ -56,11 +56,10 @@ namespace dla
 
         mInput->assemble_jacobian( mMat, aFullSolutionVector);
 
-        std::string tString = "singular_matrix";
+        //std::string tString = "singular_matrix";
+        //mMat->save_matrix_to_matlab_file( tString.c_str());
 
-        mMat->save_matrix_to_matlab_file( tString.c_str());
-
-        mMat->print();
+        //mMat->print();
     }
 
 //----------------------------------------------------------------------------------------

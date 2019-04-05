@@ -513,7 +513,7 @@ namespace moris
                     {
                        uint tNumVert = mMesh->get_mtk_cell( k ).get_number_of_vertices();
 
-                       print( mElements(k)->get_pdof_values(), "Element");
+                       //print( mElements(k)->get_pdof_values(), "Element");
 
                        for( luint Jk=0; Jk < tNumVert; ++Jk )
                        {

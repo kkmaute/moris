@@ -223,7 +223,7 @@ namespace moris
 	
      TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
      {
-        if(par_size() == 1 )
+        if( par_size() == 2 )
         {
             // Create a 3D mesh of HEX8 using MTK ------------------------------------------
             std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
@@ -331,7 +331,7 @@ namespace moris
                                    && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
             }
 
-            print(tSolution11, "Solution");
+            //print(tSolution11, "Solution");
 
             // check bool is true
             REQUIRE( tCheckNodalSolution );
@@ -470,8 +470,8 @@ namespace moris
 
                hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-               tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
-               tParameters.set( "domain_dimensions", "2, 2, 2" );
+               tParameters.set( "number_of_elements_per_dimension", "4, 2, 2" );
+               tParameters.set( "domain_dimensions", "4, 2, 2" );
                tParameters.set( "domain_offset", "0, 0.0, 0.0" );
                tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
                tParameters.set( "verbose", 0 );
@@ -491,7 +491,7 @@ namespace moris
                 // create field
                 std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
 
-                for( uint k=0; k<0; ++k )
+                for( uint k=0; k<3; ++k )
                 {
                     tField->evaluate_scalar_function( LevelSetFunction );
                     tHMR.flag_surface_elements( tField );
@@ -504,7 +504,7 @@ namespace moris
                // evaluate node values
                tField->evaluate_scalar_function( LevelSetFunction );
 
-               tHMR.save_to_exodus( 2,"Circle_diff.exo" );
+               tHMR.save_to_exodus( 1,"Circle_diff.exo" );
 
 
                //1) Create the fem nodes ------------------------------------------------------
@@ -536,7 +536,7 @@ namespace moris
 
                tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
 
-               tHMR.save_to_exodus( 2,"Circle_diff_temp.exo" );
+               tHMR.save_to_exodus( 1,"Circle_diff_temp.exo" );
 
                // Expected solution
                Matrix< DDRMat > tExpectedSolution = {{ 5.000000000439168e+00,    2.499999999484336e+01,    4.499999998931914e+01,
