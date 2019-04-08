@@ -1674,8 +1674,6 @@ namespace moris
                 tNumberOfFacetsPerElement = 6;
             }
 
-
-
             // step 2: count number of active or refined facets on mesh
 
             // initialize counter
@@ -1696,7 +1694,6 @@ namespace moris
                         // get pointer to face
                         Background_Facet * tBackFacet = tBackElement->get_facet( f );
 
-
                         // test if background facet is not flagged and element
                         if( ! tBackFacet->is_flagged() )
                         {
@@ -1709,7 +1706,6 @@ namespace moris
                     }
                 }
             }
-
 
             // step 2: create lagrange facets
             mFacets.resize( tCount, nullptr );
@@ -1782,7 +1778,6 @@ namespace moris
                 }
             }
 
-
             // step 6: synchronize proc IDs if parallel
             if( par_size() > 1 )
             {
@@ -1796,7 +1791,6 @@ namespace moris
             {
                 tBasis->delete_facet_container();
             }
-
 
             // count facets and increment each ID by 1, because IDs are supposed to
             // be 1-based
@@ -1816,7 +1810,6 @@ namespace moris
 
                 // increment faced ID
                 tFacet->set_id( tFacet->get_id() + 1 );
-
             }
 
             // insert facet containers
@@ -1839,7 +1832,6 @@ namespace moris
                     }
                 }
             }
-
 
             /*std::cout << par_rank() << " flag 1" << std::endl;
             // step 7 : link facets with children

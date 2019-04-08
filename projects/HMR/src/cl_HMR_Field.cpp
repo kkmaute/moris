@@ -354,8 +354,6 @@ namespace moris
             // get number of nodes on block
             uint tNumberOfVertices = mMesh->get_num_nodes();
 
-            std::cout<<tNumberOfVertices<<"tNumberOfVertices"<<std::endl;
-
             // set size of node values
             tNodeValues.set_size( tNumberOfVertices, 1 );
 
