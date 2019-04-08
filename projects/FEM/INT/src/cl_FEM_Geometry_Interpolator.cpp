@@ -281,6 +281,16 @@ namespace moris
                             tVerticesOrdinals = tFaceVerticesOrdinalMap( aSpaceOrdinal );
                             break;
 
+//                        case ( 64 ):
+//                        	tFaceVerticesOrdinalMap = {{ 0, 1, 5, 4,  8,  9, 16, 17, 25, 24, 13, 12, 36, 37, 38, 39 },
+//                                    				   { 1, 2, 6, 5, 14, 15, 20, 21, 29, 28, 17, 16, 44, 45, 46, 47 },
+//                                    				   { 2, 3, 7, 6, 18, 19, 22, 23, 31, 30, 21, 20, 48, 49, 50, 51 },
+//                                    				   { 0, 4, 7, 3, 12, 13, 26, 27, 23, 22, 11, 10, 40, 41, 42, 43 },
+//                                    				   { 0, 3, 2, 1, 10, 11, 19, 18, 15, 14,  9,  8, 32, 33, 34, 35 },
+//                                    				   { 4, 5, 6, 7, 24, 25, 28, 29, 30, 31, 27, 26, 52, 53, 54, 55 }};
+//                        	tVerticesOrdinals = tFaceVerticesOrdinalMap( aSpaceOrdinal );
+//                        	break;
+
                         default:
                             MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - order not implemented " );
                             break;
