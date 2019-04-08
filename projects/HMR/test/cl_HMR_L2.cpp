@@ -251,7 +251,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 1; ++tLevel )
+        for( uint tLevel = 3; tLevel < 1; ++tLevel )
         {
             tDatabase->flag_element( 0 );
 

@@ -223,7 +223,7 @@ namespace moris
 	
      TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
      {
-        if( par_size() == 1 )
+        if( par_size() == 2 )
         {
             // Create a 3D mesh of HEX8 using MTK ------------------------------------------
             std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
@@ -256,7 +256,7 @@ namespace moris
              // create field
              std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
 
-             for( uint k=0; k<3; ++k )
+             for( uint k=0; k<2; ++k )
              {
                  tField->evaluate_scalar_function( LevelSetFunction );
                  tHMR.flag_surface_elements( tField );
@@ -267,9 +267,11 @@ namespace moris
              tHMR.finalize();
 
              // evaluate node values
-//             tField->evaluate_scalar_function( LevelSetFunction );
+             tField->evaluate_scalar_function( LevelSetFunction );
 //
-//             tHMR.save_to_exodus( "Circle_diff.exo" );
+             tHMR.save_to_exodus( "Circle_diff.exo" );
+
+//             tHMR.save_faces_to_vtk( "Faces.vtk" );
 
             //1) Create the fem nodes ------------------------------------------------------
             std::cout<<" Create the fem nodes "<<std::endl;
@@ -331,7 +333,7 @@ namespace moris
                                    && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
             }
 
-            //print(tSolution11, "Solution");
+            print(tSolution11, "Solution");
 
             // check bool is true
             REQUIRE( tCheckNodalSolution );
@@ -458,7 +460,7 @@ namespace moris
 
     TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
     {
-       if(par_size() == 1 )
+       if(par_size() == 2 )
        {
            // Create a 3D mesh of HEX8 using MTK ------------------------------------------
            std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
@@ -470,9 +472,9 @@ namespace moris
 
            hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-           tParameters.set( "number_of_elements_per_dimension", "4, 2, 2" );
+           tParameters.set( "number_of_elements_per_dimension", "8, 4, 4" );
            tParameters.set( "domain_dimensions", "4, 2, 2" );
-           tParameters.set( "domain_offset", "0, 0.0, 0.0" );
+           tParameters.set( "domain_offset", "0.0, -1.0, -1.0" );
            tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
            tParameters.set( "verbose", 0 );
            tParameters.set( "truncate_bsplines", 1 );
@@ -491,10 +493,15 @@ namespace moris
             // create field
             std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
 
-            for( uint k=0; k<3; ++k )
+//            auto tDatabase = tHMR.get_database();
+
+            for( uint k=0; k<1; ++k )
             {
                 tField->evaluate_scalar_function( LevelSetFunction );
+
                 tHMR.flag_surface_elements( tField );
+
+//                tDatabase->flag_element( 0 );
                 tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
                 tHMR.update_refinement_pattern();
             }
@@ -505,7 +512,6 @@ namespace moris
            tField->evaluate_scalar_function( LevelSetFunction );
 
            tHMR.save_to_exodus( 1,"Circle_diff.exo" );
-
 
            //1) Create the fem nodes ------------------------------------------------------
                std::cout<<" Create the fem nodes "<<std::endl;

@@ -239,7 +239,6 @@ namespace moris
         void
         Database::update_bspline_meshes()
         {
-
             // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
@@ -717,7 +716,7 @@ namespace moris
 
                     // union is created from both B-Spline patterns
                     this->create_union_pattern();
-
+                    
                     // test if max polynomial is 3
                     if ( mParameters->get_max_polynomial() > 2 )
                     {

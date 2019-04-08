@@ -976,6 +976,8 @@ namespace moris
                 }
             }
 
+            // Communicate mMaxLevel in case a processor has no flagged elements
+            max_all( mMaxLevel, mMaxLevel );
         }
 
 //--------------------------------------------------------------------------------
@@ -1135,6 +1137,8 @@ namespace moris
 
             // element list on level
             Cell< Background_Element_Base* >  tElementList;
+
+            // FIXME mMaxLevel has to be fixed for non intersected processors
 
             // collect higher level neighbors if any refinement exists
             if ( mMaxLevel > 0 )
@@ -2124,7 +2128,6 @@ namespace moris
         void
         Background_Mesh_Base::create_facets()
         {
-
             tic tTimer;
             uint tPattern = mParameters->get_lagrange_output_pattern();
             this->set_activation_pattern( tPattern );
@@ -2163,7 +2166,6 @@ namespace moris
         void
         Background_Mesh_Base::create_faces_and_edges()
         {
-
             tic tTimer;
 
             // select output pattern
@@ -2214,7 +2216,6 @@ namespace moris
             this->collect_active_elements_including_aura();
             this->update_element_indices();
             this->collect_neighbors();
-
         }
 
 // -----------------------------------------------------------------------------
