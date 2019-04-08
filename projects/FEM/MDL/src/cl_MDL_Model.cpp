@@ -314,6 +314,8 @@ namespace moris
             // set default parameters for linear solver
             mLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             mLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+
+
             //mLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
             //mLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
 

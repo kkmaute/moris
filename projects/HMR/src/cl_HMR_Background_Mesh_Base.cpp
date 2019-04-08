@@ -1138,8 +1138,6 @@ namespace moris
             // element list on level
             Cell< Background_Element_Base* >  tElementList;
 
-            // FIXME mMaxLevel has to be fixed for non intersected processors
-
             // collect higher level neighbors if any refinement exists
             if ( mMaxLevel > 0 )
             {
