@@ -3617,8 +3617,6 @@ namespace moris
 
             uint tNumBSplineBasis = tBslpinemesh->get_number_of_indexed_basis();
 
-            //std::cout<<tNumBSplineBasis<<std::endl;
-
             for( Basis * tBasis : mAllBasisOnProc )
             {
                 bool tBasisFound = false;
@@ -3629,16 +3627,18 @@ namespace moris
 
                     if ( tIsActive )
                     {
-                        if( ( tBasis->get_xyz()[0] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] ) <= 1E-10 )
+                        if( std::abs( tBasis->get_xyz()[0] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] ) <= 1E-10 )
                         {
-                            if( ( tBasis->get_xyz()[1] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] ) <= 1E-10 )
+                            if( std::abs( tBasis->get_xyz()[1] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] ) <= 1E-10 )
                             {
                                 if ( mParameters->get_number_of_dimensions() == 3 )
                                 {
-                                    if( ( tBasis->get_xyz()[2] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[2] ) <= 1E-10 )
+                                    if( std::abs( tBasis->get_xyz()[2] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[2] ) <= 1E-10 )
                                     {
                                         moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
                                         moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+
+                                        MORIS_ASSERT( tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
 
                                         tReverseIndexMap( tIndex ) = tBasis->get_index();
                                         tReverseIDMap( tID ) = tBasis->get_hmr_index();
@@ -3656,6 +3656,8 @@ namespace moris
                                 {
                                     moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
                                     moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+
+                                    MORIS_ASSERT(tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
 
                                     tReverseIndexMap( tIndex ) = tBasis->get_index();
                                     tReverseIDMap( tID ) = tBasis->get_hmr_index();
@@ -3692,6 +3694,7 @@ namespace moris
 
             std::string aFilePath = "Reverse_Map.hdf5";
 
+            //print(tReverseIndexMap,"tReverseIndexMap");
             // add order to path
             std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
                                         + "_" + std::to_string( this->get_index() ) // rank of this processor

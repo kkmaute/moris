@@ -1124,6 +1124,11 @@ namespace moris
                                         const uint          aLagrangeOrder,
                                         const uint          aBSpineOrder )
         {
+            if(  mParameters->get_renumber_lagrange_nodes() )
+            {
+                MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
+            }
+
             // opens an existing file with read and write access
             hid_t tFileID = open_hdf5_file( aFilePath );
 
@@ -1276,15 +1281,14 @@ namespace moris
                                                                  aLabel,
                                                                  EntityRank::NODE );
 
-            // having the values, we must no rearrange them in the order of the HMR mesh.
+            // having the values, we must now rearrange them in the order of the HMR mesh.
             // Therefore, we create a map
             map< moris_id, real > tValueMap;
             for( uint k=0; k<tNumberOfExodusNodes; ++k )
             {
                 // get ID of this node and map it with value
-                tValueMap[ tMesh->get_glb_entity_id_from_entity_loc_index(
-                        k,
-                        EntityRank::NODE ) ] = tValues( k );
+                tValueMap[ tMesh->get_glb_entity_id_from_entity_loc_index( k,
+                                                                           EntityRank::NODE ) ] = tValues( k );
             }
 
             // make sure that field is a row matrix
@@ -1295,6 +1299,26 @@ namespace moris
             {
                 tValues( k ) = tValueMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
             }
+
+            //-----------------------------------------------------------------------------
+            if(  mParameters->get_renumber_lagrange_nodes() )
+            {
+                Matrix< DDRMat >tTempValues = tValues;
+                Matrix< DDSMat > tReverseMap;
+                // load values into field
+                herr_t tStatus = 0;
+                hid_t tHDF5File = open_hdf5_file( "Reverse_Map_1.hdf5" );
+                load_matrix_from_hdf5_file( tHDF5File, "Index", tReverseMap, tStatus );
+                close_hdf5_file( tHDF5File );
+
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    tValues( tReverseMap( k ) ) = tTempValues( k );
+                }
+            }
+
+
+            //------------------------------------------------------------------------------
 
             // finally, we set the order of the B-Spline coefficients
             aField->set_bspline_order( tBSplineOrder );
@@ -1439,12 +1463,11 @@ namespace moris
 
         void
         HMR::user_defined_flagging(
-                int ( *aFunction )(
-                              Element                    * aElement,
-                        const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                              ParameterList              & aParameters ),
+                        int ( *aFunction )(       Element                    * aElement,
+                                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                                  ParameterList              & aParameters ),
                         Cell< std::shared_ptr< Field > > & aFields,
-                              ParameterList              & aParameters )
+                        ParameterList              & aParameters )
         {
 
             // remember current active scheme
