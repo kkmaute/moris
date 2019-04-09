@@ -3617,6 +3617,8 @@ namespace moris
 
             uint tNumBSplineBasis = tBslpinemesh->get_number_of_indexed_basis();
 
+            //std::cout<<tNumBSplineBasis<<std::endl;
+
             for( Basis * tBasis : mAllBasisOnProc )
             {
                 bool tBasisFound = false;
@@ -3688,11 +3690,11 @@ namespace moris
                 tBasis->set_domain_index( tCounter++ );
             }
 
-            std::string aFilePath = "Reverse_Map";
+            std::string aFilePath = "Reverse_Map.hdf5";
 
             // add order to path
             std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                        + "_" + std::to_string( 1 ) // rank of this processor
+                                        + "_" + std::to_string( this->get_index() ) // rank of this processor
                                         +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             // make path parallel
@@ -3709,13 +3711,13 @@ namespace moris
 
             // save reverse indices to file
             save_matrix_to_hdf5_file( tFileID,
-                                      "-Index",
+                                      "Index",
                                       tReverseIndexMap,
                                       tStatus );
 
             // save reverse ids to file
             save_matrix_to_hdf5_file( tFileID,
-                                      "-Id",
+                                      "Id",
                                       tReverseIDMap,
                                       tStatus );
         }

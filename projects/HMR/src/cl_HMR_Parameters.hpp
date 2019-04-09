@@ -138,6 +138,9 @@ namespace moris
            //! Generate information about mesh refinement level interrelation
            bool mRefinementInterrelation = false;
 
+           //! Renumber Lagrange Nodes
+           bool mRenumberLagrangeNodes = false;
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------
@@ -957,6 +960,22 @@ namespace moris
            get_refinement_interrelation() const
            {
                return mRefinementInterrelation;
+           }
+
+           //-------------------------------------------------------------------------------
+
+           void
+           set_renumber_lagrange_nodes( const bool aSwitch )
+           {
+               mRenumberLagrangeNodes = aSwitch;
+           }
+
+           //-------------------------------------------------------------------------------
+
+           bool
+           get_renumber_lagrange_nodes() const
+           {
+               return mRenumberLagrangeNodes;
            }
 
            //-------------------------------------------------------------------------------
