@@ -15,6 +15,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+#include "HDF5_Tools.hpp"
+
 #include "fn_save_matrix_to_binary_file.hpp"
 
 
@@ -3601,8 +3603,13 @@ namespace moris
         // BIG HACK for femdoc with explicit consent of Kurt. Only tested in serial and linear meshes.
         void Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc()
         {
+            MORIS_ERROR( par_size() <= 1, "Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc(), this function is intended to work only in serial");
+
             moris::uint tCounter = 0;
             moris::uint tCounter2 = 0;
+
+            Matrix< DDSMat > tReverseIndexMap( mAllBasisOnProc.size()+1, 1, -1 );
+            Matrix< DDSMat > tReverseIDMap( mAllBasisOnProc.size()+1, 1, -1 );
 
             moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
 
@@ -3620,21 +3627,45 @@ namespace moris
 
                     if ( tIsActive )
                     {
-                        if( tBasis->get_xyz()[0] == tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] )
+                        if( ( tBasis->get_xyz()[0] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] ) <= 1E-10 )
                         {
-                            if( tBasis->get_xyz()[1] == tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] )
+                            if( ( tBasis->get_xyz()[1] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] ) <= 1E-10 )
                             {
-                                moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
-                                moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+                                if ( mParameters->get_number_of_dimensions() == 3 )
+                                {
+                                    if( ( tBasis->get_xyz()[2] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[2] ) <= 1E-10 )
+                                    {
+                                        moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
+                                        moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
 
-                                tBasis->set_local_index( tIndex );
-                                tBasis->set_domain_index( tID );
+                                        tReverseIndexMap( tIndex ) = tBasis->get_index();
+                                        tReverseIDMap( tID ) = tBasis->get_hmr_index();
 
-                                tBasisFound = true;
+                                        tBasis->set_local_index( tIndex );
+                                        tBasis->set_domain_index( tID );
 
-                                tCounter++;
+                                        tBasisFound = true;
 
-                                break;
+                                        tCounter++;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
+                                    moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+
+                                    tReverseIndexMap( tIndex ) = tBasis->get_index();
+                                    tReverseIDMap( tID ) = tBasis->get_hmr_index();
+
+                                    tBasis->set_local_index( tIndex );
+                                    tBasis->set_domain_index( tID );
+
+                                    tBasisFound = true;
+
+                                    tCounter++;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -3650,9 +3681,43 @@ namespace moris
 
             for( Basis * tBasis : tNonBSplineBasis )
             {
+                tReverseIndexMap( tCounter ) = tBasis->get_index();
+                tReverseIDMap( tCounter ) = tBasis->get_hmr_index();
+
                 tBasis->set_local_index( tCounter );
                 tBasis->set_domain_index( tCounter++ );
             }
+
+            std::string aFilePath = "Reverse_Map";
+
+            // add order to path
+            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                                        + "_" + std::to_string( 1 ) // rank of this processor
+                                        +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+
+            // make path parallel
+            tFilePath = parallelize_path( tFilePath );
+
+            // Create a new file using default properties
+            herr_t tFileID = H5Fcreate( tFilePath.c_str(),
+                                        H5F_ACC_TRUNC,
+                                        H5P_DEFAULT,
+                                        H5P_DEFAULT);
+
+            // error handler
+            herr_t tStatus;
+
+            // save reverse indices to file
+            save_matrix_to_hdf5_file( tFileID,
+                                      "-Index",
+                                      tReverseIndexMap,
+                                      tStatus );
+
+            // save reverse ids to file
+            save_matrix_to_hdf5_file( tFileID,
+                                      "-Id",
+                                      tReverseIDMap,
+                                      tStatus );
         }
 
     } /* namespace hmr */

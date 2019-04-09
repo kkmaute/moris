@@ -24,8 +24,6 @@
 #include "cl_XML_Parser.hpp"
 
 
-
-
 namespace moris
 {
     namespace hmr

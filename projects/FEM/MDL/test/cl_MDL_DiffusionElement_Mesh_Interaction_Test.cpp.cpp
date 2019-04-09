@@ -300,7 +300,7 @@ namespace moris
 
             tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
 
-            tHMR.save_to_exodus( "Circle_diff_temp.exo" );
+//            tHMR.save_to_exodus( "Circle_diff_temp.exo" );
 
             // Expected solution
             Matrix< DDRMat > tExpectedSolution;
@@ -636,6 +636,165 @@ namespace moris
             REQUIRE( tCheckNodalSolution );
            }/* if( par_size() */
        }
+
+//-------------------------------------------------------------------------------------------------------
+
+//    TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x4x4]" )
+//    {
+//       if( par_size() == 1 )
+//       {
+//           // Create a 3D mesh of HEX8 using MTK ------------------------------------------
+//           std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
+//           //------------------------------------------------------------------------------
+//
+//           moris::uint tBplineOrder = 3;
+//           moris::uint tLagrangeOrder = 3;
+//           moris::uint tMyCoeff = 1;
+//
+//           hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+//
+//           tParameters.set( "number_of_elements_per_dimension", "4, 2, 2" );
+//           tParameters.set( "domain_dimensions", "4, 2, 2" );
+//           tParameters.set( "domain_offset", "-2.0, 0.0, 0.0" );
+//           tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
+//           tParameters.set( "verbose", 0 );
+//           tParameters.set( "truncate_bsplines", 1 );
+//           tParameters.set( "bspline_orders", "3" );
+//           tParameters.set( "lagrange_orders", "3" );
+//
+//           tParameters.set( "use_multigrid", 0 );
+//
+//           tParameters.set( "refinement_buffer", 1 );
+//           tParameters.set( "staircase_buffer", 1 );
+//
+//           hmr::HMR tHMR( tParameters );
+//
+//           std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+//
+//           // create field
+//           std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
+//
+//           for( uint k=0; k<2; ++k )
+//           {
+//               tField->evaluate_scalar_function( LevelSetFunction );
+//               tHMR.flag_surface_elements( tField );
+//               tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+//               tHMR.update_refinement_pattern();
+//           }
+//
+//           tHMR.finalize();
+//
+//           // evaluate node values
+////           tField->evaluate_scalar_function( LevelSetFunction );
+////           tHMR.save_to_exodus( 1,"Circle_diff.exo" );
+//
+//           //1) Create the fem nodes ------------------------------------------------------
+//           std::cout<<" Create the fem nodes "<<std::endl;
+//           //------------------------------------------------------------------------------
+//           Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+//           tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+//           tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+//           tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+//
+//           // create a list of active sidesets
+//           Cell< moris_index >  tSidesetList = { 3, 5 };
+//
+//           // create a list of BC type for the sidesets
+//           Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
+//                                                       fem::BC_Type::NEUMANN };
+//
+//           // create model
+//           mdl::Model * tModel = new mdl::Model( tMesh.get(), tBplineOrder, tIWGTypeList,
+//                                                 tSidesetList, tSidesetBCTypeList );
+//
+//           //solve
+//           moris::Matrix< DDRMat > tSolution11;
+//           tModel->solve( tSolution11 );
+//
+//           //print(tSolution11,"tSolution11");
+//
+//           tModel->output_solution( "Circle" );
+//
+//           tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
+//
+////           tHMR.save_to_exodus( 1,"Circle_diff_temp.exo" );
+////           tHMR.save_bsplines_to_vtk("Bsplines_temp.vtk");
+//
+////           //-------------------------------------//
+////           // print solution of each processor
+////           if (par_rank() == 0){
+////             print(tSolution11,"Processor_ONE");
+////           }
+////           else if (par_rank() == 1){
+////             print(tSolution11,"Processor_TWO");
+////           }
+////           else {} // do nothing
+////           //-------------------------------------//
+//
+//            // Expected solution when running in serial
+//            Matrix< DDRMat > tExpectedSolution = {{ +1.976384396893782e-09, +9.999999997638666e+00, +2.299478928887239e-09,
+//                                                    +9.999999997438143e+00, +4.152303135013222e-09, +9.999999996543764e+00,
+//                                                    +2.631924777316510e-09, +9.999999997284709e+00, +1.999999999016610e+01,
+//                                                    +2.249999998863940e+01, +2.749999998937424e+01, +2.249999999091407e+01,
+//                                                    +2.749999998558418e+01, +2.249999998975273e+01, +2.749999998741196e+01,
+//                                                    +2.249999999001834e+01, +2.749999998686932e+01, +3.249999997374252e+01,
+//                                                    +3.374999998746107e+01, +3.624999997886972e+01, +3.374999998168578e+01,
+//                                                    +3.624999998243668e+01, +3.374999998299653e+01, +3.624999998061379e+01,
+//                                                    +3.374999998348704e+01 }};
+//
+//            // expected solutions when running in parallel
+//            if (par_size() == 2)
+//            {
+//                if ( par_rank() == 0 )
+//                {
+//                    // Expected solution for first processor
+//                    tExpectedSolution = {{ -3.302872243818668e-08, +1.000000001738268e+01, +1.085000671093155e-08,
+//                                           +9.999999995258710e+00, +1.725491188274901e-08, +9.999999992226838e+00,
+//                                           -8.821987998234748e-09, +1.000000000506248e+01, +1.999999997518040e+01,
+//                                           +2.250000000695395e+01, +2.750000001516867e+01, +2.250000000553710e+01,
+//                                           +2.750000000184574e+01, +2.250000000522549e+01, +2.750000000242706e+01,
+//                                           +2.250000000469339e+01, +2.750000000978408e+01, +3.249999997587295e+01,
+//                                           +3.375000001858257e+01, +3.624999998752415e+01, +3.375000000630910e+01,
+//                                           +3.625000002645388e+01, +3.375000000782835e+01, +3.625000002339387e+01,
+//                                           +3.375000001143644e+01 }};
+//                   // print(tSolution11,"Processor_ONE");
+//                }
+//                else if ( par_rank() == 1 )
+//                {
+//                    // Expected solution for second processor
+//                     tExpectedSolution = {{ +4.249999984172224e+01, +4.750000055380576e+01, +4.250000015181325e+01,
+//                                            +4.749999966007174e+01, +4.250000011538052e+01, +4.749999976236016e+01,
+//                                            +4.249999995438112e+01, +4.750000020612755e+01, +5.249999984162645e+01,
+//                                            +5.375000021335701e+01, +5.624999996839500e+01, +5.374999994715878e+01,
+//                                            +5.625000007162272e+01, +5.374999996649412e+01, +5.625000006434173e+01,
+//                                            +5.375000007562546e+01, +5.625000003060088e+01, +5.750000035171650e+01,
+//                                            +5.250000045361771e+01, +5.749999987371483e+01, +5.250000035870602e+01,
+//                                            +5.749999990229202e+01, +5.249999989014849e+01, +5.750000009994142e+01,
+//                                            +4.249999992652671e+01 }};
+//
+//                // print(tSolution11,"Processor_TWO");
+//                }
+//                else {} //do nothing
+//            }
+//            else {} // end expected solutions for parallel
+//
+//            // define an epsilon environment
+//            double tEpsilon = 1E-9;
+//
+//            // define a bool for solution check
+//            bool tCheckNodalSolution = true;
+//
+//            // loop over the node and check solution
+//            for ( uint i = 0; i < 25; i++ )
+//            {
+//                // check solution
+//                tCheckNodalSolution = tCheckNodalSolution
+//                                   && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
+//            }
+//            // check bool is true
+//            REQUIRE( tCheckNodalSolution );
+//           }/* if( par_size() */
+//       }
 
 //-------------------------------------------------------------------------------------------------------
 
