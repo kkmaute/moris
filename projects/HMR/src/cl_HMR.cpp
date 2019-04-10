@@ -353,6 +353,7 @@ namespace moris
 
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k )
             {
+                // Renumber Lagrange nodes to be the same than B-Spline basis. Only serial and linear
                 if(  mParameters->get_renumber_lagrange_nodes() )
                 {
                     mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();
