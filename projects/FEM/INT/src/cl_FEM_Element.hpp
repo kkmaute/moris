@@ -26,10 +26,13 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
+#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
+
 namespace moris
 {
     namespace fem
     {
+    class Element_Block;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -64,6 +67,10 @@ namespace moris
         uint                                 mNumOfInterp;
 
         moris::Matrix< DDSMat >              mInterpDofTypeMap;
+
+        Element_Block * mElementBlock;
+
+        bool mIsMaster = false;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -74,6 +81,8 @@ namespace moris
                  moris::Cell< IWG* >       & aIWGs,
                  moris::Cell< Node_Base* > & aNodes )
         {
+
+            mIsMaster = true;
 
             // fill the bulk mtk::Cell pointer
             mCell = aCell;
@@ -188,11 +197,156 @@ namespace moris
                 mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
             }
         };
+
+        Element( mtk::Cell                 * aCell,
+                 moris::Cell< IWG* >       & aIWGs,
+                 moris::Cell< Node_Base* > & aNodes,
+                 Element_Block      * aElementBlock) : mElementBlock(aElementBlock)
+        {
+
+            // fill the bulk mtk::Cell pointer
+            mCell = aCell;
+
+            // fill the cell of IWGs pointers
+            mIWGs = aIWGs;
+
+            // select the element nodes from aNodes and fill mNodeObj
+            // get vertices from cell
+            moris::Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // get number of nodes from cell
+            uint tNumOfNodes = tVertices.size();
+
+            // assign node object
+            mNodeObj.resize( tNumOfNodes, nullptr );
+
+            // fill node objects
+            for( uint i = 0; i < tNumOfNodes; i++)
+            {
+                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
+            }
+
+            // set size of Weak BCs
+            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
+
+            // FIXME: Mathias, please comment
+            mTimeSteps.set_size( 1, 1, 1 );
+
+            //create an element active dof type list from IWGs----------------------
+            // get the number of IWGs
+            mNumOfIWGs = mIWGs.size();
+
+            // set the size of the element active dof type list
+            uint tCounter = 0;
+            for ( uint i = 0; i < mNumOfIWGs; i++ )
+            {
+                tCounter = tCounter + mIWGs( i )->get_residual_dof_type().size();
+            }
+            mEqnObjDofTypeList.resize( tCounter );
+
+            // loop over the IWGs
+            tCounter = 0;
+            for ( uint i = 0; i < mNumOfIWGs; i++ )
+            {
+                // get the residual dof type of the ith IWG
+                Cell< MSI::Dof_Type > tDofType = mIWGs( i )->get_residual_dof_type();
+
+                for ( uint j = 0; j < tDofType.size(); j++ )
+               {
+                   // get the residual dof type of the ith IWG
+                   mEqnObjDofTypeList( tCounter ) = tDofType( j );
+                   tCounter++;
+                }
+            }
+
+            // use std::unique and std::distance to create a unique list containing all used dof types
+            auto last = std::unique( ( mEqnObjDofTypeList.data() ).data(),
+                                     ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size() );
+            auto pos  = std::distance( ( mEqnObjDofTypeList.data() ).data(), last );
+            mEqnObjDofTypeList.resize( pos );
+
+            // create a list of the groups of dof types provided by the IWGs----------------
+            // FIXME works as long as the dof type are always grouped in the same way
+            moris::Cell< MSI::Dof_Type > tInterpDofTypeListBuild( mNumOfIWGs );
+
+            // loop over the IWGs
+            for ( uint i = 0; i < mNumOfIWGs; i++ )
+            {
+                // get the first dof type of each group
+                tInterpDofTypeListBuild( i ) = mIWGs( i )->get_residual_dof_type()( 0 );
+            }
+
+            // get a unique list of the first dof type of each group
+            Cell<moris::moris_index> tUniqueDofTypeGroupsIndices = unique_index( tInterpDofTypeListBuild );
+
+            // get the number of unique dof type groups
+            uint tNumOfUniqueDofTypeGroupsIndices = tUniqueDofTypeGroupsIndices.size();
+
+            // set the size of the list of unique dof type groups
+            mInterpDofTypeList.resize( tNumOfUniqueDofTypeGroupsIndices );
+
+            // loop over the list of unique dof type groups
+            for ( uint i = 0; i < tNumOfUniqueDofTypeGroupsIndices; i++ )
+            {
+                // get the unique residual dof type groups
+                mInterpDofTypeList( i ) = mIWGs( tUniqueDofTypeGroupsIndices( i ) )->get_residual_dof_type();
+            }
+
+            // create a map of the element active dof type list------------------------
+            // set number of unique pdof type of the element
+            mNumOfInterp = tNumOfUniqueDofTypeGroupsIndices;
+
+            // get maximal dof type enum number
+            sint tMaxDofTypeEnumNumber = 0;
+
+            // loop over all pdof types to get the highest enum index
+            for ( uint i = 0; i < mNumOfInterp; i++ )
+            {
+                tMaxDofTypeEnumNumber = std::max( tMaxDofTypeEnumNumber, static_cast< int >( mInterpDofTypeList( i )( 0 ) ) );
+            }
+
+            // +1 because c++ is 0 based
+            tMaxDofTypeEnumNumber = tMaxDofTypeEnumNumber + 1;
+
+            // set size of mapping matrix
+            mInterpDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
+
+            // loop over all dof types to create the mapping matrix
+            for ( uint i = 0; i < mNumOfInterp; i++ )
+            {
+                mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
+            }
+
+            // create the element geometry intepolator
+            mGeometryInterpolator = mElementBlock->get_block_geometry_interpolator();
+
+            // create the element field interpolators
+            mFieldInterpolators = mElementBlock->get_block_field_interpolator();
+        };
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        virtual ~Element(){};
+         ~Element()
+        {
+            if(mIsMaster)
+            {
+                // delete the geometry interpolator pointer
+                if ( mGeometryInterpolator != NULL )
+                {
+                    delete mGeometryInterpolator;
+                }
+
+                // delete the field interpolator pointers
+                for ( uint i = 0; i < mNumOfInterp; i++ )
+                {
+                    if ( mFieldInterpolators( i ) != NULL )
+                    {
+                        delete mFieldInterpolators( i );
+                    }
+                }
+            }
+        };
 
 //------------------------------------------------------------------------------
 

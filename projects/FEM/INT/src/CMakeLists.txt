@@ -11,6 +11,7 @@ set(HEADERS
     cl_FEM_NodeProxy.hpp
     cl_FEM_Element.hpp
     cl_FEM_Element_Bulk.hpp
+    cl_FEM_Element_Block.hpp
     cl_FEM_Element_Sideset.hpp
     cl_FEM_Element_Time_Sideset.hpp
     cl_FEM_IWG_Factory.hpp

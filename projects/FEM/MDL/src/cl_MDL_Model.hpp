@@ -26,6 +26,7 @@ namespace moris
     {
         class IWG;
         class Node_Base;
+        class Element_Block;
         enum class IWG_Type;
         enum class BC_Type;
     }
@@ -37,11 +38,11 @@ namespace moris
     }
 
     namespace NLA
-	{
-    	class Nonlinear_Algorithm;
-    	class Nonlinear_Problem;
-    	class Nonlinear_Solver;
-	}
+    {
+        class Nonlinear_Algorithm;
+        class Nonlinear_Problem;
+        class Nonlinear_Solver;
+    }
 
     namespace MSI
     {
@@ -59,6 +60,8 @@ namespace moris
             Cell< fem::Node_Base* >           mNodes;
             Cell< MSI::Equation_Object* >     mElements;
             Cell< Cell< fem::IWG* > >         mIWGs;
+
+            Cell< fem::Element_Block * >      mElementBlocks;
 
             Cell< fem::IWG* >         mIWGs1;
 

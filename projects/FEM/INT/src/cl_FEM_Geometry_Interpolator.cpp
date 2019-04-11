@@ -13,38 +13,38 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule )
-        {
-            // create member pointer to space interpolation function
-            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
-
-            // create member pointer to time interpolation function
-            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
-
-            // number of space bases and dimensions
-            mNumSpaceBases = mSpaceInterpolation->get_number_of_bases();
-            mNumSpaceDim   = mSpaceInterpolation->get_number_of_dimensions();
-
-            // number of time bases and dimensions
-            mNumTimeBases = mTimeInterpolation->get_number_of_bases();
-            mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
-
-            // set default xHat and tHat
-            mXHat.set_size( mNumSpaceBases, mNumSpaceDim, 0.0);
-            mTHat.set_size( mNumTimeBases,  mNumTimeDim,  0.0);
-
-            // set member geometry type
-            mGeometryType = aInterpolationRule.get_geometry_type();
-
-            // set pointers for second derivative depending on space and time dimensions
-            this->set_function_pointers();
-        }
+//        Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule )
+//        {
+//            // create member pointer to space interpolation function
+//            mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
+//
+//            // create member pointer to time interpolation function
+//            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
+//
+//            // number of space bases and dimensions
+//            mNumSpaceBases = mSpaceInterpolation->get_number_of_bases();
+//            mNumSpaceDim   = mSpaceInterpolation->get_number_of_dimensions();
+//
+//            // number of time bases and dimensions
+//            mNumTimeBases = mTimeInterpolation->get_number_of_bases();
+//            mNumTimeDim   = mTimeInterpolation->get_number_of_dimensions();
+//
+//            // set default xHat and tHat
+//            mXHat.set_size( mNumSpaceBases, mNumSpaceDim, 0.0);
+//            mTHat.set_size( mNumTimeBases,  mNumTimeDim,  0.0);
+//
+//            // set member geometry type
+//            mGeometryType = aInterpolationRule.get_geometry_type();
+//
+//            // set pointers for second derivative depending on space and time dimensions
+//            this->set_function_pointers();
+//        }
 
         Geometry_Interpolator::Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
                                                       const bool aSpaceSideset )
         {
         	// set bool for side interpolation to true
-        	mSpaceSideset = true;
+        	mSpaceSideset = aSpaceSideset;
 
             // create member pointer to space interpolation function
             mSpaceInterpolation = aInterpolationRule.create_space_interpolation_function();
@@ -67,18 +67,21 @@ namespace moris
             // set member geometry type
             mGeometryType = aInterpolationRule.get_geometry_type();
 
-            // set member side geometry type
-            this->get_auto_side_geometry_type();
+            if ( aSpaceSideset== true )
+            {
+                // set member side geometry type
+                this->get_auto_side_geometry_type();
 
-            // create side interpolation rule
-            Interpolation_Rule tSideInterpolationRule( mSideGeometryType,
-                                                       aInterpolationRule.get_space_interpolation_type(),
-                                                       aInterpolationRule.get_space_interpolation_order(),
-                                                       aInterpolationRule.get_time_interpolation_type(),
-                                                       aInterpolationRule.get_time_interpolation_order() );
+                // create side interpolation rule
+                Interpolation_Rule tSideInterpolationRule( mSideGeometryType,
+                                                           aInterpolationRule.get_space_interpolation_type(),
+                                                           aInterpolationRule.get_space_interpolation_order(),
+                                                           aInterpolationRule.get_time_interpolation_type(),
+                                                           aInterpolationRule.get_time_interpolation_order() );
 
-            // create member pointer to side space interpolation function
-            mSideSpaceInterpolation = tSideInterpolationRule.create_space_interpolation_function();
+                // create member pointer to side space interpolation function
+                mSideSpaceInterpolation = tSideInterpolationRule.create_space_interpolation_function();
+            }
 
             // set pointers for second derivative depending on space and time dimensions
             this->set_function_pointers();

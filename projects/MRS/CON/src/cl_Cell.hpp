@@ -245,8 +245,7 @@ namespace moris
          * @param[in] new_cap The new capacity of the Cell
          */
         void
-        reserve(
-                moris::size_t const & new_cap)
+        reserve( moris::size_t const & new_cap )
         {
             mCell.reserve( new_cap );
         }

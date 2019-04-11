@@ -87,10 +87,10 @@ namespace moris
          *
          * @param[ in ] interpolation rule for geometry
          */
-        Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule );
+//        Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule );
 
         Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
-                               const bool                 aSpaceSideset );
+                               const bool                 aSpaceSideset = false );
 
 //------------------------------------------------------------------------------
         /**
