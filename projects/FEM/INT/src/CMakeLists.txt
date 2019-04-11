@@ -101,6 +101,7 @@ endforeach()
 set(LIB_SOURCES
     cl_FEM_Element_Factory.cpp
     cl_FEM_Element_Bulk.cpp
+    cl_FEM_Element_Block.cpp
     cl_FEM_Element_Sideset.cpp
     cl_FEM_Element_Time_Sideset.cpp
     cl_FEM_IWG_Factory.cpp

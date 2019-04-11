@@ -166,6 +166,8 @@ namespace moris
             }
             mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, mIWGs( 0 ), mNodes );
 
+            mElementBlocks( tElementBlockCounter )->finalize();
+
             mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
             //  Create Blockset Elements ----------------------------------------
@@ -189,6 +191,8 @@ namespace moris
                 aMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
 
                 mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );
+
+                mElementBlocks( tElementBlockCounter )->finalize();
 
                 mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
@@ -217,7 +221,7 @@ namespace moris
                         tNodalWeakBCs( l ) = 5.0;
                         }
                         else if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
-		                {
+                        {
                             // copy weak bc into element
                             tNodalWeakBCs( l ) = 20.0;
                         }
@@ -319,6 +323,9 @@ namespace moris
             mLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             mLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
 
+            mLinearSolverAlgorithm->set_param("AZ_orthog") = AZ_modified;
+
+            mLinearSolverAlgorithm->set_param("AZ_graph_fill") = 2;
 
             //mLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
 //            mLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
