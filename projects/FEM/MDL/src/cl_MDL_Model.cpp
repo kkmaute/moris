@@ -321,7 +321,7 @@ namespace moris
 
 
             //mLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
-            mLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+//            mLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
 
             // create solver manager
             mLinSolver = new dla::Linear_Solver();

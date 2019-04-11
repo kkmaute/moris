@@ -12,6 +12,8 @@
 #include "cl_MSI_Equation_Object.hpp"               //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"               //FEM/INT/src
 
+#include "cl_Communication_Tools.hpp"               //FEM/INT/src
+
 namespace moris
 {
     namespace fem
@@ -59,41 +61,44 @@ namespace moris
                        Cell< Node_Base* >        & aNodes) : mElementPointer(aCell),
                                                              mIWGs( aIWGs )
         {
-            this->create_dof_type_lists();
-
-            Interpolation_Rule tGeometryInterpolationRule( mElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
-                                                            Interpolation_Type::LAGRANGE,
-                                                            this->get_auto_interpolation_order(),           // FIXME change to block information
-                                                            Interpolation_Type::LAGRANGE,
-                                                            mtk::Interpolation_Order::LINEAR );
-
-            bool tSpaceSideset = false;
-
-            if (aElementType==fem::Element_Type::SIDESET)
+            if(mElementPointer.size() > 0)
             {
-                tSpaceSideset=true;
-            }
+                this->create_dof_type_lists();
 
-            // create the element geometry intepolator
-            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
+                Interpolation_Rule tGeometryInterpolationRule( mElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
+                                                                Interpolation_Type::LAGRANGE,
+                                                                this->get_auto_interpolation_order(),           // FIXME change to block information
+                                                                Interpolation_Type::LAGRANGE,
+                                                                mtk::Interpolation_Order::LINEAR );
+\
+                bool tSpaceSideset = false;
 
-            // create the element field interpolators
-            mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
+                if (aElementType==fem::Element_Type::SIDESET)
+                {
+                    tSpaceSideset=true;
+                }
 
-            mElements.resize( mElementPointer.size(), nullptr);
+                // create the element geometry intepolator
+                mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
 
-            // a factory to create the elements
-            fem::Element_Factory tElementFactory;
+                // create the element field interpolators
+                mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
 
-            for( luint k=0; k < mElementPointer.size(); ++k )
-            {
-                // create the element
-                mElements( k )
-                    = tElementFactory.create_element(   aElementType,
-                                                        mElementPointer( k ),
-                                                        aIWGs,
-                                                        aNodes,
-                                                        this );
+                mElements.resize( mElementPointer.size(), nullptr);
+
+                // a factory to create the elements
+                fem::Element_Factory tElementFactory;
+
+                for( luint k=0; k < mElementPointer.size(); ++k )
+                {
+                    // create the element
+                    mElements( k )
+                        = tElementFactory.create_element(   aElementType,
+                                                            mElementPointer( k ),
+                                                            aIWGs,
+                                                            aNodes,
+                                                            this );
+                }
             }
         };
 
