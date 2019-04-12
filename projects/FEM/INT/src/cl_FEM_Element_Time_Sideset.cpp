@@ -31,22 +31,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Element_Time_Sideset::Element_Time_Sideset( mtk::Cell                 * aCell,
+                                                    moris::Cell< IWG* >       & aIWGs,
+                                                    moris::Cell< Node_Base* > & aNodes,
+                                                    Element_Block      * aElementBlock) : Element( aCell, aIWGs, aNodes, aElementBlock )
+        {
+
+        }
+
+
+//------------------------------------------------------------------------------
+
         Element_Time_Sideset::~Element_Time_Sideset()
         {
-            // delete the geometry interpolator pointer
-            if ( mGeometryInterpolator != NULL )
-            {
-                delete mGeometryInterpolator;
-            }
 
-            // delete the field interpolator pointers
-            for ( uint i = 0; i < mNumOfInterp; i++ )
-            {
-                if ( mFieldInterpolators( i ) != NULL )
-                {
-                    delete mFieldInterpolators( i );
-                }
-            }
         }
 
 //------------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 #include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"   //FEM/INT/src
+#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -33,22 +34,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Element_Bulk::Element_Bulk( mtk::Cell          * aCell,
+                                    Cell< IWG* >       & aIWGs,
+                                    Cell< Node_Base* > & aNodes,
+                                    Element_Block      * aElementBlock) : Element( aCell, aIWGs, aNodes, aElementBlock )
+        {
+
+            // compute element volume
+            //real tVolume = compute_element_volume( mGeometryInterpolator );
+        }
+
+//------------------------------------------------------------------------------
+
         Element_Bulk::~Element_Bulk()
         {
-            // delete the geometry interpolator pointer
-            if ( mGeometryInterpolator != NULL )
-            {
-                delete mGeometryInterpolator;
-            }
-
-            // delete the field interpolator pointers
-            for ( uint i = 0; i < mNumOfInterp; i++ )
-            {
-                if ( mFieldInterpolators( i ) != NULL )
-                {
-                    delete mFieldInterpolators( i );
-                }
-            }
         }
 
 //------------------------------------------------------------------------------

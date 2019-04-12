@@ -297,6 +297,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 //
 //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
 //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
+//        tHMR.save_faces_to_vtk( "Faces.vtk" );
     }
 }
 

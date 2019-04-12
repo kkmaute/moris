@@ -82,7 +82,7 @@ public:
 
     virtual void print() const = 0;
 
-    virtual void save_matrix_to_matlab_file( char* aFilename ) = 0;
+    virtual void save_matrix_to_matlab_file( const char* aFilename ) = 0;
 
     virtual void save_matrix_to_matrix_market_file( const char* aFilename ) = 0;
 

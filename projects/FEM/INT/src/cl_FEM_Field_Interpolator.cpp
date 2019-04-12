@@ -50,13 +50,6 @@ namespace moris
 
             // get number of coefficients
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
-
-//            // set default xi, tau
-//            mXi.set_size( mNSpaceParamDim, 1, 0.0 );
-//            mTau.set_size( mNTimeDim, 1, 0.0 );
-//
-//            // set default uHat
-//            mUHat.set_size( mNFieldBases, mNumberOfFields, 0.0 );
         }
 
 //------------------------------------------------------------------------------
@@ -87,6 +80,7 @@ namespace moris
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNSpaceParamDim + mNTimeDim; Ik++ )
             {
+
                 MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
                              "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
             }

@@ -256,6 +256,8 @@ namespace moris
     {
         tic tTimer;
 
+//        mMeshData.print_details();
+
         // create database object
         moris::mtk::Mesh_STK tMesh( mMeshData );
 

@@ -69,7 +69,7 @@ public:
 
     void  print() const;
 
-    void save_matrix_to_matlab_file( char* aFilename );
+    void save_matrix_to_matlab_file( const char* aFilename );
 
     void save_matrix_to_matrix_market_file( const char* aFilename );
 

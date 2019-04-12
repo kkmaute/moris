@@ -24,10 +24,13 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
+#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
+
 namespace moris
 {
     namespace fem
     {
+    class Element_Block;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -62,6 +65,10 @@ namespace moris
         uint                                 mNumOfInterp;
 
         moris::Matrix< DDSMat >              mInterpDofTypeMap;
+
+        Element_Block * mElementBlock;
+
+        bool mIsMaster = false;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -72,6 +79,8 @@ namespace moris
                  moris::Cell< IWG* >       & aIWGs,
                  moris::Cell< Node_Base* > & aNodes )
         {
+
+            mIsMaster = true;
 
             // fill the bulk mtk::Cell pointer
             mCell = aCell;
@@ -186,11 +195,74 @@ namespace moris
                 mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
             }
         };
+
+        Element( mtk::Cell                 * aCell,
+                 moris::Cell< IWG* >       & aIWGs,
+                 moris::Cell< Node_Base* > & aNodes,
+                 Element_Block      * aElementBlock) : mElementBlock(aElementBlock)
+        {
+            // fill the bulk mtk::Cell pointer
+            mCell = aCell;
+
+            // fill the cell of IWGs pointers
+            mIWGs = aIWGs;
+
+            // select the element nodes from aNodes and fill mNodeObj
+            // get vertices from cell
+            moris::Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // get number of nodes from cell
+            uint tNumOfNodes = tVertices.size();
+
+            // assign node object
+            mNodeObj.resize( tNumOfNodes, nullptr );
+
+            // fill node objects
+            for( uint i = 0; i < tNumOfNodes; i++)
+            {
+                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
+            }
+
+            // set size of Weak BCs
+            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
+
+            // FIXME: Mathias, please comment
+            mTimeSteps.set_size( 1, 1, 1 );
+
+            // get the number of IWGs
+            mNumOfIWGs = mIWGs.size();
+
+            mGeometryInterpolator = mElementBlock->get_block_geometry_interpolator();
+            mFieldInterpolators   = mElementBlock->get_block_field_interpolator();
+            mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
+            mNumOfInterp          = mElementBlock->get_num_interpolators();
+            mInterpDofTypeList    = mElementBlock->get_interpolator_dof_type_list();
+            mInterpDofTypeMap     = mElementBlock->get_interpolator_dof_type_map();
+        };
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        virtual ~Element(){};
+         ~Element()
+        {
+            if(mIsMaster)
+            {
+                // delete the geometry interpolator pointer
+                if ( mGeometryInterpolator != NULL )
+                {
+                    delete mGeometryInterpolator;
+                }
+
+                // delete the field interpolator pointers
+                for ( uint i = 0; i < mNumOfInterp; i++ )
+                {
+                    if ( mFieldInterpolators( i ) != NULL )
+                    {
+                        delete mFieldInterpolators( i );
+                    }
+                }
+            }
+        };
 
 //------------------------------------------------------------------------------
 

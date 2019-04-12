@@ -1,6 +1,7 @@
 #include <iostream>
 #include "cl_FEM_Element_Sideset.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"      //FEM/INT/src
+#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -32,22 +33,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Element_Sideset::Element_Sideset( mtk::Cell                 * aCell,
+                                          moris::Cell< IWG* >       & aIWGs,
+                                          moris::Cell< Node_Base* > & aNodes,
+                                          Element_Block             * aElementBlock)
+                                        : Element( aCell, aIWGs, aNodes, aElementBlock )
+        {
+        }
+
+//------------------------------------------------------------------------------
+
         Element_Sideset::~Element_Sideset()
         {
-            // delete the geometry interpolator pointer
-            if ( mGeometryInterpolator != NULL )
-            {
-                delete mGeometryInterpolator;
-            }
-
-            // delete the field interpolator pointers
-            for ( uint i = 0; i < mNumOfInterp; i++ )
-            {
-                if ( mFieldInterpolators( i ) != NULL )
-                {
-                    delete mFieldInterpolators( i );
-                }
-            }
         }
 
 //------------------------------------------------------------------------------

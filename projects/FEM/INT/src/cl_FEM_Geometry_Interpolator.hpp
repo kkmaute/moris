@@ -192,7 +192,6 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * set the space and time coefficients of the geometry field xHat, tHat
-         *
          * @param[ in ] space coefficients
          * @param[ in ] time coefficients
          */
@@ -202,17 +201,13 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * set the space coefficients of the geometry field xHat
-         *
          * @param[ in ] space coefficients
-         * @param[ in ] time coefficients
          */
         void set_space_coeff( const Matrix< DDRMat > & aXHat );
 
 //------------------------------------------------------------------------------
         /**
          * set the time coefficients of the geometry field tHat
-         *
-         * @param[ in ] space coefficients
          * @param[ in ] time coefficients
          */
         void set_time_coeff( const Matrix< DDRMat > & aTHat );
