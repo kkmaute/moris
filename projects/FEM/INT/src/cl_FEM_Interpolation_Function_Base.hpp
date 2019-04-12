@@ -106,6 +106,13 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * returns the number of parametric dimensions for this shape function
+             */
+            virtual uint get_number_of_param_dimensions() const = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
              * returns the interpolation order
              */
             virtual mtk::Interpolation_Order get_interpolation_order() const = 0;

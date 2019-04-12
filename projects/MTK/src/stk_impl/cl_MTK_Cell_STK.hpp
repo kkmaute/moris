@@ -191,21 +191,56 @@ namespace moris
                 //MORIS_ASSERT(false," Cell_STK::get_geometry_type - Not implemented");
                 //return Geometry_Type::UNDEFINED;
 
-                //FIXME: only for Lagrange LINE, QUAD, HEX
+                //FIXME: only for Lagrange LINE, QUAD, HEX, TET, TRI
                 switch ( mSTKMeshData->get_spatial_dim() )
                 {
-                case ( 1 ) :
-                    return Geometry_Type::LINE;
-                    break;
-                case ( 2 ) :
-                    return Geometry_Type::QUAD;
-                    break;
-                case ( 3 ) :
-                    return Geometry_Type::HEX;
-                    break;
-                default :
-                    return Geometry_Type::UNDEFINED;
-                    break;
+                    case ( 1 ) :
+                        return Geometry_Type::LINE;
+                        break;
+
+                    case ( 2 ) :
+                    {
+                        uint tNumEdges = mSTKMeshData->get_edges_connected_to_element_loc_inds( this->get_index() ).numel();
+                        switch ( tNumEdges )
+                        {
+                            case ( 3 ):
+                                return Geometry_Type::TRI;
+                                break;
+
+                            case ( 4 ):
+                                return Geometry_Type::QUAD;
+                                break;
+
+                            default:
+                                return Geometry_Type::UNDEFINED;
+                                break;
+                        }
+                        break;
+                    }
+
+                    case ( 3 ) :
+                    {
+                        uint tNumFaces = mSTKMeshData->get_faces_connected_to_element_loc_inds( this->get_index() ).numel();
+                       switch ( tNumFaces )
+                       {
+                           case ( 4 ):
+                               return Geometry_Type::TET;
+                               break;
+
+                           case ( 6 ):
+                               return Geometry_Type::HEX;
+                               break;
+
+                           default:
+                               return Geometry_Type::UNDEFINED;
+                               break;
+                        }
+                        break;
+                    }
+
+                    default :
+                        return Geometry_Type::UNDEFINED;
+                        break;
                 }
             }
 

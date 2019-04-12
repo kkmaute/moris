@@ -44,14 +44,14 @@ namespace moris
                 // Create a 3D mesh of HEX8 using MTK ------------------------------------------
                 std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
                 //------------------------------------------------------------------------------
-                uint aNumElemTypes = 1; // only 1 element type ( quad )
+                uint aNumElemTypes = 1; // only 1 element type ( hex )
                 uint aNumDim = 3;       // number of spatial dimensions
 
                 // element connectivity
-                Matrix< IdMat > aElementConnQuad = {{ 1, 2, 5, 4, 10, 11, 14, 13 },
-                                                    { 2, 3, 6, 5, 11, 12, 15, 14 },
-                                                    { 4, 5, 8, 7, 13, 14, 17, 16 },
-                                                    { 5, 6, 9, 8, 14, 15, 18, 17 },
+                Matrix< IdMat > aElementConnQuad = {{  1,  2,  5,  4, 10, 11, 14, 13 },
+                                                    {  2,  3,  6,  5, 11, 12, 15, 14 },
+                                                    {  4,  5,  8,  7, 13, 14, 17, 16 },
+                                                    {  5,  6,  9,  8, 14, 15, 18, 17 },
                                                     { 10, 11, 14, 13, 19, 20, 23, 22 },
                                                     { 11, 12, 15, 14, 20, 21, 24, 23 },
                                                     { 13, 14, 17, 16, 22, 23, 26, 25 },
@@ -88,7 +88,7 @@ namespace moris
                 mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
 
                 //1) Create the fem nodes ------------------------------------------------------
-                //std::cout<<" Create the fem nodes "<<std::endl;
+                std::cout<<" Create the fem nodes "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // number of mesh nodes
@@ -105,7 +105,7 @@ namespace moris
                 }
 
                 //2) Create the IWGs -----------------------------------------------------------
-                //std::cout<<" Create the IWGs "<<std::endl;
+                std::cout<<" Create the IWGs "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // input a cell of IWG types to be created
@@ -130,7 +130,7 @@ namespace moris
                 }
 
                 //3) Create the elements -------------------------------------------------------
-                //std::cout<<" Create the elements "<<std::endl;
+                std::cout<<" Create the elements "<<std::endl;
                 //------------------------------------------------------------------------------
                 // nodal weak bc for Dirichlet
                 Matrix< DDRMat > tNodalValues( tNumOfNodes, 1, 0.0 );
@@ -273,7 +273,7 @@ namespace moris
                 }
 
                 //4) Create the model solver interface -----------------------------------------
-                //std::cout<<" Create the model solver interface "<<std::endl;
+                std::cout<<" Create the model solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 //FIXME force the communication table
@@ -302,21 +302,21 @@ namespace moris
                 Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
 
                 //5) Create solver interface ---------------------------------------------------
-                //std::cout<<" Create solver interface "<<std::endl;
+                std::cout<<" Create solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 MSI::MSI_Solver_Interface * tSolverInterface
                     = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
 
                 // 6) Create Nonlinear Problem -------------------------------------------------
-                //std::cout<<" Create Nonlinear Problem "<<std::endl;
+                std::cout<<" Create Nonlinear Problem "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 NLA::Nonlinear_Problem* tNonlinearProblem
                     = new NLA::Nonlinear_Problem( tSolverInterface );
 
                 // 7) Create Solvers and solver manager ----------------------------------------
-                //std::cout<<" Create Solvers and solver manager "<<std::endl;
+                std::cout<<" Create Solvers and solver manager "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // create factory for nonlinear solver
@@ -350,7 +350,7 @@ namespace moris
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
                 // 8) Solve --------------------------------------------------------------------
-                //std::cout<<" Solve "<<std::endl;
+                std::cout<<" Solve "<<std::endl;
                 //------------------------------------------------------------------------------
                 Matrix<DDRMat> tSolution1;
 
@@ -373,7 +373,7 @@ namespace moris
                 }
 
                 // 9) postprocessing------------------------------------------------------------
-                //std::cout<<" Postprocessing "<<std::endl;
+                std::cout<<" Postprocessing "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // dof type list for the solution to write on the mesh

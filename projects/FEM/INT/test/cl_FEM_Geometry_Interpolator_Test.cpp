@@ -221,7 +221,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
                                             mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
+        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule, true );
 
         //set the coefficients xHat, tHat
         tGeomInterpolator.set_coeff( tXHat, tTHat );
@@ -230,7 +230,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         Matrix< DDRMat > tXi( 2, 1 );
         tXi( 0, 0 ) =  0.35;
         tXi( 1, 0 ) = -0.25;
-        Matrix< DDRMat > tTau( 1, 1, 0.70);
+        Matrix< DDRMat > tTau( 1, 1, 0.70 );
 
         // check methods of the geometry interpolator
         //------------------------------------------------------------------------------
@@ -404,19 +404,41 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         }
         REQUIRE( ttCheckBool );
 
-        // getting the parametric coordinates of a space sideset
-        uint tSpaceOrdinal = 3;
-        Matrix< DDRMat > tSpaceSidesetParamCoords = tGeomInterpolator.get_space_sideset_param_coords( tSpaceOrdinal );
-        //print( tSpaceSidesetParamCoords, " tSpaceSidesetParamCoords " );
+        // check the parametric coordinates of a space side
+        uint tSpaceOrdinal = 0;
+        Matrix< DDRMat > tSpaceSideParamCoords = tGeomInterpolator.get_space_side_param_coords( tSpaceOrdinal );
+        Matrix< DDRMat > tSpaceSideParamCoordsCheck = {{ -1.0,  1.0, -1.0,  1.0 },
+                                                       { -1.0, -1.0, -1.0, -1.0 },
+                                                       { -1.0, -1.0,  1.0,  1.0 }};
 
-        // getting the parametric coordinates of a time sideset
-        uint tTimeOrdinal = 1;
-        Matrix< DDRMat > tTimeSidesetParamCoords = tGeomInterpolator.get_time_sideset_param_coords( tTimeOrdinal );
+        bool tSpaceParamCoordsCheck = true;
+        for( uint i = 0; i < 3; i++ )
+        {
+            for( uint j = 0; j < 4; j++ )
+            {
+                tSpaceParamCoordsCheck = tSpaceParamCoordsCheck
+                    && ( std::abs( tSpaceSideParamCoordsCheck( i, j ) - tSpaceSideParamCoords( i, j ) ) < tEpsilon );
+            }
+        }
+        REQUIRE( tSpaceParamCoordsCheck );
+
+        // getting the parametric coordinates of a time side
+        uint tTimeOrdinal = 0;
+        Matrix< DDRMat > tTimeSideParamCoords = tGeomInterpolator.get_time_side_param_coords( tTimeOrdinal );
+        Matrix< DDRMat > tTimeSideParamCoordsCheck = {{ -1.0,  1.0,  1.0, -1.0 },
+                                                      { -1.0, -1.0,  1.0,  1.0 },
+                                                      { -1.0, -1.0, -1.0, -1.0 }};
+        bool tTimeParamCoordsCheck = true;
+        for( uint i = 0; i < 3; i++ )
+        {
+            for( uint j = 0; j < 4; j++ )
+            {
+            	tTimeParamCoordsCheck = tTimeParamCoordsCheck
+                    && ( std::abs( tTimeSideParamCoordsCheck( i, j ) - tTimeSideParamCoords( i, j ) ) < tEpsilon );
+            }
+        }
+        REQUIRE( tTimeParamCoordsCheck );
         //print( tTimeSidesetParamCoords, " tTimeSidesetParamCoords " );
-
-        // getting the parametric coordinates of the space time element
-        Matrix< DDRMat > tElementParamCoords = tGeomInterpolator.get_space_time_param_coords();
-        //print(tElementParamCoords,"tElementParamCoords");
     }
 
     SECTION( "Geometry Interpolator : 3D space time" )
@@ -447,7 +469,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
                                             mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
+        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule, true );
 
         //set the coefficients xHat, tHat
         tGeomInterpolator.set_coeff( tXHat, tTHat );
@@ -637,17 +659,13 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // getting the parametric coordinates of a space sideset
         uint tSpaceOrdinal = 5;
-        Matrix< DDRMat > tSpaceSidesetParamCoords = tGeomInterpolator.get_space_sideset_param_coords( tSpaceOrdinal );
+        Matrix< DDRMat > tSpaceSidesetParamCoords = tGeomInterpolator.get_space_side_param_coords( tSpaceOrdinal );
         //print( tSpaceSidesetParamCoords, " tSpaceSidesetParamCoords " );
 
         // getting the parametric coordinates of a time sideset
         uint tTimeOrdinal = 0;
-        Matrix< DDRMat > tTimeSidesetParamCoords = tGeomInterpolator.get_time_sideset_param_coords( tTimeOrdinal );
+        Matrix< DDRMat > tTimeSidesetParamCoords = tGeomInterpolator.get_time_side_param_coords( tTimeOrdinal );
         //print( tTimeSidesetParamCoords, " tTimeSidesetParamCoords " );
-
-        // getting the parametric coordinates of the space time element
-        Matrix< DDRMat > tElementParamCoords = tGeomInterpolator.get_space_time_param_coords();
-        //print(tElementParamCoords,"tElementParamCoords");
     }
 //
 //    SECTION( "Geometry Interpolator : 1D Space only" )
@@ -797,7 +815,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
                                             mtk::Interpolation_Order::CONSTANT);
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule );
+        Geometry_Interpolator tGeomInterpolator( tGeomInterpRule, true );
 
         //set the coefficients xHat, tHat
         tGeomInterpolator.set_coeff( tXHat, tTHat );
@@ -926,17 +944,13 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // getting the parametric coordinates of a space sideset
         uint tSpaceOrdinal = 1;
-        Matrix< DDRMat > tSpaceSidesetParamCoords = tGeomInterpolator.get_space_sideset_param_coords( tSpaceOrdinal );
+        Matrix< DDRMat > tSpaceSidesetParamCoords = tGeomInterpolator.get_space_side_param_coords( tSpaceOrdinal );
         //print( tSpaceSidesetParamCoords, " tSpaceSidesetParamCoords " );
 
         // getting the parametric coordinates of a time sideset
         uint tTimeOrdinal = 0;
-        Matrix< DDRMat > tTimeSidesetParamCoords = tGeomInterpolator.get_time_sideset_param_coords( tTimeOrdinal );
+        Matrix< DDRMat > tTimeSidesetParamCoords = tGeomInterpolator.get_time_side_param_coords( tTimeOrdinal );
         //print( tTimeSidesetParamCoords, " tTimeSidesetParamCoords " );
-
-        // getting the parametric coordinates of the space time element
-        Matrix< DDRMat > tElementParamCoords = tGeomInterpolator.get_space_time_param_coords();
-        //print(tElementParamCoords,"tElementParamCoords");
 
     }
 //

@@ -28,7 +28,6 @@ namespace moris
 
             // create the element field interpolators
             mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
-
         }
 
 //------------------------------------------------------------------------------

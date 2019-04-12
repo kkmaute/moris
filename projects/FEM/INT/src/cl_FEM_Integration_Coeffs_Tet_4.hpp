@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Integration_Coeffs_Tri_3.hpp
+ * cl_FEM_Integration_Coeffs_Tet_4.hpp
  *
- *  Created on: Jul 19, 2018
- *      Author: messe
+ *  Created on: Apr 05, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_3_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_3_HPP_
+#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_4_HPP_
+#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_4_HPP_
 
 #include "cl_FEM_Integration_Coeffs.hpp"
 #include "typedefs.hpp" //MRS/COR/src
@@ -18,25 +18,25 @@ namespace moris
 {
     namespace fem
     {
+
 //------------------------------------------------------------------------------
         template<>
         uint
         Integration_Coeffs<
             Integration_Type::GAUSS,
-            Integration_Order::TRI_3>::get_number_of_dimensions()
+            Integration_Order::TET_4>::get_number_of_dimensions()
         {
-            return 3;
+            return 4;
         }
-
 //------------------------------------------------------------------------------
 
         template<>
         uint
         Integration_Coeffs<
             Integration_Type::GAUSS,
-            Integration_Order::TRI_3>::get_number_of_points()
+            Integration_Order::TET_4>::get_number_of_points()
             {
-                return 3;
+                return 4;
             }
 
 //------------------------------------------------------------------------------
@@ -45,27 +45,35 @@ namespace moris
         Matrix< DDRMat >
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TRI_3>::get_points()
+                Integration_Order::TET_4>::get_points()
         {
             Matrix< DDRMat > aIntegrationPoints =
             {
                 {
-                    0.666666666666667,
-                    0.166666666666667,
-                    0.166666666666667
+                    0.585410196624968,
+                    0.138196601125010,
+                    0.138196601125010,
+                    0.138196601125010
                 },
                 {
-                    0.166666666666667,
-                    0.666666666666667,
-                    0.166666666666667
+                    0.138196601125010,
+                    0.585410196624968,
+                    0.138196601125010,
+                    0.138196601125010
                 },
                 {
-                    0.166666666666667,
-                    0.166666666666667,
-                    0.666666666666667
+                    0.138196601125010,
+                    0.138196601125010,
+                    0.585410196624968,
+                    0.138196601125010
+                },
+                {
+                    0.138196601125010,
+                    0.138196601125010,
+                    0.138196601125010,
+                    0.585410196624968
                 }
             };
-
             return aIntegrationPoints;
           }
 
@@ -75,14 +83,15 @@ namespace moris
             Matrix< DDRMat >
             Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TRI_3 >::get_weights()
+                Integration_Order::TET_4 >::get_weights()
             {
                 Matrix< DDRMat > aWeights =
                 {
                     {
-                       0.333333333333333,
-                       0.333333333333333,
-                       0.333333333333333
+                        0.250000000000000,
+                        0.250000000000000,
+                        0.250000000000000,
+                        0.250000000000000
                     }
                 };
 
@@ -92,4 +101,4 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_3_HPP_ */
+#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_4_HPP_ */
