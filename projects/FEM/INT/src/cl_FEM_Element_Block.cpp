@@ -6,8 +6,9 @@
  */
 #include <iostream>
 
-#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"               //FEM/INT/src
+#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Element_Factory.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
 
 namespace moris
 {
@@ -25,6 +26,21 @@ namespace moris
         this->create_unique_dof_type_lists();
         this->create_unique_list_of_first_dof_type_of_group();
         this->create_dof_type_lists();
+
+        mElements.resize( mMeshElementPointer.size(), nullptr);
+
+        // a factory to create the elements
+        fem::Element_Factory tElementFactory;
+
+        for( luint k=0; k < mMeshElementPointer.size(); ++k )
+        {
+            // create the element
+            mElements( k ) = tElementFactory.create_element( mElementType,
+                                                             mMeshElementPointer( k ),
+                                                             mIWGs,
+                                                             mNodes,
+                                                             this );
+        }
     }
 
 //------------------------------------------------------------------------------
@@ -47,20 +63,19 @@ namespace moris
         mFieldInterpolators.clear();
     }
 
-    void Element_Block::finalize()
+    void Element_Block::finalize( const MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         this->delete_pointers();
 
         if( mMeshElementPointer.size() > 0)
         {
             Interpolation_Rule tGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
-                                                            Interpolation_Type::LAGRANGE,
-                                                            this->get_auto_interpolation_order(),           // FIXME change to block information
-                                                            Interpolation_Type::LAGRANGE,
-                                                            mtk::Interpolation_Order::LINEAR );
+                                                           Interpolation_Type::LAGRANGE,
+                                                           this->get_auto_interpolation_order(),           // FIXME change to block information
+                                                           Interpolation_Type::LAGRANGE,
+                                                           mtk::Interpolation_Order::LINEAR );
 
             bool tSpaceSideset = false;
-
             if (mElementType==fem::Element_Type::SIDESET)
             {
                 tSpaceSideset=true;
@@ -70,22 +85,22 @@ namespace moris
             mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
 
             // create the element field interpolators
-            mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
+            this->create_field_interpolators( aModelSolverInterface );
 
-            mElements.resize( mMeshElementPointer.size(), nullptr);
+//            mElements.resize( mMeshElementPointer.size(), nullptr);
+//
+//            // a factory to create the elements
+//            fem::Element_Factory tElementFactory;
 
-            // a factory to create the elements
-            fem::Element_Factory tElementFactory;
-
-            for( luint k=0; k < mMeshElementPointer.size(); ++k )
-            {
-                // create the element
-                mElements( k ) = tElementFactory.create_element( mElementType,
-                                                                 mMeshElementPointer( k ),
-                                                                 mIWGs,
-                                                                 mNodes,
-                                                                 this );
-            }
+//            for( luint k=0; k < mMeshElementPointer.size(); ++k )
+//            {
+//                // create the element
+//                mElements( k ) = tElementFactory.create_element( mElementType,
+//                                                                 mMeshElementPointer( k ),
+//                                                                 mIWGs,
+//                                                                 mNodes,
+//                                                                 this );
+//            }
         }
     }
 
@@ -289,16 +304,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    Cell< Field_Interpolator* > Element_Block::create_field_interpolators( Geometry_Interpolator* aGeometryInterpolator )
+    void Element_Block::create_field_interpolators( const MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // cell of field interpolators
-        Cell< Field_Interpolator* > tFieldInterpolators( mNumOfInterp, nullptr );
+        mFieldInterpolators.resize( mNumOfInterp, nullptr );
 
         // loop on the dof type groups and create a field interpolator for each
         for( uint i = 0; i < mNumOfInterp; i++ )
         {
             // get the ith dof type group
             Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
+
+//            moris::uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( tDofTypeGroup( 0 ) );
+//
+//            std::cout<< tNumTimeNodes <<std::endl;
 
             // create the field interpolation rule for the ith dof type group
             //FIXME: space interpolation based on the mtk::Cell
@@ -313,11 +332,10 @@ namespace moris
             uint tNumOfFields = tDofTypeGroup.size();
 
             // create an interpolator for the ith dof type group
-            tFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
+            mFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
                                                                tFieldInterpolationRule,
-                                                               aGeometryInterpolator );
+                                                               mGeometryInterpolator );
         }
-        return tFieldInterpolators;
     }
 
 //------------------------------------------------------------------------------

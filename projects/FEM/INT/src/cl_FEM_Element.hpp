@@ -234,10 +234,10 @@ namespace moris
             // get the number of IWGs
             mNumOfIWGs = mIWGs.size();
 
-            mGeometryInterpolator = mElementBlock->get_block_geometry_interpolator();
-            mFieldInterpolators   = mElementBlock->get_block_field_interpolator();
+//            mGeometryInterpolator = mElementBlock->get_block_geometry_interpolator();
+//            mFieldInterpolators   = mElementBlock->get_block_field_interpolator();
             mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
-            mNumOfInterp          = mElementBlock->get_num_interpolators();
+//            mNumOfInterp          = mElementBlock->get_num_interpolators();
             mInterpDofTypeList    = mElementBlock->get_interpolator_dof_type_list();
             mInterpDofTypeMap     = mElementBlock->get_interpolator_dof_type_map();
         };
@@ -245,7 +245,7 @@ namespace moris
         /**
          * trivial destructor
          */
-         ~Element()
+        ~Element()
         {
             if(mIsMaster)
             {
@@ -517,11 +517,10 @@ namespace moris
         /**
          * set the field interpolators coefficients
          */
-        void set_field_interpolators_coefficients
-             ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void set_field_interpolators_coefficients( )
          {
              // loop on the dof types
-             for( uint i = 0; i < mNumOfInterp; i++ )
+             for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
              {
                  // get the ith dof type group
                  Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
@@ -532,7 +531,7 @@ namespace moris
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff );
 
                  // set the field coefficients
-                 aFieldInterpolators( i )->set_coeff( tCoeff );
+                 mElementBlock->get_block_field_interpolator()( i )->set_coeff( tCoeff );
              }
          }
 
@@ -540,17 +539,16 @@ namespace moris
         /**
          * set the initial sizes and values for mJacobianElement and mResidualElement
          */
-         void initialize_mJacobianElement_and_mResidualElement
-             ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+         void initialize_mJacobianElement_and_mResidualElement()
          {
-             mJacobianElement.resize( mNumOfInterp * mNumOfInterp );
-             mResidualElement.resize( mNumOfInterp );
+             mJacobianElement.resize( mElementBlock->get_num_interpolators() * mElementBlock->get_num_interpolators() );
+             mResidualElement.resize( mElementBlock->get_num_interpolators() );
 
              uint tTotalDof = 0;
-             for( uint i = 0; i < mNumOfInterp; i++ )
+             for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
              {
                  // get number of pdofs for the ith dof type
-                 uint tNumOfDofi = aFieldInterpolators( i )->get_number_of_space_time_coefficients();
+                 uint tNumOfDofi = mElementBlock->get_block_field_interpolator()( i )->get_number_of_space_time_coefficients();
 
                  // get total number of dof
                  tTotalDof = tTotalDof + tNumOfDofi;
@@ -558,13 +556,13 @@ namespace moris
                  // set mResidualElement size
                  mResidualElement( i ).set_size( tNumOfDofi, 1, 0.0 );
 
-                 for( uint j = 0; j < mNumOfInterp; j++ )
+                 for( uint j = 0; j < mElementBlock->get_num_interpolators(); j++ )
                  {
                      // get number of pdofs for the ith dof type
-                     uint tNumOfDofj = aFieldInterpolators( j )->get_number_of_space_time_coefficients();
+                     uint tNumOfDofj = mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients();
 
                      // set mResidualElement size
-                     mJacobianElement( i * mNumOfInterp + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
+                     mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
                  }
              }
 
