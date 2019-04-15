@@ -73,7 +73,10 @@ namespace mtk
                        Cell< IWG* >              & aIWGs,
                        Cell< Node_Base* >        & aNodes);
 
-//        Element_Block( ){};
+        /**
+         * trivial constructor
+         */
+        Element_Block( ){};
 
 //------------------------------------------------------------------------------
 
@@ -82,15 +85,23 @@ namespace mtk
          */
         ~Element_Block();
 
+//------------------------------------------------------------------------------
+
         void delete_pointers();
 
-        void finalize( const MSI::Model_Solver_Interface * aModelSolverInterface );
+//------------------------------------------------------------------------------
+
+        void finalize( MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------
 
         void create_dof_type_lists();
 
+//------------------------------------------------------------------------------
+
         void create_unique_dof_type_lists();
+
+//------------------------------------------------------------------------------
 
         void create_unique_list_of_first_dof_type_of_group();
 
@@ -115,31 +126,40 @@ namespace mtk
             return mGeometryInterpolator;
         }
 
+//------------------------------------------------------------------------------
+
         uint get_num_IWG()
         {
             return mIWGs.size();
         }
+
+//------------------------------------------------------------------------------
 
         moris::Cell< enum MSI::Dof_Type > & get_unique_dof_type_list()
         {
             return mEqnObjDofTypeList;
         }
 
+//------------------------------------------------------------------------------
+
         moris::Matrix< DDSMat > & get_interpolator_dof_type_map()
         {
             return mInterpDofTypeMap;
         }
+
+//------------------------------------------------------------------------------
 
         moris::Cell< Cell< enum MSI::Dof_Type > > & get_interpolator_dof_type_list()
         {
             return mInterpDofTypeList;
         }
 
+//------------------------------------------------------------------------------
+
         uint & get_num_interpolators()
         {
             return mNumOfInterp;
         }
-
 
 //------------------------------------------------------------------------------
 
@@ -147,9 +167,10 @@ namespace mtk
          * auto detect full integration scheme
          */
         //FIXME: works for Lagrange only
-        mtk::Interpolation_Order get_auto_interpolation_order();
+        mtk::Interpolation_Order get_auto_interpolation_order( const moris::uint aNumVertices,
+                                                               const mtk::Geometry_Type aGeometryType );
 
-        void create_field_interpolators( const MSI::Model_Solver_Interface * aModelSolverInterface );
+        void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
 
     };
 //------------------------------------------------------------------------------

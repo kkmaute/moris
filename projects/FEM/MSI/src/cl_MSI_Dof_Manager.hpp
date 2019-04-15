@@ -194,6 +194,8 @@ namespace moris
                 return mTimePerDofType( tDofTypeIndex, 0 );
             };
 
+//-----------------------------------------------------------------------------------------------------------
+
             Matrix< DDUMat > & get_time_levels( )
             {
                 return mTimePerDofType;
