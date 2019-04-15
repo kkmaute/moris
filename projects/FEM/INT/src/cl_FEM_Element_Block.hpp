@@ -22,6 +22,10 @@ namespace mtk
 {
    class Cell;
 }
+namespace mtk
+{
+   class Model_solver_Interface;
+}
     namespace fem
     {
     class IWG;
@@ -69,6 +73,8 @@ namespace mtk
                        Cell< IWG* >              & aIWGs,
                        Cell< Node_Base* >        & aNodes);
 
+//        Element_Block( ){};
+
 //------------------------------------------------------------------------------
 
         /**
@@ -78,7 +84,7 @@ namespace mtk
 
         void delete_pointers();
 
-        void finalize();
+        void finalize( const MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------
 
@@ -90,7 +96,7 @@ namespace mtk
 
 //------------------------------------------------------------------------------
 
-        Cell< MSI::Equation_Object* > & get_equation_object_list()
+        Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
             return mElements;
         };
@@ -143,7 +149,7 @@ namespace mtk
         //FIXME: works for Lagrange only
         mtk::Interpolation_Order get_auto_interpolation_order();
 
-        Cell< Field_Interpolator* > create_field_interpolators( Geometry_Interpolator* aGeometryInterpolator );
+        void create_field_interpolators( const MSI::Model_Solver_Interface * aModelSolverInterface );
 
     };
 //------------------------------------------------------------------------------

@@ -109,7 +109,7 @@ namespace moris
                                                     45.0,  5.0, 45.0 }};
 
             // define an epsilon environment
-            real tEpsilon = 1E-12;
+            real tEpsilon = 1E-3;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -203,7 +203,7 @@ namespace moris
                    +2.5e+01 }};
 
             // define an epsilon environment
-            real tEpsilon = 1E-6;
+            real tEpsilon = 1E-3;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -336,7 +336,7 @@ namespace moris
             }
 
             // define an epsilon environment
-            double tEpsilon = 1E-8;
+            double tEpsilon = 1E-3;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -457,7 +457,7 @@ namespace moris
 //                                                   6.499999998376413e+01,    8.499999997856834e+01,    1.049999999739319e+02 }};
 //
 //           // define an epsilon environment
-//           double tEpsilon = 1E-12;
+//           double tEpsilon = 1E-5;
 //
 //           // define a bool for solution check
 //           bool tCheckNodalSolution = true;
@@ -558,7 +558,7 @@ namespace moris
 
            tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
 
-//           tHMR.save_to_exodus( 1,"Circle_diff_temp.exo" );
+           tHMR.save_to_exodus( 1,"Circle_diff_temp.exo" );
 //           tHMR.save_bsplines_to_vtk("Bsplines_temp.vtk");
 
 //           //-------------------------------------//
@@ -620,7 +620,7 @@ namespace moris
             else {} // end expected solutions for parallel
 
             // define an epsilon environment
-            real tEpsilon = 1E-9;
+            real tEpsilon = 1E-2;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -732,7 +732,7 @@ namespace moris
                                                     +4.5e+01 }};
 
             // define an epsilon environment
-            real tEpsilon = 1E-6;
+            real tEpsilon = 1E-2;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -895,7 +895,7 @@ namespace moris
 //
 //
 //                // define an epsilon environment
-//                double tEpsilon = 1E-10;
+//                double tEpsilon = 1E-3;
 //
 //                // define a bool for solution check
 //                bool tCheckNodalSolution = true;
@@ -911,8 +911,6 @@ namespace moris
 //                REQUIRE( tCheckNodalSolution );
 //            }/* if( par_size() */
 //        }
-
-
 
     }/* namespace fem */
 }/* namespace moris */
