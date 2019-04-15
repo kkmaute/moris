@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Integration_Coeffs_Tri_1.hpp
+ * cl_FEM_Integration_Coeffs_Tet_1.hpp
  *
- *  Created on: Jul 19, 2018
- *      Author: messe
+ *  Created on: Apr 05, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_1_HPP_
-#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_1_HPP_
+#ifndef SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_1_HPP_
+#define SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_1_HPP_
 
 #include "cl_FEM_Integration_Coeffs.hpp"
 #include "typedefs.hpp" //MRS/COR/src
@@ -24,9 +24,9 @@ namespace moris
         uint
         Integration_Coeffs<
             Integration_Type::GAUSS,
-            Integration_Order::TRI_1>::get_number_of_dimensions()
+            Integration_Order::TET_1>::get_number_of_dimensions()
         {
-            return 3;
+            return 4;
         }
 //------------------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ namespace moris
         uint
         Integration_Coeffs<
             Integration_Type::GAUSS,
-            Integration_Order::TRI_1>::get_number_of_points()
+            Integration_Order::TET_1>::get_number_of_points()
             {
                 return 1;
             }
@@ -45,13 +45,14 @@ namespace moris
         Matrix< DDRMat >
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TRI_1>::get_points()
+                Integration_Order::TET_1>::get_points()
         {
             Matrix< DDRMat > aIntegrationPoints =
             {
-                {0.333333333333333},
-                {0.333333333333333},
-                {0.333333333333333}
+                {0.250000000000000},
+                {0.250000000000000},
+                {0.250000000000000},
+                {0.250000000000000}
             };
 
             return aIntegrationPoints;
@@ -63,11 +64,13 @@ namespace moris
             Matrix< DDRMat >
             Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TRI_1 >::get_weights()
+                Integration_Order::TET_1 >::get_weights()
             {
                 Matrix< DDRMat > aWeights =
                 {
-                    { 1.0 }
+                    {
+                        1.000000000000000
+                    }
                 };
 
                 return aWeights;
@@ -76,4 +79,4 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TRI_1_HPP_ */
+#endif /* SRC_FEM_CL_FEM_INTEGRATION_COEFFS_TET_1_HPP_ */

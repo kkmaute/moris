@@ -36,9 +36,9 @@ namespace moris
         Element_Sideset::Element_Sideset( mtk::Cell                 * aCell,
                                           moris::Cell< IWG* >       & aIWGs,
                                           moris::Cell< Node_Base* > & aNodes,
-                                          Element_Block             * aElementBlock) : Element( aCell, aIWGs, aNodes, aElementBlock )
+                                          Element_Block             * aElementBlock)
+                                        : Element( aCell, aIWGs, aNodes, aElementBlock )
         {
-
         }
 
 //------------------------------------------------------------------------------

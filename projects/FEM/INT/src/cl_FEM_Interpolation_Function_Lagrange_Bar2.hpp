@@ -9,7 +9,6 @@
 #define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_BAR2_HPP_
 
 #include "assert.h"
-
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
@@ -18,12 +17,20 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+
+        template<>
+        uint
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::get_number_of_param_dimensions() const
+        {
+            return 1;
+        }
 
 //------------------------------------------------------------------------------
 
     template<>
     mtk::Interpolation_Order
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 2 >::get_interpolation_order() const
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::get_interpolation_order() const
     {
         return mtk::Interpolation_Order::LINEAR;
     }
@@ -32,7 +39,7 @@ namespace moris
 
     template<>
     Matrix< DDRMat >
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 2 >::get_param_coords() const
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::get_param_coords() const
     {
         Matrix< DDRMat > tXiHat(1,2);
         tXiHat( 0 ) = -1.000000;
@@ -44,11 +51,11 @@ namespace moris
 
     template<>
     Matrix< DDRMat >
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 2 >::eval_N( const Matrix< DDRMat > & aXi) const
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_N( const Matrix< DDRMat > & aXi) const
     {
         // make sure that input is correct
         MORIS_ASSERT( aXi.length() >= 1,
-                      "eval_N: aXi not allocated or hat wrong size." );
+                      "LINE2 - eval_N: aXi not allocated or hat wrong size." );
 
         auto xi = aXi( 0 );
 
@@ -62,11 +69,11 @@ namespace moris
 
     template<>
     Matrix< DDRMat >
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 2 >::eval_dNdXi( const Matrix< DDRMat > & aXi )  const
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_dNdXi( const Matrix< DDRMat > & aXi )  const
     {
         // make sure that input is correct
         MORIS_ASSERT( aXi.length() >= 1,
-                      "eval_dNdXi: aXi not allocated or hat wrong size." );
+                      "LINE2 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
         Matrix< DDRMat > tdNdXi(1,2);
         tdNdXi( 0 ) = -0.5;
@@ -79,11 +86,11 @@ namespace moris
 
     template<>
     Matrix< DDRMat >
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 1, 2 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
     {
         // make sure that input is correct
         MORIS_ASSERT( aXi.length() >= 1,
-                      "ad2NdXi2: aXi not allocated or hat wrong size." );
+                      "LINE2 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
         Matrix< DDRMat > td2dXi2(1,2);
         td2dXi2( 0 ) =  0.0;

@@ -109,7 +109,7 @@ namespace moris
                                                     45.0,  5.0, 45.0 }};
 
             // define an epsilon environment
-            double tEpsilon = 1E-3;
+            real tEpsilon = 1E-3;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -192,28 +192,28 @@ namespace moris
 
             // Expected solution
             Matrix< DDRMat > tExpectedSolution =
-                 {{+2.500000000875184e+01, +2.500000000987847e+01, +2.500000001157717e+01,
-                   +2.500000001368304e+01, +2.500000001479958e+01, +2.500000001683809e+01,
-                   +2.500000002126988e+01, +2.500000002173021e+01, +2.500000000560846e+01,
-                   +2.500000000793639e+01, +2.500000001182473e+01, +2.500000001665577e+01,
-                   +2.500000002234817e+01, +2.500000002784368e+01, +2.500000003077465e+01,
-                   +2.500000002928050e+01, +2.499999999946052e+01, +2.500000000375664e+01,
-                   +2.500000001180321e+01, +2.500000001954013e+01, +2.500000002360115e+01,
-                   +2.500000003273075e+01, +2.500000003627261e+01, +2.500000002781392e+01,
-                   +2.499999998871123e+01 }};
+                 {{+2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01, +2.5e+01, +2.5e+01,
+                   +2.5e+01 }};
 
             // define an epsilon environment
-            double tEpsilon = 1E-3;
+            real tEpsilon = 1E-3;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
 
-            // loop over the node and chyeck solution
+            // loop over the node and check solution
             for ( uint i = 0; i < 25; i++ )
             {
-            	// check solution
-            	tCheckNodalSolution = tCheckNodalSolution
-            			&& ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
+                // check solution
+                tCheckNodalSolution = tCheckNodalSolution
+                    && ( std::abs( tSolution11( i ) - tExpectedSolution( i ) ) < tEpsilon );
             }
             // check bool is true
             REQUIRE( tCheckNodalSolution );
@@ -620,7 +620,7 @@ namespace moris
             else {} // end expected solutions for parallel
 
             // define an epsilon environment
-            double tEpsilon = 1E-1;
+            real tEpsilon = 1E-2;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -721,18 +721,18 @@ namespace moris
 //           tHMR.save_bsplines_to_vtk("Bsplines_temp_cubic.vtk");
 
             // Expected solution when running in serial
-            Matrix< DDRMat > tExpectedSolution = {{ -5.000000000111186e+00,    +5.000000000069545e+00,    -4.999999999946497e+00,
-                                                    +4.999999999979716e+00,    -4.999999999978130e+00,    +4.999999999989132e+00,
-                                                    -5.000000000006851e+00,    +5.000000000003149e+00,    +1.499999999991764e+01,
-                                                    +2.500000000013666e+01,    +3.500000000005484e+01,    +3.499999999998777e+01,
-                                                    +3.499999999998835e+01,    +3.499999999999548e+01,    +1.500000000002021e+01,
-                                                    +2.499999999996396e+01,    +1.500000000001141e+01,    +2.499999999997455e+01,
-                                                    +1.499999999999502e+01,    +2.500000000000142e+01,    +3.499999999964501e+01,
-                                                    +3.999999999991044e+01,    +4.500000000008001e+01,    +4.000000000000617e+01,
-                                                    +4.499999999998079e+01 }};
+            Matrix< DDRMat > tExpectedSolution = {{ -5.0e+00,    +5.0e+00,    -5.0e+00,
+                                                    +5.0e+00,    -5.0e+00,    +5.0e+00,
+                                                    -5.0e+00,    +5.0e+00,    +1.5e+01,
+                                                    +2.5e+01,    +3.5e+01,    +3.5e+01,
+                                                    +3.5e+01,    +3.5e+01,    +1.5e+01,
+                                                    +2.5e+01,    +1.5e+01,    +2.5e+01,
+                                                    +1.5e+01,    +2.5e+01,    +3.5e+01,
+                                                    +4.0e+01,    +4.5e+01,    +4.0e+01,
+                                                    +4.5e+01 }};
 
             // define an epsilon environment
-            double tEpsilon = 1E-1;
+            real tEpsilon = 1E-2;
 
             // define a bool for solution check
             bool tCheckNodalSolution = true;
@@ -911,8 +911,6 @@ namespace moris
 //                REQUIRE( tCheckNodalSolution );
 //            }/* if( par_size() */
 //        }
-
-
 
     }/* namespace fem */
 }/* namespace moris */

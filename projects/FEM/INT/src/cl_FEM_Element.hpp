@@ -15,9 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
-
 #include "cl_MTK_Cell.hpp"                  //MTK/src
-
 #include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
 #include "cl_FEM_Node.hpp"                  //FEM/INT/src
@@ -385,6 +383,14 @@ namespace moris
                     return fem::Integration_Order::HEX_3x3x3;
                     break;
 
+                case( mtk::Geometry_Type::TRI ) :
+                    return fem::Integration_Order::TRI_6;
+                    break;
+
+                case( mtk::Geometry_Type::TET ) :
+                    return fem::Integration_Order::TET_5;
+                    break;
+
                 default :
                     MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
                     return Integration_Order::UNDEFINED;
@@ -468,6 +474,48 @@ namespace moris
                             break;
                     }
 
+                case( mtk::Geometry_Type::TRI ) :
+                    switch( mCell->get_number_of_vertices() )
+                    {
+                        case( 3 ) :
+                            return mtk::Interpolation_Order::LINEAR;
+                            break;
+
+                        case( 6 ) :
+                            return mtk::Interpolation_Order::QUADRATIC;
+                            break;
+
+                        case( 10 ) :
+                            return mtk::Interpolation_Order::CUBIC;
+                            break;
+
+                        default :
+                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TRI and number of vertices. ");
+                            return mtk::Interpolation_Order::UNDEFINED;
+                            break;
+                    }
+
+                case( mtk::Geometry_Type::TET ) :
+                    switch( mCell->get_number_of_vertices() )
+                    {
+                        case( 4 ) :
+                            return mtk::Interpolation_Order::LINEAR;
+                            break;
+
+                        case( 10 ) :
+                            return mtk::Interpolation_Order::QUADRATIC;
+                            break;
+
+                        case( 20 ) :
+                            return mtk::Interpolation_Order::CUBIC;
+                            break;
+
+                        default :
+                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TRI and number of vertices. ");
+                            return mtk::Interpolation_Order::UNDEFINED;
+                            break;
+                    }
+
                 default :
                     MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for this geometry type. ");
                     return mtk::Interpolation_Order::UNDEFINED;
@@ -479,9 +527,6 @@ namespace moris
         /**
          * create the field interpolators for the element
          */
-//        virtual Cell< Field_Interpolator* > create_field_interpolators
-//            ( Geometry_Interpolator* aGeometryInterpolator ) = 0;
-
         Cell< Field_Interpolator* > create_field_interpolators( Geometry_Interpolator* aGeometryInterpolator )
          {
              // cell of field interpolators
@@ -605,8 +650,5 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
-
 
 #endif /* SRC_FEM_CL_FEM_ELEMENT_HPP_ */
