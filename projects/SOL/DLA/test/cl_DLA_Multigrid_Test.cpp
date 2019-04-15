@@ -135,7 +135,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         luint tNumberOfElements = tMesh->get_num_elems();
 
         // create equation objects
-        tElements.resize( tNumberOfElements, nullptr );
+        tElements.reserve( tNumberOfElements );
 
         Cell< fem::Element_Block * >      tElementBlocks(1,nullptr);
 

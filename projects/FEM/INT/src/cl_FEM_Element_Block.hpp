@@ -96,7 +96,7 @@ namespace mtk
 
 //------------------------------------------------------------------------------
 
-        Cell< MSI::Equation_Object* > & get_equation_object_list()
+        Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
             return mElements;
         };
