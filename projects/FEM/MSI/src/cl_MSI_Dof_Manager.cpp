@@ -58,7 +58,6 @@ namespace moris
         // Reserve of temporary pdof type list
         moris::Cell< enum Dof_Type > tTemporaryPdofTypeList;
         tTemporaryPdofTypeList.reserve( static_cast< int >( Dof_Type::END_ENUM ) + 1 );
-
         Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(Dof_Type::END_ENUM) + 1), 1, 0 );
 
         // Get number of equation objects
@@ -67,7 +66,8 @@ namespace moris
         //loop over all equation objects, asking for their pdof types
         for ( moris::uint Ii=0; Ii < tNumEquationObjects; Ii++ )
         {
-            // Create temporary dof type list
+
+        	// Create temporary dof type list
             moris::Cell< enum Dof_Type > tDofType;
 
             // Ask equation object for its dof types
@@ -76,7 +76,7 @@ namespace moris
             // Loop over all dof types
             for ( moris::uint Ik=0; Ik < tDofType.size(); Ik++ )
             {
-                // Set 1 at position of the enum value
+            	// Set 1 at position of the enum value
                 tListToCheckIfEnumExist( static_cast< int >(tDofType( Ik )) ,0 ) = 1;
             }
         }
@@ -84,7 +84,8 @@ namespace moris
         // Loop over tListToCheckIfEnumExist. Add Ddof type to list if corresponding value = 1
         for ( moris::uint Ij=0; Ij < tListToCheckIfEnumExist.length(); Ij++ )
         {
-            if ( tListToCheckIfEnumExist(Ij , 0) == 1)
+
+        	if ( tListToCheckIfEnumExist(Ij , 0) == 1)
             {
                 tTemporaryPdofTypeList.push_back( ( Dof_Type ) Ij );
             }
