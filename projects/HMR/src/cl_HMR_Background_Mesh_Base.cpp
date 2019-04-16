@@ -977,7 +977,10 @@ namespace moris
             }
 
             // Communicate mMaxLevel in case a processor has no flagged elements
-            max_all( mMaxLevel, mMaxLevel );
+
+            moris::uint tMaxLevelResult = 0;
+            max_all( mMaxLevel, tMaxLevelResult );
+            mMaxLevel = tMaxLevelResult;
         }
 
 //--------------------------------------------------------------------------------

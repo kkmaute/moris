@@ -302,6 +302,7 @@ namespace moris
             const Data & aLocalInput,
             Data & aGlobalSum)
     {
+        MORIS_ASSERT(&aGlobalSum != &aLocalInput,"Passing the same location in for aLocalInput and aGlobalMax is not allowed according to MPI standard (buffer aliasing)");
         MPI_Allreduce(&aLocalInput,&aGlobalSum,1,get_comm_datatype(aLocalInput),MPI_SUM,MPI_COMM_WORLD);
     }
 
@@ -319,6 +320,7 @@ namespace moris
             const Data & aLocalInput,
             Data & aGlobalMax)
     {
+        MORIS_ASSERT(&aGlobalMax != &aLocalInput,"Passing the same location in for aLocalInput and aGlobalMax is not allowed according to MPI standard (buffer aliasing)");
         MPI_Allreduce(&aLocalInput,&aGlobalMax,1,get_comm_datatype(aLocalInput),MPI_MAX,MPI_COMM_WORLD);
     }
 
