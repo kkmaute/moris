@@ -89,7 +89,7 @@ state_initialize_mesh( const Arguments & aArguments )
 
     if (tHMR->get_parameters()->get_refinement_interrelation() )
     {
-        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
+        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies.hdf5" );
     }
 
     // delete HMR object
@@ -152,6 +152,8 @@ state_refine_mesh( const Arguments & aArguments )
 
     // finalize mesh
     tHMR->finalize();
+
+    //tHMR->save_bsplines_to_vtk("path.vtk");
 
     if( aArguments.map_while_refine() )
     {

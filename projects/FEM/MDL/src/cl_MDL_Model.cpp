@@ -17,6 +17,7 @@
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
+#include "cl_FEM_Element_Block.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -64,8 +65,6 @@ namespace moris
 
             // ask mesh about number of nodes on proc
             luint tNumberOfNodes = aMesh->get_num_nodes();
-
-            std::cout<<tNumberOfNodes<<" Number of nodes"<<std::endl;
 
             // create node objects
             mNodes.resize(  tNumberOfNodes, nullptr );
@@ -133,18 +132,24 @@ namespace moris
             luint tNumberOfEquationObjects = aMesh->get_num_elems()
                                            + aMesh->get_sidesets_num_faces( aSidesetList );
 
-            //luint tNumberOfElements = tBlockSetElementInd.numel();
+            uint tNumberElementBlocks = 1 + aSidesetList.size();
 
             // create equation objects
-            mElements.resize( tNumberOfEquationObjects, nullptr );
+            mElements.reserve( tNumberOfEquationObjects );
+
+            mElementBlocks.resize( tNumberElementBlocks, nullptr );
 
             //  Create Blockset Elements ----------------------------------------
             std::cout<<" Create Blockset Elements "<<std::endl;
             //------------------------------------------------------------------------------
+
             // ask mesh about number of elements on proc
             moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
 
+            moris::Cell<mtk::Cell*> tBlockSetElement( aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+
             moris::uint tEquationObjectCounter = 0;
+            moris::uint tElementBlockCounter = 0;
             for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
             {
                 Matrix< IndexMat > tBlockSetElementInd
@@ -152,20 +157,21 @@ namespace moris
 
                 for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
                 {
-                    // create the element
-                    mElements( tEquationObjectCounter++ )
-                        = tElementFactory.create_element(   fem::Element_Type::BULK,
-                                                          & aMesh->get_mtk_cell( k ), // FIXME need block->get_mtk_cell(0)
-                                                            mIWGs( 0 ),
-                                                            mNodes );
+                    tEquationObjectCounter++;
+
+                    tBlockSetElement( k ) = & aMesh->get_mtk_cell( k );
                 }
+
             }
+            mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, mIWGs( 0 ), mNodes );
+
+            mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
             //  Create Blockset Elements ----------------------------------------
             std::cout<<" Create Sideset Elements "<<std::endl;
             //------------------------------------------------------------------------------
 
-            moris::Cell<std::string> tSideSetsNames = aMesh->get_set_names( EntityRank::FACE);
+            moris::Cell<std::string> tSideSetsNames = aMesh->get_set_names( EntityRank::FACE );
 
             for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
@@ -181,44 +187,10 @@ namespace moris
                 // get the treated sideset elements and ordinals
                 aMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
 
-                for( luint k = 0; k < tSideSetElement.size(); ++k )
-                {
-                    // create the element
-                    mElements( tEquationObjectCounter )
-                        = tElementFactory.create_element( fem::Element_Type::SIDESET,
-                                                          tSideSetElement( k ),
-                                                          mIWGs ( Ik + 1 ),
-                                                          mNodes );
+                mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );
 
-                    mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} ); //FIXME
+                mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
-                    // get the nodal weak bcs of the element
-                    Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
-
-                    // get the element number of nodes
-                    uint tNumberOfNodes = mElements( tEquationObjectCounter++ )->get_num_nodes();
-
-                    // set size of the element nodal weak bc
-                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-
-                    // loop over the element nodes
-                    Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
-
-                    //--------------------------------------------------------------------------------------------
-                    for( uint l = 0; l < tNumberOfNodes; l++ )
-                    {
-                        if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::DIRICHLET )
-                        {
-                        // copy weak bc into element
-                        tNodalWeakBCs( l ) = 5.0;
-                        }
-                        else if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
-		                {
-                            // copy weak bc into element
-                            tNodalWeakBCs( l ) = 20.0;
-                        }
-                    }
-                }
             }
 
             if( par_rank() == 0)
@@ -278,6 +250,64 @@ namespace moris
                 mModelSolverInterface->set_param("TEMP")= (sint)mDofOrder;
             }
 
+            //-----------------------------------------------------------------------------------------------------------
+
+            tEquationObjectCounter = tBlockSetElement.size();
+            tElementBlockCounter = 0;
+            mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
+
+            for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
+            {
+                // get the treated sideset name
+                std::string tTreatedSidesetName = tSideSetsNames( aSidesetList( Ik ) );
+
+                // create a cell of sideset element
+                moris::Cell< mtk::Cell * > tSideSetElement;
+
+                // create a list of sideset ordinal
+                Matrix< IndexMat >  aSidesetOrdinals;
+
+                // get the treated sideset elements and ordinals
+                aMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
+
+                mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
+
+//                mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
+
+                for( luint k = 0; k < tSideSetElement.size(); ++k )
+                {
+                    mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} ); //FIXME
+
+                    // get the nodal weak bcs of the element
+                    Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
+
+                    // get the element number of nodes
+                    uint tNumberOfNodes = mElements( tEquationObjectCounter++ )->get_num_nodes();
+
+                    // set size of the element nodal weak bc
+                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+
+                    // loop over the element nodes
+                    Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
+
+                    //--------------------------------------------------------------------------------------------
+                    for( uint l = 0; l < tNumberOfNodes; l++ )
+                    {
+                        if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::DIRICHLET )
+                        {
+                        // copy weak bc into element
+                        tNodalWeakBCs( l ) = 5.0;
+                        }
+                        else if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
+                        {
+                            // copy weak bc into element
+                            tNodalWeakBCs( l ) = 20.0;
+                        }
+                    }
+                }
+            }
+
+            //------------------------------------------------------------------------------------------
             mModelSolverInterface->finalize();
 
             // calculate AdofMap
@@ -315,9 +345,13 @@ namespace moris
             mLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             mLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
 
+//            mLinearSolverAlgorithm->set_param("AZ_orthog") = AZ_modified;
+//            mLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
+
+//            mLinearSolverAlgorithm->set_param("AZ_graph_fill") = 2;
 
             //mLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
-            //mLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+//            mLinearSolverAlgorithm->set_param("ctes") = true;
 
             // create solver manager
             mLinSolver = new dla::Linear_Solver();

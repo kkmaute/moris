@@ -44,7 +44,6 @@ namespace moris
         //! pointer to container of user defined settings
         const Parameters      * mParameters;
 
-
         Lagrange_Mesh_Base *  mMesh;
 
         //! struc required by MTK

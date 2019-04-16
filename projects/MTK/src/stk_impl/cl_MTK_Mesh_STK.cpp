@@ -1643,8 +1643,7 @@ namespace mtk
 
     // Main interface with STK that include calls to functions that provide specific implementation details.
     void
-    Mesh_STK::build_mesh(
-            MtkMeshData &   aMeshData )
+    Mesh_STK::build_mesh( MtkMeshData & aMeshData )
     {
         // A Mesh contains collections of entities, parts, fields, and field data. The STK Mesh API separates
         // these collections into 'MetaData' and 'BulkData'.
@@ -1655,7 +1654,6 @@ namespace mtk
         // The MetaData component of a STK Mesh contains the definitions of its parts, the definitions of its
         // fields, and definitions of relationships among its parts and fields. For example, a subset relationship
         //  can be declared between two parts, and a field definition can be limited to specific parts.
-
 
         // Declare and initialize Stk mesh
         stk::mesh::MetaData * meshMeta = new stk::mesh::MetaData( mNumDims );
@@ -1724,8 +1722,7 @@ namespace mtk
 
     // First declaration to structure the database before filling the data
     void
-    Mesh_STK::declare_mesh_parts(
-            MtkMeshData &  aMeshData )
+    Mesh_STK::declare_mesh_parts( MtkMeshData &  aMeshData )
     {
         // Part is a general term for a subset of the entities in a mesh. STK Mesh automatically creates
         // four parts at startup: the universal part, the locally-owned part, the globally-shared part,
@@ -2039,8 +2036,7 @@ namespace mtk
 
     // Add mesh information to database
     void
-    Mesh_STK::populate_mesh_database(
-            MtkMeshData &  aMeshData )
+    Mesh_STK::populate_mesh_database( MtkMeshData & aMeshData )
     {
         ///////////////////////////////
         // Begin modification cycle  //
@@ -2127,8 +2123,7 @@ namespace mtk
 // ----------------------------------------------------------------------------
 
     void
-    Mesh_STK::setup_vertex_global_to_local_map(
-                    MtkMeshData &   aMeshData )
+    Mesh_STK::setup_vertex_global_to_local_map( MtkMeshData &   aMeshData )
     {
         uint tNumNodes = aMeshData.LocaltoGlobalNodeMap->numel();
 

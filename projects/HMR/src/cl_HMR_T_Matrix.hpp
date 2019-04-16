@@ -27,7 +27,6 @@ namespace moris
 
         class T_Matrix
         {
-
             //! ref to settings container
             const Parameters   * mParameters;
 

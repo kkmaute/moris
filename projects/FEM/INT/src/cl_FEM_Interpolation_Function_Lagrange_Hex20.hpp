@@ -9,8 +9,6 @@
 #define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_HEX20_HPP_
 
 #include "assert.h"
-
-//#include "cl_FEM_Interpolation_Matrix.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
@@ -24,12 +22,20 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+
+        template<>
+        uint
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::get_number_of_param_dimensions() const
+        {
+            return 3;
+        }
 
 //------------------------------------------------------------------------------
 
         template<>
         mtk::Interpolation_Order
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 20 >::get_interpolation_order() const
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::get_interpolation_order() const
         {
             return mtk::Interpolation_Order::SERENDIPITY;
         }
@@ -38,7 +44,7 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 20 >::get_param_coords() const
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::get_param_coords() const
         {
             Matrix< DDRMat > tXiHat(3,20);
             tXiHat( 0,  0 ) = -1.000000;
@@ -111,11 +117,11 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 20 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::eval_N( const Matrix< DDRMat > & aXi ) const
         {
              // make sure that input is correct
              MORIS_ASSERT( aXi.length() >= 3,
-                           "eval_shape: aXi not allocated or hat wrong size." );
+                           "HEX20 - eval_N: aXi not allocated or hat wrong size." );
 
              // unpack xi and eta from input vector
              auto xi = aXi( 0 );
@@ -156,11 +162,11 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 20 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3,
-                          "eval_shape: aXi not allocated or hat wrong size." );
+                          "HEX20 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
             auto   xi = aXi( 0 );
@@ -258,11 +264,11 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 20 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3,
-                          "ad2NdXi2: aXi not allocated or hat wrong size." );
+                          "HEX20 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
             auto   xi = aXi( 0 );

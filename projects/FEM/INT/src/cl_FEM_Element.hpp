@@ -15,9 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
-
 #include "cl_MTK_Cell.hpp"                  //MTK/src
-
 #include "cl_MSI_Equation_Object.hpp"       //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/INT/src
 #include "cl_FEM_Node.hpp"                  //FEM/INT/src
@@ -26,10 +24,13 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
+#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
+
 namespace moris
 {
     namespace fem
     {
+    class Element_Block;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -64,6 +65,10 @@ namespace moris
         uint                                 mNumOfInterp;
 
         moris::Matrix< DDSMat >              mInterpDofTypeMap;
+
+        Element_Block * mElementBlock;
+
+        bool mIsMaster = false;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -74,6 +79,8 @@ namespace moris
                  moris::Cell< IWG* >       & aIWGs,
                  moris::Cell< Node_Base* > & aNodes )
         {
+
+            mIsMaster = true;
 
             // fill the bulk mtk::Cell pointer
             mCell = aCell;
@@ -188,11 +195,74 @@ namespace moris
                 mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
             }
         };
+
+        Element( mtk::Cell                 * aCell,
+                 moris::Cell< IWG* >       & aIWGs,
+                 moris::Cell< Node_Base* > & aNodes,
+                 Element_Block      * aElementBlock) : mElementBlock(aElementBlock)
+        {
+            // fill the bulk mtk::Cell pointer
+            mCell = aCell;
+
+            // fill the cell of IWGs pointers
+            mIWGs = aIWGs;
+
+            // select the element nodes from aNodes and fill mNodeObj
+            // get vertices from cell
+            moris::Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
+
+            // get number of nodes from cell
+            uint tNumOfNodes = tVertices.size();
+
+            // assign node object
+            mNodeObj.resize( tNumOfNodes, nullptr );
+
+            // fill node objects
+            for( uint i = 0; i < tNumOfNodes; i++)
+            {
+                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
+            }
+
+            // set size of Weak BCs
+            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
+
+            // FIXME: Mathias, please comment
+            mTimeSteps.set_size( 1, 1, 1 );
+
+            // get the number of IWGs
+            mNumOfIWGs = mIWGs.size();
+
+//            mGeometryInterpolator = mElementBlock->get_block_geometry_interpolator();
+//            mFieldInterpolators   = mElementBlock->get_block_field_interpolator();
+            mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
+//            mNumOfInterp          = mElementBlock->get_num_interpolators();
+            mInterpDofTypeList    = mElementBlock->get_interpolator_dof_type_list();
+            mInterpDofTypeMap     = mElementBlock->get_interpolator_dof_type_map();
+        };
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        virtual ~Element(){};
+        ~Element()
+        {
+            if(mIsMaster)
+            {
+                // delete the geometry interpolator pointer
+                if ( mGeometryInterpolator != NULL )
+                {
+                    delete mGeometryInterpolator;
+                }
+
+                // delete the field interpolator pointers
+                for ( uint i = 0; i < mNumOfInterp; i++ )
+                {
+                    if ( mFieldInterpolators( i ) != NULL )
+                    {
+                        delete mFieldInterpolators( i );
+                    }
+                }
+            }
+        };
 
 //------------------------------------------------------------------------------
 
@@ -313,6 +383,14 @@ namespace moris
                     return fem::Integration_Order::HEX_3x3x3;
                     break;
 
+                case( mtk::Geometry_Type::TRI ) :
+                    return fem::Integration_Order::TRI_6;
+                    break;
+
+                case( mtk::Geometry_Type::TET ) :
+                    return fem::Integration_Order::TET_5;
+                    break;
+
                 default :
                     MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
                     return Integration_Order::UNDEFINED;
@@ -396,6 +474,48 @@ namespace moris
                             break;
                     }
 
+                case( mtk::Geometry_Type::TRI ) :
+                    switch( mCell->get_number_of_vertices() )
+                    {
+                        case( 3 ) :
+                            return mtk::Interpolation_Order::LINEAR;
+                            break;
+
+                        case( 6 ) :
+                            return mtk::Interpolation_Order::QUADRATIC;
+                            break;
+
+                        case( 10 ) :
+                            return mtk::Interpolation_Order::CUBIC;
+                            break;
+
+                        default :
+                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TRI and number of vertices. ");
+                            return mtk::Interpolation_Order::UNDEFINED;
+                            break;
+                    }
+
+                case( mtk::Geometry_Type::TET ) :
+                    switch( mCell->get_number_of_vertices() )
+                    {
+                        case( 4 ) :
+                            return mtk::Interpolation_Order::LINEAR;
+                            break;
+
+                        case( 10 ) :
+                            return mtk::Interpolation_Order::QUADRATIC;
+                            break;
+
+                        case( 20 ) :
+                            return mtk::Interpolation_Order::CUBIC;
+                            break;
+
+                        default :
+                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TRI and number of vertices. ");
+                            return mtk::Interpolation_Order::UNDEFINED;
+                            break;
+                    }
+
                 default :
                     MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for this geometry type. ");
                     return mtk::Interpolation_Order::UNDEFINED;
@@ -407,9 +527,6 @@ namespace moris
         /**
          * create the field interpolators for the element
          */
-//        virtual Cell< Field_Interpolator* > create_field_interpolators
-//            ( Geometry_Interpolator* aGeometryInterpolator ) = 0;
-
         Cell< Field_Interpolator* > create_field_interpolators( Geometry_Interpolator* aGeometryInterpolator )
          {
              // cell of field interpolators
@@ -445,11 +562,10 @@ namespace moris
         /**
          * set the field interpolators coefficients
          */
-        void set_field_interpolators_coefficients
-             ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void set_field_interpolators_coefficients( )
          {
              // loop on the dof types
-             for( uint i = 0; i < mNumOfInterp; i++ )
+             for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
              {
                  // get the ith dof type group
                  Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
@@ -460,7 +576,7 @@ namespace moris
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff );
 
                  // set the field coefficients
-                 aFieldInterpolators( i )->set_coeff( tCoeff );
+                 mElementBlock->get_block_field_interpolator()( i )->set_coeff( tCoeff );
              }
          }
 
@@ -468,17 +584,16 @@ namespace moris
         /**
          * set the initial sizes and values for mJacobianElement and mResidualElement
          */
-         void initialize_mJacobianElement_and_mResidualElement
-             ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+         void initialize_mJacobianElement_and_mResidualElement()
          {
-             mJacobianElement.resize( mNumOfInterp * mNumOfInterp );
-             mResidualElement.resize( mNumOfInterp );
+             mJacobianElement.resize( mElementBlock->get_num_interpolators() * mElementBlock->get_num_interpolators() );
+             mResidualElement.resize( mElementBlock->get_num_interpolators() );
 
              uint tTotalDof = 0;
-             for( uint i = 0; i < mNumOfInterp; i++ )
+             for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
              {
                  // get number of pdofs for the ith dof type
-                 uint tNumOfDofi = aFieldInterpolators( i )->get_number_of_space_time_coefficients();
+                 uint tNumOfDofi = mElementBlock->get_block_field_interpolator()( i )->get_number_of_space_time_coefficients();
 
                  // get total number of dof
                  tTotalDof = tTotalDof + tNumOfDofi;
@@ -486,13 +601,13 @@ namespace moris
                  // set mResidualElement size
                  mResidualElement( i ).set_size( tNumOfDofi, 1, 0.0 );
 
-                 for( uint j = 0; j < mNumOfInterp; j++ )
+                 for( uint j = 0; j < mElementBlock->get_num_interpolators(); j++ )
                  {
                      // get number of pdofs for the ith dof type
-                     uint tNumOfDofj = aFieldInterpolators( j )->get_number_of_space_time_coefficients();
+                     uint tNumOfDofj = mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients();
 
                      // set mResidualElement size
-                     mJacobianElement( i * mNumOfInterp + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
+                     mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
                  }
              }
 
@@ -535,8 +650,5 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
-
 
 #endif /* SRC_FEM_CL_FEM_ELEMENT_HPP_ */

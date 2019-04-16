@@ -15,6 +15,7 @@ namespace moris
 {
     namespace fem
     {
+    class Element_Block;
 //------------------------------------------------------------------------------
     /**
      * \brief Element_Sideset class
@@ -30,7 +31,6 @@ namespace moris
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
-
         /**
          * constructor
          *
@@ -41,6 +41,11 @@ namespace moris
         Element_Sideset( mtk::Cell                  * aCell,
                          moris::Cell< IWG* >        & aIWGs,
                          moris::Cell< Node_Base* >  & aNodes );
+
+        Element_Sideset( mtk::Cell                  * aCell,
+                         moris::Cell< IWG* >        & aIWGs,
+                         moris::Cell< Node_Base* >  & aNodes,
+                         Element_Block      * aElementBlock);
 
 //------------------------------------------------------------------------------
         /**
