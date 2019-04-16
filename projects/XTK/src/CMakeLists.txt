@@ -241,7 +241,7 @@ set(XTK_EXE_DEPENDENCIES
 
 add_executable(XTK_EXE ${XTK_EXE_SOURCES})
 target_link_libraries(XTK_EXE ${XTK_EXE_DEPENDENCIES})
-set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK.exe )
+set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK )
 
 
 

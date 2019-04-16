@@ -68,26 +68,26 @@ void compute_dx_dp_with_linear_basis(moris::Matrix< moris::DDRMat >  & aDPhiADp,
                                      moris::Matrix< moris::DDRMat >  & aDxDp)
 {
 
-    MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-    MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
-    moris::real const & tPhiA = aEdgeNodePhi(0,0);
-    moris::real const & tPhiB = aEdgeNodePhi(1,0);
+  MORIS_ASSERT(aDPhiADp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
+  MORIS_ASSERT(aDPhiBDp.n_rows() != 0,"dPhi/dp not implemented in geometry would cause a seg fault here");
+  moris::real const & tPhiA = aEdgeNodePhi(0,0);
+  moris::real const & tPhiB = aEdgeNodePhi(1,0);
 
-    // Initialize
-    moris::Matrix< moris::DDRMat > tXa = aEdgeCoordinates.get_row(0);
+  // Initialize
+  moris::Matrix< moris::DDRMat > tXa = aEdgeCoordinates.get_row(0);
 
-    moris::Matrix< moris::DDRMat > tXb = aEdgeCoordinates.get_row(1);
+  moris::Matrix< moris::DDRMat > tXb = aEdgeCoordinates.get_row(1);
 
-    // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
-    moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
-    moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
+  // Compute $\frac{\partial x_{\Gamma}}{\partial \phi}$
+  moris::DDRMat tDxgammaDphiA = -(tPhiB)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
+  moris::DDRMat tDxgammaDphiB =  (tPhiA)/std::pow((tPhiA-tPhiB),2)*(tXb.matrix_data()-tXa.matrix_data());
 
-    moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
-    moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
+  moris::Matrix< moris::DDRMat > tDxgDphiAMat(tDxgammaDphiA);
+  moris::Matrix< moris::DDRMat > tDxgDphiBMat(tDxgammaDphiB);
 
-    // Compute dx/dp
-    moris::DDRMat tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
-    aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
+  // Compute dx/dp
+  moris::DDRMat tDxDp = aDPhiADp * moris::trans(tDxgDphiAMat) +  aDPhiBDp * moris::trans(tDxgDphiBMat);
+  aDxDp = moris::Matrix< moris::DDRMat >(tDxDp);
 
 }
 
@@ -412,7 +412,6 @@ public:
                 tEntityNodeVars(i) = this->get_entity_phase_val(tParentEntityNodes(i),aGeomIndex);
             }
 
-
             // Recompute local intersection (This could be stored instead)
             Matrix< DDRMat > tIntersectLocalCoordinate(1,1,0.0);
             Matrix< DDRMat > tIntersectGlobalCoordinate(1,1,0.0);
@@ -426,6 +425,7 @@ public:
                                       true,
                                       false);
 
+
             // FIXME: Parent edge nodes need to not be the ADVs
             Matrix< IndexMat > tADVIndices;
 
@@ -433,8 +433,8 @@ public:
 
             tGeoObj.set_sensitivity_dx_dp(tDxDp);
             tGeoObj.set_node_adv_indices(tParentEntityNodes);
-        }
 
+          }
     }
 
     /*
@@ -622,6 +622,8 @@ public:
     {
         Geometry_Object & tNodesGeoObj = get_geometry_object(aNodeIndex);
         moris::size_t tNodeRowIndex = tNodesGeoObj.get_phase_val_row();
+
+        MORIS_ASSERT(tNodeRowIndex<mNodePhaseVals.n_rows(),"Entity row index out of bounds in the nodal phase val matrix");
 
         return mNodePhaseVals(tNodeRowIndex,aGeomIndex);
     }

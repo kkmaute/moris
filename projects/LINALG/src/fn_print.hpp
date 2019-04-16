@@ -101,7 +101,7 @@ namespace moris
             std::cout << "}";
             if(r != tNumRows - 1)
             {
-                std::cout << ", ";
+                std::cout << ", \n";
             }
 
         }
