@@ -296,6 +296,27 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    fem::Interpolation_Type Element_Block::get_auto_time_interpolation_type( const moris::uint aNumVertices )
+    {
+        switch( aNumVertices )
+        {
+          case( 1 ) :
+              return Interpolation_Type::CONSTANT;
+              break;
+          case( 2 ) :
+          case( 3 ) :
+          case( 4 ) :
+              return Interpolation_Type::LAGRANGE;
+              break;
+          default :
+              MORIS_ERROR( false, " Element::get_auto_time_interpolation_type - not defined this number of time vertices. ");
+              return Interpolation_Type::UNDEFINED;
+              break;
+        }
+    }
+
+//------------------------------------------------------------------------------
+
     void Element_Block::create_field_interpolators(MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // cell of field interpolators
@@ -316,11 +337,10 @@ namespace moris
                                                         Interpolation_Type::LAGRANGE,
                                                         this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
                                                                                             mMeshElementPointer( 0 )->get_geometry_type()),
-                                                        Interpolation_Type::CONSTANT,
+                                                        this->get_auto_time_interpolation_type( tNumTimeNodes ),
                                                         // If interpolation type CONSTANT, iInterpolation order is not used
                                                         this->get_auto_interpolation_order( tNumTimeNodes,
                                                                                             mtk::Geometry_Type::LINE ) );
-
 
             // get number of field interpolated by the ith field interpolator
             uint tNumOfFields = tDofTypeGroup.size();

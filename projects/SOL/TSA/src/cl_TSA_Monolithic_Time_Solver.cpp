@@ -16,11 +16,14 @@ void Monolithic_Time_Solver::solve_monolytic_time_system()
     this->finalize();
 
     uint tTimeSteps = 1000;
-    moris::real tTime = 0;
+    moris::real tTime_Scalar = 0;
 
     for ( uint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
-        tTime = tTime + 0.01;
+        Matrix< DDRMat > tTime( 2, 1, tTime_Scalar );
+        tTime_Scalar = tTime_Scalar + 0.01;
+        tTime( 1, 0 ) = tTime_Scalar;
+        
         mSolverInterface->set_time( tTime );
 
         mSolverInterface->set_solution_vector_prev_time_step( mPrevFullVector );

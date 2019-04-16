@@ -55,7 +55,7 @@ public:
     virtual void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
 
-    virtual void set_time( const moris::real & aTime )
+    virtual void set_time( const Matrix< DDRMat> & aTime )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
 
     virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )

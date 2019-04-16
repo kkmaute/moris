@@ -170,6 +170,12 @@ namespace mtk
         mtk::Interpolation_Order get_auto_interpolation_order( const moris::uint aNumVertices,
                                                                const mtk::Geometry_Type aGeometryType );
 
+//------------------------------------------------------------------------------
+
+        fem::Interpolation_Type get_auto_time_interpolation_type( const moris::uint aNumVertices );
+
+//------------------------------------------------------------------------------
+
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
 
     };

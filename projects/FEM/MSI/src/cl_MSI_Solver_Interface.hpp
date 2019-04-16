@@ -30,14 +30,20 @@ namespace mtk
                 moris::MSI::Dof_Manager            * mDofMgn;
 
                 Dist_Vector                        * mSolutionVector;
+                Matrix< DDRMat>  mTime;
 
         public:
-            MSI_Solver_Interface( ) {};
+            MSI_Solver_Interface( )
+            {
+                mTime = { {0.0}, {1.0} };
+            };
 
 //------------------------------------------------------------------------------
             MSI_Solver_Interface( moris::MSI::Model_Solver_Interface * aMSI ) : mMSI( aMSI ),
                                                                                 mDofMgn( mMSI->get_dof_manager() )
-            {};
+            {
+                mTime = { {0.0}, {1.0} };
+            };
 
 //------------------------------------------------------------------------------
             ~MSI_Solver_Interface() {};
@@ -47,6 +53,11 @@ namespace mtk
             void set_solution_vector( Dist_Vector * aSolutionVector )
             {
                 mSolutionVector = aSolutionVector;
+            }
+
+            void set_time( const Matrix< DDRMat> & aTime )
+            {
+                mTime = aTime;
             }
 
 //------------------------------------------------------------------------------
@@ -126,6 +137,7 @@ namespace mtk
              void get_element_matrix( const moris::uint      & aMyElementInd,
                                             Matrix< DDRMat > & aElementMatrix )
              {
+                 mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                  mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix, mSolutionVector );
              };
 
@@ -149,6 +161,7 @@ namespace mtk
              void get_element_rhs( const moris::uint      & aMyElementInd,
                                          Matrix< DDRMat > & aElementRHS )
              {
+                 mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                  mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS, mSolutionVector  );
              };
 
