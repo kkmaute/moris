@@ -68,6 +68,11 @@ public:
                             const moris::uint             & aBlockRowOffsets,
                                   moris::Matrix< DDRMat > & LHSValues );
 
+    void print() const
+    {
+        MORIS_ERROR( false, "not impelemented for petsc yet");
+    }
+
     void save_vector_to_matrix_market_file( const char* aFilename ){};
 
     void save_vector_to_HDF5( const char* aFilename ){};

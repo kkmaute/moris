@@ -15,6 +15,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+#include "HDF5_Tools.hpp"
+
 #include "fn_save_matrix_to_binary_file.hpp"
 
 
@@ -1674,8 +1676,6 @@ namespace moris
                 tNumberOfFacetsPerElement = 6;
             }
 
-
-
             // step 2: count number of active or refined facets on mesh
 
             // initialize counter
@@ -1696,7 +1696,6 @@ namespace moris
                         // get pointer to face
                         Background_Facet * tBackFacet = tBackElement->get_facet( f );
 
-
                         // test if background facet is not flagged and element
                         if( ! tBackFacet->is_flagged() )
                         {
@@ -1709,7 +1708,6 @@ namespace moris
                     }
                 }
             }
-
 
             // step 2: create lagrange facets
             mFacets.resize( tCount, nullptr );
@@ -1782,7 +1780,6 @@ namespace moris
                 }
             }
 
-
             // step 6: synchronize proc IDs if parallel
             if( par_size() > 1 )
             {
@@ -1796,7 +1793,6 @@ namespace moris
             {
                 tBasis->delete_facet_container();
             }
-
 
             // count facets and increment each ID by 1, because IDs are supposed to
             // be 1-based
@@ -1816,7 +1812,6 @@ namespace moris
 
                 // increment faced ID
                 tFacet->set_id( tFacet->get_id() + 1 );
-
             }
 
             // insert facet containers
@@ -1839,7 +1834,6 @@ namespace moris
                     }
                 }
             }
-
 
             /*std::cout << par_rank() << " flag 1" << std::endl;
             // step 7 : link facets with children
@@ -3501,8 +3495,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::init_t_matrices()
         {
-
-
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
                 if( tMesh != NULL )
@@ -3549,9 +3541,6 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
         {
-
-
-
             MORIS_ASSERT(
                     mBSplineMeshes( aBSplineOrder  ) != NULL,
                     "B-Spline Mesh does not exist" );
@@ -3608,6 +3597,133 @@ namespace moris
             }
             MORIS_ERROR( false, "HMR: side set not found on mesh" );
         } */
+
+//------------------------------------------------------------------------------
+
+        // BIG HACK for femdoc with explicit consent of Kurt. Only tested in serial and linear meshes.
+        void Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc()
+        {
+            MORIS_ERROR( par_size() <= 1, "Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc(), this function is intended to work only in serial");
+
+            moris::uint tCounter = 0;
+            moris::uint tCounter2 = 0;
+
+            Matrix< DDSMat > tReverseIndexMap( mAllBasisOnProc.size()+1, 1, -1 );
+            Matrix< DDSMat > tReverseIDMap( mAllBasisOnProc.size()+1, 1, -1 );
+
+            moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+
+            BSpline_Mesh_Base * tBslpinemesh = this->get_bspline_mesh( 1 );
+
+            uint tNumBSplineBasis = tBslpinemesh->get_number_of_indexed_basis();
+
+            for( Basis * tBasis : mAllBasisOnProc )
+            {
+                bool tBasisFound = false;
+
+                for( uint Ik = 0; Ik< tNumBSplineBasis; Ik++ )
+                {
+                    bool tIsActive = tBslpinemesh->get_basis_by_index( Ik )->is_active();
+
+                    if ( tIsActive )
+                    {
+                        if( std::abs( tBasis->get_xyz()[0] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] ) <= 1E-10 )
+                        {
+                            if( std::abs( tBasis->get_xyz()[1] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] ) <= 1E-10 )
+                            {
+                                if ( mParameters->get_number_of_dimensions() == 3 )
+                                {
+                                    if( std::abs( tBasis->get_xyz()[2] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[2] ) <= 1E-10 )
+                                    {
+                                        moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
+                                        moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+
+                                        MORIS_ASSERT( tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
+
+                                        tReverseIndexMap( tIndex ) = tBasis->get_index();
+                                        tReverseIDMap( tID ) = tBasis->get_hmr_index();
+
+                                        tBasis->set_local_index( tIndex );
+                                        tBasis->set_domain_index( tID );
+
+                                        tBasisFound = true;
+
+                                        tCounter++;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
+                                    moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+
+                                    MORIS_ASSERT(tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
+
+                                    tReverseIndexMap( tIndex ) = tBasis->get_index();
+                                    tReverseIDMap( tID ) = tBasis->get_hmr_index();
+
+                                    tBasis->set_local_index( tIndex );
+                                    tBasis->set_domain_index( tID );
+
+                                    tBasisFound = true;
+
+                                    tCounter++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (tBasisFound == false)
+                {
+                    tNonBSplineBasis( tCounter2++ ) = tBasis;
+                }
+            }
+
+            tNonBSplineBasis.resize( tCounter2 );
+
+            for( Basis * tBasis : tNonBSplineBasis )
+            {
+                tReverseIndexMap( tCounter ) = tBasis->get_index();
+                tReverseIDMap( tCounter ) = tBasis->get_hmr_index();
+
+                tBasis->set_local_index( tCounter );
+                tBasis->set_domain_index( tCounter++ );
+            }
+
+            std::string aFilePath = "Reverse_Map.hdf5";
+
+            //print(tReverseIndexMap,"tReverseIndexMap");
+            // add order to path
+            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+                                        + "_" + std::to_string( this->get_index() ) // rank of this processor
+                                        +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+
+            // make path parallel
+            tFilePath = parallelize_path( tFilePath );
+
+            // Create a new file using default properties
+            herr_t tFileID = H5Fcreate( tFilePath.c_str(),
+                                        H5F_ACC_TRUNC,
+                                        H5P_DEFAULT,
+                                        H5P_DEFAULT);
+
+            // error handler
+            herr_t tStatus;
+
+            // save reverse indices to file
+            save_matrix_to_hdf5_file( tFileID,
+                                      "Index",
+                                      tReverseIndexMap,
+                                      tStatus );
+
+            // save reverse ids to file
+            save_matrix_to_hdf5_file( tFileID,
+                                      "Id",
+                                      tReverseIDMap,
+                                      tStatus );
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

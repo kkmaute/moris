@@ -239,7 +239,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tHMR.perform_initial_refinement();
 
         // refine the first element three times
-        for( uint tLevel = 0; tLevel < 4; ++tLevel )
+        for( uint tLevel = 0; tLevel < 4; ++tLevel )          // 4
         {
             tDatabase->flag_element( 0 );
 
@@ -250,6 +250,9 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
 
         tHMR.finalize();
+
+//        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
+//        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
 
         auto tMesh = tHMR.create_mesh( tLagrangeOrder );
         uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
@@ -291,8 +294,10 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
-
-        //tHMR.save_to_exodus( "Mesh_lin_old.exo" );
+//
+//        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
+//        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
+//        tHMR.save_faces_to_vtk( "Faces.vtk" );
     }
 }
 

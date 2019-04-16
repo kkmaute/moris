@@ -38,7 +38,7 @@ namespace moris
         enum class Integration_Order
         {
             UNDEFINED,
-			POINT,
+            POINT,
             BAR_1,
             BAR_2,
             BAR_3,
@@ -71,10 +71,11 @@ namespace moris
 
         enum class Element_Type
         {
+            UNDEFINED,
             BULK,
             SIDESET,
             TIME_SIDESET,
-            UNDEFINED
+            END_ELEMENT_TYPE
         };
 
 //------------------------------------------------------------------------------
@@ -88,10 +89,23 @@ namespace moris
             HELMHOLTZ,  // Helmholtz
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
-            SPATIALDIFF_BULK, // spatial diffusion bulk
-            SPATIALDIFF_SIDESET, // spatial diffusion sideset
-            SPATIALDIFF_DIRICHLET // spatial diffusion sideset
+            SPATIALDIFF_BULK,      // spatial diffusion bulk
+            SPATIALDIFF_SIDESET,   // spatial diffusion sideset
+            SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
+            SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
+            END_IWG_TYPE
         };
+
+//------------------------------------------------------------------------------
+
+        enum class BC_Type
+        {
+            UNDEFINED,
+            DIRICHLET,
+            NEUMANN,
+            END_BC_TYPE
+        };
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

@@ -80,9 +80,9 @@ public:
 
     virtual void replace_diagonal_values( const moris::Dist_Vector & aDiagVec ) = 0;
 
-    virtual void print_matrix_to_screen() const = 0;
+    virtual void print() const = 0;
 
-    virtual void save_matrix_to_matlab_file( char* aFilename ) = 0;
+    virtual void save_matrix_to_matlab_file( const char* aFilename ) = 0;
 
     virtual void save_matrix_to_matrix_market_file( const char* aFilename ) = 0;
 

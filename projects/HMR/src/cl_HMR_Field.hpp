@@ -288,6 +288,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            void put_scalar_values_on_field( const Matrix< DDRMat > & aValues );
+
+//------------------------------------------------------------------------------
+
             void
             evaluate_node_values();
 

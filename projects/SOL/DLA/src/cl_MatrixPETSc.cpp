@@ -160,7 +160,7 @@ void Matrix_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichl
     }
 }
 
-void Matrix_PETSc::print_matrix_to_screen() const
+void Matrix_PETSc::print() const
 {
     MatView(mPETScMat, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
 }

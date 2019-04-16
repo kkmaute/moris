@@ -15,6 +15,7 @@ set(SOL_CORE_INCLUDES
     ${SOL}/${DLA}
     ${IOS}
     ${COM}
+    ${SOL}/${NLA}
     ${FEM}/${MSI} )
 
 # Include depedency directories
@@ -35,6 +36,7 @@ set(LIB_DEPENDENCIES
     ${DLA}-lib
     ${COM}-lib
     ${MSI}-lib
+    ${NLA}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_TRILINOS_LIBS}

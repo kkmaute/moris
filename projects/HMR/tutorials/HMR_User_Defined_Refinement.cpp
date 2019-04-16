@@ -39,10 +39,8 @@ extern "C"
                     const Cell< Matrix< DDRMat > > & aElementLocalValues,
                           ParameterList            & aParameters )
             {
-
                 /**
                  * Basic Element Functions
-
 
                        // return the moris index of this element
                        aElement->get_index();
@@ -52,7 +50,6 @@ extern "C"
 
                        // return the proc owner of this element
                        aElement->get_owner();
-
                  */
 
                 /**
@@ -68,7 +65,6 @@ extern "C"
                        aElement->update_min_refimenent_level( uint aMinumumLevel )
                  */
 
-
                 /**
                  * Grab values from parameter list
                  */
@@ -80,7 +76,6 @@ extern "C"
 
                 // maximal
                 real tUpperBound = aParameters.get< real >("upper_bound");
-
 
                 // example of use:
                 if (    aElementLocalValues( 0 ).max() >= tLowerBound

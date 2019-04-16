@@ -239,7 +239,6 @@ namespace moris
         void
         Database::update_bspline_meshes()
         {
-
             // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
@@ -327,9 +326,8 @@ namespace moris
 
             for( auto tMesh : mBSplineMeshes )
             {
-            	tMesh->calculate_basis_indices( mCommunicationTable );
+                tMesh->calculate_basis_indices( mCommunicationTable );
             }
-
 
             // reset active pattern
             if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
@@ -718,7 +716,7 @@ namespace moris
 
                     // union is created from both B-Spline patterns
                     this->create_union_pattern();
-
+                    
                     // test if max polynomial is 3
                     if ( mParameters->get_max_polynomial() > 2 )
                     {
@@ -1058,8 +1056,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::check_entity_ids()
+        void Database::check_entity_ids()
         {
             if( par_size() > 1 )
             {
@@ -1139,8 +1136,7 @@ namespace moris
                     {
                         if( tMesh->get_active_basis( k )->is_flagged() )
                         {
-                            MORIS_ERROR(
-                                tMesh->get_active_basis( k )->get_hmr_index() < gNoEntityID,
+                            MORIS_ERROR( tMesh->get_active_basis( k )->get_hmr_index() < gNoEntityID,
                                 "Invalid B-Spline ID" );
                         }
                     }
@@ -1153,8 +1149,7 @@ namespace moris
 
                     // print output
                     std::fprintf( stdout,"%s passed entity ID test, testing took %5.3f seconds.\n\n",
-                            proc_string().c_str(),
-                            ( double ) tElapsedTime / 1000 );
+                            proc_string().c_str(), ( double ) tElapsedTime / 1000 );
                 }
             }
         }
@@ -1164,8 +1159,7 @@ namespace moris
         /**
          * creates the sidesets
          */
-        void
-        Database::create_side_sets()
+        void Database::create_side_sets()
         {
             // matrix with sidesets
             const Matrix< DDUMat > & tSideSets = mParameters->get_side_sets();
@@ -1261,8 +1255,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::calculate_t_matrices_for_input()
+        void Database::calculate_t_matrices_for_input()
         {
             // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();

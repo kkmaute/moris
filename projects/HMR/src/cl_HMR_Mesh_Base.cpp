@@ -32,8 +32,7 @@ namespace moris
 // protected:
 // -----------------------------------------------------------------------------
 
-        void
-        Mesh_Base::delete_pointers()
+        void Mesh_Base::delete_pointers()
         {
             if ( mAllBasisOnProc.size() > 0 )
             {
@@ -68,8 +67,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Mesh_Base::create_elements()
+        void Mesh_Base::create_elements()
         {
             // cell for background elements
             Cell< Background_Element_Base* > tAllBackgroundElements;
@@ -99,8 +97,7 @@ namespace moris
          *
          * @return void
          */
-        void
-        Mesh_Base::collect_coarsest_elements()
+        void Mesh_Base::collect_coarsest_elements()
         {
             // count number of coarsest elements
             luint tNumberOfElements = mBackgroundMesh ->get_number_of_coarsest_elements_on_proc_including_aura();
@@ -124,8 +121,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Mesh_Base::unflag_all_basis()
+        void Mesh_Base::unflag_all_basis()
         {
             for ( auto tBasis : mAllBasisOnProc )
             {
@@ -135,8 +131,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Mesh_Base::unuse_all_basis()
+        void Mesh_Base::unuse_all_basis()
         {
             for ( auto tBasis : mAllBasisOnProc )
             {
@@ -149,8 +144,7 @@ namespace moris
         /**
          * sets the flag of all nodes on proc
          */
-        void
-        Mesh_Base::flag_all_basis()
+        void Mesh_Base::flag_all_basis()
         {
             for ( auto tBasis : mAllBasisOnProc )
             {
@@ -263,8 +257,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Mesh_Base::confirm_basis_ownership()
+        void Mesh_Base::confirm_basis_ownership()
         {
             // get number of ranks
             uint tNumberOfProcs = par_size();

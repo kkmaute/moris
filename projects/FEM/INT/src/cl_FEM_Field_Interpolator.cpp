@@ -1,7 +1,8 @@
 
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp" //LNA/src
-#include "fn_inv.hpp" //LNA/src
+#include "fn_linsolve.hpp" //LNA/src
+
 #include "fn_det.hpp" //LNA/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -33,7 +34,10 @@ namespace moris
             mNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
             mNTimeDim  = mTimeInterpolation ->get_number_of_dimensions();
 
-            // check dimension consistency
+            // get number of space parametric dimensions
+            mNSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
+
+            // check dimensions consistency
             MORIS_ERROR( ( mNSpaceDim == mGeometryInterpolator->get_number_of_space_dimensions() ) ,
                          "Field_Interpolator - Space dimension inconsistency." );
             MORIS_ERROR( ( mNTimeDim  == mGeometryInterpolator->get_number_of_time_dimensions() ),
@@ -46,13 +50,6 @@ namespace moris
 
             // get number of coefficients
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
-
-            // set default xi, tau
-            mXi.set_size( mNSpaceDim, 1, 0.0 );
-            mTau.set_size( mNTimeDim, 1, 0.0 );
-
-            // set default uHat
-            mUHat.set_size( mNFieldBases, mNumberOfFields, 0.0 );
         }
 
 //------------------------------------------------------------------------------
@@ -76,27 +73,29 @@ namespace moris
         void Field_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
         {
             // check input size aParamPoint
-            MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNSpaceDim + mNTimeDim )),
+            MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNSpaceParamDim + mNTimeDim )),
                          "Field_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");
 
-            //check input values are between -1 and 1
-            for ( moris::uint Ik = 0; Ik < mNSpaceDim + mNTimeDim; Ik++ )
+            // check input values are between -1 and 1
+            // fixme what about TRI and TET
+            for ( uint Ik = 0; Ik < mNSpaceParamDim + mNTimeDim; Ik++ )
             {
-                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1 ) && ( aParamPoint( Ik ) >= -1 ) ),
+
+                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
                              "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
             }
 
             // set input values
-            mXi.matrix_data()  = aParamPoint( { 0, mNSpaceDim-1 }, { 0, 0 } );
-            mTau.matrix_data() = aParamPoint( mNSpaceDim );
+            mXi.matrix_data()  = aParamPoint( { 0, mNSpaceParamDim-1 }, { 0, 0 } );
+            mTau.matrix_data() = aParamPoint( mNSpaceParamDim );
         }
 
 //------------------------------------------------------------------------------
 
         void Field_Interpolator::set_coeff( const Matrix< DDRMat > & aUHat )
         {
-            //check the input size
-            MORIS_ASSERT( ( ( aUHat.n_cols() == mUHat.n_cols() ) && ( aUHat.n_rows() == mUHat.n_rows() )),
+            // check the input size
+            MORIS_ASSERT( ( ( aUHat.n_cols() == mNumberOfFields ) && ( aUHat.n_rows() == mNFieldBases )),
                           "Field_Interpolator::set_coeff - Wrong input size (aUHat).");
 
             // set the coefficients
@@ -140,7 +139,7 @@ namespace moris
             Matrix< DDRMat > tJGeot    = mGeometryInterpolator->space_jacobian( tdNGeodXi );
 
             // compute first derivative of the SF wrt x
-            return inv( tJGeot ) * tdNFielddXi;
+            return solve( tJGeot, tdNFielddXi );
         }
 
 //------------------------------------------------------------------------------

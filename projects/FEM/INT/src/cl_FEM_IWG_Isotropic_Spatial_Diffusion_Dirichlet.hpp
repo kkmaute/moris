@@ -25,8 +25,10 @@ namespace moris
 
         class IWG_Isotropic_Spatial_Diffusion_Dirichlet : public IWG
         {
+            // Nitsche's penalty parameter
+            real mGamma;
 
-            // diffusion parameter
+            // diffusion tensor
             Matrix< DDRMat > mKappa;
 
 //------------------------------------------------------------------------------

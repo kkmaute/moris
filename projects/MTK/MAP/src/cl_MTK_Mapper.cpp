@@ -69,14 +69,21 @@ namespace moris
         {
             if( ! mHaveIwgAndModel )
             {
-                // create IWG object
-                //mIWG = new moris::fem::IWG_L2( aAlpha );
+                // create a list of IWG types
+                Cell< Cell< fem::IWG_Type > >tIWGTypeList( 1 );
+                tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::L2 );
 
-                Cell< fem::IWG_Type >tIWGType( 1, fem::IWG_Type::L2 );
+                // create a list of active sidesets
+                Cell< moris_index >  tSidesetList;
+
+                // create a list of BC type for the sidesets
+                Cell< fem::BC_Type > tSidesetBCTypeList;
 
                 // create model
                 //mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );
-                mModel = new mdl::Model( mTargetMesh.get(), mBSplineOrder, tIWGType );
+                //mModel = new mdl::Model( mTargetMesh.get(), mBSplineOrder, tIWGType );
+                mModel = new mdl::Model( mTargetMesh.get(), mBSplineOrder, tIWGTypeList,
+                                         tSidesetList, tSidesetBCTypeList );
 
                 mHaveIwgAndModel = true;
             }

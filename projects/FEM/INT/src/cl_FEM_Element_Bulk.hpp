@@ -15,7 +15,7 @@ namespace moris
 {
     namespace fem
     {
-
+    class Element_Block;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -36,6 +36,11 @@ namespace moris
         Element_Bulk( mtk::Cell                 * aCell,
                       moris::Cell< IWG* >       & aIWGs,
                       moris::Cell< Node_Base* > & aNodes );
+
+        Element_Bulk( mtk::Cell                 * aCell,
+                      moris::Cell< IWG* >       & aIWGs,
+                      moris::Cell< Node_Base* > & aNodes,
+                      Element_Block      * aElementBlock );
 //------------------------------------------------------------------------------
         /**
          * trivial destructor

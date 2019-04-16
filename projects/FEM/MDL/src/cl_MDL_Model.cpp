@@ -17,6 +17,7 @@
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
+#include "cl_FEM_Element_Block.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -42,9 +43,16 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Model::Model(       mtk::Mesh *     aMesh,
-                      const uint            aBSplineOrder,
-                      Cell< fem::IWG_Type > aIWGTypeList) : mMesh( aMesh )
+        Model::Model(       mtk::Mesh *                   aMesh,
+                      const uint                          aBSplineOrder,
+                            Cell< Cell< fem::IWG_Type > > aIWGTypeList,
+                            Cell< moris_index >           aSidesetList,
+                            Cell< fem::BC_Type >          aSidesetBCTypeList ) : mMesh( aMesh )
+
+
+//    Model::Model(       mtk::Mesh *                   aMesh,
+//                  const uint                          aBSplineOrder,
+//                        Cell< Cell< fem::IWG_Type > > aIWGTypeList ) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;
@@ -88,14 +96,27 @@ namespace moris
             fem::IWG_Factory tIWGFactory;
 
             // create a cell of IWGs for the problem considered
-            mIWGs.resize( tNumOfIWGs , nullptr );
+            mIWGs.resize( tNumOfIWGs );
 
             // loop over the IWG types
             for( uint i = 0; i < tNumOfIWGs; i++)
             {
-                // create an IWG with the factory for the ith IWG type
-                mIWGs( i ) = tIWGFactory.create_IWGs( aIWGTypeList( i ) );
+                mIWGs( i ).resize( aIWGTypeList( i ).size(), nullptr );
+
+                for( uint Ki = 0; Ki < aIWGTypeList( i ).size(); Ki++)
+                {
+                    // create an IWG with the factory for the ith IWG type
+                    mIWGs( i )( Ki ) = tIWGFactory.create_IWGs( aIWGTypeList( i )( Ki ) );
+                }
             }
+
+//            if ( tNumOfIWGs > 1 )
+//            {
+//                mIWGs1.resize( 2, nullptr );
+//                mIWGs1( 0 ) = mIWGs( 1 )( 0 );
+//                mIWGs1( 1 ) = mIWGs( 2 )( 0 );
+//
+//            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create elements
@@ -107,23 +128,69 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            // ask mesh about number of elements on proc
-//            luint tNumberOfElements = aMesh->get_num_elems();
+            // get the number of element to create
+            luint tNumberOfEquationObjects = aMesh->get_num_elems()
+                                           + aMesh->get_sidesets_num_faces( aSidesetList );
 
-            moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
-            Matrix< IndexMat > tBlockSetElementInd = aMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
-            luint tNumberOfElements = tBlockSetElementInd.numel();
+            uint tNumberElementBlocks = 1 + aSidesetList.size();
 
             // create equation objects
-            mElements.resize( tNumberOfElements, nullptr );
+            mElements.reserve( tNumberOfEquationObjects );
 
-            for( luint k=0; k<tNumberOfElements; ++k )
+            mElementBlocks.resize( tNumberElementBlocks, nullptr );
+
+            //  Create Blockset Elements ----------------------------------------
+            std::cout<<" Create Blockset Elements "<<std::endl;
+            //------------------------------------------------------------------------------
+
+            // ask mesh about number of elements on proc
+            moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
+
+            moris::Cell<mtk::Cell*> tBlockSetElement( aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+
+            moris::uint tEquationObjectCounter = 0;
+            moris::uint tElementBlockCounter = 0;
+            for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
             {
-                // create the element
-                mElements( k ) = tElementFactory.create_element( fem::Element_Type::BULK,
-                                                                 & aMesh->get_mtk_cell( k ),
-                                                                 mIWGs,
-                                                                 mNodes );
+                Matrix< IndexMat > tBlockSetElementInd
+                    = aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                {
+                    tEquationObjectCounter++;
+
+                    tBlockSetElement( k ) = & aMesh->get_mtk_cell( k );
+                }
+
+            }
+            mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, mIWGs( 0 ), mNodes );
+
+            mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
+
+            //  Create Blockset Elements ----------------------------------------
+            std::cout<<" Create Sideset Elements "<<std::endl;
+            //------------------------------------------------------------------------------
+
+            moris::Cell<std::string> tSideSetsNames = aMesh->get_set_names( EntityRank::FACE );
+
+            for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
+            {
+                // get the treated sideset name
+                std::string tTreatedSidesetName = tSideSetsNames( aSidesetList( Ik ) );
+
+                // create a cell of sideset element
+                moris::Cell< mtk::Cell * > tSideSetElement;
+
+                // create a list of sideset ordinal
+                Matrix< IndexMat >  aSidesetOrdinals;
+
+                // get the treated sideset elements and ordinals
+                aMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
+
+                mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );
+
+                mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
+
             }
 
             if( par_rank() == 0)
@@ -133,7 +200,7 @@ namespace moris
 
                 // print output
                 std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
-                        ( unsigned int ) tNumberOfElements,
+                        ( unsigned int ) tNumberOfEquationObjects,
                         ( double ) tElapsedTime / 1000 );
             }
 
@@ -143,7 +210,6 @@ namespace moris
 
             // start timer
             tic tTimer3;
-
 
             //--------------------------FIXME------------------------------------
             // This part should not be needed anymore when MTK has all the functionalities
@@ -175,14 +241,73 @@ namespace moris
             mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElements,
                                                                             tCommTable,
                                                                             tIdToIndMap,
-                                                                            tMaxNumAdofs,      //FIXME
+                                                                            tMaxNumAdofs,
                                                                             mMesh );
 
             if ( mMesh->get_mesh_type() == MeshType::HMR )
             {
                 mModelSolverInterface->set_param("L2")= (sint)mDofOrder;
+                mModelSolverInterface->set_param("TEMP")= (sint)mDofOrder;
             }
 
+            //-----------------------------------------------------------------------------------------------------------
+
+            tEquationObjectCounter = tBlockSetElement.size();
+            tElementBlockCounter = 0;
+            mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
+
+            for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
+            {
+                // get the treated sideset name
+                std::string tTreatedSidesetName = tSideSetsNames( aSidesetList( Ik ) );
+
+                // create a cell of sideset element
+                moris::Cell< mtk::Cell * > tSideSetElement;
+
+                // create a list of sideset ordinal
+                Matrix< IndexMat >  aSidesetOrdinals;
+
+                // get the treated sideset elements and ordinals
+                aMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
+
+                mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
+
+//                mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
+
+                for( luint k = 0; k < tSideSetElement.size(); ++k )
+                {
+                    mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} ); //FIXME
+
+                    // get the nodal weak bcs of the element
+                    Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
+
+                    // get the element number of nodes
+                    uint tNumberOfNodes = mElements( tEquationObjectCounter++ )->get_num_nodes();
+
+                    // set size of the element nodal weak bc
+                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+
+                    // loop over the element nodes
+                    Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
+
+                    //--------------------------------------------------------------------------------------------
+                    for( uint l = 0; l < tNumberOfNodes; l++ )
+                    {
+                        if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::DIRICHLET )
+                        {
+                        // copy weak bc into element
+                        tNodalWeakBCs( l ) = 5.0;
+                        }
+                        else if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
+                        {
+                            // copy weak bc into element
+                            tNodalWeakBCs( l ) = 20.0;
+                        }
+                    }
+                }
+            }
+
+            //------------------------------------------------------------------------------------------
             mModelSolverInterface->finalize();
 
             // calculate AdofMap
@@ -193,7 +318,6 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
-
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 5: create Nonlinear Problem
@@ -220,8 +344,14 @@ namespace moris
             // set default parameters for linear solver
             mLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             mLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+
+//            mLinearSolverAlgorithm->set_param("AZ_orthog") = AZ_modified;
+//            mLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
+
+//            mLinearSolverAlgorithm->set_param("AZ_graph_fill") = 2;
+
             //mLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
-            //mLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+//            mLinearSolverAlgorithm->set_param("ctes") = true;
 
             // create solver manager
             mLinSolver = new dla::Linear_Solver();
@@ -270,7 +400,7 @@ namespace moris
             // delete IWGs
             for( auto tIWG : mIWGs )
             {
-                delete tIWG;
+                tIWG.clear();
             }
 
             // delete elements
@@ -344,8 +474,8 @@ namespace moris
             uint tLength = tSolution.length();
 
             // make sure that length of vector is correct
-            MORIS_ERROR( tLength <= (uint)  mMesh->get_num_coeffs( mDofOrder ),
-                    "Number of ADOFs does not match" );
+//            MORIS_ERROR( tLength <= (uint)  mMesh->get_num_coeffs( mDofOrder ),
+//                    "Number of ADOFs does not match" );
 
             // rearrange data into output
             aSolution.set_size( tLength, 1 );
@@ -397,7 +527,87 @@ namespace moris
         Model::compute_element_average( const uint aElementIndex )
         {
             return mElements( aElementIndex )->compute_element_average_of_scalar_field();
+        }
 
+//------------------------------------------------------------------------------
+
+        void
+        Model::output_solution( const std::string & aFilePath )
+        {
+            if ( mMesh->get_mesh_type() == MeshType::HMR )
+            {
+                mSolHMR.set_size(mMesh->get_num_nodes(),1,-1.0);
+
+                moris::Cell<std::string> tBlockSetsNames = mMesh->get_set_names( EntityRank::ELEMENT);
+
+                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
+                {
+                    Matrix< IndexMat > tBlockSetElementInd
+                        = mMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                    {
+                       uint tNumVert = mMesh->get_mtk_cell( k ).get_number_of_vertices();
+
+                       //print( mElements(k)->get_pdof_values(), "Element");
+
+                       for( luint Jk=0; Jk < tNumVert; ++Jk )
+                       {
+                           moris_index tID= mMesh->get_mtk_cell( k ).get_vertex_pointers()( Jk) ->get_index();
+
+                           mSolHMR(tID) = mElements(k)->get_pdof_values()(Jk);
+                       }
+                    }
+                }
+            }
+            else
+            {
+            // 8) Postprocessing
+            // dof type list for the solution to write on the mesh
+            moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
+
+            uint tNumOfNodes = mNodes.size();
+
+            // create a matrix to be filled  with the solution
+            Matrix< DDRMat > tTempSolutionField( tNumOfNodes, 1 );
+
+            // loop over the nodes
+            for( uint i = 0; i < tNumOfNodes; i++ )
+            {
+                // get a list of elements connected to the ith node
+                Matrix<IndexMat> tConnectedElements =
+                    mMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
+                                                                    EntityRank::NODE,
+                                                                    EntityRank::ELEMENT );
+
+                // number of connected element
+                uint tNumConnectElem = tConnectedElements.numel();
+
+                // reset the nodal value
+                real tNodeVal = 0.0;
+
+                // loop over the connected elements
+                for( uint j = 0; j < tNumConnectElem; j++ )
+                {
+                    // extract the field value at the ith node for the jth connected element
+                    real tElemVal = mElements( tConnectedElements( j ) )->get_element_nodal_pdof_value( i, tDofTypeList);
+                    // add up the contribution of each element to the node value
+                    tNodeVal = tNodeVal + tElemVal;
+                }
+                // fill the solution matrix with the node value
+                tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
+            }
+            //print( tTempSolutionField, "tTempSolutionField" );
+
+            // add field to the mesh
+            mMesh->add_mesh_field_real_scalar_data_loc_inds( aFilePath,
+                                                             EntityRank::NODE,
+                                                             tTempSolutionField );
+
+            // create output mesh
+            std::string tOutputFile = "./int_ElemDiff_test_11.exo";
+            mMesh->create_output_mesh( tOutputFile );
+            }
         }
 
     } /* namespace mdl */

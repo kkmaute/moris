@@ -31,7 +31,7 @@ namespace moris
             Interpolation_Function_Base * mSpaceInterpolation = nullptr;
             Interpolation_Function_Base * mTimeInterpolation  = nullptr;
 
-            // space and time geometry interpolator objects
+            // space and time geometry interpolator
             const Geometry_Interpolator * mGeometryInterpolator = nullptr;
 
             // space, time, and space time number of bases
@@ -46,6 +46,9 @@ namespace moris
             uint mNSpaceDim;
             uint mNTimeDim;
 
+            // space parametric dimensions
+            uint mNSpaceParamDim;
+
             // parametric point where field is interpolated
             Matrix< DDRMat > mXi;
             Matrix< DDRMat > mTau;
@@ -59,7 +62,7 @@ namespace moris
             /**
              * constructor
              * @param[ in ] aNumberOfFields           number of interpolated fields
-             * @param[ in ] aFieldInterpolationRule   pointer to field interpolation rule
+             * @param[ in ] aFieldInterpolationRule   field interpolation rule
              * @param[ in ] aGeometryInterpolator     pointer to geometry interpolator object
              *
              */
@@ -119,33 +122,40 @@ namespace moris
              }
 //------------------------------------------------------------------------------
             /**
-             * set the parametric point where field is interpolated xi, tau
+             * set the parametric point where field is interpolated
+             * @param[ in ] aParamPoint evaluation point in space and time
              */
             void set_space_time( const Matrix< DDRMat > & aParamPoint );
 
 //------------------------------------------------------------------------------
              /**
-              * get the parametric point where field is interpolated of xi, tau
+              * get the parametric point in space where field is interpolated
               */
               Matrix< DDRMat > get_space() const
               {
                   return mXi;
               }
 
-              Matrix< DDRMat > get_time() const
-              {
-                  return mTau;
-              }
+//------------------------------------------------------------------------------
+            /**
+             * get the parametric point in time where field is interpolated of tau
+             */
+            Matrix< DDRMat > get_time() const
+            {
+                return mTau;
+            }
 
 //------------------------------------------------------------------------------
              /**
               * set the coefficients of the field uHat
+              * @param[ in ] aUHat coefficients
               */
              void set_coeff( const Matrix< DDRMat > & aUHat );
 
 //------------------------------------------------------------------------------
              /**
              * get the coefficients of the field uHat
+             * @param[ out ] mUHat coefficients
              */
               Matrix< DDRMat > get_coeff() const
               {
@@ -155,8 +165,8 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluates the space time shape functions
-             * @param[ out ] shape function matrix
-             *             ( 1 x <number of basis> )
+             * @param[ out ] shape functions matrix
+             *               ( 1 x <number of basis> )
              */
             Matrix < DDRMat > N();
 
@@ -165,7 +175,7 @@ namespace moris
              * evaluates the first derivatives of the space time shape functions
              * wrt space x
              * @param[ out ] dNdx
-             *             ( < number of space dimensions > x <number of space time basis > )
+             *               ( < number of space dimensions > x <number of space time basis > )
              */
              Matrix< DDRMat > Bx();
 
@@ -173,8 +183,8 @@ namespace moris
             /**
              * evaluates the second derivatives of the space time shape functions
              * wrt space x
-             * @param[ out ]         d2Ndx2
-             *             ( < number of space dimensions > x <number of space time basis > )
+             * @param[ out ] d2Ndx2
+             *               ( < number of space dimensions > x <number of space time basis > )
              */
             Matrix< DDRMat > eval_d2Ndx2();
 
@@ -182,8 +192,8 @@ namespace moris
             /**
              * evaluates the first derivative of the space time shape functions
              * wrt time t
-             * @param[ out ]       dNdt
-             *             ( < number of time dimensions > x <number of space time basis > )
+             * @param[ out ] dNdt
+             *               ( < number of time dimensions > x <number of space time basis > )
              */
             Matrix< DDRMat > Bt();
 
@@ -191,8 +201,8 @@ namespace moris
             /**
             * evaluates the second derivative of the space time shape functions
             * wrt time t
-            * @param[ out ]       d2Ndt2
-            *             ( < number of time dimensions > x <number of space time basis > )
+            * @param[ out ] d2Ndt2
+            *               ( < number of time dimensions > x <number of space time basis > )
             */
             Matrix< DDRMat > eval_d2Ndt2();
 
@@ -205,20 +215,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-            * evaluates the field space derivative at given space and time Xi, Tau
-            * @param[ in ] aDerivativeOrder  order of the required derivative
-            * @param[ in ] aXHat             space coordinates of the treated element
-            *             ( < number of space dimensions > x < number of space basis > )
-            *
+            * evaluates the field space derivatives at given space and time evaluation point
+            * @param[ in ]  aDerivativeOrder  order of the required derivatives
+            * @param[ out ] gradx             space derivatives
             */
             Matrix< DDRMat > gradx( const uint & aDerivativeOrder );
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the field time derivative at given space and time Xi, Tau
+             * evaluates the field time derivative at given space and time evaluation point
              * @param[ in ] aDerivativeOrder  order of the required derivative
-             * @param[ in ] aTHat  time coordinates of the treated element
-             *             ( < number of time dimensions > x < number of time basis > )
+             * @param[ out ] gradt            time derivatives
              */
             Matrix< DDRMat > gradt( const uint & aDerivativeOrder );
 

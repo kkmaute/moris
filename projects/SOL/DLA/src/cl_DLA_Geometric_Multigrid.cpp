@@ -112,7 +112,7 @@ namespace dla
                 }
             }
             mProlongationList( Ik - 1 )->matrix_global_asembly();
-            //mProlongationList( Ik - 1 )->print_matrix_to_screen();
+            //mProlongationList( Ik - 1 )->print();
         }
     }
 

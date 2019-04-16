@@ -9,8 +9,6 @@
 #define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_HEX27_HPP_
 
 #include "assert.h"
-
-//#include "cl_FEM_Interpolation_Matrix.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
@@ -19,12 +17,20 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+
+        template<>
+        uint
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27 >::get_number_of_param_dimensions() const
+        {
+            return 3;
+        }
 
 //------------------------------------------------------------------------------
 
     template<>
     mtk::Interpolation_Order
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 27 >::get_interpolation_order() const
+    Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27 >::get_interpolation_order() const
     {
         return mtk::Interpolation_Order::QUADRATIC;
     }
@@ -33,90 +39,40 @@ namespace moris
 
     template<>
     Matrix< DDRMat >
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 27 >::get_param_coords() const
+    Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27 >::get_param_coords() const
     {
         Matrix< DDRMat > tXiHat( 3, 27 );
-        tXiHat( 0,  0 ) = -1.000000;
-        tXiHat( 1,  0 ) = -1.000000;
-        tXiHat( 2,  0 ) = -1.000000;
-        tXiHat( 0,  1 ) =  1.000000;
-        tXiHat( 1,  1 ) = -1.000000;
-        tXiHat( 2,  1 ) = -1.000000;
-        tXiHat( 0,  2 ) =  1.000000;
-        tXiHat( 1,  2 ) =  1.000000;
-        tXiHat( 2,  2 ) = -1.000000;
-        tXiHat( 0,  3 ) = -1.000000;
-        tXiHat( 1,  3 ) =  1.000000;
-        tXiHat( 2,  3 ) = -1.000000;
-        tXiHat( 0,  4 ) = -1.000000;
-        tXiHat( 1,  4 ) = -1.000000;
-        tXiHat( 2,  4 ) =  1.000000;
-        tXiHat( 0,  5 ) =  1.000000;
-        tXiHat( 1,  5 ) = -1.000000;
-        tXiHat( 2,  5 ) =  1.000000;
-        tXiHat( 0,  6 ) =  1.000000;
-        tXiHat( 1,  6 ) =  1.000000;
-        tXiHat( 2,  6 ) =  1.000000;
-        tXiHat( 0,  7 ) = -1.000000;
-        tXiHat( 1,  7 ) =  1.000000;
-        tXiHat( 2,  7 ) =  1.000000;
-        tXiHat( 0,  8 ) =  0.000000;
-        tXiHat( 1,  8 ) = -1.000000;
-        tXiHat( 2,  8 ) = -1.000000;
-        tXiHat( 0,  9 ) =  1.000000;
-        tXiHat( 1,  9 ) =  0.000000;
-        tXiHat( 2,  9 ) = -1.000000;
-        tXiHat( 0, 10 ) =  0.000000;
-        tXiHat( 1, 10 ) =  1.000000;
-        tXiHat( 2, 10 ) = -1.000000;
-        tXiHat( 0, 11 ) = -1.000000;
-        tXiHat( 1, 11 ) =  0.000000;
-        tXiHat( 2, 11 ) = -1.000000;
-        tXiHat( 0, 12 ) = -1.000000;
-        tXiHat( 1, 12 ) = -1.000000;
-        tXiHat( 2, 12 ) =  0.000000;
-        tXiHat( 0, 13 ) =  1.000000;
-        tXiHat( 1, 13 ) = -1.000000;
-        tXiHat( 2, 13 ) =  0.000000;
-        tXiHat( 0, 14 ) =  1.000000;
-        tXiHat( 1, 14 ) =  1.000000;
-        tXiHat( 2, 14 ) =  0.000000;
-        tXiHat( 0, 15 ) = -1.000000;
-        tXiHat( 1, 15 ) =  1.000000;
-        tXiHat( 2, 15 ) =  0.000000;
-        tXiHat( 0, 16 ) =  0.000000;
-        tXiHat( 1, 16 ) = -1.000000;
-        tXiHat( 2, 16 ) =  1.000000;
-        tXiHat( 0, 17 ) =  1.000000;
-        tXiHat( 1, 17 ) =  0.000000;
-        tXiHat( 2, 17 ) =  1.000000;
-        tXiHat( 0, 18 ) =  0.000000;
-        tXiHat( 1, 18 ) =  1.000000;
-        tXiHat( 2, 18 ) =  1.000000;
-        tXiHat( 0, 19 ) = -1.000000;
-        tXiHat( 1, 19 ) =  0.000000;
-        tXiHat( 2, 19 ) =  1.000000;
-        tXiHat( 0, 20 ) =  0.000000;
-        tXiHat( 1, 20 ) =  0.000000;
-        tXiHat( 2, 20 ) =  0.000000;
-        tXiHat( 0, 21 ) =  0.000000;
-        tXiHat( 1, 21 ) =  0.000000;
-        tXiHat( 2, 21 ) = -1.000000;
-        tXiHat( 0, 22 ) =  0.000000;
-        tXiHat( 1, 22 ) =  0.000000;
-        tXiHat( 2, 22 ) =  1.000000;
-        tXiHat( 0, 23 ) = -1.000000;
-        tXiHat( 1, 23 ) =  0.000000;
-        tXiHat( 2, 23 ) =  0.000000;
-        tXiHat( 0, 24 ) =  1.000000;
-        tXiHat( 1, 24 ) =  0.000000;
-        tXiHat( 2, 24 ) =  0.000000;
-        tXiHat( 0, 25 ) =  0.000000;
-        tXiHat( 1, 25 ) = -1.000000;
-        tXiHat( 2, 25 ) =  0.000000;
-        tXiHat( 0, 26 ) =  0.000000;
-        tXiHat( 1, 26 ) =  1.000000;
-        tXiHat( 2, 26 ) =  0.000000;
+        tXiHat( 0,  0 ) = -1.000000; tXiHat( 1,  0 ) = -1.000000; tXiHat( 2,  0 ) = -1.000000;
+        tXiHat( 0,  1 ) =  1.000000; tXiHat( 1,  1 ) = -1.000000; tXiHat( 2,  1 ) = -1.000000;
+        tXiHat( 0,  2 ) =  1.000000; tXiHat( 1,  2 ) =  1.000000; tXiHat( 2,  2 ) = -1.000000;
+        tXiHat( 0,  3 ) = -1.000000; tXiHat( 1,  3 ) =  1.000000; tXiHat( 2,  3 ) = -1.000000;
+        tXiHat( 0,  4 ) = -1.000000; tXiHat( 1,  4 ) = -1.000000; tXiHat( 2,  4 ) =  1.000000;
+        tXiHat( 0,  5 ) =  1.000000; tXiHat( 1,  5 ) = -1.000000; tXiHat( 2,  5 ) =  1.000000;
+        tXiHat( 0,  6 ) =  1.000000; tXiHat( 1,  6 ) =  1.000000; tXiHat( 2,  6 ) =  1.000000;
+        tXiHat( 0,  7 ) = -1.000000; tXiHat( 1,  7 ) =  1.000000; tXiHat( 2,  7 ) =  1.000000;
+
+        tXiHat( 0,  8 ) =  0.000000; tXiHat( 1,  8 ) = -1.000000; tXiHat( 2,  8 ) = -1.000000;
+        tXiHat( 0,  9 ) =  1.000000; tXiHat( 1,  9 ) =  0.000000; tXiHat( 2,  9 ) = -1.000000;
+        tXiHat( 0, 10 ) =  0.000000; tXiHat( 1, 10 ) =  1.000000; tXiHat( 2, 10 ) = -1.000000;
+        tXiHat( 0, 11 ) = -1.000000; tXiHat( 1, 11 ) =  0.000000; tXiHat( 2, 11 ) = -1.000000;
+
+        tXiHat( 0, 12 ) = -1.000000; tXiHat( 1, 12 ) = -1.000000; tXiHat( 2, 12 ) =  0.000000;
+        tXiHat( 0, 13 ) =  1.000000; tXiHat( 1, 13 ) = -1.000000; tXiHat( 2, 13 ) =  0.000000;
+        tXiHat( 0, 14 ) =  1.000000; tXiHat( 1, 14 ) =  1.000000; tXiHat( 2, 14 ) =  0.000000;
+        tXiHat( 0, 15 ) = -1.000000; tXiHat( 1, 15 ) =  1.000000; tXiHat( 2, 15 ) =  0.000000;
+
+        tXiHat( 0, 16 ) =  0.000000; tXiHat( 1, 16 ) = -1.000000; tXiHat( 2, 16 ) =  1.000000;
+        tXiHat( 0, 17 ) =  1.000000; tXiHat( 1, 17 ) =  0.000000; tXiHat( 2, 17 ) =  1.000000;
+        tXiHat( 0, 18 ) =  0.000000; tXiHat( 1, 18 ) =  1.000000; tXiHat( 2, 18 ) =  1.000000;
+        tXiHat( 0, 19 ) = -1.000000; tXiHat( 1, 19 ) =  0.000000; tXiHat( 2, 19 ) =  1.000000;
+
+        tXiHat( 0, 20 ) =  0.000000; tXiHat( 1, 20 ) =  0.000000; tXiHat( 2, 20 ) =  0.000000;
+        tXiHat( 0, 21 ) =  0.000000; tXiHat( 1, 21 ) =  0.000000; tXiHat( 2, 21 ) = -1.000000;
+        tXiHat( 0, 22 ) =  0.000000; tXiHat( 1, 22 ) =  0.000000; tXiHat( 2, 22 ) =  1.000000;
+        tXiHat( 0, 23 ) = -1.000000; tXiHat( 1, 23 ) =  0.000000; tXiHat( 2, 23 ) =  0.000000;
+        tXiHat( 0, 24 ) =  1.000000; tXiHat( 1, 24 ) =  0.000000; tXiHat( 2, 24 ) =  0.000000;
+        tXiHat( 0, 25 ) =  0.000000; tXiHat( 1, 25 ) = -1.000000; tXiHat( 2, 25 ) =  0.000000;
+        tXiHat( 0, 26 ) =  0.000000; tXiHat( 1, 26 ) =  1.000000; tXiHat( 2, 26 ) =  0.000000;
         return tXiHat;
     }
 
@@ -124,11 +80,11 @@ namespace moris
 
     template<>
     Matrix< DDRMat >
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 27  >::eval_N( const Matrix< DDRMat > & aXi ) const
+    Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27  >::eval_N( const Matrix< DDRMat > & aXi ) const
     {
         // make sure that input is correct
         MORIS_ASSERT( aXi.length() >= 3,
-                "eval_shape: aXi not allocated or hat wrong size." );
+                "HEX27 - eval_N: aXi not allocated or hat wrong size." );
 
         // unpack xi and eta from input vector
         auto    xi = aXi( 0 );
@@ -181,11 +137,11 @@ namespace moris
 
     template<>
     Matrix< DDRMat >
-    Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 27  >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+    Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27  >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
     {
         // make sure that input is correct
         MORIS_ASSERT( aXi.length() >= 3,
-                "eval_shape: aXi not allocated or hat wrong size." );
+                "HEX27 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
         // unpack xi and eta from input vector
         auto   xi = aXi( 0 );
@@ -320,11 +276,11 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 3, 27  >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27  >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3,
-                    "eval_shape: aXi not allocated or hat wrong size." );
+                    "HEX27 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
             auto   xi = aXi( 0 );

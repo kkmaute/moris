@@ -32,6 +32,11 @@ namespace mtk
 
 TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
         {
+    uint p_rank = moris::par_rank();
+    uint p_size = moris::par_size();
+
+    if( p_size == 1 ) // specify it is a serial test only
+    {
     // Define the Integration Mesh (from data from xtk)
     Matrix<DDRMat> tNodeCoordinates ={{0, 0, 0},
                                       {1, 0, 0},
@@ -339,49 +344,57 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
                                                 {0, 0, -0.8}};
 
     delete tIntegMeshData;
+    }
 
         }
 
 TEST_CASE("Interpolation are the same Integration Mesh","[NEW_MTK]")
+{
+
+    uint p_rank = moris::par_rank();
+    uint p_size = moris::par_size();
+
+    if( p_size == 1 ) // specify it is a serial test only
     {
-    // Define the Interpolation Mesh
-    std::string tInterpString = "generated:1x1x4";
+        // Define the Interpolation Mesh
+        std::string tInterpString = "generated:1x1x4";
 
-    // construct the mesh data
-    Interpolation_Mesh* tInterpMesh1 = create_interpolation_mesh( MeshType::STK, tInterpString, NULL );
-    Integration_Mesh*   tIntegMesh1  = create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
+        // construct the mesh data
+        Interpolation_Mesh* tInterpMesh1 = create_interpolation_mesh( MeshType::STK, tInterpString, NULL );
+        Integration_Mesh*   tIntegMesh1  = create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
 
-    CHECK( moris::equal_to(tIntegMesh1->get_num_elems(), tInterpMesh1->get_num_elems()) );
-    CHECK( moris::equal_to(tIntegMesh1->get_num_nodes(), tInterpMesh1->get_num_nodes()) );
-    CHECK( moris::equal_to(tIntegMesh1->get_num_edges(), tInterpMesh1->get_num_edges()) );
-    CHECK( moris::equal_to(tIntegMesh1->get_num_faces(), tInterpMesh1->get_num_faces()) );
+        CHECK( moris::equal_to(tIntegMesh1->get_num_elems(), tInterpMesh1->get_num_elems()) );
+        CHECK( moris::equal_to(tIntegMesh1->get_num_nodes(), tInterpMesh1->get_num_nodes()) );
+        CHECK( moris::equal_to(tIntegMesh1->get_num_edges(), tInterpMesh1->get_num_edges()) );
+        CHECK( moris::equal_to(tIntegMesh1->get_num_faces(), tInterpMesh1->get_num_faces()) );
 
-    // Check vertex functions
-    moris_id tNodeId = 1;
-    moris_id tNodeIndexInterp = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tNodeId,EntityRank::NODE);
+        // Check vertex functions
+        moris_id tNodeId = 1;
+        moris_id tNodeIndexInterp = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tNodeId,EntityRank::NODE);
 
-    mtk::Vertex const & tVertexInterp  = tInterpMesh1->get_mtk_vertex(tNodeIndexInterp);
-    Matrix< DDRMat > tNodeCoordsInterp = tInterpMesh1->get_node_coordinate(tNodeIndexInterp);
-    Matrix< DDRMat > tVertCoordsInterp = tVertexInterp.get_coords();
-    CHECK(all_true(tNodeCoordsInterp == tVertCoordsInterp));
+        mtk::Vertex const & tVertexInterp  = tInterpMesh1->get_mtk_vertex(tNodeIndexInterp);
+        Matrix< DDRMat > tNodeCoordsInterp = tInterpMesh1->get_node_coordinate(tNodeIndexInterp);
+        Matrix< DDRMat > tVertCoordsInterp = tVertexInterp.get_coords();
+        CHECK(all_true(tNodeCoordsInterp == tVertCoordsInterp));
 
-    // Check vertex functions
-    moris_id tNodeIndexInteg = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tNodeId,EntityRank::NODE);
+        // Check vertex functions
+        moris_id tNodeIndexInteg = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tNodeId,EntityRank::NODE);
 
-    mtk::Vertex const & tVertexInteg  = tIntegMesh1->get_mtk_vertex(tNodeIndexInteg);
-    Matrix< DDRMat > tNodeCoordsInteg = tIntegMesh1->get_node_coordinate(tNodeIndexInteg);
-    Matrix< DDRMat > tVertCoordsInteg = tVertexInteg.get_coords();
-    CHECK(all_true(tNodeCoordsInteg == tVertCoordsInteg));
+        mtk::Vertex const & tVertexInteg  = tIntegMesh1->get_mtk_vertex(tNodeIndexInteg);
+        Matrix< DDRMat > tNodeCoordsInteg = tIntegMesh1->get_node_coordinate(tNodeIndexInteg);
+        Matrix< DDRMat > tVertCoordsInteg = tVertexInteg.get_coords();
+        CHECK(all_true(tNodeCoordsInteg == tVertCoordsInteg));
 
-    CHECK(all_true(tVertCoordsInteg == tVertCoordsInterp));
+        CHECK(all_true(tVertCoordsInteg == tVertCoordsInterp));
 
-    // verify addresses match
-    CHECK(&tVertexInteg == &tVertexInterp);
+        // verify addresses match
+        CHECK(&tVertexInteg == &tVertexInterp);
 
-    delete tInterpMesh1;
-    delete tIntegMesh1;
+        delete tInterpMesh1;
+        delete tIntegMesh1;
+    }
 
-       }
+}
 
 
 TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
@@ -389,8 +402,6 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
     uint p_rank = moris::par_rank();
     uint p_size = moris::par_size();
 
-    // File prefix
-    std::string tMORISROOT = std::getenv("MORISROOT");
     if( p_size == 1 ) // specify it is a serial test only
     {
         const std::string fileName2 = "generated:8x8x8";

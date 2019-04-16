@@ -34,8 +34,12 @@ namespace moris
             // set field interpolator
             Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
 
+            //fixme heat load enforced
+            Matrix< DDRMat > tQ( 1, 1, 0.0 );
+
             // compute the residual r_T
-            aResidual = - trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 );
+            aResidual = trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 )
+                      + trans( tTemp->N() ) * tQ;
         }
 
 //------------------------------------------------------------------------------
@@ -51,7 +55,7 @@ namespace moris
             aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = - trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
+            aJacobians( 0 ) = trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
         }
 
 //------------------------------------------------------------------------------
@@ -61,18 +65,21 @@ namespace moris
                                                                              Matrix< DDRMat >            & aResidual,
                                                                              Cell< Field_Interpolator* > & aFieldInterpolators )
         {
-
             // set field interpolator
             Field_Interpolator* tTemp = aFieldInterpolators( 0 );
 
+            //fixme heat load enforced
+            Matrix< DDRMat > tQ( 1, 1, 0.0 );
+
             // compute the residual r_T
-            aResidual = - trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 );
+            aResidual = trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 )
+                      + trans( tTemp->N() ) * tQ;
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = - trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
+            aJacobians( 0 ) = trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
         }
 
 //------------------------------------------------------------------------------

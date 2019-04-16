@@ -197,6 +197,13 @@ namespace moris
         moris::sint get_adof_order_for_type( moris::uint aDofType );
 
 //------------------------------------------------------------------------------
+
+        moris::uint get_time_levels_for_type( const enum Dof_Type aDofType )
+        {
+            return mDofMgn.get_time_levels_for_type( aDofType );
+        };
+
+//------------------------------------------------------------------------------
     };
     }
 }

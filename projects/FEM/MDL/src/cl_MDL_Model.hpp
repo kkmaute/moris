@@ -26,7 +26,9 @@ namespace moris
     {
         class IWG;
         class Node_Base;
+        class Element_Block;
         enum class IWG_Type;
+        enum class BC_Type;
     }
 
     namespace dla
@@ -36,11 +38,11 @@ namespace moris
     }
 
     namespace NLA
-	{
-    	class Nonlinear_Algorithm;
-    	class Nonlinear_Problem;
-    	class Nonlinear_Solver;
-	}
+    {
+        class Nonlinear_Algorithm;
+        class Nonlinear_Problem;
+        class Nonlinear_Solver;
+    }
 
     namespace MSI
     {
@@ -57,9 +59,12 @@ namespace moris
             mtk::Mesh                       * mMesh;
             Cell< fem::Node_Base* >           mNodes;
             Cell< MSI::Equation_Object* >     mElements;
-            Cell< fem::IWG* >                 mIWGs;
+            Cell< Cell< fem::IWG* > >         mIWGs;
 
-            //
+            Cell< fem::Element_Block * >      mElementBlocks;
+
+            Cell< fem::IWG* >         mIWGs1;
+
             // by default, this value is set to the order of the
             // Lagrange modes
             moris::uint                       mDofOrder = 0;
@@ -76,6 +81,8 @@ namespace moris
             map< moris_id, moris_index >      mCoefficientsMap;
             Matrix< DDUMat >                  mAdofMap;
 
+            Matrix< DDRMat> mSolHMR;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -85,11 +92,22 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-            Model(       mtk::Mesh   * aMesh,
-                   const uint          aBSplineOrder,
-                   Cell< fem::IWG_Type > aIWGTypeList );
+//            Model(       mtk::Mesh   * aMesh,
+//                   const uint          aBSplineOrder,
+//                   Cell< Cell< fem::IWG_Type > >aIWGTypeList );
 
+            Model(       mtk::Mesh *                   aMesh,
+                   const uint                          aBSplineOrder,
+                         Cell< Cell< fem::IWG_Type > > aIWGTypeList,
+                         Cell< moris_index >           aSidesetList,
+                         Cell< fem::BC_Type >          aSidesetBCTypeList );
 //------------------------------------------------------------------------------
+
+            Matrix< DDRMat> &
+            get_mSolHMR( )
+            {
+                return mSolHMR;
+            };
 
             void
             set_dof_order( const uint aOrder );
@@ -102,7 +120,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
-            set_weak_bcs( const Matrix<DDRMat> & aWeakBCs );
+            set_weak_bcs( const Matrix< DDRMat > & aWeakBCs );
 
 //------------------------------------------------------------------------------
 
@@ -112,7 +130,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void
-            solve( Matrix<DDRMat> & aSolution );
+            solve( Matrix< DDRMat > & aSolution );
 
 //------------------------------------------------------------------------------
 
@@ -131,6 +149,10 @@ namespace moris
 
            real
            compute_element_average( const uint aElementIndex );
+
+//------------------------------------------------------------------------------
+
+           void output_solution( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
         };

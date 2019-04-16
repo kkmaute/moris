@@ -138,6 +138,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Integration_Coeffs_Base * create_coeffs_gauss_tri( const Integration_Order & aIntegrationOrder ) const;
+
+//------------------------------------------------------------------------------
+
+        Integration_Coeffs_Base * create_coeffs_gauss_tet( const Integration_Order & aIntegrationOrder ) const;
+
+//------------------------------------------------------------------------------
+
     };
 
 //------------------------------------------------------------------------------

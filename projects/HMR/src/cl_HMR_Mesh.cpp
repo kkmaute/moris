@@ -683,7 +683,6 @@ namespace moris
         Matrix< IndexMat >
         Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
         {
-
             // collect memory indices of active neighbors
             Matrix< DDLUMat> tMemoryIndices;
             luint tNumberOfNeighbors;
@@ -1147,7 +1146,7 @@ namespace moris
         Mesh::get_sideset_elems_loc_inds_and_ords(
                            const  std::string     & aSetName,
                            Matrix< IndexMat >     & aElemIndices,
-                           Matrix< IndexMat >     & aSideOrdinals )
+                           Matrix< IndexMat >     & aSideOrdinals ) const
         {
             if( mMesh->get_activation_pattern()
                     == mMesh->get_parameters()->get_lagrange_output_pattern() )
@@ -1181,6 +1180,73 @@ namespace moris
             }
         }
 
+//-------------------------------------------------------------------------------
+
+        moris::Cell<std::string>
+        Mesh::get_set_names(enum EntityRank aSetEntityRank) const
+        {
+            if ( aSetEntityRank == EntityRank::ELEMENT )
+            {
+                std::string tDummy = "HMR_dummy";
+
+                moris::Cell<std::string> tSetNames(1, tDummy );
+
+                return tSetNames;
+            }
+            else if ( aSetEntityRank == EntityRank::FACE )
+            {
+                moris::uint tNumSideSets = mDatabase->get_side_sets().size();
+
+                moris::Cell<std::string> tSetNames( tNumSideSets );
+
+                for ( uint iEntity = 0; iEntity < tNumSideSets; ++iEntity )
+                {
+                    tSetNames( iEntity ) = mDatabase->get_side_sets()( iEntity ).mInfo.mSideSetName;
+                }
+
+                return tSetNames;
+            }
+            else
+            {
+                MORIS_ERROR(false, "Mesh::get_set_names(), only EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you.");
+            }
+
+            return moris::Cell<std::string>(0);
+        }
+
+//-------------------------------------------------------------------------------
+
+        Matrix< IndexMat >
+        Mesh::get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                 std::string     aSetName) const
+        {
+            if (aSetEntityRank == EntityRank::ELEMENT)
+            {
+                moris::uint tNumEntities = this->get_num_elems();
+
+                Matrix< IndexMat >  tOutputEntityInds ( tNumEntities, 1 );
+
+                for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
+                {
+                    tOutputEntityInds( iEntity ) = mMesh->get_element( iEntity )->get_index();
+                }
+
+                return tOutputEntityInds;
+            }
+            if (aSetEntityRank == EntityRank::FACE)
+            {
+                Matrix< IndexMat > tSideSetElementInd = mDatabase->get_output_side_set( aSetName ).mElemIndices;
+
+                return tSideSetElementInd;
+            }
+
+            else
+            {
+                MORIS_ERROR(false, "Mesh::get_set_entity_loc_inds(), only EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you.");
+            }
+
+            return Matrix< IndexMat >(0,0);
+        }
 //-------------------------------------------------------------------------------
 
         uint

@@ -73,6 +73,19 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // set mesh order
                 tParameters.set_mesh_orders_simple( tOrder );
 
+//                moris::Matrix< moris::DDUMat > tSideSetsUsed;
+//
+//                if( tDimension == 2 )
+//                {
+//                    tSideSetsUsed = {{ 1, 2, 3, 4 }};
+//                }
+//                else
+//                {
+//                    tSideSetsUsed = {{ 1, 2, 3, 4 , 5, 6 }};
+//                }
+//
+//                tParameters.set_side_sets( tSideSetsUsed );
+
 //------------------------------------------------------------------------------
 //  HMR Initialization
 //------------------------------------------------------------------------------
@@ -153,7 +166,6 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 
                 tExact->evaluate_scalar_function( LevelSetFunction );
 
-
                 // map input to output
                 tHMR.map_field_to_output( tField  );
 
@@ -162,8 +174,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 //------------------------------------------------------------------------------
 
                 // determine coefficient of determination
-                moris::real tR2 = moris::r2( tExact->get_node_values(),
-                                             tField->get_node_values() );
+                moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
                 std::cout << "R2 " << tR2 << std::endl;
 
@@ -240,7 +251,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 1; ++tLevel )
+        for( uint tLevel = 3; tLevel < 1; ++tLevel )
         {
             tDatabase->flag_element( 0 );
 

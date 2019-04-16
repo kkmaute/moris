@@ -33,9 +33,9 @@ namespace dla
         mVectorRHS->vec_put_scalar( 0.0 );
         mMat->mat_put_scalar( 0.0 );
 
-        mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector);
+        mInput->fill_matrix_and_RHS( mMat, mVectorRHS, aFullSolutionVector );
 
-        //mMat->print_matrix_to_screen();
+        //mMat->print();
         //std::cout<<*mVectorRHS->get_vector()<<std::endl;
     }
 
@@ -44,9 +44,9 @@ namespace dla
     {
         mVectorRHS->vec_put_scalar( 0.0 );
 
-        mInput->assemble_RHS( mVectorRHS, aFullSolutionVector);
+        mInput->assemble_RHS( mVectorRHS, aFullSolutionVector );
 
-        //std::cout<<*mVectorRHS->get_vector()<<std::endl;
+        //mVectorRHS->print();
     }
 
 //----------------------------------------------------------------------------------------
@@ -56,7 +56,10 @@ namespace dla
 
         mInput->assemble_jacobian( mMat, aFullSolutionVector);
 
-        //mMat->print_matrix_to_screen();
+        //std::string tString = "singular_matrix";
+        //mMat->save_matrix_to_matlab_file( tString.c_str());
+
+        //mMat->print();
     }
 
 //----------------------------------------------------------------------------------------

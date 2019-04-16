@@ -2,6 +2,7 @@
 
 #include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"   //FEM/INT/src
+#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -33,22 +34,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Element_Bulk::Element_Bulk( mtk::Cell          * aCell,
+                                    Cell< IWG* >       & aIWGs,
+                                    Cell< Node_Base* > & aNodes,
+                                    Element_Block      * aElementBlock) : Element( aCell, aIWGs, aNodes, aElementBlock )
+        {
+
+            // compute element volume
+            //real tVolume = compute_element_volume( mGeometryInterpolator );
+        }
+
+//------------------------------------------------------------------------------
+
         Element_Bulk::~Element_Bulk()
         {
-            // delete the geometry interpolator pointer
-            if ( mGeometryInterpolator != NULL )
-            {
-                delete mGeometryInterpolator;
-            }
-
-            // delete the field interpolator pointers
-            for ( uint i = 0; i < mNumOfInterp; i++ )
-            {
-                if ( mFieldInterpolators( i ) != NULL )
-                {
-                    delete mFieldInterpolators( i );
-                }
-            }
         }
 
 //------------------------------------------------------------------------------
@@ -56,18 +55,18 @@ namespace moris
         void Element_Bulk::compute_jacobian()
         {
             // initialize mJacobianElement and mResidualElement
-            this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
+            this->initialize_mJacobianElement_and_mResidualElement();
 
             // get pdofs values for the element
             this->get_my_pdof_values();
 
             // set the field interpolators coefficients
-            this->set_field_interpolators_coefficients( mFieldInterpolators );
+            this->set_field_interpolators_coefficients();
 
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
             Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
-            mGeometryInterpolator->set_coeff( mCell->get_vertex_coords(), tTHat );
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), tTHat );
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -90,7 +89,7 @@ namespace moris
                 // in the list of element dof type
                 Cell< Field_Interpolator* > tIWGInterpolators
                     = this->get_IWG_field_interpolators( tTreatedIWG,
-                                                         mFieldInterpolators );
+                            mElementBlock->get_block_field_interpolator() );
 
                 // create an integration rule for the ith IWG
                 //FIXME: set by default
@@ -125,7 +124,7 @@ namespace moris
                     }
 
                     // compute integration point weight x detJ
-                    real tWStar = tIntegWeights( iGP ) * mGeometryInterpolator->det_J( tTreatedIntegPoint );
+                    real tWStar = tIntegWeights( iGP ) * mElementBlock->get_block_geometry_interpolator()->det_J( tTreatedIntegPoint );
 
                     // compute jacobian at evaluation point
                     moris::Cell< Matrix< DDRMat > > tJacobians;
@@ -139,7 +138,7 @@ namespace moris
                             = mInterpDofTypeMap( static_cast< int >( tIWGActiveDofType( iIWGFI )( 0 ) ) );
 
                         uint tJacIndex
-                            = tIWGResDofIndex * mNumOfInterp + tIWGActiveDofIndex;
+                            = tIWGResDofIndex * mElementBlock->get_num_interpolators() + tIWGActiveDofIndex;
 
                         mJacobianElement( tJacIndex )
                             = mJacobianElement( tJacIndex ) + tWStar * tJacobians( iIWGFI );
@@ -152,18 +151,18 @@ namespace moris
             uint tCounterJ = 0;
             uint startI, stopI, startJ, stopJ;
 
-            for ( uint i = 0; i < mNumOfInterp; i++ )
+            for ( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
             {
                 startI = tCounterI;
-                stopI  = tCounterI + mFieldInterpolators( i )->get_number_of_space_time_coefficients() - 1;
+                stopI  = tCounterI + mElementBlock->get_block_field_interpolator()( i )->get_number_of_space_time_coefficients() - 1;
 
                 tCounterJ = 0;
-                for ( uint j = 0; j < mNumOfInterp; j++ )
+                for ( uint j = 0; j < mElementBlock->get_num_interpolators(); j++ )
                 {
                     startJ = tCounterJ;
-                    stopJ  = tCounterJ + mFieldInterpolators( j )->get_number_of_space_time_coefficients() - 1;
+                    stopJ  = tCounterJ + mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients() - 1;
 
-                    mJacobian({ startI, stopI },{ startJ, stopJ }) = mJacobianElement( i * mNumOfInterp + j ).matrix_data();
+                    mJacobian({ startI, stopI },{ startJ, stopJ }) = mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
 
                     tCounterJ = stopJ + 1;
                 }
@@ -178,18 +177,18 @@ namespace moris
         void Element_Bulk::compute_residual()
         {
             // initialize mJacobianElement and mResidualElement
-            this->initialize_mJacobianElement_and_mResidualElement( mFieldInterpolators );
+            this->initialize_mJacobianElement_and_mResidualElement();
 
             // get pdofs values for the element
             this->get_my_pdof_values();
 
             // set field interpolators coefficients
-            this->set_field_interpolators_coefficients( mFieldInterpolators );
+            this->set_field_interpolators_coefficients();
 
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
             Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
-            mGeometryInterpolator->set_coeff( mCell->get_vertex_coords(), tTHat );
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), tTHat );
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -212,7 +211,7 @@ namespace moris
                 // in the list of element dof type
                 Cell< Field_Interpolator* > tIWGInterpolators
                     = this->get_IWG_field_interpolators( tTreatedIWG,
-                                                         mFieldInterpolators );
+                            mElementBlock->get_block_field_interpolator() );
 
                 // create an integration rule for the ith IWG
                 //FIXME: set by default
@@ -247,7 +246,7 @@ namespace moris
                     }
 
                     // compute integration point weight x detJ
-                    real tWStar = mGeometryInterpolator->det_J( tIntegPointI ) * tIntegWeights( iGP );
+                    real tWStar = mElementBlock->get_block_geometry_interpolator()->det_J( tIntegPointI ) * tIntegWeights( iGP );
 
                     // compute jacobian at evaluation point
                     Matrix< DDRMat > tResidual;
@@ -264,11 +263,11 @@ namespace moris
             uint startI, stopI;
 
             // loop over the field interpolators
-            for ( uint iBuild = 0; iBuild < mNumOfInterp; iBuild++ )
+            for ( uint iBuild = 0; iBuild < mElementBlock->get_num_interpolators(); iBuild++ )
             {
                 // get the row position in the residual matrix
                 startI = tCounterI;
-                stopI  = tCounterI + mFieldInterpolators( iBuild )->get_number_of_space_time_coefficients() - 1;
+                stopI  = tCounterI + mElementBlock->get_block_field_interpolator()( iBuild )->get_number_of_space_time_coefficients() - 1;
 
                 // fill the global residual
                 mResidual( { startI, stopI }, { 0 , 0 } ) = mResidualElement( iBuild ).matrix_data();

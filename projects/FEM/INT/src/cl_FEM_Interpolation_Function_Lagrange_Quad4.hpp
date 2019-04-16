@@ -9,8 +9,6 @@
 #define SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_QUAD4_HPP_
 
 #include "assert.h"
-
-//#include "cl_FEM_Interpolation_Matrix.hpp"
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
@@ -19,12 +17,20 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+
+        template<>
+        uint
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::get_number_of_param_dimensions() const
+        {
+            return 2;
+        }
 
 //------------------------------------------------------------------------------
 
         template<>
         mtk::Interpolation_Order
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4 >::get_interpolation_order() const
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::get_interpolation_order() const
         {
             return mtk::Interpolation_Order::LINEAR;
         }
@@ -33,7 +39,7 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4 >::get_param_coords() const
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::get_param_coords() const
         {
             Matrix< DDRMat > tXiHat( 2, 4 );
             tXiHat( 0, 0 ) = -1.000000;
@@ -51,10 +57,10 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_N( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2, "eval_shape: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD4 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
             auto  xi = aXi( 0 );
@@ -73,11 +79,11 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2,
-                    "eval_shape: aXi not allocated or hat wrong size." );
+                    "QUAD4 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
             auto  xi = aXi( 0 );
@@ -104,12 +110,12 @@ namespace moris
 
         template<>
         Matrix< DDRMat >
-        Interpolation_Function< Interpolation_Type::LAGRANGE, 2, 4 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
         {
 
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2,
-                          "eval_shape: aXi not allocated or hat wrong size." );
+                          "QUAD4 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // populate output matrix
             Matrix< DDRMat > td2NdXi2(3,4);
