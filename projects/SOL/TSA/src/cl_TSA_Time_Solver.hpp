@@ -133,6 +133,8 @@ namespace tsa
          */
         void set_solver_interface( Solver_Interface * aSolverInterface ){ mSolverInterface = aSolverInterface; };
 
+        Solver_Interface * get_solver_interface(){ return mSolverInterface; };
+
         //--------------------------------------------------------------------------------------------------
 
         /**

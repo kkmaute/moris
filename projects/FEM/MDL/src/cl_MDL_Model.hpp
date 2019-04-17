@@ -49,6 +49,10 @@ namespace moris
         class Model_Solver_Interface;
         class MSI_Solver_Interface;
     }
+    namespace tsa
+    {
+        class Time_Solver;
+    }
     namespace mdl
     {
 //------------------------------------------------------------------------------
@@ -82,6 +86,8 @@ namespace moris
             Matrix< DDUMat >                  mAdofMap;
 
             Matrix< DDRMat> mSolHMR;
+
+            tsa::Time_Solver * mTimeSolver;
 
 //------------------------------------------------------------------------------
         public:

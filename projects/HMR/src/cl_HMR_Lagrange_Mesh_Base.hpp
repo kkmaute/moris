@@ -581,7 +581,7 @@ namespace moris
              * called by Database->finalize();
              */
             void
-            calculate_t_matrices();
+            calculate_t_matrices( const bool aBool = true);
 
 // -----------------------------------------------------------------------------
 
@@ -659,9 +659,8 @@ namespace moris
              *
              * @return Element *
              */
-            Element *
-            get_child( Element * aElement,
-                       const uint            & aChildIndex );
+            Element * get_child(       Element * aElement,
+                                 const uint    & aChildIndex );
 
 
 

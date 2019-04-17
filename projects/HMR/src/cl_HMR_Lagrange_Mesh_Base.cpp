@@ -1688,8 +1688,7 @@ namespace moris
                 if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
                     // get pointer to Element
-                    Background_Element_Base *
-                    tBackElement = tElement->get_background_element();
+                    Background_Element_Base * tBackElement = tElement->get_background_element();
 
                     for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
                     {
@@ -1724,8 +1723,7 @@ namespace moris
                 // pick pointer to element
                 if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
-                    Background_Element_Base *
-                    tBackElement = tElement->get_background_element();
+                    Background_Element_Base * tBackElement = tElement->get_background_element();
 
                     for( uint f=0; f<tNumberOfFacetsPerElement; ++f )
                     {
@@ -1890,8 +1888,7 @@ namespace moris
                 if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
                     // get pointer to Element
-                    Background_Element_Base *
-                    tBackElement = tElement->get_background_element();
+                    Background_Element_Base * tBackElement = tElement->get_background_element();
 
                     // loop over all edges
                     for( uint e=0; e<12; ++e )
@@ -1925,8 +1922,7 @@ namespace moris
                 // pick pointer to element
                 if( ! tElement->is_deactive() && ! tElement->is_padding() )
                 {
-                    Background_Element_Base *
-                    tBackElement = tElement->get_background_element();
+                    Background_Element_Base * tBackElement = tElement->get_background_element();
 
                     for( uint e=0; e<12; ++e )
                     {
@@ -3510,7 +3506,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        Lagrange_Mesh_Base::calculate_t_matrices()
+        Lagrange_Mesh_Base::calculate_t_matrices( const bool aBool )
         {
             tic tTimer;
 
@@ -3518,7 +3514,7 @@ namespace moris
             {
                 if( tMesh != NULL )
                 {
-                    mTMatrix( tMesh->get_order() )->evaluate();
+                    mTMatrix( tMesh->get_order() )->evaluate(aBool);
                 }
             }
 
@@ -3613,83 +3609,46 @@ namespace moris
 
             moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
 
-            BSpline_Mesh_Base * tBslpinemesh = this->get_bspline_mesh( 1 );
+//            BSpline_Mesh_Base * tBslpinemesh = this->get_bspline_mesh( 1 );
 
-            uint tNumBSplineBasis = tBslpinemesh->get_number_of_indexed_basis();
+            this->calculate_t_matrices( false );
 
-            for( Basis * tBasis : mAllBasisOnProc )
+            uint tNumberOfNodes = this->get_number_of_nodes_on_proc();
+            for( uint Ik = 0; Ik<tNumberOfNodes; Ik ++ )
             {
-                bool tBasisFound = false;
+                Basis * tBasis = this->get_node_by_index( Ik );
 
-                for( uint Ik = 0; Ik< tNumBSplineBasis; Ik++ )
+                mtk::Vertex_Interpolation * tInterp = tBasis->get_interpolation( 1 );
+
+                Matrix< IdMat > tLocalIDs = tInterp->get_ids();
+
+                if (tLocalIDs.numel()==1)
                 {
-                    bool tIsActive = tBslpinemesh->get_basis_by_index( Ik )->is_active();
+                    tReverseIndexMap( tLocalIDs( 0, 0 ) ) = tBasis->get_index();
+                    tReverseIDMap( tLocalIDs( 0, 0 )-1 ) = tBasis->get_hmr_index();
 
-                    if ( tIsActive )
-                    {
-                        if( std::abs( tBasis->get_xyz()[0] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] ) <= 1E-10 )
-                        {
-                            if( std::abs( tBasis->get_xyz()[1] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] ) <= 1E-10 )
-                            {
-                                if ( mParameters->get_number_of_dimensions() == 3 )
-                                {
-                                    if( std::abs( tBasis->get_xyz()[2] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[2] ) <= 1E-10 )
-                                    {
-                                        moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
-                                        moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+                    tBasis->set_local_index( tLocalIDs( 0, 0 ) );
+                    tBasis->set_domain_index( tLocalIDs( 0, 0 )-1 );
 
-                                        MORIS_ASSERT( tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
-
-                                        tReverseIndexMap( tIndex ) = tBasis->get_index();
-                                        tReverseIDMap( tID ) = tBasis->get_hmr_index();
-
-                                        tBasis->set_local_index( tIndex );
-                                        tBasis->set_domain_index( tID );
-
-                                        tBasisFound = true;
-
-                                        tCounter++;
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
-                                    moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
-
-                                    MORIS_ASSERT(tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
-
-                                    tReverseIndexMap( tIndex ) = tBasis->get_index();
-                                    tReverseIDMap( tID ) = tBasis->get_hmr_index();
-
-                                    tBasis->set_local_index( tIndex );
-                                    tBasis->set_domain_index( tID );
-
-                                    tBasisFound = true;
-
-                                    tCounter++;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    tCounter++;
                 }
 
-                if (tBasisFound == false)
+                else
                 {
                     tNonBSplineBasis( tCounter2++ ) = tBasis;
                 }
-            }
 
+            }
             tNonBSplineBasis.resize( tCounter2 );
 
             for( Basis * tBasis : tNonBSplineBasis )
             {
+
                 tReverseIndexMap( tCounter ) = tBasis->get_index();
-                tReverseIDMap( tCounter ) = tBasis->get_hmr_index();
+                tReverseIDMap( tCounter-1 ) = tBasis->get_hmr_index();
 
                 tBasis->set_local_index( tCounter );
-                tBasis->set_domain_index( tCounter++ );
+                tBasis->set_domain_index( tCounter++  );
             }
 
             std::string aFilePath = "Reverse_Map.hdf5";
@@ -3723,6 +3682,116 @@ namespace moris
                                       "Id",
                                       tReverseIDMap,
                                       tStatus );
+
+
+            //=================================================================================================
+
+//            for( Basis * tBasis : mAllBasisOnProc )
+//            {
+//                bool tBasisFound = false;
+//
+//                for( uint Ik = 0; Ik< tNumBSplineBasis; Ik++ )
+//                {
+//                    bool tIsActive = tBslpinemesh->get_basis_by_index( Ik )->is_active();
+//
+//                    if ( tIsActive )
+//                    {
+//                        if( std::abs( tBasis->get_xyz()[0] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] ) <= 1E-10 )
+//                        {
+//                            if( std::abs( tBasis->get_xyz()[1] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] ) <= 1E-10 )
+//                            {
+//                                if ( mParameters->get_number_of_dimensions() == 3 )
+//                                {
+//                                    if( std::abs( tBasis->get_xyz()[2] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[2] ) <= 1E-10 )
+//                                    {
+//                                        moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
+//                                        moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+//
+//                                        MORIS_ASSERT( tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
+//
+//                                        tReverseIndexMap( tIndex ) = tBasis->get_index();
+//                                        tReverseIDMap( tID ) = tBasis->get_hmr_index();
+//
+//                                        tBasis->set_local_index( tIndex );
+//                                        tBasis->set_domain_index( tID );
+//
+//                                        tBasisFound = true;
+//
+//                                        tCounter++;
+//                                        break;
+//                                    }
+//                                }
+//                                else
+//                                {
+//                                    moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
+//                                    moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
+//
+//                                    MORIS_ASSERT(tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
+//
+//                                    tReverseIndexMap( tIndex ) = tBasis->get_index();
+//                                    tReverseIDMap( tID ) = tBasis->get_hmr_index();
+//
+//                                    tBasis->set_local_index( tIndex );
+//                                    tBasis->set_domain_index( tID );
+//
+//                                    tBasisFound = true;
+//
+//                                    tCounter++;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                if (tBasisFound == false)
+//                {
+//                    tNonBSplineBasis( tCounter2++ ) = tBasis;
+//                }
+//            }
+//
+//            tNonBSplineBasis.resize( tCounter2 );
+//
+//            for( Basis * tBasis : tNonBSplineBasis )
+//            {
+//                tReverseIndexMap( tCounter ) = tBasis->get_index();
+//                tReverseIDMap( tCounter ) = tBasis->get_hmr_index();
+//
+//                tBasis->set_local_index( tCounter );
+//                tBasis->set_domain_index( tCounter++ );
+//            }
+//
+//            std::string aFilePath = "Reverse_Map.hdf5";
+//
+//            //print(tReverseIndexMap,"tReverseIndexMap");
+//            // add order to path
+//            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+//                                        + "_" + std::to_string( this->get_index() ) // rank of this processor
+//                                        +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+//
+//            // make path parallel
+//            tFilePath = parallelize_path( tFilePath );
+//
+//            // Create a new file using default properties
+//            herr_t tFileID = H5Fcreate( tFilePath.c_str(),
+//                                        H5F_ACC_TRUNC,
+//                                        H5P_DEFAULT,
+//                                        H5P_DEFAULT);
+//
+//            // error handler
+//            herr_t tStatus;
+//
+//            // save reverse indices to file
+//            save_matrix_to_hdf5_file( tFileID,
+//                                      "Index",
+//                                      tReverseIndexMap,
+//                                      tStatus );
+//
+//            // save reverse ids to file
+//            save_matrix_to_hdf5_file( tFileID,
+//                                      "Id",
+//                                      tReverseIDMap,
+//                                      tStatus );
         }
 
     } /* namespace hmr */

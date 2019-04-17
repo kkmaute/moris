@@ -253,8 +253,7 @@ namespace moris
          *
          * @return Element*  new B-Spline or Lagrange element
          */
-        virtual Element *
-        create_element( Background_Element_Base* aElement ) = 0;
+        virtual Element * create_element( Background_Element_Base* aElement ) = 0;
 
 // ----------------------------------------------------------------------------
 

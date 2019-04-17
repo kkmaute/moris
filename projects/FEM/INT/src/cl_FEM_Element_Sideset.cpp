@@ -63,8 +63,8 @@ namespace moris
 
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
-            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
-            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), tTHat );
+//            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mTime );
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
@@ -185,8 +185,8 @@ namespace moris
 
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
-            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
-            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), tTHat );
+//            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mTime );
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )

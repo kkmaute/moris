@@ -63,44 +63,32 @@ namespace moris
         mFieldInterpolators.clear();
     }
 
-    void Element_Block::finalize( const MSI::Model_Solver_Interface * aModelSolverInterface )
+//------------------------------------------------------------------------------
+
+    void Element_Block::finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         this->delete_pointers();
 
         if( mMeshElementPointer.size() > 0)
         {
-            Interpolation_Rule tGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
-                                                           Interpolation_Type::LAGRANGE,
-                                                           this->get_auto_interpolation_order(),           // FIXME change to block information
-                                                           Interpolation_Type::LAGRANGE,
-                                                           mtk::Interpolation_Order::LINEAR );
+             Interpolation_Rule tGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
+                                                            Interpolation_Type::LAGRANGE,
+                                                            this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
+                                                                                                mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
+                                                            Interpolation_Type::LAGRANGE,
+                                                            mtk::Interpolation_Order::LINEAR );
 
-            bool tSpaceSideset = false;
-            if (mElementType==fem::Element_Type::SIDESET)
-            {
-                tSpaceSideset=true;
-            }
+             bool tSpaceSideset = false;
+             if (mElementType==fem::Element_Type::SIDESET)
+             {
+                 tSpaceSideset=true;
+             }
 
-            // create the element geometry intepolator
-            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
+             // create the element geometry intepolator
+             mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
 
             // create the element field interpolators
             this->create_field_interpolators( aModelSolverInterface );
-
-//            mElements.resize( mMeshElementPointer.size(), nullptr);
-//
-//            // a factory to create the elements
-//            fem::Element_Factory tElementFactory;
-
-//            for( luint k=0; k < mMeshElementPointer.size(); ++k )
-//            {
-//                // create the element
-//                mElements( k ) = tElementFactory.create_element( mElementType,
-//                                                                 mMeshElementPointer( k ),
-//                                                                 mIWGs,
-//                                                                 mNodes,
-//                                                                 this );
-//            }
         }
     }
 
@@ -224,13 +212,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    mtk::Interpolation_Order Element_Block::get_auto_interpolation_order()
+    mtk::Interpolation_Order Element_Block::get_auto_interpolation_order( const moris::uint aNumVertices,
+                                                                          const mtk::Geometry_Type aGeometryType )
     {
-        switch( mMeshElementPointer( 0 )->get_geometry_type() )                                 // FIXME change to block information
+        switch( aGeometryType )                                 // FIXME change to block information
         {
             case( mtk::Geometry_Type::LINE ) :
-                switch( mMeshElementPointer( 0 )->get_number_of_vertices() )
+                switch( aNumVertices )
                 {
+                   case( 1 ) :
+                       return mtk::Interpolation_Order::UNDEFINED;
+                       break;
                    case( 2 ) :
                        return mtk::Interpolation_Order::LINEAR;
                        break;
@@ -246,7 +238,7 @@ namespace moris
                 }
 
             case( mtk::Geometry_Type::QUAD ) :
-                switch( mMeshElementPointer( 0 )->get_number_of_vertices() )
+                switch( aNumVertices )
                 {
                     case( 4 ) :
                         return mtk::Interpolation_Order::LINEAR;
@@ -271,7 +263,7 @@ namespace moris
                 }
 
             case( mtk::Geometry_Type::HEX ) :
-                switch( mMeshElementPointer( 0 )->get_number_of_vertices() )
+                switch( aNumVertices )
                 {
                     case( 8 ) :
                         return mtk::Interpolation_Order::LINEAR;
@@ -304,7 +296,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Element_Block::create_field_interpolators( const MSI::Model_Solver_Interface * aModelSolverInterface )
+    fem::Interpolation_Type Element_Block::get_auto_time_interpolation_type( const moris::uint aNumVertices )
+    {
+        switch( aNumVertices )
+        {
+          case( 1 ) :
+              return Interpolation_Type::CONSTANT;
+              break;
+          case( 2 ) :
+          case( 3 ) :
+          case( 4 ) :
+              return Interpolation_Type::LAGRANGE;
+              break;
+          default :
+              MORIS_ERROR( false, " Element::get_auto_time_interpolation_type - not defined this number of time vertices. ");
+              return Interpolation_Type::UNDEFINED;
+              break;
+        }
+    }
+
+//------------------------------------------------------------------------------
+
+    void Element_Block::create_field_interpolators(MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // cell of field interpolators
         mFieldInterpolators.resize( mNumOfInterp, nullptr );
@@ -315,18 +328,19 @@ namespace moris
             // get the ith dof type group
             Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
 
-//            moris::uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( tDofTypeGroup( 0 ) );
-//
-//            std::cout<< tNumTimeNodes <<std::endl;
+            moris::uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( tDofTypeGroup( 0 ) );
 
             // create the field interpolation rule for the ith dof type group
             //FIXME: space interpolation based on the mtk::Cell
             //FIXME: time  interpolation set to constant
             Interpolation_Rule tFieldInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),           //FIXME
                                                         Interpolation_Type::LAGRANGE,
-                                                        this->get_auto_interpolation_order(),
-                                                        Interpolation_Type::CONSTANT,
-                                                        mtk::Interpolation_Order::CONSTANT );
+                                                        this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
+                                                                                            mMeshElementPointer( 0 )->get_geometry_type()),
+                                                        this->get_auto_time_interpolation_type( tNumTimeNodes ),
+                                                        // If interpolation type CONSTANT, iInterpolation order is not used
+                                                        this->get_auto_interpolation_order( tNumTimeNodes,
+                                                                                            mtk::Geometry_Type::LINE ) );
 
             // get number of field interpolated by the ith field interpolator
             uint tNumOfFields = tDofTypeGroup.size();

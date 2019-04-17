@@ -356,7 +356,23 @@ namespace moris
                 // Renumber Lagrange nodes to be the same than B-Spline basis. Only serial and linear
                 if(  mParameters->get_renumber_lagrange_nodes() )
                 {
-                    mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();
+                    if (k ==1)
+                    {
+                        tic tTimer;
+
+                        mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();
+
+                        // print output if verbose level is set
+                        if ( mParameters->is_verbose() )
+                        {
+                            // stop timer
+                            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                            std::fprintf( stdout,"%s Renumbering of Lagrange mesh.\n                took %5.3f seconds.\n\n",
+                                    proc_string().c_str(),
+                                    ( double ) tElapsedTime / 1000 );
+                        }
+                    }
                 }
 
                 tMesh = mDatabase->get_lagrange_mesh_by_index( k );
@@ -420,7 +436,6 @@ namespace moris
                         {
                             // get order of mesh
                             uint tOrder = tBMesh->get_order();
-
 
                             // generate label
                             std::string tLabel = "NumberOfCoefficients_" + std::to_string( tOrder );
@@ -1309,7 +1324,7 @@ namespace moris
                 // load values into field
                 herr_t tStatus = 0;
                 hid_t tHDF5File = open_hdf5_file( "Reverse_Map_1.hdf5" );
-                load_matrix_from_hdf5_file( tHDF5File, "Index", tReverseMap, tStatus );
+                load_matrix_from_hdf5_file( tHDF5File, "Id", tReverseMap, tStatus );
                 close_hdf5_file( tHDF5File );
 
                 for( uint k=0; k<tNumberOfNodes; ++k )
