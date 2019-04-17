@@ -259,40 +259,35 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        uint
-        Edge::get_number_of_elements() const
+        uint Edge::get_number_of_elements() const
         {
             return mElements.size();
         }
 
 //------------------------------------------------------------------------------
 
-        Element *
-        Edge::get_element( const uint & aIndex )
+        Element * Edge::get_element( const uint & aIndex )
         {
             return mElements( aIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        uint
-        Edge::get_index_on_element(  const uint & aIndex ) const
+        uint Edge::get_index_on_element(  const uint & aIndex ) const
         {
             return mIndicesInElements( aIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        Element *
-        Edge::get_hmr_master()
+        Element * Edge::get_hmr_master()
         {
             return mElements( mIndexOfMaster );
         }
 
 //------------------------------------------------------------------------------
 
-        uint
-        Edge::get_index_on_master() const
+        uint Edge::get_index_on_master() const
         {
             return  mIndicesInElements( mIndexOfMaster );
         }

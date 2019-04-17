@@ -69,7 +69,6 @@ moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 
 void Time_Solver_Algorithm::finalize()
 {
-    std::cout<<"1-1-1-1-"<<std::endl;
     // create map object
     Matrix_Vector_Factory tMatFactory( MapType::Epetra );
 
@@ -88,7 +87,8 @@ void Time_Solver_Algorithm::finalize()
     }
     else
     {
-        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
+        mSolverInterface = mMyTimeSolver->get_solver_interface();
+//        mSolverInterface = mMyTimeSolver->get_solver_warehouse()->get_solver_interface();
 
         mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map());
     }

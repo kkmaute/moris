@@ -32,6 +32,8 @@ namespace mtk
                 Dist_Vector                        * mSolutionVector;
                 Matrix< DDRMat>  mTime;
 
+                moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
+
         public:
             MSI_Solver_Interface( )
             {
@@ -55,10 +57,19 @@ namespace mtk
                 mSolutionVector = aSolutionVector;
             }
 
+//------------------------------------------------------------------------------
+
             void set_time( const Matrix< DDRMat> & aTime )
             {
                 mTime = aTime;
             }
+
+//------------------------------------------------------------------------------
+
+            void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+            {
+               mListOfDofTypes = aListOfDofTypes;
+            };
 
 //------------------------------------------------------------------------------
 

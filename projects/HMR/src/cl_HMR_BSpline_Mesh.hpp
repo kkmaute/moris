@@ -126,8 +126,7 @@ namespace moris
     protected:
 // ----------------------------------------------------------------------------
 
-        Element *
-        create_element( Background_Element_Base* aElement );
+        Element * create_element( Background_Element_Base* aElement );
 
 // ----------------------------------------------------------------------------
 
@@ -406,8 +405,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     template < uint N, uint P >
-    Element *
-    BSpline_Mesh< N, P >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< N, P >::create_element( Background_Element_Base* aElement )
     {
         MORIS_ERROR( false, "Don't know how to create B-Spline element.");
         return nullptr;
@@ -416,8 +414,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 2, 1 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 2, 1 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 4 >( aElement, mActivationPattern );
 
@@ -427,8 +424,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 2, 2 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 2, 2 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2,9 >( aElement, mActivationPattern );
 
@@ -438,8 +434,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 2, 3 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 2, 3 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 16 >( aElement, mActivationPattern );
 
@@ -450,8 +445,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 2, 4 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 2, 4 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 25 >( aElement, mActivationPattern );
 
@@ -461,8 +455,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 2, 5 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 2, 5 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 2, 36 >( aElement, mActivationPattern );
 
@@ -472,8 +465,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 3, 1 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 3, 1 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 8 >( aElement, mActivationPattern );
 
@@ -482,8 +474,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 3, 2 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 3, 2 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 27 >( aElement, mActivationPattern );
 
@@ -493,8 +484,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 3, 3 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 3, 3 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 64 >( aElement, mActivationPattern );
 
@@ -503,8 +493,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 3, 4 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 3, 4 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 125 >( aElement, mActivationPattern );
 
@@ -514,8 +503,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template<>
-    Element *
-    BSpline_Mesh< 3, 5 >::create_element( Background_Element_Base* aElement )
+    Element * BSpline_Mesh< 3, 5 >::create_element( Background_Element_Base* aElement )
     {
         Element * aBSplineElement = new BSpline_Element< 3, 216 >( aElement, mActivationPattern );
 

@@ -170,43 +170,35 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_number_of_elements() const;
+            uint get_number_of_elements() const;
 
 // ----------------------------------------------------------------------------
 
-            Element *
-            get_element( const uint & aIndex );
+            Element * get_element( const uint & aIndex );
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_index_on_element(  const uint & aIndex ) const;
+            uint get_index_on_element(  const uint & aIndex ) const;
 
 // ----------------------------------------------------------------------------
 
-            Element *
-            get_hmr_master();
+            Element * get_hmr_master();
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_index_on_master() const;
+            uint get_index_on_master() const;
 
 // ----------------------------------------------------------------------------
 
-            virtual const Basis *
-            get_basis( const uint aIndex ) const = 0;
+            virtual const Basis * get_basis( const uint aIndex ) const = 0;
 
 // ----------------------------------------------------------------------------
 
-            virtual Basis *
-            get_basis( const uint aIndex )  = 0;
+            virtual Basis * get_basis( const uint aIndex )  = 0;
 
 // ----------------------------------------------------------------------------
 
-            bool
-            is_active() const;
+            bool is_active() const;
 
 // ----------------------------------------------------------------------------
         private:
@@ -219,8 +211,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            virtual void
-            copy_vertex_pointers() = 0;
+            virtual void copy_vertex_pointers() = 0;
 
 // ----------------------------------------------------------------------------
         };

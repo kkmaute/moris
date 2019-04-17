@@ -50,13 +50,13 @@ public:
 
     void set_time_levels_for_type( const enum MSI::Dof_Type aDofType,
                                    const moris::uint   aNumTimeLevels )
-    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+    { MORIS_ERROR( false, "Solver_Interface::set_time_levels_for_type: not set."); };
 
     virtual void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
-    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector_prev_time_step: not set."); };
 
     virtual void set_time( const Matrix< DDRMat> & aTime )
-    { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };
+    { MORIS_ERROR( false, "Solver_Interface::set_time: not set."); };
 
     virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
     { MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set."); };
