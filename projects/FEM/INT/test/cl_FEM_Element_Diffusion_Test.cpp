@@ -988,7 +988,7 @@ namespace moris
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
                 // 8) Solve --------------------------------------------------------------------
-                //std::cout<<" 8) Solve "<<std::endl;
+                std::cout<<" 8) Solve "<<std::endl;
                 //------------------------------------------------------------------------------
                 Matrix<DDRMat> tSolution1;
 
@@ -1203,7 +1203,6 @@ namespace moris
 													          39, 40, 41, 42, 43, 44, 45}};
 
 
-
                 // create mesh MTK database
                 mtk::MtkMeshData tMeshData( aNumElemTypes );
                 tMeshData.CreateAllEdgesAndFaces  = true;
@@ -1216,7 +1215,7 @@ namespace moris
                 mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
 
                 //1) Create the fem nodes ------------------------------------------------------
-                //std::cout<<" Create the fem nodes "<<std::endl;
+                std::cout<<" 1) Create the fem nodes "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // number of mesh nodes
@@ -1234,7 +1233,7 @@ namespace moris
                 }
 
                 //2) Create the IWGs -----------------------------------------------------------
-                //std::cout<<" Create the IWGs "<<std::endl;
+                std::cout<<" Create the IWGs "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // input a cell of IWG types to be created
@@ -1261,7 +1260,7 @@ namespace moris
                 }
 
                 //3) Create the elements -------------------------------------------------------
-                //std::cout<<" Create the elements "<<std::endl;
+                std::cout<<" 3) Create the elements "<<std::endl;
                 //------------------------------------------------------------------------------
                 // nodal weak bc for Dirichlet
                 Matrix< DDRMat > tNodalValues( tNumOfNodes, 1, 0.0 );
@@ -1492,21 +1491,21 @@ namespace moris
                 Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
 
                 //5) Create solver interface ---------------------------------------------------
-                //std::cout<<" 5) Create solver interface "<<std::endl;
+                std::cout<<" 5) Create solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 MSI::MSI_Solver_Interface * tSolverInterface
                     = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
 
                 // 6) Create Nonlinear Problem -------------------------------------------------
-                //std::cout<<" 6) Create Nonlinear Problem "<<std::endl;
+                std::cout<<" 6) Create Nonlinear Problem "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 NLA::Nonlinear_Problem* tNonlinearProblem
                     = new NLA::Nonlinear_Problem( tSolverInterface );
 
                 // 7) Create Solvers and solver manager ----------------------------------------
-                //std::cout<<" 7) Create Solvers and solver manager "<<std::endl;
+                std::cout<<" 7) Create Solvers and solver manager "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 // create factory for nonlinear solver
