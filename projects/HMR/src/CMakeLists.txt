@@ -34,7 +34,6 @@ set(HEADERS
     cl_HMR_Facet.hpp
     cl_HMR_Factory.hpp
     cl_HMR_Field.hpp
-    cl_HMR_Fields.hpp
     cl_HMR_File.hpp
     cl_HMR.hpp
     cl_HMR_Knot.hpp

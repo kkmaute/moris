@@ -14,7 +14,7 @@ set(HEADERS
     geomeng/cl_MGE_Geometry_Object.hpp
     geomeng/fn_Triangle_Geometry.hpp
     geometry/cl_Geometry.hpp
-    geometry/cl_Analytic_Level_Set_Plane.hpp
+    geometry/cl_Plane.hpp
     geometry/cl_Composite_Fiber_Straight_1.hpp
     geometry/cl_Composite_Fiber_Straight_2.hpp
     geometry/cl_Composite_Fiber_Straight_3.hpp
@@ -30,13 +30,6 @@ set(HEADERS
     geometry/cl_Spiral.hpp
     ios/cl_Logger.hpp
     linalg/cl_XTK_Matrix_Base_Utilities.hpp
-    mesh/cl_Mesh_Bucket.hpp
-    mesh/cl_Mesh_Data_MTK.hpp
-    mesh/cl_Mesh_Entity.hpp
-    mesh/cl_Mesh_External_Entity_Data_Stk.hpp
-    mesh/cl_Mesh_Node_Set_Input.hpp
-    mesh/cl_Mesh_Parallel_Data_Stk.hpp
-    mesh/cl_Mesh_Side_Set_Input.hpp
     tools/fn_verify_tet_topology.hpp
     tools/cl_Interpolaton.hpp
     tools/cl_MPI_Tools.hpp
@@ -89,7 +82,8 @@ set(HEADERS
     xtk/fn_local_child_mesh_flood_fill.hpp
     xtk/fn_mesh_flood_fill.hpp
     xtk/fn_prune_element_to_element.hpp
-    xtk/fn_write_element_ownership_as_field.hpp)                                                                                                                                                                                                                                                                   
+    xtk/fn_write_element_ownership_as_field.hpp
+    )                                                                                                                                                                                                                                                                   
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               

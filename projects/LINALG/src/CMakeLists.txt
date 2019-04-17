@@ -113,11 +113,6 @@ foreach(LINALG_INCLUDE ${LINALG_INCLUDES})
     include_directories(../../${LINALG_INCLUDE}/src)
 endforeach()
 
-# List dependencies
-
-include_directories(${LINALG_IMPLEMENTATION_INCLUDES})
-
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
