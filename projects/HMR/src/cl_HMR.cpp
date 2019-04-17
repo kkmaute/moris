@@ -358,7 +358,20 @@ namespace moris
                 {
                     if (k ==1)
                     {
+                        tic tTimer;
+
                         mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();
+
+                        // print output if verbose level is set
+                        if ( mParameters->is_verbose() )
+                        {
+                            // stop timer
+                            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                            std::fprintf( stdout,"%s Renumbering of Lagrange mesh.\n                took %5.3f seconds.\n\n",
+                                    proc_string().c_str(),
+                                    ( double ) tElapsedTime / 1000 );
+                        }
                     }
                 }
 
