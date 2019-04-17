@@ -56,7 +56,8 @@ include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
 set( LIB_SOURCES
     cl_MTK_Block.cpp
     stk_impl/cl_MTK_Mesh_STK.cpp
-    stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp)
+    stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
+    stk_impl/cl_MTK_Mesh_Core_STK.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

@@ -13,6 +13,8 @@ set(HEADERS
 set(MDL_INCLUDES
     ${SOL}/${DLA}
     ${SOL}/${NLA}
+    ${SOL}/${TSA}
+    ${SOL}/${SOL_CORE}
     ${LINALG}
     ${IOS}
     ${MTK}
@@ -39,6 +41,8 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${NLA}-lib
+    ${SOL_CORE}-lib
+    ${TSA}-lib
     ${MSI}-lib
     ${INT}-lib
     ${MORIS_ARMADILLO_EIGEN_LIBS}

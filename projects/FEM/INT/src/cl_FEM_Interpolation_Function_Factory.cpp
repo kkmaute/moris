@@ -279,7 +279,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
     Interpolation_Function_Base *
-    Interpolation_Function_Factory::create_constant_bar( const mtk::Interpolation_Order  & aInterpolationOrder)
+    Interpolation_Function_Factory::create_constant_bar( const mtk::Interpolation_Order & aInterpolationOrder )
     {
         // bar 2 with one constant shape fucntion
         return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::CONSTANT, 1, 1 >();

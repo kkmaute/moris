@@ -110,14 +110,6 @@ namespace moris
                 }
             }
 
-//            if ( tNumOfIWGs > 1 )
-//            {
-//                mIWGs1.resize( 2, nullptr );
-//                mIWGs1( 0 ) = mIWGs( 1 )( 0 );
-//                mIWGs1( 1 ) = mIWGs( 2 )( 0 );
-//
-//            }
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 2: create elements
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

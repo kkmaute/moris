@@ -25,6 +25,7 @@
 // XTK
 #include "cl_XTK_Paramfile.hpp"
 #include "cl_XTK_Model.hpp"
+#include "cl_XTK_Output_Options.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_Sphere.hpp"
 #include "cl_Plane.hpp"
@@ -209,6 +210,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
             tSensTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
           }
 
+
           // compute sensitivity
           if(aXTKProblemParams.mUnzip)
           {
@@ -237,8 +239,11 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
           // TODO: support output option parsing
           if(aXTKProblemParams.mExport)
           {
+            Output_Options tXTKOutputOptions;
+            tXTKOutputOptions.mPackageDxDpSparsely = false;
+
             tOpTimer = std::clock();
-            moris::mtk::Mesh* tOutputMTK = tXTKModel.get_output_mesh();
+            moris::mtk::Mesh* tOutputMTK = tXTKModel.get_output_mesh(tXTKOutputOptions);
             tOutputMTK->create_output_mesh(aXTKProblemParams.mOutputMeshFile);
             tOutputTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 

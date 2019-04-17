@@ -35,22 +35,16 @@ void TSA_Solver_Interface_Proxy_II::set_solution_vector_prev_time_step( Dist_Vec
 void TSA_Solver_Interface_Proxy_II::get_element_rhs( const uint             & aMyElementInd,
                                                            Matrix< DDRMat > & aElementRHS )
 {
-    //std::cout<<*mSolutionVector->get_vector()<<std::endl;
-    //print(mMySolVecPrev,"mMySolVecPrev");
-//    if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP && mListOfDofTypes( 1 ) == MSI::Dof_Type::UX)
-//    {
-//        MORIS_ERROR( false, "get_element_rhs");
-//    }
-//    else
-        if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
+    mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+    if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
     {
         aElementRHS.resize(1,1);
-        aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 2, 0 )/( mDeltaT ) - mk * std::cos( mT );
+        aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 2, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
     }
     else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
     {
         aElementRHS.resize(1,1);
-        aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 1,0 ) - mMySolVecPrev( 3, 0 )/( mDeltaT ) - mk * std::cos( mT );
+        aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 1,0 ) - mMySolVecPrev( 3, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
     }
 
 }

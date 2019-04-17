@@ -145,7 +145,7 @@ Enrichment::perform_basis_cluster_enrichment()
 
     if(mBasisEnrToBulkPhase)
     {
-    set_up_basis_enrichment_to_bulk_phase();
+        set_up_basis_enrichment_to_bulk_phase();
     }
 
     setup_vertex_enrichment_data();
@@ -1023,7 +1023,7 @@ Enrichment::construct_vertex_to_enriched_basis_with_element_to_basis(moris::Cell
 
                         if(tNodeTracker(tVertInd)(tLocalBasisInd) == 1)
                         {
-                            MORIS_ASSERT(tEnrichedBasisInd == tVertexToEnrichedBasisIndex(tVertInd)(tLocalBasisInd),"Enriched basis indices do not match for the same vertex");
+                            //MORIS_ASSERT(tEnrichedBasisInd == tVertexToEnrichedBasisIndex(tVertInd)(tLocalBasisInd),"Enriched basis indices do not match for the same vertex");
                         }
 
 
