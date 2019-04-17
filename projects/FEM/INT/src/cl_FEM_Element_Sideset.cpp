@@ -7,29 +7,6 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-
-        Element_Sideset::Element_Sideset( mtk::Cell                 * aCell,
-                                          moris::Cell< IWG* >       & aIWGs,
-                                          moris::Cell< Node_Base* > & aNodes)
-                                        : Element( aCell, aIWGs, aNodes )
-        {
-            //create the element geometry interpolation rule
-            //FIXME: forced interpolation type and order
-            Interpolation_Rule tGeometryInterpolationRule( mCell->get_geometry_type(),
-                                                           Interpolation_Type::LAGRANGE,
-                                                           this->get_auto_interpolation_order(),
-                                                           Interpolation_Type::LAGRANGE,
-                                                           mtk::Interpolation_Order::LINEAR );
-
-            // create the element geometry intepolator
-            bool tSpaceSideset = true;
-            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule,
-                                                               tSpaceSideset );
-
-            // create the element field interpolators
-            mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
-        }
 
 //------------------------------------------------------------------------------
 
@@ -76,7 +53,7 @@ namespace moris
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
                 {
                     // get the treated IWG
-                    IWG* tTreatedIWG = mIWGs( iIWG );
+                    IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                     // FIXME
                     tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
@@ -198,7 +175,7 @@ namespace moris
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
                 {
                     // get the treated IWG
-                    IWG* tTreatedIWG = mIWGs( iIWG );
+                    IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                     // FIXME
                     tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );

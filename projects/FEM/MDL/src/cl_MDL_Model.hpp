@@ -26,7 +26,6 @@ namespace moris
     {
         class IWG;
         class Node_Base;
-        class Element_Block;
         enum class IWG_Type;
         enum class BC_Type;
     }
@@ -48,6 +47,7 @@ namespace moris
     {
         class Model_Solver_Interface;
         class MSI_Solver_Interface;
+        class Equation_Block;
     }
     namespace tsa
     {
@@ -65,7 +65,7 @@ namespace moris
             Cell< MSI::Equation_Object* >     mElements;
             Cell< Cell< fem::IWG* > >         mIWGs;
 
-            Cell< fem::Element_Block * >      mElementBlocks;
+            Cell< MSI::Equation_Block * >      mElementBlocks;
 
             Cell< fem::IWG* >         mIWGs1;
 

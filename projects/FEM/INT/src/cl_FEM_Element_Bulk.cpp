@@ -8,29 +8,6 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-
-        Element_Bulk::Element_Bulk( mtk::Cell          * aCell,
-                                    Cell< IWG* >       & aIWGs,
-                                    Cell< Node_Base* > & aNodes )
-                                  : Element( aCell, aIWGs, aNodes )
-        {
-            //create the element geometry interpolation rule
-            //FIXME: set values
-            Interpolation_Rule tGeometryInterpolationRule( mCell->get_geometry_type(),
-                                                           Interpolation_Type::LAGRANGE,
-                                                           this->get_auto_interpolation_order(),
-                                                           Interpolation_Type::LAGRANGE,
-                                                           mtk::Interpolation_Order::LINEAR );
-            // create the element geometry intepolator
-            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule );
-
-            // create the element field interpolators
-            mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
-
-            // compute element volume
-            //real tVolume = compute_element_volume( mGeometryInterpolator );
-        }
 
 //------------------------------------------------------------------------------
 
@@ -40,7 +17,6 @@ namespace moris
                                     Element_Block      * aElementBlock)
                                   : Element( aCell, aIWGs, aNodes, aElementBlock )
         {
-
             // compute element volume
             //real tVolume = compute_element_volume( mGeometryInterpolator );
         }
@@ -63,15 +39,13 @@ namespace moris
             this->set_field_interpolators_coefficients();
 
             // set the geometry interpolator coefficients
-            //FIXME: tHat are set by default but should come from solver
-//            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
             mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mTime );
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
             {
                 // get the treated IWG
-                IWG* tTreatedIWG = mIWGs( iIWG );
+                IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                 // FIXME
                 tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
@@ -88,7 +62,7 @@ namespace moris
                 // in the list of element dof type
                 Cell< Field_Interpolator* > tIWGInterpolators
                     = this->get_IWG_field_interpolators( tTreatedIWG,
-                            mElementBlock->get_block_field_interpolator() );
+                                                         mElementBlock->get_block_field_interpolator() );
 
                 // create an integration rule for the ith IWG
                 //FIXME: set by default
@@ -185,15 +159,13 @@ namespace moris
             this->set_field_interpolators_coefficients();
 
             // set the geometry interpolator coefficients
-            //FIXME: tHat are set by default but should come from solver
-//            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
             mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mTime );
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
             {
                 // get the treated IWG
-                IWG* tTreatedIWG = mIWGs( iIWG );
+                IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                 // FIXME: enforced nodal weak bcs
                 tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
@@ -249,7 +221,7 @@ namespace moris
 
                     // compute jacobian at evaluation point
                     Matrix< DDRMat > tResidual;
-                    mIWGs( iIWG )->compute_residual( tResidual, tIWGInterpolators );
+                    mElementBlock->get_IWGs()( iIWG )->compute_residual( tResidual, tIWGInterpolators );
 
                     // add contribution to jacobian from evaluation point
                     mResidualElement( tIWGResDofIndex )

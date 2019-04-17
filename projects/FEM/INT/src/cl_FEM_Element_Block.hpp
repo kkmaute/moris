@@ -9,9 +9,10 @@
 #define SRC_FEM_CL_FEM_ELEMENT_BLOCK_HPP_
 
 #include "assert.h"
-#include "cl_MSI_Equation_Object.hpp"               //FEM/INT/src
+#include "cl_MSI_Equation_Block.hpp"               //FEM/INT/src
 #include "cl_FEM_Enums.hpp"               //FEM/INT/src
 #include "cl_MTK_Enums.hpp"               //FEM/INT/src
+#include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
 
 #include "cl_Communication_Tools.hpp"               //FEM/INT/src
 
@@ -22,9 +23,9 @@ namespace mtk
 {
    class Cell;
 }
-namespace mtk
+namespace MSI
 {
-   class Model_solver_Interface;
+   class Model_Solver_Interface;
 }
     namespace fem
     {
@@ -36,14 +37,14 @@ namespace mtk
     /**
      * \brief element block class that communicates with the mesh interface
      */
-    class Element_Block
+    class Element_Block : public MSI::Equation_Block
     {
     private:
         moris::Cell< mtk::Cell* >     mMeshElementPointer;
 
         moris::Cell< Node_Base* >     mNodes;
 
-        Cell< MSI::Equation_Object* > mElements;
+//        Cell< MSI::Equation_Object* > mElements;
 
         Geometry_Interpolator       * mGeometryInterpolator = nullptr;
 
@@ -55,7 +56,7 @@ namespace mtk
         enum fem::Element_Type mElementType;
 
         // map of the element active dof types
-        moris::Cell< enum MSI::Dof_Type >         mEqnObjDofTypeList; // List of dof types of this equation obj
+//        moris::Cell< enum MSI::Dof_Type >         mEqnObjDofTypeList; // List of dof types of this equation obj
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
         moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
         uint                                      mNumOfInterp;
@@ -131,6 +132,13 @@ namespace mtk
         uint get_num_IWG()
         {
             return mIWGs.size();
+        }
+
+//------------------------------------------------------------------------------
+
+        moris::Cell< IWG* > & get_IWGs()
+        {
+            return mIWGs;
         }
 
 //------------------------------------------------------------------------------
