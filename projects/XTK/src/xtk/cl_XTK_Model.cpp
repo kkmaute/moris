@@ -1907,7 +1907,6 @@ Model::unzip_interface_assign_element_identifiers()
             // Compute interface sensitivity
             mGeometryEngine.compute_interface_sensitivity(tInterfaceNodes,tNodeCoords,iGeo);
         }
-
     }
 
 
@@ -1920,7 +1919,6 @@ Model::unzip_interface_assign_element_identifiers()
                                                 moris::Matrix<moris::DDRMat>         & aNumDesVars,
                                                 std::string                          & aNumDesVarsName) const
     {
-
         // names of sparsely packaged fields
         moris::uint tNumFields = 6;
         adxdpNames = moris::Cell<std::string>({{"dx0dp0"},
@@ -1940,10 +1938,8 @@ Model::unzip_interface_assign_element_identifiers()
         aDesVarsName = moris::Cell<std::string>({{"DesVar0"},{"DesVar1"}});
         aDesVars = moris::Cell<moris::Matrix<moris::DDRMat>>(tNumFields,moris::Matrix<moris::DDRMat>(tNumNodes,1));
 
-
         aNumDesVarsName = "NumDesVar";
         aNumDesVars = moris::Matrix<moris::DDRMat>(1,tNumNodes,0);
-
 
         for(moris::uint iNode = 0; iNode<tNumNodes; iNode++)
         {
@@ -1955,6 +1951,9 @@ Model::unzip_interface_assign_element_identifiers()
 
                 moris::Matrix< moris::DDRMat > const & tdxdp = tNodeGeoObj.get_sensitivity_dx_dp();
 
+                MORIS_ASSERT(tdxdp.n_rows() == 2,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
+                MORIS_ASSERT(tdxdp.n_cols() == 3,"Invalid dxdp size for sparse packing, This function only works on tet meshes with discrete fields at the moment");
+
                 adxdpData(0)(iNode) = tdxdp(0,0);
                 adxdpData(1)(iNode) = tdxdp(0,1);
                 adxdpData(2)(iNode) = tdxdp(0,2);
@@ -1963,6 +1962,7 @@ Model::unzip_interface_assign_element_identifiers()
                 adxdpData(5)(iNode) = tdxdp(1,2);
 
                 moris::Matrix< moris::IndexMat > const & tDesVarInds = tNodeGeoObj.get_node_adv_indices();
+
                 aDesVars(0)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(0),EntityRank::NODE);
                 aDesVars(1)(iNode) = (moris::real)mBackgroundMesh.get_mesh_data().get_glb_entity_id_from_entity_loc_index(tDesVarInds(1),EntityRank::NODE);
 

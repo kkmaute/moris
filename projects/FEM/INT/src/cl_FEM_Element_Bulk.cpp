@@ -37,7 +37,8 @@ namespace moris
         Element_Bulk::Element_Bulk( mtk::Cell          * aCell,
                                     Cell< IWG* >       & aIWGs,
                                     Cell< Node_Base* > & aNodes,
-                                    Element_Block      * aElementBlock) : Element( aCell, aIWGs, aNodes, aElementBlock )
+                                    Element_Block      * aElementBlock)
+                                  : Element( aCell, aIWGs, aNodes, aElementBlock )
         {
 
             // compute element volume
@@ -46,9 +47,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Element_Bulk::~Element_Bulk()
-        {
-        }
+        Element_Bulk::~Element_Bulk(){}
 
 //------------------------------------------------------------------------------
 

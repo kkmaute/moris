@@ -20,6 +20,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Element_Block.hpp"
 
 #include "cl_MDL_Model.hpp"
 
@@ -48,24 +49,24 @@ namespace moris
                 // Create a 3D mesh of HEX8 using MTK ------------------------------------------
                 std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
                 //------------------------------------------------------------------------------
-                uint aNumElemTypes = 1; // only 1 element type ( quad )
+                uint aNumElemTypes = 1; // only 1 element type ( hex )
                 uint aNumDim = 3;       // number of spatial dimensions
 
                 // element connectivity
-                Matrix< IdMat > aElementConnQuad = {{ 1, 2, 3, 4, 5, 6, 7, 8 }};
+                Matrix< IdMat > aElementConn = {{ 1, 2, 3, 4, 5, 6, 7, 8 }};
 
                 // local to global element map
-                Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1 }};
+                Matrix< IdMat > aElemLocalToGlobal = {{ 1 }};
 
                 // node coordinates
                 Matrix< DDRMat > aCoords = {{ 0.0, 0.0, 0.0 },
                                             { 1.0, 0.0, 0.0 },
                                             { 1.0, 1.0, 0.0 },
-                                            { 0.0, 2.0, 0.0 },
+                                            { 0.0, 1.0, 0.0 },
                                             { 0.0, 0.0, 1.0 },
                                             { 1.0, 0.0, 1.0 },
                                             { 1.0, 1.0, 1.0 },
-                                            { 0.0, 2.0, 1.0 }};
+                                            { 0.0, 1.0, 1.0 }};
 
                 // specify the local to global map
                 Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8 }};
@@ -74,9 +75,9 @@ namespace moris
                 mtk::MtkMeshData tMeshData( aNumElemTypes );
                 tMeshData.CreateAllEdgesAndFaces  = true;
                 tMeshData.SpatialDim              = & aNumDim;
-                tMeshData.ElemConn( 0 )           = & aElementConnQuad;
+                tMeshData.ElemConn( 0 )           = & aElementConn;
                 tMeshData.NodeCoords              = & aCoords;
-                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
+                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobal;
                 tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 
                 mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
@@ -121,35 +122,72 @@ namespace moris
                     tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
                 }
 
-                //3) Create the elements -------------------------------------------------------
-                std::cout<<" Create the elements "<<std::endl;
+                //3) Create element blocks -------------------------------------------------------
+                std::cout<<" Create element blocks "<<std::endl;
                 //------------------------------------------------------------------------------
-
-                // a factory to create the elements
-                fem::Element_Factory tElementFactory;
-
-                // ask mesh about number of elements
-                uint tNumOfElements = tMesh->get_num_elems();
+                // get the number of elements on proc from the mesh
+                luint tNumOfElements = tMesh->get_num_elems();
 
                 // create equation objects
-                Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
+                Cell< MSI::Equation_Object* >  tElements;
+                tElements.reserve( tNumOfElements );
 
-                // loop over the mesh elements
-                for( uint k = 0; k < tNumOfElements; k++ )
+                // get the block names from the mesh
+                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+
+                // Cell containing the block mesh cell ( a cell of mesh cells )
+                moris::Cell<mtk::Cell*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+
+                // loop on the blocks
+                std::cout<<tBlockSetsNames.size()<<std::endl;
+                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
                 {
-                    // create the element
-                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
-                                                                     & tMesh->get_mtk_cell( k ),
-                                                                     tIWGs,
-                                                                     tNodes );
+                    Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
 
-                    // create list of time ordinals
-                    Matrix< IndexMat > tListOfTimeOrdinals = {{ 1 }};
-
-                    // set the element list of time ordinals
-                    tElements( k )->set_list_of_time_ordinals( tListOfTimeOrdinals );
+                    // loop on the elements in a block
+                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                    {
+                        // // Cell containing the block mesh cell with mesh cells
+                        tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
+                    }
                 }
 
+                // create a fem element block
+                Cell< fem::Element_Block * > tElementBlocks( 1, nullptr );
+                tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+
+                // put the equation object of block 0 in the global list of equation objects
+                tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
+
+//                //3) Create the elements -------------------------------------------------------
+//                std::cout<<" Create the elements "<<std::endl;
+//                //------------------------------------------------------------------------------
+//
+//                // a factory to create the elements
+//                fem::Element_Factory tElementFactory;
+//
+//                // ask mesh about number of elements
+//                uint tNumOfElements = tMesh->get_num_elems();
+//
+//                // create equation objects
+//                Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
+//
+//                // loop over the mesh elements
+//                for( uint k = 0; k < tNumOfElements; k++ )
+//                {
+//                    // create the element
+//                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+//                                                                     & tMesh->get_mtk_cell( k ),
+//                                                                     tIWGs,
+//                                                                     tNodes );
+//
+//                    // create list of time ordinals
+//                    Matrix< IndexMat > tListOfTimeOrdinals = {{ 1 }};
+//
+//                    // set the element list of time ordinals
+//                    tElements( k )->set_list_of_time_ordinals( tListOfTimeOrdinals );
+//                }
+//
                 //4) Create the model solver interface -----------------------------------------
                 std::cout<<" Create the model solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
@@ -174,7 +212,7 @@ namespace moris
 
                 tModelSolverInterface->set_param( "LS1" )  = (sint)tDofOrder;
 
-                tModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::LS1, 2 );
+                tElementBlocks( 0 )->finalize( tModelSolverInterface );
 
                 tModelSolverInterface->finalize();
 

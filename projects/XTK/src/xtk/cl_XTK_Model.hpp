@@ -77,7 +77,7 @@ public:
 
 
     // Forward declare the maximum value of moris::size_t and moris::real
-    moris::real REAL_MAX    = MORIS_REAL_MAX;
+    moris::real REAL_MAX          = MORIS_REAL_MAX;
     moris::moris_index INTEGER_MAX = MORIS_INDEX_MAX;
 
     Model(){};
