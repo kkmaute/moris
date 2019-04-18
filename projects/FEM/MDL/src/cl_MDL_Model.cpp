@@ -48,11 +48,6 @@ namespace moris
                             Cell< Cell< fem::IWG_Type > > aIWGTypeList,
                             Cell< moris_index >           aSidesetList,
                             Cell< fem::BC_Type >          aSidesetBCTypeList ) : mMesh( aMesh )
-
-
-//    Model::Model(       mtk::Mesh *                   aMesh,
-//                  const uint                          aBSplineOrder,
-//                        Cell< Cell< fem::IWG_Type > > aIWGTypeList ) : mMesh( aMesh )
         {
             // start timer
             tic tTimer1;

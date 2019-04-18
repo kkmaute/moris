@@ -35,7 +35,6 @@ class Dist_Vector;
             moris::Cell< Pdof_Host * >              mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
             moris::Cell< enum Dof_Type >            mEqnObjDofTypeList; // List of dof types of this equation obj
-            Matrix< DDUMat >                        mTimeSteps;         // List of time levels for each dof type
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
 
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
