@@ -32,11 +32,8 @@ namespace moris
          * @param[ in ]     pointer to mesh interface object
          * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
          * @param[ in ]     cell of pointer to fem nodes
+         * @param[ in ]     Pointer to element block
          */
-        Element_Bulk( mtk::Cell                 * aCell,
-                      moris::Cell< IWG* >       & aIWGs,
-                      moris::Cell< Node_Base* > & aNodes );
-
         Element_Bulk( mtk::Cell                 * aCell,
                       moris::Cell< IWG* >       & aIWGs,
                       moris::Cell< Node_Base* > & aNodes,

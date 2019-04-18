@@ -104,6 +104,8 @@ namespace tsa
 
         moris::Matrix< DDSMat > & get_time_level_Ids_plus() ;
 
+        void perform_mapping();
+
         // ----------------------------------------------------------------------------------------------
         // number of elements on proc
         uint get_num_my_elements()

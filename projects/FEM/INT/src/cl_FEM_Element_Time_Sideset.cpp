@@ -6,28 +6,6 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-
-        Element_Time_Sideset::Element_Time_Sideset( mtk::Cell                 * aCell,
-                                                    moris::Cell< IWG* >       & aIWGs,
-                                                    moris::Cell< Node_Base* > & aNodes )
-                                                  : Element( aCell, aIWGs, aNodes )
-        {
-            //create a geometry interpolation rule
-            //FIXME: forced interpolation type and order
-            Interpolation_Rule tGeometryInterpolationRule( mCell->get_geometry_type(),
-                                                           Interpolation_Type::LAGRANGE,
-                                                           this->get_auto_interpolation_order(),
-                                                           Interpolation_Type::LAGRANGE,
-                                                           mtk::Interpolation_Order::LINEAR );
-
-            // create a geometry intepolator
-            mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule );
-
-            // create field interpolators for the element
-            mFieldInterpolators = this->create_field_interpolators( mGeometryInterpolator );
-
-        }
 
 //------------------------------------------------------------------------------
 
@@ -78,7 +56,7 @@ namespace moris
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
                 {
                     // get the treated IWG
-                    IWG* tTreatedIWG = mIWGs( iIWG );
+                    IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                     // get the index of the residual dof type for the ith IWG in the list of element dof type
                     uint tIWGResDofIndex
@@ -194,7 +172,7 @@ namespace moris
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
                 {
                     // get the treated IWG
-                    IWG* tTreatedIWG = mIWGs( iIWG );
+                    IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                     // get the index of the residual dof type for the ith IWG in the list of element dof type
                     uint tIWGResDofIndex
@@ -302,60 +280,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
-//        moris::Cell< fem::Field_Interpolator* >
-//        Element_Time_Sideset::create_field_interpolators
-//        ( fem::Geometry_Interpolator* aGeometryInterpolator )
-//        {
-//            // cell of field interpolators
-//            Cell< Field_Interpolator* > tFieldInterpolators( mNumOfInterp, nullptr );
-//
-//            // loop on the dof type groups and create a field interpolator for each
-//            for( uint i = 0; i < mNumOfInterp; i++ )
-//            {
-//                // get the ith dof type group
-//                Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
-//
-//                // create the field interpolation rule for the ith dof type group
-//                //FIXME: space interpolation based on the mtk::Cell
-//                //FIXME: time  interpolation set to constant
-//                Interpolation_Rule tFieldInterpolationRule( mCell->get_geometry_type(),
-//                                                            Interpolation_Type::LAGRANGE,
-//                                                            this->get_auto_interpolation_order(),
-//                                                            Interpolation_Type::LAGRANGE,
-//                                                            mtk::Interpolation_Order::LINEAR );
-//
-//                // get number of field interpolated by the ith field interpolator
-//                uint tNumOfFields = tDofTypeGroup.size();
-//
-//                // create an interpolator for the ith dof type group
-//                tFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
-//                                                                   tFieldInterpolationRule,
-//                                                                   aGeometryInterpolator );
-//            }
-//            return tFieldInterpolators;
-//        }
-
-//------------------------------------------------------------------------------
-
-//        void Element_Time_Sideset::set_field_interpolators_coefficients
-//            ( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-//        {
-//            // loop on the dof types
-//            for( uint i = 0; i < mNumOfInterp; i++ )
-//            {
-//                // get the ith dof type group
-//                Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
-//
-//                //FIXME:forced coefficients
-//                // get the pdof values for the ith dof type group
-//                Matrix< DDRMat > tCoeff = this->get_my_pdof_values( tDofTypeGroup, tCoeff );
-//
-//                // set the field coefficients
-//                aFieldInterpolators( i )->set_coeff( tCoeff );
-//            }
-//        }
-//
 
 //------------------------------------------------------------------------------
 

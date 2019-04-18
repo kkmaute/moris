@@ -24,7 +24,7 @@ using namespace tsa;
 
 Time_Solver_Algorithm::Time_Solver_Algorithm( const enum MapType aMapType )
 {
-
+    this->set_time_solver_parameters();
 }
 
 //-------------------------------------------------------------------------------
@@ -96,4 +96,13 @@ void Time_Solver_Algorithm::finalize()
     mPrevFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, VectorType::FREE );
 
     mPrevFullVector->vec_put_scalar( 0.0 );
+}
+
+void Time_Solver_Algorithm::set_time_solver_parameters()
+{
+    // Number of time steps
+    mParameterListTimeSolver.insert( "TSA_Num_Time_Steps", 1 );
+
+    // Time Frame
+    mParameterListTimeSolver.insert( "TSA_Time_Frame", 1.0 );
 }

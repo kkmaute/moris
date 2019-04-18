@@ -121,6 +121,8 @@ namespace tsa
             return mNumElements=1;
         };
 
+        void perform_mapping();
+
         // ----------------------------------------------------------------------------------------------
         void get_element_matrix(const uint             & aMyElementInd,
                                       Matrix< DDRMat > & aElementMatrix)

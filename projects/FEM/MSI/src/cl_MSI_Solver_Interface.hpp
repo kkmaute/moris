@@ -30,6 +30,7 @@ namespace mtk
                 moris::MSI::Dof_Manager            * mDofMgn;
 
                 Dist_Vector                        * mSolutionVector;
+                Dist_Vector                        *mPrevSolutionVector;
                 Matrix< DDRMat>  mTime;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
@@ -57,12 +58,23 @@ namespace mtk
                 mSolutionVector = aSolutionVector;
             }
 
+            void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+            {
+                mPrevSolutionVector = aSolutionVector;
+            }
 //------------------------------------------------------------------------------
 
             void set_time( const Matrix< DDRMat> & aTime )
             {
                 mTime = aTime;
-            }
+            };
+
+//------------------------------------------------------------------------------
+
+            void perform_mapping( )
+            {
+            };
+
 
 //------------------------------------------------------------------------------
 

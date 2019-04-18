@@ -31,6 +31,10 @@
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 
+#include "cl_TSA_Time_Solver_Factory.hpp"
+#include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_TSA_Time_Solver.hpp"
+
 // fixme: temporary
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
@@ -208,6 +212,7 @@ namespace moris
             Matrix< IdMat > tCommTable;
             moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
             moris::uint tMaxNumAdofs;
+            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );
 
             if ( mMesh->get_mesh_type() == MeshType::HMR )
             {
@@ -222,11 +227,13 @@ namespace moris
                 tCommTable   = aMesh->get_communication_table();
                 tIdToIndMap  = mCoefficientsMap;
                 tMaxNumAdofs = aMesh->get_num_coeffs( mDofOrder );
+                tDofTypes1( 0 ) = MSI::Dof_Type::L2;
             }
             else
             {
                 tCommTable.set_size( 1, 1, 0 );
                 tMaxNumAdofs = 1000000;
+                tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
             }
             //--------------------------END FIXME--------------------------------
 
@@ -312,50 +319,56 @@ namespace moris
             mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 5: create Nonlinear Problem
+            // STEP 5: create linear solver
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            mNonlinearProblem =  new NLA::Nonlinear_Problem( mSolverInterface );
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 6: create Solvers and solver manager
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            // create factory for nonlinear solver
-            NLA::Nonlinear_Solver_Factory tNonlinFactory;
-
-            // create nonlinear solver
-            mNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            // create factory for linear solver
             dla::Solver_Factory  tSolFactory;
-
-            // create linear solver
             mLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
-            // set default parameters for linear solver
             mLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             mLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
 
-//            mLinearSolverAlgorithm->set_param("AZ_orthog") = AZ_modified;
-//            mLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
-
-//            mLinearSolverAlgorithm->set_param("AZ_graph_fill") = 2;
-
-            //mLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
-//            mLinearSolverAlgorithm->set_param("ctes") = true;
-
-            // create solver manager
             mLinSolver = new dla::Linear_Solver();
-            mNonlinearSolver = new NLA::Nonlinear_Solver();
 
-            // set manager and settings
-            mNonlinearSolverAlgorithm->set_linear_solver( mLinSolver );
-
-            // set first solver
             mLinSolver->set_linear_algorithm( 0, mLinearSolverAlgorithm );
 
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 6: create nonlinear solver
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            mNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            mNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+            mNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
+            mNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+            mNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+
+            mNonlinearSolverAlgorithm->set_linear_solver( mLinSolver );
+
+            mNonlinearSolver = new NLA::Nonlinear_Solver();
+
             mNonlinearSolver->set_nonlinear_algorithm( mNonlinearSolverAlgorithm, 0 );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 7: create time Solver
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            tsa::Time_Solver_Factory tTimeSolverFactory;
+            mTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+
+            mTimeSolverAlgorithm->set_nonlinear_solver( mNonlinearSolver );
+
+            mTimeSolver = new tsa::Time_Solver();
+
+            mTimeSolver->set_time_solver_algorithm( mTimeSolverAlgorithm );
+
+            mSolverWarehouse = new NLA::SOL_Warehouse( mSolverInterface );
+
+            mNonlinearSolver->set_solver_warehouse( mSolverWarehouse );
+            mTimeSolver->set_solver_warehouse( mSolverWarehouse );
+
+            mNonlinearSolver->set_dof_type_list( tDofTypes1 );
+            mTimeSolver->set_dof_type_list( tDofTypes1 );
 
             if( par_rank() == 0)
             {
@@ -377,17 +390,19 @@ namespace moris
             // delete manager
             delete mLinSolver;
 
-            // delete problem
-            delete mNonlinearProblem;
-
             // delete NonLinSolverManager
             delete mNonlinearSolver;
+
+            // delete TimeSolver
+            delete mTimeSolver;
 
             // delete SI
             delete mSolverInterface;
 
             // delete MSI
             delete mModelSolverInterface;
+
+            delete mSolverWarehouse;
 
             // delete IWGs
             for( auto tIWG : mIWGs )
@@ -456,11 +471,12 @@ namespace moris
         {
 
             // call solver
-            mNonlinearSolver->solve( mNonlinearProblem );
+//            mNonlinearSolver->solve( mNonlinearProblem );
+            mTimeSolver->solve(  );
 
             // temporary array for solver
             Matrix< DDRMat > tSolution;
-            mNonlinearSolverAlgorithm->get_full_solution( tSolution );
+            mTimeSolver->get_full_solution( tSolution );
 
             // get length of array
             uint tLength = tSolution.length();
@@ -472,6 +488,7 @@ namespace moris
             // rearrange data into output
             aSolution.set_size( tLength, 1 );
 
+            std::cout<<"1-1-1-1-1-1--1-1-1"<<std::endl;
             for( uint k=0; k<tLength; ++k )
             {
                 aSolution( k ) = tSolution( mAdofMap( k ) );

@@ -59,6 +59,9 @@ namespace tsa
 
         Map_Class       * mFullMap;
 
+        //! Parameterlist for this nonlinear solver
+        Param_List< boost::variant< bool, sint, real, const char* > > mParameterListTimeSolver;
+
         /**
          * @brief Member function which keeps track of used time for a particular purpose.
          */
@@ -112,6 +115,13 @@ namespace tsa
         {
             mMyTimeSolver = aTimeSolver;
         };
+
+        void set_time_solver_parameters();
+
+        boost::variant< bool, sint, real, const char* > &  set_param( char const* aKey )
+        {
+            return mParameterListTimeSolver( aKey );
+        }
     };
 }
 }

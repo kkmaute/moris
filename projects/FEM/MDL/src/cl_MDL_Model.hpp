@@ -26,7 +26,6 @@ namespace moris
     {
         class IWG;
         class Node_Base;
-        class Element_Block;
         enum class IWG_Type;
         enum class BC_Type;
     }
@@ -42,16 +41,19 @@ namespace moris
         class Nonlinear_Algorithm;
         class Nonlinear_Problem;
         class Nonlinear_Solver;
+        class SOL_Warehouse;
     }
 
     namespace MSI
     {
         class Model_Solver_Interface;
         class MSI_Solver_Interface;
+        class Equation_Block;
     }
     namespace tsa
     {
         class Time_Solver;
+        class Time_Solver_Algorithm;
     }
     namespace mdl
     {
@@ -65,7 +67,7 @@ namespace moris
             Cell< MSI::Equation_Object* >     mElements;
             Cell< Cell< fem::IWG* > >         mIWGs;
 
-            Cell< fem::Element_Block * >      mElementBlocks;
+            Cell< MSI::Equation_Block * >      mElementBlocks;
 
             Cell< fem::IWG* >         mIWGs1;
 
@@ -75,11 +77,12 @@ namespace moris
 
             MSI::Model_Solver_Interface                   * mModelSolverInterface;
             MSI::MSI_Solver_Interface                     * mSolverInterface;
-            NLA::Nonlinear_Problem                        * mNonlinearProblem;
             NLA::Nonlinear_Solver                         * mNonlinearSolver;
             std::shared_ptr< NLA::Nonlinear_Algorithm >     mNonlinearSolverAlgorithm;
+            std::shared_ptr< tsa::Time_Solver_Algorithm >   mTimeSolverAlgorithm;
             std::shared_ptr< dla::Linear_Solver_Algorithm > mLinearSolverAlgorithm;
             dla::Linear_Solver                            * mLinSolver;
+            NLA::SOL_Warehouse                            * mSolverWarehouse;
 
             // fixme: maybe introduce a cell of maps for different orders?
             map< moris_id, moris_index >      mCoefficientsMap;

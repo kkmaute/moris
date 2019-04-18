@@ -54,13 +54,6 @@ namespace MSI
         ~Element_Factory();
 
 //------------------------------------------------------------------------------
-        /**
-         * create element
-         */
-        MSI::Equation_Object * create_element( Element_Type         aElementType,
-                                               mtk::Cell          * aCell,
-                                               Cell< IWG* >       & aIWGs,
-                                               Cell< Node_Base* > & aNodes  );
 
         /**
          * create element
