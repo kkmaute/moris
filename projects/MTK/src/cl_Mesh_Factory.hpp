@@ -12,9 +12,9 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 // implementations
-#include "stk_impl/cl_MTK_Mesh_STK.hpp"
-#include "stk_impl/cl_MTK_Interpolation_Mesh_STK.hpp"
-#include "stk_impl/cl_MTK_Integration_Mesh_STK.hpp"
+#include "cl_MTK_Mesh_STK.hpp"
+#include "cl_MTK_Interpolation_Mesh_STK.hpp"
+#include "cl_MTK_Integration_Mesh_STK.hpp"
 
 namespace moris
 {
@@ -76,7 +76,7 @@ create_mesh(enum MeshType aMeshType,
     return tMeshBase;
 }
 
-Interpolation_Mesh*
+inline Interpolation_Mesh*
 create_interpolation_mesh(enum MeshType  aMeshType,
                  std::string    aFileName,
                  MtkMeshData*   aSuppMeshData = nullptr,
@@ -93,7 +93,7 @@ create_interpolation_mesh(enum MeshType  aMeshType,
 }
 
 
-Integration_Mesh*
+inline Integration_Mesh*
 create_integration_mesh(enum MeshType  aMeshType,
                         std::string    aFileName,
                         MtkMeshData*   aSuppMeshData = nullptr,
@@ -129,7 +129,7 @@ create_integration_mesh(enum MeshType aMeshType,
     return tMeshBase;
 }
 
-Integration_Mesh*
+inline Integration_Mesh*
 create_integration_mesh_from_interpolation_mesh(enum MeshType       aMeshType,
                                                 Interpolation_Mesh* aInterpMesh)
 {

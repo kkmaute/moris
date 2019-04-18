@@ -20,6 +20,11 @@
 
 namespace moris
 {
+namespace hmr
+{
+    class Database;
+}
+
 namespace mtk
 {
 class Mesh_Core
@@ -872,7 +877,7 @@ public:
     {
         MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
         return mDatabase;
-    }
+        }
 
 protected:
     // Note these members are here only to allow for throwing in

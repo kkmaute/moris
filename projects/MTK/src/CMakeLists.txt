@@ -9,7 +9,6 @@ set(HEADERS
 cl_Mesh_Enums.hpp
 cl_Mesh_Factory.hpp
 cl_MTK_Block_Sets_Info.hpp
-cl_MTK_Block.cpp
 cl_MTK_Block.hpp
 cl_MTK_Cell.hpp
 cl_MTK_Edge.hpp
@@ -18,8 +17,13 @@ cl_MTK_Exodus_IO_Helper.hpp
 cl_MTK_Facet_Cluster.hpp
 cl_MTK_Facet.hpp
 cl_MTK_Fields_Info.hpp
+cl_MTK_Integration_Mesh.hpp
+cl_MTK_Interpolation_Mesh.hpp
 cl_MTK_Matrix_Field_Info.hpp
+cl_MTK_Mesh_Core.hpp
 cl_MTK_Mesh_Data_Input.hpp
+cl_MTK_Mesh_Data.hpp
+cl_MTK_Mesh_Manager.hpp
 cl_MTK_Mesh_Tools.hpp
 cl_MTK_Mesh.hpp
 cl_MTK_Node_Sets_Info.hpp
@@ -30,7 +34,15 @@ cl_MTK_Topology.hpp
 cl_MTK_Vertex_Interpolation.hpp
 cl_MTK_Vertex.hpp
 cl_MTK_Vertexset.hpp
-MTK_Tools.hpp )
+MTK_Tools.hpp
+stk_impl/cl_MTK_Cell_STK.hpp
+stk_impl/cl_MTK_Integration_Mesh_STK.hpp
+stk_impl/cl_MTK_Interpolation_Mesh_STK.hpp
+stk_impl/cl_MTK_Mesh_Core_STK.hpp
+stk_impl/cl_MTK_Mesh_Data_STK.hpp
+stk_impl/cl_MTK_Mesh_STK.hpp
+stk_impl/cl_MTK_Vertex_Interpolation_STK.hpp
+stk_impl/cl_MTK_Vertex_STK.hpp )
 
 # List header dependencies
 set(MTK_INCLUDES
@@ -47,6 +59,7 @@ endforeach()
 
 # additional includes
 include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
+include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -54,10 +67,11 @@ include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
 
 # List library source files
 set( LIB_SOURCES
-    cl_MTK_Block.cpp
-    stk_impl/cl_MTK_Mesh_STK.cpp
-    stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
-    stk_impl/cl_MTK_Mesh_Core_STK.cpp)
+stk_impl/cl_MTK_Interpolation_Mesh_STK.cpp
+stk_impl/cl_MTK_Mesh_Core_STK.cpp
+stk_impl/cl_MTK_Mesh_STK.cpp
+stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
+cl_MTK_Block.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

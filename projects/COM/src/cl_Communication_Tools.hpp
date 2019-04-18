@@ -220,49 +220,51 @@ namespace moris
      * see also http://mpitutorial.com/tutorials/mpi-send-and-receive/
      */
     template < typename T > MPI_Datatype
-    get_comm_datatype( const T & aSample )
-    {
-        MORIS_ASSERT( false , "get_comm_datatype: unknown data type.");
-        return MPI_DATATYPE_NULL;
-    }
+    get_comm_datatype( const T & aSample );
     
     // moris::lint (32-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const int & aSample )
     {
         return MPI_INT;
     }
 
     // moris::lint (64-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const long int & aSample )
     {
         return MPI_LONG;
     }
 
     // moris::uint (32-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const unsigned int & aSample )
     {
         return MPI_UNSIGNED;
     }
 
     // moris::uint (64-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const long unsigned int & aSample )
     {
         return MPI_UNSIGNED_LONG;
     }
 
     // moris::real (32-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const double & aSample )
     {
         return MPI_DOUBLE;
     }
 
     // moris::real (64-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const long double & aSample )
     {
         return MPI_LONG_DOUBLE;
@@ -271,7 +273,8 @@ namespace moris
 // MPI_CXX_DOUBLE_COMPLEX is supported since MPI-3.0
 #ifdef MPI_CXX_DOUBLE_COMPLEX
     // moris::cplx (32-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const std::complex<double> & aSample )
     {
         return MPI_CXX_DOUBLE_COMPLEX;
@@ -281,7 +284,8 @@ namespace moris
 // MPI_CXX_LONG_DOUBLE_COMPLEX is supported since MPI-3.0
 #ifdef MPI_CXX_LONG_DOUBLE_COMPLEX
     // moris::cplx (64-bit)
-    template <> MPI_Datatype
+
+    inline MPI_Datatype
     get_comm_datatype( const std::complex<long double> & aSample )
     {
         return MPI_CXX_LONG_DOUBLE_COMPLEX;

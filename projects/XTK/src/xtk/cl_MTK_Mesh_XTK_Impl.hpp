@@ -853,16 +853,6 @@ public :
         return 0;
     }
 
-//------------------------------------------------------------------------------
-    /**
-     * returns HMR database pointer if MTK is build with HMR
-     */
-    std::shared_ptr< hmr::Database >
-    get_HMR_database( )
-    {
-        MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR " );
-        return mDatabase;
-    }
 
 protected:
     xtk::Model*       mXTKModelPtr;

@@ -11,9 +11,9 @@
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_MTK_Vertex_STK.hpp" //MTK/src
-#include "../cl_MTK_Cell.hpp" //MTK/src
-#include "../cl_MTK_Enums.hpp" //MTK/src
-#include "../cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Cell.hpp" //MTK/src
+#include "cl_MTK_Enums.hpp" //MTK/src
+#include "cl_MTK_Mesh_Core.hpp"
 
 
 //------------------------------------------------------------------------------

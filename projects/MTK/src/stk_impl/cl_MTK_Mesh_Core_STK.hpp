@@ -26,14 +26,14 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 
 
-#include "../cl_MTK_Sets_Info.hpp"
-#include "../cl_MTK_Mesh_Data_Input.hpp"
-#include "../cl_MTK_Block.hpp"
-#include "../cl_Mesh_Enums.hpp"
-#include "../cl_MTK_Mesh.hpp"
-#include "../cl_MTK_Scalar_Field_Info.hpp"
-#include "../cl_MTK_Matrix_Field_Info.hpp"
-#include "../cl_MTK_Exodus_IO_Helper.hpp"
+#include "cl_MTK_Sets_Info.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Block.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
+#include "cl_MTK_Matrix_Field_Info.hpp"
+#include "cl_MTK_Exodus_IO_Helper.hpp"
 
 #include "cl_Cell.hpp"
 
@@ -41,7 +41,7 @@
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 
-#include "../cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 namespace moris
 {

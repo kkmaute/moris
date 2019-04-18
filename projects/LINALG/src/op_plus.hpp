@@ -13,7 +13,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/op_plus_Arma.hpp"
+#include "op_plus_Arma.hpp"
 #endif
 
 

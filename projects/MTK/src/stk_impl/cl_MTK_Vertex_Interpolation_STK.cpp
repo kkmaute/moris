@@ -1,4 +1,4 @@
-#include "../cl_MTK_Vertex.hpp"
+#include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation_STK.hpp"
 
 namespace moris
