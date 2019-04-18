@@ -189,6 +189,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 }
 
             } // end order loop
+            std::cout<<"2-2-2-2-2-2-2-2-"<<std::endl;
         } // end dimension loop
     } // end parallel
 }

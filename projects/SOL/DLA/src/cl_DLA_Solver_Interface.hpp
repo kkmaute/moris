@@ -58,6 +58,9 @@ public:
     virtual void set_time( const Matrix< DDRMat> & aTime )
     { MORIS_ERROR( false, "Solver_Interface::set_time: not set."); };
 
+    virtual void perform_mapping(  )
+    { MORIS_ERROR( false, "Solver_Interface::perform_mapping: not implemented."); };
+
     virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
     { MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set."); };
 
@@ -81,17 +84,17 @@ public:
 
     virtual moris::Matrix< DDUMat > get_constr_dof()          =0;
 
-    virtual moris::Matrix< DDSMat > & get_time_level_Ids_minus()
-    {
-        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_minus: not set.");
-        return mMat5;
-    };
-
-    virtual moris::Matrix< DDSMat > & get_time_level_Ids_plus()
-    {
-        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_plus: not set.");
-        return mMat5;
-    };
+//    virtual moris::Matrix< DDSMat > & get_time_level_Ids_minus()
+//    {
+//        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_minus: not set.");
+//        return mMat5;
+//    };
+//
+//    virtual moris::Matrix< DDSMat > & get_time_level_Ids_plus()
+//    {
+//        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_plus: not set.");
+//        return mMat5;
+//    };
 
     virtual void get_element_matrix(const moris::uint             & aMyElementInd,
                                           moris::Matrix< DDRMat > & aElementMatrix) =0;
