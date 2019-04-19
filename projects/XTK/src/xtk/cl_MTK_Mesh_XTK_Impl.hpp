@@ -8,7 +8,7 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_MTK_MESH_XTK_IMPL_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_MTK_MESH_XTK_IMPL_HPP_
 
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 
 namespace xtk
 {

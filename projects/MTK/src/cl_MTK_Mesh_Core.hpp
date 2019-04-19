@@ -27,7 +27,7 @@ namespace hmr
 
 namespace mtk
 {
-class Mesh_Core
+class Mesh :  public std::enable_shared_from_this< Mesh >
 {
 public:
     // Verbose flag
@@ -36,7 +36,7 @@ public:
     /**
      * trivial constructor
      */
-    Mesh_Core(){};
+    Mesh(){};
 
     //------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ public:
      * virtual destructor
      */
     virtual
-    ~Mesh_Core(){};
+    ~Mesh(){};
 
     //##############################################
     // 1.) General mesh information access
@@ -618,6 +618,14 @@ public:
         return *mDummyCells;
     }
 
+    virtual
+    mtk::Cell const &
+    get_mtk_cell( moris_index aElementIndex) const
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return *mDummyCells;
+    }
+
     /*
      * Returns a reference to a vertex in the mesh
      */
@@ -878,6 +886,167 @@ public:
         MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
         return mDatabase;
         }
+
+
+    //FIXME: MOVE THESE FUNCTIONS TO INTERPOLATION MESH BASE CLASS
+public:
+
+    /*
+     * Get elements interpolated into by a basis function. For a Lagrange mesh,
+     * the elements in support of basis is equivalent to the elements connected
+     * to a node. Therefore, a call to get_elements
+     */
+    virtual
+    Matrix< IndexMat >
+    get_elements_in_support_of_basis(moris_index aBasisIndex)
+    {
+        MORIS_ERROR( false, "get_elements_in_support_of_basis() not implemented for this mesh" );
+        return Matrix<IndexMat>(0,0);
+    }
+
+    //FIXME: IMPLEMENT THIS FUNCTION IN STK,XTK
+    /*
+     * Get number of B-Spline coefficients
+     */
+    virtual uint
+    get_num_coeffs(const uint aOrder) const
+    {
+        MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
+        return 0;
+    }
+
+    //------------------------------------------------------------------------------
+    //FIXME: IMPLEMENT THIS FUNCTION IN STK
+    virtual const Matrix< DDRMat > &
+    get_t_matrix_of_node_loc_ind(
+            const moris_index aNodeIndex,
+            const EntityRank  aBSplineRank )
+            {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return mDummyMatrix;
+            }
+
+    //FIXME: IMPLEMENT THIS FUNCTION IN XTK
+    virtual Matrix< IndexMat >
+    get_bspline_inds_of_node_loc_ind(
+            const moris_index aNodeIndex,
+            const EntityRank  aBSplineRank )
+            {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return Matrix<IndexMat>(0,0);
+            }
+
+    /*
+     * Get number of basis functions. For Lagrange meshes, the number of basis functions and the number of nodes
+     * are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
+     */
+    virtual
+    uint
+    get_num_basis_functions()
+    {
+        return this->get_num_nodes();
+    }
+
+    //FIXME: Rename or use get loc entity id from global entity id
+    void
+    virtual
+    get_adof_map( const uint aOrder,
+                  map< moris_id, moris_index > & aAdofMap ) const
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+    }
+
+    /**
+     * return the interpolation order of this field
+     */
+    virtual uint
+    get_order_of_field(
+            const moris_index     aFieldIndex,
+            const enum EntityRank aEntityRank )
+    {
+        MORIS_ERROR( false ,"get_order_of_field() not implemented" );
+        return 0;
+    }
+
+//    Matrix< DDRMat > mDummyMatrix;
+
+    // fixme: move these functions to integration base class
+    virtual
+    moris::Cell<std::string>
+    get_set_names(enum EntityRank aSetEntityRank) const
+    {
+        MORIS_ERROR(0," get_set_names has no base implementation");
+        return moris::Cell<std::string>(0);
+    }
+
+    virtual
+    Matrix< IndexMat >
+    get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                             std::string     aSetName) const
+                             {
+        MORIS_ERROR(0," get_set_entity_ids has no base implementation");
+        return Matrix< IndexMat >(0,0);
+                             }
+
+    virtual
+    moris::Cell<mtk::Cell const *>
+    get_block_set_cells( std::string     aSetName) const
+    {
+        Matrix< IndexMat > tBlockSetElementInd = this->get_set_entity_loc_inds( EntityRank::ELEMENT, aSetName );
+
+        moris::Cell<mtk::Cell const *> tBlockSetCells(tBlockSetElementInd.numel());
+
+        for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+        {
+            tBlockSetCells( k ) = & this->get_mtk_cell( tBlockSetElementInd(k) );
+        }
+
+        return tBlockSetCells;
+    }
+
+    virtual
+    void
+    get_sideset_elems_loc_inds_and_ords(
+            const  std::string     & aSetName,
+            Matrix< IndexMat >     & aElemIndices,
+            Matrix< IndexMat >     & aSidesetOrdinals ) const
+    {
+        MORIS_ERROR(0," get_sideset_elems_loc_inds_and_ords has no base implementation");
+    }
+
+
+    virtual
+    void
+    get_sideset_cells_and_ords(
+            const  std::string & aSetName,
+            moris::Cell< mtk::Cell const * > & aCells,
+            Matrix< IndexMat > &       aSidesetOrdinals ) const
+    {
+        MORIS_ERROR(0,"get_sideset_cells_and_ords not implemented");
+    }
+
+
+    uint get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const
+    {
+        moris::uint tNumSideSetFaces = 0;
+
+        moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
+
+        for( luint Ik=0; Ik < aSideSetIndex.size(); ++Ik )
+        {
+            // get the treated sideset name
+            std::string tTreatedSideset = tSideSetsNames( aSideSetIndex ( Ik ) );
+
+            // get the sideset face indices
+            Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tTreatedSideset );
+
+            // add up the sideset number of faces
+            tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
+        }
+
+        return tNumSideSetFaces;
+    }
+
 
 protected:
     // Note these members are here only to allow for throwing in

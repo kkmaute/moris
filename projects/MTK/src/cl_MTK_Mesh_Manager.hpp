@@ -10,30 +10,57 @@
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "typedefs.hpp"
 #include "cl_Cell.hpp"
 
 namespace moris
 {
   namespace mtk
   {
+  class Mesh_Manager
+  {
+  public:
+
+      Mesh_Manager(){};
+
+      uint
+      register_mesh_pair(Interpolation_Mesh* aInterpMesh,
+                         Integration_Mesh*   aIntegrationMesh)
+      {
+          mInterpolationMesh.push_back(aInterpMesh);
+          mIntegrationMesh.push_back(aIntegrationMesh);
+
+          return mInterpolationMesh.size()-1;
+      }
+
+      void
+      get_mesh_pair(moris::moris_index aPairIndex,
+                    Interpolation_Mesh * & aInterpMesh,
+                    Integration_Mesh   * & aIntegrationMesh)
+      {
+          aInterpMesh = mInterpolationMesh(aPairIndex);
+          aIntegrationMesh = mIntegrationMesh(aPairIndex);
+      }
+
+      Interpolation_Mesh*
+      get_interpolation_mesh(moris::moris_index aMeshIndex)
+      {
+          return mInterpolationMesh(aMeshIndex);
+      }
 
 
-    class MTK_Manager
-    {
-    public:
+      Integration_Mesh*
+      get_integration_mesh(moris::moris_index aMeshIndex)
+      {
+          return mIntegrationMesh(aMeshIndex);
+      }
 
-    private:
+  private:
+      moris::Cell<Interpolation_Mesh*> mInterpolationMesh;
+      moris::Cell<Integration_Mesh*>   mIntegrationMesh;
+  };
 
-      // interpolation mesh data
-      moris::Cell<std::string>        mInterpolationMeshLabels;
-      moris::Cell<Interpolation_Mesh> mInterpolationMeshes;
-
-      // integration mesh data
-      moris::Cell<std::string>        mIntegrationMeshLabels;
-      moris::Cell<Integration_Mesh>   mIntegrationMeshes;
-
-    }
-  }
+}
 
 }
 

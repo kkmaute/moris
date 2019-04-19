@@ -13,6 +13,8 @@
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Field_Param.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Mesh_Interpolation.hpp"
+#include "cl_HMR_Mesh_Integration.hpp"
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 namespace moris
 {
@@ -267,6 +269,15 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+            std::shared_ptr< Interpolation_Mesh_HMR >
+            create_interpolation_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+
+// -----------------------------------------------------------------------------
+
+            std::shared_ptr< Integration_Mesh_HMR >
+            create_integration_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+
+// -----------------------------------------------------------------------------
             std::shared_ptr< Field >
             create_field( const std::string & aLabel );
 

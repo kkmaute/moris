@@ -272,7 +272,7 @@ class Cell_Core_STK: public moris::mtk::Cell
     moris_id             mCellId;
     moris_index          mCellInd;
     moris::Cell<Vertex*> mCellVertices;
-    Mesh_Core*       mSTKMeshData;
+    Mesh*       mSTKMeshData;
 
     //------------------------------------------------------------------------------
 public:
@@ -292,7 +292,7 @@ public:
                    moris_id               aCellId,
                    moris_index            aCellInd,
                    const moris::Cell<Vertex*> & aCellVertices,
-                   Mesh_Core* aStkImplementation):
+                   Mesh* aStkImplementation):
                        mCellId(aCellId),
                        mCellInd(aCellInd),
                        mCellVertices(aCellVertices),

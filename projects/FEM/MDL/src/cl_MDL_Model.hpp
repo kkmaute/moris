@@ -13,7 +13,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_MTK_Mesh.hpp"                    //MTK/src
+#include "cl_MTK_Mesh_Manager.hpp"                    //MTK/src
 #include "cl_MTK_Enums.hpp"
 
 //#include "cl_MSI_Model_Solver_Interface.hpp"  //FEM/MSI/src
@@ -62,7 +62,7 @@ namespace moris
         class Model
         {
             // pointer to reference mesh
-            mtk::Mesh                       * mMesh;
+            mtk::Mesh_Manager*                mMeshManager;
             Cell< fem::Node_Base* >           mNodes;
             Cell< MSI::Equation_Object* >     mElements;
             Cell< Cell< fem::IWG* > >         mIWGs;
@@ -105,7 +105,7 @@ namespace moris
 //                   const uint          aBSplineOrder,
 //                   Cell< Cell< fem::IWG_Type > >aIWGTypeList );
 
-            Model(       mtk::Mesh *                   aMesh,
+            Model(       mtk::Mesh_Manager*             aMesh,
                    const uint                          aBSplineOrder,
                          Cell< Cell< fem::IWG_Type > > aIWGTypeList,
                          Cell< moris_index >           aSidesetList,

@@ -45,7 +45,7 @@ create_mesh(enum MeshType  aMeshType,
     {
         case(MeshType::STK):
         {
-            tMeshBase = new Mesh_STK( aFileName, aSuppMeshData, aCreateFacesAndEdges );
+            tMeshBase = new Interpolation_Mesh_STK( aFileName, aSuppMeshData, aCreateFacesAndEdges );
             break;
         }
         default:
@@ -65,7 +65,7 @@ create_mesh(enum MeshType aMeshType,
     {
         case(MeshType::STK):
         {
-            tMeshBase = new Mesh_STK( aMeshData );
+            tMeshBase = new Interpolation_Mesh_STK( aMeshData );
             break;
         }
         default:

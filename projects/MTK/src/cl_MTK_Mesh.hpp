@@ -18,6 +18,8 @@
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 
+#include "cl_MTK_Mesh_Core.hpp"
+
 namespace moris
 {
 
@@ -50,7 +52,7 @@ namespace moris
          *  Use this->shared_from_this() to create a shared
          * pointer of this ( the Mesh )
          */
-        class Mesh : public std::enable_shared_from_this< Mesh >
+        class Mesh_OLD : public std::enable_shared_from_this< Mesh_OLD >
         {
         public :
             // Verbose flag
@@ -59,7 +61,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Mesh(){};
+            Mesh_OLD(){};
 
             //------------------------------------------------------------------------------
 
@@ -67,7 +69,7 @@ namespace moris
              * virtual destructor
              */
             virtual
-            ~Mesh(){};
+            ~Mesh_OLD(){};
 
             //##############################################
             // 1.) General mesh information access
@@ -163,24 +165,6 @@ namespace moris
             get_num_faces() const
             {
                 return get_num_entities(EntityRank::FACE);
-            }
-
-            //------------------------------------------------------------------------------
-
-            uint
-            get_sidesets_num_faces() const
-            {
-                moris::uint tNumSideSetFaces = 0;
-
-                moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
-
-                for( luint Ik=0; Ik < tSideSetsNames.size(); ++Ik )
-                {
-                    Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tSideSetsNames( Ik ) );
-
-                    tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
-                }
-                return tNumSideSetFaces;
             }
 
             //------------------------------------------------------------------------------

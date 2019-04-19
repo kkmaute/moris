@@ -140,7 +140,7 @@ namespace moris
 
             moris_id               mVertexId;
             moris_index            mVertexInd;
-            Mesh_Core*         mSTKMeshData;
+            Mesh*         mSTKMeshData;
             Vertex_Interpolation*  mVertexInterpolation = nullptr;
 
 
@@ -154,7 +154,7 @@ namespace moris
              */
             Vertex_Core_STK(moris_id aVertexId,
                             moris_index aVertexInd,
-                            Mesh_Core* aSTKCore):
+                            Mesh* aSTKCore):
                            mVertexId(aVertexId),
                            mVertexInd(aVertexInd),
                            mSTKMeshData(aSTKCore)

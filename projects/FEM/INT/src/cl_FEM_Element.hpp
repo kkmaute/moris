@@ -65,7 +65,7 @@ namespace moris
     public:
 //------------------------------------------------------------------------------
 
-        Element( mtk::Cell                 * aCell,
+        Element( mtk::Cell           const * aCell,
                  moris::Cell< IWG* >       & aIWGs,
                  moris::Cell< Node_Base* > & aNodes,
                  Element_Block      * aElementBlock) : mElementBlock(aElementBlock)
@@ -145,7 +145,7 @@ namespace moris
             Matrix< IndexMat > tElemVerticesIndices = mCell->get_vertex_inds();
             uint tElemNumOfVertices = mCell->get_number_of_vertices();
 
-            moris_index tVertexIndex;
+            moris_index tVertexIndex = MORIS_INDEX_MAX;
             for( uint i = 0; i < tElemNumOfVertices; i++ )
             {
                 if ( tElemVerticesIndices( i ) == aVertexIndex )

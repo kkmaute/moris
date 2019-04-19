@@ -41,7 +41,7 @@ namespace moris
          * @param[ in ]     cell of pointer to fem nodes
          * @param[ in ]     Pointer to element block
          */
-        Element_Time_Sideset( mtk::Cell                  * aCell,
+        Element_Time_Sideset( mtk::Cell            const * aCell,
                               moris::Cell< IWG* >        & aIWGs,
                               moris::Cell< Node_Base* >  & aNodes,
                               Element_Block      * aElementBlock);

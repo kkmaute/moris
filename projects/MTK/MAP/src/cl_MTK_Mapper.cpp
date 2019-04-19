@@ -29,12 +29,19 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Mapper::Mapper( std::shared_ptr< mtk::Mesh > aMesh,
-                const uint aBSplineOrder ) :
-                mSourceMesh( aMesh ),
-                mTargetMesh( aMesh ),
-                mBSplineOrder( aBSplineOrder )
+        Mapper::Mapper( mtk::Mesh_Manager* aMesh,
+                        const moris_index  aMeshPairIndex,
+                        const uint         aBSplineOrder) :
+                        mSourceMeshPairIndex( aMeshPairIndex ),
+                        mTargetMeshPairIndex( aMeshPairIndex ),
+                        mMeshManager( aMesh ),
+                        mBSplineOrder( aBSplineOrder )
         {
+            // Retrieve source mesh pair
+            mMeshManager->get_mesh_pair(aMeshPairIndex,mSourceInterpMesh,mSourceIntegMesh);
+
+            // Retrieve target mesh pair
+            mMeshManager->get_mesh_pair(aMeshPairIndex,mTargetInterpMesh,mTargetIntegMesh);
 
         }
 
@@ -80,9 +87,7 @@ namespace moris
                 Cell< fem::BC_Type > tSidesetBCTypeList;
 
                 // create model
-                //mModel = new mdl::Model( mTargetMesh.get(), mIWG, mBSplineOrder );
-                //mModel = new mdl::Model( mTargetMesh.get(), mBSplineOrder, tIWGType );
-                mModel = new mdl::Model( mTargetMesh.get(), mBSplineOrder, tIWGTypeList,
+                mModel = new mdl::Model( mMeshManager, mBSplineOrder, tIWGTypeList,
                                          tSidesetList, tSidesetBCTypeList );
 
                 mHaveIwgAndModel = true;
@@ -115,15 +120,16 @@ namespace moris
                 const enum EntityRank    aTargetEntityRank )
         {
 
+
             // get index of source
-            moris_index tSourceIndex = mSourceMesh->get_field_ind(
+            moris_index tSourceIndex = mSourceInterpMesh->get_field_ind(
                     aSourceLabel,
                     aSourceEntityRank );
 
             MORIS_ERROR( tSourceIndex != gNoIndex, "perform_mapping() Source Field not found");
 
             // get target index
-            moris_index tTargetIndex = mTargetMesh->get_field_ind(
+            moris_index tTargetIndex = mTargetInterpMesh->get_field_ind(
                     aTargetLabel,
                     aTargetEntityRank );
 
@@ -132,7 +138,7 @@ namespace moris
             {
                 // create target field
                 tTargetIndex =
-                        mTargetMesh->create_scalar_field(
+                        mTargetInterpMesh->create_scalar_field(
                                 aTargetLabel,
                                 aTargetEntityRank );
 
@@ -214,10 +220,10 @@ namespace moris
             mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
 
             // test if output mesh is HMR
-            if( mTargetMesh->get_mesh_type() == MeshType::HMR )
+            if( mTargetInterpMesh->get_mesh_type() == MeshType::HMR )
             {
                 // perform L2 projection
-                mModel->solve( mTargetMesh->get_field( aTargetIndex, aBSplineRank ) );
+                mModel->solve( mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ) );
             }
             else
             {
@@ -228,7 +234,7 @@ namespace moris
                 mModel->solve( tSolution );
 
                 // get number of coeffs of
-                uint tNumberOfCoeffs = mTargetMesh->get_num_coeffs( mBSplineOrder );
+                uint tNumberOfCoeffs = mTargetInterpMesh->get_num_coeffs( mBSplineOrder );
 
                 // make sure that solution is correct
                 MORIS_ERROR( tNumberOfCoeffs == tSolution.length(),
@@ -238,7 +244,7 @@ namespace moris
                 for( uint k=0; k<tNumberOfCoeffs; ++k )
                 {
                     // get ref to value
-                    mTargetMesh->get_value_of_scalar_field(
+                    mTargetInterpMesh->get_value_of_scalar_field(
                             aTargetIndex,
                             aBSplineRank,
                             k ) = tSolution( k );
@@ -257,24 +263,24 @@ namespace moris
         {
 
             // get number of nodes
-            moris_index tNumberOfNodes = mTargetMesh->get_num_nodes();
+            moris_index tNumberOfNodes = mTargetInterpMesh->get_num_nodes();
 
             // loop over all nodes
             for( moris_index k=0;  k<tNumberOfNodes; ++k )
             {
                 // get weights
-                const Matrix< DDRMat > & tTMatrix = mTargetMesh->
+                const Matrix< DDRMat > & tTMatrix = mTargetInterpMesh->
                         get_t_matrix_of_node_loc_ind( k, aBSplineRank );
 
                 // get indices
-                Matrix< IndexMat > tBSplines = mTargetMesh->
+                Matrix< IndexMat > tBSplines = mTargetInterpMesh->
                         get_bspline_inds_of_node_loc_ind( k, aBSplineRank );
 
                 // get number of coefficients
                 uint tNumberOfCoeffs = tTMatrix.length();
 
                 // value of node
-                real & tValue = mTargetMesh->get_value_of_scalar_field(
+                real & tValue = mTargetInterpMesh->get_value_of_scalar_field(
                         aTargetIndex,
                         EntityRank::NODE,
                         k );
@@ -284,7 +290,7 @@ namespace moris
 
                 for( uint i=0; i<tNumberOfCoeffs; ++i )
                 {
-                    tValue +=  mSourceMesh->get_value_of_scalar_field(
+                    tValue +=  mSourceInterpMesh->get_value_of_scalar_field(
                             aSourceIndex,
                             aBSplineRank,
                             tBSplines( i ) ) * tTMatrix( i );
@@ -307,13 +313,13 @@ namespace moris
             mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
 
             // get number of elements
-            uint tNumberOfElements = mTargetMesh->get_num_elems();
+            uint tNumberOfElements = mTargetInterpMesh->get_num_elems();
 
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
                 // get ref to entry in database
-                real & tValue = mTargetMesh->get_value_of_scalar_field(
+                real & tValue = mTargetInterpMesh->get_value_of_scalar_field(
                         aTargetIndex,
                         EntityRank::ELEMENT,
                         e );
@@ -331,7 +337,7 @@ namespace moris
             if( ! mHaveNodes )
             {
                 // get number of nodes from mesh
-                uint tNumberOfNodes = mSourceMesh->get_num_nodes();
+                uint tNumberOfNodes = mSourceInterpMesh->get_num_nodes();
 
                 // reserve node container
                 mNodes.resize( tNumberOfNodes, nullptr );
@@ -340,14 +346,14 @@ namespace moris
                 // populate container
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
-                    mNodes( k ) = new Node( &mSourceMesh->get_mtk_vertex( k ) );
+                    mNodes( k ) = new Node( &mSourceInterpMesh->get_mtk_vertex( k ) );
                 }
 
                 // link to neighbors
                 /*for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     Matrix< IndexMat > tNodeIndices =
-                            mSourceMesh->get_entity_connected_to_entity_loc_inds(
+                            mSourceInterpMesh->get_entity_connected_to_entity_loc_inds(
                                     k,
                                     EntityRank::NODE,
                                     EntityRank::NODE );
@@ -379,10 +385,10 @@ namespace moris
                     "The filter is not written for parallel. In order do use it, mtk::Mapper needs access to node information from the aura.");
 
             // fixme: the following two lines only work for HMR
-            moris_index tFieldIndex = mSourceMesh->get_field_ind( aSourceLabel,
+            moris_index tFieldIndex = mSourceInterpMesh->get_field_ind( aSourceLabel,
                                                                   EntityRank::NODE );
 
-            const Matrix< DDRMat > & tSourceField = mSourceMesh->get_field( tFieldIndex, EntityRank::NODE );
+            const Matrix< DDRMat > & tSourceField = mSourceInterpMesh->get_field( tFieldIndex, EntityRank::NODE );
 
             // calculate weights if this was not done already
             this->calculate_filter_weights( aFilterRadius );

@@ -48,7 +48,7 @@ namespace moris
 namespace mtk
 {
 
-class Mesh_Core_STK : public virtual Mesh_Core
+class Mesh_Core_STK : public virtual Mesh
 {
     //! timestamp for stk output. Set in constructor over MtkMeshData
     double mTimeStamp = 0.0;
@@ -192,6 +192,12 @@ public:
      */
     Matrix< IndexMat >
     get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
+
+    Matrix< IndexMat >
+    get_elements_in_support_of_basis(moris_index aBasisIndex)
+    {
+        return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
+    }
 
 
     //##############################################
