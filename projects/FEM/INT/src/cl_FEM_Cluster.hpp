@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Element.hpp
+ * cl_FEM_Cluster.hpp
  *
  *  Created on: Mar 07, 2019
  *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_ELEMENT_HPP_
-#define SRC_FEM_CL_FEM_ELEMENT_HPP_
+#ifndef SRC_FEM_CL_FEM_CLUSTER_HPP_
+#define SRC_FEM_CL_FEM_CLUSTER_HPP_
 
 #include "assert.h"
 #include <cmath>
@@ -35,13 +35,15 @@ namespace moris
     /**
      * \brief element class that communicates with the mesh interface
      */
-    class Element : public MSI::Equation_Object
+    class Cluster : public MSI::Equation_Object
     {
 
     protected:
 
         //! pointer to cell on mesh
         const mtk::Cell * mCell;
+
+        moris::Cell< mtk::Cell const * > InterpCells;
 
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
@@ -65,13 +67,14 @@ namespace moris
     public:
 //------------------------------------------------------------------------------
 
-        Element( mtk::Cell           const * aCell,
-                 moris::Cell< IWG* >       & aIWGs,
+        Cluster( mtk::Cell           const * aCell,
                  moris::Cell< Node_Base* > & aNodes,
                  Element_Block      * aElementBlock) : mElementBlock(aElementBlock)
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
+
+            InterpCells.resize( 1, mCell );
 
             // select the element nodes from aNodes and fill mNodeObj
             // get vertices from cell
@@ -104,7 +107,7 @@ namespace moris
         /**
          * trivial destructor
          */
-        ~Element()
+        ~Cluster()
         {
 
         };
@@ -461,4 +464,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_ELEMENT_HPP_ */
+#endif /* SRC_FEM_CL_FEM_CLUSTER_HPP_ */

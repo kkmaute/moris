@@ -12,10 +12,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element_Bulk::Element_Bulk( mtk::Cell    const * aCell,
-                                    Cell< IWG* >       & aIWGs,
                                     Cell< Node_Base* > & aNodes,
-                                    Element_Block      * aElementBlock)
-                                  : Element( aCell, aIWGs, aNodes, aElementBlock )
+                                    Element_Block      * aElementBlock) : Cluster( aCell, aNodes, aElementBlock )
         {
             // compute element volume
             //real tVolume = compute_element_volume( mGeometryInterpolator );

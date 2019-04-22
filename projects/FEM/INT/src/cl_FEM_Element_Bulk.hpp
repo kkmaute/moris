@@ -9,7 +9,7 @@
 #define SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_
 
 #include "assert.h"
-#include "cl_FEM_Element.hpp"               //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"               //FEM/INT/src
 
 namespace moris
 {
@@ -20,7 +20,7 @@ namespace moris
     /**
      * \brief element class that communicates with the mesh interface
      */
-    class Element_Bulk : public Element
+    class Element_Bulk : public Cluster
     {
 
 //------------------------------------------------------------------------------
@@ -35,7 +35,6 @@ namespace moris
          * @param[ in ]     Pointer to element block
          */
         Element_Bulk( mtk::Cell    const *        aCell,
-                      moris::Cell< IWG* >       & aIWGs,
                       moris::Cell< Node_Base* > & aNodes,
                       Element_Block      * aElementBlock );
 //------------------------------------------------------------------------------

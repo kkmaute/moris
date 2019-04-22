@@ -9,7 +9,7 @@ set(HEADERS
     cl_FEM_Element_Factory.hpp
     cl_FEM_ElementProxy.hpp
     cl_FEM_NodeProxy.hpp
-    cl_FEM_Element.hpp
+    cl_FEM_Element_Cluster.hpp
     cl_FEM_Element_Bulk.hpp
     cl_FEM_Element_Block.hpp
     cl_FEM_Element_Sideset.hpp

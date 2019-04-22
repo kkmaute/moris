@@ -9,7 +9,7 @@
 #define SRC_FEM_CL_FEM_ELEMENT_TIME_SIDESET_HPP_
 
 #include "assert.h"
-#include "cl_FEM_Element.hpp" //FEM/INT/src
+#include "cl_FEM_Cluster.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -20,7 +20,7 @@ namespace moris
     /**
      * \brief Element_Sideset class
      */
-    class Element_Time_Sideset : public Element
+    class Element_Time_Sideset : public Cluster
     {
 
 //------------------------------------------------------------------------------
@@ -42,7 +42,6 @@ namespace moris
          * @param[ in ]     Pointer to element block
          */
         Element_Time_Sideset( mtk::Cell            const * aCell,
-                              moris::Cell< IWG* >        & aIWGs,
                               moris::Cell< Node_Base* >  & aNodes,
                               Element_Block      * aElementBlock);
 //------------------------------------------------------------------------------

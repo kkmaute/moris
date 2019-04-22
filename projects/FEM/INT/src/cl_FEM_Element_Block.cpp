@@ -37,7 +37,6 @@ namespace moris
             // create the element
             mElements( k ) = tElementFactory.create_element( mElementType,
                                                              mMeshElementPointer( k ),
-                                                             mIWGs,
                                                              mNodes,
                                                              this );
         }

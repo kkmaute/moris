@@ -145,7 +145,7 @@ namespace moris
             // ask mesh about number of elements on proc
             moris::Cell<std::string> tBlockSetsNames = tIntegrationMesh->get_set_names( EntityRank::ELEMENT);
 
-            // get cells in blockset (this needs to stay in scope somehow)
+            // get cells in blockset (this needs to stay in scope somehow) // FIXME BLOCK OF CLUSTERS
             moris::Cell<mtk::Cell const*> tBlockSetCells = tIntegrationMesh->get_block_set_cells(tBlockSetsNames(0));
 
             // create new fem element block

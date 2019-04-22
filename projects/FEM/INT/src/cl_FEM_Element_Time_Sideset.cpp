@@ -10,9 +10,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element_Time_Sideset::Element_Time_Sideset( mtk::Cell            const * aCell,
-                                                    moris::Cell< IWG* >       & aIWGs,
                                                     moris::Cell< Node_Base* > & aNodes,
-                                                    Element_Block      * aElementBlock) : Element( aCell, aIWGs, aNodes, aElementBlock )
+                                                    Element_Block      * aElementBlock) : Cluster( aCell, aNodes, aElementBlock )
         {
 
         }
