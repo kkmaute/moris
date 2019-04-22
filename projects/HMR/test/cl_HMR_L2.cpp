@@ -176,8 +176,6 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // determine coefficient of determination
                 moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
-                std::cout << "R2 " << tR2 << std::endl;
-
                 // perform test
                 if( tOrder == 1 )
                 {

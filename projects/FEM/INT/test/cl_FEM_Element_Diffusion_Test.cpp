@@ -156,7 +156,7 @@ namespace moris
                 moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
 
                 // Cell containing the block mesh cell ( a cell of mesh cells )
-                moris::Cell<mtk::Cell*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 
                 // loop on the blocks
                 for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
@@ -186,7 +186,7 @@ namespace moris
                 //std::cout<<" Create Dirichlet side block "<<std::endl;
                 //-----------------------------------------------------------------------------
                 // elements included in the Dirichlet sideset
-                moris::Cell<mtk::Cell*> tSideSetDirichletElement( 4, nullptr );
+                moris::Cell<mtk::Cell const *> tSideSetDirichletElement( 4, nullptr );
                 tSideSetDirichletElement( 0 ) = & tMesh->get_mtk_cell( 0 );
                 tSideSetDirichletElement( 1 ) = & tMesh->get_mtk_cell( 2 );
                 tSideSetDirichletElement( 2 ) = & tMesh->get_mtk_cell( 4 );
@@ -206,7 +206,7 @@ namespace moris
                 //std::cout<<" Create Neumann side block "<<std::endl;
                 //-----------------------------------------------------------------------------
                 // elements included in the Neumann sideset
-                moris::Cell<mtk::Cell*> tSideSetNeumannElement( 4, nullptr );
+                moris::Cell<mtk::Cell const *> tSideSetNeumannElement( 4, nullptr );
                 tSideSetNeumannElement( 0 ) = & tMesh->get_mtk_cell( 1 );
                 tSideSetNeumannElement( 1 ) = & tMesh->get_mtk_cell( 3 );
                 tSideSetNeumannElement( 2 ) = & tMesh->get_mtk_cell( 5 );

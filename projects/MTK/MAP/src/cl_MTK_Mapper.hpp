@@ -14,7 +14,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 // #include "cl_MTK_Field.hpp"
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mapper_Node.hpp"
 
 namespace moris
@@ -48,11 +49,22 @@ namespace moris
 
      class Mapper
      {
-         std::shared_ptr< mtk::Mesh >       mSourceMesh;
-         std::shared_ptr< mtk::Mesh >       mTargetMesh;
-         fem::IWG_L2                        * mIWG;
-         mdl::Model                         * mModel;
-         const uint                           mBSplineOrder;
+         // Source meshes
+         mtk::Interpolation_Mesh* mSourceInterpMesh;
+         mtk::Integration_Mesh*   mSourceIntegMesh;
+
+         // Target meshes
+         mtk::Interpolation_Mesh* mTargetInterpMesh;
+         mtk::Integration_Mesh*   mTargetIntegMesh;
+
+
+         // Mesh manager- needed for FEM Model
+         moris::moris_index             mSourceMeshPairIndex;
+         moris::moris_index             mTargetMeshPairIndex;
+         mtk::Mesh_Manager            * mMeshManager;
+         fem::IWG_L2                  * mIWG;
+         mdl::Model                   * mModel;
+         const uint                     mBSplineOrder;
 
          moris::Cell< Node* >                  mNodes;
 
@@ -67,7 +79,9 @@ namespace moris
          /**
           * constructor with only one mesh
           */
-         Mapper( std::shared_ptr< mtk::Mesh > aMesh, const uint aBSplineOrder=0 );
+         Mapper( mtk::Mesh_Manager* aMesh,
+                 const moris_index aMeshPairIndex,
+                 const uint aBSplineOrder=0 );
 
 //------------------------------------------------------------------------------
 

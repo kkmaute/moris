@@ -378,7 +378,7 @@ public:
 }
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/cl_Matrix_Arma_Dynamic.hpp"
+#include "cl_Matrix_Arma_Dynamic.hpp"
 #endif
 
 #ifdef MORIS_USE_EIGEN

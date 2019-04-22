@@ -12,7 +12,7 @@
 #include "cl_Cell.hpp" //CON/src
 #include "cl_Mesh_Enums.hpp"
 #include "MTK_Tools.hpp"
-#include "cl_MTK_Mesh.hpp" //MTK/src
+#include "cl_MTK_Mesh_Core.hpp" //MTK/src
 
 
 namespace moris
@@ -30,12 +30,16 @@ namespace moris
         /**
          * \brief mesh interface class
          */
-        class Mesh : public mtk::Mesh
+        class Mesh : public virtual mtk::Mesh
         {
             //! describing label
             std::string mLabel;
 
             Lagrange_Mesh_Base * mMesh = nullptr;
+
+            // give access to the member data to stk based interpolation and integration meshes
+            friend class Interpolation_Mesh_HMR;
+            friend class Integration_Mesh_HMR;
 
 //-------------------------------------------------------------------------------
         public:
@@ -300,6 +304,13 @@ namespace moris
                 return *mMesh->get_element( aElementIndex );
             }
 
+//-------------------------------------------------------------------------------
+
+            mtk::Cell const &
+            get_mtk_cell( moris_index aElementIndex ) const
+            {
+                return *mMesh->get_element( aElementIndex );
+            }
 //-------------------------------------------------------------------------------
 
             void

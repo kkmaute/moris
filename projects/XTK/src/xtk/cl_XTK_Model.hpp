@@ -1328,6 +1328,14 @@ private:
 public:
     moris::Cell< moris::Matrix < moris::DDRMat > >
     assemble_geometry_data_as_mesh_field(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput);
+
+    /*!
+     * Takes the whole node local to global map and removes the nodes
+     * which are not part of the phase being output
+     */
+    moris::Matrix<moris::IndexMat>
+    get_node_map_restricted_to_output_phases(Output_Options const &           aOutputOptions,
+                                             moris::Matrix<moris::IndexMat> & aOutputtedNodeInds);
 private:
 
     moris::Cell<std::string>
@@ -1337,14 +1345,6 @@ private:
     moris::Cell < enum moris::EntityRank >
     assign_geometry_data_field_ranks();
 
-
-    /*!
-     * Takes the whole node local to global map and removes the nodes
-     * which are not part of the phase being output
-     */
-    moris::Matrix<moris::IndexMat>
-    get_node_map_restricted_to_output_phases(Output_Options const &           aOutputOptions,
-                                             moris::Matrix<moris::IndexMat> & aOutputtedNodeInds);
 
 
     /*!

@@ -15,7 +15,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/fn_issquare_Arma.hpp"
+#include "fn_issquare_Arma.hpp"
 #endif
 
 namespace moris

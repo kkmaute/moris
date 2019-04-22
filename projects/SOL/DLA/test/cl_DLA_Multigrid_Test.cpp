@@ -142,7 +142,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // ask mesh about number of elements on proc
         moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
 
-        moris::Cell<mtk::Cell*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+        moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 
         for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
         {

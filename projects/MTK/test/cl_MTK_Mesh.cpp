@@ -407,7 +407,7 @@ TEST_CASE( "Testing a side set on an 8x8x8 generated mesh","[MTK_MESH_1_SIDE_SET
             CHECK(tCellSideOrdsInSideSet1.numel() == 64);
 
             // get the cell ptrs
-            moris::Cell<mtk::Cell *> tCellsInSideSet;
+            moris::Cell<mtk::Cell const *> tCellsInSideSet;
             Matrix<IndexMat> tCellSideOrdsInSideSet2;
             tMeshWithSideSets->get_sideset_cells_and_ords(tSetNames(i),tCellsInSideSet,tCellSideOrdsInSideSet2);
 

@@ -13,7 +13,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/op_elemwise_mult_Arma.hpp"
+#include "op_elemwise_mult_Arma.hpp"
 #endif
 
 //FIXME: Christian, All functions need a description and function call with two moris matrix arguments

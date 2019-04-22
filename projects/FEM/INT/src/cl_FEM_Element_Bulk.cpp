@@ -11,7 +11,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Element_Bulk::Element_Bulk( mtk::Cell          * aCell,
+        Element_Bulk::Element_Bulk( mtk::Cell    const * aCell,
                                     Cell< IWG* >       & aIWGs,
                                     Cell< Node_Base* > & aNodes,
                                     Element_Block      * aElementBlock)

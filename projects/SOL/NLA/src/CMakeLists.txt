@@ -6,15 +6,16 @@ set(${NLA}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_NLA_Arc_Length.hpp
-    cl_NLA_Newton_Solver.hpp
-    cl_NLA_Nonlinear_Solver_Enums.hpp
-    cl_NLA_Nonlinear_Algorithm.hpp
-    cl_NLA_Nonlinear_Solver.hpp
-    cl_NLA_Nonlinear_Problem.hpp
-    cl_NLA_Newton_Solver_Factory.hpp
-    cl_NLA_Convergence.hpp
-    cl_NLA_NLBGS.hpp )
+cl_NLA_Arc_Length.hpp
+cl_NLA_Convergence.hpp
+cl_NLA_Newton_Solver.hpp
+cl_NLA_NLBGS.hpp
+cl_NLA_Nonlinear_Algorithm.hpp
+cl_NLA_Nonlinear_Problem.hpp
+cl_NLA_Nonlinear_Solver_Enums.hpp
+cl_NLA_Nonlinear_Solver_Factory.hpp
+cl_NLA_Nonlinear_Solver.hpp
+)
     
 # List header dependencies
 set(NLA_INCLUDES

@@ -76,3 +76,16 @@ void TSA_Solver_Interface_Proxy_II::get_element_rhs( const uint             & aM
     return mTimeLevelIdsPlus;
 }
 
+ void TSA_Solver_Interface_Proxy_II::perform_mapping()
+ {
+     Matrix< DDRMat > tMat;
+     Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
+     Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
+
+     mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
+
+     mSolutionVectorPrev->sum_into_global_values( 1, tMatRows2, tMat );
+
+     mSolutionVectorPrev->vector_global_asembly();
+ }
+

@@ -6,11 +6,8 @@ set(${TOL}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    tools.hpp
     cl_Debug.hpp
     cl_Enums.hpp
-    cl_FunctionFactory.hpp
-    cl_Function.hpp
     cl_Geometry.hpp )
 
 # List header dependencies
