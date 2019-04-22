@@ -10,9 +10,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Element_Sideset::Element_Sideset( mtk::Cell            const * aCell,
-                                          moris::Cell< Node_Base* > & aNodes,
-                                          Element_Block             * aElementBlock) : Cluster( aCell, aNodes, aElementBlock )
+        Element_Sideset::Element_Sideset( mtk::Cell    const * aCell,
+                                          Element_Block      * aElementBlock,
+                                          Cluster            * aCluster) : Element( aCell, aElementBlock, aCluster )
         {
         }
 
@@ -25,27 +25,23 @@ namespace moris
         void Element_Sideset::compute_residual()
         {
             // get the number of side ordinals
-            uint tNumOfSideSets = mListOfSideOrdinals.numel();
+            uint tNumOfSideSets = mCluster->mListOfSideOrdinals.numel();
 
             // initialize mJacobianElement and mResidualElement
-            this->initialize_mJacobianElement_and_mResidualElement();
-
-            // get pdofs values for the element
-            this->get_my_pdof_values();
+            mCluster->initialize_mJacobianElement_and_mResidualElement();
 
             // set field interpolators coefficients
-            this->set_field_interpolators_coefficients();
+            mCluster->set_field_interpolators_coefficients();
 
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
-//            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
-            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mTime );
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
             {
                 // get the treatedSideOrdinal
-                moris_index tTreatedSideOrdinal = mListOfSideOrdinals( iSideset );
+                moris_index tTreatedSideOrdinal = mCluster->mListOfSideOrdinals( iSideset );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -54,7 +50,7 @@ namespace moris
                     IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                     // FIXME
-                    tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
+                    tTreatedIWG->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
 
                     // get the number of active Dof_type for the ith IWG
                     uint tNumOfIWGActiveDof = tTreatedIWG->get_active_dof_types().size();
@@ -118,8 +114,8 @@ namespace moris
                             = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
 
                         // add contribution to jacobian from evaluation point
-                        mResidualElement( tIWGResDofIndex )
-                            = mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;
+                        mCluster->mResidualElement( tIWGResDofIndex )
+                            = mCluster->mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;
                     }
                 }
             }
@@ -135,7 +131,7 @@ namespace moris
                 stopI  = tCounterI + mElementBlock->get_block_field_interpolator()( iBuild )->get_number_of_space_time_coefficients() - 1;
 
                 // fill the global residual
-                mResidual( { startI, stopI }, { 0 , 0 } ) = mResidualElement( iBuild ).matrix_data();
+                mCluster->mResidual( { startI, stopI }, { 0 , 0 } ) = mCluster->mResidualElement( iBuild ).matrix_data();
 
                 // update the row counter
                 tCounterI = stopI + 1;
@@ -147,27 +143,24 @@ namespace moris
         void Element_Sideset::compute_jacobian()
         {
             // get the number of side ordinals
-            uint tNumOfSideSets = mListOfSideOrdinals.numel();
+            uint tNumOfSideSets = mCluster->mListOfSideOrdinals.numel();
 
             // initialize mJacobianElement and mResidualElement
-            this->initialize_mJacobianElement_and_mResidualElement();
-
-            // get pdofs values for the element
-            this->get_my_pdof_values();
+            mCluster->initialize_mJacobianElement_and_mResidualElement();
 
             // set field interpolators coefficients
-            this->set_field_interpolators_coefficients();
+            mCluster->set_field_interpolators_coefficients();
 
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
 //            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
-            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mTime );
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
             {
                 // get the treated side ordinal
-                moris_index tTreatedSideOrdinal = mListOfSideOrdinals( iSideset );
+                moris_index tTreatedSideOrdinal = mCluster->mListOfSideOrdinals( iSideset );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -176,7 +169,7 @@ namespace moris
                     IWG* tTreatedIWG = mElementBlock->get_IWGs()( iIWG );
 
                     // FIXME
-                    tTreatedIWG->set_nodal_weak_bcs( this->get_weak_bcs() );
+                    tTreatedIWG->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
 
                     // get the index of the residual dof type for the ith IWG in the list of element dof type
                     uint tIWGResDofIndex
@@ -249,8 +242,8 @@ namespace moris
                            uint tJacIndex
                                = tIWGResDofIndex * mElementBlock->get_num_interpolators() + tIWGActiveDofIndex;
 
-                           mJacobianElement( tJacIndex )
-                               = mJacobianElement( tJacIndex ) + tWStar * tJacobians( iIWGFI );
+                           mCluster->mJacobianElement( tJacIndex )
+                               = mCluster->mJacobianElement( tJacIndex ) + tWStar * tJacobians( iIWGFI );
                        }
                    }
                 }
@@ -273,13 +266,13 @@ namespace moris
                     startJ = tCounterJ;
                     stopJ  = tCounterJ + mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients() - 1;
 
-                    mJacobian({ startI, stopI },{ startJ, stopJ }) = mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
+                    mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) = mCluster->mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
 
                     tCounterJ = stopJ + 1;
                 }
                 tCounterI = stopI + 1;
             }
-            //print( mJacobian,"mJacobian" );
+//            //print( mJacobian,"mJacobian" );
         }
 
 //------------------------------------------------------------------------------

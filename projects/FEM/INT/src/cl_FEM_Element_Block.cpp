@@ -35,7 +35,7 @@ namespace moris
         for( luint k=0; k < mMeshElementPointer.size(); ++k )
         {
             // create the element
-            mElements( k ) = tElementFactory.create_element( mElementType,
+            mElements( k ) = tElementFactory.create_cluster( mElementType,
                                                              mMeshElementPointer( k ),
                                                              mNodes,
                                                              this );

@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Cluster.hpp
+ * cl_FEM_Element.hpp
  *
  *  Created on: Apr 20, 2019
- *      Author: schmidt
+ *      Author: Schmidt
  */
 
-#ifndef SRC_FEM_CL_FEM_CLUSTER_HPP_
-#define SRC_FEM_CL_FEM_CLUSTER_HPP_
+#ifndef SRC_FEM_CL_FEM_ELEMENT_HPP_
+#define SRC_FEM_CL_FEM_ELEMENT_HPP_
 
 #include "assert.h"
 #include <cmath>
@@ -24,9 +24,8 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
-#include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
-
 #include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -37,7 +36,7 @@ namespace moris
     /**
      * \brief element class that communicates with the mesh interface
      */
-    class Cluster : public MSI::Equation_Object
+    class Element
     {
 
     protected:
@@ -46,8 +45,6 @@ namespace moris
         const mtk::Cell * mCell;
 
         moris::Cell< mtk::Cell const * > mInterpCells;
-
-        moris::Cell< fem::Element * > mInterpElements;
 
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
@@ -66,28 +63,20 @@ namespace moris
 
         moris::Matrix< DDSMat >              mInterpDofTypeMap;
 
-        Element_Block * mElementBlock;
-
-        Element_Type mElementType;
-
-        friend class Element_Bulk;
-        friend class Element_Sideset;
-        friend class Element;
+        Element_Block      * mElementBlock;
+        Cluster            * mCluster = nullptr;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
 
-        Cluster( Element_Type         aElementType,
-                 mtk::Cell           const * aCell,
-                 moris::Cell< Node_Base* > & aNodes,
-                 Element_Block      * aElementBlock) : mElementBlock(aElementBlock)
+        Element( mtk::Cell    const * aCell,
+                 Element_Block      * aElementBlock,
+                 Cluster            * aCluster) : mElementBlock( aElementBlock )
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
 
-            mInterpCells.resize( 1, mCell );
-
-            mElementType = aElementType;
+            mCluster = aCluster;
 
             // select the element nodes from aNodes and fill mNodeObj
             // get vertices from cell
@@ -96,35 +85,17 @@ namespace moris
             // get number of nodes from cell
             uint tNumOfNodes = tVertices.size();
 
-            // assign node object
-            mNodeObj.resize( tNumOfNodes, nullptr );
-
-            // fill node objects
-            for( uint i = 0; i < tNumOfNodes; i++)
-            {
-                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
-            }
-
             // set size of Weak BCs
-            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
+            mCluster->get_weak_bcs().set_size( tNumOfNodes, 1 );             // FIXME
 
             // get the number of IWGs
             mNumOfIWGs = mElementBlock->get_num_IWG(); //FIXME
 
             //FIXME
-            mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
+//            mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
             mInterpDofTypeList    = mElementBlock->get_interpolator_dof_type_list();
             mInterpDofTypeMap     = mElementBlock->get_interpolator_dof_type_map();
 
-            fem::Element_Factory tElementFactory;
-
-            mInterpElements.resize( 1, nullptr );
-
-            // create the element
-            mInterpElements( 0 ) = tElementFactory.create_element( mElementType,
-                                                                   mInterpCells( 0 ),
-                                                                   mElementBlock,
-                                                                   this );
 
 
         };
@@ -132,27 +103,22 @@ namespace moris
         /**
          * trivial destructor
          */
-        ~Cluster()
+        ~Element()
         {
 
         };
 
 //------------------------------------------------------------------------------
 
-        void compute_jacobian();
+        virtual void compute_jacobian() = 0;
 
 //------------------------------------------------------------------------------
 
-        void compute_residual();
+        virtual void compute_residual() = 0;
 
 //------------------------------------------------------------------------------
 
-        void compute_jacobian_and_residual() {};
-
-        Matrix< DDRMat > & get_weak_bcs()
-        {
-            return mNodalWeakBCs;
-        }
+        virtual void compute_jacobian_and_residual() = 0;
 
 //------------------------------------------------------------------------------
 
@@ -168,11 +134,11 @@ namespace moris
                                            moris::Cell< MSI::Dof_Type > aDofType )
         {
             // get pdofs values for the element
-            this->get_my_pdof_values();
+            mCluster->get_my_pdof_values();
 
             // get a specific dof type profs values
             Matrix< DDRMat > tPdofValues;
-            this->get_my_pdof_values( aDofType, tPdofValues );
+            mCluster->get_my_pdof_values( aDofType, tPdofValues );
 
             // select the required nodal value
             Matrix< IndexMat > tElemVerticesIndices = mCell->get_vertex_inds();
@@ -416,7 +382,7 @@ namespace moris
                  //FIXME:forced coefficients
                  // get the pdof values for the ith dof type group
                  Matrix< DDRMat > tCoeff;
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
+                 mCluster->get_my_pdof_values( tDofTypeGroup, tCoeff );
 
                  // set the field coefficients
                  mElementBlock->get_block_field_interpolator()( i )->set_coeff( tCoeff );
@@ -429,8 +395,8 @@ namespace moris
          */
          void initialize_mJacobianElement_and_mResidualElement()
          {
-             mJacobianElement.resize( mElementBlock->get_num_interpolators() * mElementBlock->get_num_interpolators() );
-             mResidualElement.resize( mElementBlock->get_num_interpolators() );
+             mCluster->mJacobianElement.resize( mElementBlock->get_num_interpolators() * mElementBlock->get_num_interpolators() );
+             mCluster->mResidualElement.resize( mElementBlock->get_num_interpolators() );
 
              uint tTotalDof = 0;
              for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
@@ -442,7 +408,7 @@ namespace moris
                  tTotalDof = tTotalDof + tNumOfDofi;
 
                  // set mResidualElement size
-                 mResidualElement( i ).set_size( tNumOfDofi, 1, 0.0 );
+                 mCluster->mResidualElement( i ).set_size( tNumOfDofi, 1, 0.0 );
 
                  for( uint j = 0; j < mElementBlock->get_num_interpolators(); j++ )
                  {
@@ -450,13 +416,13 @@ namespace moris
                      uint tNumOfDofj = mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients();
 
                      // set mResidualElement size
-                     mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
+                     mCluster->mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
                  }
              }
 
 //             std::cout<<tTotalDof<<std::endl;
-             mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
-             mResidual.set_size( tTotalDof, 1, 0.0 );
+             mCluster->mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
+             mCluster->mResidual.set_size( tTotalDof, 1, 0.0 );
          }
 
 
@@ -494,4 +460,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_CLUSTER_HPP_ */
+#endif /* SRC_FEM_CL_FEM_ELEMENT_HPP_ */

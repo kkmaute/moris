@@ -21,6 +21,7 @@ class Dist_Vector;
     namespace fem
     {
         class Node_Base;
+        class Element;
     }
     namespace MSI
     {
@@ -63,6 +64,8 @@ class Dist_Vector;
             Matrix< IndexMat > mListOfTimeOrdinals;
 
             Matrix< DDRMat >mTime;
+
+            friend class fem::Element;
 
 //-------------------------------------------------------------------------------------------------
         public:
@@ -300,7 +303,7 @@ class Dist_Vector;
             /**
              * return Neumann boundary conditions, writable version
              */
-            Matrix< DDRMat > & get_weak_bcs()
+            virtual Matrix< DDRMat > & get_weak_bcs()
             {
                 return mNodalWeakBCs;
             }

@@ -29,6 +29,8 @@ namespace MSI
     namespace fem
     {
     class Element_Block;
+    class Element;
+    class Cluster;
 //------------------------------------------------------------------------------
 
     /**
@@ -58,10 +60,15 @@ namespace MSI
         /**
          * create element
          */
-        MSI::Equation_Object * create_element( Element_Type         aElementType,
+        MSI::Equation_Object * create_cluster( Element_Type         aElementType,
                                                mtk::Cell    const * aCell,
                                                Cell< Node_Base* > & aNodes,
                                                Element_Block      * aElementBlock );
+
+        fem::Element * create_element( Element_Type         aElementType,
+                                       mtk::Cell    const * aCell,
+                                       Element_Block      * aElementBlock,
+                                       Cluster            * aCluster);
 
     };
 

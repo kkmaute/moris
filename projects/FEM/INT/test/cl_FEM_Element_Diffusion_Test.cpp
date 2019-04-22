@@ -286,7 +286,7 @@ namespace moris
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create a bulk element
-//                    tElements( tNumElementsCount + k ) = tElementFactory.create_element(   Element_Type::BULK,
+//                    tElements( tNumElementsCount + k ) = tElementFactory.create_cluster(   Element_Type::BULK,
 //                                                                                         & tMesh->get_mtk_cell( k ),
 //                                                                                           tIWGsBlockset,
 //                                                                                           tNodes );
@@ -308,7 +308,7 @@ namespace moris
 //
 //                    // create a sideset element
 //                    tElements( tNumElementsCount + iDirichlet )
-//                        = tElementFactory.create_element(   Element_Type::SIDESET,
+//                        = tElementFactory.create_cluster(   Element_Type::SIDESET,
 //                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
 //                                                            tIWGsDirichletSideset,
 //                                                            tNodes );
@@ -351,7 +351,7 @@ namespace moris
 //
 //                    // create a sideset element
 //                    tElements( tNumElementsCount + iNeumann )
-//                        = tElementFactory.create_element(   Element_Type::SIDESET,
+//                        = tElementFactory.create_cluster(   Element_Type::SIDESET,
 //                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
 //                                                            tIWGsNeumannSideset,
 //                                                            tNodes );

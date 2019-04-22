@@ -1,15 +1,15 @@
 /*
  * cl_FEM_Element_Bulk.hpp
  *
- *  Created on: Jul 16, 2018
- *      Author: messe
+ *  Created on: Apr 22, 2018
+ *      Author: schmidt
  */
 
 #ifndef SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_
 #define SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_
 
 #include "assert.h"
-#include "cl_FEM_Cluster.hpp"               //FEM/INT/src
+#include "cl_FEM_Element.hpp"               //FEM/INT/src
 
 namespace moris
 {
@@ -20,7 +20,7 @@ namespace moris
     /**
      * \brief element class that communicates with the mesh interface
      */
-    class Element_Bulk : public Cluster
+    class Element_Bulk : public Element
     {
 
 //------------------------------------------------------------------------------
@@ -35,8 +35,8 @@ namespace moris
          * @param[ in ]     Pointer to element block
          */
         Element_Bulk( mtk::Cell    const *        aCell,
-                      moris::Cell< Node_Base* > & aNodes,
-                      Element_Block      * aElementBlock );
+                      Element_Block      * aElementBlock,
+                      Cluster            * aCluster );
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
