@@ -15,7 +15,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/op_times_Arma.hpp"
+#include "op_times_Arma.hpp"
 #endif
 
 

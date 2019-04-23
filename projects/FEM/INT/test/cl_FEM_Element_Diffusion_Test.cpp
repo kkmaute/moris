@@ -20,6 +20,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Element_Block.hpp"            //FEM/INT/src
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -44,11 +45,11 @@ namespace moris
                 // Create a 3D mesh of HEX8 using MTK ------------------------------------------
                 std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
                 //------------------------------------------------------------------------------
-                uint aNumElemTypes = 1; // only 1 element type ( quad )
+                uint aNumElemTypes = 1; // only 1 element type ( hex )
                 uint aNumDim = 3;       // number of spatial dimensions
 
                 // element connectivity
-                Matrix< IdMat > aElementConnQuad = {{ 1, 2, 5, 4, 10, 11, 14, 13 },
+                Matrix< IdMat > aElementConn = {{ 1, 2, 5, 4, 10, 11, 14, 13 },
                                                     { 2, 3, 6, 5, 11, 12, 15, 14 },
                                                     { 4, 5, 8, 7, 13, 14, 17, 16 },
                                                     { 5, 6, 9, 8, 14, 15, 18, 17 },
@@ -57,8 +58,8 @@ namespace moris
                                                     { 13, 14, 17, 16, 22, 23, 26, 25 },
                                                     { 14, 15, 18, 17, 23, 24, 27, 26 }};
 
-                // local to global element map for quads
-                Matrix< IdMat > aElemLocalToGlobalQuad = { { 1, 2, 3, 4, 5, 6, 7, 8 } };
+                // local to global element map for hexs
+                Matrix< IdMat > aElemLocalToGlobal = { { 1, 2, 3, 4, 5, 6, 7, 8 } };
 
                 // node coordinates
                 Matrix< DDRMat > aCoords = {{ 0.0, 0.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 2.0, 0.0, 0.0 },
@@ -80,9 +81,9 @@ namespace moris
                 mtk::MtkMeshData tMeshData( aNumElemTypes );
                 tMeshData.CreateAllEdgesAndFaces  = true;
                 tMeshData.SpatialDim              = & aNumDim;
-                tMeshData.ElemConn( 0 )           = & aElementConnQuad;
+                tMeshData.ElemConn( 0 )           = & aElementConn;
                 tMeshData.NodeCoords              = & aCoords;
-                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
+                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobal;
                 tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 
                 mtk::Mesh* tMesh = create_mesh( MeshType::STK, tMeshData );
@@ -129,150 +130,256 @@ namespace moris
                     tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
                 }
 
-                //3) Create the elements -------------------------------------------------------
-                //std::cout<<" Create the elements "<<std::endl;
+                //3) Create element blocks -------------------------------------------------------
+                //std::cout<<" Create element blocks "<<std::endl;
                 //------------------------------------------------------------------------------
-                // nodal weak bc for Dirichlet
-                Matrix< DDRMat > tNodalValues( tNumOfNodes, 1, 0.0 );
-                real tTempValue = 5.0;
-                tNodalValues( 0 ) = tTempValue;
-                tNodalValues( 3 ) = tTempValue;
-                tNodalValues( 6 ) = tTempValue;
-                tNodalValues( 9 ) = tTempValue;
-                tNodalValues( 12 ) = tTempValue;
-                tNodalValues( 15 ) = tTempValue;
-                tNodalValues( 18 ) = tTempValue;
-                tNodalValues( 21 ) = tTempValue;
-                tNodalValues( 24 ) = tTempValue;
-
-                // nodal weak bc for Neumann
-                Matrix< DDRMat > tHeatNodalValues( tNumOfNodes, 1, 0.0 );
-                real tHeatValue = 20.0;
-                tHeatNodalValues( 2 ) = tHeatValue;
-                tHeatNodalValues( 5 ) = tHeatValue;
-                tHeatNodalValues( 8 ) = tHeatValue;
-                tHeatNodalValues( 11 ) = tHeatValue;
-                tHeatNodalValues( 14 ) = tHeatValue;
-                tHeatNodalValues( 17 ) = tHeatValue;
-                tHeatNodalValues( 20 ) = tHeatValue;
-                tHeatNodalValues( 23 ) = tHeatValue;
-                tHeatNodalValues( 26 ) = tHeatValue;
-
-                // a factory to create the elements
-                Element_Factory tElementFactory;
-
-                // ask mesh about number of elements in a blockset (here the full mesh)
-                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
-                Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds(EntityRank::ELEMENT, tBlockSetsNames(0));
-                luint tNumOfElements = tBlockSetElementInd.numel();
+                // get the number of elements on proc from the mesh
+                luint tNumOfElements = tMesh->get_num_elems();
 
                 // create equation objects
-                Cell< MSI::Equation_Object* > tElements( 16, nullptr );
+                Cell< MSI::Equation_Object* > tElements;
+                tElements.reserve( tNumOfElements + 4 + 4 );
 
-                // init the number of elements
-                uint tNumElementsCount = 0;
+                // get the block names from the mesh
+                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
 
-                // select the IWG list for the blockset
-                Cell< fem::IWG* > tIWGsBlockset = { tIWGs( 0 ) };
+                // Cell containing the block mesh cell ( a cell of mesh cells )
+                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 
-                // loop over the mesh elements to create bulk elements
-                for( uint k = 0; k < tNumOfElements; k++ )
+                // loop on the blocks
+                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
                 {
-                    // create a bulk element
-                    tElements( tNumElementsCount + k ) = tElementFactory.create_element(   Element_Type::BULK,
-                                                                                         & tMesh->get_mtk_cell( k ),
-                                                                                           tIWGsBlockset,
-                                                                                           tNodes );
+                    Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                    // loop on the elements in a block
+                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                    {
+                        // Cell containing the block mesh cell with mesh cells
+                        tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
+                    }
                 }
-                // update the total number of element
-                tNumElementsCount = tNumElementsCount + tNumOfElements;
 
-                // select the IWG list for the Dirichlet sideset
-                Cell< fem::IWG* > tIWGsDirichletSideset = { tIWGs( 1 ) };
+                // create a fem element block
+                moris::Cell< fem::Element_Block * > tElementBlocks( 3, nullptr );
+                moris::Cell< IWG* > tIWGBulk = { tIWGs( 0 ) };
+                tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement,
+                                                              fem::Element_Type::BULK,
+                                                              tIWGBulk,
+                                                              tNodes );
 
+                // put the equation object of block 0 in the global list of equation objects
+                tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
+
+                //4) Create side blocks -------------------------------------------------------
+                //std::cout<<" Create Dirichlet side block "<<std::endl;
+                //-----------------------------------------------------------------------------
                 // elements included in the Dirichlet sideset
-                Cell< moris_index > tListOfDirichletElements = { 0, 2, 4, 6 };
+                moris::Cell<mtk::Cell const *> tSideSetDirichletElement( 4, nullptr );
+                tSideSetDirichletElement( 0 ) = & tMesh->get_mtk_cell( 0 );
+                tSideSetDirichletElement( 1 ) = & tMesh->get_mtk_cell( 2 );
+                tSideSetDirichletElement( 2 ) = & tMesh->get_mtk_cell( 4 );
+                tSideSetDirichletElement( 3 ) = & tMesh->get_mtk_cell( 6 );
 
-                // loop over the elements included in the Dirichlet sideset
-                for( uint iDirichlet = 0; iDirichlet < tListOfDirichletElements.size(); iDirichlet++ )
+                // create a fem element sideblock
+                moris::Cell< IWG* > tIWGDirichlet = { tIWGs( 1 ) };
+                tElementBlocks( 1 ) = new fem::Element_Block( tSideSetDirichletElement,
+                                                              fem::Element_Type::SIDESET,
+                                                              tIWGDirichlet,
+                                                              tNodes );
+
+                // put the equation object of block 1 in the global list of equation objects
+                tElements.append( tElementBlocks( 1 )->get_equation_object_list() );
+
+                //5) Create side blocks -------------------------------------------------------
+                //std::cout<<" Create Neumann side block "<<std::endl;
+                //-----------------------------------------------------------------------------
+                // elements included in the Neumann sideset
+                moris::Cell<mtk::Cell const *> tSideSetNeumannElement( 4, nullptr );
+                tSideSetNeumannElement( 0 ) = & tMesh->get_mtk_cell( 1 );
+                tSideSetNeumannElement( 1 ) = & tMesh->get_mtk_cell( 3 );
+                tSideSetNeumannElement( 2 ) = & tMesh->get_mtk_cell( 5 );
+                tSideSetNeumannElement( 3 ) = & tMesh->get_mtk_cell( 7 );
+
+                // create a fem element sideblock
+                moris::Cell< IWG* > tIWGNeumann = { tIWGs( 2 ) };
+                tElementBlocks( 2 ) = new fem::Element_Block( tSideSetNeumannElement,
+                                                              fem::Element_Type::SIDESET,
+                                                              tIWGNeumann,
+                                                              tNodes );
+
+                // put the equation object of block 2 in the global list of equation objects
+                tElements.append( tElementBlocks( 2 )->get_equation_object_list() );
+
+                //6) Impose boundary conditions -----------------------------------------------
+                //std::cout<<" Impose boundary conditions "<<std::endl;
+                //-----------------------------------------------------------------------------
+                // nodal weak bc for Dirichlet
+                real tTempValue = 5.0;
+                Cell< moris_index > tDirichletElements = { 0, 2, 4, 6 };
+                for( uint iDirichlet = 0; iDirichlet < 4; iDirichlet++ )
                 {
-                    // get the treated element index
-                    moris_index tTreatedMeshElement = tListOfDirichletElements( iDirichlet );
-
-                    // create a sideset element
-                    tElements( tNumElementsCount + iDirichlet )
-                        = tElementFactory.create_element(   Element_Type::SIDESET,
-                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
-                                                            tIWGsDirichletSideset,
-                                                            tNodes );
                     // set the list of face ordinals
-                    tElements( tNumElementsCount + iDirichlet )->set_list_of_side_ordinals( {{ 3 }} );
+                    tElements( tNumOfElements + iDirichlet )->set_list_of_side_ordinals( {{ 3 }} );
 
-                    // impose nodal weak bcs
-                    // get the nodal weak bcs of the element
-                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumElementsCount + iDirichlet )->get_weak_bcs();
+                    //get the nodal weak bcs of the element
+                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumOfElements + iDirichlet )->get_weak_bcs();
 
                     // get the element number of nodes
-                    uint tNumberOfNodes = tElements( tNumElementsCount + iDirichlet )->get_num_nodes();
+                    uint tNumberOfNodes = tElements( tNumOfElements + iDirichlet )->get_num_nodes();
 
                     // set size of the element nodal weak bc
                     tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
                     // loop over the element nodes
-                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tTreatedMeshElement ).get_vertex_inds();
+                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tDirichletElements( iDirichlet ) ).get_vertex_inds();
 
                     for( uint l = 0; l < tNumberOfNodes; l++ )
                     {
                         // copy weak bc into element
-                        tNodalWeakBCs( l ) = tNodalValues( tNodeIndices( l ) );
+                        tNodalWeakBCs( l ) = tTempValue;
                     }
                 }
-                // update the total number of element
-                tNumElementsCount = tNumElementsCount + tListOfDirichletElements.size();
 
-                // select the IWG list for the Neumann sideset
-                Cell< fem::IWG* > tIWGsNeumannSideset = { tIWGs( 2 ) };
-
-                // elements included in the Neumann sideset
-                Cell< moris_index > tListOfNeumannElements = { 1, 3, 5, 7 };
-
-                // loop over the elements included in the Neumann sideset
+                // nodal weak bc for Neumann
+                real tFluxValue = 20.0;
+                Cell< moris_index > tNeumannElements = { 0, 2, 4, 6 };
                 for( uint iNeumann = 0; iNeumann < 4; iNeumann++ )
                 {
-                    // get the treated element index
-                    moris_index tTreatedMeshElement = tListOfNeumannElements( iNeumann );
-
-                    // create a sideset element
-                    tElements( tNumElementsCount + iNeumann )
-                        = tElementFactory.create_element(   Element_Type::SIDESET,
-                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
-                                                            tIWGsNeumannSideset,
-                                                            tNodes );
-
                     // set the list of face ordinals
-                    tElements( tNumElementsCount + iNeumann )->set_list_of_side_ordinals( {{ 1 }} );
+                    tElements( tNumOfElements + tDirichletElements.size() + iNeumann )->set_list_of_side_ordinals( {{ 1 }} );
 
-                    // impose nodal weak bcs
-                    // get the nodal weak bcs of the element
-                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumElementsCount + iNeumann )->get_weak_bcs();
+                    //get the nodal weak bcs of the element
+                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumOfElements + tDirichletElements.size() + iNeumann )->get_weak_bcs();
 
                     // get the element number of nodes
-                    uint tNumberOfNodes = tElements( tNumElementsCount + iNeumann )->get_num_nodes();
+                    uint tNumberOfNodes = tElements( tNumOfElements + tDirichletElements.size() + iNeumann )->get_num_nodes();
 
                     // set size of the element nodal weak bc
                     tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
                     // loop over the element nodes
-                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tTreatedMeshElement ).get_vertex_inds();
+                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tDirichletElements( iNeumann ) ).get_vertex_inds();
 
                     for( uint l = 0; l < tNumberOfNodes; l++ )
                     {
                         // copy weak bc into element
-                        tNodalWeakBCs( l ) = tHeatNodalValues( tNodeIndices( l ) );
+                        tNodalWeakBCs( l ) = tFluxValue;
                     }
                 }
 
-                //4) Create the model solver interface -----------------------------------------
+//                //3) Create elements -----------------------------------------------
+//                std::cout<<" Create elements "<<std::endl;
+//                //-----------------------------------------------------------------------------
+//                // a factory to create the elements
+//                Element_Factory tElementFactory;
+//
+//                // create equation objects
+//                Cell< MSI::Equation_Object* > tElements( 16, nullptr );
+//
+//                // init the number of elements
+//                uint tNumElementsCount = 0;
+//
+//                // select the IWG list for the blockset
+//                Cell< fem::IWG* > tIWGsBlockset = { tIWGs( 0 ) };
+//
+//                // loop over the mesh elements to create bulk elements
+//                for( uint k = 0; k < tNumOfElements; k++ )
+//                {
+//                    // create a bulk element
+//                    tElements( tNumElementsCount + k ) = tElementFactory.create_element(   Element_Type::BULK,
+//                                                                                         & tMesh->get_mtk_cell( k ),
+//                                                                                           tIWGsBlockset,
+//                                                                                           tNodes );
+//                }
+//                // update the total number of element
+//                tNumElementsCount = tNumElementsCount + tNumOfElements;
+//
+//                // select the IWG list for the Dirichlet sideset
+//                Cell< fem::IWG* > tIWGsDirichletSideset = { tIWGs( 1 ) };
+//
+//                // elements included in the Dirichlet sideset
+//                Cell< moris_index > tListOfDirichletElements = { 0, 2, 4, 6 };
+//
+//                // loop over the elements included in the Dirichlet sideset
+//                for( uint iDirichlet = 0; iDirichlet < tListOfDirichletElements.size(); iDirichlet++ )
+//                {
+//                    // get the treated element index
+//                    moris_index tTreatedMeshElement = tListOfDirichletElements( iDirichlet );
+//
+//                    // create a sideset element
+//                    tElements( tNumElementsCount + iDirichlet )
+//                        = tElementFactory.create_element(   Element_Type::SIDESET,
+//                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
+//                                                            tIWGsDirichletSideset,
+//                                                            tNodes );
+//                    // set the list of face ordinals
+//                    tElements( tNumElementsCount + iDirichlet )->set_list_of_side_ordinals( {{ 3 }} );
+//
+//                    // impose nodal weak bcs
+//                    // get the nodal weak bcs of the element
+//                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumElementsCount + iDirichlet )->get_weak_bcs();
+//
+//                    // get the element number of nodes
+//                    uint tNumberOfNodes = tElements( tNumElementsCount + iDirichlet )->get_num_nodes();
+//
+//                    // set size of the element nodal weak bc
+//                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+//
+//                    // loop over the element nodes
+//                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tTreatedMeshElement ).get_vertex_inds();
+//
+//                    for( uint l = 0; l < tNumberOfNodes; l++ )
+//                    {
+//                        // copy weak bc into element
+//                        tNodalWeakBCs( l ) = tNodalValues( tNodeIndices( l ) );
+//                    }
+//                }
+//                // update the total number of element
+//                tNumElementsCount = tNumElementsCount + tListOfDirichletElements.size();
+//
+//                // select the IWG list for the Neumann sideset
+//                Cell< fem::IWG* > tIWGsNeumannSideset = { tIWGs( 2 ) };
+//
+//                // elements included in the Neumann sideset
+//                Cell< moris_index > tListOfNeumannElements = { 1, 3, 5, 7 };
+//
+//                // loop over the elements included in the Neumann sideset
+//                for( uint iNeumann = 0; iNeumann < 4; iNeumann++ )
+//                {
+//                    // get the treated element index
+//                    moris_index tTreatedMeshElement = tListOfNeumannElements( iNeumann );
+//
+//                    // create a sideset element
+//                    tElements( tNumElementsCount + iNeumann )
+//                        = tElementFactory.create_element(   Element_Type::SIDESET,
+//                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
+//                                                            tIWGsNeumannSideset,
+//                                                            tNodes );
+//
+//                    // set the list of face ordinals
+//                    tElements( tNumElementsCount + iNeumann )->set_list_of_side_ordinals( {{ 1 }} );
+//
+//                    // impose nodal weak bcs
+//                    // get the nodal weak bcs of the element
+//                    Matrix< DDRMat > & tNodalWeakBCs = tElements( tNumElementsCount + iNeumann )->get_weak_bcs();
+//
+//                    // get the element number of nodes
+//                    uint tNumberOfNodes = tElements( tNumElementsCount + iNeumann )->get_num_nodes();
+//
+//                    // set size of the element nodal weak bc
+//                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
+//
+//                    // loop over the element nodes
+//                    Matrix< IndexMat > tNodeIndices = tMesh->get_mtk_cell( tTreatedMeshElement ).get_vertex_inds();
+//
+//                    for( uint l = 0; l < tNumberOfNodes; l++ )
+//                    {
+//                        // copy weak bc into element
+//                        tNodalWeakBCs( l ) = tHeatNodalValues( tNodeIndices( l ) );
+//                    }
+//                }
+
+                //7) Create the model solver interface -----------------------------------------
                 //std::cout<<" Create the model solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
@@ -296,26 +403,30 @@ namespace moris
 
                 tModelSolverInterface->set_param( "TEMP" )  = (sint)tDofOrder;
 
+                tElementBlocks( 0 )->finalize( tModelSolverInterface );
+                tElementBlocks( 1 )->finalize( tModelSolverInterface );
+                tElementBlocks( 2 )->finalize( tModelSolverInterface );
+
                 tModelSolverInterface->finalize();
 
                 // calculate AdofMap
                 Matrix< DDUMat > tAdofMap = tModelSolverInterface->get_dof_manager()->get_adof_ind_map();
 
-                //5) Create solver interface ---------------------------------------------------
+                //8) Create solver interface ---------------------------------------------------
                 //std::cout<<" Create solver interface "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 MSI::MSI_Solver_Interface * tSolverInterface
                     = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
 
-                // 6) Create Nonlinear Problem -------------------------------------------------
+                // 9) Create Nonlinear Problem -------------------------------------------------
                 //std::cout<<" Create Nonlinear Problem "<<std::endl;
                 //------------------------------------------------------------------------------
 
                 NLA::Nonlinear_Problem* tNonlinearProblem
                     = new NLA::Nonlinear_Problem( tSolverInterface );
 
-                // 7) Create Solvers and solver manager ----------------------------------------
+                // 10) Create Solvers and solver manager ----------------------------------------
                 //std::cout<<" Create Solvers and solver manager "<<std::endl;
                 //------------------------------------------------------------------------------
 
@@ -349,7 +460,7 @@ namespace moris
 
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-                // 8) Solve --------------------------------------------------------------------
+                // 11) Solve --------------------------------------------------------------------
                 //std::cout<<" Solve "<<std::endl;
                 //------------------------------------------------------------------------------
                 Matrix<DDRMat> tSolution1;
@@ -372,7 +483,7 @@ namespace moris
                     tSolution1( k ) = tSolution( tAdofMap( k ) );
                 }
 
-                // 9) postprocessing------------------------------------------------------------
+                // 12) postprocessing------------------------------------------------------------
                 //std::cout<<" Postprocessing "<<std::endl;
                 //------------------------------------------------------------------------------
 
@@ -425,7 +536,7 @@ namespace moris
                                                         5.0, 25.0, 45.0 }};
 
                 // define an epsilon environment
-                double tEpsilon = 1E-12;
+                real tEpsilon = 1E-12;
 
                 // define a bool for solution check
                 bool tCheckNodalSolution = true;
@@ -471,8 +582,8 @@ namespace moris
                 std::string tOutputFile = "./int_ElemDiff_test.exo";
                 tMeshForOutput->create_output_mesh( tOutputFile );
 
-                // 8) Clean up -----------------------------------------------------------------
-                std::cout<<" Clean up "<<std::endl;
+                // 13) Clean up -----------------------------------------------------------------
+                //std::cout<<" Clean up "<<std::endl;
                 //------------------------------------------------------------------------------
                 delete tMesh;
                 delete tMeshForOutput;

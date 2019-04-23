@@ -18,6 +18,8 @@
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 
+#include "cl_MTK_Mesh_Core.hpp"
+
 namespace moris
 {
 
@@ -31,25 +33,26 @@ namespace moris
 //------------------------------------------------------------------------------
 
         /*!
-         * The MTK mesh class is virtual but not pure virtual
-         * to allow for partial implementation of the class
-         * depending on restrictions/abilities of various
-         * libraries. The functions are loosely grouped
-         * in this header file as follows:
-         *  - 1.) General mesh information access
-         *  - 2.) Access mesh data by index functions
-         *  - 3.) Access mesh data by global ids functions
-         *  - 4.) Coordinate Field Functions
-         *  - 5.) Entity Ownership Functions
-         *  - 6.) Mesh Sets Functions
-         *  - 7.) Field Functions
-         *  - 8.) Face Cluster Functions
-         *  - 9.) Cell and Vertex Pointer Functions
+         * The MTK mesh class is virtual but not pure virtual to allow for
+         * partial implementation of the class depending on restrictions/abilities
+         * of various libraries. All pure virtual functions appear at the top of the
+         * sections. The functions are loosely grouped in this header file as follows:
+         *  -  1.) General mesh information access
+         *  -  2.) Access mesh connectivity
+         *         2.a) standard connectivity access by index
+         *         2.b) geometric connectivity access by index
+         *  -  3.) Access mesh data by global ids functions
+         *  -  4.) Coordinate Field Functions
+         *  -  5.) Entity Ownership Functions
+         *  -  6.) Mesh Sets Functions
+         *  -  7.) Field Functions
+         *  -  8.) Face Cluster Functions
+         *  -  9.) Cell and Vertex Pointer Functions
          *  - 10.) Outputting Mesh
          *  Use this->shared_from_this() to create a shared
          * pointer of this ( the Mesh )
          */
-        class Mesh : public std::enable_shared_from_this< Mesh >
+        class Mesh_OLD : public std::enable_shared_from_this< Mesh_OLD >
         {
         public :
             // Verbose flag
@@ -58,7 +61,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Mesh(){};
+            Mesh_OLD(){};
 
             //------------------------------------------------------------------------------
 
@@ -66,10 +69,10 @@ namespace moris
              * virtual destructor
              */
             virtual
-            ~Mesh(){};
+            ~Mesh_OLD(){};
 
             //##############################################
-            // General mesh information access
+            // 1.) General mesh information access
             //##############################################
 
             //------------------------------------------------------------------------------
@@ -78,22 +81,13 @@ namespace moris
              * returns the type enum of this mesh
              */
             virtual MeshType
-            get_mesh_type() const
-            {
-                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_mesh_type function is not implemented)");
-                return MeshType::END_ENUM;
-
-            }
+            get_mesh_type() const = 0;
 
             //------------------------------------------------------------------------------
 
             virtual
             uint
-            get_spatial_dim() const
-            {
-                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                return 0;
-            }
+            get_spatial_dim() const = 0;
 
             //------------------------------------------------------------------------------
             /*
@@ -102,11 +96,46 @@ namespace moris
             virtual
             uint
             get_num_entities(
-                    enum EntityRank aEntityRank) const
+                    enum EntityRank aEntityRank) const = 0;
+
+            //------------------------------------------------------------------------------
+            //FIXME: IMPLEMENT THIS FUNCTION IN STK,XTK
+            /*
+             * Get number of B-Spline coefficients
+             */
+            virtual uint
+            get_num_coeffs(const uint aOrder) const
             {
-                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
                 return 0;
             }
+
+            //------------------------------------------------------------------------------
+            //FIXME: IMPLEMENT THIS FUNCTION IN STK
+            virtual const Matrix< DDRMat > &
+            get_t_matrix_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+            {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return mDummyMatrix;
+            }
+
+            //FIXME: IMPLEMENT THIS FUNCTION IN XTK
+            virtual Matrix< IndexMat >
+            get_bspline_inds_of_node_loc_ind(
+                    const moris_index aNodeIndex,
+                    const EntityRank  aBSplineRank )
+                    {
+                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+                return Matrix<IndexMat>(0,0);
+                    }
+
+            //------------------------------------------------------------------------------
+            // end of pure virtual functions in section 1
+            // all functions below this line need to be able to have a default implementation
+            //------------------------------------------------------------------------------
+
             //------------------------------------------------------------------------------
             /*
              * Get number of nodes
@@ -136,24 +165,6 @@ namespace moris
             get_num_faces() const
             {
                 return get_num_entities(EntityRank::FACE);
-            }
-
-            //------------------------------------------------------------------------------
-
-            uint
-            get_sidesets_num_faces() const
-            {
-                moris::uint tNumSideSetFaces = 0;
-
-                moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
-
-                for( luint Ik=0; Ik < tSideSetsNames.size(); ++Ik )
-                {
-                    Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tSideSetsNames( Ik ) );
-
-                    tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
-                }
-                return tNumSideSetFaces;
             }
 
             //------------------------------------------------------------------------------
@@ -190,43 +201,29 @@ namespace moris
                 return get_num_entities(EntityRank::ELEMENT);
             }
 
+
             //------------------------------------------------------------------------------
 
             /*
-             * Get number of B-Spline coefficients
+             * Get number of basis functions. For Lagrange meshes, the number of basis functions and the number of nodes
+             * are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
              */
-            virtual uint
-            get_num_coeffs(const uint aOrder) const
+            virtual
+            uint
+            get_num_basis_functions()
             {
-                MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
-                return 0;
+                return get_num_nodes();
             }
 
-//------------------------------------------------------------------------------
 
-            virtual const Matrix< DDRMat > &
-            get_t_matrix_of_node_loc_ind(
-                    const moris_index aNodeIndex,
-                    const EntityRank  aBSplineRank )
-            {
-                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                return mDummyMatrix;
-            }
-
-//------------------------------------------------------------------------------
-
-            virtual Matrix< IndexMat >
-            get_bspline_inds_of_node_loc_ind(
-                    const moris_index aNodeIndex,
-                    const EntityRank  aBSplineRank )
-            {
-                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                return Matrix<IndexMat>(0,0);
-            }
 
             //------------------------------------------------------------------------------
             //##############################################
-            // Access Mesh Data by index Functions
+            // 2.) Access Mesh Data by index Functions
+            //##############################################
+            //------------------------------------------------------------------------------
+            //##############################################
+            // 2.a.) Access standard mesh data
             //##############################################
             /*
              * Generic get local index of entities connected to
@@ -236,21 +233,19 @@ namespace moris
             Matrix<IndexMat>
             get_entity_connected_to_entity_loc_inds(moris_index     aEntityIndex,
                                                     enum EntityRank aInputEntityRank,
-                                                    enum EntityRank aOutputEntityRank) const
-            {
-                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                return Matrix<IndexMat>(0,0);
-            }
+                                                    enum EntityRank aOutputEntityRank) const = 0;
             //------------------------------------------------------------------------------
             /*
              * Since the connectivity between entities of the same rank are considered
              * invalid by STK standards, we need a separate function for element to element
              * specifically
-             *      *
+             *
              * @param[in]  aElementId - element id
              * @param[out] A 2 row matrix where the first row it the neighbor elements index and the
              *             second row is the shared face ordinal corresponding to the neighbor
              */
+
+            //FIXME: change to pure virtual
             virtual
             Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const
@@ -268,14 +263,13 @@ namespace moris
              * @param[out] Element to element connectivity and face index shared
              *                   (where elements are all by index)
              */
-
             virtual
             Matrix< IndexMat >
-            get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const
-            {
-                MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                return Matrix<IndexMat>(0,0);
-            }
+            get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const = 0;
+
+            //------------------------------------------------------------------------------
+            // end of pure virtual functions in section 2.1
+            //------------------------------------------------------------------------------
 
             //------------------------------------------------------------------------------
             /*
@@ -368,18 +362,6 @@ namespace moris
 
              //------------------------------------------------------------------------------
              /*
-              * Get number of basis functions. For Lagrange meshes, the number of basis functions and the number of nodes
-              * are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
-              */
-
-             virtual
-             uint
-             get_num_basis_functions()
-             {
-                 return get_num_nodes();
-             }
-
-             /*
               * Get elements interpolated into by a basis function. For a Lagrange mesh,
               * the elements in support of basis is equivalent to the elements connected
               * to a node. Therefore, a call to get_elements
@@ -390,6 +372,10 @@ namespace moris
              {
                  return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
              }
+
+             //##############################################
+             // 2.a.) Access geometric mesh data
+             //##############################################
 
              //##############################################
              // global id functions

@@ -976,6 +976,11 @@ namespace moris
                 }
             }
 
+            // Communicate mMaxLevel in case a processor has no flagged elements
+
+            moris::uint tMaxLevelResult = 0;
+            max_all( mMaxLevel, tMaxLevelResult );
+            mMaxLevel = tMaxLevelResult;
         }
 
 //--------------------------------------------------------------------------------
@@ -2124,7 +2129,6 @@ namespace moris
         void
         Background_Mesh_Base::create_facets()
         {
-
             tic tTimer;
             uint tPattern = mParameters->get_lagrange_output_pattern();
             this->set_activation_pattern( tPattern );
@@ -2163,7 +2167,6 @@ namespace moris
         void
         Background_Mesh_Base::create_faces_and_edges()
         {
-
             tic tTimer;
 
             // select output pattern
@@ -2214,7 +2217,6 @@ namespace moris
             this->collect_active_elements_including_aura();
             this->update_element_indices();
             this->collect_neighbors();
-
         }
 
 // -----------------------------------------------------------------------------

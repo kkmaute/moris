@@ -1755,8 +1755,7 @@ namespace moris
                     for( luint k=0; k<tNumberOfElements; ++k )
                     {
                         // decode path and get pointer to element
-                        Element*
-                        tElement = mAllElementsOnProc( mBackgroundMesh->decode_pedigree_path(
+                        Element* tElement = mAllElementsOnProc( mBackgroundMesh->decode_pedigree_path(
                                                        tReceiveIndex( p )( k ),
                                                        tReceivePedigree( p ),
                                                        tCount )->get_memory_index() );

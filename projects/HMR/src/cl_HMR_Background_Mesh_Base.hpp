@@ -798,6 +798,7 @@ namespace moris
                                 ( unsigned int ) aPattern );
                     }
                     mActivePattern = aPattern;
+
                     this->update_database();
                 }
             }

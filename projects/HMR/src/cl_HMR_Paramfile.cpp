@@ -381,6 +381,10 @@ namespace moris
                 {
                     mParameterList.set(  "use_refinement_interrelation", ( sint ) string_to_bool( tSecond( k ) ) );
                 }
+                else if ( tKey == "renumber_lagrange_nodes" )
+                {
+                    mParameterList.set(  "renumber_lagrange_nodes", ( sint ) string_to_bool( tSecond( k ) ) );
+                }
                 else if ( tKey == "max_refinement_level" )
                 {
                     sint tValue = ( sint ) stoi( tSecond( k ) );

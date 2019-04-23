@@ -30,6 +30,8 @@
 
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_L2.hpp"
+#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -103,8 +105,13 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          //-------------------------------------------------------------------------------------------
 
         // create IWG object
-        Cell< fem::IWG* > tIWGs ( 1, nullptr );
-        tIWGs( 0 ) = new moris::fem::IWG_L2( );
+        // a factory to create the IWGs
+        fem::IWG_Factory tIWGFactory;
+
+        Cell< fem::IWG* > tIWGs( 1, nullptr );
+        tIWGs( 0 ) = tIWGFactory.create_IWGs( fem::IWG_Type::L2 );
+
+//        tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
         map< moris_id, moris_index >   tCoefficientsMap;
         Cell< fem::Node_Base* >        tNodes;
@@ -127,16 +134,29 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // ask mesh about number of elements on proc
         luint tNumberOfElements = tMesh->get_num_elems();
 
-         // create equation objects
-         tElements.resize( tNumberOfElements, nullptr );
+        // create equation objects
+        tElements.reserve( tNumberOfElements );
 
-        for( luint k=0; k<tNumberOfElements; ++k )
+        Cell< fem::Element_Block * >      tElementBlocks(1,nullptr);
+
+        // ask mesh about number of elements on proc
+        moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+
+        moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+
+        for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
         {
-            // create the element
-            tElements( k ) = new fem::Element_Bulk( & tMesh->get_mtk_cell( k ),
-                                                    tIWGs,
-                                                    tNodes );
+            Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+            for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+            {
+                tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
+            }
+
         }
+        tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+
+        tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
                                                                                      tMesh->get_communication_table(),
@@ -145,6 +165,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
                                                                                      tMesh.get() );
 
         tMSI->set_param("L2")= (sint)tOrder;
+
+        tElementBlocks( 0 )->finalize( tMSI );
 
         tMSI->finalize( true );
 

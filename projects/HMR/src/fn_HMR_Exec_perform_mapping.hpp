@@ -124,25 +124,40 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 2: create union meshes and mappers
             // - - - - - - - - - - - - - - - - - - - - - -
-
-            Cell< std::shared_ptr< Mesh > > tUnionMeshes;
-            Cell< std::shared_ptr< Mesh > > tInputMeshes;
+            mtk::Mesh_Manager tMeshManager;
+            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tUnionInterpMeshes;
+            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
+            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
+            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
             Cell< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
 
             for( uint m=0; m<tNumberOfMappers; ++m )
             {
-                // get pointer to input mesh
-                tInputMeshes.push_back( aHMR->create_mesh(
+                // get pointer to input interpolation mesh
+                tInputInterpMeshes.push_back( aHMR->create_interpolation_mesh(
+                                            tMeshOrders( m ),
+                        aHMR->get_parameters()->get_lagrange_input_pattern() )  );
+
+                // get pointer to input integration mesh
+                tInputIntegMeshes.push_back( aHMR->create_integration_mesh(
                         tMeshOrders( m ),
-                        aHMR->get_parameters()->get_lagrange_input_pattern() ) );
+                        aHMR->get_parameters()->get_lagrange_input_pattern()));
 
                 // create union mesh from HMR object
-                tUnionMeshes.push_back( aHMR->create_mesh(
+                tUnionInterpMeshes.push_back( aHMR->create_interpolation_mesh(
                         tMeshOrders( m ),
                         aHMR->get_parameters()->get_union_pattern() ) );
 
+
+                tUnionIntegMeshes.push_back( aHMR->create_integration_mesh(
+                        tMeshOrders( m ),
+                        aHMR->get_parameters()->get_union_pattern() ) );
+
+                // add pairs to mesh manager
+                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
+
                 // create mapper
-                tMappers( m ) = new mapper::Mapper( tUnionMeshes( m ), tMeshOrders( m ) );
+                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex );
             }
 
 
@@ -163,7 +178,7 @@ namespace moris
                 uint m = tMapperIndex( tBSplineOrder );
 
                 // get pointer to field on union mesh
-                std::shared_ptr< Field > tUnionField =  tUnionMeshes( m )->create_field(
+                std::shared_ptr< Field > tUnionField =  tUnionInterpMeshes( m )->create_field(
                         tInputField->get_label(),
                         tBSplineOrder );
 
@@ -183,7 +198,7 @@ namespace moris
                 {
                     // first, project field on mesh with correct order
                     std::shared_ptr< Field > tTemporaryField =
-                            tInputMeshes( m )->create_field(
+                            tInputInterpMeshes( m )->create_field(
                                     tInputField->get_label(),
                                     tBSplineOrder );
 
@@ -214,7 +229,7 @@ namespace moris
 
                 // a small sanity test
                 MORIS_ASSERT(  tUnionField->get_coefficients().length()
-                        == tUnionMeshes( m )->get_num_entities(
+                        == tUnionInterpMeshes( m )->get_num_entities(
                                 mtk::order_to_entity_rank( tBSplineOrder ) ),
                                 "Number of B-Splines does not match" );
 

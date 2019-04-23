@@ -195,6 +195,13 @@ namespace moris
             };
 
 //-----------------------------------------------------------------------------------------------------------
+
+            Matrix< DDUMat > & get_time_levels( )
+            {
+                return mTimePerDofType;
+            };
+
+//-----------------------------------------------------------------------------------------------------------
             /**
              * @brief Initializes list with pdof hosts. This function is tested by the test   [Dof_Mgn_ini_pdof_host_list]
              *

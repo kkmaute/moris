@@ -15,7 +15,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/fn_isvector_Arma.hpp"
+#include "fn_isvector_Arma.hpp"
 #endif
 
 namespace moris

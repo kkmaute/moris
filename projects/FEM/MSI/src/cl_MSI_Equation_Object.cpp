@@ -18,8 +18,6 @@ namespace moris
 
     Equation_Object::Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs ) : mNodeObj( aNodeObjs )
     {
-        mTimeSteps.resize( 1, 1 );
-        mTimeSteps( 0, 0 ) = 1;
     }
 
 //-------------------------------------------------------------------------------------------------

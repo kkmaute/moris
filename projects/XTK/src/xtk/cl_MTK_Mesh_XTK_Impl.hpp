@@ -8,7 +8,7 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_MTK_MESH_XTK_IMPL_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_MTK_MESH_XTK_IMPL_HPP_
 
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 
 namespace xtk
 {
@@ -853,16 +853,6 @@ public :
         return 0;
     }
 
-//------------------------------------------------------------------------------
-    /**
-     * returns HMR database pointer if MTK is build with HMR
-     */
-    std::shared_ptr< hmr::Database >
-    get_HMR_database( )
-    {
-        MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR " );
-        return mDatabase;
-    }
 
 protected:
     xtk::Model*       mXTKModelPtr;

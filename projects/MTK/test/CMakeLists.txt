@@ -9,7 +9,9 @@ set(TEST_SOURCES
 	cl_MTK_Mesh_From_Data.cpp
 	cl_MTK_Vertex.cpp
 	cl_MTK_Cell.cpp
-	cl_MTK_Facet_Cluster.cpp)
+	cl_MTK_Facet_Cluster.cpp
+	cl_MTK_Mesh_New.cpp
+	cl_MTK_Interpolation_Mesh.cpp)
 
 # List test includes
 set(TEST_INCLUDES

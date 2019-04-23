@@ -19,6 +19,16 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
+        template<>
+        uint
+        Integration_Coeffs<
+            Integration_Type::GAUSS,
+            Integration_Order::TRI_3>::get_number_of_dimensions()
+        {
+            return 3;
+        }
+
+//------------------------------------------------------------------------------
 
         template<>
         uint

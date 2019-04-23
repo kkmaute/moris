@@ -25,14 +25,14 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 
 
-#include "../cl_MTK_Sets_Info.hpp"
-#include "../cl_MTK_Mesh_Data_Input.hpp"
-#include "../cl_MTK_Block.hpp"
-#include "../cl_Mesh_Enums.hpp"
-#include "../cl_MTK_Mesh.hpp"
-#include "../cl_MTK_Scalar_Field_Info.hpp"
-#include "../cl_MTK_Matrix_Field_Info.hpp"
-#include "../cl_MTK_Exodus_IO_Helper.hpp"
+#include "cl_MTK_Sets_Info.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Block.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
+#include "cl_MTK_Matrix_Field_Info.hpp"
+#include "cl_MTK_Exodus_IO_Helper.hpp"
 
 #include "cl_Cell.hpp"
 
@@ -632,8 +632,7 @@ public:
      *
      */
     void
-    build_mesh(
-            MtkMeshData & aMeshData );
+    build_mesh( MtkMeshData & aMeshData );
 
 //------------------------------------------------------------------------------
 
@@ -644,8 +643,7 @@ public:
      * @param[in]  aPartNames
      */
     void
-    declare_mesh_parts(
-            MtkMeshData &  aMeshData );
+    declare_mesh_parts( MtkMeshData &  aMeshData );
 
 //------------------------------------------------------------------------------
 
@@ -654,8 +652,7 @@ public:
      * @param[in]  aMeshData
      */
     void
-    declare_mesh_fields(
-            MtkMeshData & aMeshData );
+    declare_mesh_fields( MtkMeshData & aMeshData );
 //------------------------------------------------------------------------------
     /*
      * Add list of supplementary fields to add to output step
@@ -682,19 +679,16 @@ public:
      * @param[in]  aMeshData
      */
     void
-    populate_mesh_database(
-            MtkMeshData &  aMeshData );
+    populate_mesh_database( MtkMeshData & aMeshData );
 
 //------------------------------------------------------------------------------
 
     void
-    setup_cell_global_to_local_map(
-            MtkMeshData &   aMeshData );
+    setup_cell_global_to_local_map( MtkMeshData & aMeshData );
 
 //------------------------------------------------------------------------------
     void
-    setup_vertex_global_to_local_map(
-                MtkMeshData &   aMeshData );
+    setup_vertex_global_to_local_map( MtkMeshData & aMeshData );
 
 //------------------------------------------------------------------------------
     void
@@ -708,8 +702,7 @@ public:
      * @param[in]  aMeshData
      */
     void
-    process_block_sets(
-            MtkMeshData &   aMeshData );
+    process_block_sets( MtkMeshData & aMeshData );
 //------------------------------------------------------------------------------
 
     Matrix< IndexMat >

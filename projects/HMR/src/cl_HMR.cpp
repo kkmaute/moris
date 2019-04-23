@@ -353,7 +353,27 @@ namespace moris
 
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k )
             {
-                mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();         //FIXME
+                // Renumber Lagrange nodes to be the same than B-Spline basis. Only serial and linear
+                if(  mParameters->get_renumber_lagrange_nodes() )
+                {
+                    if (k ==1)
+                    {
+                        tic tTimer;
+
+                        mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();
+
+                        // print output if verbose level is set
+                        if ( mParameters->is_verbose() )
+                        {
+                            // stop timer
+                            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+                            std::fprintf( stdout,"%s Renumbering of Lagrange mesh.\n                took %5.3f seconds.\n\n",
+                                    proc_string().c_str(),
+                                    ( double ) tElapsedTime / 1000 );
+                        }
+                    }
+                }
 
                 tMesh = mDatabase->get_lagrange_mesh_by_index( k );
 
@@ -416,7 +436,6 @@ namespace moris
                         {
                             // get order of mesh
                             uint tOrder = tBMesh->get_order();
-
 
                             // generate label
                             std::string tLabel = "NumberOfCoefficients_" + std::to_string( tOrder );
@@ -960,6 +979,25 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        std::shared_ptr< Interpolation_Mesh_HMR >
+        HMR::create_interpolation_mesh( const uint & aLagrangeOrder, const uint & aPattern )
+        {
+            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase,
+                                                               aLagrangeOrder,
+                                                               aPattern );
+        }
+
+        std::shared_ptr< Integration_Mesh_HMR >
+        HMR::create_integration_mesh( const uint & aLagrangeOrder, const uint & aPattern )
+        {
+            return std::make_shared< Integration_Mesh_HMR >( mDatabase,
+                                                               aLagrangeOrder,
+                                                               aPattern );
+        }
+
+
+// -----------------------------------------------------------------------------
+
         std::shared_ptr< Field >
         HMR::create_field( const std::string & aLabel )
         {
@@ -1121,6 +1159,11 @@ namespace moris
                                         const uint          aLagrangeOrder,
                                         const uint          aBSpineOrder )
         {
+            if(  mParameters->get_renumber_lagrange_nodes() )
+            {
+                MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
+            }
+
             // opens an existing file with read and write access
             hid_t tFileID = open_hdf5_file( aFilePath );
 
@@ -1273,15 +1316,14 @@ namespace moris
                                                                  aLabel,
                                                                  EntityRank::NODE );
 
-            // having the values, we must no rearrange them in the order of the HMR mesh.
+            // having the values, we must now rearrange them in the order of the HMR mesh.
             // Therefore, we create a map
             map< moris_id, real > tValueMap;
             for( uint k=0; k<tNumberOfExodusNodes; ++k )
             {
                 // get ID of this node and map it with value
-                tValueMap[ tMesh->get_glb_entity_id_from_entity_loc_index(
-                        k,
-                        EntityRank::NODE ) ] = tValues( k );
+                tValueMap[ tMesh->get_glb_entity_id_from_entity_loc_index( k,
+                                                                           EntityRank::NODE ) ] = tValues( k );
             }
 
             // make sure that field is a row matrix
@@ -1292,6 +1334,26 @@ namespace moris
             {
                 tValues( k ) = tValueMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
             }
+
+            //-----------------------------------------------------------------------------
+            if(  mParameters->get_renumber_lagrange_nodes() )
+            {
+                Matrix< DDRMat >tTempValues = tValues;
+                Matrix< DDSMat > tReverseMap;
+                // load values into field
+                herr_t tStatus = 0;
+                hid_t tHDF5File = open_hdf5_file( "Reverse_Map_1.hdf5" );
+                load_matrix_from_hdf5_file( tHDF5File, "Id", tReverseMap, tStatus );
+                close_hdf5_file( tHDF5File );
+
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    tValues( tReverseMap( k ) ) = tTempValues( k );
+                }
+            }
+
+
+            //------------------------------------------------------------------------------
 
             // finally, we set the order of the B-Spline coefficients
             aField->set_bspline_order( tBSplineOrder );
@@ -1436,12 +1498,11 @@ namespace moris
 
         void
         HMR::user_defined_flagging(
-                int ( *aFunction )(
-                              Element                    * aElement,
-                        const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                              ParameterList              & aParameters ),
+                        int ( *aFunction )(       Element                    * aElement,
+                                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                                  ParameterList              & aParameters ),
                         Cell< std::shared_ptr< Field > > & aFields,
-                              ParameterList              & aParameters )
+                        ParameterList              & aParameters )
         {
 
             // remember current active scheme
@@ -1797,25 +1858,40 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 2: create union meshes and mappers
             // - - - - - - - - - - - - - - - - - - - - - -
-
-            Cell< std::shared_ptr< Mesh > > tUnionMeshes;
-            Cell< std::shared_ptr< Mesh > > tInputMeshes;
+            mtk::Mesh_Manager tMeshManager;
+            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tUnionInterpMeshes;
+            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tUnionIntegMeshes;
+            Cell< std::shared_ptr< Interpolation_Mesh_HMR > > tInputInterpMeshes;
+            Cell< std::shared_ptr< Integration_Mesh_HMR > >   tInputIntegMeshes;
             Cell< mapper::Mapper * > tMappers( tNumberOfMappers, nullptr );
 
             for( uint m=0; m<tNumberOfMappers; ++m )
             {
-                // get pointer to input mesh
-                tInputMeshes.push_back( this->create_mesh(
+                // get pointer to input interpolation mesh
+                tInputInterpMeshes.push_back( this->create_interpolation_mesh(
+                        tMeshOrders( m ),
+                        mParameters->get_lagrange_input_pattern() ) );
+
+                // get pointer to input integration mesh
+                tInputIntegMeshes.push_back( this->create_integration_mesh(
                         tMeshOrders( m ),
                         mParameters->get_lagrange_input_pattern() ) );
 
                 // create union mesh from HMR object
-                tUnionMeshes.push_back( this->create_mesh(
+                tUnionInterpMeshes.push_back( this->create_interpolation_mesh(
                         tMeshOrders( m ),
                         mParameters->get_union_pattern() ) );
 
+
+                tUnionIntegMeshes.push_back( this->create_integration_mesh(
+                                            tMeshOrders( m ),
+                                            mParameters->get_union_pattern() ) );
+
+                // add pairs to mesh manager
+                moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
+
                 // create mapper
-                tMappers( m ) = new mapper::Mapper( tUnionMeshes( m ) );
+                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex );
             }
 
             // - - - - - - - - - - - - - - - - - - - - - -
@@ -1835,7 +1911,7 @@ namespace moris
                 uint m = tMapperIndex( tBSplineOrder );
 
                 // get pointer to field on union mesh
-                std::shared_ptr< Field > tUnionField =  tUnionMeshes( m )->create_field(
+                std::shared_ptr< Field > tUnionField =  tUnionInterpMeshes( m )->create_field(
                         tInputField->get_label(),
                         tBSplineOrder );
 
@@ -1853,7 +1929,7 @@ namespace moris
                 {
                     // first, project field on mesh with correct order
                     std::shared_ptr< Field > tTemporaryField =
-                            tInputMeshes( m )->create_field(
+                            tInputInterpMeshes( m )->create_field(
                                     tInputField->get_label(),
                                     tBSplineOrder );
 
@@ -1877,7 +1953,7 @@ namespace moris
 
                 // a small sanity test
                 MORIS_ASSERT(  tUnionField->get_coefficients().length()
-                        == tUnionMeshes( m )->get_num_entities(
+                        == tUnionInterpMeshes( m )->get_num_entities(
                                 mtk::order_to_entity_rank( tBSplineOrder ) ),
                                 "Number of B-Splines does not match" );
 
@@ -1930,11 +2006,11 @@ namespace moris
             mDatabase->create_union_pattern();
 
             // create union mesh
-            std::shared_ptr< Mesh > tUnionMesh =  this->create_mesh(
+            std::shared_ptr< Interpolation_Mesh_HMR > tUnionInterpolationMesh =  this->create_interpolation_mesh(
                     tOrder, mParameters->get_union_pattern() );
 
             // create union field
-            std::shared_ptr< Field > tUnionField =  tUnionMesh->create_field(
+            std::shared_ptr< Field > tUnionField =  tUnionInterpolationMesh->create_field(
                     aField->get_label(),
                     aField->get_bspline_order() );
 
@@ -1969,8 +2045,17 @@ namespace moris
                         tUnionField );
             }
 
+            // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+            std::shared_ptr<Integration_Mesh_HMR> tIntegrationUnionMesh = this->create_integration_mesh(
+                    tOrder, mParameters->get_union_pattern() );
+
+
+            // Add union mesh to mesh manager
+            mtk::Mesh_Manager tMeshManager;
+            moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpolationMesh.get(),tIntegrationUnionMesh.get());
+
             // create mapper
-            mapper::Mapper tMapper( tUnionMesh );
+            mapper::Mapper tMapper( &tMeshManager,tMeshPairIndex );
 
             // project field to union
             tMapper.perform_mapping(
@@ -1981,7 +2066,7 @@ namespace moris
 
             // a small sanity test
             MORIS_ASSERT(  tUnionField->get_coefficients().length()
-                    == tUnionMesh->get_num_entities(
+                    == tUnionInterpolationMesh->get_num_entities(
                             mtk::order_to_entity_rank( tBSplineOrder ) ),
                             "Number of B-Splines does not match" );
 

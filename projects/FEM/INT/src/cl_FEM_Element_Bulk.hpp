@@ -15,7 +15,7 @@ namespace moris
 {
     namespace fem
     {
-
+    class Element_Block;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -32,10 +32,12 @@ namespace moris
          * @param[ in ]     pointer to mesh interface object
          * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
          * @param[ in ]     cell of pointer to fem nodes
+         * @param[ in ]     Pointer to element block
          */
-        Element_Bulk( mtk::Cell                 * aCell,
+        Element_Bulk( mtk::Cell    const *        aCell,
                       moris::Cell< IWG* >       & aIWGs,
-                      moris::Cell< Node_Base* > & aNodes );
+                      moris::Cell< Node_Base* > & aNodes,
+                      Element_Block      * aElementBlock );
 //------------------------------------------------------------------------------
         /**
          * trivial destructor

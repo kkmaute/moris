@@ -44,6 +44,7 @@ namespace moris
 
         aParameterList.insert( "use_multigrid", 0 );
         aParameterList.insert( "use_refinement_interrelation", 0 );
+        aParameterList.insert( "renumber_lagrange_nodes", 0 );
 
         aParameterList.insert( "initial_bspline_refinement", 0 );
         aParameterList.insert( "additional_lagrange_refinement", 0 );
@@ -130,6 +131,10 @@ namespace moris
             {
                 aParameterList.set(  "use_refinement_interrelation", ( sint ) string_to_bool( tSecond( k ) ) );
             }
+            else if ( tKey == "renumber_lagrange_nodes" )
+            {
+                aParameterList.set(  "renumber_lagrange_nodes", ( sint ) string_to_bool( tSecond( k ) ) );
+            }
         }
     }
 
@@ -204,6 +209,9 @@ namespace moris
 
         // get refinement interrelation parameter
         this->set_refinement_interrelation( aParameterList.get< sint >("use_refinement_interrelation") == 1 );
+
+        // get renumber lagrange nodes
+        this->set_renumber_lagrange_nodes( aParameterList.get< sint >("renumber_lagrange_nodes") == 1 );
     }
 
 //--------------------------------------------------------------------------------
@@ -237,6 +245,8 @@ namespace moris
         aParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
 
         aParameterList.set( "use_refinement_interrelation", ( sint ) aParameters->get_refinement_interrelation() );
+
+        aParameterList.set( "renumber_lagrange_nodes", ( sint ) aParameters->get_renumber_lagrange_nodes() );
 
 
         return aParameterList;
@@ -276,6 +286,8 @@ namespace moris
 
         // set refinement interrelation parameter
         this->set_refinement_interrelation( aParameters.get_refinement_interrelation() );
+
+        this->set_renumber_lagrange_nodes( aParameters.get_renumber_lagrange_nodes() );
     }
 
 //--------------------------------------------------------------------------------

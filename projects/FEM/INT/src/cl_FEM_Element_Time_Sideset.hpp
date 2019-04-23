@@ -15,6 +15,7 @@ namespace moris
 {
     namespace fem
     {
+    class Element_Block;
 //------------------------------------------------------------------------------
     /**
      * \brief Element_Sideset class
@@ -38,10 +39,12 @@ namespace moris
          * @param[ in ]     pointer to mesh interface object
          * @param[ in ]     cell of pointers to integrand of weak form of governing eqs.
          * @param[ in ]     cell of pointer to fem nodes
+         * @param[ in ]     Pointer to element block
          */
-        Element_Time_Sideset( mtk::Cell                  * aCell,
+        Element_Time_Sideset( mtk::Cell            const * aCell,
                               moris::Cell< IWG* >        & aIWGs,
-                              moris::Cell< Node_Base* >  & aNodes );
+                              moris::Cell< Node_Base* >  & aNodes,
+                              Element_Block      * aElementBlock);
 //------------------------------------------------------------------------------
         /**
          * destructor
@@ -69,20 +72,6 @@ namespace moris
 //------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
-//        /**
-//         * create the field interpolators for the element
-//         */
-//        Cell< Field_Interpolator* > create_field_interpolators
-//            ( Geometry_Interpolator* aGeometryInterpolator );
-
-//------------------------------------------------------------------------------
-//        /**
-//         * set the field interpolators coefficients
-//         */
-//        void
-//        set_field_interpolators_coefficients
-//        ( Cell< Field_Interpolator* > & aFieldInterpolators );
-//
 
 //------------------------------------------------------------------------------
     };

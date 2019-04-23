@@ -176,8 +176,6 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // determine coefficient of determination
                 moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
-                std::cout << "R2 " << tR2 << std::endl;
-
                 // perform test
                 if( tOrder == 1 )
                 {
@@ -251,7 +249,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 1; ++tLevel )
+        for( uint tLevel = 3; tLevel < 1; ++tLevel )
         {
             tDatabase->flag_element( 0 );
 

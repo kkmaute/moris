@@ -16,7 +16,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/fn_eye_Arma.hpp"
+#include "fn_eye_Arma.hpp"
 #endif
 
 namespace moris

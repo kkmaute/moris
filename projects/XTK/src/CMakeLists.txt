@@ -14,7 +14,7 @@ set(HEADERS
     geomeng/cl_MGE_Geometry_Object.hpp
     geomeng/fn_Triangle_Geometry.hpp
     geometry/cl_Geometry.hpp
-    geometry/cl_Analytic_Level_Set_Plane.hpp
+    geometry/cl_Plane.hpp
     geometry/cl_Composite_Fiber_Straight_1.hpp
     geometry/cl_Composite_Fiber_Straight_2.hpp
     geometry/cl_Composite_Fiber_Straight_3.hpp
@@ -30,13 +30,6 @@ set(HEADERS
     geometry/cl_Spiral.hpp
     ios/cl_Logger.hpp
     linalg/cl_XTK_Matrix_Base_Utilities.hpp
-    mesh/cl_Mesh_Bucket.hpp
-    mesh/cl_Mesh_Data_MTK.hpp
-    mesh/cl_Mesh_Entity.hpp
-    mesh/cl_Mesh_External_Entity_Data_Stk.hpp
-    mesh/cl_Mesh_Node_Set_Input.hpp
-    mesh/cl_Mesh_Parallel_Data_Stk.hpp
-    mesh/cl_Mesh_Side_Set_Input.hpp
     tools/fn_verify_tet_topology.hpp
     tools/cl_Interpolaton.hpp
     tools/cl_MPI_Tools.hpp
@@ -54,12 +47,16 @@ set(HEADERS
     topology/cl_XTK_Linear_Basis_Functions.hpp
     topology/cl_XTK_Quad_4_Basis_Function.hpp
     topology/cl_XTK_Quad_4_Topology.hpp
-    xtk/cl_MTK_Mesh_XTK_Impl.hpp	
+    xtk/cl_MTK_Cell_XTK_Impl.hpp
+    xtk/cl_MTK_Mesh_XTK_Impl.hpp
+    xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.hpp
+    xtk/cl_MTK_Vertex_XTK_Impl.hpp
     xtk/cl_XTK_Active_Process_Manager.hpp
     xtk/cl_XTK_Background_Mesh.hpp
     xtk/cl_XTK_Child_Mesh_Modification_Template.hpp
     xtk/cl_XTK_Child_Mesh.hpp
     xtk/cl_XTK_Cut_Mesh.hpp
+    xtk/cl_XTK_Decomposition_Data.hpp
     xtk/cl_XTK_Downward_Inheritance.hpp
     xtk/cl_XTK_Enrichment.hpp
     xtk/cl_XTK_Entity_Tracker.hpp
@@ -67,19 +64,23 @@ set(HEADERS
     xtk/cl_XTK_Enums.hpp
     xtk/cl_XTK_External_Mesh_Data.hpp
     xtk/cl_XTK_Face_Registry.hpp
+    xtk/cl_XTK_Ghost_Stabilization.hpp
     xtk/cl_XTK_Input_Generator.hpp
     xtk/cl_XTK_Interface_Element.hpp
+    xtk/cl_XTK_Mesh.hpp
     xtk/cl_XTK_Model_Export.hpp
     xtk/cl_XTK_Model.hpp
     xtk/cl_XTK_Node.hpp
     xtk/cl_XTK_Output_Options.hpp
     xtk/cl_XTK_Parallel_Mesh_Data.hpp
+    xtk/cl_XTK_Paramfile.hpp
     xtk/cl_XTK_Pending_Node.hpp
     xtk/cl_XTK_Phase_Table.hpp
     xtk/cl_XTK_Request_Handler.hpp
     xtk/cl_XTK_Sensitivity.hpp
     xtk/cl_XTK_Tetra4_Connectivity.hpp
     xtk/fn_assemble_boundary_subphase_constraint.hpp
+    xtk/fn_compute_interface_surface_area.hpp
     xtk/fn_compute_xtk_model_volumes.hpp
     xtk/fn_create_edges_from_element_to_node.hpp
     xtk/fn_create_faces_from_element_to_node.hpp
@@ -89,7 +90,8 @@ set(HEADERS
     xtk/fn_local_child_mesh_flood_fill.hpp
     xtk/fn_mesh_flood_fill.hpp
     xtk/fn_prune_element_to_element.hpp
-    xtk/fn_write_element_ownership_as_field.hpp)                                                                                                                                                                                                                                                                   
+    xtk/fn_write_element_ownership_as_field.hpp
+    )                                                                                                                                                                                                                                                                   
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               
@@ -137,16 +139,16 @@ endforeach()
 
 # List source files                                                                                                                                                                                                                                                            
 set(LIB_SOURCES
-       xtk/cl_XTK_Model.cpp
-       xtk/cl_XTK_Background_Mesh.cpp
-       xtk/cl_XTK_Child_Mesh.cpp
-       xtk/cl_XTK_Enrichment.cpp
-       xtk/cl_MTK_Cell_XTK_Impl.cpp
-       xtk/cl_MTK_Mesh_XTK_Impl.cpp
-       xtk/cl_MTK_Vertex_XTK_Impl.cpp
-       xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
-       xtk/cl_XTK_Paramfile.cpp
-       xtk/cl_XTK_Ghost_Stabilization.cpp)
+xtk/cl_MTK_Cell_XTK_Impl.cpp
+xtk/cl_MTK_Mesh_XTK_Impl.cpp
+xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
+xtk/cl_MTK_Vertex_XTK_Impl.cpp
+xtk/cl_XTK_Background_Mesh.cpp
+xtk/cl_XTK_Child_Mesh.cpp
+xtk/cl_XTK_Enrichment.cpp
+xtk/cl_XTK_Ghost_Stabilization.cpp
+xtk/cl_XTK_Model.cpp
+xtk/cl_XTK_Paramfile.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
@@ -232,6 +234,7 @@ set(XTK_EXE_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
     ${ALG}-lib
+    ${HMR}-lib
 	${MORIS_BASE_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
@@ -241,7 +244,7 @@ set(XTK_EXE_DEPENDENCIES
 
 add_executable(XTK_EXE ${XTK_EXE_SOURCES})
 target_link_libraries(XTK_EXE ${XTK_EXE_DEPENDENCIES})
-set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK.exe )
+set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK )
 
 
 
@@ -286,11 +289,7 @@ set(HMR_EXE_DEPENDENCIES
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
-#    ${ALG}-lib #MTK
-#    ${TOL}-lib #MTK
     ${SDF}-lib # for SDF
-#    ${XTK}-lib #MTK
-#    ${STK}-lib #MTKz
     ${COM}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
@@ -336,9 +335,17 @@ endif()
  install(FILES ${${XTK}_CONFIG_BUILD_DIR}/${XTK}Config.cmake 
      ${${XTK}_CONFIG_BUILD_DIR}/${XTK}ConfigVersion.cmake
      DESTINATION ${CONFIG_INSTALL_DIR}/${XTK} )
+
 # Install header files
  install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${XTK} )
+    
+# Install library and executable
+install(TARGETS ${XTK}-lib
+    EXPORT ${XTK}Targets
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${XTK}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${XTK}
+    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${XTK} )
 
 # Install executable
 install(TARGETS XTK_PLATO

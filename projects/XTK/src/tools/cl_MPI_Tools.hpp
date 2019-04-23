@@ -119,7 +119,7 @@ void nonblocking_send(moris::Matrix<Size_T_Matrix> const & aSendingMatrix,
     MPI_Isend(aSendingMatrix.data(), tNumToSend, moris::get_comm_datatype(aSendingMatrix(0,0)), aReceivingProc, aTag, MPI_COMM_WORLD, &tRequest);
 }
 
-
+inline
 bool
 sent_message_exists(int aOtherProc,
                     int aTag)
@@ -141,6 +141,7 @@ sent_message_exists(int aOtherProc,
 }
 
 template <typename Size_T_Matrix>
+inline
 void receive(moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
              size_t aNumRows,
              int aSendingProc,

@@ -15,7 +15,7 @@
 #include "cl_GE_Geometry.hpp"
 //------------------------------------------------------------------------------
 // MTK includes
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 //------------------------------------------------------------------------------
 // FEM includes
 #include "cl_FEM_Integrator.hpp"

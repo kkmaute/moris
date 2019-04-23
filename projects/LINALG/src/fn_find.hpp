@@ -15,7 +15,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "Arma_Impl/fn_find_Arma.hpp"
+#include "fn_find_Arma.hpp"
 #endif
 
 

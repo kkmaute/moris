@@ -27,7 +27,6 @@ namespace moris
 
         class T_Matrix
         {
-
             //! ref to settings container
             const Parameters   * mParameters;
 
@@ -177,8 +176,7 @@ namespace moris
             }
 
 //-------------------------------------------------------------------------------
-            void
-            evaluate();
+            void evaluate( const bool aBool =true);
 
 //-------------------------------------------------------------------------------
        private:
@@ -187,8 +185,7 @@ namespace moris
             /**
              * determins the sorting order of the nodes
              */
-            void
-            init_basis_index();
+            void init_basis_index();
 
 //-------------------------------------------------------------------------------
 

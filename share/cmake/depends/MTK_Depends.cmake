@@ -20,6 +20,11 @@ set(MTK_TPL_DEPENDENCIES
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 
+set(MTK_PROJ ${MORIS_PACKAGE_DIR}/${MTK}/src/stk_impl)
+
+
+include_directories(${MTK_PROJ})
+
 # Include third party libraries indirectly needed by MTK
 list(APPEND MTK_TPL_DEPENDENCIES
     )
