@@ -458,8 +458,8 @@ namespace moris
 
     TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
     {
-       if(par_size() == 1 )
-       {
+//       if(par_size() == 1 )
+//       {
            // Create a 3D mesh of HEX8 using MTK ------------------------------------------
            std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
            //------------------------------------------------------------------------------
@@ -570,7 +570,7 @@ namespace moris
                }
                // check bool is true
                REQUIRE( tCheckNodalSolution );
-           }/* if( par_size() */
+//           }/* if( par_size() */
        }
 
     }/* namespace fem */

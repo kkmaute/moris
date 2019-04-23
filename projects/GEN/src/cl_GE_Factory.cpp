@@ -20,7 +20,7 @@ namespace moris
             switch(aGeomType)
             {
             case(type::ANALYTIC):
-                    tGeomPointer = std::make_shared< Analytical >();
+                    tGeomPointer = std::make_shared< Analytic >();
                     break;
             case(type::DISCRETE):
                     tGeomPointer = std::make_shared< Discrete >();

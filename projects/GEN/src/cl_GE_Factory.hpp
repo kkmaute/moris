@@ -16,7 +16,7 @@
 #include "cl_GE_SDF.hpp"
 
 #include "assert.hpp"
-#include "cl_GE_Analytical.hpp"
+#include "cl_GE_Analytic.hpp"
 
 namespace moris
 {
@@ -37,26 +37,9 @@ namespace moris
     	     * @param[out] tGeomPointer - GE pointer to base class.
     	     *
     	     */
-    		std::shared_ptr< Geometry > set_geometry_type( const enum type aGeomType = type::ANALYTIC );
+    		std::shared_ptr< Geometry >
+    		set_geometry_type( const enum type aGeomType = type::ANALYTIC );
 
-
-//    		Geometry* set_geometry_type(enum type aGeomType = type::ANALYTIC)
-//    		{
-//    			Geometry* tGeomPointer;
-//    			switch(aGeomType)
-//    			{
-//    			case(type::ANALYTIC):
-//    					tGeomPointer = new Analytical();
-//    					break;
-//                case(type::DISCRETE):
-//                        tGeomPointer = new Discrete();
-//                        break;
-//    			default:
-//    					MORIS_ERROR(false, "Ge_Factory::set_geometry_type() please input a valid geometry type");
-//    					break;
-//    			}
-//    		return tGeomPointer;
-//    		}
 
         private:
 

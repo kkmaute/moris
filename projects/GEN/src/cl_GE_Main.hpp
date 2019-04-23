@@ -18,12 +18,14 @@
 #include "cl_MTK_Mesh.hpp"
 //------------------------------------------------------------------------------
 // FEM includes
-#include "FEM/INT/src/cl_FEM_Integrator.hpp"
-#include "FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Integrator.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
 //------------------------------------------------------------------------------
 // LinAlg includes
 #include "op_minus.hpp"
+#include "op_times.hpp"
 #include "fn_norm.hpp"
+#include "fn_linsolve.hpp"
 //------------------------------------------------------------------------------
 
 namespace moris
@@ -45,13 +47,27 @@ namespace moris
 			 *  @param[in]  aThreshold              threshold value for current geometry LS function
 			 *
 			 */
-			void set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
+			void
+			set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
 			                                          real   aThreshold   = 0.0)
 			{
 				mListOfGeoms.push_back( aGeomPointer );
 				mThresholds.push_back(aThreshold);
 			}
 
+//------------------------------------------------------------------------------
+            /**
+             *  @brief  get pointer to specified geometry object
+             *
+             *  @param[in]   aWhichGeometry                     which geometry pointer to get
+             *
+             *  @param[out]  mListOfGeoms( aWhichGeometry )     geometry class pointer
+             */
+			std::shared_ptr< Geometry >
+			get_geometry_pointer( uint aWhichGeometry )
+			{
+			    return mListOfGeoms( aWhichGeometry );
+			}
 //------------------------------------------------------------------------------
     	    /**
     	     * @brief function to create a list of flagged elements
@@ -94,7 +110,7 @@ namespace moris
 			};
 //------------------------------------------------------------------------------
     	    /**
-    	     * @brief similar to flag_element_list_for_refinement()
+    	     * @brief loops through a given mesh a returns a logical list of elements which are intersected with the specified geometry
     	     *
     	     * @param[in] aConstant				cell of real consant relevant to the LS function (analytical)
     	     * @param[in] aWhichGeometry		switch to determine which geometry function is being used from the list of geometries
@@ -200,7 +216,10 @@ namespace moris
 			/*
 			 * @brief determines volume elements (cells)
 			 *
-			 *
+			 * @param[in] aCells        - elements to be flagged for refinement
+			 * @param[in] aCandidates   - candidates for refinement
+			 * @param[in] aVertexValues - vertex values of scalar field
+			 * @param[in] aUpperBound   - upper bound of LS
 			 */
             void
             find_cells_within_levelset(
@@ -260,7 +279,11 @@ namespace moris
             /*
              * @brief determines elements (cells) intersected by the level set
              *
-             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aLowerBound   - lower bound of LS
+             * @param[in] aUpperBound   - upper bound of LS
              */
 
             void
@@ -318,6 +341,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 //fixme need to add default values for parts of this function (such as integration/interpolation rules, time evolution domain, etc.)
+//fixme need to make geometry class robust enough so that this function knows how to get the field values at the nodes (for loop at line 427)
 
             /*@brief function to determine adof values (phi) at the nodal locations
              *
@@ -332,7 +356,7 @@ namespace moris
             determine_phi_hat( Matrix< DDRMat >      & aTMatrix,
                                mtk::Mesh*            & aMeshPointer,
                                moris::Cell< real >   & aGeomParams,
-                               uint                  aWhichGeom )
+                               uint                    aWhichGeom )
             {
                 // create a space time integration rule and interpolation rules for Geometry and LS field
                 //------------------------------------------------------------------------------
@@ -341,7 +365,7 @@ namespace moris
                                                        fem::Integration_Type::GAUSS,
                                                        fem::Integration_Order::QUAD_3x3,
                                                        fem::Integration_Type::GAUSS,        // these last two are for the time integration
-                                                       fem::Integration_Order::BAR_1);      // using BAR_1 as defailt since we are not evolving in time
+                                                       fem::Integration_Order::BAR_1);      // using BAR_1 as default since we are not evolving in time
 
                 fem::Integrator tFieldIntegrator( tFieldIntegRule );                        // field integration object
 
@@ -406,26 +430,26 @@ namespace moris
 
                     //evaluate space and time at xi, tau
                     tPoint   = tGeomInterpolator->valx( tSpaceIntegPoints.get_column(i) );    // N * ( x,y ) (determines global coordinates of the GPs)
+
                     tPhiS(i) = mListOfGeoms(aWhichGeom)->get_field_val_at_coordinate( tPoint, aGeomParams );
                 }
-                //------------------------------------------------------------------------------
 
+                //------------------------------------------------------------------------------
                 // compute phi_hat
                 //------------------------------------------------------------------------------
 
-                Matrix< DDRMat > tPhiHat(tNumNodes,1);
-                tPhiHat.fill( 1 );
-                Matrix< DDRMat > tPhi(tNumNodes,1);
-                tPhi.fill( 1 );
+                Matrix< DDRMat > tPhiHat(tNumNodes,1, 1);
+
+                Matrix< DDRMat > tPhi(tNumNodes,1, 1);
 
                 real tTol = 1.0;
 
-                for (uint k=0; k<10; k++)
+                for (uint k=0; k<10; k++)   // dummy NR loop (only runs once)
                 {
                     Matrix< DDRMat > tJacobian(tNumNodes,tNumNodes);
                     tJacobian.fill( 0 );
-                    Matrix< DDRMat > tResidual(9,1);
-                    tResidual.fill( 0 );
+
+                    Matrix< DDRMat > tResidual(aTMatrix.length(), 1, 0.0);
 
                     for(uint i=0; i<tNumNodes; i++)
                     {
@@ -447,20 +471,27 @@ namespace moris
                     {
                         break;
                     }
-                    tPhiHat = tPhiHat - inv(tJBar)*tRBar;  // solve Ax=B problem
-                    tPhi    = aTMatrix*tPhiHat;            // determine tPhi for iteration loop
+                    tPhiHat = tPhiHat - solve(tJBar,tRBar);  // solve Ax=B problem
+                    tPhi    = aTMatrix*tPhiHat;              // determine tPhi for iteration loop
                 }
 
                 delete tGeomInterpolator;
                 return tPhiHat;
             }
 
+
+
         //------------------------------------------------------------------------------
 		private:
             // member variables
             moris::Cell< std::shared_ptr< Geometry > >        mListOfGeoms;
-            moris::Cell< real >             mThresholds;
+            moris::Cell< real >                               mThresholds;
 
+            /*
+             * should also store refinement list for certain geometry (if asked)
+             *
+             *
+             */
         //------------------------------------------------------------------------------
         protected:
 

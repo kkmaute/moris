@@ -43,16 +43,13 @@ proxy_sphere_function( const Matrix< DDRMat > & aCoordinate,
 TEST_CASE("interface_to_main","[GE],[interfaceTest]")
 
 {//std::cout<<"-1-1-1-1-1-1-1-1-1-1-11-1-1-1-1-1-1-"<<std::endl;
-    ge::Geometry_Engine_Interface* tInterface;
+    std::shared_ptr<Geometry_Engine_Interface> tInterface = std::make_shared< GE_Main >();
 
     Ge_Factory tFactory;
     std::shared_ptr< Geometry > tGeom1 = tFactory.set_geometry_type(type::ANALYTIC);
 
-    tGeom1->set_analytical_function( sphere_function );
-    std::cout<<"-1-1-1-1-1-1-1-1-1-1-11-1-1-1-1-1-1-"<<std::endl;
-//    tInterface->set_geometry( tGeom1 );
-
-
+    tGeom1->set_analytical_function( proxy_sphere_function );
+    tInterface->set_geometry( tGeom1 );
 
 
 }

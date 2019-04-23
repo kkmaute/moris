@@ -20,13 +20,61 @@ namespace ge{
 //------------------------------------------------------------------------------
 real
 circle_function( const Matrix< DDRMat > & aPoint,
-                       Cell< real >       inputs )
+                       Cell< real >       aInputs )
 {
-    // inputs(0) = x location of center
-    // inputs(1) = y location of center
-    // inputs(2) = radius
+    // aInputs(0) = x location of center
+    // aInputs(1) = y location of center
+    // aInputs(2) = radius
 
-      return (std::pow((aPoint(0,0) - inputs(0)),2) + std::pow((aPoint(0,1) - inputs(1)),2) - std::pow(inputs(2),2));
+      return (std::pow((aPoint(0,0) - aInputs(0)),2) + std::pow((aPoint(0,1) - aInputs(1)),2) - std::pow(aInputs(2),2));
+}
+//------------------------------------------------------------------------------
+Matrix< DDRMat >
+circle_function_dphi_dx( const Matrix< DDRMat > & aPoint,
+                               Cell< real >       aInputs )
+{
+    moris::Matrix< DDRMat > tSensitivity( 3, 2, 0.0 );
+    moris::real tSign = 0.0;
+
+    // dx/dr = r/sqrt(r^2 - y^2)
+    moris::real tSqrt = aInputs(2)*aInputs(2) - std::pow((aPoint(1)-aInputs(1)),2);
+    if(tSqrt < 0.0)
+    {
+        tSign = -1.0;
+    }
+    else if(tSqrt > 0.0)
+    {
+        tSign = 1.0;
+    }
+    else
+    {
+        std::cout << "zero denominator detected";
+    }
+    tSensitivity(0,0) = tSign * aInputs(2) / std::sqrt(std::abs(tSqrt));
+
+    // dy/dr = r/sqrt(r^2 - x^2)
+    tSqrt = aInputs(2)*aInputs(2) - std::pow((aPoint(0)-aInputs(0)),2);
+    if(tSqrt < 0.0)
+    {
+        tSign = -1.0;
+    }
+    else if(tSqrt > 0.0)
+    {
+        tSign = 1.0;
+    }
+    else
+    {
+        std::cout << "zero denominator detected";
+    }
+    tSensitivity(0,1) = tSign * aInputs(2) / std::sqrt(std::abs(tSqrt));
+
+    // fill remaining values in tSensitivity
+    tSensitivity(1,0) = 1.0; // dx/dxc
+    tSensitivity(1,1) = 0.0; // dy/dxc
+    tSensitivity(2,0) = 0.0; // dx/dyc
+    tSensitivity(2,1) = 1.0; // dy/dyc
+
+    return tSensitivity;
 }
 //------------------------------------------------------------------------------
 real
@@ -67,7 +115,7 @@ sphere_function_dphi_dx( const Matrix< DDRMat > & aCoordinate,
         std::cout << "zero denominator detected";
     }
 
-    (tSensitivityDxDp)(0, 0) = sign * aInputs(3) / std::sqrt(std::abs(tSqrt));
+    tSensitivityDxDp(0, 0) = sign * aInputs(3) / std::sqrt(std::abs(tSqrt));
 
     //dy/dr
     tSqrt = aInputs(3) * aInputs(3) - (aCoordinate(0) - aInputs(0)) * (aCoordinate(0) - aInputs(0))

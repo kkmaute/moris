@@ -61,7 +61,7 @@ namespace moris
 	{
 //------------------------------------------------------------------------------
 
-		TEST_CASE("nodal_coordinate_test","[GE],[GE_test1]")
+		TEST_CASE("nodal_coordinate_test","[GE],[nodal_coordinate_test]")
 				{
 		        /* create GE node objects, create GE element object, check nodal coordinates */
 				mtk::Vertex* tVertex1 = new Node(0.0, 0.0);
@@ -103,7 +103,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-		TEST_CASE("2D_circle_LS_intersection_test","[GE],[GE_test2]")
+		TEST_CASE("2D_circle_LS_intersection_test","[GE],[intersection_test_2D]")
 				{
 		        /* create 2D 4-element mesh, add circle function, check for intersection */
 				mtk::Vertex* tVertex1_1 = new Node(0.0, -1.0);
@@ -191,7 +191,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-		TEST_CASE("GE_multiple_geometry_intersection_test_3D_with_mtk_mesh","[GE],[GE_test3]")
+		TEST_CASE("GE_multiple_geometry_intersection_test_3D_with_mtk_mesh","[GE],[intersection_test_3D]")
 				{
 				/* create 3D mtk mesh, add two sphere LS functions, loop through all elements
 				 * and flag for intersection
@@ -274,16 +274,16 @@ namespace moris
 
 				//------------------------------------------------------------------------------
 
-				GE_Main geometryEngine;
+				std::shared_ptr<Geometry_Engine_Interface> tInterface = std::make_shared< GE_Main >();
 
-				geometryEngine.set_geometry( type0 );
-				geometryEngine.set_geometry( type1 );
+				tInterface->set_geometry( type0 );
+				tInterface->set_geometry( type1 );
 
 				moris::Cell< uint > tFlags0; // create cell of flags for the elements: 1=flagged, 0=unflagged
 				moris::Cell< uint > tFlags1;
 
-				tFlags0 = geometryEngine.check_for_intersection( tInput1, tMesh3DHexs , 0 );
-				tFlags1 = geometryEngine.check_for_intersection( tInput2, tMesh3DHexs , 1 );
+				tFlags0 = tInterface->check_for_intersection( tInput1, tMesh3DHexs , 0 );
+				tFlags1 = tInterface->check_for_intersection( tInput2, tMesh3DHexs , 1 );
 
 				//------------------------------------------------------------------------------
 
@@ -304,8 +304,8 @@ namespace moris
 				// add total flag field to mesh
 				tMesh3DHexs->add_mesh_field_real_scalar_data_loc_inds(tRefineFieldName, EntityRank::ELEMENT, tElementalFlags_total);
 
-				std::string tOutputFile = "./ge_test5.exo";
-				tMesh3DHexs->create_output_mesh(tOutputFile);
+//				std::string tOutputFile = "./ge_test5.exo";
+//				tMesh3DHexs->create_output_mesh(tOutputFile);
 				//------------------------------------------------------------------------------
 
 				/* fixme need to add checks for test */
@@ -314,7 +314,7 @@ namespace moris
 //				delete type0;       delete type1;
 				}
 //------------------------------------------------------------------------------
-		TEST_CASE("2D_quad4_edge_normal_test_with_specific_mtk_mesh","[GE],[GE_test4]")
+		TEST_CASE("2D_quad4_edge_normal_test_with_specific_mtk_mesh","[GE],[normal_test_2D_quad4]")
 				{
 				/*	create a 2D MORIS mesh of quad4's using mtk database and determine the edge normals */
 				//------------------------------------------------------------------------------
@@ -391,41 +391,12 @@ namespace moris
 				delete tMesh2D_Quad4;
 				}
 //------------------------------------------------------------------------------
-				TEST_CASE("GE_analytical_function_pointer_checks","[GE],[GE_test5]")
-						{
-					if(par_size()<=1)
-					{
-					    Ge_Factory tFactory;
-					    std::shared_ptr< Geometry > tGeom_1 = tFactory.set_geometry_type(type::ANALYTIC);
-					    tGeom_1->set_analytical_function(type::GYROID);
-//					    tGeom_1->set_analytical_function_dphi_dx(type::SPHERE);
 
-					    Matrix< DDRMat > tCoord(1,3);
-					    tCoord(0,0) = 1.0;
-					    tCoord(0,1) = 1.0;
-					    tCoord(0,2) = 1.0;
-
-//					    moris::Cell< real > tInput(4);
-//					    tInput(0) = 0.0;
-//					    tInput(1) = 0.0;
-//					    tInput(2) = 0.0;
-//					    tInput(3) = 3.0;
-
-					    real tVal = tGeom_1->get_field_val_at_coordinate( tCoord );
-					    std::cout<<"val at coord: "<<tVal<<std::endl;
-
-//					    Matrix< DDRMat > tDphiDp = tGeom_1->get_sensitivity_dphi_dp_at_coordinate( tCoord, tInput );
-//					    print(tDphiDp,"dphi/dp");
-
-					}
-						}
-//------------------------------------------------------------------------------
-
-				TEST_CASE("GE_calculate_phi_values_at_nodes","[GE],[GE_test5]")
+				TEST_CASE("GE_calculate_phi_values_at_nodes","[GE],[L2_projection_test]")
 				{
                     if(par_size()<=1)
                     {
-                        // create T-Matrix to be used for test
+                        // create T-Matrix to be used for test (9x9)
                         //------------------------------------------------------------------------------
                         Matrix< DDRMat > tTMat( 9, 9);
                         tTMat(0,0) = 0.2500;        tTMat(0,1) = 0.0000;        tTMat(0,2) = 0.0000;
@@ -522,7 +493,7 @@ namespace moris
 
                         //------------------------------------------------------------------------------
 
-                        // perform check
+                        // check values
                         //------------------------------------------------------------------------------
                         real tEpsilon     = 0.000000000001;    // error tolerance 1e-12
 
@@ -554,7 +525,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-//				TEST_CASE("GE_SDF_generator","[GE],[GE_test8]")
+//				TEST_CASE("GE_SDF_generator","[GE],[SDF_generator_test]")
 //						{
 ////						Profiler tProf("/home/sonne/Desktop/temp_profile");
 //

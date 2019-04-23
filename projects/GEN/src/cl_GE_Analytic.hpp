@@ -1,12 +1,12 @@
 /*
- * cl_GE_Analytical.hpp
+ * cl_GE_Analytic.hpp
  *
  *  Created on: Jan 4, 2019
  *      Author: sonne
  */
 
-#ifndef PROJECTS_GEN_SRC_CL_GE_ANALYTICAL_HPP_
-#define PROJECTS_GEN_SRC_CL_GE_ANALYTICAL_HPP_
+#ifndef PROJECTS_GEN_SRC_CL_GE_ANALYTIC_HPP_
+#define PROJECTS_GEN_SRC_CL_GE_ANALYTIC_HPP_
 
 // GE includes
 #include "cl_GE_Geometry.hpp"
@@ -18,15 +18,15 @@
 namespace moris{
     namespace ge{
 
-		class Analytical : public Geometry
+		class Analytic : public Geometry
 		{
 		public:
 		    /*
 		     * function needs to be set with set_analytical_function because class is constructed through the factory
 		     */
-			Analytical(){};
+			Analytic(){};
 
-			~Analytical(){};
+			~Analytic(){};
 			/*
 			 * *****************************************************************************
 			 * pass in a user-defined function
@@ -155,7 +155,7 @@ namespace moris{
                 switch(aGeomType)
                 {
                 case( type::CIRCLE ):
-                        MORIS_ERROR(false, "dphi/dx currently not set for circle_function");
+                        this->set_analytical_function_dphi_dx( circle_function_dphi_dx );
                         break;
                 case( type::COMPOSITE_FIBER ):
                         MORIS_ERROR(false, "dphi/dx currently not set for composite_fiber_function");
@@ -254,8 +254,8 @@ namespace moris{
 			    return mFuncAnalyticDphiDx( aPoint, aConst );
             };
 
-			//------------------------------------------------------------------------------
 
+			//------------------------------------------------------------------------------
 
         private:
 
@@ -272,6 +272,10 @@ namespace moris{
                                                 Cell<moris::real>       & aRadius,
                                                 Cell<moris::real>       & aLength,
                                                 Cell<Cell<moris::real>> & aAxis );
+
+            // the class should store all data (e.g. the field values at the nodes)
+            Cell< real > mFieldValuesAtVertices;
+            Cell< Matrix< DDRMat > > mFieldSensitivityAtVetices;
             //------------------------------------------------------------------------------
 
         protected:
@@ -283,4 +287,4 @@ namespace moris{
 
 
 
-#endif /* PROJECTS_GEN_SRC_CL_GE_ANALYTICAL_HPP_ */
+#endif /* PROJECTS_GEN_SRC_CL_GE_ANALYTIC_HPP_ */

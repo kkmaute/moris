@@ -6,7 +6,7 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_GE_Analytical.hpp
+    cl_GE_Analytic.hpp
     cl_GE_Discrete.hpp
     cl_GE_Element.hpp
     cl_GE_Enums.hpp

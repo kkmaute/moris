@@ -13,6 +13,8 @@ set(TEST_SOURCES
     
     GE_Test_Proxy/cl_GE_Interface_Proxy.cpp
     cl_GE_test.cpp
+    geometry_classes/cl_GE_test_analytic.cpp
+    geometry_classes/cl_GE_test_discrete.cpp
     cl_GE_test_with_interface.cpp
     )
 
