@@ -15,7 +15,6 @@ namespace moris
                                     Element_Block      * aElementBlock,
                                     Cluster            * aCluster ) : Element( aCell, aElementBlock, aCluster )
         {
-
         }
 
 //------------------------------------------------------------------------------
@@ -26,15 +25,6 @@ namespace moris
 
         void Element_Bulk::compute_jacobian()
         {
-            // initialize mJacobianElement and mResidualElement
-            mCluster->initialize_mJacobianElement_and_mResidualElement();
-
-            // get pdofs values for the element
-//            mCluster->get_my_pdof_values();                    // FIXME
-
-            // set the field interpolators coefficients
-            mCluster->set_field_interpolators_coefficients();
-
             // set the geometry interpolator coefficients
             mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );         // FIXME
 
@@ -56,14 +46,14 @@ namespace moris
 
                 // get the field interpolators for the ith IWG
                 // in the list of element dof type
-                Cell< Field_Interpolator* > tIWGInterpolators = this->get_IWG_field_interpolators( tTreatedIWG,
+                Cell< Field_Interpolator* > tIWGInterpolators = mElementBlock->get_IWG_field_interpolators( tTreatedIWG,
                                                                                                    mElementBlock->get_block_field_interpolator() );
 
                 // create an integration rule for the ith IWG
                 //FIXME: set by default
                 Integration_Rule tIntegrationRule( mCell->get_geometry_type(),
                                                    Integration_Type::GAUSS,
-                                                   this->get_auto_integration_order( mCell->get_geometry_type() ),
+                                                   mElementBlock->get_integration_order(),
                                                    Integration_Type::GAUSS,
                                                    Integration_Order::BAR_1 );
 
@@ -134,22 +124,13 @@ namespace moris
                 tCounterI = stopI + 1;
             }
             // print jacobian for check
-            print( mCluster->mJacobian, " mJacobian " );
+//            print( mCluster->mJacobian, " mJacobian " );
         }
 
 //------------------------------------------------------------------------------
 
         void Element_Bulk::compute_residual()
         {
-            // initialize mJacobianElement and mResidualElement
-            this->initialize_mJacobianElement_and_mResidualElement();
-
-            // get pdofs values for the element
-//            this->get_my_pdof_values();
-
-            // set field interpolators coefficients
-            this->set_field_interpolators_coefficients();
-
             // set the geometry interpolator coefficients
             mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
 
@@ -164,8 +145,7 @@ namespace moris
 
                 // get the index of the residual dof type for the ith IWG
                 // in the list of element dof type
-                uint tIWGResDofIndex
-                    = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
+                uint tIWGResDofIndex = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
 
                 Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = tTreatedIWG->get_active_dof_types();
                 uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
@@ -173,14 +153,14 @@ namespace moris
                 // get the field interpolators for the ith IWG
                 // in the list of element dof type
                 Cell< Field_Interpolator* > tIWGInterpolators
-                    = this->get_IWG_field_interpolators( tTreatedIWG,
+                    = mElementBlock->get_IWG_field_interpolators( tTreatedIWG,
                             mElementBlock->get_block_field_interpolator() );
 
                 // create an integration rule for the ith IWG
                 //FIXME: set by default
                 Integration_Rule tIntegrationRule( mCell->get_geometry_type(),
                                                    Integration_Type::GAUSS,
-                                                   this->get_auto_integration_order( mCell->get_geometry_type() ),
+                                                   mElementBlock->get_integration_order(),
                                                    Integration_Type::GAUSS,
                                                    Integration_Order::BAR_1 );
 

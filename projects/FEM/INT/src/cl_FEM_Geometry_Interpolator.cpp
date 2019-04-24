@@ -42,14 +42,14 @@ namespace moris
             // set pointers for second derivative depending on space and time dimensions
             this->set_function_pointers();
 
+            // set side geometry type
+            this->get_auto_side_geometry_type();
+
             // if there is a side interpolation
             if ( aSpaceSideset )
             {
                 // set bool for side interpolation to true
                 mSpaceSideset = true;
-
-                // set side geometry type
-                this->get_auto_side_geometry_type();
 
                 // create side interpolation rule
                 Interpolation_Rule tSideInterpolationRule( mSideGeometryType,
@@ -912,7 +912,7 @@ namespace moris
                     }
                 default:
                 {
-                    MORIS_ERROR( false, " Geometry_Interpolator::get_side_geometry_type - undefined geometry type. " );
+                    MORIS_ERROR( false, " Geometry_Interpolator::get_auto_side_geometry_type - undefined geometry type. " );
                     mSideGeometryType = mtk::Geometry_Type::UNDEFINED;
                 }
             }

@@ -27,12 +27,6 @@ namespace moris
             // get the number of side ordinals
             uint tNumOfSideSets = mCluster->mListOfSideOrdinals.numel();
 
-            // initialize mJacobianElement and mResidualElement
-            mCluster->initialize_mJacobianElement_and_mResidualElement();
-
-            // set field interpolators coefficients
-            mCluster->set_field_interpolators_coefficients();
-
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
             mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
@@ -57,13 +51,13 @@ namespace moris
 
                     // get the field interpolators for the ith IWG in the list of element dof type
                     Cell< Field_Interpolator* > tIWGInterpolators
-                        = this->get_IWG_field_interpolators( tTreatedIWG, mElementBlock->get_block_field_interpolator() );
+                        = mElementBlock->get_IWG_field_interpolators( tTreatedIWG, mElementBlock->get_block_field_interpolator() );
 
                     // create an integration rule for the ith IWG
                     mtk::Geometry_Type tSideGeometryType = mElementBlock->get_block_geometry_interpolator()->get_side_geometry_type();
                     Integration_Rule tIntegrationRule( tSideGeometryType,
                                                        Integration_Type::GAUSS,
-                                                       this->get_auto_integration_order( tSideGeometryType ),
+                                                       mElementBlock->get_side_integration_order(),
                                                        Integration_Type::GAUSS,
                                                        Integration_Order::BAR_1 );
 
@@ -145,12 +139,6 @@ namespace moris
             // get the number of side ordinals
             uint tNumOfSideSets = mCluster->mListOfSideOrdinals.numel();
 
-            // initialize mJacobianElement and mResidualElement
-            mCluster->initialize_mJacobianElement_and_mResidualElement();
-
-            // set field interpolators coefficients
-            mCluster->set_field_interpolators_coefficients();
-
             // set the geometry interpolator coefficients
             //FIXME: tHat are set by default but should come from solver
 //            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
@@ -180,13 +168,13 @@ namespace moris
 
                     // get the field interpolators for the ith IWG in the list of element dof type
                     Cell< Field_Interpolator* > tIWGInterpolators
-                        = this->get_IWG_field_interpolators( tTreatedIWG, mElementBlock->get_block_field_interpolator() );
+                        = mElementBlock->get_IWG_field_interpolators( tTreatedIWG, mElementBlock->get_block_field_interpolator() );
 
                     // create an integration rule for the ith IWG
                     mtk::Geometry_Type tSideGeometryType = mElementBlock->get_block_geometry_interpolator()->get_side_geometry_type();
                     Integration_Rule tIntegrationRule( tSideGeometryType,
                                                        Integration_Type::GAUSS,
-                                                       this->get_auto_integration_order( tSideGeometryType ),
+                                                       mElementBlock->get_side_integration_order(),
                                                        Integration_Type::GAUSS,
                                                        Integration_Order::BAR_1 );
 

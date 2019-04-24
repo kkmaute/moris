@@ -49,43 +49,40 @@ namespace moris
 
         moris::Cell< fem::Element * > mInterpElements;
 
+        // working jacobian and residual for the element
+         Cell< Matrix< DDRMat > > mJacobianElement;
+         Cell< Matrix< DDRMat > > mResidualElement;
+
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
         //         storing the indices in private matrix is faster,
         //         but might need more memory
         moris::Matrix< IndexMat > mNodeIndices;
 
-        // map of the element active dof types
-        moris::Cell< moris::Cell< DDRMat > > mElemDofTypeList;
-        moris::Matrix< DDSMat >              mElemDofTypeMap;
-        uint                                 mNumOfElemDofTypes;
-        uint                                 mNumOfIWGs;
-
-        moris::Cell< Cell< MSI::Dof_Type > > mInterpDofTypeList;
-        uint                                 mNumOfInterp;
-
-        moris::Matrix< DDSMat >              mInterpDofTypeMap;
+        uint                      mNumOfIWGs;
 
         Element_Block * mElementBlock;
 
         Element_Type mElementType;
 
+
         friend class Element_Bulk;
         friend class Element_Sideset;
+        friend class Element_Time_Sideset;
         friend class Element;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
 
-        Cluster( Element_Type         aElementType,
-                 mtk::Cell           const * aCell,
-                 moris::Cell< Node_Base* > & aNodes,
-                 Element_Block      * aElementBlock) : mElementBlock(aElementBlock)
+        Cluster( const Element_Type                aElementType,
+                 const mtk::Cell                 * aCell,
+                       moris::Cell< Node_Base* > & aNodes,
+                       Element_Block             * aElementBlock) : mElementBlock( aElementBlock )
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
 
-            mInterpCells.resize( 1, mCell );
+            mInterpCells.resize( 1, mCell );       //Fixme
 
             mElementType = aElementType;
 
@@ -113,20 +110,19 @@ namespace moris
 
             //FIXME
             mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
-            mInterpDofTypeList    = mElementBlock->get_interpolator_dof_type_list();
-            mInterpDofTypeMap     = mElementBlock->get_interpolator_dof_type_map();
 
             fem::Element_Factory tElementFactory;
 
-            mInterpElements.resize( 1, nullptr );
+            mInterpElements.resize( mInterpCells.size(), nullptr );
 
-            // create the element
-            mInterpElements( 0 ) = tElementFactory.create_element( mElementType,
-                                                                   mInterpCells( 0 ),
-                                                                   mElementBlock,
-                                                                   this );
-
-
+            for( moris::uint Ik = 0; Ik < mInterpElements.size(); Ik++)
+            {
+                // create the element
+                mInterpElements( Ik ) = tElementFactory.create_element( mElementType,
+                                                                        mInterpCells( Ik ),
+                                                                        mElementBlock,
+                                                                        this );
+            }
         };
 //------------------------------------------------------------------------------
         /**
@@ -134,7 +130,6 @@ namespace moris
          */
         ~Cluster()
         {
-
         };
 
 //------------------------------------------------------------------------------
@@ -149,18 +144,12 @@ namespace moris
 
         void compute_jacobian_and_residual() {};
 
+//------------------------------------------------------------------------------
+
         Matrix< DDRMat > & get_weak_bcs()
         {
             return mNodalWeakBCs;
         }
-
-//------------------------------------------------------------------------------
-
-//        real compute_integration_error( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
-
-//------------------------------------------------------------------------------
-
-//        real compute_element_average_of_scalar_field();
 
 //------------------------------------------------------------------------------
 
@@ -188,7 +177,6 @@ namespace moris
                 }
             }
             return tPdofValues( tVertexIndex );
-
         }
 
 //------------------------------------------------------------------------------
@@ -202,7 +190,7 @@ namespace moris
             //FIXME: enforced Intergation_Type and Integration_Order
             Integration_Rule tIntegrationRule( mCell->get_geometry_type(),
                                                Integration_Type::GAUSS,
-                                               this->get_auto_integration_order( mCell->get_geometry_type() ),
+                                               mElementBlock->get_integration_order(),
                                                Integration_Type::GAUSS,
                                                Integration_Order::BAR_1 );
 
@@ -243,166 +231,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-          * auto detect interpolation scheme
-          */
-        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
-        {
-            switch( aGeometryType )
-            {
-                case( mtk::Geometry_Type::LINE ) :
-                    return fem::Integration_Order::BAR_3;
-                    break;
-
-                case( mtk::Geometry_Type::QUAD ) :
-                     return fem::Integration_Order::QUAD_3x3;
-                     break;
-
-                case( mtk::Geometry_Type::HEX ) :
-                    return fem::Integration_Order::HEX_3x3x3;
-                    break;
-
-                case( mtk::Geometry_Type::TRI ) :
-                    return fem::Integration_Order::TRI_6;
-                    break;
-
-                case( mtk::Geometry_Type::TET ) :
-                    return fem::Integration_Order::TET_5;
-                    break;
-
-                default :
-                    MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
-                    return Integration_Order::UNDEFINED;
-                    break;
-            }
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * auto detect full integration scheme
-         */
-        //FIXME: works for Lagrange only
-        mtk::Interpolation_Order get_auto_interpolation_order()
-        {
-            switch( mCell->get_geometry_type() )
-            {
-                case( mtk::Geometry_Type::LINE ) :
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                       case( 2 ) :
-                           return mtk::Interpolation_Order::LINEAR;
-                           break;
-
-                       case( 3 ) :
-                           return mtk::Interpolation_Order::QUADRATIC;
-                           break;
-
-                       default :
-                           MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for LINE and number of vertices. ");
-                           return mtk::Interpolation_Order::UNDEFINED;
-                           break;
-                    }
-
-                case( mtk::Geometry_Type::QUAD ) :
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                        case( 4 ) :
-                            return mtk::Interpolation_Order::LINEAR;
-                            break;
-
-                        case( 8 ) :
-                            return mtk::Interpolation_Order::SERENDIPITY;
-                            break;
-
-                        case( 9 ) :
-                            return mtk::Interpolation_Order::QUADRATIC;
-                            break;
-
-                        case( 16 ) :
-                            return mtk::Interpolation_Order::CUBIC;
-                            break;
-
-                        default :
-                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for QUAD and number of vertices. ");
-                            return mtk::Interpolation_Order::UNDEFINED;
-                            break;
-                    }
-
-                case( mtk::Geometry_Type::HEX ) :
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                        case( 8 ) :
-                            return mtk::Interpolation_Order::LINEAR;
-                            break;
-
-                        case( 20 ) :
-                            return mtk::Interpolation_Order::SERENDIPITY;
-                            break;
-
-                        case( 27 ) :
-                            return mtk::Interpolation_Order::QUADRATIC;
-                            break;
-
-                        case( 64 ) :
-                            return mtk::Interpolation_Order::CUBIC;
-                            break;
-
-                        default :
-                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for HEX and number of vertices. ");
-                            return mtk::Interpolation_Order::UNDEFINED;
-                            break;
-                    }
-
-                case( mtk::Geometry_Type::TRI ) :
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                        case( 3 ) :
-                            return mtk::Interpolation_Order::LINEAR;
-                            break;
-
-                        case( 6 ) :
-                            return mtk::Interpolation_Order::QUADRATIC;
-                            break;
-
-                        case( 10 ) :
-                            return mtk::Interpolation_Order::CUBIC;
-                            break;
-
-                        default :
-                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TRI and number of vertices. ");
-                            return mtk::Interpolation_Order::UNDEFINED;
-                            break;
-                    }
-
-                case( mtk::Geometry_Type::TET ) :
-                    switch( mCell->get_number_of_vertices() )
-                    {
-                        case( 4 ) :
-                            return mtk::Interpolation_Order::LINEAR;
-                            break;
-
-                        case( 10 ) :
-                            return mtk::Interpolation_Order::QUADRATIC;
-                            break;
-
-                        case( 20 ) :
-                            return mtk::Interpolation_Order::CUBIC;
-                            break;
-
-                        default :
-                            MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TRI and number of vertices. ");
-                            return mtk::Interpolation_Order::UNDEFINED;
-                            break;
-                    }
-
-                default :
-                    MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for this geometry type. ");
-                    return mtk::Interpolation_Order::UNDEFINED;
-                    break;
-            }
-        }
-
-//------------------------------------------------------------------------------
-        /**
          * set the field interpolators coefficients
          */
         void set_field_interpolators_coefficients( )
@@ -411,7 +239,7 @@ namespace moris
              for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
              {
                  // get the ith dof type group
-                 Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
+                 Cell< MSI::Dof_Type > tDofTypeGroup = mElementBlock->get_interpolator_dof_type_list()( i );
 
                  //FIXME:forced coefficients
                  // get the pdof values for the ith dof type group
@@ -425,67 +253,16 @@ namespace moris
 
  //------------------------------------------------------------------------------
         /**
-         * set the initial sizes and values for mJacobianElement and mResidualElement
+         * @Brief set the initial sizes and values for mJacobianElement
          */
-         void initialize_mJacobianElement_and_mResidualElement()
-         {
-             mJacobianElement.resize( mElementBlock->get_num_interpolators() * mElementBlock->get_num_interpolators() );
-             mResidualElement.resize( mElementBlock->get_num_interpolators() );
+         void initialize_mJacobianElement();
 
-             uint tTotalDof = 0;
-             for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
-             {
-                 // get number of pdofs for the ith dof type
-                 uint tNumOfDofi = mElementBlock->get_block_field_interpolator()( i )->get_number_of_space_time_coefficients();
+//------------------------------------------------------------------------------
 
-                 // get total number of dof
-                 tTotalDof = tTotalDof + tNumOfDofi;
-
-                 // set mResidualElement size
-                 mResidualElement( i ).set_size( tNumOfDofi, 1, 0.0 );
-
-                 for( uint j = 0; j < mElementBlock->get_num_interpolators(); j++ )
-                 {
-                     // get number of pdofs for the ith dof type
-                     uint tNumOfDofj = mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients();
-
-                     // set mResidualElement size
-                     mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).set_size( tNumOfDofi, tNumOfDofj, 0.0 );
-                 }
-             }
-
-//             std::cout<<tTotalDof<<std::endl;
-             mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
-             mResidual.set_size( tTotalDof, 1, 0.0 );
-         }
-
-
- //------------------------------------------------------------------------------
          /**
-          * get the field interpolators for an IWG
+          * @Brief set the initial sizes and values formResidualElement
           */
-         moris::Cell< Field_Interpolator* > get_IWG_field_interpolators
-             ( IWG*                               & aIWG,
-               moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-         {
-             // ask the IWG for its active dof types
-             Cell< Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
-
-             // number of active dof type for the IWG
-             uint tNumOfIWGActiveDof = tIWGActiveDof.size();
-
-             // select associated active interpolators
-             Cell< Field_Interpolator* > tIWGFieldInterpolators( tNumOfIWGActiveDof, nullptr );
-             for( uint i = 0; i < tNumOfIWGActiveDof; i++ )
-             {
-                 // find the index of active dof type in the list of element dof type
-                 uint tIWGDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDof( i )( 0 ) ) );
-
-                 // select the corresponding interpolator
-                 tIWGFieldInterpolators( i ) = aFieldInterpolators( tIWGDofIndex );
-             }
-             return tIWGFieldInterpolators;
-         }
+         void initialize_mResidualElement();
 
 //------------------------------------------------------------------------------
     };

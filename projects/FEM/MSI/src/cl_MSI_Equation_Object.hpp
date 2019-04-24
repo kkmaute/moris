@@ -47,10 +47,6 @@ class Dist_Vector;
             Matrix< DDRMat > mResidual;
             Matrix< DDRMat > mJacobian;
 
-            // working jacobian and residual for the element
-            Cell< Matrix< DDRMat > > mJacobianElement;
-            Cell< Matrix< DDRMat > > mResidualElement;
-
             Matrix< DDRMat > mPdofValues;
 
             Dist_Vector * mSolVec = nullptr;
@@ -59,7 +55,7 @@ class Dist_Vector;
 
             moris::uint mEqnObjInd;
 
-            // sideset information
+            // sideset information //FIXME Side ordinals are not part of the equation object
             Matrix< IndexMat > mListOfSideOrdinals;
             Matrix< IndexMat > mListOfTimeOrdinals;
 

@@ -40,7 +40,7 @@ namespace MSI
     class Element_Block : public MSI::Equation_Block
     {
     private:
-        moris::Cell< mtk::Cell const* >           mMeshElementPointer;
+        moris::Cell< mtk::Cell const* >     mMeshElementPointer;
 
         moris::Cell< Node_Base* >           mNodes;
 
@@ -57,6 +57,10 @@ namespace MSI
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
         moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
         uint                                      mNumOfInterp;
+
+        enum fem::Integration_Order mIntegrationOrder;
+
+        enum fem::Integration_Order mSideIntegrationOrder;
 
 //------------------------------------------------------------------------------
     public:
@@ -168,6 +172,28 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        enum fem::Integration_Order & get_integration_order()
+        {
+            return mIntegrationOrder;
+        }
+
+//------------------------------------------------------------------------------
+
+        enum fem::Integration_Order & get_side_integration_order()
+        {
+            return mSideIntegrationOrder;
+        }
+
+//------------------------------------------------------------------------------
+
+        /**
+         * get the field interpolators for an IWG
+         */
+        moris::Cell< Field_Interpolator* > get_IWG_field_interpolators ( IWG*                               & aIWG,
+                                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+
         /**
          * auto detect full integration scheme
          */
@@ -182,6 +208,11 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+        /**
+          * auto detect interpolation scheme
+          */
+        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
 
     };
 //------------------------------------------------------------------------------
