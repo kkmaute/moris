@@ -116,20 +116,17 @@ namespace moris
          *
          * @return Element*  new Lagrange element
          */
-        Element *
-        create_element( Background_Element_Base* aElement );
+        Element * create_element( Background_Element_Base* aElement );
 
 // ----------------------------------------------------------------------------
     protected:
 // ----------------------------------------------------------------------------
 
-        Facet *
-        create_facet( Background_Facet * aFacet );
+        Facet * create_facet( Background_Facet * aFacet );
 
 // ----------------------------------------------------------------------------
 
-        Edge *
-        create_edge( Background_Edge * aEdge );
+        Edge * create_edge( Background_Edge * aEdge );
 
 // ----------------------------------------------------------------------------
     private:
@@ -389,8 +386,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template < uint N, uint P >
-        Element *
-        Lagrange_Mesh< N, P >::create_element(
+        Element * Lagrange_Mesh< N, P >::create_element(
                 Background_Element_Base* aElement )
         {
             MORIS_ERROR( false, "Don't know how to create Lagrange element.");
@@ -400,8 +396,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 2, 1 >::create_element(
+        Element * Lagrange_Mesh< 2, 1 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 2, 4 >( aElement, mActivationPattern );
@@ -410,8 +405,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 2, 2 >::create_element(
+        Element * Lagrange_Mesh< 2, 2 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 2, 9 >( aElement, mActivationPattern );
@@ -420,8 +414,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 2, 3 >::create_element(
+        Element * Lagrange_Mesh< 2, 3 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 2, 16 >( aElement, mActivationPattern );
@@ -430,8 +423,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 2, 4 >::create_element(
+        Element * Lagrange_Mesh< 2, 4 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 2, 25 >( aElement, mActivationPattern );
@@ -440,8 +432,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 2, 5 >::create_element(
+        Element * Lagrange_Mesh< 2, 5 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 2, 36 >( aElement, mActivationPattern );
@@ -450,8 +441,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 3, 1 >::create_element(
+        Element * Lagrange_Mesh< 3, 1 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 3, 8 >( aElement, mActivationPattern );
@@ -460,8 +450,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 3, 2 >::create_element(
+        Element * Lagrange_Mesh< 3, 2 >::create_element(
                 Background_Element_Base* aElement )
         {
 
@@ -471,8 +460,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 3, 3 >::create_element(
+        Element * Lagrange_Mesh< 3, 3 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 3, 64 >( aElement, mActivationPattern );
@@ -481,8 +469,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 3, 4 >::create_element(
+        Element * Lagrange_Mesh< 3, 4 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 3, 125 >( aElement, mActivationPattern );
@@ -491,8 +478,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Element *
-        Lagrange_Mesh< 3, 5 >::create_element(
+        Element * Lagrange_Mesh< 3, 5 >::create_element(
                 Background_Element_Base* aElement )
         {
             return new Lagrange_Element< 3, 216 >( aElement, mActivationPattern );
@@ -501,8 +487,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template < uint N, uint P >
-        Facet *
-        Lagrange_Mesh< N, P >::create_facet(
+        Facet * Lagrange_Mesh< N, P >::create_facet(
                 Background_Facet * aFacet )
         {
             MORIS_ERROR( false, "Don't know how to create Lagrange facet.");
@@ -512,8 +497,7 @@ namespace moris
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 2, 1 >::create_facet(
+        Facet * Lagrange_Mesh< 2, 1 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 2, 2 >( this, aFacet );
@@ -522,8 +506,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 2, 2 >::create_facet(
+        Facet * Lagrange_Mesh< 2, 2 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 2, 3 >( this, aFacet );
@@ -532,8 +515,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 2, 3 >::create_facet(
+        Facet * Lagrange_Mesh< 2, 3 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 2, 4 >( this, aFacet );
@@ -542,8 +524,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 2, 4 >::create_facet(
+        Facet * Lagrange_Mesh< 2, 4 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 2, 5 >( this, aFacet );
@@ -552,8 +533,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 2, 5 >::create_facet(
+        Facet * Lagrange_Mesh< 2, 5 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 2, 6 >( this, aFacet );
@@ -561,8 +541,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 3, 1 >::create_facet(
+        Facet * Lagrange_Mesh< 3, 1 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 3, 4 >( this, aFacet );
@@ -571,8 +550,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 3, 2 >::create_facet(
+        Facet * Lagrange_Mesh< 3, 2 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 3, 9 >( this, aFacet );
@@ -581,8 +559,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 3, 3 >::create_facet(
+        Facet * Lagrange_Mesh< 3, 3 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 3, 16 >( this, aFacet );
@@ -591,8 +568,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 3, 4 >::create_facet(
+        Facet * Lagrange_Mesh< 3, 4 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 3, 25 >( this, aFacet );
@@ -601,8 +577,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Facet *
-        Lagrange_Mesh< 3, 5 >::create_facet(
+        Facet * Lagrange_Mesh< 3, 5 >::create_facet(
                 Background_Facet * aFacet )
         {
             return new Lagrange_Facet< 3, 36 >( this, aFacet );
@@ -611,8 +586,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template < uint N, uint P >
-        Edge *
-        Lagrange_Mesh< N, P >::create_edge(
+        Edge * Lagrange_Mesh< N, P >::create_edge(
                 Background_Edge * aEdge  )
         {
             MORIS_ERROR( false, "Don't know how to create Lagrange edge.");
@@ -622,8 +596,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Edge *
-        Lagrange_Mesh< 3, 1 >::create_edge(
+        Edge * Lagrange_Mesh< 3, 1 >::create_edge(
                 Background_Edge * aEdge  )
         {
             return new Lagrange_Edge< 2 >( this, aEdge );
@@ -632,8 +605,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Edge *
-        Lagrange_Mesh< 3, 2 >::create_edge(
+        Edge * Lagrange_Mesh< 3, 2 >::create_edge(
                 Background_Edge * aEdge  )
         {
             return new Lagrange_Edge< 3 >( this, aEdge );
@@ -641,8 +613,7 @@ namespace moris
  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Edge *
-        Lagrange_Mesh< 3, 3 >::create_edge(
+        Edge * Lagrange_Mesh< 3, 3 >::create_edge(
                 Background_Edge * aEdge  )
         {
             return new Lagrange_Edge< 4 >( this, aEdge );

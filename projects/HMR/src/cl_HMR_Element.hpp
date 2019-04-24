@@ -37,7 +37,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             //! pointer to element on background mesh
-            Background_Element_Base* mElement;
+            Background_Element_Base * mElement;
 
             //! flag that tells if nodes of children have been processed
             bool                     mChildrenBasisFlag = false;
@@ -128,8 +128,7 @@ namespace moris
              *
              * @return Element_Base* Element on background mesh
              */
-            Background_Element_Base*
-            get_background_element()
+            Background_Element_Base * get_background_element()
             {
                 return mElement;
             }
@@ -140,8 +139,7 @@ namespace moris
              *
              * @return Element_Base* Element on background mesh
              */
-            const Background_Element_Base*
-            get_background_element() const
+            const Background_Element_Base * get_background_element() const
             {
                 return mElement;
             }

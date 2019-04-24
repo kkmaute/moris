@@ -21,6 +21,7 @@ class Dist_Vector;
     namespace fem
     {
         class Node_Base;
+        class Element;
     }
     namespace MSI
     {
@@ -35,7 +36,6 @@ class Dist_Vector;
             moris::Cell< Pdof_Host * >              mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
             moris::Cell< enum Dof_Type >            mEqnObjDofTypeList; // List of dof types of this equation obj
-            Matrix< DDUMat >                        mTimeSteps;         // List of time levels for each dof type
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
 
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
@@ -47,10 +47,6 @@ class Dist_Vector;
             Matrix< DDRMat > mResidual;
             Matrix< DDRMat > mJacobian;
 
-            // working jacobian and residual for the element
-            Cell< Matrix< DDRMat > > mJacobianElement;
-            Cell< Matrix< DDRMat > > mResidualElement;
-
             Matrix< DDRMat > mPdofValues;
 
             Dist_Vector * mSolVec = nullptr;
@@ -59,9 +55,13 @@ class Dist_Vector;
 
             moris::uint mEqnObjInd;
 
-            // sideset information
+            // sideset information //FIXME Side ordinals are not part of the equation object
             Matrix< IndexMat > mListOfSideOrdinals;
             Matrix< IndexMat > mListOfTimeOrdinals;
+
+            Matrix< DDRMat >mTime;
+
+            friend class fem::Element;
 
 //-------------------------------------------------------------------------------------------------
         public:
@@ -73,7 +73,15 @@ class Dist_Vector;
             Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs );
 
 //-------------------------------------------------------------------------------------------------
+
             virtual ~Equation_Object(){};
+
+//-------------------------------------------------------------------------------------------------
+
+            void set_time( const Matrix< DDRMat > & aTime )
+            {
+                mTime = aTime;
+            }
 
 //-------------------------------------------------------------------------------------------------
 
@@ -291,7 +299,7 @@ class Dist_Vector;
             /**
              * return Neumann boundary conditions, writable version
              */
-            Matrix< DDRMat > & get_weak_bcs()
+            virtual Matrix< DDRMat > & get_weak_bcs()
             {
                 return mNodalWeakBCs;
             }

@@ -177,6 +177,11 @@ namespace tsa
         tTimeSolverAlgorithm_2->set_nonlinear_solver( & tNonlinearSolver1 );
         tTimeSolverAlgorithm_3->set_nonlinear_solver( & tNonlinearSolver2 );
 
+        tTimeSolverAlgorithm_2->set_param("TSA_Num_Time_Steps")   = 1000;
+        tTimeSolverAlgorithm_2->set_param("TSA_Time_Frame")       = 10.0;
+        tTimeSolverAlgorithm_3->set_param("TSA_Num_Time_Steps")   = 1000;
+        tTimeSolverAlgorithm_3->set_param("TSA_Time_Frame")       = 10.0;
+
         /*!
          * Create time solver
          *

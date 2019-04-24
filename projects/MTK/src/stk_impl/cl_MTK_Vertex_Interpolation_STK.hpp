@@ -11,7 +11,7 @@
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
-#include "../cl_MTK_Vertex_Interpolation.hpp"
+#include "cl_MTK_Vertex_Interpolation.hpp"
 
 namespace moris
 {

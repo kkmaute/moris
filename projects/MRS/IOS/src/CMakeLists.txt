@@ -20,12 +20,6 @@ set(HEADERS
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Installation
-
-# Install *Config and *ConfigVersion files
-install(FILES ${${IOS}_CONFIG_BUILD_DIR}/${IOS}Config.cmake 
-    ${${IOS}_CONFIG_BUILD_DIR}/${IOS}ConfigVersion.cmake
-    DESTINATION ${CONFIG_INSTALL_DIR}/${IOS} )
-
 # Install header files
 install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${IOS} )

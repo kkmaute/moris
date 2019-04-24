@@ -912,7 +912,7 @@ namespace moris
                     }
                 default:
                 {
-                    MORIS_ERROR( false, " Geometry_Interpolator::get_side_geometry_type - undefined geometry type. " );
+                    MORIS_ERROR( false, " Geometry_Interpolator::get_auto_side_geometry_type - undefined geometry type. " );
                     mSideGeometryType = mtk::Geometry_Type::UNDEFINED;
                 }
             }

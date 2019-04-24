@@ -15,7 +15,7 @@
 #include "typedefs.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 
 namespace moris
 {

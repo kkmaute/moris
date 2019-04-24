@@ -1360,8 +1360,7 @@ namespace moris
         Database::flag_parent( const luint & aIndex )
         {
             // get pointer to this element
-            Background_Element_Base * tElement
-                = mBackgroundMesh->get_element( aIndex );
+            Background_Element_Base * tElement = mBackgroundMesh->get_element( aIndex );
 
             // check level
             if( tElement->get_level() > 0 )

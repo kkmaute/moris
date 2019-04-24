@@ -1128,7 +1128,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        T_Matrix::evaluate()
+        T_Matrix::evaluate( const bool aBool  )
         {
             // get B-Spline pattern of this mesh
             auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
@@ -1261,15 +1261,17 @@ namespace moris
                                 }
                             }
 
-                            // init interpolation container for this node
-                            tNode->init_interpolation( tOrder );
+                            if ( aBool == true)
+                            {
+                                // init interpolation container for this node
+                                tNode->init_interpolation( tOrder );
 
-                            // store the coefficients
-                            tNode->set_weights( tOrder, tCoefficients );
+                                // store the coefficients
+                                tNode->set_weights( tOrder, tCoefficients );
 
-                            // store pointers to the DOFs
-                            tNode->set_coefficients( tOrder, tNodeDOFs );
-
+                                // store pointers to the DOFs
+                                tNode->set_coefficients( tOrder, tNodeDOFs );
+                            }
                             // flag this node as processed
                             tNode->flag();
                         }

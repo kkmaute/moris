@@ -136,7 +136,7 @@ namespace moris
                 moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
 
                 // Cell containing the block mesh cell ( a cell of mesh cells )
-                moris::Cell<mtk::Cell*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 
                 // loop on the blocks
                 std::cout<<tBlockSetsNames.size()<<std::endl;
@@ -176,7 +176,7 @@ namespace moris
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create the element
-//                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+//                    tElements( k ) = tElementFactory.create_cluster( Element_Type::BULK,
 //                                                                     & tMesh->get_mtk_cell( k ),
 //                                                                     tIWGs,
 //                                                                     tNodes );

@@ -27,6 +27,7 @@ namespace assert
      * @param[in] msg Error message.
      */
     //template< typename Exception = std::runtime_error >
+    inline
     void
     error( std::string const & msg )
     {
@@ -44,6 +45,7 @@ namespace assert
      * @param[in] exception Exception raised by check.
      */
     //template< typename Exception >
+    inline
     void
     error( std::string const & location,
            std::string const & task,
@@ -87,6 +89,7 @@ namespace assert
      * @param[in] exception Exception raised by check.
      */
     //template<typename Exception>
+    inline
     void
     moris_assert( std::string        const & file,
                   moris::size_t      const & line,

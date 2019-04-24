@@ -13,7 +13,7 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Enums.hpp"
 
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 #include "cl_HMR_Database.hpp"
 
 namespace moris

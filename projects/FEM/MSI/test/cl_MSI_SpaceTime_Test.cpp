@@ -38,6 +38,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Element_Block.hpp"              //FEM/INT/src
 
 namespace moris
 {
@@ -133,20 +134,30 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // ask mesh about number of elements
         uint tNumOfElements = tMesh->get_num_elems();
 
+        Cell< MSI::Equation_Object* >  tElements;
+
         // create equation objects
-        Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
+        tElements.reserve( tNumOfElements );
 
-        // loop over the mesh elements
-        for( uint k = 0; k < tNumOfElements; k++ )
+        Cell< fem::Element_Block * >      tElementBlocks(1,nullptr);
+
+        // ask mesh about number of elements on proc
+        moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+
+        moris::Cell<mtk::Cell const*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+
+        for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
         {
-            // create the element
-            tElements( k ) = tElementFactory.create_element( fem::Element_Type::BULK,
-                                                             & tMesh->get_mtk_cell( k ),
-                                                             tIWGs,
-                                                             tNodes );
+            Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
 
-            tElements( k )->mTimeSteps( 0, 0 )= 2;
+            for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+            {
+                tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
+            }
         }
+        tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+
+        tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
         //4) Create the model solver interface -----------------------------------------
         std::cout<<" Create the model solver interface "<<std::endl;
@@ -174,6 +185,8 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         tModelSolverInterface->set_param( "LS1" )  = (sint)tDofOrder;
 
         tModelSolverInterface->get_dof_manager()->set_time_levels_for_type( MSI::Dof_Type::LS1, 2 );
+
+        tElementBlocks( 0 )->finalize( tModelSolverInterface );
 
         tModelSolverInterface->finalize();
 

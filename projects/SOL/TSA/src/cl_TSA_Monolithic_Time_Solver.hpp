@@ -26,8 +26,6 @@ namespace tsa
 
         void solve_monolytic_time_system();
 
-        void perform_mapping();
-
     public:
         //-------------------------------------------------------------------------------
 

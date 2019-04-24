@@ -49,6 +49,9 @@ namespace tsa
 
         tTimesolver->set_nonlinear_solver( & tNonlinearSolverManager );
 
+        tTimesolver->set_param("TSA_Num_Time_Steps")   = 1000;
+        tTimesolver->set_param("TSA_Time_Frame")       = 10.0;
+
         tTimesolver -> solve();
 
         Matrix< DDRMat > tSol;

@@ -18,7 +18,7 @@ namespace moris
 {
 //------------------------------------------------------------------------------
     template<typename Matrix_Type>
-    void
+    inline void
     print(Matrix< Matrix_Type > aMat,
           std::string aTitle)
     {
@@ -41,6 +41,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    inline
     void
     print(Matrix< DDRMat > const & aMat,
           std::string aTitle)
@@ -78,7 +79,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
     template<typename Matrix_Type>
-    void print_std_initializer_list(Matrix< Matrix_Type > const & aMatrix,
+    inline void print_std_initializer_list(Matrix< Matrix_Type > const & aMatrix,
                                     std::string aTitle)
     {
         std::cout << "\n" << aTitle + ": " << std::endl;
@@ -113,7 +114,7 @@ namespace moris
      * Cell of matrices
      */
     template< typename T >
-    void
+    inline void
     print(moris::Cell< moris::Matrix<T> > const & aCell,
           std::string aStr = "Cell")
     {
@@ -131,7 +132,7 @@ namespace moris
      * Cell of matrices
      */
     template< typename T >
-    void
+    inline void
     print(moris::Cell< moris::Matrix<T> * > const & aCell,
           std::string aStr = "Cell")
     {

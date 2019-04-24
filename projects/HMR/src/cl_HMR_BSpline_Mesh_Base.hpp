@@ -321,9 +321,8 @@ namespace moris
 // ----------------------------------------------------------------------------
 
             void
-            collect_active_and_refined_elements_from_level(
-                           const uint & aLevel,
-                    Cell< Element * > & aElements );
+            collect_active_and_refined_elements_from_level( const uint & aLevel,
+                                                                  Cell< Element * > & aElements );
 
 
 
@@ -416,9 +415,8 @@ namespace moris
              *     - determines basis neighbors for relevant basis
              */
             void
-            preprocess_basis_from_level(
-                    Cell< Element* > & aBackgroundElements,
-                    Cell< Basis* >                   & aBasis);
+            preprocess_basis_from_level( Cell< Element* > & aBackgroundElements,
+                                         Cell< Basis* >                   & aBasis);
 
 // ----------------------------------------------------------------------------
 
@@ -470,8 +468,6 @@ namespace moris
 
             void
             calculate_child_stencil();
-
-
 
         };
 //------------------------------------------------------------------------------

@@ -42,8 +42,8 @@ namespace tsa
         moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
 
         moris::real mk = 2;
-        moris::real mT = 0;
-        moris::real mDeltaT = 0.01;
+        Matrix< DDRMat> mT;
+        moris::real mDeltaT = 0.0;
 
         Matrix< DDSMat > mTimeLevelIdsMinus;
         Matrix< DDSMat > mTimeLevelIdsPlus;
@@ -61,7 +61,7 @@ namespace tsa
 
         void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector );
 
-        void set_time( const moris::real & aTime )
+        void set_time( const Matrix< DDRMat> & aTime )
         {
             mT = aTime;
         }
@@ -104,6 +104,8 @@ namespace tsa
 
         moris::Matrix< DDSMat > & get_time_level_Ids_plus() ;
 
+        void perform_mapping();
+
         // ----------------------------------------------------------------------------------------------
         // number of elements on proc
         uint get_num_my_elements()
@@ -115,6 +117,7 @@ namespace tsa
         void get_element_matrix(const uint             & aMyElementInd,
                                       Matrix< DDRMat > & aElementMatrix)
         {
+                mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
                 aElementMatrix.resize(1, 1);
                 aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
 

@@ -88,6 +88,8 @@ namespace moris
                     this->delete_edge_container();
                 }
 
+//                this->delete_interpolations();
+
                 if( mHaveInterpolationContainer )
                 {
                     // delete interpolation objects
@@ -105,6 +107,26 @@ namespace moris
             }
 // ----------------------------------------------------------------------------
 
+//            void delete_interpolations()
+//            {
+//                if( mHaveInterpolationContainer )
+//                {
+//                    // delete interpolation objects
+//                    for( uint k=0; k<gMaxBSplineOrder; ++k )
+//                    {
+//                        if( mHaveInterpolation.test( k ) )
+//                        {
+//                            delete mInterpolations[ k ];
+//                        }
+//                    }
+//
+//                    // delete container
+//                    delete [] mInterpolations;
+//                }
+//            }
+
+// ----------------------------------------------------------------------------
+
             void
             init_interpolation( const uint & aOrder )
             {
@@ -114,7 +136,7 @@ namespace moris
                     mHaveInterpolationContainer = true;
                 }
 
-                MORIS_ASSERT( ! mHaveInterpolation.test( aOrder - 1), "tried to intit an interpolation object that already exists" );
+                MORIS_ASSERT( ! mHaveInterpolation.test( aOrder - 1), "tried to intit an interpolation object that already exists" );    //FIXME Mathias
 
                 mInterpolations[ aOrder-1 ] =   new Lagrange_Node_Interpolation;
                 mHaveInterpolation.set( aOrder - 1 );

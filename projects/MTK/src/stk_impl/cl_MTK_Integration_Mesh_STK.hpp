@@ -7,7 +7,7 @@
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_INTEGRATION_MESH_STK_HPP_
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_INTEGRATION_MESH_STK_HPP_
 
-#include "../cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 namespace moris

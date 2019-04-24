@@ -26,14 +26,14 @@
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 
 
-#include "../cl_MTK_Sets_Info.hpp"
-#include "../cl_MTK_Mesh_Data_Input.hpp"
-#include "../cl_MTK_Block.hpp"
-#include "../cl_Mesh_Enums.hpp"
-#include "../cl_MTK_Mesh.hpp"
-#include "../cl_MTK_Scalar_Field_Info.hpp"
-#include "../cl_MTK_Matrix_Field_Info.hpp"
-#include "../cl_MTK_Exodus_IO_Helper.hpp"
+#include "cl_MTK_Sets_Info.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Block.hpp"
+#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
+#include "cl_MTK_Matrix_Field_Info.hpp"
+#include "cl_MTK_Exodus_IO_Helper.hpp"
 
 #include "cl_Cell.hpp"
 
@@ -41,14 +41,14 @@
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 
-#include "../cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 namespace moris
 {
 namespace mtk
 {
 
-class Mesh_Core_STK : public virtual Mesh_Core
+class Mesh_Core_STK : public virtual Mesh
 {
     //! timestamp for stk output. Set in constructor over MtkMeshData
     double mTimeStamp = 0.0;
@@ -192,6 +192,12 @@ public:
      */
     Matrix< IndexMat >
     get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
+
+    Matrix< IndexMat >
+    get_elements_in_support_of_basis(moris_index aBasisIndex)
+    {
+        return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
+    }
 
 
     //##############################################
