@@ -117,7 +117,8 @@ namespace moris
                     startJ = tCounterJ;
                     stopJ  = tCounterJ + mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients() - 1;
 
-                    mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) = mCluster->mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
+                    mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) = mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) +
+                                                                               mCluster->mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
 
                     tCounterJ = stopJ + 1;
                 }

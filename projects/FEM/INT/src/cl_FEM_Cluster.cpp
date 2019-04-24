@@ -34,7 +34,10 @@ namespace moris
 
             this->set_field_interpolators_coefficients();
 
-            mInterpElements( 0 )->compute_residual();
+            for ( uint i = 0; i < mInterpElements.size(); i++ )
+            {
+                mInterpElements( i )->compute_residual();
+            }
         }
 
 //------------------------------------------------------------------------------

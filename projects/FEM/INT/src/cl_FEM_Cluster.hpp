@@ -45,7 +45,7 @@ namespace moris
         //! pointer to cell on mesh
         const mtk::Cell * mCell;
 
-        moris::Cell< mtk::Cell const * > mInterpCells;
+        moris::Cell< mtk::Cell const * > mIntegrationCell;
 
         moris::Cell< fem::Element * > mInterpElements;
 
@@ -82,7 +82,7 @@ namespace moris
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
 
-            mInterpCells.resize( 1, mCell );       //Fixme
+            mIntegrationCell.resize( 1, mCell );       //Fixme
 
             mElementType = aElementType;
 
@@ -113,13 +113,13 @@ namespace moris
 
             fem::Element_Factory tElementFactory;
 
-            mInterpElements.resize( mInterpCells.size(), nullptr );
+            mInterpElements.resize( mIntegrationCell.size(), nullptr );
 
             for( moris::uint Ik = 0; Ik < mInterpElements.size(); Ik++)
             {
                 // create the element
                 mInterpElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                        mInterpCells( Ik ),
+                                                                        mIntegrationCell( Ik ),
                                                                         mElementBlock,
                                                                         this );
             }

@@ -90,8 +90,11 @@ namespace moris
 
             mIntegrationOrder = this->get_auto_integration_order( mMeshElementPointer( 0 )->get_geometry_type() );
 
-            mtk::Geometry_Type tSideGeometryType = this->get_block_geometry_interpolator()->get_side_geometry_type();
-            mSideIntegrationOrder = this->get_auto_integration_order( tSideGeometryType );
+            if (mElementType==fem::Element_Type::SIDESET)
+            {
+                mtk::Geometry_Type tSideGeometryType = this->get_block_geometry_interpolator()->get_side_geometry_type();
+                mSideIntegrationOrder = this->get_auto_integration_order( tSideGeometryType );
+            }
         }
     }
 
