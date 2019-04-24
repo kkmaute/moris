@@ -62,18 +62,17 @@ namespace moris
     public:
 //------------------------------------------------------------------------------
 
-        Element( mtk::Cell    const * aCell,
-                 Element_Block      * aElementBlock,
-                 Cluster            * aCluster) : mElementBlock( aElementBlock )
+        Element( const mtk::Cell     * aCell,
+                       Element_Block * aElementBlock,
+                       Cluster       * aCluster) : mElementBlock( aElementBlock ),
+                                                   mCluster( aCluster )
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
 
-            mCluster = aCluster;
-
             // select the element nodes from aNodes and fill mNodeObj
             // get vertices from cell
-            moris::Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
+            moris::Cell< mtk::Vertex* > tVertices = mCell->get_vertex_pointers();
 
             // get number of nodes from cell
             uint tNumOfNodes = tVertices.size();
@@ -82,18 +81,15 @@ namespace moris
             mCluster->get_weak_bcs().set_size( tNumOfNodes, 1 );             // FIXME
 
             // get the number of IWGs
-            mNumOfIWGs = mElementBlock->get_num_IWG(); //FIXME
+            mNumOfIWGs = mElementBlock->get_num_IWG();                //FIXME
 
-            //FIXME
-            mInterpDofTypeMap     = mElementBlock->get_interpolator_dof_type_map();
+            mInterpDofTypeMap = mElementBlock->get_interpolator_dof_type_map();          //Fixme
         };
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~Element()
-        {
-        };
+        ~Element(){};
 
 //------------------------------------------------------------------------------
 
@@ -115,24 +111,8 @@ namespace moris
          */
         real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
         {
-            //FIXME: enforced Intergation_Type and Integration_Order
-            Integration_Rule tIntegrationRule( mCell->get_geometry_type(),
-                                               Integration_Type::GAUSS,
-                                               mElementBlock->get_integration_order(),
-                                               Integration_Type::GAUSS,
-                                               Integration_Order::BAR_1 );
-
-            // create an integrator for the ith IWG
-            Integrator tIntegrator( tIntegrationRule );
-
             //get number of integration points
-            uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
-
-            // get integration points
-            Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
-
-            // get integration weights
-            Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+            uint tNumOfIntegPoints = mElementBlock->get_num_integration_points();
 
             // init volume
             real tVolume = 0;
@@ -141,8 +121,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // compute integration point weight x detJ
-                real tWStar = aGeometryInterpolator->det_J( tIntegPoints.get_column( iGP ) )
-                            * tIntegWeights( iGP );
+                real tWStar = aGeometryInterpolator->det_J( mElementBlock->get_integration_points().get_column( iGP ) )
+                            * mElementBlock->get_integration_weights()( iGP );
 
                 // add contribution to jacobian from evaluation point
                 //FIXME: include a thickness if 2D

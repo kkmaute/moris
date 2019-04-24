@@ -1,5 +1,5 @@
 /*
- * cl_FEM_Element_Block.hpp
+ * cl_FEM_Element_Block.cpp
  *
  *  Created on: Apr 11, 2019
  *      Author: schmidt
@@ -9,6 +9,7 @@
 #include "cl_FEM_Element_Block.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_FEM_Integrator.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -88,13 +89,41 @@ namespace moris
             // create the element field interpolators
             this->create_field_interpolators( aModelSolverInterface );
 
-            mIntegrationOrder = this->get_auto_integration_order( mMeshElementPointer( 0 )->get_geometry_type() );
+            Integration_Rule* tIntegrationRule;
 
             if (mElementType==fem::Element_Type::SIDESET)
             {
                 mtk::Geometry_Type tSideGeometryType = this->get_block_geometry_interpolator()->get_side_geometry_type();
-                mSideIntegrationOrder = this->get_auto_integration_order( tSideGeometryType );
+                enum fem::Integration_Order tSideIntegrationOrder = this->get_auto_integration_order( tSideGeometryType );
+
+                tIntegrationRule = new Integration_Rule( tSideGeometryType,
+                                                         Integration_Type::GAUSS,
+                                                         tSideIntegrationOrder,
+                                                         Integration_Type::GAUSS,
+                                                         Integration_Order::BAR_1 );
             }
+            else
+            {
+                enum fem::Integration_Order tIntegrationOrder = this->get_auto_integration_order( mMeshElementPointer( 0 )->get_geometry_type() );
+
+                tIntegrationRule = new Integration_Rule( mMeshElementPointer( 0 )->get_geometry_type(),
+                                                         Integration_Type::GAUSS,
+                                                         tIntegrationOrder,
+                                                         Integration_Type::GAUSS,
+                                                         Integration_Order::BAR_1 );
+            }
+
+            // create an integrator for the ith IWG
+            Integrator tIntegrator( *tIntegrationRule );
+
+            //get number of integration points
+            mNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+            // get integration points
+            mSurfRefIntegPoints = tIntegrator.get_points();
+
+            // get integration weights
+            mIntegWeights = tIntegrator.get_weights();
         }
     }
 
