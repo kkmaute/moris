@@ -56,6 +56,7 @@ namespace MSI
         // map of the element active dof types
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
         moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
+        moris::Matrix< DDSMat >                   mInterpDofAssemblyMap;
         uint                                      mNumOfInterp;
 
         enum fem::Integration_Order mIntegrationOrder;

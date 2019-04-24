@@ -176,10 +176,22 @@ namespace moris
         // set size of mapping matrix
         mInterpDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
 
+        // init dof counter
+        uint tDofCounter = 0;
+
         // loop over all dof types to create the mapping matrix
         for ( uint i = 0; i < mNumOfInterp; i++ )
         {
             mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
+
+            // fill the assembly map with starting dof counter
+            mInterpDofAssemblyMap( i, 0 ) = tDofCounter;
+            // update dof counter
+            tDofCounter = tDofCounter + mInterpDofTypeList(i).size()-1;
+            // fill the assembly map with starting dof counter
+            mInterpDofAssemblyMap( i, 1 ) = tDofCounter;
+            // update dof counter
+            tDofCounter = tDofCounter + 1;
         }
     }
 
