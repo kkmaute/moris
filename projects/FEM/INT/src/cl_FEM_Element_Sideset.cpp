@@ -53,30 +53,13 @@ namespace moris
                     Cell< Field_Interpolator* > tIWGInterpolators
                         = mElementBlock->get_IWG_field_interpolators( tTreatedIWG, mElementBlock->get_block_field_interpolator() );
 
-                    // create an integration rule for the ith IWG
-                    mtk::Geometry_Type tSideGeometryType = mElementBlock->get_block_geometry_interpolator()->get_side_geometry_type();
-                    Integration_Rule tIntegrationRule( tSideGeometryType,
-                                                       Integration_Type::GAUSS,
-                                                       mElementBlock->get_side_integration_order(),
-                                                       Integration_Type::GAUSS,
-                                                       Integration_Order::BAR_1 );
-
-                    // create an integrator for the ith IWG
-                    Integrator tIntegrator( tIntegrationRule );
-
                     //get number of integration points
-                    uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
-
-                    // get integration points
-                    Matrix< DDRMat > tSurfRefIntegPoints = tIntegrator.get_points();
-
-                    // get integration weights
-                    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+                    uint tNumOfIntegPoints = mElementBlock->get_num_integration_points();
 
                     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
                     {
                         // get integration point location in the reference surface
-                        Matrix< DDRMat > tSurfRefIntegPointI = tSurfRefIntegPoints.get_column( iGP );
+                        Matrix< DDRMat > tSurfRefIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
 
                         // get integration point location in the reference volume
                         Matrix< DDRMat > tVolRefIntegPointI
@@ -97,7 +80,7 @@ namespace moris
                                                            tTreatedSideOrdinal );
                         tTreatedIWG->set_normal( tNormal );
 
-                        real tWStar = tIntegWeights( iGP ) * tSurfDetJ;
+                        real tWStar = mElementBlock->get_integration_weights()( iGP ) * tSurfDetJ;
 
                         // compute jacobian at evaluation point
                         Matrix< DDRMat > tResidual;
@@ -125,7 +108,8 @@ namespace moris
                 stopI  = tCounterI + mElementBlock->get_block_field_interpolator()( iBuild )->get_number_of_space_time_coefficients() - 1;
 
                 // fill the global residual
-                mCluster->mResidual( { startI, stopI }, { 0 , 0 } ) = mCluster->mResidualElement( iBuild ).matrix_data();
+                mCluster->mResidual( { startI, stopI }, { 0 , 0 } ) = mCluster->mResidual( { startI, stopI }, { 0 , 0 } )+
+                        mCluster->mResidualElement( iBuild ).matrix_data();
 
                 // update the row counter
                 tCounterI = stopI + 1;
@@ -170,30 +154,13 @@ namespace moris
                     Cell< Field_Interpolator* > tIWGInterpolators
                         = mElementBlock->get_IWG_field_interpolators( tTreatedIWG, mElementBlock->get_block_field_interpolator() );
 
-                    // create an integration rule for the ith IWG
-                    mtk::Geometry_Type tSideGeometryType = mElementBlock->get_block_geometry_interpolator()->get_side_geometry_type();
-                    Integration_Rule tIntegrationRule( tSideGeometryType,
-                                                       Integration_Type::GAUSS,
-                                                       mElementBlock->get_side_integration_order(),
-                                                       Integration_Type::GAUSS,
-                                                       Integration_Order::BAR_1 );
-
-                    // create an integrator for the ith IWG
-                    Integrator tIntegrator( tIntegrationRule );
-
                     //get number of integration points
-                    uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
-
-                    // get integration points
-                    Matrix< DDRMat > tSurfRefIntegPoints = tIntegrator.get_points();
-
-                   // get integration weights
-                   Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+                    uint tNumOfIntegPoints = mElementBlock->get_num_integration_points();
 
                    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
                    {
                        // get integration point location in the reference surface
-                       Matrix< DDRMat > tSurfRefIntegPointI = tSurfRefIntegPoints.get_column( iGP );
+                       Matrix< DDRMat > tSurfRefIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
 
                        // get integration point location in the reference volume
                        Matrix< DDRMat > tVolRefIntegPointI
@@ -215,7 +182,7 @@ namespace moris
                                                           tTreatedSideOrdinal );
                        tTreatedIWG->set_normal( tNormal );
 
-                       real tWStar = tIntegWeights( iGP ) * tSurfDetJ;
+                       real tWStar = mElementBlock->get_integration_weights()( iGP ) * tSurfDetJ;
 
                        // compute jacobian at evaluation point
                        Cell< Matrix< DDRMat > > tJacobians;
@@ -254,7 +221,8 @@ namespace moris
                     startJ = tCounterJ;
                     stopJ  = tCounterJ + mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients() - 1;
 
-                    mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) = mCluster->mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
+                    mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) = mCluster->mJacobian({ startI, stopI },{ startJ, stopJ })+
+                            mCluster->mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
 
                     tCounterJ = stopJ + 1;
                 }

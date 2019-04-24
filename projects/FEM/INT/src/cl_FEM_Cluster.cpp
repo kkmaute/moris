@@ -1,3 +1,9 @@
+/*
+ * cl_FEM_Cluster.hpp
+ *
+ *  Created on: Apr 11, 2019
+ *      Author: schmidt
+ */
 #include <iostream>
 
 #include "cl_FEM_Element.hpp" //FEM/INT/src
@@ -7,7 +13,6 @@ namespace moris
 {
     namespace fem
     {
-
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -21,7 +26,10 @@ namespace moris
 
             this->set_field_interpolators_coefficients();
 
-            mInterpElements( 0 )->compute_jacobian();
+            for ( uint Ik = 0; Ik < mInterpElements.size(); Ik++ )
+            {
+                mInterpElements( Ik )->compute_jacobian();
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -34,9 +42,9 @@ namespace moris
 
             this->set_field_interpolators_coefficients();
 
-            for ( uint i = 0; i < mInterpElements.size(); i++ )
+            for ( uint Ik = 0; Ik < mInterpElements.size(); Ik++ )
             {
-                mInterpElements( i )->compute_residual();
+                mInterpElements( Ik )->compute_residual();
             }
         }
 
@@ -92,13 +100,8 @@ namespace moris
              mResidual.set_size( tTotalDof, 1, 0.0 );
          }
 
-
-
 //------------------------------------------------------------------------------
 
-
-
 //------------------------------------------------------------------------------
-
     } /* namespace fem */
 } /* namespace moris */

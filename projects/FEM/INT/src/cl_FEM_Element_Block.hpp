@@ -59,9 +59,14 @@ namespace MSI
         moris::Matrix< DDSMat >                   mInterpDofAssemblyMap;
         uint                                      mNumOfInterp;
 
-        enum fem::Integration_Order mIntegrationOrder;
+        // number of integration points
+        uint mNumOfIntegPoints;
 
-        enum fem::Integration_Order mSideIntegrationOrder;
+        // integration points
+        Matrix< DDRMat > mSurfRefIntegPoints;
+
+        // integration weights
+        Matrix< DDRMat > mIntegWeights;
 
 //------------------------------------------------------------------------------
     public:
@@ -173,16 +178,23 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        enum fem::Integration_Order & get_integration_order()
+        uint get_num_integration_points()
         {
-            return mIntegrationOrder;
+            return mNumOfIntegPoints;
         }
 
 //------------------------------------------------------------------------------
 
-        enum fem::Integration_Order & get_side_integration_order()
+        const Matrix< DDRMat > & get_integration_points()
         {
-            return mSideIntegrationOrder;
+            return mSurfRefIntegPoints;
+        }
+
+//------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & get_integration_weights()
+        {
+            return mIntegWeights;
         }
 
 //------------------------------------------------------------------------------

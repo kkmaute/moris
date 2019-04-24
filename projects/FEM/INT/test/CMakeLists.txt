@@ -21,6 +21,7 @@ set(TEST_SOURCES
     cl_FEM_Side_Geometry_Interpolation_Test.cpp
     cl_FEM_Integration_Mesh_Test.cpp
     cl_FEM_Element_HJ_Test.cpp
+    cl_FEM_Element_Block.cpp
     )
 
 # List test includes
