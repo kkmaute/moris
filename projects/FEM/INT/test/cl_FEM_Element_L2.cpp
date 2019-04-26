@@ -165,7 +165,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create the element
-//                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+//                    tElements( k ) = tElementFactory.create_cluster( Element_Type::BULK,
 //                                                                     & tMesh->get_mtk_cell( k ),
 //                                                                     tIWGs,
 //                                                                     tNodes );
@@ -525,7 +525,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create the element
-//                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+//                    tElements( k ) = tElementFactory.create_cluster( Element_Type::BULK,
 //                                                                     & tMesh->get_mtk_cell( k ),
 //                                                                     tIWGs,
 //                                                                     tNodes );
@@ -828,7 +828,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create the element
-//                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+//                    tElements( k ) = tElementFactory.create_cluster( Element_Type::BULK,
 //                                                                     & tMesh->get_mtk_cell( k ),
 //                                                                     tIWGs,
 //                                                                     tNodes );
@@ -1112,7 +1112,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create the element
-//                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+//                    tElements( k ) = tElementFactory.create_cluster( Element_Type::BULK,
 //                                                                     & tMesh->get_mtk_cell( k ),
 //                                                                     tIWGs,
 //                                                                     tNodes );

@@ -1,5 +1,5 @@
 /*
- * cl_FEM_Element_Block.hpp
+ * cl_FEM_Element_Block.cpp
  *
  *  Created on: Apr 11, 2019
  *      Author: schmidt
@@ -9,6 +9,7 @@
 #include "cl_FEM_Element_Block.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_FEM_Integrator.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -24,7 +25,6 @@ namespace moris
                                                                        mElementType(aElementType)
     {
         this->create_unique_dof_type_lists();
-        this->create_unique_list_of_first_dof_type_of_group();
         this->create_dof_type_lists();
 
         mElements.resize( mMeshElementPointer.size(), nullptr);
@@ -34,10 +34,9 @@ namespace moris
 
         for( luint k=0; k < mMeshElementPointer.size(); ++k )
         {
-            // create the element
-            mElements( k ) = tElementFactory.create_element( mElementType,
+            // create the element // FIXME replace with mtk::cluster information
+            mElements( k ) = tElementFactory.create_cluster( mElementType,
                                                              mMeshElementPointer( k ),
-                                                             mIWGs,
                                                              mNodes,
                                                              this );
         }
@@ -89,6 +88,42 @@ namespace moris
 
             // create the element field interpolators
             this->create_field_interpolators( aModelSolverInterface );
+
+            Integration_Rule* tIntegrationRule;
+
+            if (mElementType==fem::Element_Type::SIDESET)
+            {
+                mtk::Geometry_Type tSideGeometryType = this->get_block_geometry_interpolator()->get_side_geometry_type();
+                enum fem::Integration_Order tSideIntegrationOrder = this->get_auto_integration_order( tSideGeometryType );
+
+                tIntegrationRule = new Integration_Rule( tSideGeometryType,
+                                                         Integration_Type::GAUSS,
+                                                         tSideIntegrationOrder,
+                                                         Integration_Type::GAUSS,
+                                                         Integration_Order::BAR_1 );
+            }
+            else
+            {
+                enum fem::Integration_Order tIntegrationOrder = this->get_auto_integration_order( mMeshElementPointer( 0 )->get_geometry_type() );
+
+                tIntegrationRule = new Integration_Rule( mMeshElementPointer( 0 )->get_geometry_type(),
+                                                         Integration_Type::GAUSS,
+                                                         tIntegrationOrder,
+                                                         Integration_Type::GAUSS,
+                                                         Integration_Order::BAR_1 );
+            }
+
+            // create an integrator for the ith IWG
+            Integrator tIntegrator( *tIntegrationRule );
+
+            //get number of integration points
+            mNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+            // get integration points
+            mSurfRefIntegPoints = tIntegrator.get_points();
+
+            // get integration weights
+            mIntegWeights = tIntegrator.get_weights();
         }
     }
 
@@ -115,39 +150,6 @@ namespace moris
                                  ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size() );
         auto pos  = std::distance( ( mEqnObjDofTypeList.data() ).data(), last );
         mEqnObjDofTypeList.resize( pos );
-    }
-
-    void Element_Block::create_unique_list_of_first_dof_type_of_group()
-    {
-//        // get the number of IWGs
-//        uint tNumOfIWGs = this->get_num_IWG();
-//
-//        // create a list of the groups of dof types provided by the IWGs----------------
-//        // FIXME works as long as the dof type are always grouped in the same way
-//        moris::Cell< MSI::Dof_Type > tInterpDofTypeListBuild( tNumOfIWGs );
-//
-//        // loop over the IWGs
-//        for ( uint i = 0; i < tNumOfIWGs; i++ )
-//        {
-//            // get the first dof type of each group
-//            tInterpDofTypeListBuild( i ) = mIWGs( i )->get_residual_dof_type()( 0 );
-//        }
-//
-//        // get a unique list of the first dof type of each group
-//        Cell<moris::moris_index> tUniqueDofTypeGroupsIndices = unique_index( tInterpDofTypeListBuild );
-//
-//        // get the number of unique dof type groups
-//        uint tNumOfUniqueDofTypeGroupsIndices = tUniqueDofTypeGroupsIndices.size();
-//
-//        // set the size of the list of unique dof type groups
-//        mInterpDofTypeList.resize( tNumOfUniqueDofTypeGroupsIndices );
-//
-//        // loop over the list of unique dof type groups
-//        for ( uint i = 0; i < tNumOfUniqueDofTypeGroupsIndices; i++ )
-//        {
-//            // get the unique residual dof type groups
-//            mInterpDofTypeList( i ) = mIWGs( tUniqueDofTypeGroupsIndices( i ) )->get_residual_dof_type();
-//        }
     }
 
 //------------------------------------------------------------------------------
@@ -353,6 +355,65 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+
+    moris::Cell< Field_Interpolator* > Element_Block::get_IWG_field_interpolators ( IWG*                               & aIWG,
+                                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+    {
+        // ask the IWG for its active dof types
+        Cell< Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
+
+        // number of active dof type for the IWG
+        uint tNumOfIWGActiveDof = tIWGActiveDof.size();
+
+        // select associated active interpolators
+        Cell< Field_Interpolator* > tIWGFieldInterpolators( tNumOfIWGActiveDof, nullptr );
+        for( uint i = 0; i < tNumOfIWGActiveDof; i++ )
+        {
+            // find the index of active dof type in the list of element dof type
+            uint tIWGDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDof( i )( 0 ) ) );
+
+            // select the corresponding interpolator
+            tIWGFieldInterpolators( i ) = aFieldInterpolators( tIWGDofIndex );
+        }
+        return tIWGFieldInterpolators;
+    }
+
+//------------------------------------------------------------------------------
+
+    fem::Integration_Order Element_Block::get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
+    {
+        switch( aGeometryType )
+        {
+            case( mtk::Geometry_Type::LINE ) :
+                return fem::Integration_Order::BAR_3;
+                break;
+
+            case( mtk::Geometry_Type::QUAD ) :
+                 return fem::Integration_Order::QUAD_3x3;
+                 break;
+
+            case( mtk::Geometry_Type::HEX ) :
+                return fem::Integration_Order::HEX_3x3x3;
+                break;
+
+            case( mtk::Geometry_Type::TRI ) :
+                return fem::Integration_Order::TRI_6;
+                break;
+
+            case( mtk::Geometry_Type::TET ) :
+                return fem::Integration_Order::TET_5;
+                break;
+
+            default :
+                MORIS_ERROR( false, " Element::get_auto_integration_order - not defined for this geometry type. ");
+                return Integration_Order::UNDEFINED;
+                break;
+        }
+    }
+
+//------------------------------------------------------------------------------
+
+
 
     } /* namespace fem */
 } /* namespace moris */

@@ -40,7 +40,7 @@ namespace MSI
     class Element_Block : public MSI::Equation_Block
     {
     private:
-        moris::Cell< mtk::Cell const* >           mMeshElementPointer;
+        moris::Cell< mtk::Cell const* >     mMeshElementPointer;
 
         moris::Cell< Node_Base* >           mNodes;
 
@@ -57,6 +57,15 @@ namespace MSI
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
         moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
         uint                                      mNumOfInterp;
+
+        // number of integration points
+        uint mNumOfIntegPoints;
+
+        // integration points
+        Matrix< DDRMat > mSurfRefIntegPoints;
+
+        // integration weights
+        Matrix< DDRMat > mIntegWeights;
 
 //------------------------------------------------------------------------------
     public:
@@ -168,6 +177,35 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        uint get_num_integration_points()
+        {
+            return mNumOfIntegPoints;
+        }
+
+//------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & get_integration_points()
+        {
+            return mSurfRefIntegPoints;
+        }
+
+//------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & get_integration_weights()
+        {
+            return mIntegWeights;
+        }
+
+//------------------------------------------------------------------------------
+
+        /**
+         * get the field interpolators for an IWG
+         */
+        moris::Cell< Field_Interpolator* > get_IWG_field_interpolators ( IWG*                               & aIWG,
+                                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+
         /**
          * auto detect full integration scheme
          */
@@ -182,6 +220,11 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+        /**
+          * auto detect interpolation scheme
+          */
+        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
 
     };
 //------------------------------------------------------------------------------
