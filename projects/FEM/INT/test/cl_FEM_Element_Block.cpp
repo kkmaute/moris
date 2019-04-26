@@ -10,15 +10,13 @@
 #undef protected
 #undef private
 
-
-
 namespace moris
 {
     namespace fem
     {
         TEST_CASE( "Element_Block", "[moris],[fem],[ElementBlock]" )
         {
-//           Equation_Block tElementBlock = new Element_Block();
+//           MSI::Equation_Block tElementBlock = new Element_Block();
 //
 //           tElementBlock.mIWGs = ;
 //

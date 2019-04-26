@@ -137,7 +137,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // create equation objects
         tElements.reserve( tNumberOfElements );
 
-        Cell< fem::Element_Block * >      tElementBlocks(1,nullptr);
+        Cell< MSI::Equation_Block * >      tElementBlocks(1,nullptr);
 
         // ask mesh about number of elements on proc
         moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
@@ -158,7 +158,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
-        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                                                      tMesh->get_communication_table(),
                                                                                      tCoefficientsMap,
                                                                                      tMesh->get_num_coeffs( tOrder ),

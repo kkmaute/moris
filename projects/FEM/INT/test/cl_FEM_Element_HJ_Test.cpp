@@ -153,7 +153,7 @@ namespace moris
                 }
 
                 // create a fem element block
-                Cell< fem::Element_Block * > tElementBlocks( 1, nullptr );
+                Cell< MSI::Equation_Block * > tElementBlocks( 1, nullptr );
                 tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
                 // put the equation object of block 0 in the global list of equation objects
@@ -204,7 +204,7 @@ namespace moris
                 //= tMesh->get_num_coeffs( 1 )
 
                 moris::MSI::Model_Solver_Interface* tModelSolverInterface
-                    = new moris::MSI::Model_Solver_Interface( tElements,
+                    = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                               tCommunicationTable,
                                                               tCoefficientsMap,
                                                               tNumCoeff,

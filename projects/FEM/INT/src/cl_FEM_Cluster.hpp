@@ -77,7 +77,8 @@ namespace moris
         Cluster( const Element_Type                aElementType,
                  const mtk::Cell                 * aCell,
                        moris::Cell< Node_Base* > & aNodes,
-                       Element_Block             * aElementBlock) : mElementBlock( aElementBlock )
+                       Element_Block             * aElementBlock) : MSI::Equation_Object( aElementBlock ),
+                                                                    mElementBlock( aElementBlock )
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
@@ -109,7 +110,7 @@ namespace moris
             mNumOfIWGs = mElementBlock->get_num_IWG(); //FIXME
 
             //FIXME
-            mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
+//            mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
 
             fem::Element_Factory tElementFactory;
 

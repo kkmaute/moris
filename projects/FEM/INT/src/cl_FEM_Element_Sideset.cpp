@@ -13,8 +13,7 @@ namespace moris
         Element_Sideset::Element_Sideset( mtk::Cell    const * aCell,
                                           Element_Block      * aElementBlock,
                                           Cluster            * aCluster) : Element( aCell, aElementBlock, aCluster )
-        {
-        }
+        { }
 
 //------------------------------------------------------------------------------
 
@@ -202,7 +201,6 @@ namespace moris
                        }
                    }
                 }
-
             }
 
             // jacobian assembly

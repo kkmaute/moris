@@ -8,6 +8,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Equation_Block.hpp"
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_Vector.hpp"
 
@@ -63,9 +64,12 @@ namespace moris
             mMyPdofHosts( Ii ) = aPdofHostList( tNodeID );
 
             // FIXME rewrite this function
-            for ( moris::uint Ik=0; Ik < mEqnObjDofTypeList.size(); Ik++ )
+            for ( moris::uint Ik=0; Ik < mEquationBlock->get_unique_dof_type_list().size(); Ik++ )
             {
-                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), aTimePerDofType, aNumUsedDofTypes, aPdofTypeMap );
+                mMyPdofHosts( Ii )->set_pdof_type( mEquationBlock->get_unique_dof_type_list()( Ik ),
+                                                   aTimePerDofType,
+                                                   aNumUsedDofTypes,
+                                                   aPdofTypeMap );
             }
         }
 

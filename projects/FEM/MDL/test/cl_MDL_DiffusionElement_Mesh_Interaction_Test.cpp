@@ -37,6 +37,22 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
+#include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
+
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
+#include "cl_MSI_Solver_Interface.hpp"
+#include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
+
+#include "cl_TSA_Time_Solver_Factory.hpp"
+#include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_TSA_Time_Solver.hpp"
+
 #include "fn_norm.hpp"
 
 moris::real
@@ -103,12 +119,72 @@ namespace moris
             mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
                                                   tSidesetList, tSidesetBCTypeList );
 
-            //solve
-            moris::Matrix< DDRMat > tSolution11;
-            tModel->solve( tSolution11 );
-
-            // checking the solution--------------------------------------------------------
             //------------------------------------------------------------------------------
+
+            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: create linear solver and algortihm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            dla::Solver_Factory  tSolFactory;
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+            tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+            tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+
+            dla::Linear_Solver tLinSolver;
+
+            tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create nonlinear solver and algortihm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+            tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
+            tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+            tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+
+            tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+
+            NLA::Nonlinear_Solver tNonlinearSolver;
+
+            tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: create time Solver and algorithm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            tsa::Time_Solver_Factory tTimeSolverFactory;
+            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+
+            tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
+
+            tsa::Time_Solver tTimeSolver;
+
+            tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+
+            NLA::SOL_Warehouse tSolverWarehouse;
+
+            tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
+
+            tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
+            tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+
+            tNonlinearSolver.set_dof_type_list( tDofTypes1 );
+            tTimeSolver.set_dof_type_list( tDofTypes1 );
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 4: Solve and check
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            tTimeSolver.solve();
+
+            moris::Matrix< DDRMat > tSolution11;
+            tTimeSolver.get_full_solution( tSolution11 );
+
             // Expected solution
             Matrix< DDRMat > tExpectedSolution = {{ 25.0, 25.0, 25.0,
                                                     25.0,  5.0, 25.0,
@@ -199,10 +275,69 @@ namespace moris
             mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
                                                   tSidesetList, tSidesetBCTypeList );
 
-            //solve
-            moris::Matrix< DDRMat > tSolution11;
-            tModel->solve( tSolution11 );
+            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: create linear solver and algortihm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            dla::Solver_Factory  tSolFactory;
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+            tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+            tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+
+            dla::Linear_Solver tLinSolver;
+
+            tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create nonlinear solver and algortihm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+            tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
+            tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+            tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+
+            tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+
+            NLA::Nonlinear_Solver tNonlinearSolver;
+
+            tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: create time Solver and algorithm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            tsa::Time_Solver_Factory tTimeSolverFactory;
+            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+
+            tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
+
+            tsa::Time_Solver tTimeSolver;
+
+            tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+
+            NLA::SOL_Warehouse tSolverWarehouse;
+
+            tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
+
+            tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
+            tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+
+            tNonlinearSolver.set_dof_type_list( tDofTypes1 );
+            tTimeSolver.set_dof_type_list( tDofTypes1 );
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 4: Solve and check
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            tTimeSolver.solve();
+
+            moris::Matrix< DDRMat > tSolution11;
+            tTimeSolver.get_full_solution( tSolution11 );
 
             tModel->output_solution( tFieldName1 );
 
