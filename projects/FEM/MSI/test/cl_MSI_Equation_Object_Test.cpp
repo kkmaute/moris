@@ -99,285 +99,296 @@ namespace moris
         delete Node2;
     }
 
-//    TEST_CASE("Eqn_Obj_create_pdof_host","[MSI],[Eqn_Obj_create_pdof_host]")
-//    {
-//        // Create node obj
-//        moris::uint tNodeId1 = 0;
-//        moris::uint tNodeId2 = 2;
-//
-//        fem::Node_Base * Node1;
-//        fem::Node_Base * Node2;
-//
-//        //---------------------------------------------------------------------------------
-//        // Create generic adofs to this nodes pdof
-//        Matrix< IdMat > tAdofsListId1( 2, 1 );
-//        Matrix< IdMat > tAdofsListId2( 2, 1 );
-//
-//        tAdofsListId1( 0, 0 ) = 0;
-//        tAdofsListId1( 1, 0 ) = 1;
-//        tAdofsListId2( 0, 0 ) = 0;
-//        tAdofsListId2( 1, 0 ) = 1;
-//
-//        // Create generic adofs to this nodes pdof
-//        Matrix< IdMat > tAdofsListInd1( 2, 1 );
-//        Matrix< IdMat > tAdofsListInd2( 2, 1 );
-//
-//        tAdofsListInd1( 0, 0 ) = 0;
-//        tAdofsListInd1( 1, 0 ) = 1;
-//        tAdofsListInd2( 0, 0 ) = 0;
-//        tAdofsListInd2( 1, 0 ) = 1;
-//
-//        //---------------------------------------------------------------------------------
-//        // Create generic T-matrices
-//        Matrix< DDRMat > tMatrix1( 2, 1 );
-//        Matrix< DDRMat > tMatrix2( 2, 1 );
-//
-//        // Create generic T-matrices
-//        tMatrix1( 0, 0 ) = 1.0;
-//        tMatrix1( 1, 0 ) = 1.0;
-//        tMatrix2( 0, 0 ) = 1.0;
-//        tMatrix2( 1, 0 ) = -2.0;
-//
-//        // Create generic adof owning processor
-//        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
-//        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
-//
-//        tAdofOwningProcessor1( 0, 0 ) = 0;
-//        tAdofOwningProcessor1( 1, 0 ) = 0;
-//        tAdofOwningProcessor2( 0, 0 ) = 0;
-//        tAdofOwningProcessor2( 1, 0 ) = 0;
-//
-//        // Create generic Node Object
-//        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
-//        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
-//        //---------------------------------------------------------------------------------
-//
-//        moris::uint tNumNodes = 2;
-//
-//        // Create List with node pointer corresponding to generic equation object
-//        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-//        tNodeIds_1( 0 ) = Node1;
-//        tNodeIds_1( 1 ) = Node2;
-//
-//        // Create generic equation objects
-//        Equation_Object EquObj( tNodeIds_1 );
-//
-//        // Create the pdof hosts of this equation object
-//        moris::Cell < Pdof_Host * > tPdofHostList;
-//        tPdofHostList.resize( 3, nullptr );
-//        moris::uint tNumMaxPdofTypes = 1;
-//
-//        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-//        tDofTypeIndexMap(3, 0) = 0;
-//
-//        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
-//
-//        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
-//
-//        // Check if right pdof host was created in given pdof host list
-//        CHECK( equal_to( tPdofHostList( 0 )->mNodeID, 0 ) );
-//        REQUIRE( tPdofHostList( 1 ) == NULL );
-//        CHECK( equal_to( tPdofHostList( 2 )->mNodeID, 2 ) );
-//
-//        // Check equation objects internal pdof host list
-//        CHECK( equal_to( EquObj.mMyPdofHosts.size(), 2 ) );
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )->mNodeID, 0 ) );
-//        CHECK( equal_to( EquObj.mMyPdofHosts( 1 )->mNodeID, 2 ) );
-//        delete Node1;
-//        delete Node2;
-//        delete tPdofHostList(0);
-//        delete tPdofHostList(1);
-//        delete tPdofHostList(2);
-//    }
+    TEST_CASE("Eqn_Obj_create_pdof_host","[MSI],[Eqn_Obj_create_pdof_host]")
+    {
+        // Create node obj
+        moris::uint tNodeId1 = 0;
+        moris::uint tNodeId2 = 2;
 
-//    TEST_CASE("Eqn_Obj_create_my_pdof_list","[MSI],[Eqn_Obj_create_my_pdof_list]")
-//    {
-//        // Create node obj
-//        moris::uint tNodeId1 = 0;
-//        moris::uint tNodeId2 = 2;
-//
-//        fem::Node_Base * Node1;
-//        fem::Node_Base * Node2;
-//
-//        //---------------------------------------------------------------------------------
-//        // Create generic adofs to this nodes pdof
-//        Matrix< IdMat > tAdofsListId1( 2, 1 );
-//        Matrix< IdMat > tAdofsListId2( 2, 1 );
-//
-//        tAdofsListId1( 0, 0 ) = 0;
-//        tAdofsListId1( 1, 0 ) = 1;
-//        tAdofsListId2( 0, 0 ) = 0;
-//        tAdofsListId2( 1, 0 ) = 1;
-//
-//        // Create generic adofs to this nodes pdof
-//        Matrix< IdMat > tAdofsListInd1( 2, 1 );
-//        Matrix< IdMat > tAdofsListInd2( 2, 1 );
-//
-//        tAdofsListInd1( 0, 0 ) = 0;
-//        tAdofsListInd1( 1, 0 ) = 1;
-//        tAdofsListInd2( 0, 0 ) = 0;
-//        tAdofsListInd2( 1, 0 ) = 1;
-//
-//        //---------------------------------------------------------------------------------
-//        // Create generic T-matrices
-//        Matrix< DDRMat > tMatrix1( 2, 1 );
-//        Matrix< DDRMat > tMatrix2( 2, 1 );
-//
-//        // Create generic T-matrices
-//        tMatrix1( 0, 0 ) = 1.0;
-//        tMatrix1( 1, 0 ) = 1.0;
-//        tMatrix2( 0, 0 ) = 1.0;
-//        tMatrix2( 1, 0 ) = -2.0;
-//
-//        // Create generic adof owning processor
-//        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
-//        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
-//
-//        tAdofOwningProcessor1( 0, 0 ) = 0;
-//        tAdofOwningProcessor1( 1, 0 ) = 0;
-//        tAdofOwningProcessor2( 0, 0 ) = 0;
-//        tAdofOwningProcessor2( 1, 0 ) = 0;
-//
-//        // Create generic Node Object
-//        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd2, tMatrix1, tAdofOwningProcessor1 );
-//        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
-//        //---------------------------------------------------------------------------------
-//
-//        moris::uint tNumNodes = 2;
-//
-//        // Create List with node pointern correponding to generic equation object
-//        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-//        tNodeIds_1( 0 ) = Node1;
-//        tNodeIds_1( 1 ) = Node2;
-//
-//        // Create generic equation objects
-//        Equation_Object EquObj( tNodeIds_1 );
-//
-//        // Create pdof hosts of this equation object
-//        moris::Cell < Pdof_Host * > tPdofHostList;
-//        tPdofHostList.resize( 3, nullptr );
-//        moris::uint tNumMaxPdofTypes = 2;
-//
-//        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-//        tDofTypeIndexMap(0, 0) = 0;
-//        tDofTypeIndexMap(3, 0) = 1;
-//
-//        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
-//
-//        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
-//
-//        // resize pdof host list. Shortcut. Functionality is tested in another test
-//        tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );
-//        tPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-//        tPdofHostList( 2 )->mListOfPdofTimePerType.resize( 1 );
-//        tPdofHostList( 2 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-//
-//        // Create my pdof list
-//        EquObj.create_my_pdof_list();
-//
-//        // Check if right pdof host was created in given pdof host list
-//        CHECK( equal_to( EquObj.mFreePdofs.size(), 2 ) );
-//        delete Node1;
-//        delete Node2;
-//        delete tPdofHostList(0);
-//        delete tPdofHostList(1);
-//        delete tPdofHostList(2);
-//
-//        // FIXME extend this test
-//    }
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
 
-//    TEST_CASE("Eqn_Obj_create_my_pdof_list_2","[MSI],[Eqn_Obj_create_my_pdof_list_2]")
-//    {
-//        // Create node obj
-//        moris::uint tNodeId1 = 0;
-//        moris::uint tNodeId2 = 2;
-//
-//        fem::Node_Base * Node1;
-//        fem::Node_Base * Node2;
-//
-//        //---------------------------------------------------------------------------------
-//        // Create generic adofs to this nodes pdof
-//        Matrix< IdMat > tAdofsListId1( 2, 1 );
-//        Matrix< IdMat > tAdofsListId2( 2, 1 );
-//
-//        tAdofsListId1( 0, 0 ) = 0;
-//        tAdofsListId1( 1, 0 ) = 1;
-//        tAdofsListId2( 0, 0 ) = 0;
-//        tAdofsListId2( 1, 0 ) = 1;
-//
-//        // Create generic adofs to this nodes pdof
-//        Matrix< IdMat > tAdofsListInd1( 2, 1 );
-//        Matrix< IdMat > tAdofsListInd2( 2, 1 );
-//
-//        tAdofsListInd1( 0, 0 ) = 0;
-//        tAdofsListInd1( 1, 0 ) = 1;
-//        tAdofsListInd2( 0, 0 ) = 0;
-//        tAdofsListInd2( 1, 0 ) = 1;
-//
-//        // Create generic T-matrices
-//        Matrix< DDRMat > tMatrix1( 2, 1 );
-//        Matrix< DDRMat > tMatrix2( 2, 1 );
-//
-//        // Create generic T-matrices
-//        tMatrix1( 0, 0 ) = 1.0;
-//        tMatrix1( 1, 0 ) = 1.0;
-//        tMatrix2( 0, 0 ) = 1.0;
-//        tMatrix2( 1, 0 ) = -2.0;
-//
-//        // Create generic adof owning processor
-//        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
-//        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
-//
-//        tAdofOwningProcessor1( 0, 0 ) = 0;
-//        tAdofOwningProcessor1( 1, 0 ) = 0;
-//        tAdofOwningProcessor2( 0, 0 ) = 0;
-//        tAdofOwningProcessor2( 1, 0 ) = 0;
-//
-//        // Create generic Node Object
-//        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
-//        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
-//
-//
-//        moris::uint tNumNodes = 2;
-//
-//        // Create List with node pointern correponding to generic equation object
-//        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-//        tNodeIds_1( 0 ) = Node1;
-//        tNodeIds_1( 1 ) = Node2;
-//
-//        // Create generic equation objects
-//        Equation_Object EquObj( tNodeIds_1 );
-//
-//        // Create pdof hosts of this equation object
-//        moris::Cell < Pdof_Host * > tPdofHostList;
-//        tPdofHostList.resize( 3, nullptr );
-//        moris::uint tNumMaxPdofTypes = 2;
-//
-//        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-//        tDofTypeIndexMap(3, 0) = 0;
-//
-//        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
-//
-//        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
-//
-//        // resize pdof host list. Shortcut. Functionality is tested in another test
-//        tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );
-//        tPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-//        tPdofHostList( 2 )->mListOfPdofTimePerType.resize( 1 );
-//        tPdofHostList( 2 )->mListOfPdofTimePerType( 0 ).resize( 1 );
-//
-//        // Create my pdof list
-//        EquObj.create_my_pdof_list();
-//
-//        // Check if right pdof host was created in given pdof host list
-//        CHECK( equal_to( EquObj.mFreePdofs.size(), 2 ) );
-//
-//        delete Node1;
-//        delete Node2;
-//        delete tPdofHostList(0);
-//        delete tPdofHostList(1);
-//        delete tPdofHostList(2);
-//    }
+        //---------------------------------------------------------------------------------
+        // Create generic adofs to this nodes pdof
+        Matrix< IdMat > tAdofsListId1( 2, 1 );
+        Matrix< IdMat > tAdofsListId2( 2, 1 );
+
+        tAdofsListId1( 0, 0 ) = 0;
+        tAdofsListId1( 1, 0 ) = 1;
+        tAdofsListId2( 0, 0 ) = 0;
+        tAdofsListId2( 1, 0 ) = 1;
+
+        // Create generic adofs to this nodes pdof
+        Matrix< IdMat > tAdofsListInd1( 2, 1 );
+        Matrix< IdMat > tAdofsListInd2( 2, 1 );
+
+        tAdofsListInd1( 0, 0 ) = 0;
+        tAdofsListInd1( 1, 0 ) = 1;
+        tAdofsListInd2( 0, 0 ) = 0;
+        tAdofsListInd2( 1, 0 ) = 1;
+
+        //---------------------------------------------------------------------------------
+        // Create generic T-matrices
+        Matrix< DDRMat > tMatrix1( 2, 1 );
+        Matrix< DDRMat > tMatrix2( 2, 1 );
+
+        // Create generic T-matrices
+        tMatrix1( 0, 0 ) = 1.0;
+        tMatrix1( 1, 0 ) = 1.0;
+        tMatrix2( 0, 0 ) = 1.0;
+        tMatrix2( 1, 0 ) = -2.0;
+
+        // Create generic adof owning processor
+        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
+        // Create generic Node Object
+        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
+        //---------------------------------------------------------------------------------
+
+        moris::uint tNumNodes = 2;
+
+        // Create List with node pointer corresponding to generic equation object
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
+        tNodeIds_1( 0 ) = Node1;
+        tNodeIds_1( 1 ) = Node2;
+
+        // Create generic equation objects
+        Equation_Object EquObj( tNodeIds_1 );
+
+        // Create the pdof hosts of this equation object
+        moris::Cell < Pdof_Host * > tPdofHostList;
+        tPdofHostList.resize( 3, nullptr );
+        moris::uint tNumMaxPdofTypes = 1;
+
+        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
+        tDofTypeIndexMap(3, 0) = 0;
+
+        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        Equation_Block tEqnBlock;
+        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationBlock = &tEqnBlock;
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
+
+        // Check if right pdof host was created in given pdof host list
+        CHECK( equal_to( tPdofHostList( 0 )->mNodeID, 0 ) );
+        REQUIRE( tPdofHostList( 1 ) == NULL );
+        CHECK( equal_to( tPdofHostList( 2 )->mNodeID, 2 ) );
+
+        // Check equation objects internal pdof host list
+        CHECK( equal_to( EquObj.mMyPdofHosts.size(), 2 ) );
+        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )->mNodeID, 0 ) );
+        CHECK( equal_to( EquObj.mMyPdofHosts( 1 )->mNodeID, 2 ) );
+        delete Node1;
+        delete Node2;
+        delete tPdofHostList(0);
+        delete tPdofHostList(1);
+        delete tPdofHostList(2);
+    }
+
+    TEST_CASE("Eqn_Obj_create_my_pdof_list","[MSI],[Eqn_Obj_create_my_pdof_list]")
+    {
+        // Create node obj
+        moris::uint tNodeId1 = 0;
+        moris::uint tNodeId2 = 2;
+
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
+
+        //---------------------------------------------------------------------------------
+        // Create generic adofs to this nodes pdof
+        Matrix< IdMat > tAdofsListId1( 2, 1 );
+        Matrix< IdMat > tAdofsListId2( 2, 1 );
+
+        tAdofsListId1( 0, 0 ) = 0;
+        tAdofsListId1( 1, 0 ) = 1;
+        tAdofsListId2( 0, 0 ) = 0;
+        tAdofsListId2( 1, 0 ) = 1;
+
+        // Create generic adofs to this nodes pdof
+        Matrix< IdMat > tAdofsListInd1( 2, 1 );
+        Matrix< IdMat > tAdofsListInd2( 2, 1 );
+
+        tAdofsListInd1( 0, 0 ) = 0;
+        tAdofsListInd1( 1, 0 ) = 1;
+        tAdofsListInd2( 0, 0 ) = 0;
+        tAdofsListInd2( 1, 0 ) = 1;
+
+        //---------------------------------------------------------------------------------
+        // Create generic T-matrices
+        Matrix< DDRMat > tMatrix1( 2, 1 );
+        Matrix< DDRMat > tMatrix2( 2, 1 );
+
+        // Create generic T-matrices
+        tMatrix1( 0, 0 ) = 1.0;
+        tMatrix1( 1, 0 ) = 1.0;
+        tMatrix2( 0, 0 ) = 1.0;
+        tMatrix2( 1, 0 ) = -2.0;
+
+        // Create generic adof owning processor
+        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
+        // Create generic Node Object
+        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd2, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
+        //---------------------------------------------------------------------------------
+
+        moris::uint tNumNodes = 2;
+
+        // Create List with node pointern correponding to generic equation object
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
+        tNodeIds_1( 0 ) = Node1;
+        tNodeIds_1( 1 ) = Node2;
+
+        // Create generic equation objects
+        Equation_Object EquObj( tNodeIds_1 );
+
+        // Create pdof hosts of this equation object
+        moris::Cell < Pdof_Host * > tPdofHostList;
+        tPdofHostList.resize( 3, nullptr );
+        moris::uint tNumMaxPdofTypes = 2;
+
+        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
+        tDofTypeIndexMap(0, 0) = 0;
+        tDofTypeIndexMap(3, 0) = 1;
+
+        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        Equation_Block tEqnBlock;
+        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationBlock = &tEqnBlock;
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
+
+        // resize pdof host list. Shortcut. Functionality is tested in another test
+        tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+
+        // Create my pdof list
+        EquObj.create_my_pdof_list();
+
+        // Check if right pdof host was created in given pdof host list
+        CHECK( equal_to( EquObj.mFreePdofs.size(), 2 ) );
+        delete Node1;
+        delete Node2;
+        delete tPdofHostList(0);
+        delete tPdofHostList(1);
+        delete tPdofHostList(2);
+
+        // FIXME extend this test
+    }
+
+    TEST_CASE("Eqn_Obj_create_my_pdof_list_2","[MSI],[Eqn_Obj_create_my_pdof_list_2]")
+    {
+        // Create node obj
+        moris::uint tNodeId1 = 0;
+        moris::uint tNodeId2 = 2;
+
+        fem::Node_Base * Node1;
+        fem::Node_Base * Node2;
+
+        //---------------------------------------------------------------------------------
+        // Create generic adofs to this nodes pdof
+        Matrix< IdMat > tAdofsListId1( 2, 1 );
+        Matrix< IdMat > tAdofsListId2( 2, 1 );
+
+        tAdofsListId1( 0, 0 ) = 0;
+        tAdofsListId1( 1, 0 ) = 1;
+        tAdofsListId2( 0, 0 ) = 0;
+        tAdofsListId2( 1, 0 ) = 1;
+
+        // Create generic adofs to this nodes pdof
+        Matrix< IdMat > tAdofsListInd1( 2, 1 );
+        Matrix< IdMat > tAdofsListInd2( 2, 1 );
+
+        tAdofsListInd1( 0, 0 ) = 0;
+        tAdofsListInd1( 1, 0 ) = 1;
+        tAdofsListInd2( 0, 0 ) = 0;
+        tAdofsListInd2( 1, 0 ) = 1;
+
+        // Create generic T-matrices
+        Matrix< DDRMat > tMatrix1( 2, 1 );
+        Matrix< DDRMat > tMatrix2( 2, 1 );
+
+        // Create generic T-matrices
+        tMatrix1( 0, 0 ) = 1.0;
+        tMatrix1( 1, 0 ) = 1.0;
+        tMatrix2( 0, 0 ) = 1.0;
+        tMatrix2( 1, 0 ) = -2.0;
+
+        // Create generic adof owning processor
+        Matrix< IdMat > tAdofOwningProcessor1( 2, 1 );
+        Matrix< IdMat > tAdofOwningProcessor2( 2, 1 );
+
+        tAdofOwningProcessor1( 0, 0 ) = 0;
+        tAdofOwningProcessor1( 1, 0 ) = 0;
+        tAdofOwningProcessor2( 0, 0 ) = 0;
+        tAdofOwningProcessor2( 1, 0 ) = 0;
+
+        // Create generic Node Object
+        Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
+        Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
+
+        moris::uint tNumNodes = 2;
+
+        // Create List with node pointern correponding to generic equation object
+        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
+        tNodeIds_1( 0 ) = Node1;
+        tNodeIds_1( 1 ) = Node2;
+
+        // Create generic equation objects
+        Equation_Object EquObj( tNodeIds_1 );
+
+        // Create pdof hosts of this equation object
+        moris::Cell < Pdof_Host * > tPdofHostList;
+        tPdofHostList.resize( 3, nullptr );
+        moris::uint tNumMaxPdofTypes = 2;
+
+        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
+        tDofTypeIndexMap(3, 0) = 0;
+
+        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        Equation_Block tEqnBlock;
+        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationBlock = &tEqnBlock;
+
+        EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
+
+        // resize pdof host list. Shortcut. Functionality is tested in another test
+        tPdofHostList( 0 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 0 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType.resize( 1 );
+        tPdofHostList( 2 )->mListOfPdofTimePerType( 0 ).resize( 1 );
+
+        // Create my pdof list
+        EquObj.create_my_pdof_list();
+
+        // Check if right pdof host was created in given pdof host list
+        CHECK( equal_to( EquObj.mFreePdofs.size(), 2 ) );
+
+        delete Node1;
+        delete Node2;
+        delete tPdofHostList(0);
+        delete tPdofHostList(1);
+        delete tPdofHostList(2);
+    }
 
     TEST_CASE("Eqn_Obj_create_my_list_of_adof_ids","[MSI],[Eqn_Obj_create_my_list_of_adof_ids]")
     {
