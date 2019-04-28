@@ -57,6 +57,7 @@ namespace MSI
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
         moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
         moris::Matrix< DDSMat >                   mInterpDofAssemblyMap;
+        uint                                      mTotalDof;
         uint                                      mNumOfInterp;
 
         // number of integration points
@@ -84,7 +85,7 @@ namespace MSI
         /**
          * trivial constructor
          */
-        Element_Block( ){};
+        Element_Block(){};
 
 //------------------------------------------------------------------------------
 
@@ -112,6 +113,10 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void create_unique_list_of_first_dof_type_of_group();
+
+//------------------------------------------------------------------------------
+
+        void create_dof_assembly_map();
 
 //------------------------------------------------------------------------------
 
@@ -167,6 +172,19 @@ namespace MSI
         moris::Cell< Cell< enum MSI::Dof_Type > > & get_interpolator_dof_type_list()
         {
             return mInterpDofTypeList;
+        }
+
+//------------------------------------------------------------------------------
+
+        moris::Matrix< DDSMat > & get_interpolator_dof_assembly_map()
+        {
+            return mInterpDofAssemblyMap;
+        }
+//------------------------------------------------------------------------------
+
+        uint get_total_number_of_dofs()
+        {
+            return mTotalDof;
         }
 
 //------------------------------------------------------------------------------

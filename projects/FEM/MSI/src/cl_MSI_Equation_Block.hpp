@@ -32,7 +32,7 @@ namespace mtk
         Cell< MSI::Equation_Object* > mElements;
 
         // map of the element active dof types
-        moris::Cell< enum MSI::Dof_Type >         mEqnObjDofTypeList; // List of dof types of this equation obj
+        moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
 
 //------------------------------------------------------------------------------
     public:

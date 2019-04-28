@@ -54,11 +54,10 @@ namespace moris
         Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_N( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE3 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_N: aXi not allocated or hat wrong size." );
 
-            auto xi = aXi( 0 );
-            auto xi2 = std::pow( xi , 2 );
+            real xi = aXi( 0 );
+            real xi2 = std::pow( xi , 2 );
 
             Matrix< DDRMat > tN(1,3);
             tN( 0 ) = 0.5 * ( xi2 - xi );
@@ -77,7 +76,7 @@ namespace moris
             MORIS_ASSERT( aXi.length() >= 1,
                           "LINE3 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
-            auto xi = aXi( 0 );
+            real xi = aXi( 0 );
             Matrix< DDRMat > tdNdXi(1,3);
             tdNdXi( 0 ) =   xi - 0.5;
             tdNdXi( 1 ) =   xi + 0.5;

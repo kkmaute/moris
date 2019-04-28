@@ -90,30 +90,18 @@ namespace moris
                         uint tIWGResDofIndex
                             = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
 
+                        // get location of computed residual in global element residual
+                        uint startDof = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
+                        uint stopDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
+
                         // add contribution to jacobian from evaluation point
-                        mCluster->mResidualElement( tIWGResDofIndex )
-                            = mCluster->mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;
+                        mCluster->mResidual( { startDof, stopDof }, { 0, 0 } )
+                            = mCluster->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
                     }
                 }
             }
-            // residual assembly
-            uint tCounterI = 0;
-            uint startI, stopI;
-
-            // loop over the field interpolators
-            for ( uint iBuild = 0; iBuild < mElementBlock->get_num_interpolators(); iBuild++ )
-            {
-                // get the row position in the residual matrix
-                startI = tCounterI;
-                stopI  = tCounterI + mElementBlock->get_block_field_interpolator()( iBuild )->get_number_of_space_time_coefficients() - 1;
-
-                // fill the global residual
-                mCluster->mResidual( { startI, stopI }, { 0 , 0 } ) = mCluster->mResidual( { startI, stopI }, { 0 , 0 } )+
-                        mCluster->mResidualElement( iBuild ).matrix_data();
-
-                // update the row counter
-                tCounterI = stopI + 1;
-            }
+//            // print residual for check
+//            print( mCluster->mResidual, " mResidual " );
         }
 
 //------------------------------------------------------------------------------
@@ -188,47 +176,31 @@ namespace moris
                        Cell< Matrix< DDRMat > > tJacobians;
                        tTreatedIWG->compute_jacobian( tJacobians, tIWGInterpolators );
 
-                       // add contribution to jacobian from evaluation point
+                       // get location of computed jacobian in global element residual rows
+                       uint startIDof = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
+                       uint stopIDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
+
+                       // loop over the IWG active dof types
                        for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++)
                        {
-                           uint tIWGActiveDofIndex
-                               = mInterpDofTypeMap( static_cast< int >( tIWGActiveDofType( iIWGFI )( 0 ) ) );
+                           // get the index of the active dof type
+                           uint tIWGActiveDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDofType( iIWGFI )( 0 ) ) );
 
-                           uint tJacIndex
-                               = tIWGResDofIndex * mElementBlock->get_num_interpolators() + tIWGActiveDofIndex;
+                           // get location of computed jacobian in global element residual columns
+                           uint startJDof = mElementBlock->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 0 );
+                           uint stopJDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 1 );
 
-                           mCluster->mJacobianElement( tJacIndex )
-                               = mCluster->mJacobianElement( tJacIndex ) + tWStar * tJacobians( iIWGFI );
+                           // add contribution to jacobian from evaluation point
+                           mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                               = mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                               + tWStar * tJacobians( iIWGFI );
                        }
-                   }
+
+                    }
                 }
-
             }
-
-            // jacobian assembly
-            uint tCounterI = 0;
-            uint tCounterJ = 0;
-            uint startI, stopI, startJ, stopJ;
-
-            for ( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
-            {
-                startI = tCounterI;
-                stopI  = tCounterI + mElementBlock->get_block_field_interpolator()( i )->get_number_of_space_time_coefficients() - 1;
-
-                tCounterJ = 0;
-                for ( uint j = 0; j < mElementBlock->get_num_interpolators(); j++ )
-                {
-                    startJ = tCounterJ;
-                    stopJ  = tCounterJ + mElementBlock->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients() - 1;
-
-                    mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) = mCluster->mJacobian({ startI, stopI },{ startJ, stopJ })+
-                            mCluster->mJacobianElement( i * mElementBlock->get_num_interpolators() + j ).matrix_data();
-
-                    tCounterJ = stopJ + 1;
-                }
-                tCounterI = stopI + 1;
-            }
-//            //print( mJacobian,"mJacobian" );
+//            // print jacobian for check
+//            print( mCluster->mJacobian, " mJacobian " );
         }
 
 //------------------------------------------------------------------------------
