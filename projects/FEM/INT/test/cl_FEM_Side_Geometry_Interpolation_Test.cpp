@@ -152,10 +152,12 @@ TEST_CASE( "Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem
                 real tSurfDetJ;
                 tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
                                               tSideIntegPointI, tSideOrdinal );
+                //std::cout<<tSurfDetJ<<std::endl;
 
                 // add contribution to the surface
                 tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
             }
+            //std::cout<<"------------"<<std::endl;
 
             // check the surface value
             tSideSurfaceCheck = tSideSurfaceCheck && ( std::abs( tSideSurface - tSideSurfaceExact( iSide ) ) < tEpsilon );
@@ -567,10 +569,12 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
                 real tSurfDetJ;
                 tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
                                               tSideIntegPointI, tSideOrdinal );
+                //std::cout<<tSurfDetJ<<std::endl;
 
                 // add contribution to the surface
                 tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
             }
+            //std::cout<<"-------------"<<std::endl;
 
             // check the surface value
             tSideSurfaceCheck = tSideSurfaceCheck && ( std::abs( tSideSurface - tSideSurfaceExact( iSide ) ) < tEpsilon );
@@ -774,10 +778,12 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
                 real tSurfDetJ;
                 tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
                                               tSideIntegPointI, tSideOrdinal );
+                //std::cout<<tSurfDetJ<<std::endl;
 
                 // add contribution to the surface
                 tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
             }
+            //std::cout<<"------------------"<<std::endl;
 
             // check the surface value
             tSideSurfaceCheck = tSideSurfaceCheck && ( std::abs( tSideSurface - tSideSurfaceExact( iSide ) ) < tEpsilon );
@@ -1002,10 +1008,12 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
                  real tSurfDetJ;
                  tGeomInterpolator.surf_det_J( tSurfDetJ, tNormal,
                                                tSideIntegPointI, tSideOrdinal );
+                 //std::cout<<tSurfDetJ<<std::endl;
 
                  // add contribution to the surface
                  tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
              }
+             //std::cout<<"-----------------"<<std::endl;
 
              // check the surface value
              tSideSurfaceCheck = tSideSurfaceCheck && ( std::abs( tSideSurface - tSideSurfaceExact( iSide ) ) < tEpsilon );
