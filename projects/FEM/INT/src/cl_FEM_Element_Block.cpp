@@ -413,6 +413,41 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    void Element_Block::initialize_mJacobianElement()
+    {
+        uint tTotalDof = 0;
+        for( uint i = 0; i < mNumOfInterp; i++ )
+        {
+            // get number of pdofs for the ith dof type
+            uint tNumOfDofi = mFieldInterpolators( i )->get_number_of_space_time_coefficients();
+
+            // get total number of dof
+            tTotalDof = tTotalDof + tNumOfDofi;
+        }
+
+//             std::cout<<tTotalDof<<std::endl;
+        mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
+    }
+
+//------------------------------------------------------------------------------
+
+    void Element_Block::initialize_mResidualElement()
+    {
+        uint tTotalDof = 0;
+        for( uint i = 0; i < mNumOfInterp; i++ )
+        {
+            // get number of pdofs for the ith dof type
+            uint tNumOfDofi = mFieldInterpolators( i )->get_number_of_space_time_coefficients();
+
+            // get total number of dof
+            tTotalDof = tTotalDof + tNumOfDofi;
+        }
+
+//             std::cout<<tTotalDof<<std::endl;
+        mResidual.set_size( tTotalDof, 1, 0.0 );
+    }
+
+//------------------------------------------------------------------------------
 
 
     } /* namespace fem */

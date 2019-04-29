@@ -31,8 +31,17 @@ namespace mtk
     protected:
         Cell< MSI::Equation_Object* > mElements;
 
+        Matrix< DDRMat > mResidual;
+        Matrix< DDRMat > mJacobian;
+
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type >         mEqnObjDofTypeList; // List of dof types of this equation obj
+
+        friend class MSI::Equation_Object;
+        friend class Element_Bulk;
+        friend class Element_Sideset;
+        friend class Element_Time_Sideset;
+        friend class Element;
 
 //------------------------------------------------------------------------------
     public:

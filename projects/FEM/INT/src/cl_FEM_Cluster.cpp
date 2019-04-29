@@ -40,6 +40,8 @@ namespace moris
 
             this->initialize_mResidualElement();
 
+            mElementBlock->initialize_mResidualElement();
+
             this->set_field_interpolators_coefficients();
 
             for ( uint Ik = 0; Ik < mInterpElements.size(); Ik++ )

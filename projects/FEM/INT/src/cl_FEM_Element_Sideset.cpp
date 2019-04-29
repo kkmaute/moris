@@ -107,7 +107,7 @@ namespace moris
                 stopI  = tCounterI + mElementBlock->get_block_field_interpolator()( iBuild )->get_number_of_space_time_coefficients() - 1;
 
                 // fill the global residual
-                mCluster->mResidual( { startI, stopI }, { 0 , 0 } ) = mCluster->mResidual( { startI, stopI }, { 0 , 0 } )+
+                mElementBlock->mResidual( { startI, stopI }, { 0 , 0 } ) = mElementBlock->mResidual( { startI, stopI }, { 0 , 0 } )+
                         mCluster->mResidualElement( iBuild ).matrix_data();
 
                 // update the row counter

@@ -67,6 +67,12 @@ namespace MSI
         // integration weights
         Matrix< DDRMat > mIntegWeights;
 
+        friend class MSI::Equation_Object;
+        friend class Element_Bulk;
+        friend class Element_Sideset;
+        friend class Element_Time_Sideset;
+        friend class Element;
+
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -228,10 +234,22 @@ namespace MSI
 
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
 
+//------------------------------------------------------------------------------
+
         /**
           * auto detect interpolation scheme
           */
         fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+
+//------------------------------------------------------------------------------
+
+        void initialize_mJacobianElement();
+
+//------------------------------------------------------------------------------
+
+        void initialize_mResidualElement();
+
+//------------------------------------------------------------------------------
 
     };
 //------------------------------------------------------------------------------

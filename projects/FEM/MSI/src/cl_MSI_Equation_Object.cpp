@@ -203,7 +203,7 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
-        aEqnObjRHS = trans( tTMatrix ) * mResidual;
+        aEqnObjRHS = trans( tTMatrix ) * mEquationBlock->mResidual;
     }
 
 //-------------------------------------------------------------------------------------------------
