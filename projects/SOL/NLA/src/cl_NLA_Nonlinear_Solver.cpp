@@ -184,8 +184,6 @@ using namespace NLA;
     void Nonlinear_Solver::set_solver_warehouse( SOL_Warehouse * aSolverWarehouse )
     {
         mSolverWarehouse = aSolverWarehouse;
-
-        mSolverInput = mSolverWarehouse->get_solver_interface() ;
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -214,6 +212,8 @@ using namespace NLA;
 
     void Nonlinear_Solver::solve( Dist_Vector * aFullVector )
     {
+        mSolverInput = mSolverWarehouse->get_solver_interface() ;
+
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
         mSolverInput->set_requested_dof_types( tDofTypeUnion );

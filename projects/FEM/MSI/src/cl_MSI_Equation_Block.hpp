@@ -61,6 +61,18 @@ namespace mtk
             MORIS_ERROR(false,"Equation_Block::finalize(), not implemented");
         };
 
+        void get_dof_types( moris::Cell< enum Dof_Type > & aDofType )
+        {
+            aDofType = mEqnObjDofTypeList;
+        }
+
+//------------------------------------------------------------------------------
+
+        uint get_num_equation_objects()
+        {
+            return mElements.size();
+        };
+
 //------------------------------------------------------------------------------
 
         Cell< MSI::Equation_Object * > & get_equation_object_list()

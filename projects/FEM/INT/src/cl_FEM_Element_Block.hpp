@@ -120,6 +120,13 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        uint get_num_equation_objects()
+        {
+            return mElements.size();
+        };
+
+//------------------------------------------------------------------------------
+
         Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
             return mElements;

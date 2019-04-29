@@ -13,14 +13,15 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"                    //MTK/src
 #include "cl_MTK_Enums.hpp"
 
-//#include "cl_MSI_Model_Solver_Interface.hpp"  //FEM/MSI/src
-#include "cl_MSI_Equation_Object.hpp"
 namespace moris
 {
 //------------------------------------------------------------------------------
+    namespace mtk
+    {
+    class Mesh_Manager;
+    }
 
     namespace fem
     {
@@ -49,6 +50,7 @@ namespace moris
         class Model_Solver_Interface;
         class MSI_Solver_Interface;
         class Equation_Block;
+        class Equation_Object;
     }
     namespace tsa
     {
@@ -77,12 +79,6 @@ namespace moris
 
             MSI::Model_Solver_Interface                   * mModelSolverInterface;
             MSI::MSI_Solver_Interface                     * mSolverInterface;
-            NLA::Nonlinear_Solver                         * mNonlinearSolver;
-            std::shared_ptr< NLA::Nonlinear_Algorithm >     mNonlinearSolverAlgorithm;
-            std::shared_ptr< tsa::Time_Solver_Algorithm >   mTimeSolverAlgorithm;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > mLinearSolverAlgorithm;
-            dla::Linear_Solver                            * mLinSolver;
-            NLA::SOL_Warehouse                            * mSolverWarehouse;
 
             // fixme: maybe introduce a cell of maps for different orders?
             map< moris_id, moris_index >      mCoefficientsMap;
@@ -118,8 +114,24 @@ namespace moris
                 return mSolHMR;
             };
 
+//------------------------------------------------------------------------------
+
             void
             set_dof_order( const uint aOrder );
+
+//------------------------------------------------------------------------------
+
+            MSI::MSI_Solver_Interface * get_solver_interface()
+            {
+                return mSolverInterface;
+            }
+
+//------------------------------------------------------------------------------
+
+            Matrix< DDUMat > & get_adof_map()
+            {
+                return mAdofMap;
+            }
 
 //------------------------------------------------------------------------------
 
@@ -135,11 +147,6 @@ namespace moris
 
             void
             set_weak_bcs_from_nodal_field( moris_index aFieldIndex );
-
-//------------------------------------------------------------------------------
-
-            void
-            solve( Matrix< DDRMat > & aSolution );
 
 //------------------------------------------------------------------------------
 

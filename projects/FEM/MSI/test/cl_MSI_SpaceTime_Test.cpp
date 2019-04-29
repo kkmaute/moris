@@ -134,12 +134,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // ask mesh about number of elements
         uint tNumOfElements = tMesh->get_num_elems();
 
-        Cell< MSI::Equation_Object* >  tElements;
-
-        // create equation objects
-        tElements.reserve( tNumOfElements );
-
-        Cell< fem::Element_Block * >      tElementBlocks(1,nullptr);
+        Cell< MSI::Equation_Block * >      tElementBlocks(1,nullptr);
 
         // ask mesh about number of elements on proc
         moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
@@ -157,8 +152,6 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         }
         tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
-        tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
-
         //4) Create the model solver interface -----------------------------------------
         std::cout<<" Create the model solver interface "<<std::endl;
         //------------------------------------------------------------------------------
@@ -175,7 +168,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         //= tMesh->get_num_coeffs( 1 )
 
         moris::MSI::Model_Solver_Interface* tModelSolverInterface
-            = new moris::MSI::Model_Solver_Interface( tElements,
+            = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                       tCommunicationTable,
                                                       tCoefficientsMap,
                                                       tNumCoeff,
@@ -222,12 +215,6 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         {
             delete tIWGs( i );
         }
-
-        for( uint i = 0; i < tNumOfElements; i++ )
-        {
-            delete tElements( i );
-        }
-
         delete tModelSolverInterface;
     }/* if( par_size() */
 }/* TEST_CASE */

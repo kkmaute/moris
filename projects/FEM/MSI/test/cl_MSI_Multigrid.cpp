@@ -147,9 +147,9 @@ namespace moris
              luint tNumberOfElements = tMesh->get_num_elems();
 
              // create equation objects
-             tElements.reserve( tNumberOfElements );
+//             tElements.reserve( tNumberOfElements );
 
-             Cell< fem::Element_Block * >      tElementBlocks(1,nullptr);
+             Cell< MSI::Equation_Block * >      tElementBlocks(1,nullptr);
 
              // ask mesh about number of elements on proc
              moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
@@ -168,9 +168,9 @@ namespace moris
              }
              tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
-             tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
+//             tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
-             MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+             MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                                                           tMesh->get_communication_table(),
                                                                                           tCoefficientsMap,
                                                                                           tMesh->get_num_coeffs( tOrder ),
@@ -209,12 +209,6 @@ namespace moris
 
              delete tMSI;
              delete tIWGs( 0 );
-
-             for( luint k=0; k<tNumberOfElements; ++k )
-             {
-                 // create the element
-                 delete tElements( k );
-             }
 
              for( luint k = 0; k < tNumberOfNodes; ++k )
              {
