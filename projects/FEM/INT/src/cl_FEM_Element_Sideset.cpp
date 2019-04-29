@@ -190,8 +190,8 @@ namespace moris
                             uint stopJDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 1 );
 
                             // add contribution to jacobian from evaluation point
-                            mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                                = mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                            mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                                = mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
                                 + tWStar * tJacobians( iIWGFI );
                         }
                     }

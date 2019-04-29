@@ -44,9 +44,6 @@ class Dist_Vector;
             //! weak BCs of element
             Matrix< DDRMat > mNodalWeakBCs;
 
-            Matrix< DDRMat > mResidual;
-            Matrix< DDRMat > mJacobian;
-
             Matrix< DDRMat > mPdofValues;
 
             Dist_Vector * mSolVec = nullptr;
@@ -190,21 +187,7 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
-                                       Dist_Vector      * aSolutionVector )
-            {
-                mSolVec = aSolutionVector;
-
-                Matrix< DDRMat > tTMatrix;
-                this->build_PADofMap( tTMatrix );
-
-                this->compute_jacobian();
-
-//                print( tTMatrix, "tTMatrix" );
-//                print( mJacobian, "mJacobian" );
-
-                aEqnObjMatrix = trans( tTMatrix ) * mJacobian * tTMatrix ;
-
-            };
+                                       Dist_Vector      * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
 

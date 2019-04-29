@@ -193,6 +193,24 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
+    void Equation_Object::get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
+                                                Dist_Vector      * aSolutionVector )
+    {
+        mSolVec = aSolutionVector;
+
+        Matrix< DDRMat > tTMatrix;
+        this->build_PADofMap( tTMatrix );
+
+        this->compute_jacobian();
+
+//                print( tTMatrix, "tTMatrix" );
+//                print( mJacobian, "mJacobian" );
+
+        aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->mJacobian * tTMatrix;
+    }
+
+//-------------------------------------------------------------------------------------------------
+
     void Equation_Object::get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
     {
         mSolVec = aSolutionVector;

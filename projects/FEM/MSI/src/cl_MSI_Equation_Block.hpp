@@ -34,6 +34,9 @@ namespace mtk
         Matrix< DDRMat > mResidual;
         Matrix< DDRMat > mJacobian;
 
+        bool mJacobianExist = false;
+        bool mResidualExist = false;
+
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
 
@@ -63,12 +66,28 @@ namespace mtk
 
 //        void delete_pointers();
 
+//-------------------------------------------------------------------------------------------------
+
+        void free_matrix_memory()
+        {
+            if ( mJacobianExist )
+            {
+                mJacobian.resize( 0, 0 );
+            }
+            if ( mResidualExist )
+            {
+                mResidual.resize( 0, 0 );
+            }
+        };
+
 //------------------------------------------------------------------------------
 
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             MORIS_ERROR(false,"Equation_Block::finalize(), not implemented");
         };
+
+//------------------------------------------------------------------------------
 
         void get_dof_types( moris::Cell< enum Dof_Type > & aDofType )
         {

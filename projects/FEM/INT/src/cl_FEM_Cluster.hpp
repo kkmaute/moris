@@ -49,10 +49,6 @@ namespace moris
 
         moris::Cell< fem::Element * > mInterpElements;
 
-//        // working jacobian and residual for the element
-//         Cell< Matrix< DDRMat > > mJacobianElement;
-//         Cell< Matrix< DDRMat > > mResidualElement;
-
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
         //         storing the indices in private matrix is faster,

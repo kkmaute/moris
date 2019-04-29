@@ -448,36 +448,37 @@ namespace moris
 
     void Element_Block::initialize_mJacobianElement()
     {
-        uint tTotalDof = 0;
-        for( uint i = 0; i < mNumOfInterp; i++ )
+        if ( !mJacobianExist )
         {
-            // get number of pdofs for the ith dof type
-            uint tNumOfDofi = mFieldInterpolators( i )->get_number_of_space_time_coefficients();
+            uint tTotalDof = this->get_total_number_of_dofs();
+            mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
 
-            // get total number of dof
-            tTotalDof = tTotalDof + tNumOfDofi;
+            mJacobianExist = true;
         }
+        else
+        {
+            MORIS_ASSERT( mJacobian.numel() > 0, "Element_Block::initialize_mJacobianElement(): Jacobian not properly initialized.");
 
-//             std::cout<<tTotalDof<<std::endl;
-        mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
+            mJacobian.fill( 0.0 );
+        }
     }
 
 //------------------------------------------------------------------------------
 
     void Element_Block::initialize_mResidualElement()
     {
-        uint tTotalDof = 0;
-        for( uint i = 0; i < mNumOfInterp; i++ )
+        if ( !mResidualExist )
         {
-            // get number of pdofs for the ith dof type
-            uint tNumOfDofi = mFieldInterpolators( i )->get_number_of_space_time_coefficients();
+            mResidual.set_size( this->get_total_number_of_dofs(), 1, 0.0 );
 
-            // get total number of dof
-            tTotalDof = tTotalDof + tNumOfDofi;
+            mResidualExist = true;
         }
+        else
+        {
+            MORIS_ASSERT( mResidual.numel() > 0, "Element_Block::initialize_mJacobianElement(): Residual not properly initialized.");
 
-//             std::cout<<tTotalDof<<std::endl;
-        mResidual.set_size( tTotalDof, 1, 0.0 );
+            mResidual.fill( 0.0 );
+        }
     }
 
 //------------------------------------------------------------------------------
