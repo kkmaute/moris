@@ -1259,7 +1259,7 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
                               { 1.0,  0.0, 0.0 },
                               { 0.0,  0.0, 1.0 }};
     Matrix< DDRMat > tTHat = {{0.0}, {2.0}};
-    real tExpectedVolume = 2.0 * 0.5 / 3.0;
+    real tExpectedVolume = 2.0 * 1.0 / 6.0;
 
     // define an interpolation rule for the TET4
     Interpolation_Rule tGeomRule( mtk::Geometry_Type::TET,
@@ -1276,7 +1276,7 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
     // create an integration rule - space only lagrange linear triangle TRI3
     Integration_Rule tIntegrationRule( mtk::Geometry_Type::TET,
                                        Integration_Type::GAUSS,
-                                       Integration_Order::TET_1,
+                                       Integration_Order::TET_5,
                                        Integration_Type::GAUSS,
                                        Integration_Order:: BAR_1 );
 
@@ -1345,7 +1345,7 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     // create an integration rule - space only lagrange linear triangle TET_4
     Integration_Rule tIntegrationRule( mtk::Geometry_Type::TET,
                                        Integration_Type::GAUSS,
-                                       Integration_Order::TET_4,
+                                       Integration_Order::TET_5,
                                        Integration_Type::GAUSS,
                                        Integration_Order:: BAR_1 );
 

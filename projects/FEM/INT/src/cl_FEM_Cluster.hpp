@@ -49,9 +49,9 @@ namespace moris
 
         moris::Cell< fem::Element * > mInterpElements;
 
-        // working jacobian and residual for the element
-         Cell< Matrix< DDRMat > > mJacobianElement;
-         Cell< Matrix< DDRMat > > mResidualElement;
+//        // working jacobian and residual for the element
+//         Cell< Matrix< DDRMat > > mJacobianElement;
+//         Cell< Matrix< DDRMat > > mResidualElement;
 
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
@@ -59,7 +59,7 @@ namespace moris
         //         but might need more memory
         moris::Matrix< IndexMat > mNodeIndices;
 
-        uint                      mNumOfIWGs;
+        uint mNumOfIWGs;
 
         Element_Block * mElementBlock;
 

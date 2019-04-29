@@ -89,6 +89,9 @@ namespace moris
             // create the element field interpolators
             this->create_field_interpolators( aModelSolverInterface );
 
+            // create the element dof assembly map
+            this->create_dof_assembly_map();
+
             Integration_Rule* tIntegrationRule;
 
             if (mElementType==fem::Element_Type::SIDESET)
@@ -210,6 +213,36 @@ namespace moris
         {
             mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
         }
+    }
+
+//------------------------------------------------------------------------------
+
+    void Element_Block::create_dof_assembly_map( )
+    {
+        // set size of assembly mapping matrix
+        mInterpDofAssemblyMap.set_size( mNumOfInterp, 2, -1 );
+
+        // init dof counter
+        uint tDofCounter = 0;
+
+        // loop on the dof type groups and create a field interpolator for each
+        for( uint i = 0; i < mNumOfInterp; i++ )
+        {
+            // fill the assembly map with starting dof counter
+            mInterpDofAssemblyMap( i, 0 ) = tDofCounter;
+
+            // update dof counter
+            tDofCounter = tDofCounter + mFieldInterpolators( i )->get_number_of_space_time_coefficients()-1;
+
+            // fill the assembly map with starting dof counter
+            mInterpDofAssemblyMap( i, 1 ) = tDofCounter;
+
+            // update dof counter
+            tDofCounter = tDofCounter + 1;
+        }
+
+        // set mTotalDof
+        mTotalDof = tDofCounter;
     }
 
 //------------------------------------------------------------------------------
