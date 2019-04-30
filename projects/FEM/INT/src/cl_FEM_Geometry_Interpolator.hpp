@@ -58,6 +58,9 @@ namespace moris
         // matrix of element parametric coordinates
         Matrix< DDRMat > mParamCoords;
 
+        // matrix of element physical coordinates
+        Matrix< DDRMat > mPhysCoords;
+
         // element geometry type
         mtk::Geometry_Type mGeometryType;
 
@@ -238,6 +241,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * get the space time physical coordinates
+         */
+        void get_space_time_phys_coords();
+
+//------------------------------------------------------------------------------
+        /**
          * get the vertices ordinals of each face of the parent element
          */
         void get_face_vertices_ordinals();
@@ -248,6 +257,13 @@ namespace moris
          * @param[ in ] a space face ordinal
          */
         Matrix< DDRMat > get_space_side_param_coords( const moris_index aSpaceOrdinal );
+
+//------------------------------------------------------------------------------
+        /**
+         * get the parametric coordinates of a space side
+         * @param[ in ] a space face ordinal
+         */
+        Matrix< DDRMat > get_space_side_phys_coords( const moris_index aSpaceOrdinal );
 
 //------------------------------------------------------------------------------
         /**
@@ -347,12 +363,10 @@ namespace moris
          * evaluates the determinant of the Jacobian mapping
          * in the case of a time side interpolation
          * at given space and time evaluation point
-         * @param[ out ] aTimeSurfDetJ   determinant of the Jacobian
          * @param[ in ]  aSideParamPoint evaluation point on the side
          * @param[ in ]  aTimeOrdinal    a time face ordinal
          */
-         void time_surf_det_J(       real             & aTimeSurfDetJ,
-                               const Matrix< DDRMat > & aSideParamPoint,
+         real time_surf_det_J( const Matrix< DDRMat > & aSideParamPoint,
                                const moris_index      & aTimeOrdinal );
 
 //------------------------------------------------------------------------------
@@ -387,6 +401,28 @@ namespace moris
                                 Matrix< DDRMat > & aNormal,
                           const Matrix< DDRMat > & aSideParamPoint,
                           const moris_index      & aSpaceOrdinal );
+
+//------------------------------------------------------------------------------
+         /**
+          * evaluates the determinant of the Jacobian mapping
+          * in the case of a space side interpolation
+          * at given space and time evaluation point
+          * @param[ in ]  aSideParamPoint evaluation point on the face
+          * @param[ in ]  aSpaceOrdinal   a space face ordinal
+          */
+         real surf_det_J_new( const Matrix< DDRMat > & aSideParamPoint,
+                              const moris_index      & aSpaceOrdinal );
+
+//------------------------------------------------------------------------------
+         /**
+          * evaluates the normal to the side
+          * in the case of a space side interpolation
+          * at given space and time evaluation point
+          * @param[ in ]  aSideParamPoint evaluation point on the face
+          * @param[ in ]  aSpaceOrdinal   a space face ordinal
+          */
+         Matrix< DDRMat > surf_normal( const Matrix< DDRMat > & aSideParamPoint,
+                                       const moris_index      & aSpaceOrdinal );
 
 //------------------------------------------------------------------------------
         /**

@@ -1,5 +1,10 @@
 #include "catch.hpp"
+
+#define protected public
+#define private   public
 #include "cl_FEM_Field_Interpolator.hpp" //FEM/INT/src
+#undef protected
+#undef private
 
 using namespace moris;
 using namespace fem;
@@ -334,7 +339,7 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
 
         //set the coefficients xHat, tHat
-        tGeomInterpolator->set_coeff( tXHat, tTHat);
+        tGeomInterpolator->set_coeff( tXHat, tTHat );
 
         // create space time field interpolator
         //------------------------------------------------------------------------------

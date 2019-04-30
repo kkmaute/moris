@@ -20,6 +20,7 @@ namespace moris
     {
         class Pdof_Host;
         class Model_Solver_Interface;
+        class Equation_Block;
         class Dof_Manager
         {
         private:
@@ -171,7 +172,7 @@ namespace moris
              * @param[in] aListEqnObj   List containing all the equation objects.
              *
              */
-            void initialize_pdof_type_list( moris::Cell < Equation_Object* > & aListEqnObj );
+            void initialize_pdof_type_list( Cell< MSI::Equation_Block * > & aListEqnBlock );
 
 //-----------------------------------------------------------------------------------------------------------
 

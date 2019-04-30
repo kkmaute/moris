@@ -1,8 +1,8 @@
 /*
  * cl_FEM_Element_Bulk.hpp
  *
- *  Created on: Jul 16, 2018
- *      Author: messe
+ *  Created on: Apr 22, 2018
+ *      Author: schmidt
  */
 
 #ifndef SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_
@@ -35,9 +35,8 @@ namespace moris
          * @param[ in ]     Pointer to element block
          */
         Element_Bulk( mtk::Cell    const *        aCell,
-                      moris::Cell< IWG* >       & aIWGs,
-                      moris::Cell< Node_Base* > & aNodes,
-                      Element_Block      * aElementBlock );
+                      Element_Block      * aElementBlock,
+                      Cluster            * aCluster );
 //------------------------------------------------------------------------------
         /**
          * trivial destructor

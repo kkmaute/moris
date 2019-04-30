@@ -8,9 +8,12 @@
 #define SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_
 
 #include <memory>
+#include "cl_Matrix.hpp"
+//#include "linalg_typedefs.hpp"
+#include "typedefs.hpp"                       //MRS/COR/src
 
 #include "cl_DLA_Enums.hpp"
-#include "cl_Map_Class.hpp"
+//#include "cl_Map_Class.hpp"
 
 namespace moris
 {

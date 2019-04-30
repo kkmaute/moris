@@ -15,6 +15,8 @@ list(APPEND MORIS_SOURCE_DIRS ${MTK}/${MAP})
 set(MAP_TPL_DEPENDENCIES
     "superlu"
     "boost"
+    "PETSc"
+    "trilinos"
     )
     
 # Make sure needed moris libraries are built
