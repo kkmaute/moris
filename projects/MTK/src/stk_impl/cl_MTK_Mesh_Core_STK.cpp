@@ -872,6 +872,12 @@ namespace mtk
         return mSTKMeshData->mMtkVertices(aVertexIndex);
     }
 
+    mtk::Vertex const &
+    Mesh_Core_STK::get_mtk_vertex(moris_index aVertexIndex) const
+    {
+        return mSTKMeshData->mMtkVertices(aVertexIndex);
+    }
+
     mtk::Vertex_Core_STK &
     Mesh_Core_STK::get_mtk_vertex_stk(moris_index aVertexIndex)
     {

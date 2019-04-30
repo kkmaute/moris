@@ -230,7 +230,7 @@ void Nonlinear_Problem::extract_my_values( const moris::uint         & aNumIndic
 
 void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 {
-    char NonLinNum[10];
+    char NonLinNum[100];
     std::sprintf( NonLinNum, "NonLIt.%04u", aNonLinearIt );
 
     char SolVector[100];
@@ -243,7 +243,7 @@ void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 
 void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 {
-    char NonLinNum[10];
+    char NonLinNum[100];
     std::sprintf( NonLinNum, "NonLIt.%04u", aRestart );
 
     char SolVector[100];
