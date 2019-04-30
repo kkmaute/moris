@@ -83,7 +83,7 @@ public:
     // Block set with cluster access
     //##############################################
     moris::Cell<std::string>
-    get_block_set_names()
+    get_block_set_names() const
     {
         return mPrimaryBlockSetNames;
     }
