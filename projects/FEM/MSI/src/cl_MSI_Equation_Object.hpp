@@ -41,7 +41,7 @@ class Dist_Vector;
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
 
-            //! weak BCs of element
+            //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
             Matrix< DDRMat > mPdofValues;
