@@ -1,0 +1,239 @@
+/*
+ * cl_MTK_Cell_Cluster.hpp
+ *
+ *  Created on: Apr 26, 2019
+ *      Author: doble
+ */
+
+#ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_HPP_
+#define PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_HPP_
+
+#include "cl_Cell.hpp"
+#include "cl_MTK_Cell.hpp"
+namespace moris
+{
+namespace mtk
+{
+class Cell_Cluster
+{
+public:
+    Cell_Cluster(){};
+
+    //##############################################
+    // Cell/Vertex Access
+    // (Pure Virtual)
+    //##############################################
+
+    virtual
+    moris::Cell<moris::mtk::Cell const *> const &
+    get_primary_cells_in_cluster() const = 0;
+
+    virtual
+    moris::Cell<moris::mtk::Cell const *> const &
+    get_void_cells_in_cluster() const = 0;
+
+    virtual
+    moris::mtk::Cell const &
+    get_interpolation_cell() const = 0;
+
+    virtual
+    moris::Cell<moris::mtk::Vertex const *> const &
+    get_vertices_in_cluster() const = 0;
+
+    //##############################################
+    // Local Coordinate Access
+    // (Pure Virtual)
+    //##############################################
+    virtual
+    moris::Matrix<moris::DDRMat> const &
+    get_vertices_local_coordinates_wrt_interp_cell() const = 0;
+
+    // ---------------------------------------------
+    // EVERYTHING BELOW THIS LINE HAS A DEFAULT
+    // IMPLEMENTATION
+    // ---------------------------------------------
+
+    //##############################################
+    // Cell/Vertex Index Access
+    //##############################################
+    virtual
+    moris::Matrix<moris::IndexMat>
+    get_primary_cell_indices_in_cluster() const
+    {
+        // number of cells in cluster
+        moris::uint tNumCells = this->get_num_primary_cells();
+
+        // cell access
+        moris::Cell<moris::mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+
+        // initialize output
+        moris::Matrix<moris::IndexMat> tCellIndices(1,tNumCells);
+
+        // get cell indices and store
+        for(moris::uint i = 0 ; i < tNumCells; i++)
+        {
+            tCellIndices(i) = tCells(i)->get_index();
+        }
+
+        return tCellIndices;
+    }
+
+    virtual
+    moris::Matrix<moris::IndexMat>
+    get_void_cell_indices_in_cluster() const
+    {
+        // number of cells in cluster
+        moris::uint tNumCells = this->get_num_void_cells();
+
+        // cell access
+        moris::Cell<moris::mtk::Cell const *> const & tCells = this->get_void_cells_in_cluster();
+
+        // initialize output
+        moris::Matrix<moris::IndexMat> tCellIndices(1,tNumCells);
+
+        // get cell indices and store
+        for(moris::uint i = 0 ; i < tNumCells; i++)
+        {
+            tCellIndices(i) = tCells(i)->get_index();
+        }
+
+        return tCellIndices;
+    }
+
+    virtual
+    moris::moris_index
+    get_interpolation_cell_index() const
+    {
+        return get_interpolation_cell().get_index();
+    }
+
+    virtual
+    moris::Matrix<moris::IndexMat>
+    get_vertex_indices_in_cluster() const
+    {
+        // number of cells in cluster
+         moris::uint tNumVertices = this->get_num_vertices_in_cluster();
+
+         // cell access
+         moris::Cell<moris::mtk::Vertex const *> const & tVertices = this->get_vertices_in_cluster();
+
+         // initialize output
+         moris::Matrix<moris::IndexMat> tVertexIndices(1,tNumVertices);
+
+         // get cell indices and store
+         for(moris::uint i = 0 ; i < tNumVertices; i++)
+         {
+             tVertexIndices(i) = tVertices(i)->get_index();
+         }
+
+         return tVertexIndices;
+    }
+
+    //##############################################
+    // Cell/Vertex Id Access
+    //##############################################
+    virtual
+    moris::Matrix<moris::IdMat>
+    get_primary_cell_ids_in_cluster() const
+    {
+        // number of cells in cluster
+        moris::uint tNumCells = this->get_num_primary_cells();
+
+        // cell access
+        moris::Cell<moris::mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
+
+        // initialize output
+        moris::Matrix<moris::IdMat> tCellIds(1,tNumCells);
+
+        // get cell indices and store
+        for(moris::uint i = 0 ; i < tNumCells; i++)
+        {
+            tCellIds(i) = tCells(i)->get_id();
+        }
+
+        return tCellIds;
+    }
+
+    virtual
+    moris::Matrix<moris::IdMat>
+    get_void_cell_ids_in_cluster() const
+    {
+        // number of cells in cluster
+        moris::uint tNumCells = this->get_num_void_cells();
+
+        // cell access
+        moris::Cell<moris::mtk::Cell const *> const & tCells = this->get_void_cells_in_cluster();
+
+        // initialize output
+        moris::Matrix<moris::IdMat> tCellIds(1,tNumCells);
+
+        // get cell indices and store
+        for(moris::uint i = 0 ; i < tNumCells; i++)
+        {
+            tCellIds(i) = tCells(i)->get_id();
+        }
+
+        return tCellIds;
+    }
+
+    virtual
+    moris::moris_id
+    get_interpolation_cell_id() const
+    {
+        return get_interpolation_cell().get_id();
+    }
+
+    virtual
+    moris::Matrix<moris::IdMat>
+    get_vertex_ids_in_cluster() const
+    {
+        // number of cells in cluster
+         moris::uint tNumVertices = this->get_num_vertices_in_cluster();
+
+         // cell access
+         moris::Cell<moris::mtk::Vertex const *> const & tVertices = this->get_vertices_in_cluster();
+
+         // initialize output
+         moris::Matrix<moris::IdMat> tVertexIds(1,tNumVertices);
+
+         // get cell indices and store
+         for(moris::uint i = 0 ; i < tNumVertices; i++)
+         {
+             tVertexIds(i) = tVertices(i)->get_id();
+         }
+
+         return tVertexIds;
+    }
+
+    //##############################################
+    // Size Access
+    //##############################################
+    virtual
+    moris::uint
+    get_num_primary_cells() const
+    {
+        return this->get_primary_cells_in_cluster().size();
+    }
+
+    virtual
+    moris::uint
+    get_num_void_cells() const
+    {
+        return this->get_void_cells_in_cluster().size();
+    }
+
+    virtual
+    moris::uint
+    get_num_vertices_in_cluster() const
+    {
+        return this->get_vertices_in_cluster().size();
+    }
+
+
+};
+}
+}
+
+
+
+#endif /* PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_HPP_ */

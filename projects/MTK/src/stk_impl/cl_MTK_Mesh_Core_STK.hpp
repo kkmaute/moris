@@ -354,6 +354,9 @@ public:
     mtk::Vertex &
     get_mtk_vertex(moris_index aVertexIndex);
 
+    mtk::Vertex const &
+    get_mtk_vertex(moris_index aVertexIndex) const;
+
     /*
      * Returns the vertex as a child class
      */
@@ -436,7 +439,6 @@ public:
     void
     setup_vertices_and_cell();
     //------------------------------------------------------------------------------
-
 
     //##############################################
     // Private functions to access mesh information

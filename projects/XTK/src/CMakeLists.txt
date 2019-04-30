@@ -145,7 +145,7 @@ xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
 xtk/cl_MTK_Vertex_XTK_Impl.cpp
 xtk/cl_XTK_Background_Mesh.cpp
 xtk/cl_XTK_Child_Mesh.cpp
-xtk/cl_XTK_Enrichment.cpp
+#xtk/cl_XTK_Enrichment.cpp
 xtk/cl_XTK_Ghost_Stabilization.cpp
 xtk/cl_XTK_Model.cpp
 xtk/cl_XTK_Paramfile.cpp)
@@ -155,7 +155,7 @@ set(LIB_DEPENDENCIES
 	${COM}-lib
 	${MTK}-lib
 	${ALG}-lib
-	${HMR}-lib
+	#${HMR}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
@@ -348,20 +348,20 @@ install(TARGETS ${XTK}-lib
     RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${XTK} )
 
 # Install executable
-install(TARGETS XTK_PLATO
-    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
-    EXPORT ${XTK}Targets )
+#install(TARGETS XTK_PLATO
+#    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
+##    EXPORT ${XTK}Targets )
 
 # Install executable
-install(TARGETS XTK_HOLE_SEED
-    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
-    EXPORT ${XTK}Targets )
+#install(TARGETS XTK_HOLE_SEED
+#    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
+#    EXPORT ${XTK}Targets )
     
     
 # Install executable
-install(TARGETS XTK_EXE
-    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
-    EXPORT ${XTK}Targets )
+#install(TARGETS XTK_EXE
+#    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
+#    EXPORT ${XTK}Targets )
     
     
 if(BUILD_HMR)

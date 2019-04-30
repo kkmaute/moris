@@ -33,7 +33,6 @@ cl_MTK_Side_Sets_Info.hpp
 cl_MTK_Topology.hpp
 cl_MTK_Vertex_Interpolation.hpp
 cl_MTK_Vertex.hpp
-cl_MTK_Vertexset.hpp
 MTK_Tools.hpp
 stk_impl/cl_MTK_Cell_STK.hpp
 stk_impl/cl_MTK_Integration_Mesh_STK.hpp
@@ -68,6 +67,7 @@ include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
 # List library source files
 set( LIB_SOURCES
 stk_impl/cl_MTK_Interpolation_Mesh_STK.cpp
+stk_impl/cl_MTK_Integration_Mesh_STK.cpp
 stk_impl/cl_MTK_Mesh_Core_STK.cpp
 stk_impl/cl_MTK_Mesh_STK.cpp
 stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
@@ -76,6 +76,7 @@ cl_MTK_Block.cpp)
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${COM}-lib
+	${MORIS_TRILINOS_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
