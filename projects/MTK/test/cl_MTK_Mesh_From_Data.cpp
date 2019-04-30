@@ -97,6 +97,8 @@ TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             REQUIRE(moris::equal_to(tAvailableNodeIDs(1,0),8));
             REQUIRE(moris::equal_to(tAvailableNodeIDs(2,0),9));
             REQUIRE(moris::equal_to(tAvailableNodeIDs(3,0),10));
+
+            delete tMesh2D_QUADs;
         }
     }
 	}
@@ -161,6 +163,8 @@ TEST_CASE( "Creating a 3D 2 element mesh from data in serial using non-consecuti
                 //
                 //                    REQUIRE(moris::equal_to(tElemIDs(0),32));
                 //                    REQUIRE(moris::equal_to(tElemIDs(1),51));
+
+                delete tMesh3D_HEXs;
     }
 }
 TEST_CASE( "Creating a 3D 2 element mesh from data in serial ")
