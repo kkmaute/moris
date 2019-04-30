@@ -80,6 +80,9 @@ public:
     moris::real REAL_MAX          = MORIS_REAL_MAX;
     moris::moris_index INTEGER_MAX = MORIS_INDEX_MAX;
 
+    //--------------------------------------------------------------------------------
+    // Initialization
+    //--------------------------------------------------------------------------------
     Model(){};
 
     /**
@@ -95,16 +98,15 @@ public:
 
     ~Model();
 
-    // ----------------------------------------------------------------------------------
-
     /*!
      * Initializes link between background mesh and the geometry
      */
     void
     link_background_mesh_to_geometry_objects();
 
-    // ----------------------------------------------------------------------------------
-
+    //--------------------------------------------------------------------------------
+    // Operations
+    //--------------------------------------------------------------------------------
     /*!
      * Decomposes a mesh to conform to a geometry
      * @param aMethods - specify which type of subdivision method to use (this could be changed to command line parsing or XML reading)
@@ -113,7 +115,11 @@ public:
     void decompose(Cell<enum Subdivision_Method> aMethods,
                    bool                          aSetPhase  = true);
 
-    // ----------------------------------------------------------------------------------
+    /*!
+    * Uses sub-phase information within a child mesh to construct one interpolation element for each sub-phase cluster
+    */
+    void
+    unzip_child_mesh();
 
     /*!
      * Unzipps the interface (must be called after decompose but prior
@@ -122,7 +128,6 @@ public:
     void
     unzip_interface();
 
-    // ----------------------------------------------------------------------------------
 
     /*!
      * Compute sensitivity. Must be called after decompose.
@@ -130,15 +135,11 @@ public:
     void
     compute_sensitivity();
 
-    // ----------------------------------------------------------------------------------
-
     /*!
      * Perform the generalized heaviside enrichment
      */
     void
     perform_basis_enrichment();
-
-    // ----------------------------------------------------------------------------------
 
     /*!
      * returns the basis enrichment class constructed from call to perform basis enrichment
@@ -162,10 +163,10 @@ public:
     void
     convert_mesh_tet4_to_tet10();
 
-    // ----------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
+    // Member data access functions
+    //--------------------------------------------------------------------------------
 
-
-    // Accessor functions
     /*!
      * Returns the Cut Mesh
      */
@@ -211,7 +212,7 @@ public:
     // ----------------------------------------------------------------------------------
 
     /*!
-     * Get geomtry engine
+     * Get geometry engine
      */
     Geometry_Engine &
     get_geom_engine()
@@ -220,7 +221,8 @@ public:
     }
 
     // ----------------------------------------------------------------------------------
-
+    // Outputting functions
+    //-----------------------------------------------------------------------------------
     /*!
      * Outputs the Mesh to a mesh data which can then be written to exodus files as desired.
      */
@@ -229,10 +231,14 @@ public:
 
 
     /*!
-     * retuns the XTK model as an mtk mesh
+     * returns the XTK model as an mtk mesh
      */
     moris::mtk::Mesh*
     get_xtk_as_mtk();
+
+    //--------------------------------------------------------------------------------
+    // Data access functions
+    //--------------------------------------------------------------------------------
 
     /*!
      * returns the number of elements in the entire model
@@ -247,6 +253,11 @@ public:
     moris::uint
     get_num_elements_unzipped();
 
+
+    //--------------------------------------------------------------------------------
+
+    // multi grid stuff
+
     void
     perform_multilevel_enrichment_internal();
     //--------------------------------------------------------------------------------
@@ -258,6 +269,7 @@ public:
 
     std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
 
+    //--------------------------------------------------------------------------------
 
 private:
     uint                 mModelDimension;
@@ -626,7 +638,18 @@ private:
     void
     create_child_element_mtk_cells();
 
-    // Internal interface functions
+    /*
+    *
+    * Identifies local sub-phase clusters within a single child mesh.
+    * The sub-phase data (result of floodfill) is stored as a member
+    * variable in each child mesh as sub-phase bins
+    */
+    void
+    identify_local_subphase_clusters_in_child_meshes();
+
+
+    void
+    unzip_child_mesh_internal();
 
     /**
      * Take the interface faces and create collapsed prisms
