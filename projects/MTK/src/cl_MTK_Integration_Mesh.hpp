@@ -40,7 +40,7 @@ public:
      */
     virtual
     moris::Cell<std::string>
-    get_block_set_names() = 0;
+    get_block_set_names() const = 0;
 
     /*
      * Get cell clusters within a block set
