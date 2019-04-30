@@ -16,7 +16,7 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-    Element_Block::Element_Block( moris::Cell< mtk::Cell const * > & aCell,
+    Element_Block::Element_Block( moris::Cell< mtk::Cell_Cluster const * > & aCell,
                                  enum fem::Element_Type      aElementType,
                                  Cell< IWG* >              & aIWGs,
                                  Cell< Node_Base* >        & aNodes) : mMeshElementPointer(aCell),

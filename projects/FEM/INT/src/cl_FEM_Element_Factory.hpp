@@ -61,7 +61,7 @@ namespace MSI
          * create element
          */
         MSI::Equation_Object * create_cluster( Element_Type         aElementType,
-                                               mtk::Cell    const * aCell,
+                                               mtk::Cell_Cluster const * aCell,
                                                Cell< Node_Base* > & aNodes,
                                                Element_Block      * aElementBlock );
 

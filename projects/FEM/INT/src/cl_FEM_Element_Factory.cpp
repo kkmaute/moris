@@ -22,7 +22,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         MSI::Equation_Object * Element_Factory::create_cluster( Element_Type         aElementType,
-                                                                mtk::Cell    const * aCell,
+                                                                mtk::Cell_Cluster const * aCell,
                                                                 Cell< Node_Base* > & aNodes,
                                                                 Element_Block      * aElementBlock)
         {
