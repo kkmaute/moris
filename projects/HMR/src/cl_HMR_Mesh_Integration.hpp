@@ -10,6 +10,7 @@
 
 #include "cl_HMR_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Cell_Cluster.hpp"
 
 namespace moris
 {
@@ -26,6 +27,39 @@ public:
     {
 
     }
+
+
+    //fixme: IMPLEMENT THESE THREE FUNCTIONS
+    mtk::Cell_Cluster const &
+    get_cell_cluster(mtk::Cell const & aInterpCell) const
+    {
+        MORIS_ERROR(0,"Cell clusters not implemented in HMR");
+        return *mDummyCluster;
+    }
+
+    /*
+     * Get block set names
+     */
+    moris::Cell<std::string>
+    get_block_set_names() const
+    {
+        MORIS_ERROR(0,"get_block_set_names not implemented in HMR");
+        return moris::Cell<std::string>(0);
+    }
+
+    /*
+     * Get cell clusters within a block set
+     */
+    moris::Cell<mtk::Cell_Cluster const *>
+    get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const
+    {
+        MORIS_ERROR(0,"get_block_set_names not implemented in HMR");
+        moris::Cell<mtk::Cell_Cluster const *> tCellInCluster(0);
+        return tCellInCluster;
+    }
+
+private:
+    mtk::Cell_Cluster * mDummyCluster = nullptr;
 };
 }
 }
