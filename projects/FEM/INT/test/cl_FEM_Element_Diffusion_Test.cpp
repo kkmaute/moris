@@ -173,7 +173,7 @@ namespace moris
                 }
 
                 // create a fem element block
-                moris::Cell< fem::Element_Block * > tElementBlocks( 3, nullptr );
+                moris::Cell< MSI::Equation_Block * > tElementBlocks( 3, nullptr );
                 moris::Cell< IWG* > tIWGBulk = { tIWGs( 0 ) };
                 tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement,
                                                               fem::Element_Type::BULK,
@@ -299,7 +299,7 @@ namespace moris
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create a bulk element
-//                    tElements( tNumElementsCount + k ) = tElementFactory.create_element(   Element_Type::BULK,
+//                    tElements( tNumElementsCount + k ) = tElementFactory.create_cluster(   Element_Type::BULK,
 //                                                                                         & tMesh->get_mtk_cell( k ),
 //                                                                                           tIWGsBlockset,
 //                                                                                           tNodes );
@@ -321,7 +321,7 @@ namespace moris
 //
 //                    // create a sideset element
 //                    tElements( tNumElementsCount + iDirichlet )
-//                        = tElementFactory.create_element(   Element_Type::SIDESET,
+//                        = tElementFactory.create_cluster(   Element_Type::SIDESET,
 //                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
 //                                                            tIWGsDirichletSideset,
 //                                                            tNodes );
@@ -364,7 +364,7 @@ namespace moris
 //
 //                    // create a sideset element
 //                    tElements( tNumElementsCount + iNeumann )
-//                        = tElementFactory.create_element(   Element_Type::SIDESET,
+//                        = tElementFactory.create_cluster(   Element_Type::SIDESET,
 //                                                          & tMesh->get_mtk_cell( tTreatedMeshElement ),
 //                                                            tIWGsNeumannSideset,
 //                                                            tNodes );
@@ -408,7 +408,7 @@ namespace moris
                 //= tMesh->get_num_coeffs( 1 )
 
                 moris::MSI::Model_Solver_Interface* tModelSolverInterface
-                    = new moris::MSI::Model_Solver_Interface( tElements,
+                    = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                               tCommunicationTable,
                                                               tCoefficientsMap,
                                                               tNumCoeff,

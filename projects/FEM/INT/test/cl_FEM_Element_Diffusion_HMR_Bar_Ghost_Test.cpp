@@ -176,7 +176,7 @@ namespace moris
                 }
 
                 // create a fem element block
-                moris::Cell< fem::Element_Block * > tElementBlocks( 5, nullptr );
+                moris::Cell< MSI::Equation_Block * > tElementBlocks( 5, nullptr );
                 moris::Cell< IWG* > tIWGBulk = { tIWGs( 0 ) };
                 tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement,
                                                               fem::Element_Type::BULK,
@@ -340,7 +340,7 @@ namespace moris
                 uint tNumCoeff = tMesh->get_num_coeffs( tLagrangeOrder );
 
                 moris::MSI::Model_Solver_Interface* tModelSolverInterface
-                    = new moris::MSI::Model_Solver_Interface( tElements,
+                    = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                               tCommunicationTable,
                                                               tCoefficientsMap,
                                                               tNumCoeff,

@@ -15,6 +15,7 @@
 
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Multigrid.hpp"
+#include "cl_MSI_Equation_Block.hpp"
 
 #include "cl_Param_List.hpp"
 
@@ -32,8 +33,11 @@ namespace moris
         class Model_Solver_Interface
         {
         private:
+            //! List of equation blocks
+            Cell< MSI::Equation_Block * >      mElementBlocks;
+
             //! List of equation objects
-            moris::Cell< Equation_Object * > & mEquationObjectList;
+            moris::Cell< Equation_Object * >   mEquationObjectList;
 
             //! Dof manager object
             Dof_Manager                        mDofMgn;
@@ -65,38 +69,45 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(      moris::Cell < Equation_Object* >                  & aListEqnObj,
+        Model_Solver_Interface(     Cell< MSI::Equation_Block * >                      & aElementBlocks,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
-                               const moris::uint                                         aNumMaxAdofs ) : mEquationObjectList( aListEqnObj ),
+                               const moris::uint                                         aNumMaxAdofs ) : mElementBlocks( aElementBlocks ),
                                                                                                           mDofMgn( aCommTable, this )
         {
+
             this->set_solver_parameters();
+
+            this->create_equation_object_list();
 
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
 
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
-            mDofMgn.initialize_pdof_type_list( aListEqnObj );
+            mDofMgn.initialize_pdof_type_list( mElementBlocks );
         };
 
 //------------------------------------------------------------------------------
 
-        Model_Solver_Interface(      moris::Cell < Equation_Object* >                  & aListEqnObj,
+        Model_Solver_Interface(      Cell< MSI::Equation_Block * >                     & aElementBlocks,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs,
-                                     mtk::Mesh                                         * aMesh ) : mEquationObjectList( aListEqnObj ),
+                                     mtk::Mesh                                         * aMesh ) : mElementBlocks( aElementBlocks ),
                                                                                                    mDofMgn( aCommTable, this ),
                                                                                                    mMesh( aMesh )
         {
             this->set_solver_parameters();
 
+            this->create_equation_object_list();
+
             mDofMgn.set_adof_map( & aAdofLocaltoGlobalMap );
 
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
-            mDofMgn.initialize_pdof_type_list( aListEqnObj );
+            //mDofMgn.initialize_pdof_type_list( aListEqnObj );
+
+            mDofMgn.initialize_pdof_type_list( mElementBlocks );
 
         };
 
@@ -110,6 +121,24 @@ namespace moris
             }
         };
 
+//------------------------------------------------------------------------------
+
+        void create_equation_object_list()
+        {
+            moris::uint tNumEquationObj = 0;
+
+            for( luint Ik = 0; Ik < mElementBlocks.size(); ++Ik )
+            {
+                tNumEquationObj = tNumEquationObj + mElementBlocks( Ik )->get_num_equation_objects();
+            }
+
+            mEquationObjectList.reserve( tNumEquationObj );
+
+            for( luint Ik = 0; Ik < mElementBlocks.size(); ++Ik )
+            {
+                mEquationObjectList.append( mElementBlocks( Ik )->get_equation_object_list() );
+            }
+        };
 //------------------------------------------------------------------------------
 
         void finalize( const bool aUseMultigrid = false )

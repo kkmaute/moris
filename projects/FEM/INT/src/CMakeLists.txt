@@ -9,6 +9,7 @@ set(HEADERS
     cl_FEM_Element_Factory.hpp
     cl_FEM_ElementProxy.hpp
     cl_FEM_NodeProxy.hpp
+    cl_FEM_Cluster.hpp
     cl_FEM_Element.hpp
     cl_FEM_Element_Bulk.hpp
     cl_FEM_Element_Block.hpp
@@ -107,6 +108,7 @@ endforeach()
 
 # List library source files
 set(LIB_SOURCES
+    cl_FEM_Cluster.cpp
     cl_FEM_Element_Factory.cpp
     cl_FEM_Element_Bulk.cpp
     cl_FEM_Element_Block.cpp

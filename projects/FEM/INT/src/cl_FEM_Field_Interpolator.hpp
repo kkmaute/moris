@@ -70,6 +70,12 @@ namespace moris
                                 const Interpolation_Rule     & aFieldInterpolationRule,
                                 const Geometry_Interpolator*   aGeometryInterpolator );
 
+            /**
+             * trivial constructor
+             */
+            Field_Interpolator( const uint & aNumberOfFields ) : mNumberOfFields( aNumberOfFields )
+            {};
+
 //------------------------------------------------------------------------------
             /**
              * default constructor

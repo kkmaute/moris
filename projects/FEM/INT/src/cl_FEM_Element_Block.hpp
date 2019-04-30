@@ -40,7 +40,7 @@ namespace MSI
     class Element_Block : public MSI::Equation_Block
     {
     private:
-        moris::Cell< mtk::Cell const* >           mMeshElementPointer;
+        moris::Cell< mtk::Cell const* >     mMeshElementPointer;
 
         moris::Cell< Node_Base* >           mNodes;
 
@@ -56,7 +56,24 @@ namespace MSI
         // map of the element active dof types
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
         moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
+        moris::Matrix< DDSMat >                   mInterpDofAssemblyMap;
+        uint                                      mTotalDof;
         uint                                      mNumOfInterp;
+
+        // number of integration points
+        uint mNumOfIntegPoints;
+
+        // integration points
+        Matrix< DDRMat > mSurfRefIntegPoints;
+
+        // integration weights
+        Matrix< DDRMat > mIntegWeights;
+
+        friend class MSI::Equation_Object;
+        friend class Element_Bulk;
+        friend class Element_Sideset;
+        friend class Element_Time_Sideset;
+        friend class Element;
 
 //------------------------------------------------------------------------------
     public:
@@ -74,7 +91,7 @@ namespace MSI
         /**
          * trivial constructor
          */
-        Element_Block( ){};
+        Element_Block(){};
 
 //------------------------------------------------------------------------------
 
@@ -102,6 +119,17 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void create_unique_list_of_first_dof_type_of_group();
+
+//------------------------------------------------------------------------------
+
+        void create_dof_assembly_map();
+
+//------------------------------------------------------------------------------
+
+        uint get_num_equation_objects()
+        {
+            return mElements.size();
+        };
 
 //------------------------------------------------------------------------------
 
@@ -161,10 +189,52 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        moris::Matrix< DDSMat > & get_interpolator_dof_assembly_map()
+        {
+            return mInterpDofAssemblyMap;
+        }
+//------------------------------------------------------------------------------
+
+        uint get_total_number_of_dofs()
+        {
+            return mTotalDof;
+        }
+
+//------------------------------------------------------------------------------
+
         uint & get_num_interpolators()
         {
             return mNumOfInterp;
         }
+
+//------------------------------------------------------------------------------
+
+        uint get_num_integration_points()
+        {
+            return mNumOfIntegPoints;
+        }
+
+//------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & get_integration_points()
+        {
+            return mSurfRefIntegPoints;
+        }
+
+//------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & get_integration_weights()
+        {
+            return mIntegWeights;
+        }
+
+//------------------------------------------------------------------------------
+
+        /**
+         * get the field interpolators for an IWG
+         */
+        moris::Cell< Field_Interpolator* > get_IWG_field_interpolators ( IWG*                               & aIWG,
+                                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
 
@@ -182,6 +252,23 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+//------------------------------------------------------------------------------
+
+        /**
+          * auto detect interpolation scheme
+          */
+        fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+
+//------------------------------------------------------------------------------
+
+        void initialize_mJacobianElement();
+
+//------------------------------------------------------------------------------
+
+        void initialize_mResidualElement();
+
+//------------------------------------------------------------------------------
 
     };
 //------------------------------------------------------------------------------

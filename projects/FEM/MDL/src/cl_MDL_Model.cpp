@@ -8,6 +8,7 @@
 
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"                    //MTK/src
 
 #include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
 #include "cl_FEM_Node.hpp"               //FEM/INT/src
@@ -51,7 +52,7 @@ namespace moris
                       const uint                          aBSplineOrder,
                             Cell< Cell< fem::IWG_Type > > aIWGTypeList,
                             Cell< moris_index >           aSidesetList,
-                            Cell< fem::BC_Type >          aSidesetBCTypeList ) : mMeshManager( aMeshManager )
+                            Cell< fem::BC_Type >          aSidesetBCTypeList  ) : mMeshManager( aMeshManager )
         {
             // start timer
             tic tTimer1;
@@ -64,7 +65,7 @@ namespace moris
             moris::moris_index tMeshPairIndex = 0;
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh = nullptr;
-            mMeshManager->get_mesh_pair(tMeshPairIndex,tInterpolationMesh,tIntegrationMesh);
+            mMeshManager->get_mesh_pair( tMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create nodes
@@ -143,10 +144,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             // ask mesh about number of elements on proc
-            moris::Cell<std::string> tBlockSetsNames = tIntegrationMesh->get_set_names( EntityRank::ELEMENT);
+            moris::Cell<std::string> tBlockSetsNames = tIntegrationMesh->get_set_names( EntityRank::ELEMENT );
 
-            // get cells in blockset (this needs to stay in scope somehow)
-            moris::Cell<mtk::Cell const*> tBlockSetCells = tIntegrationMesh->get_block_set_cells(tBlockSetsNames(0));
+            // get cells in blockset (this needs to stay in scope somehow) // FIXME BLOCK OF CLUSTERS
+            moris::Cell<mtk::Cell const*> tBlockSetCells = tIntegrationMesh->get_block_set_cells( tBlockSetsNames( 0 ) );
 
             // create new fem element block
             moris::uint tElementBlockCounter = 0;
@@ -158,7 +159,9 @@ namespace moris
             std::cout<<" Create Sideset Elements "<<std::endl;
             //------------------------------------------------------------------------------
 
-            moris::Cell<std::string> tSideSetsNames = tInterpolationMesh->get_set_names( EntityRank::FACE );
+            moris::Cell<std::string> tSideSetsNames = tIntegrationMesh->get_set_names( EntityRank::FACE );
+
+            print(tSideSetsNames,"tSideSetsNames");
 
             for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
@@ -228,7 +231,7 @@ namespace moris
             }
             //--------------------------END FIXME--------------------------------
 
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElements,
+            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( mElementBlocks,
                                                                             tCommTable,
                                                                             tIdToIndMap,
                                                                             tMaxNumAdofs,
@@ -261,8 +264,6 @@ namespace moris
                 tInterpolationMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
 
                 mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
-
-//                mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
                 for( luint k = 0; k < tSideSetElement.size(); ++k )
                 {
@@ -309,58 +310,6 @@ namespace moris
 
             mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 5: create linear solver
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            dla::Solver_Factory  tSolFactory;
-            mLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-
-            mLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-            mLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-
-            mLinSolver = new dla::Linear_Solver();
-
-            mLinSolver->set_linear_algorithm( 0, mLinearSolverAlgorithm );
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 6: create nonlinear solver
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            NLA::Nonlinear_Solver_Factory tNonlinFactory;
-            mNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-            mNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-            mNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-            mNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-            mNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
-
-            mNonlinearSolverAlgorithm->set_linear_solver( mLinSolver );
-
-            mNonlinearSolver = new NLA::Nonlinear_Solver();
-
-            mNonlinearSolver->set_nonlinear_algorithm( mNonlinearSolverAlgorithm, 0 );
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 7: create time Solver
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            tsa::Time_Solver_Factory tTimeSolverFactory;
-            mTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
-
-            mTimeSolverAlgorithm->set_nonlinear_solver( mNonlinearSolver );
-
-            mTimeSolver = new tsa::Time_Solver();
-
-            mTimeSolver->set_time_solver_algorithm( mTimeSolverAlgorithm );
-
-            mSolverWarehouse = new NLA::SOL_Warehouse( mSolverInterface );
-
-            mNonlinearSolver->set_solver_warehouse( mSolverWarehouse );
-            mTimeSolver->set_solver_warehouse( mSolverWarehouse );
-
-            mNonlinearSolver->set_dof_type_list( tDofTypes1 );
-            mTimeSolver->set_dof_type_list( tDofTypes1 );
-
             if( par_rank() == 0)
             {
                 // stop timer
@@ -377,23 +326,11 @@ namespace moris
 
         Model::~Model()
         {
-
-            // delete manager
-            delete mLinSolver;
-
-            // delete NonLinSolverManager
-            delete mNonlinearSolver;
-
-            // delete TimeSolver
-            delete mTimeSolver;
-
             // delete SI
             delete mSolverInterface;
 
             // delete MSI
             delete mModelSolverInterface;
-
-            delete mSolverWarehouse;
 
             // delete IWGs
             for( auto tIWG : mIWGs )
@@ -452,36 +389,6 @@ namespace moris
                                                                            EntityRank::NODE,
                                                                            tElement->get_node_index( k ) );
                 }
-            }
-        }
-
-//------------------------------------------------------------------------------
-
-        void
-        Model::solve( Matrix<DDRMat> & aSolution )
-        {
-
-            // call solver
-//            mNonlinearSolver->solve( mNonlinearProblem );
-            mTimeSolver->solve(  );
-
-            // temporary array for solver
-            Matrix< DDRMat > tSolution;
-            mTimeSolver->get_full_solution( tSolution );
-
-            // get length of array
-            uint tLength = tSolution.length();
-
-            // make sure that length of vector is correct
-//            MORIS_ERROR( tLength <= (uint)  mMesh->get_num_coeffs( mDofOrder ),
-//                    "Number of ADOFs does not match" );
-
-            // rearrange data into output
-            aSolution.set_size( tLength, 1 );
-
-            for( uint k=0; k<tLength; ++k )
-            {
-                aSolution( k ) = tSolution( mAdofMap( k ) );
             }
         }
 

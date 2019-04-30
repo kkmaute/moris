@@ -14,6 +14,7 @@
 #include "cl_Matrix_Vector_Factory.hpp" // DLA/src
 #include "cl_Solver_Interface_Proxy.hpp" // DLA/src
 #include "cl_Vector.hpp" // DLA/src
+#include "cl_Map_Class.hpp" // DLA/src
 
 namespace moris
 {

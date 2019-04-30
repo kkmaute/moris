@@ -58,7 +58,7 @@ namespace moris
         Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_N( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3, "TRI3 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.numel() >= 3, "TRI3 - eval_N: aXi not allocated or hat wrong size." );
 
             // get the triangular coordinates
             real zeta1 = aXi( 0 );
@@ -80,7 +80,7 @@ namespace moris
         Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3, "TRI3 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.numel() >= 3, "TRI3 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // populate output matrix
             Matrix< DDRMat > tdNdXi( 3, 3, 0.0 );
