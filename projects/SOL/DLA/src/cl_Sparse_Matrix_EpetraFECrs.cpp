@@ -69,7 +69,7 @@ void Sparse_Matrix_EpetraFECrs::fill_matrix( const moris::uint             & aNu
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
-void Sparse_Matrix_EpetraFECrs::matrix_global_asembly()
+void Sparse_Matrix_EpetraFECrs::matrix_global_assembly()
 {
     // Assemble matrix
     mEpetraMat->GlobalAssemble();

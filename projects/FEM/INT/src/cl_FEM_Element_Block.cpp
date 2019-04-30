@@ -27,7 +27,7 @@ namespace moris
         this->create_unique_dof_type_lists();
         this->create_dof_type_lists();
 
-        mElements.resize( mMeshElementPointer.size(), nullptr);
+        mEquationObjList.resize( mMeshElementPointer.size(), nullptr);
 
         // a factory to create the elements
         fem::Element_Factory tElementFactory;
@@ -35,7 +35,7 @@ namespace moris
         for( luint k=0; k < mMeshElementPointer.size(); ++k )
         {
             // create the element // FIXME replace with mtk::cluster information
-            mElements( k ) = tElementFactory.create_cluster( mElementType,
+            mEquationObjList( k ) = tElementFactory.create_cluster( mElementType,
                                                              mMeshElementPointer( k ),
                                                              mNodes,
                                                              this );

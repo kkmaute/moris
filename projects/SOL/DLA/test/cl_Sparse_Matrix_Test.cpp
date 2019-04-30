@@ -51,7 +51,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     }
 
     // Call Global Asemby to ship information between processes
-    tMat->matrix_global_asembly();
+    tMat->matrix_global_assembly();
 
     // Fill element matrices into global matrix
     for ( uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -66,7 +66,7 @@ TEST_CASE("Sparse Mat","[Sparse Mat],[DistLinAlg]")
     }
 
     // Call Global Asemby to ship information between processes
-    tMat->matrix_global_asembly();
+    tMat->matrix_global_assembly();
 
     //tMat->print();
 
@@ -127,7 +127,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     }
 
     // Call Global Asemby to ship information between processes
-    tMat->matrix_global_asembly();
+    tMat->matrix_global_assembly();
 
     // Fill element matrices into global matrix
     for ( uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -142,7 +142,7 @@ TEST_CASE("Scale Sparse Mat","[Scale Sparse Mat],[DistLinAlg]")
     }
 
     // Call Global Asemby to ship information between processes
-    tMat->matrix_global_asembly();
+    tMat->matrix_global_assembly();
 
     //tMat->print();
 
@@ -208,7 +208,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     }
 
     // Call Global Asemby to ship information between processes
-    tMat->matrix_global_asembly();
+    tMat->matrix_global_assembly();
 
     // Fill element matrices into global matrix
     for ( uint Ii=0; Ii< tSolverInput->get_num_my_elements(); Ii++ )
@@ -223,7 +223,7 @@ TEST_CASE("Diagonal Sparse Mat","[Diagonal Sparse Mat],[DistLinAlg]")
     }
 
     // Call Global Asemby to ship information between processes
-    tMat->matrix_global_asembly();
+    tMat->matrix_global_assembly();
 
     //tMat->print();
 

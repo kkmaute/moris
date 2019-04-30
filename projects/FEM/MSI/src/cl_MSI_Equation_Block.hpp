@@ -29,13 +29,15 @@ namespace mtk
     class Equation_Block
     {
     protected:
-        Cell< MSI::Equation_Object* > mElements;
+        Cell< MSI::Equation_Object* > mEquationObjList;
 
         Matrix< DDRMat > mResidual;
         Matrix< DDRMat > mJacobian;
 
         bool mJacobianExist = false;
         bool mResidualExist = false;
+
+        Matrix< DDRMat >mTime;
 
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
@@ -73,10 +75,14 @@ namespace mtk
             if ( mJacobianExist )
             {
                 mJacobian.resize( 0, 0 );
+
+                mJacobianExist = false;
             }
             if ( mResidualExist )
             {
                 mResidual.resize( 0, 0 );
+
+                mResidualExist = false;
             }
         };
 
@@ -98,14 +104,14 @@ namespace mtk
 
         uint get_num_equation_objects()
         {
-            return mElements.size();
+            return mEquationObjList.size();
         };
 
 //------------------------------------------------------------------------------
 
         Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
-            return mElements;
+            return mEquationObjList;
         };
 
 //------------------------------------------------------------------------------

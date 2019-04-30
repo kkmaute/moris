@@ -55,7 +55,7 @@ public:
                           const moris::Matrix< DDSMat > & aRow,
                           const moris::Matrix< DDSMat > & aCols );
 
-    void matrix_global_asembly();
+    void matrix_global_assembly();
 
     void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );

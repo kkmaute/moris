@@ -118,24 +118,20 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        void create_unique_list_of_first_dof_type_of_group();
-
-//------------------------------------------------------------------------------
-
         void create_dof_assembly_map();
 
 //------------------------------------------------------------------------------
 
         uint get_num_equation_objects()
         {
-            return mElements.size();
+            return mEquationObjList.size();
         };
 
 //------------------------------------------------------------------------------
 
         Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
-            return mElements;
+            return mEquationObjList;
         };
 
 //------------------------------------------------------------------------------
