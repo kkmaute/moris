@@ -43,9 +43,9 @@ namespace moris
     protected:
 
         //! pointer to cell on mesh
-        const mtk::Cell_Cluster  * mInterpolationCell;
+        const mtk::Cell * mInterpolationCell;
 
-        moris::Cell< mtk::Cell const * > const mIntegrationCell;
+        moris::Cell< mtk::Cell const * > mIntegrationCell;
 
         moris::Cell< fem::Element * > mInterpElements;
 
@@ -70,7 +70,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Cluster( const Element_Type                aElementType,
-                 const mtk::Cell_Cluster         * aCell,
+                 const mtk::Cell                 * aCell,
                        moris::Cell< Node_Base* > & aNodes,
                        Element_Block             * aElementBlock) : MSI::Equation_Object( aElementBlock ),
                                                                     mElementBlock( aElementBlock )
@@ -78,7 +78,7 @@ namespace moris
             // fill the bulk mtk::Cell pointer //FIXME
             mInterpolationCell = aCell;
 
-            mIntegrationCell= aCell->get_primary_cells_in_cluster();
+            mIntegrationCell.resize( 1, mInterpolationCell );       //Fixme
 
             mElementType = aElementType;
 
