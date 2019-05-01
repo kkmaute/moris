@@ -637,6 +637,14 @@ public:
         return *mDummyVertex;
     }
 
+    virtual
+    mtk::Vertex const &
+    get_mtk_vertex( moris_index aVertexIndex ) const
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return *mDummyVertex;
+    }
+
     //##############################################
     // For FEM
     //##############################################

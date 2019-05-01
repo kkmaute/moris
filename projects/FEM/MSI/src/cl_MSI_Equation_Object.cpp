@@ -8,6 +8,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Equation_Block.hpp"
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_Vector.hpp"
 
@@ -63,9 +64,12 @@ namespace moris
             mMyPdofHosts( Ii ) = aPdofHostList( tNodeID );
 
             // FIXME rewrite this function
-            for ( moris::uint Ik=0; Ik < mEqnObjDofTypeList.size(); Ik++ )
+            for ( moris::uint Ik=0; Ik < mEquationBlock->get_unique_dof_type_list().size(); Ik++ )
             {
-                mMyPdofHosts( Ii )->set_pdof_type( mEqnObjDofTypeList( Ik ), aTimePerDofType, aNumUsedDofTypes, aPdofTypeMap );
+                mMyPdofHosts( Ii )->set_pdof_type( mEquationBlock->get_unique_dof_type_list()( Ik ),
+                                                   aTimePerDofType,
+                                                   aNumUsedDofTypes,
+                                                   aPdofTypeMap );
             }
         }
 
@@ -189,6 +193,24 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
+    void Equation_Object::get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
+                                                Dist_Vector      * aSolutionVector )
+    {
+        mSolVec = aSolutionVector;
+
+        Matrix< DDRMat > tTMatrix;
+        this->build_PADofMap( tTMatrix );
+
+        this->compute_jacobian();
+
+//                print( tTMatrix, "tTMatrix" );
+//                print( mJacobian, "mJacobian" );
+
+        aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->mJacobian * tTMatrix;
+    }
+
+//-------------------------------------------------------------------------------------------------
+
     void Equation_Object::get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
     {
         mSolVec = aSolutionVector;
@@ -199,7 +221,7 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
-        aEqnObjRHS = trans( tTMatrix ) * mResidual;
+        aEqnObjRHS = trans( tTMatrix ) * mEquationBlock->mResidual;
     }
 
 //-------------------------------------------------------------------------------------------------

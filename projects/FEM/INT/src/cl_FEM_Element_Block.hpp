@@ -56,6 +56,8 @@ namespace MSI
         // map of the element active dof types
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
         moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
+        moris::Matrix< DDSMat >                   mInterpDofAssemblyMap;
+        uint                                      mTotalDof;
         uint                                      mNumOfInterp;
 
         // number of integration points
@@ -66,6 +68,12 @@ namespace MSI
 
         // integration weights
         Matrix< DDRMat > mIntegWeights;
+
+        friend class MSI::Equation_Object;
+        friend class Element_Bulk;
+        friend class Element_Sideset;
+        friend class Element_Time_Sideset;
+        friend class Element;
 
 //------------------------------------------------------------------------------
     public:
@@ -83,7 +91,7 @@ namespace MSI
         /**
          * trivial constructor
          */
-        Element_Block( ){};
+        Element_Block(){};
 
 //------------------------------------------------------------------------------
 
@@ -111,6 +119,17 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void create_unique_list_of_first_dof_type_of_group();
+
+//------------------------------------------------------------------------------
+
+        void create_dof_assembly_map();
+
+//------------------------------------------------------------------------------
+
+        uint get_num_equation_objects()
+        {
+            return mElements.size();
+        };
 
 //------------------------------------------------------------------------------
 
@@ -170,6 +189,19 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        moris::Matrix< DDSMat > & get_interpolator_dof_assembly_map()
+        {
+            return mInterpDofAssemblyMap;
+        }
+//------------------------------------------------------------------------------
+
+        uint get_total_number_of_dofs()
+        {
+            return mTotalDof;
+        }
+
+//------------------------------------------------------------------------------
+
         uint & get_num_interpolators()
         {
             return mNumOfInterp;
@@ -221,10 +253,22 @@ namespace MSI
 
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
 
+//------------------------------------------------------------------------------
+
         /**
           * auto detect interpolation scheme
           */
         fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+
+//------------------------------------------------------------------------------
+
+        void initialize_mJacobianElement();
+
+//------------------------------------------------------------------------------
+
+        void initialize_mResidualElement();
+
+//------------------------------------------------------------------------------
 
     };
 //------------------------------------------------------------------------------

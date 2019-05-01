@@ -41,10 +41,8 @@ namespace moris
 
     protected:
 
-        //! pointer to cell on mesh
+        //! pointer to integration cell on mesh
         const mtk::Cell * mCell;
-
-        moris::Cell< mtk::Cell const * > mInterpCells;
 
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T

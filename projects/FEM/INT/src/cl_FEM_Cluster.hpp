@@ -43,15 +43,11 @@ namespace moris
     protected:
 
         //! pointer to cell on mesh
-        const mtk::Cell * mCell;
+        const mtk::Cell * mInterpolationCell;
 
         moris::Cell< mtk::Cell const * > mIntegrationCell;
 
         moris::Cell< fem::Element * > mInterpElements;
-
-        // working jacobian and residual for the element
-         Cell< Matrix< DDRMat > > mJacobianElement;
-         Cell< Matrix< DDRMat > > mResidualElement;
 
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
@@ -59,12 +55,11 @@ namespace moris
         //         but might need more memory
         moris::Matrix< IndexMat > mNodeIndices;
 
-        uint                      mNumOfIWGs;
+        uint mNumOfIWGs;
 
         Element_Block * mElementBlock;
 
         Element_Type mElementType;
-
 
         friend class Element_Bulk;
         friend class Element_Sideset;
@@ -77,12 +72,13 @@ namespace moris
         Cluster( const Element_Type                aElementType,
                  const mtk::Cell                 * aCell,
                        moris::Cell< Node_Base* > & aNodes,
-                       Element_Block             * aElementBlock) : mElementBlock( aElementBlock )
+                       Element_Block             * aElementBlock) : MSI::Equation_Object( aElementBlock ),
+                                                                    mElementBlock( aElementBlock )
         {
             // fill the bulk mtk::Cell pointer //FIXME
-            mCell = aCell;
+            mInterpolationCell = aCell;
 
-            mIntegrationCell.resize( 1, mCell );       //Fixme
+            mIntegrationCell.resize( 1, mInterpolationCell );       //Fixme
 
             mElementType = aElementType;
 
@@ -107,9 +103,6 @@ namespace moris
 
             // get the number of IWGs
             mNumOfIWGs = mElementBlock->get_num_IWG(); //FIXME
-
-            //FIXME
-            mEqnObjDofTypeList    = mElementBlock->get_unique_dof_type_list();
 
             fem::Element_Factory tElementFactory;
 
@@ -164,8 +157,8 @@ namespace moris
             this->get_my_pdof_values( aDofType, tPdofValues );
 
             // select the required nodal value
-            Matrix< IndexMat > tElemVerticesIndices = mCell->get_vertex_inds();
-            uint tElemNumOfVertices = mCell->get_number_of_vertices();
+            Matrix< IndexMat > tElemVerticesIndices = mInterpolationCell->get_vertex_inds();
+            uint tElemNumOfVertices = mInterpolationCell->get_number_of_vertices();
 
             moris_index tVertexIndex = MORIS_INDEX_MAX;
             for( uint i = 0; i < tElemNumOfVertices; i++ )

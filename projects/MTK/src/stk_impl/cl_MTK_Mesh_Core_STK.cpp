@@ -655,13 +655,14 @@ namespace mtk
             }
         }
 
+//        print(tSetNames,"tSetNames");
         // For whatever reason, the face sets have some additional internal sets
-        if(aSetEntityRank == EntityRank::FACE)
-        {
-            moris::size_t  tNumParts = tSetNames.size()/2;
-            std::string tDummy = "dummy";
-            tSetNames.resize(tNumParts,tDummy);
-        }
+//        if(aSetEntityRank == EntityRank::FACE)
+//        {
+//            moris::size_t  tNumParts = tSetNames.size()/2;
+//            std::string tDummy = "dummy";
+//            tSetNames.resize(tNumParts,tDummy);
+//        }
         return tSetNames;
     }
     // ----------------------------------------------------------------------------
@@ -868,6 +869,12 @@ namespace mtk
 
     mtk::Vertex &
     Mesh_Core_STK::get_mtk_vertex(moris_index aVertexIndex)
+    {
+        return mSTKMeshData->mMtkVertices(aVertexIndex);
+    }
+
+    mtk::Vertex const &
+    Mesh_Core_STK::get_mtk_vertex(moris_index aVertexIndex) const
     {
         return mSTKMeshData->mMtkVertices(aVertexIndex);
     }

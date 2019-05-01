@@ -31,8 +31,20 @@ namespace mtk
     protected:
         Cell< MSI::Equation_Object* > mElements;
 
+        Matrix< DDRMat > mResidual;
+        Matrix< DDRMat > mJacobian;
+
+        bool mJacobianExist = false;
+        bool mResidualExist = false;
+
         // map of the element active dof types
-        moris::Cell< enum MSI::Dof_Type >         mEqnObjDofTypeList; // List of dof types of this equation obj
+        moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
+
+        friend class MSI::Equation_Object;
+        friend class Element_Bulk;
+        friend class Element_Sideset;
+        friend class Element_Time_Sideset;
+        friend class Element;
 
 //------------------------------------------------------------------------------
     public:
@@ -54,11 +66,39 @@ namespace mtk
 
 //        void delete_pointers();
 
+//-------------------------------------------------------------------------------------------------
+
+        void free_matrix_memory()
+        {
+            if ( mJacobianExist )
+            {
+                mJacobian.resize( 0, 0 );
+            }
+            if ( mResidualExist )
+            {
+                mResidual.resize( 0, 0 );
+            }
+        };
+
 //------------------------------------------------------------------------------
 
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
             MORIS_ERROR(false,"Equation_Block::finalize(), not implemented");
+        };
+
+//------------------------------------------------------------------------------
+
+        void get_dof_types( moris::Cell< enum Dof_Type > & aDofType )
+        {
+            aDofType = mEqnObjDofTypeList;
+        }
+
+//------------------------------------------------------------------------------
+
+        uint get_num_equation_objects()
+        {
+            return mElements.size();
         };
 
 //------------------------------------------------------------------------------

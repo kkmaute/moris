@@ -9,7 +9,7 @@
 #define PROJECTS_MTK_SRC_CL_MTK_INTEGRATION_MESH_HPP_
 
 #include "cl_MTK_Mesh_Core.hpp"
-
+#include "cl_MTK_Cell_Cluster.hpp"
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
 
@@ -19,7 +19,35 @@ namespace mtk
 {
 class Integration_Mesh : public virtual Mesh
 {
+public:
+    Integration_Mesh(){};
     // Functions only valid for integration meshes
+
+    //##############################################
+    // Cell Cluster Access
+    //##############################################
+
+    /*
+     * Get a cell cluster related to an interpolation
+     * cell
+     */
+    virtual
+    Cell_Cluster const &
+    get_cell_cluster(Cell const & aInterpCell) const = 0;
+
+    /*
+     * Get block set names
+     */
+    virtual
+    moris::Cell<std::string>
+    get_block_set_names() const = 0;
+
+    /*
+     * Get cell clusters within a block set
+     */
+    virtual
+    moris::Cell<Cell_Cluster const *>
+    get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const = 0;
 
     //##############################################
     // Mesh Sets Access

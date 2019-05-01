@@ -684,8 +684,10 @@ Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
     }
 
     // creates mtk cells for all child elements (parent elements are assumed to have mtk cells in the mtk mesh)
-    create_child_element_mtk_cells();
+    this->create_child_element_mtk_cells();
 
+    // identify local subphases in child mesh
+    this->identify_local_subphase_clusters_in_child_meshes();
 
     // Change XTK model decomposition state flag
     mDecomposed = true;
@@ -715,6 +717,28 @@ Model::create_child_element_mtk_cells()
 }
 
 
+void
+Model::identify_local_subphase_clusters_in_child_meshes()
+{
+
+    // get the number of children meshes
+    moris::size_t tNumChildMeshes =  mCutMesh.get_num_child_meshes();
+
+    // iterate over children meshes and perform local flood-fill
+    for(moris::size_t i = 0; i<tNumChildMeshes; i++)
+    {
+        // Get child mesh index
+        Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(i);
+
+        // Perform local flood-fill on child mesh to identify subphase
+        moris::Matrix< moris::IndexMat > tLocalFloodFill = local_child_mesh_flood_fill(tChildMesh);
+
+        // Set the local floodfill data as the elemental subphase values in the child mesh
+        // The child mesh then sorts the elements into bins
+        tChildMesh.set_elemental_subphase(tLocalFloodFill);
+    }
+}
+
 // ----------------------------------------------------------------------------------
 // Sensitivity Source code
 // ----------------------------------------------------------------------------------
@@ -742,7 +766,41 @@ Model::compute_sensitivity()
 }
 
 // ----------------------------------------------------------------------------------
-// Unzipping Source code
+// Unzipping Child Mesh Source code
+// ----------------------------------------------------------------------------------
+void
+Model::unzip_child_mesh()
+{
+    // start the clock
+    std::clock_t start = std::clock();
+
+    MORIS_ERROR(mDecomposed,"Prior to unzip_child_mesh, the decomposition process must be called");
+
+    // unzip the interface
+    unzip_child_mesh_internal();
+
+    mUnzipped = true;
+    if(moris::par_rank() == 0  && mVerbose)
+    {
+        std::cout<<"XTK: Child mesh unzipping completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+    }
+}
+
+void
+Model::unzip_child_mesh_internal()
+{
+    // get the number of children meshes
+    moris::size_t tNumChildMeshes =  mCutMesh.get_num_child_meshes();
+
+    for(moris::size_t i = 0; i<tNumChildMeshes; i++)
+    {
+        // Get child mesh index
+//        Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(i);
+    }
+}
+
+// ----------------------------------------------------------------------------------
+// Unzipping Interface Source code
 // ----------------------------------------------------------------------------------
 void
 Model::unzip_interface()
@@ -843,9 +901,9 @@ Model::unzip_interface_internal_assign_node_identifiers(moris::uint aNumNodes,
 // ----------------------------------------------------------------------------------
 void
 Model::unzip_interface_internal_modify_child_mesh(moris::uint                         aGeometryIndex,
-                                           moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
-                                           moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
-                                           moris::Matrix<moris::IdMat> const & aUnzippedNodeIds)
+                                                  moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
+                                                  moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
+                                                  moris::Matrix<moris::IdMat> const & aUnzippedNodeIds)
 {
 
     // from interface node indices, figure out which interface nodes live in which interface
@@ -1161,7 +1219,7 @@ Model::unzip_interface_assign_element_identifiers()
     void
     Model::perform_multilevel_enrichment_internal()
     {
-        mEnrichment->create_multilevel_enrichments();
+//        mEnrichment->create_multilevel_enrichments();
     }
 
     // ----------------------------------------------------------------------------------

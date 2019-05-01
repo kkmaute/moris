@@ -39,6 +39,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
