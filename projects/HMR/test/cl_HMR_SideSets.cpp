@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include "../../GEN/src/cl_GE_Core.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -29,11 +30,6 @@
 
 // geometry engine
 //#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
-#include "GEN/src/cl_GE_Main.hpp"
-
-
-//------------------------------------------------------------------------------
-// HMR
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Database.hpp"

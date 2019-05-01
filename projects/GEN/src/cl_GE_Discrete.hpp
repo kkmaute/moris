@@ -43,6 +43,14 @@ namespace ge
         ~Discrete(){};
         //------------------------------------------------------------------------------
         /*
+         * @brief function to report if geometry is analytic or not
+         */
+        bool is_analytic() const
+        {
+            return false;
+        }
+        //------------------------------------------------------------------------------
+        /*
          * @brief dummy function to set the member variables,
          *              going to merge into a single constructor through the factory
          *
@@ -88,7 +96,8 @@ namespace ge
         }
 
         //------------------------------------------------------------------------------
-        moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, enum EntityRank aEntityRank)
+        moris::Matrix< moris::DDRMat >
+        evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, enum EntityRank aEntityRank)
         {
             //TODO: Implement this function
             moris::Matrix< moris::DDRMat > tSensitivityDxDp(1,1,0);
@@ -152,9 +161,6 @@ namespace ge
         Cell<std::string> mLevelSetFieldNames;
         moris::mtk::Mesh* mLevelSetMesh;
 
-        // the class should store all data (e.g. the field values at the nodes)
-        Cell< real > mFieldValuesAtVertices;
-        Cell< Matrix< DDRMat > > mFieldSensitivityAtVetices;
         //------------------------------------------------------------------------------
     protected:
 

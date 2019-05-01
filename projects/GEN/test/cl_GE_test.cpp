@@ -4,11 +4,11 @@
  *  Created on: Dec 28, 2018
  *      Author: sonne
  */
+#include "../src/cl_GE_Core.hpp"
 #include "catch.hpp"
 
 // GE includes
 //------------------------------------------------------------------------------
-#include "cl_GE_Main.hpp"
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Factory.hpp"
 #include "cl_GE_Node.hpp"
@@ -168,7 +168,7 @@ namespace moris
 				std::shared_ptr< Geometry > type0 = tFactory.set_geometry_type(type::ANALYTIC);
 				type0->set_analytical_function( type::CIRCLE );
 
-				GE_Main geometryEngine;
+				GE_Core geometryEngine;
 				geometryEngine.set_geometry( type0 );
 
 				moris::Cell< uint > tRefFlag;
@@ -274,7 +274,7 @@ namespace moris
 
 				//------------------------------------------------------------------------------
 
-				std::shared_ptr<Geometry_Engine_Interface> tInterface = std::make_shared< GE_Main >();
+				std::shared_ptr<Geometry_Engine_Interface> tInterface = std::make_shared< GE_Core >();
 
 				tInterface->set_geometry( type0 );
 				tInterface->set_geometry( type1 );
@@ -352,7 +352,7 @@ namespace moris
 				mtk::Mesh* tMesh2D_Quad4 = create_mesh( MeshType::STK, aMeshData );
 				//------------------------------------------------------------------------------
 
-				GE_Main geometryEngine;
+				GE_Core geometryEngine;
 
 				Matrix< DDRMat > tNormal( 16, 2 );
 
@@ -475,7 +475,9 @@ namespace moris
                         std::shared_ptr< Geometry > tGeomType = tFactory.set_geometry_type(type::ANALYTIC);
                         tGeomType->set_analytical_function( type::CIRCLE );
 
-                        GE_Main tGeometryEngine;
+                        tGeomType->set_mesh_and_t_matrix(tMesh2D_Quad9, tTMat);
+
+                        GE_Core tGeometryEngine;
                         tGeometryEngine.set_geometry( tGeomType );
 
                         moris::Cell< real > tCircleInputs(3);
@@ -484,10 +486,22 @@ namespace moris
                         tCircleInputs(2) = 2.50; // radius of circle
                         //------------------------------------------------------------------------------
 
-                        // call function to determine phiHat and use it to check phi values at nodes
+                        // call function to determine nodal ADVs and use it to check phi values at nodes
                         //------------------------------------------------------------------------------
-                        Matrix< DDRMat > tPhiHat;
-                        tPhiHat = tGeometryEngine.determine_phi_hat( tTMat, tMesh2D_Quad9, tCircleInputs, 0 );
+                        uint tWhichGeom = 0;
+                        Matrix< DDRMat > tPhiHat = tGeometryEngine.compute_nodal_advs( tWhichGeom,
+                                                                                       tCircleInputs,
+                                                                                       mtk::Geometry_Type::QUAD,
+                                                                                       fem::Integration_Type::GAUSS,
+                                                                                       fem::Integration_Order::QUAD_3x3,
+                                                                                       fem::Interpolation_Type::LAGRANGE,
+                                                                                       mtk::Interpolation_Order::QUADRATIC,
+                                                                                       fem::Integration_Type::GAUSS,
+                                                                                       fem::Integration_Order::BAR_1,
+                                                                                       fem::Interpolation_Type::LAGRANGE,
+                                                                                       mtk::Interpolation_Order::LINEAR,
+                                                                                       fem::Interpolation_Type::CONSTANT,
+                                                                                       mtk::Interpolation_Order::CONSTANT);
 
                         Matrix< DDRMat > tPhi = tTMat*tPhiHat;
 

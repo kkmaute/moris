@@ -5,8 +5,8 @@
  *      Author: sonne
  */
 
-#ifndef PROJECTS_MTK_GE_SRC_CL_GE_BASE_HPP_
-#define PROJECTS_MTK_GE_SRC_CL_GE_BASE_HPP_
+#ifndef PROJECTS_GEN_SRC_CL_GEOMETRY_HPP_
+#define PROJECTS_GEN_SRC_CL_GEOMETRY_HPP_
 
 // GE includes
 #include "cl_GE_Element.hpp"
@@ -31,7 +31,9 @@ namespace ge
 	{
 
 	public:
-		Geometry(){};
+		Geometry( )
+	    {
+	    };
 
 		~Geometry(){};
 		/*
@@ -113,6 +115,14 @@ namespace ge
         }
 
         //------------------------------------------------------------------------------
+        /*
+         * @brief returns the field value of a specific entity
+         *
+         * @param[in] aEntityIndex - index of the entity
+         * @param[in] aEntityRank  - entity type (e.g. NODE)
+         *
+         * @param[out] field value
+         */
         virtual moris::real
         access_field_value_with_entity_index(moris::moris_index aEntityIndex,
                                              enum EntityRank    aEntityRank) const
@@ -200,15 +210,54 @@ namespace ge
          * *****************************************************************************
          */
         //------------------------------------------------------------------------------
+        virtual bool
+        is_analytic() const
+        {
+//            MORIS_ASSERT(false, "is_analytic(): child geometry type not specified");
+            return true;
+        }
+
+        //------------------------------------------------------------------------------
+        /*
+         * @brief set the mesh and T-matrix for the geometry representation
+         * fixme setup to do this in the constructor ( will have to go through the factory )
+         */
+        void
+        set_mesh_and_t_matrix(mtk::Mesh*       & aMyMesh,
+                              Matrix< DDRMat > & aMyTMatrix)
+        {
+            mMyMesh    = aMyMesh;
+            mMyTMatrix = aMyTMatrix;
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief returns a pointer to the geometry object's mesh
+         */
+        mtk::Mesh*
+        get_my_mesh()
+        {
+            return mMyMesh;
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief returns a pointer to the geometry object's T-matrix
+         */
+        Matrix< DDRMat >
+        get_my_t_matrix()
+        {
+            return mMyTMatrix;
+        }
 
 
 	//------------------------------------------------------------------------------
     private:
+        mtk::Mesh*       mMyMesh;
+        Matrix< DDRMat > mMyTMatrix;
+
         std::string mDummyReturnString;
         Cell<std::string> mDummyReturnCell;
         mtk::Mesh* mDummyMeshPointer;
         Matrix< DDRMat > mDummyMatrix;
-
 	//------------------------------------------------------------------------------
     protected:
 
@@ -221,4 +270,4 @@ namespace ge
 } /* namespace moris */
 
 
-#endif /* PROJECTS_GEN_SRC_CL_GE_BASE_HPP_ */
+#endif /* PROJECTS_GEN_SRC_CL_GEOMETRY_HPP_ */

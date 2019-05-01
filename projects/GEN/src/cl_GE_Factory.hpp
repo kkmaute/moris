@@ -10,13 +10,14 @@
 #include <memory>
 #include <iostream>
 
+#include "cl_GE_Analytic.hpp"
 #include "cl_GE_Discrete.hpp"
 #include "cl_GE_Enums.hpp"
 #include "cl_GE_Geometry.hpp"
 #include "cl_GE_SDF.hpp"
 
 #include "assert.hpp"
-#include "cl_GE_Analytic.hpp"
+
 
 namespace moris
 {

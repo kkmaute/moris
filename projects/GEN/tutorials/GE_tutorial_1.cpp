@@ -1,5 +1,6 @@
 //------------------------------------------------------------------------------
 // moris core includes
+#include "../src/cl_GE_Core.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -8,8 +9,6 @@
 #include "catch.hpp"
 
 #include "cl_GE_Factory.hpp"
-#include "cl_GE_Main.hpp"
-
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Node.hpp"
 #include "fn_equal_to.hpp"

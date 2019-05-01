@@ -5,15 +5,12 @@
  *      Author: sonne
  */
 
+#include "cl_GE_Core.hpp"
 #include "catch.hpp"
-
 
 //------------------------------------------------------------------------------
 // GE includes
-#include "cl_GE_Element.hpp"
 #include "cl_GE_Factory.hpp"
-#include "cl_GE_Main.hpp"
-#include "cl_GE_Node.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"
@@ -24,12 +21,18 @@
 
 // MTK includes
 #include "cl_MTK_Cell.hpp"
-#include "cl_MTK_Vertex.hpp"
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_Mesh_Factory.hpp"
-#include "cl_MTK_Mesh_Tools.hpp"
+#include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
+#include "cl_MTK_Vertex.hpp"
+
+// FEM includes
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Integrator.hpp"
+
 //------------------------------------------------------------------------------
 
 using namespace moris;
@@ -38,10 +41,16 @@ using namespace ge;
 TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]")
         {
             /*
-             * 1) create an element
-             * 2) create analytic LS
-             * 3) determine LS values and sensitivity at nodes
-             * 4) determine intersection locations along edges
+             * 1) create a single-element mesh
+             * 2) create the Geometry Engine
+             *      2.1) create the field representation(s) (geometry objects)
+             *      2.2) set mesh and T-matrix for object(s)
+             *      ---------------- occurs when GE_Core is created ----------------
+             *      2.2.1) initialize reps, compute ADVs (L2 projection)
+             *      2.2.2) create output object (intersection object) for each field rep
+             *      --------------------------------------------------------
+             * 3) determine LS values and sensitivity at nodes from output object
+             * 4) determine intersection locations along edges from output object
              *
              *         [3]
              *   (0,1)      (1,1)
@@ -57,21 +66,9 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
 
             /*
              * --------------------------------------------------------
-             * create GE node objects and use them to create GE element
+             * (1) create a single-element mesh
              * --------------------------------------------------------
              */
-//            mtk::Vertex* tVertex1 = new Node(0.0, 0.0);
-//            mtk::Vertex* tVertex2 = new Node(1.0, 0.0);
-//            mtk::Vertex* tVertex3 = new Node(1.0, 1.0);
-//            mtk::Vertex* tVertex4 = new Node(0.0, 1.0);
-//
-//            moris::Cell< mtk::Vertex* > tNodes(4);
-//            tNodes(0) = tVertex1;
-//            tNodes(1) = tVertex2;
-//            tNodes(2) = tVertex3;
-//            tNodes(3) = tVertex4;
-//
-//            mtk::Cell* tElement = new Element(tNodes);
             uint aNumElemTypes = 1;     // quad
             uint aNumDim = 2;           // specify number of spatial dimensions
 
@@ -80,9 +77,9 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1 }};      // specify the local to global element map for quads
 
             Matrix< DDRMat > aCoords = {{ 0.0, 0.0 },
-            { 1.0, 0.0 },
-            { 1.0, 1.0 },
-            { 0.0, 1.0 }};             // Node coordinate matrix
+                                        { 1.0, 0.0 },
+                                        { 1.0, 1.0 },
+                                        { 0.0, 1.0 }};             // Node coordinate matrix
 
             Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4 }}; // specify the local to global map
             //------------------------------------------------------------------------------
@@ -96,25 +93,39 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             tMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
             //------------------------------------------------------------------------------
             mtk::Mesh* tMesh2D_Quad4 = create_mesh( MeshType::STK, tMeshData );
-            /*
-             * --------------------------------------------------------
-             * create LS and determine values at nodes
-             * --------------------------------------------------------
-             */
-            // geometry pointer and type, set LS function and sensitivity
-            Ge_Factory tFactory;
-            std::shared_ptr< Geometry > tGeom1 = tFactory.set_geometry_type(type::ANALYTIC);
-            tGeom1->set_analytical_function(type::CIRCLE);
-            tGeom1->set_analytical_function_dphi_dx(type::CIRCLE);
 
-            GE_Main tGeometryEngine;                    // create geometry engine and set geometry
-            tGeometryEngine.set_geometry( tGeom1 );
+            Matrix< DDRMat > tTMatrix( 4,4, 0.0 ); //T-matrix to be used for L2 projection
+            tTMatrix(0,0) = 0.25;
+            tTMatrix(1,1) = 0.25;
+            tTMatrix(2,2) = 0.25;
+            tTMatrix(3,3) = 0.25;
 
-            // input parameters for the circle
+            // input parameters for the circle LS
             moris::Cell< real > tCircleInputs(3);
             tCircleInputs(0) = 0.0;   // x center
             tCircleInputs(1) = 0.0;   // y center
             tCircleInputs(2) = 0.6;   // radius
+            /*
+             * --------------------------------------------------------
+             * (2) create geometry engine
+             * --------------------------------------------------------
+             */
+            Ge_Factory tFactory; // geometry pointer and type, set LS function and sensitivity
+            std::shared_ptr< Geometry > tGeom1 = tFactory.set_geometry_type(type::ANALYTIC);
+            tGeom1->set_analytical_function(type::CIRCLE);
+            tGeom1->set_analytical_function_dphi_dx(type::CIRCLE);
+
+            tGeom1->set_mesh_and_t_matrix(tMesh2D_Quad4, tTMatrix);
+
+            GE_Core tGeometryEngine;
+            tGeometryEngine.set_geometry(tGeom1);
+
+
+
+
+
+
+
 
             // determine LS values at the nodes
             Matrix< DDRMat > tLSVals(4,1,0.0);
@@ -155,26 +166,23 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
              * determine intersection points
              * --------------------------------------------------------
              */
-            //T-matrix to be used for L2 projection
-            Matrix< DDRMat > tTMat( 4,4, 0.0 );
-            tTMat(0,0) = 0.25;
-            tTMat(1,1) = 0.25;
-            tTMat(2,2) = 0.25;
-            tTMat(3,3) = 0.25;
+            uint tWhichGeom = 0;
 
-            Matrix< DDRMat > tPhiHat;
-std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-            tPhiHat = tGeometryEngine.determine_phi_hat( tTMat, tMesh2D_Quad4, tCircleInputs, 0 );
-print(tPhiHat,"phi hat");
-
-            Matrix< DDRMat > tPhi = tTMat*tPhiHat;
-            print(tPhi,"phi vals");
+            Matrix< DDRMat > tADVs = tGeometryEngine.compute_nodal_advs( tWhichGeom,
+                                                                         tCircleInputs,
+                                                                         mtk::Geometry_Type::QUAD,
+                                                                         fem::Integration_Type::GAUSS,
+                                                                         fem::Integration_Order::QUAD_2x2,
+                                                                         fem::Interpolation_Type::LAGRANGE,
+                                                                         mtk::Interpolation_Order::LINEAR );
+            Matrix< DDRMat > tPhi = tTMatrix*tADVs;
+            CHECK( equal_to( tPhi( 0,0 ), -0.36 ) );
+            CHECK( equal_to( tPhi( 1,0 ),  0.64 ) );
+            CHECK( equal_to( tPhi( 2,0 ),  1.64 ) );
+            CHECK( equal_to( tPhi( 3,0 ),  0.64 ) );
 
             //------------------------------------------------------------------------------
             //cleanup
-//            delete tVertex1; delete tVertex2;
-//            delete tVertex3; delete tVertex4;
-//            delete tElement;
             delete tMesh2D_Quad4;
 
         }
@@ -237,20 +245,19 @@ TEST_CASE("analytic_functionalities_test_3D","[GE],[analytic_functionalities_3D]
 
     //------------------------------------------------------------------------------
 
-    std::shared_ptr<Geometry_Engine_Interface> tInterface = std::make_shared< GE_Main >();
+    std::shared_ptr<Geometry_Engine_Interface> tInterface = std::make_shared< GE_Core >();
 
     tInterface->set_geometry( tGeom1 );
 
     /* *********************************
      * this test is not yet complete...
      * need to determine the
-     * intersection location
+     * intersection location(s)
      * *********************************
      */
 
 
     //------------------------------------------------------------------------------
-
 //    std::string tOutputFile = "./analyticTest.exo";
 //    tMesh3DHexs->create_output_mesh(tOutputFile);
     //------------------------------------------------------------------------------

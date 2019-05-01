@@ -76,20 +76,12 @@ namespace moris
             MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNSpaceParamDim + mNTimeDim )),
                          "Field_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");
 
-<<<<<<< HEAD
-            //check input values are between -1 and 1
-
-            for ( moris::uint Ik = 0; Ik < mNSpaceDim + mNTimeDim; Ik++ )
-            {
-                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1+1E-12 ) && ( aParamPoint( Ik ) >= -1-1E-12 ) ),
-=======
             // check input values are between -1 and 1
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNSpaceParamDim + mNTimeDim; Ik++ )
             {
 
                 MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
->>>>>>> 3b34d81fdf13906f53ced143bc125fe49a1c7d35
                              "Field_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
             }
 

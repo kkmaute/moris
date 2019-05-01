@@ -27,6 +27,15 @@ namespace moris{
 			Analytic(){};
 
 			~Analytic(){};
+			//------------------------------------------------------------------------------
+			/*
+			 * @brief function to report if geometry is analytic or not
+			 */
+		    bool is_analytic() const
+		    {
+		        return true;
+		    }
+		    //------------------------------------------------------------------------------
 			/*
 			 * *****************************************************************************
 			 * pass in a user-defined function
@@ -273,9 +282,6 @@ namespace moris{
                                                 Cell<moris::real>       & aLength,
                                                 Cell<Cell<moris::real>> & aAxis );
 
-            // the class should store all data (e.g. the field values at the nodes)
-            Cell< real > mFieldValuesAtVertices;
-            Cell< Matrix< DDRMat > > mFieldSensitivityAtVetices;
             //------------------------------------------------------------------------------
 
         protected:

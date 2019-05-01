@@ -5,13 +5,13 @@
  *      Author: sonne
  */
 
+#include "../../src/cl_GE_Core.hpp"
 #include "catch.hpp"
 
 //------------------------------------------------------------------------------
 // GE includes
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Factory.hpp"
-#include "cl_GE_Main.hpp"
 #include "cl_GE_Node.hpp"
 
 // linalg includes
@@ -136,7 +136,7 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
 
         circle->set_member_variables(tMesh2D_Quad4, tFields);
 
-        GE_Main tGeometryEngine;                    // create geometry engine and set geometry
+        GE_Core tGeometryEngine;                    // create geometry engine and set geometry
         tGeometryEngine.set_geometry( circle );
 
         // determine LS values at the nodes
@@ -162,6 +162,7 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
          * *****************************************
          */
         // edge (1)
+
 
 
 
