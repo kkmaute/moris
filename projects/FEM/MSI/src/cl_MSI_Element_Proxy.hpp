@@ -24,7 +24,7 @@ namespace moris
     private:
         Matrix< DDRMat > ( *mFunction )( Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
 
-        fem::Element_Block * mElementBlock;
+        fem::Set * mElementBlock;
 
     protected:
 

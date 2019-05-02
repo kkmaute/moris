@@ -31,7 +31,7 @@ namespace moris
 {
     namespace fem
     {
-    class Element_Block;
+    class Set;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -54,14 +54,14 @@ namespace moris
 
         moris::Matrix< DDSMat >   mInterpDofTypeMap;
 
-        Element_Block      * mElementBlock = nullptr;
+        Set      * mElementBlock = nullptr;
         Cluster            * mCluster      = nullptr;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
 
         Element( const mtk::Cell     * aCell,
-                       Element_Block * aElementBlock,
+                Set * aElementBlock,
                        Cluster       * aCluster) : mElementBlock( aElementBlock ),
                                                    mCluster( aCluster )
         {

@@ -153,8 +153,8 @@ namespace moris
                 }
 
                 // create a fem element block
-                Cell< MSI::Equation_Block * > tElementBlocks( 1, nullptr );
-                tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+                Cell< MSI::Equation_Set * > tElementBlocks( 1, nullptr );
+                tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
                 // put the equation object of block 0 in the global list of equation objects
                 tElements.append( tElementBlocks( 0 )->get_equation_object_list() );

@@ -26,7 +26,7 @@ namespace mtk
     /**
      * \brief element block class that communicates with the mesh interface
      */
-    class Equation_Block
+    class Equation_Set
     {
     protected:
         Cell< MSI::Equation_Object* > mEquationObjList;
@@ -55,14 +55,14 @@ namespace mtk
         /**
          * trivial constructor
          */
-        Equation_Block( ){};
+        Equation_Set( ){};
 
 //------------------------------------------------------------------------------
 
         /**
          * trivial destructor
          */
-        virtual ~Equation_Block(){};
+        virtual ~Equation_Set(){};
 
 //------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ namespace mtk
 
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
-            MORIS_ERROR(false,"Equation_Block::finalize(), not implemented");
+            MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
         };
 
 //------------------------------------------------------------------------------

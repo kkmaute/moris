@@ -151,7 +151,7 @@ namespace moris
 
             // create new fem element block
             moris::uint tElementBlockCounter = 0;
-            mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tBlockSetCells, fem::Element_Type::BULK, mIWGs( 0 ), mNodes );
+            mElementBlocks( tElementBlockCounter ) = new fem::Set( tBlockSetCells, fem::Element_Type::BULK, mIWGs( 0 ), mNodes );
 
             mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
@@ -177,7 +177,7 @@ namespace moris
                 // get the treated sideset elements and ordinals
                 tInterpolationMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
 
-                mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );
+                mElementBlocks( tElementBlockCounter ) = new fem::Set( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );
 
                 mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 

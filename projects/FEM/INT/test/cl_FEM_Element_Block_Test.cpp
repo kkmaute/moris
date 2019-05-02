@@ -14,10 +14,10 @@ namespace moris
 {
     namespace fem
     {
-        TEST_CASE( "Element_Block", "[moris],[fem],[ElementBlock]" )
+        TEST_CASE( "Set", "[moris],[fem],[ElementBlock]" )
         {
-            //MSI::Equation_Block* tElementBlock = new Element_Block();
-            Element_Block tElementBlock;
+            //MSI::Equation_Set* tElementBlock = new Set();
+            Set tElementBlock;
 
             // create a cell of IWG pointers------------------------------------------------
             // list of IWG types

@@ -12,7 +12,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element_Bulk::Element_Bulk( mtk::Cell    const * aCell,
-                                    Element_Block      * aElementBlock,
+                                    Set                * aElementBlock,
                                     Cluster            * aCluster ) : Element( aCell, aElementBlock, aCluster )
         {
         }

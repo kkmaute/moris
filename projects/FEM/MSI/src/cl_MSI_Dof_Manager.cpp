@@ -7,9 +7,8 @@
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
+#include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_MSI_Equation_Block.hpp"
-
 #include "cl_MSI_Pdof_Host.hpp"
 
 #include "fn_sort.hpp"
@@ -54,7 +53,7 @@ namespace moris
     }
 
 //-----------------------------------------------------------------------------------------------------------
-    void Dof_Manager::initialize_pdof_type_list( Cell< MSI::Equation_Block * > & aListEqnBlock )
+    void Dof_Manager::initialize_pdof_type_list( Cell< MSI::Equation_Set * > & aListEqnBlock )
     {
         // Reserve of temporary pdof type list
         moris::Cell< enum Dof_Type > tTemporaryPdofTypeList;

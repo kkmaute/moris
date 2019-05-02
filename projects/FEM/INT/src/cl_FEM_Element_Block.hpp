@@ -37,7 +37,7 @@ namespace MSI
     /**
      * \brief element block class that communicates with the mesh interface
      */
-    class Element_Block : public MSI::Equation_Block
+    class Set : public MSI::Equation_Set
     {
     private:
         moris::Cell< mtk::Cell const* >     mMeshElementPointer;
@@ -83,7 +83,7 @@ namespace MSI
          *
          * @param[ in ]     List of mtk::Cell pointer
          */
-        Element_Block( moris::Cell< mtk::Cell const * > & aCell,
+        Set( moris::Cell< mtk::Cell const * > & aCell,
                        Element_Type                aElementType,
                        Cell< IWG* >              & aIWGs,
                        Cell< Node_Base* >        & aNodes);
@@ -91,14 +91,14 @@ namespace MSI
         /**
          * trivial constructor
          */
-        Element_Block(){};
+        Set(){};
 
 //------------------------------------------------------------------------------
 
         /**
          * trivial destructor
          */
-        ~Element_Block();
+        ~Set();
 
 //------------------------------------------------------------------------------
 

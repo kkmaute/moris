@@ -34,7 +34,7 @@ namespace moris
         {
         private:
             //! List of equation blocks
-            Cell< MSI::Equation_Block * >      mEquationBlocks;
+            Cell< MSI::Equation_Set * >      mEquationBlocks;
 
             //! List of equation objects
             moris::Cell< Equation_Object * >   mEquationObjectList;
@@ -71,7 +71,7 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(      Cell< MSI::Equation_Block * >                     & aElementBlocks,
+        Model_Solver_Interface(      Cell< MSI::Equation_Set * >                     & aElementBlocks,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs ) : mEquationBlocks( aElementBlocks ),
@@ -91,7 +91,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Model_Solver_Interface(      Cell< MSI::Equation_Block * >                     & aElementBlocks,
+        Model_Solver_Interface(      Cell< MSI::Equation_Set * >                     & aElementBlocks,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs,
@@ -193,7 +193,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Equation_Block * get_eqn_block( const moris::uint & aMyEquBlockInd )
+        Equation_Set * get_eqn_block( const moris::uint & aMyEquBlockInd )
         {
             return mEquationBlocks( aMyEquBlockInd );
         };

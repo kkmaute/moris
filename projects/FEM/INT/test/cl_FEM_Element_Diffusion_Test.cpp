@@ -160,9 +160,9 @@ namespace moris
                 }
 
                 // create a fem element block
-                moris::Cell< MSI::Equation_Block * > tElementBlocks( 3, nullptr );
+                moris::Cell< MSI::Equation_Set * > tElementBlocks( 3, nullptr );
                 moris::Cell< IWG* > tIWGBulk = { tIWGs( 0 ) };
-                tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement,
+                tElementBlocks( 0 ) = new fem::Set( tBlockSetElement,
                                                               fem::Element_Type::BULK,
                                                               tIWGBulk,
                                                               tNodes );
@@ -182,7 +182,7 @@ namespace moris
 
                 // create a fem element sideblock
                 moris::Cell< IWG* > tIWGDirichlet = { tIWGs( 1 ) };
-                tElementBlocks( 1 ) = new fem::Element_Block( tSideSetDirichletElement,
+                tElementBlocks( 1 ) = new fem::Set( tSideSetDirichletElement,
                                                               fem::Element_Type::SIDESET,
                                                               tIWGDirichlet,
                                                               tNodes );
@@ -202,7 +202,7 @@ namespace moris
 
                 // create a fem element sideblock
                 moris::Cell< IWG* > tIWGNeumann = { tIWGs( 2 ) };
-                tElementBlocks( 2 ) = new fem::Element_Block( tSideSetNeumannElement,
+                tElementBlocks( 2 ) = new fem::Set( tSideSetNeumannElement,
                                                               fem::Element_Type::SIDESET,
                                                               tIWGNeumann,
                                                               tNodes );

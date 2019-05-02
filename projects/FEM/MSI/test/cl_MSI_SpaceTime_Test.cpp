@@ -134,7 +134,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // ask mesh about number of elements
         uint tNumOfElements = tMesh->get_num_elems();
 
-        Cell< MSI::Equation_Block * >      tElementBlocks(1,nullptr);
+        Cell< MSI::Equation_Set * >      tElementBlocks(1,nullptr);
 
         // ask mesh about number of elements on proc
         moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
@@ -150,7 +150,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
                 tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
             }
         }
-        tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+        tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
         //4) Create the model solver interface -----------------------------------------
         std::cout<<" Create the model solver interface "<<std::endl;

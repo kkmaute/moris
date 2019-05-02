@@ -32,7 +32,7 @@ namespace moris
 {
     namespace fem
     {
-    class Element_Block;
+    class Set;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -57,7 +57,7 @@ namespace moris
 
         uint mNumOfIWGs;
 
-        Element_Block * mElementBlock;
+        Set * mElementBlock;
 
         Element_Type mElementType;
 
@@ -72,7 +72,7 @@ namespace moris
         Cluster( const Element_Type                aElementType,
                  const mtk::Cell                 * aCell,
                        moris::Cell< Node_Base* > & aNodes,
-                       Element_Block             * aElementBlock) : MSI::Equation_Object( aElementBlock ),
+                       Set             * aElementBlock) : MSI::Equation_Object( aElementBlock ),
                                                                     mElementBlock( aElementBlock )
         {
             // fill the bulk mtk::Cell pointer //FIXME
