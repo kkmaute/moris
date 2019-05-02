@@ -20,7 +20,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "cl_MDL_Model.hpp"
 

@@ -38,7 +38,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Element_Block.hpp"              //FEM/INT/src
+#include "cl_FEM_Set.hpp"              //FEM/INT/src
 
 namespace moris
 {

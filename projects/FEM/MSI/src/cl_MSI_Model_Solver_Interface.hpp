@@ -15,7 +15,7 @@
 
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Multigrid.hpp"
-#include "cl_MSI_Equation_Block.hpp"
+#include "cl_MSI_Equation_Set.hpp"
 
 #include "cl_Param_List.hpp"
 

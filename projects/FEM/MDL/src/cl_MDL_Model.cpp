@@ -18,7 +18,7 @@
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"

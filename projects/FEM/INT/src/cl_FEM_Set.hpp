@@ -1,5 +1,5 @@
 /*
- * cl_FEM_Element_Block.hpp
+ * cl_FEM_Set.hpp
  *
  *  Created on: Mar 10, 2019
  *      Author: schmidt
@@ -9,7 +9,7 @@
 #define SRC_FEM_CL_FEM_ELEMENT_BLOCK_HPP_
 
 #include "assert.h"
-#include "cl_MSI_Equation_Block.hpp"               //FEM/INT/src
+#include "cl_MSI_Equation_Set.hpp"               //FEM/INT/src
 #include "cl_FEM_Enums.hpp"               //FEM/INT/src
 #include "cl_MTK_Enums.hpp"               //FEM/INT/src
 #include "cl_FEM_Node_Base.hpp"               //FEM/INT/src

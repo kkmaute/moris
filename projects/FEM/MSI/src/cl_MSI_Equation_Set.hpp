@@ -1,5 +1,5 @@
 /*
- * cl_MSI_Equation_Block.hpp
+ * cl_MSI_Equation_Set.hpp
  *
  *  Created on: Apr 10, 2019
  *      Author: schmidt

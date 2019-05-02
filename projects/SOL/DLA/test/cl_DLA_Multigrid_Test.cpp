@@ -30,7 +30,7 @@
 
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_L2.hpp"
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
