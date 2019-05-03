@@ -338,11 +338,11 @@ namespace moris
                 tIWG.clear();
             }
 
-            // delete elements
-            for( auto tElement : mElements )
-            {
-                delete tElement;
-            }
+//            // delete elements
+//            for( auto tElement : mElements )
+//            {
+//                delete tElement;
+//            }
 
             // delete nodes
             for( auto tNode : mNodes )

@@ -6,6 +6,7 @@
  */
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
+#include "cl_Vector.hpp"
 
 using namespace moris;
 using namespace dla;
@@ -22,7 +23,7 @@ Linear_Solver_Amesos::Linear_Solver_Amesos( Linear_Problem * aLinearSystem ) //:
 
 Linear_Solver_Amesos::~Linear_Solver_Amesos()
 {
-    delete( mAmesosSolver );
+//    delete mAmesosSolver;
 }
 
 void Linear_Solver_Amesos::set_solver_parameters()
@@ -37,11 +38,11 @@ void Linear_Solver_Amesos::set_solver_parameters()
 
     // set AZ_output options
     // options are true, false
-    mParameterList.insert( "output" , false );
+//    mParameterList.insert( "output" , false );
 
     // set symbolic factorization
     // options are true, false
-    mParameterList.insert( "symbolic_factorization" , false );
+//    mParameterList.insert( "symbolic_factorization" , false );
 }
 
 moris::sint Linear_Solver_Amesos::solve_linear_system()
@@ -90,7 +91,9 @@ moris::sint Linear_Solver_Amesos::solve_linear_system()
 
 moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter )
 {
-    mEpetraProblem = aLinearSystem->get_linear_system_epetra();
+    mLinearSystem = aLinearSystem;
+    mAmesosSolver = mAmesosFactory.Create( "Amesos_Pardiso", *mLinearSystem->get_linear_system_epetra() );
+
     sint error = 0;
     moris::real startSolTime     = 0.0;
     moris::real startSymFactTime = 0.0;
@@ -106,6 +109,7 @@ moris::sint Linear_Solver_Amesos::solve_linear_system( Linear_Problem * aLinearS
 //    if ( !mParameterList.get< bool >( "symbolic_factorization" ) || !mIsPastFirstSolve )
 //    {
         error = mAmesosSolver->SymbolicFactorization();
+
         MORIS_ERROR( error == 0, "SYMBOLIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
 //    }
 
@@ -137,10 +141,10 @@ void Linear_Solver_Amesos::set_solver_internal_parameters()
 {
     // Set Amesos solver type
 //    mAmesosSolver = mAmesosFactory.Create( mParameterList.get< const char * >( "solver_type" ), mEpetraProblem );
-    mAmesosSolver = mAmesosFactory.Create( "Amesos_Mumps", *mEpetraProblem );
+//    mAmesosSolver = mAmesosFactory.Create( "Amesos_Klu", *mLinearSystem->get_linear_system_epetra() );
 
     // Initialize parameter list
-    Teuchos::ParameterList params;
+//    Teuchos::ParameterList params;
 
     // Set output options
 //    params.set("PrintTiming"        , mParameterList.get< bool >( "output" ));
@@ -149,7 +153,7 @@ void Linear_Solver_Amesos::set_solver_internal_parameters()
 //    params.set("ComputeTrueResidual", mParameterList.get< bool >( "output" ));
 
     // Allows non contiguous indexing of stiffness matrix dofs (XFEM Reduced system) KLU only
-    params.set("Reindex",(bool) (true));
+//    params.set("Reindex",(bool) (true));
 
     // Create a parameter sublist for PARDISO solver
 //    const char* tSolverType1 = "Amesos_Pardiso";
@@ -178,5 +182,5 @@ void Linear_Solver_Amesos::set_solver_internal_parameters()
 //    }
 
     // Set AMESOS solver parameter list
-    mAmesosSolver->SetParameters( params );
+//    mAmesosSolver->SetParameters( params );
 }

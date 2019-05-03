@@ -180,33 +180,33 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
 //{
 //    if ( par_size() == 4)
 //    {
-//    Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+//        Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
 //
-//    Solver_Factory  tSolFactory;
+//        Solver_Factory  tSolFactory;
 //
-//    Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
-//    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+//        Linear_Problem * tLinProblem = tSolFactory.create_linear_system( tSolverInterface, MapType::Epetra );
+//        std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
 //
-//    tLinProblem->assemble_residual_and_jacobian();
+//        tLinProblem->assemble_residual_and_jacobian();
 //
-//    tLinSolver->solve_linear_system( tLinProblem );
+//        tLinSolver->solve_linear_system( tLinProblem );
 //
-//    moris::Matrix< DDRMat > tSol;
-//    tLinProblem->get_solution( tSol );
+//        moris::Matrix< DDRMat > tSol;
+//        tLinProblem->get_solution( tSol );
 //
-//    // Check if solution corresponds to given solution
-//    if ( par_rank() == 0 )
-//    {
-//        CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
-//        CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
-//    }
-//    if ( par_rank() == 3 )
-//    {
-//        CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
-//    }
+//        // Check if solution corresponds to given solution
+//        if ( par_rank() == 0 )
+//        {
+//            CHECK(equal_to(tSol(0,0),-0.0138889,1.0e+08));
+//            CHECK(equal_to(tSol(5,0),-0.00694444,1.0e+08));
+//        }
+//        if ( par_rank() == 3 )
+//        {
+//            CHECK(equal_to(tSol(3,0),-0.0138889,1.0e+08));
+//        }
 //
-//    //delete tEpetraComm;
-//    delete ( tSolverInterface );
+//        //delete tEpetraComm;
+//        delete ( tSolverInterface );
 //    }
 //}
 

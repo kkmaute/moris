@@ -15,6 +15,8 @@
 #include "cl_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
+#include "cl_Map_Class.hpp"
+
 extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
@@ -36,6 +38,9 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
         delete( mFullVector );
         delete( mPrevFullVector );
     }
+//    delete( mPrevFullVector );                 // FIXME There's a delete somewhere in HMR which need this memory leak. has to be fixed
+//    delete( mFullMap );
+
 }
 //-------------------------------------------------------------------------------
 

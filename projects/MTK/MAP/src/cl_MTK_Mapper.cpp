@@ -302,10 +302,7 @@ namespace moris
             if( mTargetInterpMesh->get_mesh_type() == MeshType::HMR )
             {
                 // perform L2 projection
-//                mModel->solve( mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ) );
                 tTimeSolver.get_full_solution( mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ) );
-
-//                mModel->solve( mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ) );
 
                 Matrix< DDUMat > tAdofMap = mModel->get_adof_map();
 
@@ -324,13 +321,6 @@ namespace moris
             }
             else
             {
-//                // create vector with solution
-//                Matrix< DDRMat > tSolution;
-//
-//                // perform L2 projection
-//                mModel->solve( tSolution );
-
-
                 moris::Matrix< DDRMat > tSolution;
                 tTimeSolver.get_full_solution( tSolution );
 

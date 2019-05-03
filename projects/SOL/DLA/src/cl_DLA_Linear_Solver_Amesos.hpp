@@ -27,7 +27,7 @@ private:
     Amesos_BaseSolver *mAmesosSolver;
     Amesos            mAmesosFactory;
 
-    Epetra_LinearProblem *     mEpetraProblem;
+    Linear_Problem   * mLinearSystem =  nullptr;
 
     bool              mIsPastFirstSolve;
 

@@ -60,6 +60,8 @@ namespace moris
         }
 
         mFieldInterpolators.clear();
+
+//        mEquationObjList.clear();        // FIXME memory leak
     }
 
 //------------------------------------------------------------------------------
@@ -118,6 +120,8 @@ namespace moris
 
             // create an integrator for the ith IWG
             Integrator tIntegrator( *tIntegrationRule );
+
+            delete tIntegrationRule;
 
             //get number of integration points
             mNumOfIntegPoints = tIntegrator.get_number_of_points();
