@@ -3625,10 +3625,10 @@ namespace moris
                 if (tLocalIDs.numel()==1)
                 {
                     tReverseIndexMap( tLocalIDs( 0, 0 ) ) = tBasis->get_index();
-                    tReverseIDMap( tLocalIDs( 0, 0 )-1 ) = tBasis->get_hmr_index();
+                    tReverseIDMap( tLocalIDs( 0, 0 )-1 )  = tBasis->get_hmr_index();
 
                     tBasis->set_local_index( tLocalIDs( 0, 0 ) );
-                    tBasis->set_domain_index( tLocalIDs( 0, 0 )-1 );
+                    tBasis->set_domain_index( tLocalIDs( 0, 0 ) - 1 );
 
                     tCounter++;
                 }
@@ -3645,7 +3645,7 @@ namespace moris
             {
 
                 tReverseIndexMap( tCounter ) = tBasis->get_index();
-                tReverseIDMap( tCounter-1 ) = tBasis->get_hmr_index();
+                tReverseIDMap( tCounter )    = tBasis->get_hmr_index();
 
                 tBasis->set_local_index( tCounter );
                 tBasis->set_domain_index( tCounter++  );
