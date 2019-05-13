@@ -4,7 +4,7 @@
  *  Created on: Dec 28, 2018
  *      Author: sonne
  */
-#include "../src/cl_GE_Core.hpp"
+#include "cl_GE_Core.hpp"
 #include "catch.hpp"
 
 // GE includes

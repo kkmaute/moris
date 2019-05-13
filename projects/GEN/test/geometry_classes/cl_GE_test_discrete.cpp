@@ -56,7 +56,11 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
          *         [1]
          *
          */
-
+        Matrix< DDRMat > tTMatrix( 4,4, 0.0 ); //T-matrix to be used for L2 projection
+        tTMatrix(0,0) = 0.25;
+        tTMatrix(1,1) = 0.25;
+        tTMatrix(2,2) = 0.25;
+        tTMatrix(3,3) = 0.25;
         /* *************************************************************************
          * create the 2D mesh with a single element and initialize scalar node field
          * *************************************************************************
@@ -90,10 +94,16 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
         tNodeField1.set_field_name(tFieldName);
         tNodeField1.set_field_entity_rank(EntityRank::NODE);
 
+        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField2;
+        std::string tFieldName1 = "projectionVals";
+        tNodeField2.set_field_name(tFieldName1);
+        tNodeField2.set_field_entity_rank(EntityRank::NODE);
+
         // initialize field information container
         moris::mtk::MtkFieldsInfo tFieldsInfo;
         // Place the node field into the field info container
         add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+        add_field_for_mesh_input(&tNodeField2,tFieldsInfo);
 
         // declare some supplementary fields
         tMeshData.FieldsInfo = &tFieldsInfo;
@@ -136,6 +146,8 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
 
         circle->set_member_variables(tMesh2D_Quad4, tFields);
 
+        circle->set_mesh_and_t_matrix(tMesh2D_Quad4, tTMatrix);
+
         GE_Core tGeometryEngine;                    // create geometry engine and set geometry
         tGeometryEngine.set_geometry( circle );
 
@@ -156,6 +168,18 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
         CHECK( equal_to( tLSVals( 2,0 ),  1.64 ) );
         CHECK( equal_to( tLSVals( 3,0 ),  0.64 ) );
 
+
+
+        Matrix< DDRMat > tADVs = tGeometryEngine.compute_nodal_advs( 0,
+                                                                     tInputs,
+                                                                     mtk::Geometry_Type::QUAD,
+                                                                     fem::Integration_Type::GAUSS,
+                                                                     fem::Integration_Order::QUAD_2x2,
+                                                                     fem::Interpolation_Type::LAGRANGE,
+                                                                     mtk::Interpolation_Order::LINEAR );
+        Matrix< DDRMat > tProjectedVals = tTMatrix*tADVs;
+        tMesh2D_Quad4->add_mesh_field_real_scalar_data_loc_inds(tFieldName1, EntityRank::NODE, tProjectedVals);
+
         /*
          * *****************************************
          * determine intersection location
@@ -167,6 +191,8 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
 
 
         //------------------------------------------------------------------------------
+//        std::string tOutputFile = "./discrete_functionalities.exo";
+//        tMesh2D_Quad4->create_output_mesh(tOutputFile);
         delete tMesh2D_Quad4;
     }
 }

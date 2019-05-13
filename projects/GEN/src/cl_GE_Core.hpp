@@ -59,7 +59,7 @@ namespace moris
 			 */
 			void
 			set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
-			                                          real   aThreshold   = 0.0 );
+			                                     real   aThreshold   = 0.0 );
 
 //------------------------------------------------------------------------------
             /**

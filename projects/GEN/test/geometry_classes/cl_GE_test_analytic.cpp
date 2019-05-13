@@ -92,6 +92,26 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
             tMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
             //------------------------------------------------------------------------------
+            // declare scalar node field for the circle LS
+            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+            std::string tFieldName = "circle";
+            tNodeField1.set_field_name(tFieldName);
+            tNodeField1.set_field_entity_rank(EntityRank::NODE);
+
+            moris::mtk::Scalar_Field_Info<DDRMat> tNodeField2;
+            std::string tFieldName1 = "projectionVals";
+            tNodeField2.set_field_name(tFieldName1);
+            tNodeField2.set_field_entity_rank(EntityRank::NODE);
+
+            // initialize field information container
+            moris::mtk::MtkFieldsInfo tFieldsInfo;
+            // Place the node field into the field info container
+            add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+            add_field_for_mesh_input(&tNodeField2,tFieldsInfo);
+
+            // declare some supplementary fields
+            tMeshData.FieldsInfo = &tFieldsInfo;
+
             mtk::Mesh* tMesh2D_Quad4 = create_mesh( MeshType::STK, tMeshData );
 
             Matrix< DDRMat > tTMatrix( 4,4, 0.0 ); //T-matrix to be used for L2 projection
@@ -120,13 +140,6 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             GE_Core tGeometryEngine;
             tGeometryEngine.set_geometry(tGeom1);
 
-
-
-
-
-
-
-
             // determine LS values at the nodes
             Matrix< DDRMat > tLSVals(4,1,0.0);
             Cell< Matrix<DDRMat > > tSensitivities(4);
@@ -137,6 +150,7 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
                 tLSVals(i,0)      = tGeometryEngine.get_geometry_pointer(0)->get_field_val_at_coordinate( tMesh2D_Quad4->get_node_coordinate(i), tCircleInputs );
                 tSensitivities(i) = tGeometryEngine.get_geometry_pointer(0)->get_sensitivity_dphi_dp_at_coordinate( tMesh2D_Quad4->get_node_coordinate(i), tCircleInputs );
             }
+            tMesh2D_Quad4->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);
             /*
              * --------------------------------------------------------
              * check determined values
@@ -175,13 +189,16 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
                                                                          fem::Integration_Order::QUAD_2x2,
                                                                          fem::Interpolation_Type::LAGRANGE,
                                                                          mtk::Interpolation_Order::LINEAR );
-            Matrix< DDRMat > tPhi = tTMatrix*tADVs;
-            CHECK( equal_to( tPhi( 0,0 ), -0.36 ) );
-            CHECK( equal_to( tPhi( 1,0 ),  0.64 ) );
-            CHECK( equal_to( tPhi( 2,0 ),  1.64 ) );
-            CHECK( equal_to( tPhi( 3,0 ),  0.64 ) );
+            Matrix< DDRMat > tProjectedVals = tTMatrix*tADVs;
+            tMesh2D_Quad4->add_mesh_field_real_scalar_data_loc_inds(tFieldName1, EntityRank::NODE, tProjectedVals);
+            CHECK( equal_to( tProjectedVals( 0,0 ), -0.36 ) );
+            CHECK( equal_to( tProjectedVals( 1,0 ),  0.64 ) );
+            CHECK( equal_to( tProjectedVals( 2,0 ),  1.64 ) );
+            CHECK( equal_to( tProjectedVals( 3,0 ),  0.64 ) );
 
             //------------------------------------------------------------------------------
+//            std::string tOutputFile = "./analytic_functionalities_2D.exo";
+//            tMesh2D_Quad4->create_output_mesh(tOutputFile);
             //cleanup
             delete tMesh2D_Quad4;
 

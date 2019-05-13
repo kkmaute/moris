@@ -269,40 +269,29 @@ The following modules introduce the XTK and its core functionalities.
         
 //------------------------------------------------------------------------------
 
-/** @defgroup GeomEng Geometry Engine
+/** @defgroup GeomEng Geometry Engine Module
 	
-This module discusses the functionality of the geometry engine (GE). The GE serves as the interface between a background mesh(s) and a known geometry(s).
-Essentially, the GE sets up the Finite Element problem as it describes the geometry and fields of interest, where a field can be defined by a level set 
-field, a density field, or some other design variable. 
+This module discusses the functionality of the geometry engine (GE). The GE serves as a query of information about the geometries and fields of interest;
+where a field can be defined by a level set, a density field, or some other design variable. When asked about a certain geometry or field, the GE will return the queried 
+information directly, or an object containing all the information will be returned.  
 
-The GE looks through the element list of the background mesh and flags those elements which intersect with the known geometries. This information 
-is then used by a refinement module, say XTK or HMR, to adjust the mesh accordingly.
+        @addtogroup GE_overview
+        @ingroup GeomEng	
 
-In addition, the GE accepts a background grid entity argument, say an element edge, and returns the intersection point of the known geometry with 
-the background grid entity at a given time step. 
-
-  
-		
-		@addtogroup GE_overview
-		@ingroup GeomEng
-	
-		@defgroup GE_tutorials GE Tutorials
 		@addtogroup GE_tutorials
 		@ingroup GeomEng  
 		
 		- GE_tutorial_1.cpp
-    
-        @addtogroup GE_main_class
+
+        @addtogroup GE_core
 		@ingroup GeomEng	
-		
-		@addtogroup GE_base_class
-		@ingroup GeomEng
 		
 		@addtogroup GE_factory
 		@ingroup GeomEng
-		
+
 
 */
+
 //------------------------------------------------------------------------------ 
         
     /** @defgroup MSIfc Model-Solver Interface Module

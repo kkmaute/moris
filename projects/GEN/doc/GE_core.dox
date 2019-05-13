@@ -1,0 +1,10 @@
+namespace moris {
+namespace ge {
+
+/** @defgroup GE_core Core 
+
+Stuff about the GE core functionalities
+
+*/
+}
+}

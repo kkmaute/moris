@@ -237,7 +237,7 @@ option(BUILD_STK "Build the STK executable." OFF)
 
 option(BUILD_TOL "Build the tools executable." OFF)
 
-option(BUILD_TSA "Build the tools executable." OFF)
+option(BUILD_TSA "Build the time solver algebra executable." OFF)
 
 option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 

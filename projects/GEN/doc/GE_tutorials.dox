@@ -1,12 +1,11 @@
 namespace moris {
+namespace ge {
 
-/** @defgroup GE_tutorials GE Tutorials
+/** @defgroup GE_tutorials Tutorials
 	     
 	Tutorials for using the GE module:
 	
-	1)  In the first tutorial, we setup a background mesh and add two simple geometries. 		
-		Once the geometries are added, a field is placed on the background mesh which flags
-		those elements which intersect either (or both) of the defined geometries.
+	1)  The first tutorial...
 	
 	2)	The second tutorial ...
 	
@@ -16,4 +15,4 @@ namespace moris {
 	
 */
 }
-
+}

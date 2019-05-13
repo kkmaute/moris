@@ -1,18 +1,20 @@
 namespace moris {
+namespace ge {
 
-/** @defgroup GE_factory GE Factory 
+/** @defgroup GE_factory Factory 
 
-    The factory class is where the flagging method is determined. From the factory, the user can choose
-    to flag the elements for refinement. 
+    The factory class is where the geometry representation object is created. All geometry representations inherit 
+    from the geometry base class.
     
     Currently, the factory contains the options:
     
-    1) Signed Distance Field (SDF)
+    1) Level Set
     
-    2) Level Set Method (LS)
-    
-    3) Analytical Functions (Analytical) 
+        1.1) Analytic Geometry Representation
+  
+        1.2) Discrete Geometry Representation
 
 
 */
+}
 }
