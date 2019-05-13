@@ -752,6 +752,38 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
+    uint
+    Mesh_Core_STK::get_num_fields(  const enum EntityRank aEntityRank ) const
+    {
+        stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aEntityRank);
+        const stk::mesh::FieldVector & tFieldVector = mSTKMeshData->mMtkMeshMetaData->get_fields(tEntityRank);
+        return tFieldVector.size();
+    }
+
+    moris_index
+    Mesh_Core_STK::get_field_ind(
+            const std::string & aFieldLabel,
+            const enum EntityRank aEntityRank ) const
+    {
+        stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aEntityRank);
+        const stk::mesh::FieldVector & tFieldVector = mSTKMeshData->mMtkMeshMetaData->get_fields(tEntityRank);
+
+        moris_index tFieldIndex = MORIS_INDEX_MAX;
+        for(moris::uint i = 0; i < tFieldVector.size(); i++)
+        {
+            if(tFieldVector[i]->name().compare(aFieldLabel) == 0)
+            {
+                tFieldIndex = i;
+                break;
+            }
+        }
+
+        MORIS_ERROR(tFieldIndex != MORIS_INDEX_MAX, "Field not found in get_field_ind()");
+        return tFieldIndex;
+    }
+
+    // ----------------------------------------------------------------------------
+
     Matrix< DDRMat >
     Mesh_Core_STK::get_entity_field_value_real_scalar(Matrix< IndexMat > const & aEntityIndices,
                                                  std::string        const & aFieldName,
