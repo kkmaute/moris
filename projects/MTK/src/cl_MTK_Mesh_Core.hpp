@@ -13,7 +13,7 @@
 
 #include "cl_Mesh_Enums.hpp"
 #include "MTK_Tools.hpp"
-#include "cl_MTK_Facet_Cluster.hpp"
+#include "cl_MTK_Side_Cluster.hpp"
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
@@ -579,30 +579,6 @@ public:
 
     //------------------------------------------------------------------------------
 
-    /*
-     * Get the a face cluster (provided a parent face index)
-     */
-    virtual
-    Facet_Cluster const &
-    get_face_cluster(moris_index aParentFaceIndex)
-    {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (register_face_cluster is not implemented)");
-        return mDummyFaceCluster;
-    }
-
-    //------------------------------------------------------------------------------
-
-    /*
-     * Manually add a face cluster to mesh.
-     */
-    virtual
-    void
-    register_face_cluster(Facet_Cluster & aFaceCluster)
-    {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (register_face_cluster is not implemented)");
-    }
-
-
     //------------------------------------------------------------------------------
     //##############################################
     // Cell and Vertex Pointer Functions
@@ -1063,7 +1039,6 @@ protected:
     mtk::Cell*       mDummyCells;
     real             mDummyReal = 0.0;
     Matrix<DDRMat>   mDummyMatrix;
-    Facet_Cluster    mDummyFaceCluster;
 
     //! ref to hmr object
     std::shared_ptr< hmr::Database > mDatabase;

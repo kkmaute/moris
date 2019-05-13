@@ -51,7 +51,7 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
             uint NumElements = Mesh1->get_num_entities(EntityRank::ELEMENT);
             uint NumNodes    = Mesh1->get_num_entities(EntityRank::NODE);
 
-            CHECK( moris::equal_to(NumElements, 8) );
+            CHECK( moris::equal_to(NumElements, (uint)8) );
             CHECK( moris::equal_to(NumNodes, 27) );
 
             // ===================================================
