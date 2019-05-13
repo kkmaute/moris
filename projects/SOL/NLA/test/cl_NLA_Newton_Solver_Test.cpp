@@ -365,6 +365,53 @@ namespace moris
         }
     }
 
+    TEST_CASE("Newton Solver Test Amesos","[NLA],[NLA_Test_Amesos]")
+    {
+          if ( par_size() == 1 )
+          {
+        Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 2, 1, 1, 1, test_residual1, test_jacobian1, test_topo1 );
+
+        dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+        Nonlinear_Solver  tNonLinSolManager;
+
+        Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
+
+        Nonlinear_Solver_Factory tNonlinFactory;
+        std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::NEWTON_SOLVER );
+
+        tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
+
+        tNonlLinSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+        tNonlLinSolverAlgorithm->set_param("NLA_hard_break") = false;
+        tNonlLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+        tNonlLinSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+
+        tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
+
+        dla::Solver_Factory  tSolFactory;
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AMESOS_IMPL );
+
+        tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
+        tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
+
+        tNonLinSolManager.solve( tNonlinearProblem );
+
+        Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
+        tGlobalIndExtract( 1, 0 ) = 1;
+        Matrix< DDRMat > tMyValues;
+
+        tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues);
+
+        CHECK( equal_to( tMyValues( 0, 0 ), 0.04011965, 1.0e+08 ) );
+        CHECK( equal_to( tMyValues( 1, 0 ), 0.0154803, 1.0e+08 ) );
+
+        delete( tNonlinearProblem );
+        delete( tLinSolManager );
+        delete( tSolverInput );
+        }
+    }
+
     TEST_CASE("Newton Solver Test Petsc","[NLA],[NLA_Test_Petsc]")
     {
         if ( par_size() == 1 )

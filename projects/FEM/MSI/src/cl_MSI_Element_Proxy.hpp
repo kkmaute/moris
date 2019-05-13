@@ -12,7 +12,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Node.hpp"         //FEM/INT/src
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 #include "cl_Vector.hpp"
 
 namespace moris
@@ -24,7 +24,7 @@ namespace moris
     private:
         Matrix< DDRMat > ( *mFunction )( Matrix< DDRMat > tMyValues, const moris::uint aEquationObjectInd );
 
-        fem::Element_Block * mElementBlock;
+        fem::Set * mElementBlock;
 
     protected:
 

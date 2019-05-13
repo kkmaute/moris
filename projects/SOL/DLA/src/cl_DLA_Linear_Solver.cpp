@@ -33,8 +33,8 @@ Linear_Solver::Linear_Solver()
     this->set_linear_solver_manager_parameters();
 }
 
-Linear_Solver::~Linear_Solver()
-{}
+//Linear_Solver::~Linear_Solver()
+//{}
 
 //--------------------------------------------------------------------------------------------------
 void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )

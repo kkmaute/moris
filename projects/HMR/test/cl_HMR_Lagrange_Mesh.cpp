@@ -18,7 +18,7 @@
 using namespace moris;
 using namespace hmr;
 
-TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr]")
+TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
 {
 //-------------------------------------------------------------------------------
 

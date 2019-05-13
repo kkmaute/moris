@@ -172,7 +172,7 @@ namespace moris
 
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
 
-        Equation_Block tEqnBlock;
+        Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         EquObj.mEquationBlock = &tEqnBlock;
 
@@ -268,7 +268,7 @@ namespace moris
 
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
 
-        Equation_Block tEqnBlock;
+        Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         EquObj.mEquationBlock = &tEqnBlock;
 
@@ -365,7 +365,7 @@ namespace moris
 
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
 
-        Equation_Block tEqnBlock;
+        Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         EquObj.mEquationBlock = &tEqnBlock;
 

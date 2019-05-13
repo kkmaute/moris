@@ -10,7 +10,7 @@
 
 #include "dlfcn.h"
 
-#include "../../GEN/src/cl_GE_Core.hpp"
+#include "../projects/GEN/src/cl_GE_Core.hpp"
 #include "typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
@@ -1339,20 +1339,47 @@ namespace moris
             //-----------------------------------------------------------------------------
             if(  mParameters->get_renumber_lagrange_nodes() )
             {
-                Matrix< DDRMat >tTempValues = tValues;
+                Matrix< DDRMat > tTempValues = tValues;
                 Matrix< DDSMat > tReverseMap;
+
                 // load values into field
                 herr_t tStatus = 0;
                 hid_t tHDF5File = open_hdf5_file( "Reverse_Map_1.hdf5" );
                 load_matrix_from_hdf5_file( tHDF5File, "Id", tReverseMap, tStatus );
                 close_hdf5_file( tHDF5File );
 
+                // check that the map has the correct size
+                MORIS_ERROR( tNumberOfNodes == (uint)tReverseMap.size(0) - 1,
+                        "Number of Nodes does not match between Reverse_Map_1.hdf5 field mesh: %-5i versus %-5i.", tNumberOfNodes, tReverseMap.size(0));
+
+                // check that the entries in the map are such that they do not exceed the size of the target vector
+                MORIS_ERROR( (uint)tReverseMap.max() <= tNumberOfNodes,
+                         "Maximum entry in reverse map (%i) is larger than size of field array (%i).", tNumberOfNodes, tReverseMap.size(0) );
+
+                // initialize target vector with real_max such that we can check later that all entries in the target vector received values from the source
+                tValues.fill(MORIS_REAL_MAX);
+
+                // loop over all nodes in mesh
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
-                    tValues( tReverseMap( k ) ) = tTempValues( k );
+                    // check that map is valid
+                    if ( tReverseMap( k ) >= 0 )
+                    {
+                        tValues( tReverseMap( k ) ) = tTempValues( k );
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "Reverse map (%i) points to negative index.", k );
+                    }
+                }
+
+                // check that all entries in target vector received values from source vector
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    MORIS_ERROR( tValues( k ) < MORIS_REAL_MAX,
+                            "Map did not cover component %i of vecto tValues: %e", k, tValues( k ));
                 }
             }
-
 
             //------------------------------------------------------------------------------
 

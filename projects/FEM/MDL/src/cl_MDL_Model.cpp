@@ -18,7 +18,7 @@
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -151,7 +151,7 @@ namespace moris
 
             // create new fem element block
             moris::uint tElementBlockCounter = 0;
-            mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tBlockSetCells, fem::Element_Type::BULK, mIWGs( 0 ), mNodes );
+            mElementBlocks( tElementBlockCounter ) = new fem::Set( tBlockSetCells, fem::Element_Type::BULK, mIWGs( 0 ), mNodes );
 
             mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
@@ -177,7 +177,7 @@ namespace moris
                 // get the treated sideset elements and ordinals
                 tInterpolationMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
 
-                mElementBlocks( tElementBlockCounter ) = new fem::Element_Block( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );
+                mElementBlocks( tElementBlockCounter ) = new fem::Set( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );
 
                 mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
 
@@ -338,11 +338,11 @@ namespace moris
                 tIWG.clear();
             }
 
-            // delete elements
-            for( auto tElement : mElements )
-            {
-                delete tElement;
-            }
+//            // delete elements
+//            for( auto tElement : mElements )
+//            {
+//                delete tElement;
+//            }
 
             // delete nodes
             for( auto tNode : mNodes )

@@ -43,7 +43,7 @@
 using namespace moris;
 using namespace hmr;
 
-TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr]")
+TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 {
     // get root from environment
     std::string tMorisRoot = std::getenv("MORISROOT");

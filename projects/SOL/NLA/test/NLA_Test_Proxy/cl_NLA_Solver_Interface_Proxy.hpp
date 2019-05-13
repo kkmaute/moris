@@ -72,6 +72,8 @@ namespace NLA
 
         void set_solution_vector( Dist_Vector * aSolutionVector );
 
+        void free_block_memory( const uint aBlockInd ){};
+
         // ----------------------------------------------------------------------------------------------
 
         void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
@@ -104,8 +106,19 @@ namespace NLA
         // number of elements on proc
         uint get_num_my_elements(){return mNumElements; };
 
+        uint get_num_my_blocks(){return 1; };
+
+        uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements; };
+
         // ----------------------------------------------------------------------------------------------
         void get_element_matrix(const uint             & aMyElementInd,
+                                      Matrix< DDRMat > & aElementMatrix)
+        {
+            aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
+        };
+
+        void get_element_matrix(const uint             & aMyBlockInd,
+                                const uint             & aMyElementInd,
                                       Matrix< DDRMat > & aElementMatrix)
         {
             aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
@@ -118,11 +131,25 @@ namespace NLA
             aElementTopology = mFunctionTopology( mNX, mNY, aMyElementInd );
         };
 
+        void  get_element_topology(const uint             & aMyBlockInd,
+                                   const uint             & aMyElementInd,
+                                         Matrix< DDSMat > & aElementTopology)
+        {
+            aElementTopology = mFunctionTopology( mNX, mNY, aMyElementInd );
+        };
+
         // ----------------------------------------------------------------------------------------------
         Matrix< DDUMat > get_constr_dof(){ return mMyConstraintDofs; };
 
         // ----------------------------------------------------------------------------------------------
         void get_element_rhs( const uint             & aMyElementInd,
+                                    Matrix< DDRMat > & aElementRHS )
+        {
+            aElementRHS = mFunctionRes( mNX, mNY, mLambda, mMySolVec, aMyElementInd );
+        };
+
+        void get_element_rhs( const uint             & aMyBlockInd,
+                              const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS )
         {
             aElementRHS = mFunctionRes( mNX, mNY, mLambda, mMySolVec, aMyElementInd );

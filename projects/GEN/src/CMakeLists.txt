@@ -27,7 +27,8 @@ set(GEN_INCLUDES
     ${IOS}
     ${MTK}
     ${COM}
-    ${FEM}/${INT} # for L2
+    ${FEM}
+    ${FEM}/${INT}  # for L2
     )
 
 foreach(GEN_INCLUDE ${GEN_INCLUDES})
@@ -42,7 +43,6 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 
 # List library source files
 set(LIB_SOURCES
-    cl_GE_Core.cpp
     cl_GE_Factory.cpp
     cl_GE_Interface.cpp
     cl_GE_SDF.cpp

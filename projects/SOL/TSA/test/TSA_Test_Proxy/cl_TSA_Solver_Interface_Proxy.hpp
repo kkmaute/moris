@@ -61,6 +61,8 @@ namespace tsa
 
         void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector );
 
+        void free_block_memory( const uint aBlockInd ){};
+
         void set_time( const Matrix< DDRMat> & aTime )
         {
             mT = aTime;
@@ -113,6 +115,10 @@ namespace tsa
             return mNumElements=1;
         };
 
+        uint get_num_my_blocks(){return 1; };
+
+        uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements=1; };
+
         // ----------------------------------------------------------------------------------------------
         void get_element_matrix(const uint             & aMyElementInd,
                                       Matrix< DDRMat > & aElementMatrix)
@@ -120,7 +126,15 @@ namespace tsa
                 mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
                 aElementMatrix.resize(1, 1);
                 aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+        };
 
+        void get_element_matrix(const uint             & aMyBlockInd,
+                                const uint             & aMyElementInd,
+                                      Matrix< DDRMat > & aElementMatrix)
+        {
+                mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+                aElementMatrix.resize(1, 1);
+                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
         };
 
         // ----------------------------------------------------------------------------------------------
@@ -129,7 +143,14 @@ namespace tsa
         {
                 aElementTopology.resize(1,1);
                 aElementTopology(0,0)=0;
+        };
 
+        void  get_element_topology(const uint             & aMyBlockInd,
+                                   const uint             & aMyElementInd,
+                                         Matrix< DDSMat > & aElementTopology)
+        {
+                aElementTopology.resize(1,1);
+                aElementTopology(0,0)=0;
         };
 
         // ----------------------------------------------------------------------------------------------
@@ -137,6 +158,10 @@ namespace tsa
 
         // ----------------------------------------------------------------------------------------------
         void get_element_rhs( const uint             & aMyElementInd,
+                                    Matrix< DDRMat > & aElementRHS );
+
+        void get_element_rhs( const uint             & aMyBlockInd,
+                              const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------

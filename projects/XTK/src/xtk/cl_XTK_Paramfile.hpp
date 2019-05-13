@@ -208,7 +208,7 @@ private:
 
       else
       {
-        MORIS_ERROR(0,"Geometry str not recognized: %s.", aGeometryStr);
+        MORIS_ERROR(0,"Geometry str not recognized: %s.", aGeometryStr.c_str());
         return Geometry_Type::INVALID;
       }
     }
@@ -226,7 +226,7 @@ private:
       }
       else
       {
-        MORIS_ERROR(0,"Decomposition str not recognized: %s. Please use Hex8 Regular Subdivision or Tet4 Node Hierarchy.", aDecompStr);
+        MORIS_ERROR(0,"Decomposition str not recognized: %s. Please use Hex8 Regular Subdivision or Tet4 Node Hierarchy.", aDecompStr.c_str());
         return Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8;
       }
     }

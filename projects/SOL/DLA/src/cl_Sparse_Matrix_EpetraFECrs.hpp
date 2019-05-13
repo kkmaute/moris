@@ -52,7 +52,7 @@ public:
                           const moris::Matrix< DDSMat > & aCols )
 	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::fill_matrix_row: not set yet with epetra"); };
 
-    void matrix_global_asembly();
+    void matrix_global_assembly();
 
     void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );
