@@ -52,25 +52,39 @@ public :
         return tMaxNumGlobalDofs;
     };
 
+    void free_block_memory( const uint aBlockInd ){};
+
     // ----------------------------------------------------------------------------------------------
     // local-to-global map
     Matrix< DDSMat > get_my_local_global_map(){ return mMyGlobalElements; };
 
     // ----------------------------------------------------------------------------------------------
-    // element dofs
-    uint get_num_element_dof(){return mNumDofsPerElement; };
+    // number of elements on proc
+    uint get_num_my_blocks(){return 1; };
 
-    // ----------------------------------------------------------------------------------------------
     // number of elements on proc
     uint get_num_my_elements(){return mNumElements; };
 
+    // number of elements on proc
+    uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements; };
+
     // ----------------------------------------------------------------------------------------------
-    void get_element_matrix(const uint  & aMyElementInd,
-                            Matrix< DDRMat > & aElementMatrix)
+    void get_element_matrix(const uint             & aMyElementInd,
+                                  Matrix< DDRMat > & aElementMatrix)
+    { aElementMatrix = mElementMatrixValues; };
+
+    void get_element_matrix(const uint             & aMyBlockInd,
+                            const uint             & aMyElementInd,
+                                  Matrix< DDRMat > & aElementMatrix)
     { aElementMatrix = mElementMatrixValues; };
 
     // ----------------------------------------------------------------------------------------------
     void  get_element_topology(const uint             & aMyElementInd,
+                                     Matrix< DDSMat > & aElementTopology)
+    { aElementTopology = mEleDofConectivity; };
+
+    void  get_element_topology(const uint             & aMyBlockInd,
+                               const uint             & aMyElementInd,
                                      Matrix< DDSMat > & aElementTopology)
     { aElementTopology = mEleDofConectivity; };
 
@@ -79,7 +93,12 @@ public :
 
     // ----------------------------------------------------------------------------------------------
     void get_element_rhs(const uint            & aMyElementInd,
-                         Matrix< DDRMat >           & aElementRHS )
+                         Matrix< DDRMat >      & aElementRHS )
+    { aElementRHS = mMyRHSValues; };
+
+    void get_element_rhs(const uint            & aMyBlockInd,
+                         const uint            & aMyElementInd,
+                         Matrix< DDRMat >      & aElementRHS )
     { aElementRHS = mMyRHSValues; };
 
     // ----------------------------------------------------------------------------------------------

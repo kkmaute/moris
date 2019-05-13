@@ -61,13 +61,32 @@ public:
     virtual void perform_mapping(  )
     { MORIS_ERROR( false, "Solver_Interface::perform_mapping: not implemented."); };
 
+    virtual void free_block_memory( const uint aBlockInd )         =0;
+
     virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
     { MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set."); };
 
     // local dimension of the problem
-    virtual moris::uint             get_num_my_dofs()         =0;
+    virtual moris::uint get_num_my_dofs()         =0;
 
     virtual uint get_max_num_global_dofs() = 0;
+
+    // number local elements blocks
+    virtual moris::uint get_num_my_blocks()
+    {
+        MORIS_ERROR( false, "Solver_Interface::get_num_my_blocks: not set.");
+        return 0;
+    };
+
+    virtual moris::uint get_num_my_elements_on_block( uint aBlockInd )
+    {
+        MORIS_ERROR( false, "Solver_Interface::get_num_my_blocks: not set.");
+        return 0;
+    };
+
+
+    // number local elements
+    virtual moris::uint             get_num_my_elements()     =0;
 
     // local-to-global map
     virtual moris::Matrix< DDSMat > get_my_local_global_map() =0;
@@ -79,30 +98,27 @@ public:
         return aMat;
     };
 
-    // number local elements
-    virtual moris::uint             get_num_my_elements()     =0;
-
     virtual moris::Matrix< DDUMat > get_constr_dof()          =0;
 
-//    virtual moris::Matrix< DDSMat > & get_time_level_Ids_minus()
-//    {
-//        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_minus: not set.");
-//        return mMat5;
-//    };
-//
-//    virtual moris::Matrix< DDSMat > & get_time_level_Ids_plus()
-//    {
-//        MORIS_ERROR( false, "Solver_Interface::get_time_level_Ids_plus: not set.");
-//        return mMat5;
-//    };
-
     virtual void get_element_matrix(const moris::uint             & aMyElementInd,
+                                          moris::Matrix< DDRMat > & aElementMatrix) =0;
+
+    virtual void get_element_matrix(const moris::uint             & aMyBlockInd,
+                                    const moris::uint             & aMyElementInd,
                                           moris::Matrix< DDRMat > & aElementMatrix) =0;
 
     virtual void get_element_topology(const moris::uint             & aMyElementInd,
                                             moris::Matrix< DDSMat > & aElementTopology) =0;
 
+    virtual void get_element_topology(const moris::uint             & aMyBlockInd,
+                                      const moris::uint             & aMyElementInd,
+                                            moris::Matrix< DDSMat > & aElementTopology) = 0;
+
     virtual void get_element_rhs(const moris::uint             & aMyElementInd,
+                                       moris::Matrix< DDRMat > & aElementRHS ) =0;
+
+    virtual void get_element_rhs(const moris::uint             & aMyBlockInd,
+                                 const moris::uint             & aMyElementInd,
                                        moris::Matrix< DDRMat > & aElementRHS ) =0;
 
     //------------------------------------------------------------

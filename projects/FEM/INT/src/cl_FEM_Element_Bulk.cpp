@@ -2,7 +2,7 @@
 
 #include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"   //FEM/INT/src
-#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
+#include "cl_FEM_Set.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -12,7 +12,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element_Bulk::Element_Bulk( mtk::Cell    const * aCell,
-                                    Element_Block      * aElementBlock,
+                                    Set                * aElementBlock,
                                     Cluster            * aCluster ) : Element( aCell, aElementBlock, aCluster )
         {
         }

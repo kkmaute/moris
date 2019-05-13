@@ -160,6 +160,26 @@ Nonlinear_Problem::~Nonlinear_Problem()
     if( mIsMasterSystem )
     {
         delete( mFullVector );
+
+        delete( mJacVals );
+        delete( mJacVals0 );
+        delete( mDTildeVec );
+        delete( mDTilde0Vec );
+        delete( mDK );
+        delete( mDSolve );
+        delete( mDSolveNMinus1 );
+        delete( mDSolveNMinus2 );
+        delete( mGlobalRHS );
+        delete( mDFArcDDeltaD );
+        delete( mDelLamNum );
+        delete( mDelLamDen );
+        delete( mDeltaD );
+        delete( mdeltaD );
+        delete( mFext );
+
+        delete( mJacobian );
+
+
     }
 
     if ( mMapType == MapType::Petsc)

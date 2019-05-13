@@ -217,6 +217,10 @@ namespace moris
 
             tModel->output_solution( tFieldName1 );
 
+            delete tModel;
+            delete tInterpMesh1;
+            delete tIntegMesh1;
+
         }/* if( par_size() */
     }
 

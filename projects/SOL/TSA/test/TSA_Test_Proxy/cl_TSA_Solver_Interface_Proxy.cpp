@@ -45,6 +45,22 @@ void TSA_Solver_Interface_Proxy::get_element_rhs( const uint             & aMyEl
     aElementRHS.resize(1,1);
     aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
 }
+
+void TSA_Solver_Interface_Proxy::get_element_rhs( const uint             & aMyBlockInd,
+                                                  const uint             & aMyElementInd,
+                                                     Matrix< DDRMat > & aElementRHS )
+{
+    Matrix< DDRMat > tMat;
+    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
+    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
+
+    //print(mMySolVecPrev,"mMySolVecPrev");
+    //print(mMySolVec,"mMySolVec");
+    mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+    aElementRHS.resize(1,1);
+    aElementRHS(0,0)= ( mk + 1/(  mDeltaT ) ) * mMySolVec( 0,0 ) - mMySolVecPrev( 1, 0 )/( mDeltaT ) - mk * std::cos( mT( 1, 0 ) );
+}
+
  moris::Matrix< DDSMat > & TSA_Solver_Interface_Proxy::get_time_level_Ids_minus()
 {
     mTimeLevelIdsMinus.set_size( 1, 1, 0 );
