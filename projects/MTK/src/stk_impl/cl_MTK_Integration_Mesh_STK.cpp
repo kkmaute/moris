@@ -304,7 +304,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
                 // construct a trivial side cluster
                 moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                mSideSets(i).push_back(Side_Cluster_STK(tInterpCell));
+                mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell),tSideOrdsInSet(iIGCell)));
             }
         }
         else
@@ -361,7 +361,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
                     // construct a trivial side cluster
                     moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                    mSideSets(i).push_back(Side_Cluster_STK(tInterpCell));
+                    mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell),tSideOrdsInSet(iIGCell)));
                 }
             }
 

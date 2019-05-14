@@ -33,22 +33,46 @@ public:
     // Cell Side Ordinals/Vertex Access
     // (Pure Virtual)
     //##############################################
+    /*!
+     * Indicates there is a 1 to 1 relationship between
+     * integration cell and interpolation cells in this cluster
+     */
     virtual
     bool
     is_trivial() const  = 0;
 
+    /*!
+     * Get interpolation cell interpolating into this side cluster
+     */
     virtual
     moris::mtk::Cell const &
     get_interpolation_cell() const = 0;
 
+    /*!
+     * Get all integration cells in this side cluster
+     */
     virtual
     moris::Cell<mtk::Cell const *> const &
     get_cells_in_side_cluster() const = 0;
 
+    /*!
+     * Return all integration cell side ordinals in cluster
+     */
     virtual
     moris::Matrix<moris::IndexMat>
     get_cell_side_ordinals() const  = 0;
 
+    /*!
+     * Single side ordinal version of above
+     */
+    virtual
+    moris_index
+    get_cell_side_ordinal(moris::moris_index aCellIndexInCluster) const = 0;
+
+
+    /*!
+     * Returns all the vertices in this cluster
+     */
     virtual
     moris::Cell<moris::mtk::Vertex const *> const &
     get_vertices_in_cluster() const = 0;
@@ -57,13 +81,31 @@ public:
     // Local Coordinate Access
     // (Pure Virtual)
     //##############################################
+
+    /*
+     * Access the full array of local coordinates
+     */
     virtual
     moris::Matrix<moris::DDRMat> const &
     get_vertices_local_coordinates_wrt_interp_cell() const = 0;
 
-//    virtual
-//    moris::Matrix<moris::DDRMat>
-//    get_vertex_local_coordinates_wrt_interp_cell(moris::mtk::Vertex const * aVertex) const = 0;
+    /*
+     * Access a single local coordinate of a vertex
+     */
+    virtual
+    moris::Matrix<moris::DDRMat>
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const  = 0;
+
+    //##############################################
+    // Size Access
+    // (Pure Virtual)
+    //##############################################
+    /*!
+     * Size of the xsi vector in this side cluster
+     */
+    virtual
+    moris_index
+    get_dim_of_param_coord() const  = 0;
 
 
     // ---------------------------------------------
@@ -173,6 +215,41 @@ public:
          }
 
          return tVertexIds;
+    }
+
+    //##############################################
+    // Local Coordinate access
+    //##############################################
+
+    /*!
+     * Access an integration cells parametric coordinates on a side
+     * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
+     */
+    virtual
+    moris::Matrix<moris::DDRMat>
+    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex) const
+    {
+        MORIS_ASSERT(aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),"Integration Cell Cluster index out of bounds");
+
+        // get side ordinal of interest
+        moris_index tSideOrdinal = this->get_cell_side_ordinal(aClusterLocalIndex);
+
+        // get the integration cell of interest
+        moris::mtk::Cell const * tIntegrationCell = this->get_cells_in_side_cluster()(aClusterLocalIndex);
+
+        // get the vertex pointers on the side
+        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = tIntegrationCell->get_vertices_on_side_ordinal(tSideOrdinal);
+
+        // allocate output (nnode x dim_xsi)
+        moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnSide.size(), this->get_dim_of_param_coord());
+
+        // iterate through vertices and collect local coordinates
+        for(moris::uint i = 0; i < tVerticesOnSide.size(); i++)
+        {
+            tVertexParamCoords.get_row(i) = this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnSide(i)).get_row(0);
+        }
+
+        return tVertexParamCoords;
     }
 
     //##############################################

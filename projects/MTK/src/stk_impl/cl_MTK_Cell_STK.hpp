@@ -14,7 +14,7 @@
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_MTK_Mesh_Core.hpp"
-
+#include "cl_MTK_Tetra4_Connectivity.hpp"
 
 //------------------------------------------------------------------------------
 namespace moris
@@ -417,6 +417,35 @@ public:
             tVertexCoords.set_row(i,mCellVertices(i)->get_coords());
         }
         return tVertexCoords;
+    }
+
+    moris::Cell<moris::mtk::Vertex const *>
+    get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+    {
+        Geometry_Type tGeomType = this->get_geometry_type();
+
+        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
+
+        switch(tGeomType)
+        {
+            case(Geometry_Type::TET):
+            {
+                MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type tet");
+                moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Tetra4_Connectivity::get_node_to_face_map(aSideOrdinal);
+
+                moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(3);
+                tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+                tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+                tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+                return tVerticesOnSide;
+                break;
+            }
+
+            default:
+                MORIS_ERROR(0,"Invalid geometry type, currently only supports hex8 and tet4");
+                return moris::Cell<moris::mtk::Vertex const *>(0);
+                break;
+        }
     }
 
     //------------------------------------------------------------------------------

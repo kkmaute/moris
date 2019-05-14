@@ -206,9 +206,48 @@ TEST_CASE( "MTK Facet Cluster Proxy Implementation", "[MTK_Side_Cluster]" )
         moris::Matrix<moris::IdMat> tInterfaceVertices = tInterfaceSideClusters(0)->get_vertex_ids_in_cluster();
         CHECK(all_true(tInterfaceVertices == tInterfaceVertexIDsInCluster));
 
-        // verify local coords
+        // verify local coords all at once
         moris::Matrix<moris::DDRMat> tInterfaceParamCoords = tInterfaceSideClusters(0)->get_vertices_local_coordinates_wrt_interp_cell();
         CHECK(all_true(tInterfaceParamCoords == tInterfaceLocalCoordinatesWrtInterpCell));
+
+
+        // verify local coords one by one
+        moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster = tInterfaceSideClusters(0)->get_vertices_in_cluster();
+
+        for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
+        {
+            CHECK(tVerticesInCluster(i)->get_id() == tInterfaceVertexIDsInCluster(i));
+
+            moris::Matrix<moris::DDRMat> tVertexLocalCoord     =  tInterfaceSideClusters(0)->get_vertex_local_coordinate_wrt_interp_cell(tVerticesInCluster(i));
+            moris::Matrix<moris::DDRMat> tGoldVertexLocalCoord =  tInterfaceLocalCoordinatesWrtInterpCell.get_row(i);
+            CHECK(all_true(tVertexLocalCoord == tGoldVertexLocalCoord));
+
+
+        }
+
+        // iterate through integration cells
+
+        moris::Cell<moris::mtk::Cell const *> tCellsInCluster = tInterfaceSideClusters(0)->get_cells_in_side_cluster();
+
+        for(moris::uint  i = 0; i <tCellsInCluster.size(); i++)
+        {
+            moris::Matrix<moris::DDRMat> tCellParamCoords = tInterfaceSideClusters(0)->get_cell_local_coords_on_side_wrt_interp_cell(i);
+
+            moris::Cell<moris::mtk::Vertex const *> tVertsOnSide = tCellsInCluster(i)->get_vertices_on_side_ordinal(tInterfaceSideClusters(0)->get_cell_side_ordinal(i));
+
+            moris::Matrix<moris::DDRMat> tGoldParamCoords(3,3);
+            for(moris::uint j = 0; j<tVertsOnSide.size(); j++)
+            {
+                tGoldParamCoords.get_row(j) = tInterfaceSideClusters(0)->get_vertex_local_coordinate_wrt_interp_cell(tVertsOnSide(j)).get_row(0);
+            }
+
+            CHECK(all_true(tGoldParamCoords == tCellParamCoords));
+
+        }
+
+
+//        moris::Matrix<moris::DDRMat>   get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
+
 
         // get the fixed boundary condition
         tSideSetOrd = 1;
