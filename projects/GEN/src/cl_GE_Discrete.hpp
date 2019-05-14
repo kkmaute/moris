@@ -51,8 +51,7 @@ namespace ge
         }
         //------------------------------------------------------------------------------
         /*
-         * @brief dummy function to set the member variables,
-         *              going to merge into a single constructor through the factory
+         * @brief function to set the member variables
          *
          * param[in] - aMeshWithLevelSetFields      mtk mesh pointer with fields
          * param[in] - aFieldNames                  cell of field names

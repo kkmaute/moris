@@ -16,6 +16,8 @@ namespace ge
     {
 
     public:
+        Output_Object(){};
+
         Output_Object( Matrix< DDRMat > &aNodalADVs ) : mNodalADVs(aNodalADVs)
         {
 

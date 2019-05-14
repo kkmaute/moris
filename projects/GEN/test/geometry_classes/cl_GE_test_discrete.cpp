@@ -28,6 +28,7 @@
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 //------------------------------------------------------------------------------
 
@@ -108,8 +109,13 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
         // declare some supplementary fields
         tMeshData.FieldsInfo = &tFieldsInfo;
         //------------------------------------------------------------------------------
+        // create mesh pair
+        mtk::Interpolation_Mesh* tInterpMesh1 = create_interpolation_mesh( MeshType::STK, tMeshData );
+        mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
 
-        mtk::Mesh* tMesh2D_Quad4 = create_mesh( MeshType::STK, tMeshData );
+        // place the pair in mesh manager
+        mtk::Mesh_Manager tMeshManager;
+        uint tMeshIndex = tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
         /* **************************************
          * discretize field onto mesh
@@ -122,70 +128,83 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
         tInputs(2) = 0.6;   // radius
 
         // compute nodal circle values for mesh
-        uint tNumNodes = tMesh2D_Quad4->get_num_entities(EntityRank::NODE);
+        uint tNumNodes = tMeshManager.get_interpolation_mesh(tMeshIndex)->get_num_entities(EntityRank::NODE);
         Matrix< DDRMat > tNodeVals(1,tNumNodes);
 
         // collect nodal circle values
         for(uint i=0; i<tNumNodes; i++)
         {
-            tNodeVals(i) = circle_function( tMesh2D_Quad4->get_node_coordinate(i), tInputs );
+            tNodeVals(i) = circle_function( tMeshManager.get_interpolation_mesh(tMeshIndex)->get_node_coordinate(i), tInputs );
         }
         // add nodal circle values to mesh
-        tMesh2D_Quad4->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tNodeVals);
+        tMeshManager.get_interpolation_mesh(tMeshIndex)->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tNodeVals);
         //------------------------------------------------------------------------------
-
         /* **************************************
-         * build GE and ask questions
+         * create geometry representation
          * **************************************
          */
         Ge_Factory tFactory;
         std::shared_ptr< Geometry > circle = tFactory.set_geometry_type(type::DISCRETE);
 
-        Cell<std::string> tFields(1);   // cell of field names
-        tFields(0) = tFieldName;
-
-        circle->set_member_variables(tMesh2D_Quad4, tFields);
-
-        circle->set_mesh_and_t_matrix(tMesh2D_Quad4, tTMatrix);
-
-        GE_Core tGeometryEngine;                    // create geometry engine and set geometry
-        tGeometryEngine.set_geometry( circle );
-
-        // determine LS values at the nodes
-        Matrix< DDRMat > tLSVals(4,1,0.0);
-
-        for(uint i=0; i<tNumNodes; i++)
-        {
-            tLSVals(i,0) = tGeometryEngine.get_geometry_pointer(0)->access_field_value_with_entity_index(i,EntityRank::NODE);
-        }
-        /*
-         * *****************************************
-         * check field values
-         * *****************************************
+        /* **************************************
+         * build GE and ask questions
+         * **************************************
          */
-        CHECK( equal_to( tLSVals( 0,0 ), -0.36 ) );
-        CHECK( equal_to( tLSVals( 1,0 ),  0.64 ) );
-        CHECK( equal_to( tLSVals( 2,0 ),  1.64 ) );
-        CHECK( equal_to( tLSVals( 3,0 ),  0.64 ) );
+        GE_Core tGeometryEngine( circle, tMeshManager, tTMatrix );
+print(tGeometryEngine.get_geometry_pointer(tMeshIndex)->get_my_t_matrix(), "T matrix" );
+
+        tGeometryEngine.initialize_output_object( tMeshIndex );
 
 
 
-        Matrix< DDRMat > tADVs = tGeometryEngine.compute_nodal_advs( 0,
-                                                                     tInputs,
-                                                                     mtk::Geometry_Type::QUAD,
-                                                                     fem::Integration_Type::GAUSS,
-                                                                     fem::Integration_Order::QUAD_2x2,
-                                                                     fem::Interpolation_Type::LAGRANGE,
-                                                                     mtk::Interpolation_Order::LINEAR );
-        Matrix< DDRMat > tProjectedVals = tTMatrix*tADVs;
-        tMesh2D_Quad4->add_mesh_field_real_scalar_data_loc_inds(tFieldName1, EntityRank::NODE, tProjectedVals);
 
-        /*
-         * *****************************************
-         * determine intersection location
-         * *****************************************
-         */
-        // edge (1)
+
+
+//        Cell<std::string> tFields(1);   // cell of field names
+//        tFields(0) = tFieldName;
+//
+//        circle->set_member_variables(tMesh2D_Quad4, tFields);
+//
+//        circle->set_mesh_and_t_matrix(tMesh2D_Quad4, tTMatrix);
+//
+//        GE_Core tGeometryEngine;                    // create geometry engine and set geometry
+//        tGeometryEngine.set_geometry( circle );
+//
+//        // determine LS values at the nodes
+//        Matrix< DDRMat > tLSVals(4,1,0.0);
+//
+//        for(uint i=0; i<tNumNodes; i++)
+//        {
+//            tLSVals(i,0) = tGeometryEngine.get_geometry_pointer(0)->access_field_value_with_entity_index(i,EntityRank::NODE);
+//        }
+//        /*
+//         * *****************************************
+//         * check field values
+//         * *****************************************
+//         */
+//        CHECK( equal_to( tLSVals( 0,0 ), -0.36 ) );
+//        CHECK( equal_to( tLSVals( 1,0 ),  0.64 ) );
+//        CHECK( equal_to( tLSVals( 2,0 ),  1.64 ) );
+//        CHECK( equal_to( tLSVals( 3,0 ),  0.64 ) );
+//
+//
+//
+//        Matrix< DDRMat > tADVs = tGeometryEngine.compute_nodal_advs( 0,
+//                                                                     tInputs,
+//                                                                     mtk::Geometry_Type::QUAD,
+//                                                                     fem::Integration_Type::GAUSS,
+//                                                                     fem::Integration_Order::QUAD_2x2,
+//                                                                     fem::Interpolation_Type::LAGRANGE,
+//                                                                     mtk::Interpolation_Order::LINEAR );
+//        Matrix< DDRMat > tProjectedVals = tTMatrix*tADVs;
+//        tMesh2D_Quad4->add_mesh_field_real_scalar_data_loc_inds(tFieldName1, EntityRank::NODE, tProjectedVals);
+//
+//        /*
+//         * *****************************************
+//         * determine intersection location
+//         * *****************************************
+//         */
+//        // edge (1)
 
 
 
@@ -193,7 +212,7 @@ TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
         //------------------------------------------------------------------------------
 //        std::string tOutputFile = "./discrete_functionalities.exo";
 //        tMesh2D_Quad4->create_output_mesh(tOutputFile);
-        delete tMesh2D_Quad4;
+//        delete tMesh2D_Quad4;
     }
 }
 //------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 #ifndef PROJECTS_GEN_SRC_CL_GEOMETRY_HPP_
 #define PROJECTS_GEN_SRC_CL_GEOMETRY_HPP_
 
-// GE includes
+// ge includes
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Enums.hpp"
 #include "cl_GE_Interface.hpp"
@@ -18,6 +18,9 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_norm.hpp"
+//------------------------------------------------------------------------------
+// mtk includes
+#include "cl_MTK_Mesh_Manager.hpp"
 //------------------------------------------------------------------------------
 // other includes
 #include <cmath>
@@ -220,20 +223,19 @@ namespace ge
         //------------------------------------------------------------------------------
         /*
          * @brief set the mesh and T-matrix for the geometry representation
-         * fixme setup to do this in the constructor ( will have to go through the factory )
          */
         void
-        set_mesh_and_t_matrix(mtk::Mesh*       & aMyMesh,
-                              Matrix< DDRMat > & aMyTMatrix)
+        set_mesh_and_t_matrix(mtk::Mesh_Manager & aMyMesh,
+                              Matrix< DDRMat >  & aMyTMatrix)
         {
-            mMyMesh    = aMyMesh;
+            mMyMesh    = & aMyMesh;
             mMyTMatrix = aMyTMatrix;
         }
         //------------------------------------------------------------------------------
         /*
          * @brief returns a pointer to the geometry object's mesh
          */
-        mtk::Mesh*
+        mtk::Mesh_Manager*
         get_my_mesh()
         {
             return mMyMesh;
@@ -251,12 +253,12 @@ namespace ge
 
 	//------------------------------------------------------------------------------
     private:
-        mtk::Mesh*       mMyMesh;
-        Matrix< DDRMat > mMyTMatrix;
+        mtk::Mesh_Manager* mMyMesh;
+        Matrix< DDRMat >   mMyTMatrix;
 
         std::string mDummyReturnString;
         Cell<std::string> mDummyReturnCell;
-        mtk::Mesh* mDummyMeshPointer;
+        mtk::Mesh* mDummyMeshPointer = nullptr;
         Matrix< DDRMat > mDummyMatrix;
 	//------------------------------------------------------------------------------
     protected:

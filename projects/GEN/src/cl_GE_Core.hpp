@@ -16,42 +16,46 @@
 #include "cl_GE_Output_Object.hpp"
 //------------------------------------------------------------------------------
 // MTK includes
+#include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
+#include "cl_Mesh_Enums.hpp"
 //------------------------------------------------------------------------------
 // FEM includes
 #include "../projects/FEM/INT/src/cl_FEM_Integrator.hpp"
 #include "../projects/FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
 //------------------------------------------------------------------------------
 // LinAlg includes
+#include "cl_Matrix.hpp"
 #include "fn_linsolve.hpp"
 #include "fn_norm.hpp"
 #include "op_minus.hpp"
 #include "op_times.hpp"
-#include "cl_Matrix.hpp"
 //------------------------------------------------------------------------------
 
 namespace moris
 {
 	namespace ge
 	{
-		class GE_Core : public Geometry_Engine_Interface
+		class GE_Core
 		{
 //------------------------------------------------------------------------------
 		public:
 			GE_Core(){};
 
 			/*
-			 * initialize GE with a geometry pointer
+			 * initialize GE with a geometry pointer and its associated mesh/Tmatrix
 			 */
-			GE_Core( std::shared_ptr< Geometry > & aGeomPointer )
+			GE_Core( std::shared_ptr< Geometry > & aGeomPointer,
+			         mtk::Mesh_Manager           & aMyManager,
+			         Matrix< DDRMat >            & aMyTMatrix )
             {
-                this->set_geometry( aGeomPointer );
+                this->set_geometry( aGeomPointer,aMyManager,aMyTMatrix );
             };
 
 			~GE_Core()
 			{
 			};
-
+//------------------------------------------------------------------------------
 			/**
 			 *  @brief  set the current geometry and threshold
 			 *
@@ -61,10 +65,15 @@ namespace moris
 			 */
 			void
 			set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
-			                                     real   aThreshold   = 0.0 )
+                          mtk::Mesh_Manager           & aMyManager,
+                          Matrix< DDRMat >            & aMyTMatrix,
+			              real                          aThreshold   = 0.0 )
 			{
+			    uint tGeomInd = mListOfGeoms.size();    //index of current geometry rep.
 			    mListOfGeoms.push_back( aGeomPointer );
-			    mThresholds.push_back(aThreshold);
+			    mThresholds.push_back( aThreshold );
+
+                this->get_geometry_pointer(tGeomInd)->set_mesh_and_t_matrix( aMyManager, aMyTMatrix );
 			}
 
 //------------------------------------------------------------------------------
@@ -73,12 +82,28 @@ namespace moris
              *
              *  @param[in]   aWhichGeometry                     which geometry pointer to get
              *
-             *  @param[out]  mListOfGeoms( aWhichGeometry )     geometry class pointer
+             *  @param[out]  mListOfGeoms( aWhichGeometry )     geometry class pointer with index given
              */
 			std::shared_ptr< Geometry >
 			get_geometry_pointer( uint aWhichGeometry )
 			{
 			    return mListOfGeoms( aWhichGeometry );
+			}
+
+//------------------------------------------------------------------------------
+			/*
+			 * @brief
+			 */
+			void
+			initialize_output_object( uint aWhichGeometry )
+			{
+std::cout<<"let's start here........."<<std::endl;
+                mapper::Mapper tMyMapper( this->get_geometry_pointer(aWhichGeometry)->get_my_mesh(), aWhichGeometry );
+std::cout<<"now we get to here........."<<std::endl;
+			    std::string tSource = "circle";             // these need to be defaulted
+			    std::string tTarget = "projectionVals";     // these need to be defaulted
+			    tMyMapper.perform_mapping( tSource, EntityRank::NODE, tTarget, EntityRank::NODE );
+std::cout<<"and finish here........."<<std::endl;
 			}
 
 //------------------------------------------------------------------------------
@@ -424,13 +449,13 @@ namespace moris
                 Matrix< DDRMat > tSpaceIntegWeights = tFieldIntegrator.get_weights();
                 // evaluate LS at GP and Nodes
                 //------------------------------------------------------------------------------
-                uint tNumNodes = mListOfGeoms(aWhichGeom)->get_my_mesh()->get_num_nodes();    // determine number of nodes in mesh
+                uint tNumNodes = mListOfGeoms(aWhichGeom)->get_my_mesh()->get_interpolation_mesh(0)->get_num_nodes();    // determine number of nodes in mesh
                 Matrix< DDRMat > tTempCoord(1,2);                       // temporary coordinate used to fill coordinate matrix
                 Matrix< DDRMat > tXHat(tNumNodes,2);                    // global coordinate matrix
 
                 for (uint j=0; j<tNumNodes; j++)                        // create global coordinate matrix
                 {
-                    tTempCoord = mListOfGeoms(aWhichGeom)->get_my_mesh()->get_node_coordinate(j);
+                    tTempCoord = mListOfGeoms(aWhichGeom)->get_my_mesh()->get_interpolation_mesh(0)->get_node_coordinate(j);
                     uint k = 0;
 
                     tXHat(j,k)   = tTempCoord(0,0);
@@ -449,7 +474,7 @@ namespace moris
                 {
                     if(mListOfGeoms(aWhichGeom)->is_analytic())     // right now only implemented for analytic and discrete geometry classes
                     {
-                        tFieldValAtNodes(i) = mListOfGeoms(aWhichGeom)->get_field_val_at_coordinate( mListOfGeoms(aWhichGeom)->get_my_mesh()->get_node_coordinate(i) , aGeomParams );
+                        tFieldValAtNodes(i) = mListOfGeoms(aWhichGeom)->get_field_val_at_coordinate( mListOfGeoms(aWhichGeom)->get_my_mesh()->get_interpolation_mesh(0)->get_node_coordinate(i) , aGeomParams );
                         //evaluate space and time at xi, tau
                         tPoint   = tGeomInterpolator->valx( tSpaceIntegPoints.get_column(i) );    // N * ( x,y ) (determines global coordinates of the GPs)
 
@@ -511,12 +536,10 @@ namespace moris
         //------------------------------------------------------------------------------
 		private:
             // member variables
-            moris::Cell< std::shared_ptr< Geometry > > mListOfGeoms;
-            moris::Cell< real >                        mThresholds;
+            moris::Cell< std::shared_ptr< Geometry > >      mListOfGeoms;
+            moris::Cell< real >                             mThresholds;
+            moris::Cell< std::shared_ptr< Output_Object > > mListOfOutputObjects;
 
-            /*
-             * should also store refinement list for certain geometry (if asked)
-             */
         //------------------------------------------------------------------------------
         protected:
 
