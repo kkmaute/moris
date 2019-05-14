@@ -51,7 +51,7 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
             uint NumElements = Mesh1->get_num_entities(EntityRank::ELEMENT);
             uint NumNodes    = Mesh1->get_num_entities(EntityRank::NODE);
 
-            CHECK( moris::equal_to(NumElements, 8) );
+            CHECK( moris::equal_to(NumElements, (uint)8) );
             CHECK( moris::equal_to(NumNodes, 27) );
 
             // ===================================================
@@ -526,9 +526,20 @@ TEST_CASE("MTK Mesh from file via STK, with a fields not on the file declared","
 
     Mesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName3, EntityRank::ELEMENT,tFieldData3);
 
+
     CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName1,EntityRank::NODE)(0)==10.0);
     CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName2,EntityRank::NODE)(0)==-10.0);
     CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName3,EntityRank::ELEMENT)(0)==-11.0);
+
+    // Verify Field numbers
+    CHECK(Mesh1->get_num_fields(EntityRank::NODE) == 4); /* Two internal fields are from the exodus string*/
+    CHECK(Mesh1->get_num_fields(EntityRank::ELEMENT) == 1);
+
+    // verify ordinals
+    CHECK(Mesh1->get_field_ind(tFieldName1,EntityRank::NODE) == 2);
+    CHECK(Mesh1->get_field_ind(tFieldName2,EntityRank::NODE) == 3);
+    CHECK(Mesh1->get_field_ind(tFieldName3,EntityRank::ELEMENT) == 0);
+
 
     // output mesh
     std::string tMeshOutputFile = "./MTK_Mesh_File_Data.e";

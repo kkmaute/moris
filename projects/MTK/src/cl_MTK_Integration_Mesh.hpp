@@ -50,6 +50,17 @@ public:
     get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const = 0;
 
     //##############################################
+    // Side Set Cluster Access
+    //##############################################
+    /*!
+     * Get side clusters within a side set
+     */
+    virtual
+    moris::Cell<Side_Cluster const *>
+    get_side_set_cluster(moris_index aSideSetOrdinal) const = 0;
+
+
+    //##############################################
     // Mesh Sets Access
     //##############################################
 

@@ -313,6 +313,21 @@ public:
     //##############################################
     // Field Access
     //##############################################
+    uint
+    get_num_fields(  const enum EntityRank aEntityRank ) const;
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * return the index of the field of this label
+     * return gNoIndex if not found
+     */
+    moris_index
+    get_field_ind(
+            const std::string & aFieldLabel,
+            const enum EntityRank aEntityRank ) const;
+
+
 
     /*
      * Access an entity

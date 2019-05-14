@@ -16,6 +16,7 @@
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Cell_Cluster_Input.hpp"
+#include "cl_MTK_Side_Cluster_Input.hpp"
 
 namespace moris
 {
@@ -154,14 +155,15 @@ inline Integration_Mesh*
 create_integration_mesh(enum MeshType aMeshType,
                         MtkMeshData   aMeshData,
                         Interpolation_Mesh* aInterpMesh,
-                        Cell_Cluster_Input* aCellClusterData = nullptr)
+                        Cell_Cluster_Input* aCellClusterData = nullptr,
+                        Side_Cluster_Input* aSideClusterData = nullptr)
 {
     Integration_Mesh* tMeshBase = nullptr;
     switch (aMeshType)
     {
         case(MeshType::STK):
         {
-            tMeshBase = new Integration_Mesh_STK( aMeshData, aInterpMesh, aCellClusterData );
+            tMeshBase = new Integration_Mesh_STK( aMeshData, aInterpMesh, aCellClusterData, aSideClusterData );
             break;
         }
         default:

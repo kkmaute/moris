@@ -12,6 +12,7 @@
 #include "cl_MTK_Cell_Cluster_Input.hpp"
 #include "cl_MTK_Vertex_Proxy.hpp"
 #include "cl_MTK_Cell_Proxy.hpp"
+
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
@@ -429,13 +430,13 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         moris::uint tSpatialDim   = 3;
         moris::uint tNumElemTypes = 3;
         Matrix<IdMat> tNodeOwner(1,tNodeCoordinates.n_rows(),moris::par_rank());
-        tMeshDataInput.ElemConn(0) = &tInterpElemsAsIntegCellToNodes;
-        tMeshDataInput.ElemConn(1) = &tCellToNodePhase0;
-        tMeshDataInput.ElemConn(2) = &tCellToNodeGhost0;
+        tMeshDataInput.ElemConn(0)             = &tInterpElemsAsIntegCellToNodes;
+        tMeshDataInput.ElemConn(1)             = &tCellToNodePhase0;
+        tMeshDataInput.ElemConn(2)             = &tCellToNodeGhost0;
         tMeshDataInput.LocaltoGlobalElemMap(0) = (&tInterpElemsAsIntegCellIds);
         tMeshDataInput.LocaltoGlobalElemMap(1) = (&tCellIdsPhase0);
         tMeshDataInput.LocaltoGlobalElemMap(2) = (&tCellIdsGhost0);
-        tMeshDataInput.CreateAllEdgesAndFaces  = false;
+        tMeshDataInput.CreateAllEdgesAndFaces  = true;
         tMeshDataInput.Verbose                 = false;
         tMeshDataInput.SpatialDim              = &tSpatialDim;
         tMeshDataInput.NodeCoords              = &tNodeCoordinates;

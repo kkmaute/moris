@@ -11,6 +11,7 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_MTK_Side_Cluster.hpp"
 
 namespace moris
 {
@@ -58,8 +59,16 @@ public:
         return tCellInCluster;
     }
 
+    moris::Cell<mtk::Side_Cluster const *>
+    get_side_set_cluster(moris_index aSideSetOrdinal) const
+    {
+        MORIS_ERROR(0,"get_side_set_cluster not implemented in HMR");
+        moris::Cell<mtk::Side_Cluster const *> tSideClusters(0);
+        return tSideClusters;
+    }
+
 private:
-    mtk::Cell_Cluster * mDummyCluster = nullptr;
+    mtk::Cell_Cluster * mDummyCluster     = nullptr;
 };
 }
 }

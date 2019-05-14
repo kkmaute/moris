@@ -10,6 +10,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Cell_Cluster_STK.hpp"
+#include "cl_MTK_Side_Cluster_STK.hpp"
 namespace moris
 {
 namespace mtk
@@ -20,6 +21,8 @@ class Interpolation_Mesh;
 class MtkMeshData;
 
 class Cell_Cluster_Input;
+
+class Side_Cluster_Input;
 
 class Integration_Mesh_STK : public Mesh_Core_STK, public Integration_Mesh
 {
@@ -51,7 +54,8 @@ public:
      */
     Integration_Mesh_STK( MtkMeshData & aMeshData,
                           Interpolation_Mesh* aInterpMesh,
-                          Cell_Cluster_Input* aCellClusterData = nullptr);
+                          Cell_Cluster_Input* aCellClusterData,
+                          Side_Cluster_Input* aSideClusterData);
 
     /*!
      * Create a integration mesh from an existing interpolation mesh
@@ -89,7 +93,16 @@ public:
     }
 
     moris::Cell<Cell_Cluster const *>
-    get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const ;
+    get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const;
+
+
+    //##############################################
+    // Side Set Cluster Access
+    //##############################################
+    moris::Cell<Side_Cluster const *>
+    get_side_set_cluster(moris_index aSideSetOrdinal) const;
+
+
 
 
 private:
@@ -100,6 +113,10 @@ private:
     moris::Cell<std::string>                     mPrimaryBlockSetNames;
     moris::Cell<moris::Cell<moris::moris_index>> mPrimaryBlockSetClusters;
 
+    // side sets
+    moris::Cell<std::string>                   mSideSetNames;
+    moris::Cell<moris::Cell<Side_Cluster_STK>> mSideSets;
+
     /*!
      * Setup the clustering interface
      */
@@ -107,8 +124,18 @@ private:
     setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
                         Cell_Cluster_Input * aCellClusterInput);
 
+    /*!
+     * Setup the blocksets which contain cell clusters
+     */
     void
     setup_blockset_with_cell_clusters();
+
+    /*
+     *  setup the side set cluster interface
+     */
+    void
+    setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
+                          Side_Cluster_Input * aSideClusterInput);
 
     moris::Cell<moris::mtk::Cell const *>
     get_cell_pointers_from_ids(moris::Matrix<moris::IdMat> const & aCellIds) const;
