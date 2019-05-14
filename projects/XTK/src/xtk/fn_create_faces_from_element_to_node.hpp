@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 #include "cl_Mesh_Enums.hpp"
-#include "cl_XTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Tetra4_Connectivity.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
 namespace xtk
@@ -60,7 +60,7 @@ create_faces_from_element_to_node(enum CellTopology                        aElem
     aFaceToElement.fill(MORIS_INDEX_MAX);
 
     // TET4 specific topology map
-    moris::Matrix< moris::IndexMat > tNodeToFaceMap =  Tetra4_Connectivity::get_node_to_face_map();
+    moris::Matrix< moris::IndexMat > tNodeToFaceMap =  moris::Tetra4_Connectivity::get_node_to_face_map();
 
 
     // Single Element Face To Nodes
