@@ -142,10 +142,6 @@ Integration_Mesh_STK::setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
 
         mCellClusters.resize(tNumInterpCells);
 
-
-        //fixme: An assumption is made here that interp mesh is hex based
-        moris::Matrix<moris::DDRMat> tHexLocalCoords = {{-1, -1, -1},{ 1, -1, -1},{ 1, 1, -1},{-1, 1, -1},{-1, -1, 1},{ 1, -1, 1},{ 1, 1, 1},{-1, 1, 1}};
-
         // iterate through cells
         for(moris::uint i = 0; i <tNumInterpCells; i++)
         {
@@ -187,12 +183,6 @@ Integration_Mesh_STK::setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
                 moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
                 mtk::Cell const * tPrimaryCell = &this->get_mtk_cell(tIntegCellIndex);
                 mCellClusters(i).add_primary_integration_cell(tPrimaryCell);
-
-                moris::Matrix<IndexMat> tVertexIds  = this->get_entity_connected_to_entity_glob_ids(tCellId,EntityRank::ELEMENT,EntityRank::NODE);
-                mCellClusters(i).add_vertex_to_cluster(this->get_vertex_pointers_from_ids(tVertexIds));
-
-                mCellClusters(i).add_vertex_local_coordinates_wrt_interp_cell(tHexLocalCoords);
-
             }
         }
     }

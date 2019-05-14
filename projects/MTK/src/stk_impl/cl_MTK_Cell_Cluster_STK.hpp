@@ -10,6 +10,8 @@
 
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_Matrix.hpp"
+#include <unordered_map>
+
 
 namespace moris
 {
@@ -39,137 +41,98 @@ public:
         mVertexParamCoords(0,0)
     {};
 
+    //----------------------------------------------------------------
     bool
-    is_trivial() const
-    {
-        return mTrivial;
-    }
+    is_trivial() const;
 
     //##############################################
     // Add and setup of cluster
     //##############################################
     void
-    mark_as_nontrivial()
-    {
-        mTrivial = false;
-    }
+    mark_as_nontrivial();
+
+    //----------------------------------------------------------------
 
     void
-    set_interpolation_cell(moris::mtk::Cell const * aInterpCell)
-    {
-        MORIS_ASSERT(mInterpolationCell == nullptr,"Interpolation Cell already set");
-        mInterpolationCell = aInterpCell;
-    }
+    set_interpolation_cell(moris::mtk::Cell const * aInterpCell);
+
+    //----------------------------------------------------------------
 
     void
-    add_primary_integration_cell(moris::mtk::Cell  const * aIntegrationCell)
-    {
-        mPrimaryIntegrationCells.push_back( aIntegrationCell );
-    }
+    add_primary_integration_cell(moris::mtk::Cell  const * aIntegrationCell);
+
+    //----------------------------------------------------------------
 
     void
-    add_primary_integration_cell(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell)
-    {
-        mPrimaryIntegrationCells.append( aIntegrationCell );
-    }
+    add_primary_integration_cell(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell);
+
+    //----------------------------------------------------------------
 
     void
-    add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell)
-    {
-        mVoidIntegrationCells.append( aIntegrationCell );
-    }
+    add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell);
+
+    //----------------------------------------------------------------
 
     void
-    add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex)
-    {
-        // add vertices to map
-        moris_index tIndex = mVerticesInCluster.size();
+    add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex);
 
-        // add vertices to map
-        for(moris::uint i = 0; i <aVertex.size(); i++)
-        {
-            this->add_vertex_to_map(aVertex(i)->get_id(),tIndex);
-            tIndex++;
-        }
-
-        mVerticesInCluster.append(aVertex);
-
-    }
+    //----------------------------------------------------------------
 
     void
-    add_vertex_local_coordinates_wrt_interp_cell(moris::Matrix<moris::DDRMat> const & aLocalCoords)
-    {
-        MORIS_ASSERT(aLocalCoords.n_rows() == mVerticesInCluster.size(),"Local coordinates need to match the number of vertices in the cluster");
-        mVertexParamCoords = aLocalCoords.copy();
-    }
+    add_vertex_local_coordinates_wrt_interp_cell(moris::Matrix<moris::DDRMat> const & aLocalCoords);
 
+    //----------------------------------------------------------------
+
+    //##############################################
+    // Required Access Functions
+    //##############################################
 
     moris::Cell<moris::mtk::Cell const *> const &
-    get_primary_cells_in_cluster() const
-    {
-        return mPrimaryIntegrationCells;
-    }
+    get_primary_cells_in_cluster() const;
+
+    //----------------------------------------------------------------
 
     moris::Cell<moris::mtk::Cell const *> const &
-    get_void_cells_in_cluster() const
-    {
-        return mVoidIntegrationCells;
-    }
+    get_void_cells_in_cluster() const;
+
+    //----------------------------------------------------------------
 
     moris::mtk::Cell const &
-    get_interpolation_cell() const
-    {
-        return *mInterpolationCell;
-    }
+    get_interpolation_cell() const;
+
+    //----------------------------------------------------------------
 
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster() const
-    {
-        return mVerticesInCluster;
-    }
+    get_vertices_in_cluster() const;
+
+    //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell() const
-    {
-        return mVertexParamCoords;
-    }
+    get_vertices_local_coordinates_wrt_interp_cell() const;
+
+    //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat>
-    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
-    {
-        MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
 
-        moris_index tLocalVertIndex = this->get_vertex_cluster_local_index(aVertex->get_id());
-
-        MORIS_ASSERT( tLocalVertIndex < (moris_index)mVertexParamCoords.n_rows(),"Vertex local side cluster index out of bounds. This could be cause by not adding parametric coordinates");
-
-        return mVertexParamCoords.get_row(tLocalVertIndex);
-    }
+    //----------------------------------------------------------------
 
     moris_index
-    get_dim_of_param_coord() const
-    {
-        MORIS_ERROR(!mTrivial,"Accessing size of local coordinates on a trivial side cluster is not allowed");
-        return mVertexParamCoords.n_cols();
-    }
+    get_dim_of_param_coord() const;
 
+    //----------------------------------------------------------------
+    //##############################################
+    // Private access functions
+    //##############################################
+private:
     moris_index
-    get_vertex_cluster_local_index(moris_id aVertexId) const
-    {
-        auto tIter = mVertexIdToLocalIndex.find(aVertexId);
+    get_vertex_cluster_local_index(moris_id aVertexId) const;
 
-        MORIS_ERROR(tIter != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
-
-        return tIter->second;
-    }
+    //----------------------------------------------------------------
 
     void
     add_vertex_to_map(moris_id aVertexId,
-                      moris_index aVertexLocalIndex)
-    {
-        MORIS_ERROR(mVertexIdToLocalIndex.find(aVertexId) == mVertexIdToLocalIndex.end(),"Trying to add vertex already found in side cluster");
-        mVertexIdToLocalIndex[aVertexId] = aVertexLocalIndex;
-    }
+                      moris_index aVertexLocalIndex);
 };
 }
 }
