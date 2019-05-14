@@ -155,6 +155,9 @@ Integration_Mesh_STK::setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
 
             if(tClusterIndex != MORIS_INDEX_MAX)
             {
+                // mark as nontrivial
+                mCellClusters(i).mark_as_nontrivial();
+
                 mCellClusters(i).set_interpolation_cell( aCellClusterInput->get_interp_cell(tClusterIndex) );
 
                 moris::Matrix<IndexMat>* tPrimaryCellIds  = aCellClusterInput->get_primary_cell_ids(tClusterIndex);
@@ -164,6 +167,7 @@ Integration_Mesh_STK::setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
                 mCellClusters(i).add_void_integration_cell(this->get_cell_pointers_from_ids(*tVoidCellIds));
 
                 moris::Matrix<IndexMat>* tVertexIds  = aCellClusterInput->get_vertex_in_cluster_ids(tClusterIndex);
+
                 mCellClusters(i).add_vertex_to_cluster(this->get_vertex_pointers_from_ids(*tVertexIds));
 
                 moris::Matrix<DDRMat>* tVertexLocalCoords = aCellClusterInput->get_vertex_local_coords_wrt_interpolation_cell(tClusterIndex);

@@ -60,7 +60,6 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     }
 
 
-
     // setup integration mesh
     // Cells and cell topology in material phase 0
     // Tetrathedral cells in material phase 1
@@ -504,6 +503,45 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
 
         CHECK(all_true(tLocalCoordinatesWrtInterpCell == tLocalCoords));
 
+        // check the local coordinates we receive from primary cells
+        moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCellClusterIndex3.get_primary_cells_in_cluster();
+        for(moris::uint i = 0; i < tPrimaryCells.size(); i++)
+        {
+            moris::Matrix<moris::DDRMat> tCellParametricCoords = tCellClusterIndex3.get_primary_cell_local_coords_on_side_wrt_interp_cell(i);
+
+            moris::Cell<moris::mtk::Vertex*> tVertsOnSide = tPrimaryCells(i)->get_vertex_pointers();
+
+            moris::Matrix<moris::DDRMat> tGoldParamCoords(4,3);
+            for(moris::uint j = 0; j<tVertsOnSide.size(); j++)
+            {
+                tGoldParamCoords.get_row(j) = tCellClusterIndex3.get_vertex_local_coordinate_wrt_interp_cell(tVertsOnSide(j)).get_row(0);
+            }
+
+            CHECK(all_true(tGoldParamCoords == tCellParametricCoords));
+
+        }
+
+
+        // check the local coordinates we receive from void cells
+        moris::Cell<moris::mtk::Cell const *> const & tVoidCells = tCellClusterIndex3.get_void_cells_in_cluster();
+
+        for(moris::uint i = 0; i < tVoidCells.size(); i++)
+        {
+            moris::Matrix<moris::DDRMat> tCellParametricCoords = tCellClusterIndex3.get_void_cell_local_coords_on_side_wrt_interp_cell(i);
+
+            moris::Cell<moris::mtk::Vertex*> tVertsOnSide = tVoidCells(i)->get_vertex_pointers();
+
+            moris::Matrix<moris::DDRMat> tGoldParamCoords(4,3);
+            for(moris::uint j = 0; j<tVertsOnSide.size(); j++)
+            {
+                tGoldParamCoords.get_row(j) = tCellClusterIndex3.get_vertex_local_coordinate_wrt_interp_cell(tVertsOnSide(j)).get_row(0);
+            }
+
+            CHECK(all_true(tGoldParamCoords == tCellParametricCoords));
+
+        }
+
+
 
         // check the integration mesh cluster of interpolation cell index 0
         moris_index tInterpCellIndex0 = 0;
@@ -561,8 +599,7 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(all_true(tClustersInBlock0(0)->get_primary_cell_ids_in_cluster() == tCellIdsCluster1Material));
         CHECK(tClustersInBlock1.size() == 3);
 
-        // TODO: Add this check once we have the ghost issue resolved
-//        CHECK(tClustersInBlock2.size() == 2);
+
 
 
         // cleanup

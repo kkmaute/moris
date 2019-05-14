@@ -16,13 +16,20 @@ namespace moris
 class Cell_Cluster_Proxy: public mtk::Cell_Cluster
 {
 public:
-    moris::mtk::Cell*                mInterpolationCell;
+    bool                                    mTrivial;
+    moris::mtk::Cell*                       mInterpolationCell;
     moris::Cell<moris::mtk::Cell const *>   mPrimaryIntegrationCells;
     moris::Cell<moris::mtk::Cell const *>   mVoidIntegrationCells;
     moris::Cell<moris::mtk::Vertex const *> mVerticesInCluster;
-    moris::Matrix<moris::DDRMat>     mVertexParamCoords;
+    moris::Matrix<moris::DDRMat>            mVertexParamCoords;
 public:
     Cell_Cluster_Proxy(){};
+
+    bool
+    is_trivial() const
+    {
+        return mTrivial;
+    }
 
     moris::Cell<moris::mtk::Cell const *> const &
     get_primary_cells_in_cluster() const
@@ -52,6 +59,19 @@ public:
     get_vertices_local_coordinates_wrt_interp_cell() const
     {
         return mVertexParamCoords;
+    }
+
+    moris::Matrix<moris::DDRMat>
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
+    {
+        MORIS_ERROR(0,"get_vertex_local_coordinate_wrt_interp_cell not implemented in proxy cell cluster");
+        return moris::Matrix<moris::DDRMat>(0,0);
+    }
+
+    moris_index
+    get_dim_of_param_coord() const
+    {
+        return mVertexParamCoords.n_cols();
     }
 };
 }

@@ -19,19 +19,40 @@ namespace mtk
 class Cell_Cluster_STK: public Cell_Cluster
 {
 private:
+    bool                                    mTrivial;
     moris::mtk::Cell const *                mInterpolationCell;
     moris::Cell<moris::mtk::Cell const *>   mPrimaryIntegrationCells;
     moris::Cell<moris::mtk::Cell const *>   mVoidIntegrationCells;
     moris::Cell<moris::mtk::Vertex const *> mVerticesInCluster;
     moris::Matrix<moris::DDRMat>            mVertexParamCoords;
+
+    // map from vertex id to local index
+    std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
+
 public:
     Cell_Cluster_STK():
+        mTrivial(true),
         mInterpolationCell(nullptr),
         mPrimaryIntegrationCells(0,nullptr),
         mVoidIntegrationCells(0,nullptr),
         mVerticesInCluster(0,nullptr),
         mVertexParamCoords(0,0)
     {};
+
+    bool
+    is_trivial() const
+    {
+        return mTrivial;
+    }
+
+    //##############################################
+    // Add and setup of cluster
+    //##############################################
+    void
+    mark_as_nontrivial()
+    {
+        mTrivial = false;
+    }
 
     void
     set_interpolation_cell(moris::mtk::Cell const * aInterpCell)
@@ -61,7 +82,18 @@ public:
     void
     add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex)
     {
+        // add vertices to map
+        moris_index tIndex = mVerticesInCluster.size();
+
+        // add vertices to map
+        for(moris::uint i = 0; i <aVertex.size(); i++)
+        {
+            this->add_vertex_to_map(aVertex(i)->get_id(),tIndex);
+            tIndex++;
+        }
+
         mVerticesInCluster.append(aVertex);
+
     }
 
     void
@@ -100,6 +132,43 @@ public:
     get_vertices_local_coordinates_wrt_interp_cell() const
     {
         return mVertexParamCoords;
+    }
+
+    moris::Matrix<moris::DDRMat>
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
+    {
+        MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");
+
+        moris_index tLocalVertIndex = this->get_vertex_cluster_local_index(aVertex->get_id());
+
+        MORIS_ASSERT( tLocalVertIndex < (moris_index)mVertexParamCoords.n_rows(),"Vertex local side cluster index out of bounds. This could be cause by not adding parametric coordinates");
+
+        return mVertexParamCoords.get_row(tLocalVertIndex);
+    }
+
+    moris_index
+    get_dim_of_param_coord() const
+    {
+        MORIS_ERROR(!mTrivial,"Accessing size of local coordinates on a trivial side cluster is not allowed");
+        return mVertexParamCoords.n_cols();
+    }
+
+    moris_index
+    get_vertex_cluster_local_index(moris_id aVertexId) const
+    {
+        auto tIter = mVertexIdToLocalIndex.find(aVertexId);
+
+        MORIS_ERROR(tIter != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
+
+        return tIter->second;
+    }
+
+    void
+    add_vertex_to_map(moris_id aVertexId,
+                      moris_index aVertexLocalIndex)
+    {
+        MORIS_ERROR(mVertexIdToLocalIndex.find(aVertexId) == mVertexIdToLocalIndex.end(),"Trying to add vertex already found in side cluster");
+        mVertexIdToLocalIndex[aVertexId] = aVertexLocalIndex;
     }
 };
 }
