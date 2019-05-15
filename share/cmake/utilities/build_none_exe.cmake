@@ -47,6 +47,8 @@ set(BUILD_STK OFF CACHE BOOL "Build the STK executable." FORCE)
 
 set(BUILD_TIN OFF CACHE BOOL "Build the TIN executable." FORCE)
 
+set(BUILD_TSA OFF CACHE BOOL "Build the TSA executable." FORCE)
+
 set(BUILD_TOL OFF CACHE BOOL "Build the tools executable." FORCE)
 
 set(BUILD_XTK OFF CACHE BOOL "Build the XTK executable." FORCE)
