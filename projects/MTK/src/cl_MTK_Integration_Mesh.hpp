@@ -10,6 +10,8 @@
 
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_MTK_Side_Cluster.hpp"
+#include "cl_MTK_Double_Side_Cluster.hpp"
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
 
@@ -61,8 +63,43 @@ public:
 
 
     //##############################################
+    // Double Side Set Cluster Access
+    //##############################################
+
+    /*!
+     * Returns the number of double sided side sets in the mesh
+     */
+    virtual
+    uint
+    get_num_double_sided_sets() const  = 0;
+
+    /*!
+     * Returns the label
+     */
+    virtual
+    std::string
+    get_double_sided_set_label(moris_index aSideSetOrdinal) const = 0;
+
+    /*!
+     * Returns the index given a label
+     */
+    virtual
+    moris_index
+    get_double_sided_set_index(std::string aDoubleSideSetLabel) const  = 0;
+
+    /*!
+     * Returns the double side clusters in the side set
+     */
+    virtual
+    moris::Cell<Double_Side_Cluster> const &
+    get_double_side_set_cluster(moris_index aSideSetOrdinal) const  = 0;
+
+
+    //##############################################
     // Mesh Sets Access
     //##############################################
+
+
 
 
 //    virtual

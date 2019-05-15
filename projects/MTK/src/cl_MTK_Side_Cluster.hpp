@@ -107,11 +107,9 @@ public:
     moris_index
     get_dim_of_param_coord() const  = 0;
 
-
-    // ---------------------------------------------
-    // EVERYTHING BELOW THIS LINE HAS A DEFAULT
-    // IMPLEMENTATION
-    // ---------------------------------------------
+    //----------------------------------------------------------------
+    // EVERYTHING BELOW THIS LINE HAS A DEFAULT IMPLEMENTATION
+    //----------------------------------------------------------------
 
     virtual
     moris::Matrix<moris::IndexMat>

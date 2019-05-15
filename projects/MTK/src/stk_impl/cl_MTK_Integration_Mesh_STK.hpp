@@ -11,6 +11,7 @@
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Cell_Cluster_STK.hpp"
 #include "cl_MTK_Side_Cluster_STK.hpp"
+#include "cl_MTK_Double_Side_Cluster.hpp"
 namespace moris
 {
 namespace mtk
@@ -23,6 +24,8 @@ class MtkMeshData;
 class Cell_Cluster_Input;
 
 class Side_Cluster_Input;
+
+class Double_Side_Cluster_Input;
 
 class Integration_Mesh_STK : public Mesh_Core_STK, public Integration_Mesh
 {
@@ -53,9 +56,7 @@ public:
      * with a link to an interpolation mesh
      */
     Integration_Mesh_STK( MtkMeshData & aMeshData,
-                          Interpolation_Mesh* aInterpMesh,
-                          Cell_Cluster_Input* aCellClusterData,
-                          Side_Cluster_Input* aSideClusterData);
+                          Interpolation_Mesh* aInterpMesh);
 
     /*!
      * Create a integration mesh from an existing interpolation mesh
@@ -103,6 +104,34 @@ public:
     get_side_set_cluster(moris_index aSideSetOrdinal) const;
 
 
+    //##############################################
+    // Double Side Set Cluster Access
+    //##############################################
+
+    /*!
+     * Returns the number of double sided side sets in the mesh
+     */
+    uint
+    get_num_double_sided_sets() const;
+
+    /*!
+     * Returns the label
+     */
+    std::string
+    get_double_sided_set_label(moris_index aSideSetOrdinal) const;
+
+    /*!
+     * Returns the index given a label
+     */
+    moris_index
+    get_double_sided_set_index(std::string aDoubleSideSetLabel) const;
+
+    /*!
+     * Returns the double side clusters in the side set
+     */
+    moris::Cell<Double_Side_Cluster> const &
+    get_double_side_set_cluster(moris_index aSideSetOrdinal) const;
+
 
 
 private:
@@ -116,6 +145,12 @@ private:
     // side sets
     moris::Cell<std::string>                   mSideSetNames;
     moris::Cell<moris::Cell<Side_Cluster_STK>> mSideSets;
+
+    // double side sets
+    std::unordered_map<std::string, moris_index> mDoubleSideSetLabelToOrd;
+    moris::Cell<std::string> mDoubleSideSetLabels;
+    moris::Cell<moris::Cell<Double_Side_Cluster>> mDoubleSideSets;
+    moris::Cell<Side_Cluster_STK> mDoubleSideSetSideClusters;
 
     /*!
      * Setup the clustering interface
@@ -136,6 +171,15 @@ private:
     void
     setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
                           Side_Cluster_Input * aSideClusterInput);
+
+
+    /*
+     *  setup the double side set cluster interface
+     */
+    void
+    setup_double_side_set_clusters(Interpolation_Mesh & aInterpMesh,
+                                   Double_Side_Cluster_Input * aSideClusterInput);
+
 
     moris::Cell<moris::mtk::Cell const *>
     get_cell_pointers_from_ids(moris::Matrix<moris::IdMat> const & aCellIds) const;

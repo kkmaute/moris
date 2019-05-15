@@ -26,7 +26,8 @@ public:
 
 
     void
-    add_cluster_data(mtk::Cell*               aInterpCell,
+    add_cluster_data(bool                     aTrivial,
+                     mtk::Cell*               aInterpCell,
                      moris::Matrix<IndexMat>* aCellIdsAndSideOrds,
                      moris::Matrix<IndexMat>* aVerticesInCluster,
                      moris::Matrix<DDRMat>*   aLocalCoordsRelativeToInterpCell)
@@ -37,6 +38,15 @@ public:
         // add to map
         MORIS_ASSERT(mInterpCellIndexToIndex.find(aInterpCell->get_id())==mInterpCellIndexToIndex.end(),"Trying to add cluster on an interpolation cell which already has a cluster.");
         mInterpCellIndexToIndex[aInterpCell->get_id()] = tIndex;
+
+        if(aTrivial)
+        {
+            mTrivialFlag.push_back(1);
+        }
+        else
+        {
+            mTrivialFlag.push_back(0);
+        }
 
         mInterpolationCells.push_back(aInterpCell);
         mCellIdsAndSideOrdinals.push_back(aCellIdsAndSideOrds);
@@ -50,6 +60,23 @@ public:
     get_num_cell_clusters() const
     {
         return mInterpolationCells.size();
+    }
+
+    bool
+    is_trivial(moris_index aClusterIndex) const
+    {
+        MORIS_ASSERT(aClusterIndex< (moris_index)get_num_cell_clusters()," Cell cluster index out of bounds");
+
+        moris::uint tTrivFlag = mTrivialFlag(aClusterIndex);
+
+        if(tTrivFlag > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     mtk::Cell const *
@@ -83,6 +110,7 @@ public:
 
 private:
 
+    moris::Cell<moris::uint>              mTrivialFlag;
     moris::Cell<mtk::Cell*>               mInterpolationCells;
     moris::Cell<moris::Matrix<IndexMat>*> mCellIdsAndSideOrdinals;
     moris::Cell<moris::Matrix<IndexMat>*> mVerticesIdsInCluster;
@@ -138,7 +166,8 @@ public:
 
 
     void
-    add_cluster_data(moris::uint               aSideSetOrd,
+    add_cluster_data(bool                      aTrivial,
+                     moris::uint               aSideSetOrd,
                      mtk::Cell*                aInterpCell,
                      moris::Matrix<IndexMat>*  aCellIdsAndSideOrds,
                      moris::Matrix<IndexMat>*  aVerticesInCluster,
@@ -147,7 +176,7 @@ public:
         MORIS_ASSERT(aVerticesInCluster->numel() == aLocalCoordsRelativeToInterpCell->n_rows(),"Number of vertices in the cluster must match the number of rows in local coord mat");
         MORIS_ASSERT(aSideSetOrd < mSideSetLabelToOrd.size(),"Side set ordinal out of bounds.");
 
-        mSideClusters(aSideSetOrd).add_cluster_data(aInterpCell,aCellIdsAndSideOrds, aVerticesInCluster,aLocalCoordsRelativeToInterpCell);
+        mSideClusters(aSideSetOrd).add_cluster_data(aTrivial,aInterpCell,aCellIdsAndSideOrds, aVerticesInCluster,aLocalCoordsRelativeToInterpCell);
     }
 
     Side_Set_Cluster_Data const &

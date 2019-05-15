@@ -12,6 +12,7 @@
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Cell_Cluster_Input.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
+#include "cl_MTK_Double_Side_Cluster_Input.hpp"
 namespace moris
 {
 namespace mtk
@@ -42,17 +43,26 @@ Integration_Mesh_STK::Integration_Mesh_STK( MtkMeshData & aMeshData ):
 // ----------------------------------------------------------------------------
 
 Integration_Mesh_STK::Integration_Mesh_STK( MtkMeshData &       aMeshData,
-                                            Interpolation_Mesh* aInterpMesh,
-                                            Cell_Cluster_Input* aCellClusterData,
-                                            Side_Cluster_Input* aSideClusterData):
+                                            Interpolation_Mesh* aInterpMesh):
         Mesh_Core_STK(aMeshData)
 {
     // setup cells and cell clusters
-    this->setup_cell_clusters(*aInterpMesh,aCellClusterData);
-    this->setup_blockset_with_cell_clusters();
+    if(aMeshData.CellClusterInput != nullptr)
+    {
+        this->setup_cell_clusters(*aInterpMesh,aMeshData.CellClusterInput);
+        this->setup_blockset_with_cell_clusters();
+    }
 
     // setup side set clusters
-    this->setup_side_set_clusters(*aInterpMesh,aSideClusterData);
+    if(aMeshData.SideClusterInput != nullptr)
+    {
+        this->setup_side_set_clusters(*aInterpMesh,aMeshData.SideClusterInput);
+    }
+
+    if(aMeshData.DoubleSideClusterInput != nullptr)
+    {
+        this->setup_double_side_set_clusters(*aInterpMesh,aMeshData.DoubleSideClusterInput);
+    }
 
 }
 
@@ -112,6 +122,8 @@ Integration_Mesh_STK::get_cell_clusters_in_set(moris_index aBlockSetOrdinal) con
 
 }
 
+// ----------------------------------------------------------------------------
+
 moris::Cell<Side_Cluster const *>
 Integration_Mesh_STK::get_side_set_cluster(moris_index aSideSetOrdinal) const
 {
@@ -127,6 +139,44 @@ Integration_Mesh_STK::get_side_set_cluster(moris_index aSideSetOrdinal) const
     }
 
     return tSideClustersInSet;
+}
+
+// ----------------------------------------------------------------------------
+
+uint
+Integration_Mesh_STK::get_num_double_sided_sets() const
+{
+    return mDoubleSideSetLabels.size();
+}
+
+// ----------------------------------------------------------------------------
+
+std::string
+Integration_Mesh_STK::get_double_sided_set_label(moris_index aSideSetOrdinal) const
+{
+    MORIS_ASSERT(aSideSetOrdinal<(moris_index)mDoubleSideSetLabels.size(),"Double side set ordinal out of bounds");
+    return mDoubleSideSetLabels(aSideSetOrdinal);
+}
+
+// ----------------------------------------------------------------------------
+
+moris_index
+Integration_Mesh_STK::get_double_sided_set_index(std::string aDoubleSideSetLabel) const
+{
+    auto tIter = mDoubleSideSetLabelToOrd.find(aDoubleSideSetLabel);
+
+    MORIS_ERROR(tIter != mDoubleSideSetLabelToOrd.end(),"double side set label not found");
+
+    return tIter->second;
+}
+
+// ----------------------------------------------------------------------------
+
+moris::Cell<Double_Side_Cluster> const &
+Integration_Mesh_STK::get_double_side_set_cluster(moris_index aSideSetOrdinal) const
+{
+    MORIS_ASSERT(aSideSetOrdinal<(moris_index)mDoubleSideSetLabels.size(),"Double side set ordinal out of bounds");
+    return mDoubleSideSets(aSideSetOrdinal);
 }
 
 // ----------------------------------------------------------------------------
@@ -370,6 +420,107 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
 }
 
+// ----------------------------------------------------------------------------
+
+void
+Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInterpMesh,
+                                                     Double_Side_Cluster_Input * aDoubleSideClusterInput)
+{
+    moris::Cell<std::string> const & tDoubleSideSetLabels = aDoubleSideClusterInput->get_double_side_set_labels();
+
+    // copy strings labels
+    mDoubleSideSetLabels.append(tDoubleSideSetLabels);
+
+    // copy the map
+    mDoubleSideSetLabelToOrd = aDoubleSideClusterInput->mSideSetLabelToOrd;
+
+    // resize member data
+    mDoubleSideSets.resize(tDoubleSideSetLabels.size());
+
+    // iterate through double side sets
+    for(moris::uint i = 0; i <tDoubleSideSetLabels.size(); i++)
+    {
+        // access left and right side clusters
+        Side_Set_Cluster_Data const & tLeftClusterData  = aDoubleSideClusterInput->mLeftSideClusters(i);
+        Side_Set_Cluster_Data const & tRightClusterData = aDoubleSideClusterInput->mRightSideClusters(i);
+
+        MORIS_ASSERT(tLeftClusterData.get_num_cell_clusters() == tRightClusterData.get_num_cell_clusters(),"Mismatch between left sides and right sides when constructing double sided cluster");
+
+        // number of side clusters in this side set
+        moris_index tNumClusters = tLeftClusterData.get_num_cell_clusters();
+
+        for(moris::uint iC = 0; iC <(uint)tNumClusters; iC++)
+        {
+            // construct a single side cluster for the left
+
+            bool tLeftTrivial = tLeftClusterData.is_trivial(iC);
+            moris_index tLeftIndex = mDoubleSideSetSideClusters.size();
+
+            // if trivial
+            if(tLeftTrivial)
+            {
+                // Get interpolation cell of the left
+                moris::mtk::Cell const* tInterpCell = tLeftClusterData.get_interp_cell(iC);
+
+                // integration cell and side ordinals
+                moris::Matrix<IndexMat> const * tIntegCellId = tLeftClusterData.get_integration_cell_ids_and_side_ords(iC);
+
+                MORIS_ASSERT(tIntegCellId->numel() == 2,"more than one integration cell in interpolation cluster");
+
+                // integration cell
+                moris_index tCellIndex              = this->get_loc_entity_ind_from_entity_glb_id((*tIntegCellId)(0),EntityRank::ELEMENT);
+                moris::mtk::Cell const * tIntegCell = &this->get_mtk_cell(tCellIndex);
+
+
+                mDoubleSideSetSideClusters.push_back(Side_Cluster_STK(tInterpCell,tIntegCell,(*tIntegCellId)(1)));
+
+            }
+            // if not trivial
+            else
+            {
+                MORIS_ERROR(0,"Non-trivial not implemented");
+            }
+
+            bool tRightTrivial      = tRightClusterData.is_trivial(iC);
+            moris_index tRightIndex = mDoubleSideSetSideClusters.size();
+            // if trivial
+            if(tRightTrivial)
+            {
+                // Get interpolation cell of the left
+                moris::mtk::Cell const* tInterpCell = tRightClusterData.get_interp_cell(iC);
+
+                // integration cell and side ordinals
+                moris::Matrix<IndexMat> const * tIntegCellId = tRightClusterData.get_integration_cell_ids_and_side_ords(iC);
+
+                MORIS_ASSERT(tIntegCellId->numel() == 2,"more than one integration cell in interpolation cluster");
+
+                // integration cell
+                moris_index tCellIndex              = this->get_loc_entity_ind_from_entity_glb_id((*tIntegCellId)(0),EntityRank::ELEMENT);
+                moris::mtk::Cell const * tIntegCell = &this->get_mtk_cell(tCellIndex);
+
+
+                mDoubleSideSetSideClusters.push_back(Side_Cluster_STK(tInterpCell,tIntegCell,(*tIntegCellId)(1)));
+            }
+            // if not trivial
+            else
+            {
+                MORIS_ERROR(0,"Non-trivial not implemented");
+
+            }
+
+            // construct the double side cluster
+
+            mDoubleSideSets(i).push_back(Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex)));
+
+        }
+
+
+
+    }
+
+}
+
+// ----------------------------------------------------------------------------
 
 moris::Cell<moris::mtk::Cell const *>
 Integration_Mesh_STK::get_cell_pointers_from_ids(moris::Matrix<moris::IdMat> const & aCellIds) const

@@ -466,7 +466,9 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         Cell_Cluster_Input tCellClusterInput;
         tCellClusterInput.add_cluster_data(tInterpCell,&tCellIdsCluster1Material,&tCellIdsCluster1Void,&tVertexIDsInCluster,&tLocalCoordinatesWrtInterpCell);
 
-        Integration_Mesh* tIntegMesh1  = create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1,&tCellClusterInput);
+        tMeshDataInput.CellClusterInput = & tCellClusterInput;
+
+        Integration_Mesh* tIntegMesh1  = create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
 
         // check the integration mesh cluster of interpolation cell id 4
         Cell_Cluster const & tCellClusterIndex3 = tIntegMesh1->get_cell_cluster(*tInterpCell);

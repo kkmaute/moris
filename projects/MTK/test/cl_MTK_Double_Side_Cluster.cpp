@@ -1,14 +1,13 @@
 /*
- * cl_MTK_Face_Cluster.cpp
+ * cl_MTK_Double_Side_Cluster.cpp
  *
- *  Created on: Nov 5, 2018
+ *  Created on: May 15, 2019
  *      Author: doble
  */
+#include "catch.hpp"
 
-
-#include <catch.hpp>
-#include <iostream>
-
+#include "cl_MTK_Double_Side_Cluster.hpp"
+#include "cl_MTK_Double_Side_Cluster_Input.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
 // MORIS project header files.
@@ -21,13 +20,14 @@
 #include "fn_all_true.hpp"
 #include "fn_trans.hpp"
 #include "op_equal_equal.hpp"
+
 // ----------------------------------------------------------------------------
 namespace moris
 {
 namespace mtk
 {
 
-TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
+TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
 {
     // This unit test is on the surrogate model from XTK. It contains cell clusters and side clustering data
 
@@ -186,76 +186,69 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         // add cluster to input data
         tMeshDataInput.SideClusterInput = & tSideClusterInput;
 
+        // ---------------------------------------
+        // DOUBLE SIDE CLUSTERING
+        // ---------------------------------------
+        Double_Side_Cluster_Input tDoubleSideClusterInput;
+        moris_index tOrd = tDoubleSideClusterInput.add_double_side_set_label(tGhost.mSideSetName);
+
+        moris::Matrix<moris::IdMat> tDummyVerts(0,0);
+        moris::Matrix<moris::DDRMat> tDummyCoords(0,0);
+
+        // left side cluster
+        moris_id         tLeftGhostInterpCellId   = 3;
+        moris_index      tLeftGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tLeftGhostInterpCellId,EntityRank::ELEMENT);
+        moris::mtk::Cell* tLeftInterpCell         = &tInterpMesh1->get_mtk_cell(tLeftGhostInterpCellInd);
+        Matrix<IndexMat> tLeftGhostCellIdAndOrd   = {{3,5}};
+        bool             tLeftTrivial = true;
+
+        // right side cluster
+        moris_id         tRightGhostInterpCellId   = 4;
+        moris_index      tRightGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tLeftGhostInterpCellId,EntityRank::ELEMENT);
+        moris::mtk::Cell* tRightInterpCell         = &tInterpMesh1->get_mtk_cell(tLeftGhostInterpCellInd);
+        Matrix<IndexMat> tRightGhostCellIdAndOrd = {{4,4}};
+        bool             tRightTrivial = true;
+
+        tDoubleSideClusterInput.add_cluster_data(tOrd,tLeftTrivial,tLeftInterpCell,&tLeftGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords,
+                                                 tRightTrivial,tRightInterpCell,&tRightGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords);
+
+        tMeshDataInput.DoubleSideClusterInput = &tDoubleSideClusterInput;
+
         Integration_Mesh* tIntegMesh1  = create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
 
 
         // ---------------------------------------
-        // TEST SIDE CLUSTERING
-        // NOTE: Only add non-trivial side clusters to this data structure
+        // TEST DOUBLE SIDE CLUSTERING
         // ---------------------------------------
 
-        // get the interface side set
-        moris_index tSideSetOrd = 0;
-        moris::Cell<Side_Cluster const *> tInterfaceSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
-        CHECK(tInterfaceSideClusters(0)->is_trivial() == false);
-        CHECK(tInterfaceSideClusters.size() == 1);
+        // verify number,labels,index
+        CHECK(tIntegMesh1->get_num_double_sided_sets() == 1);
+        CHECK(tIntegMesh1->get_double_sided_set_index(tGhost.mSideSetName) == 0);
+        CHECK(tIntegMesh1->get_double_sided_set_label(0).compare(tGhost.mSideSetName) == 0);
 
-        moris::mtk::Cell const & tInterfaceInterpCell = tInterfaceSideClusters(0)->get_interpolation_cell();
-        CHECK(tInterpCell->get_id() == tInterfaceInterpCell.get_id());
+        // access the double sided cluster
+        moris::Cell<Double_Side_Cluster> const & tGhostDoubleSide = tIntegMesh1->get_double_side_set_cluster(0);
 
-        // verify integration cells
-        moris::Matrix<moris::IdMat> tInterfaceCellIds     = tInterfaceSideClusters(0)->get_cell_ids_in_cluster();
-        moris::Matrix<moris::IdMat> tGoldInterfaceCellIds = trans(tInterfaceElemIdandSideOrd.get_column(0));
-        CHECK(all_true(tInterfaceCellIds == tGoldInterfaceCellIds));
+        CHECK(tGhostDoubleSide.size() == 1);
 
-        // verify vertices in cluster
-        moris::Matrix<moris::IdMat> tInterfaceVertices = tInterfaceSideClusters(0)->get_vertex_ids_in_cluster();
-        CHECK(all_true(tInterfaceVertices == tInterfaceVertexIDsInCluster));
+        Side_Cluster const & tLeftCluster = tGhostDoubleSide(0).get_left_side_cluster();
 
-        // verify local coords all at once
-        moris::Matrix<moris::DDRMat> tInterfaceParamCoords = tInterfaceSideClusters(0)->get_vertices_local_coordinates_wrt_interp_cell();
-        CHECK(all_true(tInterfaceParamCoords == tInterfaceLocalCoordinatesWrtInterpCell));
+        CHECK(tLeftCluster.is_trivial());
+        CHECK(tLeftCluster.get_interpolation_cell().get_id() == tLeftInterpCell->get_id());
+
+        moris::Matrix<moris::IndexMat> tLeftCellSideOrds = tLeftCluster.get_cell_side_ordinals();
+        CHECK(tLeftCellSideOrds.numel() == 1);
+        CHECK(tLeftCellSideOrds(0) == 5);
 
 
-        // verify local coords one by one
-        moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster = tInterfaceSideClusters(0)->get_vertices_in_cluster();
+        Side_Cluster const & tRightCluster = tGhostDoubleSide(0).get_right_side_cluster();
+        CHECK(tRightCluster.is_trivial());
+        CHECK(tRightCluster.get_interpolation_cell().get_id() == tRightInterpCell->get_id());
 
-        for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
-        {
-            CHECK(tVerticesInCluster(i)->get_id() == tInterfaceVertexIDsInCluster(i));
+        moris::Matrix<moris::IndexMat> tRightCellSideOrds = tRightCluster.get_cell_side_ordinals();
+        CHECK(tRightCellSideOrds.numel() == 1);
+        CHECK(tRightCellSideOrds(0) == 4);
 
-            moris::Matrix<moris::DDRMat> tVertexLocalCoord     =  tInterfaceSideClusters(0)->get_vertex_local_coordinate_wrt_interp_cell(tVerticesInCluster(i));
-            moris::Matrix<moris::DDRMat> tGoldVertexLocalCoord =  tInterfaceLocalCoordinatesWrtInterpCell.get_row(i);
-            CHECK(all_true(tVertexLocalCoord == tGoldVertexLocalCoord));
-
-
-        }
-
-        // iterate through integration cells
-
-        moris::Cell<moris::mtk::Cell const *> tCellsInCluster = tInterfaceSideClusters(0)->get_cells_in_side_cluster();
-
-        for(moris::uint  i = 0; i <tCellsInCluster.size(); i++)
-        {
-            moris::Matrix<moris::DDRMat> tCellParamCoords = tInterfaceSideClusters(0)->get_cell_local_coords_on_side_wrt_interp_cell(i);
-
-            moris::Cell<moris::mtk::Vertex const *> tVertsOnSide = tCellsInCluster(i)->get_vertices_on_side_ordinal(tInterfaceSideClusters(0)->get_cell_side_ordinal(i));
-
-            moris::Matrix<moris::DDRMat> tGoldParamCoords(3,3);
-            for(moris::uint j = 0; j<tVertsOnSide.size(); j++)
-            {
-                tGoldParamCoords.get_row(j) = tInterfaceSideClusters(0)->get_vertex_local_coordinate_wrt_interp_cell(tVertsOnSide(j)).get_row(0);
-            }
-
-            CHECK(all_true(tGoldParamCoords == tCellParamCoords));
-
-        }
-
-        // get the fixed boundary condition
-        tSideSetOrd = 1;
-        moris::Cell<Side_Cluster const *> tFixedSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
-        CHECK(tFixedSideClusters.size() == 1);
-        CHECK(tFixedSideClusters(0)->is_trivial() == true);
 
         // cleanup
         delete tInterpMesh1;
@@ -266,4 +259,3 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 }
 }
 }
-
