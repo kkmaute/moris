@@ -54,9 +54,21 @@ namespace moris
     void Element_Block::delete_pointers()
     {
         // delete the geometry interpolator pointer
-        if ( mGeometryInterpolator != nullptr )
+//        if ( mGeometryInterpolator != nullptr )
+//        {
+//            delete mGeometryInterpolator;
+//        }
+
+        // delete the interpolation geometry interpolator pointer
+        if ( mIPGeometryInterpolator != nullptr )
         {
-            delete mGeometryInterpolator;
+            delete mIPGeometryInterpolator;
+        }
+
+        // delete the integration geometry interpolator pointer
+        if ( mIGGeometryInterpolator != nullptr )
+        {
+            delete mIGGeometryInterpolator;
         }
 
         mFieldInterpolators.clear();
@@ -70,12 +82,29 @@ namespace moris
 
         if( mMeshElementPointer.size() > 0)
         {
-             Interpolation_Rule tGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
-                                                            Interpolation_Type::LAGRANGE,
-                                                            this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
-                                                                                                mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
-                                                            Interpolation_Type::LAGRANGE,
-                                                            mtk::Interpolation_Order::LINEAR );
+//             Interpolation_Rule tGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
+//                                                            Interpolation_Type::LAGRANGE,
+//                                                            this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
+//                                                                                                mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
+//                                                            Interpolation_Type::LAGRANGE,
+//                                                            mtk::Interpolation_Order::LINEAR );
+
+             // geometry interpolation rule for interpolation cells
+             Interpolation_Rule tIPGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
+                                                              Interpolation_Type::LAGRANGE,
+                                                              this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
+                                                                                                  mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
+                                                              Interpolation_Type::LAGRANGE,
+                                                              mtk::Interpolation_Order::LINEAR );
+
+             // geometry interpolation rule for integration cells
+             //fixme geometry type not correct
+             Interpolation_Rule tIGGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
+                                                              Interpolation_Type::LAGRANGE,
+                                                              this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
+                                                                                                  mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
+                                                              Interpolation_Type::LAGRANGE,
+                                                              mtk::Interpolation_Order::LINEAR );
 
              bool tSpaceSideset = false;
              if (mElementType==fem::Element_Type::SIDESET)
@@ -83,8 +112,12 @@ namespace moris
                  tSpaceSideset=true;
              }
 
+//             // create the element geometry intepolator
+//             mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
+
              // create the element geometry intepolator
-             mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
+             mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, tSpaceSideset );
+             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, tSpaceSideset );
 
             // create the element field interpolators
             this->create_field_interpolators( aModelSolverInterface );
@@ -96,7 +129,9 @@ namespace moris
 
             if (mElementType==fem::Element_Type::SIDESET)
             {
-                mtk::Geometry_Type tSideGeometryType = this->get_block_geometry_interpolator()->get_side_geometry_type();
+//                mtk::Geometry_Type tSideGeometryType = this->get_block_geometry_interpolator()->get_side_geometry_type();
+                mtk::Geometry_Type tSideGeometryType = this->get_block_IG_geometry_interpolator()->get_side_geometry_type();
+
                 enum fem::Integration_Order tSideIntegrationOrder = this->get_auto_integration_order( tSideGeometryType );
 
                 tIntegrationRule = new Integration_Rule( tSideGeometryType,
@@ -380,10 +415,14 @@ namespace moris
             // get number of field interpolated by the ith field interpolator
             uint tNumOfFields = tDofTypeGroup.size();
 
+//            // create an interpolator for the ith dof type group
+//            mFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
+//                                                               tFieldInterpolationRule,
+//                                                               mGeometryInterpolator );
             // create an interpolator for the ith dof type group
             mFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
                                                                tFieldInterpolationRule,
-                                                               mGeometryInterpolator );
+                                                               mIPGeometryInterpolator );
         }
     }
 

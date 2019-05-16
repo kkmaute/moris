@@ -76,6 +76,10 @@ namespace moris
                 {
                     switch( aGeometryType )
                     {
+                        case( mtk::Geometry_Type::POINT ) :
+                            return this->create_coeffs_gauss_point( aIntegrationOrder );
+                            break;
+
                         case( mtk::Geometry_Type::LINE ) :
                             return this->create_coeffs_gauss_bar( aIntegrationOrder );
                             break;
@@ -111,6 +115,15 @@ namespace moris
                     break;
                 }
             }
+        }
+
+//------------------------------------------------------------------------------
+
+        Integration_Coeffs_Base * Integration_Rule::create_coeffs_gauss_point
+        ( const Integration_Order & aIntegrationOrder ) const
+        {
+            return new Integration_Coeffs< Integration_Type::GAUSS,
+                                           Integration_Order::POINT >();
         }
 
 //------------------------------------------------------------------------------

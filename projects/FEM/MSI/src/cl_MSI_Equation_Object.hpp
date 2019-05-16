@@ -59,7 +59,7 @@ class Dist_Vector;
             Matrix< IndexMat > mListOfSideOrdinals;
             Matrix< IndexMat > mListOfTimeOrdinals;
 
-            Matrix< DDRMat >mTime;
+            Matrix< DDRMat > mTime;
 
             Equation_Block * mEquationBlock;
 

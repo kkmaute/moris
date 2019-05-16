@@ -29,15 +29,27 @@ namespace moris
             // get the number of time ordinals
             uint tNumOfSideSets = mCluster->mListOfTimeOrdinals.numel();
 
+//            // set the geometry interpolator coefficients
+//            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
+//            // fixme param coeff from cluster
+//            mElementBlock->get_block_geometry_interpolator()->set_param_coeff();
+
             // set the geometry interpolator coefficients
-            //FIXME: tHat are set by default but should come from solver
-            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
+            mElementBlock->get_block_IG_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
+            // fixme param coeff from cluster
+            mElementBlock->get_block_IG_geometry_interpolator()->set_param_coeff();
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
             {
                 // get the treated time ordinal
                 moris_index tTreatedTimeOrdinal = mCluster->mListOfTimeOrdinals( iSideset );
+
+                // get the side phys and param coords
+//                mElementBlock->get_block_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
+//                mElementBlock->get_block_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
+                mElementBlock->get_block_IG_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
+                mElementBlock->get_block_IG_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -64,10 +76,15 @@ namespace moris
                        // get integration point location in the reference surface
                        Matrix< DDRMat > tSurfRefIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
 
+//                       // get integration point location in the reference volume
+//                       Matrix< DDRMat > tVolRefIntegPointI
+//                           = mElementBlock->get_block_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI,
+//                                                                   tTreatedTimeOrdinal );
                        // get integration point location in the reference volume
+//                       Matrix< DDRMat > tVolRefIntegPointI
+//                          = mElementBlock->get_block_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI );
                        Matrix< DDRMat > tVolRefIntegPointI
-                           = mElementBlock->get_block_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI,
-                                                                   tTreatedTimeOrdinal );
+                           = mElementBlock->get_block_IG_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI );
 
                        // set integration point
                        for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -75,9 +92,12 @@ namespace moris
                            tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
                        }
 
+//                       // compute integration point weight x detJ
+//                       real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI,
+//                                                                                                           tTreatedTimeOrdinal );
                        // compute integration point weight x detJ
-                       real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI,
-                                                                                                           tTreatedTimeOrdinal );
+//                       real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI );
+                       real tSurfDetJ = mElementBlock->get_block_IG_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI );
                        real tWStar = mElementBlock->get_integration_weights()( iGP ) * tSurfDetJ;
 
                        // compute jacobian at evaluation point
@@ -105,14 +125,26 @@ namespace moris
             // get the number of time ordinal
             uint tNumOfSideSets = mCluster->mListOfTimeOrdinals.numel();
 
+//            // set the geometry interpolator coefficients
+//            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
+//            // fixme param coeff from cluster
+//            mElementBlock->get_block_geometry_interpolator()->set_param_coeff();
             // set the geometry interpolator coefficients
-            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
+            mElementBlock->get_block_IG_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
+            // fixme param coeff from cluster
+            mElementBlock->get_block_IG_geometry_interpolator()->set_param_coeff();
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
             {
                 // get the treated time ordinal
                 moris_index tTreatedTimeOrdinal = mCluster->mListOfTimeOrdinals( iSideset );
+
+                // get the side phys and param coords
+//                mElementBlock->get_block_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
+//                mElementBlock->get_block_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
+                mElementBlock->get_block_IG_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
+                mElementBlock->get_block_IG_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -140,10 +172,15 @@ namespace moris
                        // get integration point location in the reference surface
                        Matrix< DDRMat > tSurfRefIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
 
+//                       // get integration point location in the reference volume
+//                       Matrix< DDRMat > tVolRefIntegPointI
+//                           = mElementBlock->get_block_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI,
+//                                                                   tTreatedTimeOrdinal );
                        // get integration point location in the reference volume
+//                       Matrix< DDRMat > tVolRefIntegPointI
+//                           = mElementBlock->get_block_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI );
                        Matrix< DDRMat > tVolRefIntegPointI
-                           = mElementBlock->get_block_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI,
-                                                                   tTreatedTimeOrdinal );
+                           = mElementBlock->get_block_IG_geometry_interpolator()->time_surf_val( tSurfRefIntegPointI );
 
                        // set integration point
                        for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -151,9 +188,12 @@ namespace moris
                            tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
                        }
 
+//                       // compute integration point weight x detJ
+//                       real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI,
+//                                                                                                           tTreatedTimeOrdinal );
                        // compute integration point weight x detJ
-                       real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI,
-                                                                                                           tTreatedTimeOrdinal );
+//                       real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI );
+                       real tSurfDetJ = mElementBlock->get_block_IG_geometry_interpolator()->time_surf_det_J( tSurfRefIntegPointI );
                        real tWStar = mElementBlock->get_integration_weights()( iGP ) * tSurfDetJ;
 
                        // compute jacobian at evaluation point

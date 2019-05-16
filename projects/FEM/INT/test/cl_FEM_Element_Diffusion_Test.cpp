@@ -43,7 +43,7 @@ namespace moris
             if(par_size() == 1 )
             {
                 // Create a 3D mesh of HEX8 using MTK ------------------------------------------
-                std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
+                //std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
                 //------------------------------------------------------------------------------
                 uint aNumElemTypes = 1; // only 1 element type ( hex )
                 uint aNumDim = 3;       // number of spatial dimensions
@@ -461,10 +461,8 @@ namespace moris
                 tNonlinearSolver->set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
                 // 11) Solve --------------------------------------------------------------------
-                //std::cout<<" Solve "<<std::endl;
+                std::cout<<" Solve "<<std::endl;
                 //------------------------------------------------------------------------------
-                Matrix<DDRMat> tSolution1;
-
                 // call solver
                 tNonlinearSolver->solve( tNonlinearProblem );
 
@@ -476,8 +474,8 @@ namespace moris
                 uint tLength = tSolution.length();
 
                 // rearrange data into output
+                Matrix<DDRMat> tSolution1;
                 tSolution1.set_size( tLength, 1 );
-
                 for( uint k = 0; k < tLength; k++ )
                 {
                     tSolution1( k ) = tSolution( tAdofMap( k ) );
@@ -583,25 +581,14 @@ namespace moris
                 tMeshForOutput->create_output_mesh( tOutputFile );
 
                 // 13) Clean up -----------------------------------------------------------------
-                //std::cout<<" Clean up "<<std::endl;
+                std::cout<<" Clean up "<<std::endl;
                 //------------------------------------------------------------------------------
                 delete tMesh;
                 delete tMeshForOutput;
 
-                for( uint i = 0; i < tNumOfNodes; i++ )
-                {
-                    delete tNodes( i );
-                }
-
-                for( uint i = 0; i < tNumOfIWGs; i++)
-                {
-                    delete tIWGs( i );
-                }
-
-                for( uint i = 0; i < tNumOfElements; i++ )
-                {
-                    delete tElements( i );
-                }
+                tNodes.clear();
+                tIWGs.clear();
+                tElements.clear();
 
                 delete tModelSolverInterface;
                 delete tSolverInterface;

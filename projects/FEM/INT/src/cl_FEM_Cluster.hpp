@@ -25,7 +25,6 @@
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
 
 #include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
-
 #include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
 
 namespace moris
@@ -156,7 +155,7 @@ namespace moris
             // get pdofs values for the element
             this->get_my_pdof_values();
 
-            // get a specific dof type profs values
+            // get a specific dof type pdofs values
             Matrix< DDRMat > tPdofValues;
             this->get_my_pdof_values( aDofType, tPdofValues );
 
@@ -241,7 +240,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
          /**
-          * @Brief set the initial sizes and values formResidualElement
+          * @Brief set the initial sizes and values for mResidualElement
           */
          void initialize_mResidualElement();
 

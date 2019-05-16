@@ -1,6 +1,6 @@
 #include <iostream>
-#include "cl_FEM_Element_Sideset.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator.hpp"      //FEM/INT/src
+
+#include "cl_FEM_Element_Double_Sideset.hpp" //FEM/INT/src
 #include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
 
 namespace moris
@@ -10,29 +10,27 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Element_Sideset::Element_Sideset( mtk::Cell    const * aCell,
-                                          Element_Block      * aElementBlock,
-                                          Cluster            * aCluster) : Element( aCell, aElementBlock, aCluster )
+        Element_Double_Sideset::Element_Double_Sideset( mtk::Cell    const * aMasterIGCell,
+                                                        mtk::Cell    const * aSlaveIGCell,
+                                                        Element_Block      * aElementBlock,
+                                                        Cluster            * aCluster) : Element( aCell, aElementBlock, aCluster )
         { }
 
 //------------------------------------------------------------------------------
 
-        Element_Sideset::~Element_Sideset(){}
+        Element_Double_Sideset::~Element_Double_Sideset(){}
 
 //------------------------------------------------------------------------------
 
-        void Element_Sideset::compute_residual()
+        void Element_Double_Sideset::compute_residual()
         {
             // get the number of side ordinals
             uint tNumOfSideSets = mCluster->mListOfSideOrdinals.numel();
 
-            // set the geometry interpolator physical space and time coefficients for integration cell
-            mElementBlock->get_block_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords());
-            mElementBlock->get_block_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
-
-            // set the geometry interpolator param space and time coefficients for integration cell
+            // set the geometry interpolator coefficients
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
             // fixme param coeff from cluster
-            mElementBlock->get_block_IG_geometry_interpolator()->set_param_coeff();
+            mElementBlock->get_block_geometry_interpolator()->set_param_coeff();
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
@@ -41,9 +39,8 @@ namespace moris
                 moris_index tTreatedSideOrdinal = mCluster->mListOfSideOrdinals( iSideset );
 
                 // get the side phys and param coords
-                // fixme remove as geoo interp built on the side
-                mElementBlock->get_block_IG_geometry_interpolator()->build_space_side_space_phys_coeff( tTreatedSideOrdinal );
-                mElementBlock->get_block_IG_geometry_interpolator()->build_space_side_space_param_coeff( tTreatedSideOrdinal );
+                mElementBlock->get_block_geometry_interpolator()->build_space_side_space_phys_coeff( tTreatedSideOrdinal );
+                mElementBlock->get_block_geometry_interpolator()->build_space_side_space_param_coeff( tTreatedSideOrdinal );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -70,7 +67,8 @@ namespace moris
                         Matrix< DDRMat > tSurfRefIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
 
                         // get integration point location in the reference volume
-                        Matrix< DDRMat > tVolRefIntegPointI = mElementBlock->get_block_IG_geometry_interpolator()->surf_val( tSurfRefIntegPointI );
+                        Matrix< DDRMat > tVolRefIntegPointI
+                            = mElementBlock->get_block_geometry_interpolator()->surf_val( tSurfRefIntegPointI );
 
                         // set integration point
                         for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -78,15 +76,15 @@ namespace moris
                             tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
                         }
 
-                        // compute the integration point weight
-                        real tWStar = mElementBlock->get_integration_weights()( iGP )
-                                    * mElementBlock->get_block_IG_geometry_interpolator()->surf_det_J( tSurfRefIntegPointI );
+                        // compute integration point weight x detJ
+                        real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->surf_det_J( tSurfRefIntegPointI );
+                        Matrix< DDRMat > tNormal = mElementBlock->get_block_geometry_interpolator()->surf_normal( tSurfRefIntegPointI );
 
-                        // compute the normal at integration point and set it for IWG
-                        Matrix< DDRMat > tNormal = mElementBlock->get_block_IG_geometry_interpolator()->surf_normal( tSurfRefIntegPointI );
                         tTreatedIWG->set_normal( tNormal );
 
-                        // compute residual at integration point
+                        real tWStar = mElementBlock->get_integration_weights()( iGP ) * tSurfDetJ;
+
+                        // compute jacobian at evaluation point
                         Matrix< DDRMat > tResidual;
                         tTreatedIWG->compute_residual( tResidual, tIWGInterpolators );
 
@@ -98,7 +96,7 @@ namespace moris
                         uint startDof = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
                         uint stopDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
 
-                        // add contribution to residual from evaluation point
+                        // add contribution to jacobian from evaluation point
                         mCluster->mResidual( { startDof, stopDof }, { 0, 0 } )
                             = mCluster->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
                     }
@@ -110,18 +108,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Element_Sideset::compute_jacobian()
+        void Element_Double_Sideset::compute_jacobian()
         {
             // get the number of side ordinals
             uint tNumOfSideSets = mCluster->mListOfSideOrdinals.numel();
 
-            // set the geometry interpolator space and time physical coefficients for integration cell
-            mElementBlock->get_block_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords() );
-            mElementBlock->get_block_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
-
-            // set the geometry interpolator space and time param coefficients for integration cell
+            // set the geometry interpolator coefficients
+            //FIXME: tHat are set by default but should come from solver
+//            Matrix< DDRMat > tTHat = { {0.0}, {1.0} };
+            mElementBlock->get_block_geometry_interpolator()->set_coeff( mCell->get_vertex_coords(), mCluster->mTime );
             // fixme param coeff from cluster
-            mElementBlock->get_block_IG_geometry_interpolator()->set_param_coeff();
+            mElementBlock->get_block_geometry_interpolator()->set_param_coeff();
 
             // loop over the sideset faces
             for ( uint iSideset = 0; iSideset < tNumOfSideSets; iSideset++ )
@@ -130,9 +127,8 @@ namespace moris
                 moris_index tTreatedSideOrdinal = mCluster->mListOfSideOrdinals( iSideset );
 
                 // get the side phys and param coords
-                // fixme remove as geo interp built on the side
-                mElementBlock->get_block_IG_geometry_interpolator()->build_space_side_space_phys_coeff( tTreatedSideOrdinal );
-                mElementBlock->get_block_IG_geometry_interpolator()->build_space_side_space_param_coeff( tTreatedSideOrdinal );
+                mElementBlock->get_block_geometry_interpolator()->build_space_side_space_phys_coeff( tTreatedSideOrdinal );
+                mElementBlock->get_block_geometry_interpolator()->build_space_side_space_param_coeff( tTreatedSideOrdinal );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -163,7 +159,7 @@ namespace moris
                         Matrix< DDRMat > tSurfRefIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
 
                         // get integration point location in the reference volume
-                        Matrix< DDRMat > tVolRefIntegPointI = mElementBlock->get_block_IG_geometry_interpolator()->surf_val( tSurfRefIntegPointI );
+                        Matrix< DDRMat > tVolRefIntegPointI = mElementBlock->get_block_geometry_interpolator()->surf_val( tSurfRefIntegPointI );
 
                         // set integration point
                         for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -171,13 +167,18 @@ namespace moris
                             tIWGInterpolators( iIWGFI )->set_space_time( tVolRefIntegPointI );
                         }
 
-                        // compute integration point weight
-                        real tWStar = mElementBlock->get_integration_weights()( iGP )
-                                    * mElementBlock->get_block_IG_geometry_interpolator()->surf_det_J( tSurfRefIntegPointI );
+                        // compute integration point weight x detJ
+//                        real tSurfDetJ;
+//                        Matrix< DDRMat > tNormal;
+//                        mElementBlock->get_block_geometry_interpolator()->surf_det_J( tSurfDetJ,
+//                                                           tNormal,
+//                                                           tSurfRefIntegPointI,
+//                                                           tTreatedSideOrdinal );
+                        real tSurfDetJ = mElementBlock->get_block_geometry_interpolator()->surf_det_J( tSurfRefIntegPointI );
+                        real tWStar = mElementBlock->get_integration_weights()( iGP ) * tSurfDetJ;
 
                         // evaluate the normal
-                        // fixme should come from the mesh
-                        Matrix< DDRMat > tNormal = mElementBlock->get_block_IG_geometry_interpolator()->surf_normal( tSurfRefIntegPointI );
+                        Matrix< DDRMat > tNormal = mElementBlock->get_block_geometry_interpolator()->surf_normal( tSurfRefIntegPointI );
                         tTreatedIWG->set_normal( tNormal );
 
                         // compute jacobian at evaluation point
@@ -212,9 +213,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Element_Sideset::compute_jacobian_and_residual()
+        void Element_Double_Sideset::compute_jacobian_and_residual()
         {
-            MORIS_ERROR( false, " Element_Sideset::compute_jacobian_and_residual - not implemented. ");
+            MORIS_ERROR( false, " Element_Double_Sideset::compute_jacobian_and_residual - not implemented. ");
         }
 
 //------------------------------------------------------------------------------

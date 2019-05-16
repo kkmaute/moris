@@ -126,7 +126,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-       Integration_Coeffs_Base * create_coeffs_gauss_bar( const Integration_Order & aIntegrationOrder ) const;
+        Integration_Coeffs_Base * create_coeffs_gauss_point( const Integration_Order & aIntegrationOrder ) const;
+
+//------------------------------------------------------------------------------
+
+        Integration_Coeffs_Base * create_coeffs_gauss_bar( const Integration_Order & aIntegrationOrder ) const;
 
 //------------------------------------------------------------------------------
 

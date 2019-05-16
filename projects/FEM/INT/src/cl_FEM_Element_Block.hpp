@@ -44,7 +44,12 @@ namespace MSI
 
         moris::Cell< Node_Base* >           mNodes;
 
-        Geometry_Interpolator             * mGeometryInterpolator = nullptr;
+        //Geometry_Interpolator             * mGeometryInterpolator = nullptr;
+
+        // geometry interpolator pointer for the interpolation cells
+        Geometry_Interpolator             * mIPGeometryInterpolator = nullptr;
+        // geometry interpolator pointer for the integration cells
+        Geometry_Interpolator             * mIGGeometryInterpolator = nullptr;
 
         moris::Cell< Field_Interpolator* >  mFieldInterpolators;
 
@@ -141,9 +146,20 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        Geometry_Interpolator * get_block_geometry_interpolator()
+//        //fixme get rid of this one
+//        Geometry_Interpolator * get_block_geometry_interpolator()
+//        {
+//            return mIPGeometryInterpolator;
+//        }
+
+        Geometry_Interpolator * get_block_IP_geometry_interpolator()
         {
-            return mGeometryInterpolator;
+            return mIPGeometryInterpolator;
+        }
+
+        Geometry_Interpolator * get_block_IG_geometry_interpolator()
+        {
+            return mIGGeometryInterpolator;
         }
 
 //------------------------------------------------------------------------------

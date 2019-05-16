@@ -20,16 +20,12 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        //class Element;
         /**
          * Integrand of Weak Form of Governing Equations
          */
         class IWG
         {
         protected :
-
-//            // element pointer
-//            Element* mElement = nullptr;
 
             // nodal weak BCs
             Matrix< DDRMat > mNodalWeakBCs;
@@ -62,46 +58,23 @@ namespace moris
             virtual ~IWG(){};
 
 //------------------------------------------------------------------------------
-
-//            void set_element_pointer( Element * aElement )
-//            {
-//                mElement = aElement;
-//            }
-
+            /**
+             * set nodal weak BCs
+             * @param[ in ] aNodalWeakBCs matrix with nodal values
+             */
             void set_nodal_weak_bcs( Matrix< DDRMat > & aNodalWeakBCs )
             {
                 mNodalWeakBCs = aNodalWeakBCs;
             }
 
+            /**
+             * set normal
+             * @param[ in ] aNormal normal vector
+             */
             void set_normal( Matrix< DDRMat > & aNormal )
             {
                 mNormal = aNormal;
             }
-
-//------------------------------------------------------------------------------
-
-            /**
-             * creates the required interpolation matrices as member variables
-             */
-            virtual void create_matrices( Field_Interpolator * aInterpolator )
-            {
-                MORIS_ASSERT( 0, "IWG::create_matrices - not implemented. " );
-            }
-
-//------------------------------------------------------------------------------
-
-//            /**
-//             * deletes the matrices
-//             */
-//            virtual void delete_matrices() = 0;
-
-//------------------------------------------------------------------------------
-
-//            /**
-//             * returns a cell with the dof types, assuming that all nodes
-//             * have the same type
-//             */
-//            virtual Cell< MSI::Dof_Type > get_dof_types() = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -126,14 +99,6 @@ namespace moris
             /**
              * evaluates the residual
              */
-//            virtual void
-//            compute_residual(       Matrix< DDRMat > & aResidual,
-//                              const Matrix< DDRMat > & aNodalDOF,
-//                              const Matrix< DDRMat > & aNodalWeakBC )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//             }
-
             virtual void compute_residual( Matrix< DDRMat >            & aResidual,
                                            Cell< Field_Interpolator* > & aFieldInterpolators)
             {
@@ -144,46 +109,15 @@ namespace moris
             /**
              * evaluates the Jacobian
              */
-//            virtual void
-//            compute_jacobian(       Matrix< DDRMat > & aJacobian,
-//                              const Matrix< DDRMat > & aNodalDOF,
-//                              const Matrix< DDRMat > & aNodalWeakBC )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//            }
-
             virtual void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
                                            Cell< Field_Interpolator* > & aFieldInterpolators)
             {
                 MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
             }
 //------------------------------------------------------------------------------
-//
-//            /**
-//             * evaluates the Jacobian
-//             */
-//            virtual void
-//            compute_jacobian_and_residual(
-//                    Matrix< DDRMat >       & aJacobian,
-//                    Matrix< DDRMat >       & aResidual,
-//                    const Matrix< DDRMat > & aNodalDOF,
-//                    const Matrix< DDRMat > & aNodalWeakBC,
-//                    const uint             & aPointIndex )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//            }
-//
             /**
              * evaluates the residual and the Jacobian
              */
-//            virtual void
-//            compute_jacobian_and_residual(       Matrix< DDRMat > & aJacobian,
-//                                                 Matrix< DDRMat > & aResidual,
-//                                           const Matrix< DDRMat > & aNodalDOF,
-//                                           const Matrix< DDRMat > & aNodalWeakBC )
-//            {
-//                MORIS_ERROR( false, "This function does nothing" );
-//            }
             virtual void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
                                                         Matrix< DDRMat >            & aResidual,
                                                         Cell< Field_Interpolator* > & aFieldInterpolators )
@@ -192,11 +126,9 @@ namespace moris
             }
 //------------------------------------------------------------------------------
 //
-//            virtual real
-//            compute_integration_error(
-//                    const Matrix< DDRMat > & aNodalDOF,
-//                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
-//                    const uint        & aPointIndex )
+//            virtual real compute_integration_error( const Matrix< DDRMat > & aNodalDOF,
+//                                                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) ,
+//                                                    const uint        & aPointIndex )
 //            {
 //                MORIS_ERROR( false, "This function does nothing" );
 //                return 0.0;
@@ -204,19 +136,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 //
-//            real
-//            interpolate_scalar_at_point(
-//                    const Matrix< DDRMat > & aNodalWeakBC,
-//                    const uint             & aPointIndex )
+//            real interpolate_scalar_at_point( const Matrix< DDRMat > & aNodalWeakBC,
+//                                              const uint             & aPointIndex )
 //            {
 //                MORIS_ERROR( false, "This function does nothing" );
 //                return 0.0;
 //            }
-//
-//        };
+
 
         };
-
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

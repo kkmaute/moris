@@ -19,6 +19,13 @@ namespace moris
 
         void Cluster::compute_jacobian()
         {
+            print(this->mTime ,"this->mTime ");
+            print(mInterpolationCell->get_vertex_coords(),"mInterpolationCell->get_vertex_coords()");
+            // set the IP geometry interpolator coefficients
+            mElementBlock->get_block_IP_geometry_interpolator()->set_coeff( mInterpolationCell->get_vertex_coords(), this->mTime );
+            // fixme param coeff from cluster
+            mElementBlock->get_block_IP_geometry_interpolator()->set_param_coeff();
+
             //Fixme do this only once
             this->get_my_pdof_values();
 
@@ -36,6 +43,13 @@ namespace moris
 
         void Cluster::compute_residual()
         {
+            print(this->mTime ,"this->mTime ");
+            print(mInterpolationCell->get_vertex_coords(),"mInterpolationCell->get_vertex_coords()");
+            // set the IP geometry interpolator coefficients
+            mElementBlock->get_block_IP_geometry_interpolator()->set_coeff( mInterpolationCell->get_vertex_coords(), this->mTime );
+            // fixme param coeff from cluster
+            mElementBlock->get_block_IP_geometry_interpolator()->set_param_coeff();
+
             this->get_my_pdof_values();
 
             this->initialize_mResidualElement();

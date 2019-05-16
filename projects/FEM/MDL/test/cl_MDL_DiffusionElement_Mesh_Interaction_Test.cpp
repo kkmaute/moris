@@ -494,7 +494,7 @@ namespace moris
 //            // define a bool for solution check
 //            bool tCheckNodalSolution = true;
 //
-//            // loop over the node and chyeck solution
+//            // loop over the node and check solution
 //            for ( uint i = 0; i < 25; i++ )
 //            {
 //                // check solution

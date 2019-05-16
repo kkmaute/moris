@@ -20,6 +20,7 @@ namespace moris
 
         enum class Geometry_Type
         {
+            POINT, // point
             LINE,  // 1D line or curve
             QUAD,  // rectangle
             TRI,   // triangle

@@ -1,15 +1,16 @@
 
-#include "cl_Matrix.hpp" //LNA/src
-#include "linalg_typedefs.hpp" //LNA/src
-#include "fn_linsolve.hpp" //LNA/src
-
-#include "fn_det.hpp" //LNA/src
+#include "cl_Matrix.hpp"                //LNA/src
+#include "linalg_typedefs.hpp"
+#include "fn_linsolve.hpp"
+#include "fn_det.hpp"
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_reshape.hpp"
 #include "fn_det.hpp"
-#include "op_times.hpp" //LNA/src
-#include "op_equal_equal.hpp" //LNA/src
+#include "op_times.hpp"
+#include "op_equal_equal.hpp"
+#include "op_less_equal.hpp"
+#include "op_greater_equal.hpp"
 
 #include "cl_FEM_Field_Interpolator.hpp" //FEM/INT/src
 
@@ -51,8 +52,6 @@ namespace moris
             // get number of coefficients
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
         }
-
-
 
 //------------------------------------------------------------------------------
 
@@ -181,7 +180,8 @@ namespace moris
             }
 
             //build the second derivatives of the space time SF wrt x
-            return inv( tLGeot ) * ( td2NFielddxi2 - tKGeot * tdNFielddx );
+            Matrix< DDRMat > td2NFielddXi2 = td2NFielddxi2 - tKGeot * tdNFielddx;
+            return solve( tLGeot, td2NFielddXi2 );
         }
 //------------------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ namespace moris
             Matrix< DDRMat > tJGeot = mGeometryInterpolator->time_jacobian( tdNGeodTau );
 
             // transform output matrix to dNdX
-            return inv( tJGeot ) * tdNFielddTau;
+            return solve( tJGeot, tdNFielddTau );
         }
 
 //------------------------------------------------------------------------------
@@ -250,7 +250,8 @@ namespace moris
             }
 
             //build the second derivatives of the space time SF wrt t
-            return inv( tLGeot ) * (td2NFielddtau2 - tKGeot * tdNFielddt);
+            Matrix< DDRMat > td2NFielddTau2 = td2NFielddtau2 - tKGeot * tdNFielddt;
+            return solve( tLGeot, td2NFielddTau2 );
         }
 //------------------------------------------------------------------------------
 

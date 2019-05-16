@@ -84,6 +84,8 @@ set(HEADERS
     cl_FEM_Node_Base.hpp
     cl_FEM_Node.hpp
     cl_FEM_Field_Interpolator.hpp
+    cl_FEM_Model_Parameter_Interpolator.hpp
+    fn_FEM_Rotation_Matrix.hpp
     )
 
 # List header dependencies

@@ -77,7 +77,7 @@ namespace moris
                     break;
 
                 default:
-                    MORIS_ERROR( false, "Element_Factory::create_cluster - No element type specified" );
+                    MORIS_ERROR( false, "Element_Factory::create_element - No element type specified" );
                     break;
             }
             return tElement;
