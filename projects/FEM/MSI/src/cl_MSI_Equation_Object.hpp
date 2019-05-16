@@ -27,7 +27,7 @@ class Dist_Vector;
     {
         class Pdof;
         class Pdof_Host;
-        class Equation_Block;
+        class Equation_Set;
         class Equation_Object
         {
 //-------------------------------------------------------------------------------------------------
@@ -41,11 +41,8 @@ class Dist_Vector;
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
 
-            //! weak BCs of element
+            //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
-
-            Matrix< DDRMat > mResidual;
-            Matrix< DDRMat > mJacobian;
 
             Matrix< DDRMat > mPdofValues;
 
@@ -61,7 +58,7 @@ class Dist_Vector;
 
             Matrix< DDRMat > mTime;
 
-            Equation_Block * mEquationBlock;
+            Equation_Set * mEquationBlock;
 
             friend class fem::Element;
 
@@ -71,7 +68,7 @@ class Dist_Vector;
 
             Equation_Object() {};
 
-            Equation_Object( Equation_Block * aElementBlock) : mEquationBlock( aElementBlock )
+            Equation_Object( Equation_Set * aElementBlock) : mEquationBlock( aElementBlock )
             {};
 
 //-------------------------------------------------------------------------------------------------
@@ -190,21 +187,7 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
-                                       Dist_Vector      * aSolutionVector )
-            {
-                mSolVec = aSolutionVector;
-
-                Matrix< DDRMat > tTMatrix;
-                this->build_PADofMap( tTMatrix );
-
-                this->compute_jacobian();
-
-//                print( tTMatrix, "tTMatrix" );
-//                print( mJacobian, "mJacobian" );
-
-                aEqnObjMatrix = trans( tTMatrix ) * mJacobian * tTMatrix ;
-
-            };
+                                       Dist_Vector      * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
 

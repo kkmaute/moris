@@ -9,9 +9,11 @@ set(TEST_SOURCES
 	cl_MTK_Mesh_From_Data.cpp
 	cl_MTK_Vertex.cpp
 	cl_MTK_Cell.cpp
-	cl_MTK_Facet_Cluster.cpp
+	cl_MTK_Side_Cluster.cpp
 	cl_MTK_Mesh_New.cpp
-	cl_MTK_Interpolation_Mesh.cpp)
+	cl_MTK_Interpolation_Mesh.cpp
+	cl_MTK_Cell_Cluster.cpp
+	cl_MTK_Double_Side_Cluster.cpp)
 
 # List test includes
 set(TEST_INCLUDES
@@ -33,6 +35,7 @@ include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
 set(TEST_DEPENDENCIES
     ${COM}-lib
     ${MTK}-lib
+    ${ALG}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_SUPERLU_LIBS}

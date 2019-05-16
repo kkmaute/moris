@@ -83,7 +83,7 @@ Paramfile::parse_xtk_problem_input_mesh(moris::uint aProblemIndex)
     }
     else
     {
-      MORIS_ERROR(0,"Invalid mesh parameter parsed: %s",tFirst(k));
+      MORIS_ERROR(0,"Invalid mesh parameter parsed: %s",tFirst(k).c_str());
     }
   }
 }
@@ -168,7 +168,7 @@ Paramfile::parse_xtk_problem_decomp(moris::uint aProblemIndex)
       }
       else
       {
-        MORIS_ERROR(0,"Invalid decomposition parsed: %s",tKey);
+        MORIS_ERROR(0,"Invalid decomposition parsed: %s",tKey.c_str());
       }
     }
     else
@@ -246,7 +246,7 @@ Paramfile::parse_xtk_problem_operators(moris::uint aProblemIndex)
       }
       else
       {
-        MORIS_ERROR(0,"Parsing error: output parameter not recognized: %s",tKey);
+        MORIS_ERROR(0,"Parsing error: output parameter not recognized: %s",tKey.c_str());
       }
     }
 

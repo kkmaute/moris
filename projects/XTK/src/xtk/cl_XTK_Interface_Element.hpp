@@ -18,7 +18,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "assert.hpp"
 
-#include "cl_XTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Tetra4_Connectivity.hpp"
 
 //TODO:PUT THIS IN A MORE APPROPRIATE SPOT
 inline
@@ -29,7 +29,7 @@ get_nodes_on_face_map(moris::uint               aNumVertsPerElem,
 {
     if(aNumVertsPerElem == 4 && aGeometryType == moris::mtk::Geometry_Type::TET)
     {
-        return xtk::Tetra4_Connectivity::get_node_to_face_map(aSideOrd);
+        return moris::Tetra4_Connectivity::get_node_to_face_map(aSideOrd);
     }
     else
     {

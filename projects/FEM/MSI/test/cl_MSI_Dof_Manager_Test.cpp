@@ -224,7 +224,7 @@ namespace moris
         Equation_Object EquObj_1( tNodeIds_1 );
         Equation_Object EquObj_2( tNodeIds_2 );
 
-        Equation_Block tEqnBlock;
+        Equation_Set tEqnBlock;
         tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         EquObj_1.mEquationBlock = &tEqnBlock;
         EquObj_2.mEquationBlock = &tEqnBlock;
@@ -469,10 +469,10 @@ namespace moris
     TEST_CASE("Dof_Mgn_create_unique_dof_type_list","[MSI],[Dof_create_dof_type_list][MSI_parallel]")
      {
          // Create generic equation objects
-         Equation_Block EquObj_1;
-         Equation_Block EquObj_2;
+         Equation_Set EquObj_1;
+         Equation_Set EquObj_2;
 
-         moris::Cell < Equation_Block* >tListEqnObj;
+         moris::Cell < Equation_Set* >tListEqnObj;
 
          // Determine process rank
          size_t tRank = par_rank();
@@ -538,10 +538,10 @@ namespace moris
     TEST_CASE("Dof_Mgn_create_unique_dof_type_map_matrix","[MSI],[Dof_create_dof_type_map][MSI_parallel]")
     {
         // Create generic equation objects
-        Equation_Block EquObj_1;
-        Equation_Block EquObj_2;
+        Equation_Set EquObj_1;
+        Equation_Set EquObj_2;
 
-        moris::Cell < Equation_Block* >tListEqnObj;
+        moris::Cell < Equation_Set* >tListEqnObj;
 
         // Determine process rank
         size_t tRank = par_rank();

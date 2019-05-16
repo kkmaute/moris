@@ -24,7 +24,7 @@ namespace moris
         MSI::Equation_Object * Element_Factory::create_cluster( Element_Type         aElementType,
                                                                 mtk::Cell    const * aCell,
                                                                 Cell< Node_Base* > & aNodes,
-                                                                Element_Block      * aElementBlock)
+                                                                Set                * aElementBlock)
         {
             MSI::Equation_Object * tElement = nullptr;
 
@@ -57,7 +57,7 @@ namespace moris
 
         fem::Element * Element_Factory::create_element( Element_Type         aElementType,
                                                         mtk::Cell    const * aCell,
-                                                        Element_Block      * aElementBlock,
+                                                        Set                * aElementBlock,
                                                         Cluster            * aCluster )
         {
             fem::Element * tElement = nullptr;

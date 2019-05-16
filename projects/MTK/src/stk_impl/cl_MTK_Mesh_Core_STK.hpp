@@ -313,6 +313,21 @@ public:
     //##############################################
     // Field Access
     //##############################################
+    uint
+    get_num_fields(  const enum EntityRank aEntityRank ) const;
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * return the index of the field of this label
+     * return gNoIndex if not found
+     */
+    moris_index
+    get_field_ind(
+            const std::string & aFieldLabel,
+            const enum EntityRank aEntityRank ) const;
+
+
 
     /*
      * Access an entity
@@ -353,6 +368,9 @@ public:
      */
     mtk::Vertex &
     get_mtk_vertex(moris_index aVertexIndex);
+
+    mtk::Vertex const &
+    get_mtk_vertex(moris_index aVertexIndex) const;
 
     /*
      * Returns the vertex as a child class
@@ -436,7 +454,6 @@ public:
     void
     setup_vertices_and_cell();
     //------------------------------------------------------------------------------
-
 
     //##############################################
     // Private functions to access mesh information

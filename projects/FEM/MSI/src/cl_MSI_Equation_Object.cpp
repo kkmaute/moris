@@ -8,7 +8,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Equation_Block.hpp"
+#include "cl_MSI_Equation_Set.hpp"
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_Vector.hpp"
 
@@ -193,6 +193,24 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
+    void Equation_Object::get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
+                                                Dist_Vector      * aSolutionVector )
+    {
+        mSolVec = aSolutionVector;
+
+        Matrix< DDRMat > tTMatrix;
+        this->build_PADofMap( tTMatrix );
+
+        this->compute_jacobian();
+
+//                print( tTMatrix, "tTMatrix" );
+//                print( mJacobian, "mJacobian" );
+
+        aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->mJacobian * tTMatrix;
+    }
+
+//-------------------------------------------------------------------------------------------------
+
     void Equation_Object::get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS, Dist_Vector * aSolutionVector )
     {
         mSolVec = aSolutionVector;
@@ -203,7 +221,7 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
-        aEqnObjRHS = trans( tTMatrix ) * mResidual;
+        aEqnObjRHS = trans( tTMatrix ) * mEquationBlock->mResidual;
     }
 
 //-------------------------------------------------------------------------------------------------

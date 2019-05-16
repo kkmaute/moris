@@ -1,7 +1,7 @@
 #include <iostream>
 #include "cl_FEM_Element_Sideset.hpp" //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"      //FEM/INT/src
-#include "cl_FEM_Element_Block.hpp"   //FEM/INT/src
+#include "cl_FEM_Set.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -11,7 +11,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element_Sideset::Element_Sideset( mtk::Cell    const * aCell,
-                                          Element_Block      * aElementBlock,
+                                          Set                * aElementBlock,
                                           Cluster            * aCluster) : Element( aCell, aElementBlock, aCluster )
         { }
 
@@ -98,9 +98,9 @@ namespace moris
                         uint startDof = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
                         uint stopDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
 
-                        // add contribution to residual from evaluation point
-                        mCluster->mResidual( { startDof, stopDof }, { 0, 0 } )
-                            = mCluster->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
+                        // add contribution to jacobian from evaluation point
+                        mElementBlock->mResidual( { startDof, stopDof }, { 0, 0 } )
+                            = mElementBlock->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
                     }
                 }
             }
@@ -199,8 +199,8 @@ namespace moris
                             uint stopJDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 1 );
 
                             // add contribution to jacobian from evaluation point
-                            mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                                = mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                            mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                                = mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
                                 + tWStar * tJacobians( iIWGFI );
                         }
                     }

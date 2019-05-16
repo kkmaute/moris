@@ -1,5 +1,5 @@
 /*
- * cl_FEM_Element_Block.hpp
+ * cl_FEM_Set.hpp
  *
  *  Created on: Mar 10, 2019
  *      Author: schmidt
@@ -9,7 +9,7 @@
 #define SRC_FEM_CL_FEM_ELEMENT_BLOCK_HPP_
 
 #include "assert.h"
-#include "cl_MSI_Equation_Block.hpp"               //FEM/INT/src
+#include "cl_MSI_Equation_Set.hpp"               //FEM/INT/src
 #include "cl_FEM_Enums.hpp"               //FEM/INT/src
 #include "cl_MTK_Enums.hpp"               //FEM/INT/src
 #include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
@@ -37,7 +37,7 @@ namespace MSI
     /**
      * \brief element block class that communicates with the mesh interface
      */
-    class Element_Block : public MSI::Equation_Block
+    class Set : public MSI::Equation_Set
     {
     private:
         moris::Cell< mtk::Cell const* >     mMeshElementPointer;
@@ -74,6 +74,12 @@ namespace MSI
         // integration weights
         Matrix< DDRMat > mIntegWeights;
 
+        friend class MSI::Equation_Object;
+        friend class Element_Bulk;
+        friend class Element_Sideset;
+        friend class Element_Time_Sideset;
+        friend class Element;
+
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
@@ -82,7 +88,7 @@ namespace MSI
          *
          * @param[ in ]     List of mtk::Cell pointer
          */
-        Element_Block( moris::Cell< mtk::Cell const * > & aCell,
+        Set( moris::Cell< mtk::Cell const * > & aCell,
                        Element_Type                aElementType,
                        Cell< IWG* >              & aIWGs,
                        Cell< Node_Base* >        & aNodes);
@@ -90,14 +96,15 @@ namespace MSI
         /**
          * trivial constructor
          */
-        Element_Block(){};
+        Set()
+        {};
 
 //------------------------------------------------------------------------------
 
         /**
          * trivial destructor
          */
-        ~Element_Block();
+        ~Set();
 
 //------------------------------------------------------------------------------
 
@@ -117,24 +124,20 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        void create_unique_list_of_first_dof_type_of_group();
-
-//------------------------------------------------------------------------------
-
         void create_dof_assembly_map();
 
 //------------------------------------------------------------------------------
 
         uint get_num_equation_objects()
         {
-            return mElements.size();
+            return mEquationObjList.size();
         };
 
 //------------------------------------------------------------------------------
 
         Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
-            return mElements;
+            return mEquationObjList;
         };
 
 //------------------------------------------------------------------------------
@@ -263,10 +266,22 @@ namespace MSI
 
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
 
+//------------------------------------------------------------------------------
+
         /**
           * auto detect interpolation scheme
           */
         fem::Integration_Order get_auto_integration_order( const mtk::Geometry_Type aGeometryType );
+
+//------------------------------------------------------------------------------
+
+        void initialize_mJacobianElement();
+
+//------------------------------------------------------------------------------
+
+        void initialize_mResidualElement();
+
+//------------------------------------------------------------------------------
 
     };
 //------------------------------------------------------------------------------

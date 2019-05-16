@@ -10,7 +10,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element_Time_Sideset::Element_Time_Sideset( mtk::Cell            const * aCell,
-                                                    Element_Block      * aElementBlock,
+                                                    Set                * aElementBlock,
                                                     Cluster            * aCluster) : Element( aCell, aElementBlock, aCluster )
         {
         }
@@ -109,8 +109,8 @@ namespace moris
                        uint stopDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
 
                        // add contribution to residual from evaluation point
-                       mCluster->mResidual( { startDof, stopDof }, { 0, 0 } )
-                           = mCluster->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
+                       mElementBlock->mResidual( { startDof, stopDof }, { 0, 0 } )
+                           = mElementBlock->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
                    }
                 }
             }
@@ -215,8 +215,8 @@ namespace moris
                            uint stopJDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 1 );
 
                            // add contribution to jacobian from evaluation point
-                           mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                               = mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                           mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                               = mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
                                + tWStar * tJacobians( iIWGFI );
                        }
 

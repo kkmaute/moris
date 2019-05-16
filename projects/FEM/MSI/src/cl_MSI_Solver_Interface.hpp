@@ -30,7 +30,7 @@ namespace mtk
                 moris::MSI::Dof_Manager            * mDofMgn;
 
                 Dist_Vector                        * mSolutionVector;
-                Dist_Vector                        *mPrevSolutionVector;
+                Dist_Vector                        * mPrevSolutionVector;
                 Matrix< DDRMat>  mTime;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
@@ -58,6 +58,8 @@ namespace mtk
                 mSolutionVector = aSolutionVector;
             }
 
+//------------------------------------------------------------------------------
+
             void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
             {
                 mPrevSolutionVector = aSolutionVector;
@@ -75,6 +77,12 @@ namespace mtk
             {
             };
 
+//------------------------------------------------------------------------------
+
+            void free_block_memory( const uint aBlockInd )
+            {
+                mMSI->get_eqn_block( aBlockInd )->free_matrix_memory();
+            };
 
 //------------------------------------------------------------------------------
 
@@ -89,6 +97,29 @@ namespace mtk
                                            const moris::uint   aNumTimeLevels )
             {
                 mDofMgn->set_time_levels_for_type( aDofType, aNumTimeLevels );
+            };
+
+//------------------------------------------------------------------------------
+
+            // number of elements blocks on proc
+            moris::uint get_num_my_blocks()
+            {
+                return mMSI->get_num_eqn_blocks();
+            };
+
+//------------------------------------------------------------------------------
+
+            // number of elements on proc
+            moris::uint get_num_my_elements()
+            {
+                return mMSI->get_num_eqn_objs();
+            };
+
+//------------------------------------------------------------------------------
+
+            moris::uint get_num_my_elements_on_block( uint aBlockInd )
+            {
+                return mMSI->get_eqn_block( aBlockInd )->get_num_equation_objects();
             };
 
 //------------------------------------------------------------------------------
@@ -115,16 +146,16 @@ namespace mtk
              // local-to-global map
              moris::Matrix< DDSMat > get_my_local_global_map()
              {
-                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids();
-                 return tLocalAdofIds;
+//                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids();
+                 return mDofMgn->get_local_adof_ids();
              };
 
 //------------------------------------------------------------------------------
 
              moris::Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
              {
-                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids( aListOfDofTypes );
-                 return tLocalAdofIds;
+//                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids( aListOfDofTypes );
+                 return mDofMgn->get_local_adof_ids( aListOfDofTypes );
              };
 
 //------------------------------------------------------------------------------
@@ -133,26 +164,11 @@ namespace mtk
                  return mDofMgn->get_local_overlapping_adof_ids();
              };
 
+//------------------------------------------------------------------------------
+
              Matrix< DDSMat > get_my_local_global_overlapping_map( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
              {
                  return mDofMgn->get_local_overlapping_adof_ids( aListOfDofTypes );
-             };
-
-//------------------------------------------------------------------------------
-
-             // element dofs
-             moris::uint get_num_element_dof()
-             {
-                 return 0;
-             };
-
-//------------------------------------------------------------------------------
-
-             // number of elements on proc
-             moris::uint get_num_my_elements()
-             {
-                 moris::uint tNumEquationObj= mMSI->get_num_eqn_objs();
-                 return tNumEquationObj;
              };
 
 //------------------------------------------------------------------------------
@@ -164,11 +180,27 @@ namespace mtk
                  mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix, mSolutionVector );
              };
 
+             void get_element_matrix( const moris::uint      & aMyBlockInd,
+                                      const moris::uint      & aMyElementInd,
+                                            Matrix< DDRMat > & aElementMatrix )
+             {
+                 mMSI->get_eqn_block( aMyBlockInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
+                 mMSI->get_eqn_block( aMyBlockInd )->get_equation_object_list()( aMyElementInd )->get_egn_obj_jacobian( aElementMatrix, mSolutionVector );
+             };
+
 //------------------------------------------------------------------------------
              void  get_element_topology( const moris::uint      & aMyElementInd,
                                                Matrix< DDSMat > & aElementTopology )
              {
                  mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_dof_ids( aElementTopology );
+             };
+
+
+             void  get_element_topology( const moris::uint      & aMyBlockInd,
+                                         const moris::uint      & aMyElementInd,
+                                               Matrix< DDSMat > & aElementTopology )
+             {
+                 mMSI->get_eqn_block( aMyBlockInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_dof_ids( aElementTopology );
              };
 
 //------------------------------------------------------------------------------
@@ -186,6 +218,14 @@ namespace mtk
              {
                  mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                  mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS, mSolutionVector  );
+             };
+
+             void get_element_rhs( const moris::uint      & aMyBlockInd,
+                                   const moris::uint      & aMyElementInd,
+                                         Matrix< DDRMat > & aElementRHS )
+             {
+                 mMSI->get_eqn_block( aMyBlockInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
+                 mMSI->get_eqn_block( aMyBlockInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_residual( aElementRHS, mSolutionVector  );
              };
 
 //------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * cl_MSI_Equation_Block.hpp
+ * cl_MSI_Equation_Set.hpp
  *
  *  Created on: Apr 10, 2019
  *      Author: schmidt
@@ -26,13 +26,27 @@ namespace mtk
     /**
      * \brief element block class that communicates with the mesh interface
      */
-    class Equation_Block
+    class Equation_Set
     {
     protected:
-        Cell< MSI::Equation_Object* > mElements;
+        Cell< MSI::Equation_Object* > mEquationObjList;
+
+        Matrix< DDRMat > mResidual;
+        Matrix< DDRMat > mJacobian;
+
+        bool mJacobianExist = false;
+        bool mResidualExist = false;
+
+        Matrix< DDRMat >mTime;
 
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
+
+        friend class MSI::Equation_Object;
+        friend class Element_Bulk;
+        friend class Element_Sideset;
+        friend class Element_Time_Sideset;
+        friend class Element;
 
 //------------------------------------------------------------------------------
     public:
@@ -41,25 +55,45 @@ namespace mtk
         /**
          * trivial constructor
          */
-        Equation_Block( ){};
+        Equation_Set( ){};
 
 //------------------------------------------------------------------------------
 
         /**
          * trivial destructor
          */
-        virtual ~Equation_Block(){};
+        virtual ~Equation_Set(){};
 
 //------------------------------------------------------------------------------
 
 //        void delete_pointers();
 
+//-------------------------------------------------------------------------------------------------
+
+        void free_matrix_memory()
+        {
+            if ( mJacobianExist )
+            {
+                mJacobian.resize( 0, 0 );
+
+                mJacobianExist = false;
+            }
+            if ( mResidualExist )
+            {
+                mResidual.resize( 0, 0 );
+
+                mResidualExist = false;
+            }
+        };
+
 //------------------------------------------------------------------------------
 
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
         {
-            MORIS_ERROR(false,"Equation_Block::finalize(), not implemented");
+            MORIS_ERROR(false,"Equation_Set::finalize(), not implemented");
         };
+
+//------------------------------------------------------------------------------
 
         void get_dof_types( moris::Cell< enum Dof_Type > & aDofType )
         {
@@ -70,14 +104,14 @@ namespace mtk
 
         uint get_num_equation_objects()
         {
-            return mElements.size();
+            return mEquationObjList.size();
         };
 
 //------------------------------------------------------------------------------
 
         Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
-            return mElements;
+            return mEquationObjList;
         };
 
 //------------------------------------------------------------------------------

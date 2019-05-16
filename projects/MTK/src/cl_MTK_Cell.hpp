@@ -116,6 +116,21 @@ namespace moris
             virtual Matrix< DDRMat >
             get_vertex_coords() const = 0;
 
+
+//------------------------------------------------------------------------------
+
+            /*!
+             * get vertices on side ordinal.
+             * This functions is needed for side clustering
+             */
+            virtual
+            moris::Cell<moris::mtk::Vertex const *>
+            get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+            {
+                MORIS_ERROR(0,"get_vertices_on_side_ordinal has no default implementation");
+                return  moris::Cell<moris::mtk::Vertex const *>(0);
+            }
+
 //------------------------------------------------------------------------------
 
             /**

@@ -92,7 +92,7 @@ public:
     moris::Cell<moris::Cell<moris::Matrix< IndexMat >>> mEntityReceiveList;
 
     //    // moris::Cell and Vertex
-    moris::Cell<mtk::Cell_Core_STK>               mMtkCells;
+    moris::Cell<mtk::Cell_STK>               mMtkCells;
     moris::Cell<mtk::Vertex_Core_STK>             mMtkVertices;
     moris::Cell<mtk::Vertex_Interpolation_STK> mMtkVerticeInterpolation;
 

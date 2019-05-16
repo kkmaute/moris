@@ -12,6 +12,10 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Sets_Info.hpp"
 #include "cl_MTK_Fields_Info.hpp"
+#include "cl_MTK_Cell_Cluster_Input.hpp"
+#include "cl_MTK_Side_Cluster_Input.hpp"
+#include "cl_MTK_Double_Side_Cluster_Input.hpp"
+
 
 namespace moris
 {
@@ -35,6 +39,16 @@ namespace mtk
         // Processor Ids that share a node (row - node index, col - procs)
         // Should contain MORIS_ID_MAX as a dummy value
         Matrix < IdMat >*               NodeProcsShared;
+
+        // Clustering Inputs
+        // Cell clusters
+        Cell_Cluster_Input * CellClusterInput = nullptr;
+
+        // Side clusters
+        Side_Cluster_Input * SideClusterInput = nullptr;
+
+        // Double Side clusters
+        Double_Side_Cluster_Input * DoubleSideClusterInput = nullptr;
 
         // Node coordinates (row - node index, col - (x,y,z)
         Matrix < DDRMat >*              NodeCoords;

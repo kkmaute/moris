@@ -1,12 +1,12 @@
 /*
- * cl_FEM_Element_Block.cpp
+ * cl_FEM_Set.cpp
  *
  *  Created on: Apr 11, 2019
  *      Author: schmidt
  */
 #include <iostream>
 
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_FEM_Integrator.hpp"   //FEM/INT/src
@@ -16,7 +16,7 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-    Element_Block::Element_Block( moris::Cell< mtk::Cell const * > & aCell,
+    Set::Set( moris::Cell< mtk::Cell const * > & aCell,
                                  enum fem::Element_Type      aElementType,
                                  Cell< IWG* >              & aIWGs,
                                  Cell< Node_Base* >        & aNodes) : mMeshElementPointer(aCell),
@@ -27,7 +27,7 @@ namespace moris
         this->create_unique_dof_type_lists();
         this->create_dof_type_lists();
 
-        mElements.resize( mMeshElementPointer.size(), nullptr);
+        mEquationObjList.resize( mMeshElementPointer.size(), nullptr);
 
         // a factory to create the elements
         fem::Element_Factory tElementFactory;
@@ -35,7 +35,7 @@ namespace moris
         for( luint k=0; k < mMeshElementPointer.size(); ++k )
         {
             // create the element // FIXME replace with mtk::cluster information
-            mElements( k ) = tElementFactory.create_cluster( mElementType,
+            mEquationObjList( k ) = tElementFactory.create_cluster( mElementType,
                                                              mMeshElementPointer( k ),
                                                              mNodes,
                                                              this );
@@ -44,14 +44,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    Element_Block::~Element_Block()
+    Set::~Set()
     {
         this->delete_pointers();
     }
 
 //------------------------------------------------------------------------------
 
-    void Element_Block::delete_pointers()
+    void Set::delete_pointers()
     {
         // delete the geometry interpolator pointer
 //        if ( mGeometryInterpolator != nullptr )
@@ -72,11 +72,13 @@ namespace moris
         }
 
         mFieldInterpolators.clear();
+
+//        mEquationObjList.clear();        // FIXME memory leak
     }
 
 //------------------------------------------------------------------------------
 
-    void Element_Block::finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
+    void Set::finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         this->delete_pointers();
 
@@ -154,6 +156,8 @@ namespace moris
             // create an integrator for the ith IWG
             Integrator tIntegrator( *tIntegrationRule );
 
+            delete tIntegrationRule;
+
             //get number of integration points
             mNumOfIntegPoints = tIntegrator.get_number_of_points();
 
@@ -167,7 +171,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Element_Block::create_unique_dof_type_lists()
+    void Set::create_unique_dof_type_lists()
     {
         // set the size of the element active dof type list
         uint tCounter = 0;
@@ -192,7 +196,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Element_Block::create_dof_type_lists()
+    void Set::create_dof_type_lists()
     {
         // get the number of IWGs
         uint tNumOfIWGs = this->get_num_IWG();
@@ -252,7 +256,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Element_Block::create_dof_assembly_map( )
+    void Set::create_dof_assembly_map( )
     {
         // set size of assembly mapping matrix
         mInterpDofAssemblyMap.set_size( mNumOfInterp, 2, -1 );
@@ -282,7 +286,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    mtk::Interpolation_Order Element_Block::get_auto_interpolation_order( const moris::uint aNumVertices,
+    mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint aNumVertices,
                                                                           const mtk::Geometry_Type aGeometryType )
     {
         switch( aGeometryType )                                 // FIXME change to block information
@@ -366,7 +370,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    fem::Interpolation_Type Element_Block::get_auto_time_interpolation_type( const moris::uint aNumVertices )
+    fem::Interpolation_Type Set::get_auto_time_interpolation_type( const moris::uint aNumVertices )
     {
         switch( aNumVertices )
         {
@@ -387,7 +391,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Element_Block::create_field_interpolators(MSI::Model_Solver_Interface * aModelSolverInterface )
+    void Set::create_field_interpolators(MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // cell of field interpolators
         mFieldInterpolators.resize( mNumOfInterp, nullptr );
@@ -428,7 +432,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    moris::Cell< Field_Interpolator* > Element_Block::get_IWG_field_interpolators ( IWG*                               & aIWG,
+    moris::Cell< Field_Interpolator* > Set::get_IWG_field_interpolators ( IWG*                               & aIWG,
                                                                      moris::Cell< Field_Interpolator* > & aFieldInterpolators )
     {
         // ask the IWG for its active dof types
@@ -452,7 +456,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    fem::Integration_Order Element_Block::get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
+    fem::Integration_Order Set::get_auto_integration_order( const mtk::Geometry_Type aGeometryType )
     {
         switch( aGeometryType )
         {
@@ -485,6 +489,42 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    void Set::initialize_mJacobianElement()
+    {
+        if ( !mJacobianExist )
+        {
+            uint tTotalDof = this->get_total_number_of_dofs();
+            mJacobian.set_size( tTotalDof, tTotalDof, 0.0 );
+
+            mJacobianExist = true;
+        }
+        else
+        {
+            MORIS_ASSERT( mJacobian.numel() > 0, "Set::initialize_mJacobianElement(): Jacobian not properly initialized.");
+
+            mJacobian.fill( 0.0 );
+        }
+    }
+
+//------------------------------------------------------------------------------
+
+    void Set::initialize_mResidualElement()
+    {
+        if ( !mResidualExist )
+        {
+            mResidual.set_size( this->get_total_number_of_dofs(), 1, 0.0 );
+
+            mResidualExist = true;
+        }
+        else
+        {
+            MORIS_ASSERT( mResidual.numel() > 0, "Set::initialize_mJacobianElement(): Residual not properly initialized.");
+
+            mResidual.fill( 0.0 );
+        }
+    }
+
+//------------------------------------------------------------------------------
 
 
     } /* namespace fem */

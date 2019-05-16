@@ -28,7 +28,6 @@
 #include "fn_create_faces_from_element_to_node.hpp"
 #include "fn_create_edges_from_element_to_node.hpp"
 #include "cl_XTK_Child_Mesh_Modification_Template.hpp"
-#include "cl_XTK_Tetra4_Connectivity.hpp"
 
 
 // MTK includes

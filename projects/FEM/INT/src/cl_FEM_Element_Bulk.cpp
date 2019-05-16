@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"   //FEM/INT/src
+#include "cl_FEM_Set.hpp"   //FEM/INT/src
 
 namespace moris
 {
@@ -10,7 +12,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Element_Bulk::Element_Bulk( mtk::Cell    const * aCell,
-                                    Element_Block      * aElementBlock,
+                                    Set                * aElementBlock,
                                     Cluster            * aCluster ) : Element( aCell, aElementBlock, aCluster )
         {
         }
@@ -93,8 +95,8 @@ namespace moris
                         uint stopJDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 1 );
 
                         // add contribution to jacobian from evaluation point
-                        mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                            = mCluster->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                        mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
+                            = mElementBlock->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
                             + tWStar * tJacobians( iIWGFI );
                     }
                 }
@@ -167,11 +169,9 @@ namespace moris
                 {
                     // get the ith integration point in the IG param space
                     Matrix< DDRMat > tLocalIntegPoint = mElementBlock->get_integration_points().get_column( iGP );
-                    print(tLocalIntegPoint,"tLocalIntegPoint");
 
                     // bring the ith integration point in the IP param space
                     Matrix< DDRMat > tGlobalIntegPoint = mElementBlock->get_block_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
-                    print(tGlobalIntegPoint,"tGlobalIntegPoint");
 
                     // set evaluation point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -192,9 +192,8 @@ namespace moris
                     uint stopDof  = mElementBlock->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
 
                     // add contribution to residual from evaluation point
-                    mCluster->mResidual( { startDof, stopDof }, { 0, 0 } )
-                        = mCluster->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
-
+                    mElementBlock->mResidual( { startDof, stopDof }, { 0, 0 } )
+                              = mElementBlock->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
                 }
             }
 

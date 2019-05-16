@@ -160,6 +160,26 @@ Nonlinear_Problem::~Nonlinear_Problem()
     if( mIsMasterSystem )
     {
         delete( mFullVector );
+
+        delete( mJacVals );
+        delete( mJacVals0 );
+        delete( mDTildeVec );
+        delete( mDTilde0Vec );
+        delete( mDK );
+        delete( mDSolve );
+        delete( mDSolveNMinus1 );
+        delete( mDSolveNMinus2 );
+        delete( mGlobalRHS );
+        delete( mDFArcDDeltaD );
+        delete( mDelLamNum );
+        delete( mDelLamDen );
+        delete( mDeltaD );
+        delete( mdeltaD );
+        delete( mFext );
+
+        delete( mJacobian );
+
+
     }
 
     if ( mMapType == MapType::Petsc)
@@ -230,7 +250,7 @@ void Nonlinear_Problem::extract_my_values( const moris::uint         & aNumIndic
 
 void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 {
-    char NonLinNum[10];
+    char NonLinNum[100];
     std::sprintf( NonLinNum, "NonLIt.%04u", aNonLinearIt );
 
     char SolVector[100];
@@ -243,7 +263,7 @@ void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 
 void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 {
-    char NonLinNum[10];
+    char NonLinNum[100];
     std::sprintf( NonLinNum, "NonLIt.%04u", aRestart );
 
     char SolVector[100];

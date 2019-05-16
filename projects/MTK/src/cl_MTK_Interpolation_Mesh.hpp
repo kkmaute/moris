@@ -20,8 +20,8 @@ namespace mtk
 class Interpolation_Mesh: public virtual Mesh
 {
     // Functions only valid for interpolation mIntegrationMeshes
-
-
+public:
+    Interpolation_Mesh(){};
 //    /*
 //     * Get elements interpolated into by a basis function. For a Lagrange mesh,
 //     * the elements in support of basis is equivalent to the elements connected
