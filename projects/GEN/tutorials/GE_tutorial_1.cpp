@@ -193,7 +193,7 @@ main(
      */
 
     /*!
-     * create MORIS mesh using MTK database
+     * create MORIS mesh using STK database
      *
      * \code{.cpp}
      * mtk::Mesh* tMesh3DHexs = mtk::create_mesh( MeshType::STK, tFileName2, &tMeshData );

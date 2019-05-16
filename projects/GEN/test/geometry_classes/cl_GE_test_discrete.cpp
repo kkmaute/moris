@@ -5,7 +5,7 @@
  *      Author: sonne
  */
 
-#include "../../src/cl_GE_Core.hpp"
+#include "cl_GE_Core.hpp"
 #include "catch.hpp"
 
 //------------------------------------------------------------------------------
@@ -13,6 +13,13 @@
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Factory.hpp"
 #include "cl_GE_Node.hpp"
+
+// HMR includes
+#include "cl_HMR.hpp"
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Parameters.hpp"
+#include "fn_HMR_Exec_perform_mapping.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"
@@ -35,184 +42,64 @@
 using namespace moris;
 using namespace ge;
 
-TEST_CASE("discrete_functionalities_test","[GE],[discrete_functionalities]")
+real
+CircleFunction( const Matrix< DDRMat > & aPoint )
+{
+    return std::pow(aPoint(0),2) + std::pow(aPoint(1),2) - std::pow(0.6,2);
+}
+
+TEST_CASE("discrete_functionalities_test_01","[GE],[discrete_functionalities_hmr_mesh]")
 {
     if(par_size()<=1)
     {
         /*
-         * 1) create single-element mesh
-         * 2) discretize a circle function onto the mesh
-         * 3) determine LS values and sensitivity at nodes
-         * 4) determine intersection locations along edges
-         *
-         *         [3]
-         *   (0,1)      (1,1)
-         *      x--------x
-         *      |        |
-         *      O        |
-         * [4]  |        |  [2]
-         *      |        |
-         *      x-----O--x
-         *   (0,0)      (1,0)
-         *         [1]
-         *
+         * *create an hmr mesh to be used
+         * *B-spline order = Lagrange Order = 2
          */
-        Matrix< DDRMat > tTMatrix( 4,4, 0.0 ); //T-matrix to be used for L2 projection
-        tTMatrix(0,0) = 0.25;
-        tTMatrix(1,1) = 0.25;
-        tTMatrix(2,2) = 0.25;
-        tTMatrix(3,3) = 0.25;
-        /* *************************************************************************
-         * create the 2D mesh with a single element and initialize scalar node field
-         * *************************************************************************
+        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+        tParameters.set( "bspline_orders", "2" );
+        tParameters.set( "lagrange_orders", "2" );
+        tParameters.set( "verbose", 0 );                    // displays debug info when turned on
+        tParameters.set( "domain_dimensions", "2, 2" );     // if no dimensions set, hmr assumes 1x1
+        tParameters.set( "domain_offset", "-1, -1" );       // offset so that the center node is at ( 0, 0 )
+
+        hmr::HMR tHMR( tParameters );
+        /*
+         * *create a field and add to the hmr mesh
          */
-        uint aNumElemTypes = 1;     // quad
-        uint aNumDim = 2;           // specify number of spatial dimensions
+        std::shared_ptr< hmr::Field > tField = tHMR.create_field( "circle" );
 
-        Matrix< IdMat > aElementConnQuad = {{ 1, 2, 3, 4 }};   // specify element connectivity of quad for mesh
+//        Matrix< DDRMat > tDiscreteNodalVals( 1,25 );    // values of circle LS at nodes, centered at origin with r=0.6
+//        tDiscreteNodalVals(0) = 1.64;
+//        tDiscreteNodalVals(9) = 1.64;
+//        tDiscreteNodalVals(21) = 1.64;
+//        tDiscreteNodalVals(16) = 1.64;
+//
+//        tDiscreteNodalVals(1) = 0.64;
+//        tDiscreteNodalVals(10) = 0.64;
+//        tDiscreteNodalVals(15) = 0.64;
+//        tDiscreteNodalVals(3) = 0.64;
+//
+//        tDiscreteNodalVals(4) = 0.89;
+//        tDiscreteNodalVals(11) = 0.89;
+//        tDiscreteNodalVals(12) = 0.89;
+//        tDiscreteNodalVals(22) = 0.89;
+//        tDiscreteNodalVals(23) = 0.89;
+//        tDiscreteNodalVals(18) = 0.89;
+//        tDiscreteNodalVals(19) = 0.89;
+//        tDiscreteNodalVals(7) = 0.89;
+//
+//        tDiscreteNodalVals(2) = -0.36;
+//        tField->put_scalar_values_on_field( tDiscreteNodalVals );
+        tField->evaluate_scalar_function(CircleFunction);
 
-        Matrix< IdMat > aElemLocalToGlobalQuad = {{ 1 }};      // specify the local to global element map for quads
-
-        Matrix< DDRMat > aCoords = {{ 0.0, 0.0 },
-                                    { 1.0, 0.0 },
-                                    { 1.0, 1.0 },
-                                    { 0.0, 1.0 }};             // Node coordinate matrix
-
-        Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4 }}; // specify the local to global map
-        //------------------------------------------------------------------------------
-        // create MORIS mesh using MTK database
-        mtk::MtkMeshData tMeshData( aNumElemTypes );
-        tMeshData.CreateAllEdgesAndFaces = true;
-        tMeshData.SpatialDim = & aNumDim;
-        tMeshData.ElemConn(0) = & aElementConnQuad;
-        tMeshData.NodeCoords = & aCoords;
-        tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
-        tMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
-        //------------------------------------------------------------------------------
-        // declare scalar node field for the circle LS
-        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-        std::string tFieldName = "circle";
-        tNodeField1.set_field_name(tFieldName);
-        tNodeField1.set_field_entity_rank(EntityRank::NODE);
-
-        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField2;
-        std::string tFieldName1 = "projectionVals";
-        tNodeField2.set_field_name(tFieldName1);
-        tNodeField2.set_field_entity_rank(EntityRank::NODE);
-
-        // initialize field information container
-        moris::mtk::MtkFieldsInfo tFieldsInfo;
-        // Place the node field into the field info container
-        add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
-        add_field_for_mesh_input(&tNodeField2,tFieldsInfo);
-
-        // declare some supplementary fields
-        tMeshData.FieldsInfo = &tFieldsInfo;
-        //------------------------------------------------------------------------------
-        // create mesh pair
-        mtk::Interpolation_Mesh* tInterpMesh1 = create_interpolation_mesh( MeshType::STK, tMeshData );
-        mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
-
-        // place the pair in mesh manager
+        mtk::Interpolation_Mesh* tInterpMesh1 = mtk::create_interpolation_mesh( MeshType::HMR, tMeshData );
+        mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh(MeshType::HMR,tInterpMesh1);
         mtk::Mesh_Manager tMeshManager;
         uint tMeshIndex = tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
-        /* **************************************
-         * discretize field onto mesh
-         * **************************************
-         */
-        // input parameters for circle
-        moris::Cell< real > tInputs(3);
-        tInputs(0) = 0.0;   // x center
-        tInputs(1) = 0.0;   // y center
-        tInputs(2) = 0.6;   // radius
 
-        // compute nodal circle values for mesh
-        uint tNumNodes = tMeshManager.get_interpolation_mesh(tMeshIndex)->get_num_entities(EntityRank::NODE);
-        Matrix< DDRMat > tNodeVals(1,tNumNodes);
-
-        // collect nodal circle values
-        for(uint i=0; i<tNumNodes; i++)
-        {
-            tNodeVals(i) = circle_function( tMeshManager.get_interpolation_mesh(tMeshIndex)->get_node_coordinate(i), tInputs );
-        }
-        // add nodal circle values to mesh
-        tMeshManager.get_interpolation_mesh(tMeshIndex)->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tNodeVals);
-        //------------------------------------------------------------------------------
-        /* **************************************
-         * create geometry representation
-         * **************************************
-         */
-        Ge_Factory tFactory;
-        std::shared_ptr< Geometry > circle = tFactory.set_geometry_type(type::DISCRETE);
-
-        /* **************************************
-         * build GE and ask questions
-         * **************************************
-         */
-        GE_Core tGeometryEngine( circle, tMeshManager, tTMatrix );
-print(tGeometryEngine.get_geometry_pointer(tMeshIndex)->get_my_t_matrix(), "T matrix" );
-
-        tGeometryEngine.initialize_output_object( tMeshIndex );
-
-
-
-
-
-
-//        Cell<std::string> tFields(1);   // cell of field names
-//        tFields(0) = tFieldName;
-//
-//        circle->set_member_variables(tMesh2D_Quad4, tFields);
-//
-//        circle->set_mesh_and_t_matrix(tMesh2D_Quad4, tTMatrix);
-//
-//        GE_Core tGeometryEngine;                    // create geometry engine and set geometry
-//        tGeometryEngine.set_geometry( circle );
-//
-//        // determine LS values at the nodes
-//        Matrix< DDRMat > tLSVals(4,1,0.0);
-//
-//        for(uint i=0; i<tNumNodes; i++)
-//        {
-//            tLSVals(i,0) = tGeometryEngine.get_geometry_pointer(0)->access_field_value_with_entity_index(i,EntityRank::NODE);
-//        }
-//        /*
-//         * *****************************************
-//         * check field values
-//         * *****************************************
-//         */
-//        CHECK( equal_to( tLSVals( 0,0 ), -0.36 ) );
-//        CHECK( equal_to( tLSVals( 1,0 ),  0.64 ) );
-//        CHECK( equal_to( tLSVals( 2,0 ),  1.64 ) );
-//        CHECK( equal_to( tLSVals( 3,0 ),  0.64 ) );
-//
-//
-//
-//        Matrix< DDRMat > tADVs = tGeometryEngine.compute_nodal_advs( 0,
-//                                                                     tInputs,
-//                                                                     mtk::Geometry_Type::QUAD,
-//                                                                     fem::Integration_Type::GAUSS,
-//                                                                     fem::Integration_Order::QUAD_2x2,
-//                                                                     fem::Interpolation_Type::LAGRANGE,
-//                                                                     mtk::Interpolation_Order::LINEAR );
-//        Matrix< DDRMat > tProjectedVals = tTMatrix*tADVs;
-//        tMesh2D_Quad4->add_mesh_field_real_scalar_data_loc_inds(tFieldName1, EntityRank::NODE, tProjectedVals);
-//
-//        /*
-//         * *****************************************
-//         * determine intersection location
-//         * *****************************************
-//         */
-//        // edge (1)
-
-
-
-
-        //------------------------------------------------------------------------------
-//        std::string tOutputFile = "./discrete_functionalities.exo";
-//        tMesh2D_Quad4->create_output_mesh(tOutputFile);
-//        delete tMesh2D_Quad4;
+//        tHMR.save_to_exodus( "circle01.exo" );
     }
 }
-//------------------------------------------------------------------------------

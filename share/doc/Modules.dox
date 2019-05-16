@@ -278,16 +278,17 @@ information directly, or an object containing all the information will be return
         @addtogroup GE_overview
         @ingroup GeomEng	
 
+        @addtogroup GE_setup
+        @ingroup GeomEng
+
 		@addtogroup GE_tutorials
 		@ingroup GeomEng  
 		
 		- GE_tutorial_1.cpp
+		- GE_tutorial_2.cpp
 
-        @addtogroup GE_core
+        @addtogroup GE_classes
 		@ingroup GeomEng	
-		
-		@addtogroup GE_factory
-		@ingroup GeomEng
 
 
 */

@@ -16,6 +16,7 @@ namespace moris
 // geometry pointer types
 			ANALYTIC,
 			DISCRETE,
+			SDF,
 // analytic geometry types
 			CIRCLE,
 			COMPOSITE_FIBER,

@@ -22,13 +22,14 @@ set(HEADERS
 
 # List header dependencies
 set(GEN_INCLUDES
-    ${LINALG}
-    ${TOL}
-    ${IOS}
-    ${MTK}
     ${COM}
     ${FEM}
-    ${FEM}/${INT}  # for L2
+    ${FEM}/${INT}  # for L2    
+    ${HMR}
+    ${IOS}
+    ${LINALG}
+    ${MTK}
+    ${TOL}
     )
 
 foreach(GEN_INCLUDE ${GEN_INCLUDES})

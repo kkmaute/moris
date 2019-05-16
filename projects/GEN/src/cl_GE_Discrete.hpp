@@ -31,23 +31,14 @@ namespace ge
     public:
         Discrete(){};
 
-        Discrete(moris::mtk::Mesh*         aMeshWithLevelSetFields,
-                 Cell<std::string> const & aFieldNames) :
-                    mNumLevelSets(aFieldNames.size()),
-                    mActiveLevelSetIndex(0),
-                    mLevelSetFieldNames(aFieldNames),
-                    mLevelSetMesh(aMeshWithLevelSetFields)
-                {
-                };
-
         ~Discrete(){};
         //------------------------------------------------------------------------------
         /*
-         * @brief function to report if geometry is analytic or not
+         * @brief function to report if geometry representation type
          */
-        bool is_analytic() const
+        enum type get_geom_type() const
         {
-            return false;
+            return type::DISCRETE;
         }
         //------------------------------------------------------------------------------
         /*
@@ -57,28 +48,13 @@ namespace ge
          * param[in] - aFieldNames                  cell of field names
          */
         void
-        set_member_variables(moris::mtk::Mesh*         aMeshWithLevelSetFields,
+        set_member_variables(moris::mtk::Mesh_Manager*         aMeshWithLevelSetFields,
                              Cell<std::string> const & aFieldNames)
         {
             mNumLevelSets        = aFieldNames.size();
             mActiveLevelSetIndex = 0;
             mLevelSetFieldNames  = aFieldNames;
-            mLevelSetMesh        = aMeshWithLevelSetFields;
-        }
-
-        //------------------------------------------------------------------------------
-        moris::Matrix< moris::IndexMat >
-        get_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
-        {
-            moris::size_t tNumADVS = 2;
-            moris::Matrix< moris::IndexMat > tADVIndices(1,tNumADVS);
-
-            for(moris::size_t i = 0; i<tNumADVS; i++)
-            {
-                tADVIndices(0,i) = mLevelSetMesh->get_glb_entity_id_from_entity_loc_index(aNodeIndices(0,i),moris::EntityRank::NODE);
-            }
-
-            return tADVIndices;
+            mLevelSetMesh        = aMeshWithLevelSetFields->get_interpolation_mesh( mActiveLevelSetIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -108,43 +84,6 @@ namespace ge
         std::string const & get_active_level_set_field_name() const
         {
             return mLevelSetFieldNames(mActiveLevelSetIndex);
-        }
-
-        //------------------------------------------------------------------------------
-        moris::size_t get_num_levelset() const
-        {
-            return mNumLevelSets;
-        }
-
-        //------------------------------------------------------------------------------
-        bool advance_to_next_level_set()
-        {
-            bool tAnotherLevelset;
-            if(mActiveLevelSetIndex == get_num_levelset()-1)
-            {
-                mActiveLevelSetIndex++;
-                tAnotherLevelset = false;
-            }
-            else
-            {
-                mActiveLevelSetIndex++;
-                tAnotherLevelset = true;
-            }
-
-            return tAnotherLevelset;
-        }
-
-        //------------------------------------------------------------------------------
-        std::string const & get_level_set_field_name(moris::size_t aLevelSetIndex) const
-        {
-            MORIS_ASSERT(aLevelSetIndex < mNumLevelSets, "Requested level set field name is outside of bounds");
-            return mLevelSetFieldNames(aLevelSetIndex);
-        }
-
-        //------------------------------------------------------------------------------
-        Cell<std::string> const & get_level_set_field_name() const
-        {
-            return mLevelSetFieldNames;
         }
 
         //------------------------------------------------------------------------------

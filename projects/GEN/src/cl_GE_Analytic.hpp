@@ -29,11 +29,11 @@ namespace moris{
 			~Analytic(){};
 			//------------------------------------------------------------------------------
 			/*
-			 * @brief function to report if geometry is analytic or not
+			 * @brief function to report if geometry representation type
 			 */
-		    bool is_analytic() const
+		    enum type get_geom_type() const
 		    {
-		        return true;
+		        return type::ANALYTIC;
 		    }
 		    //------------------------------------------------------------------------------
 			/*

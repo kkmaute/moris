@@ -315,7 +315,7 @@
 ////				delete type0;       delete type1;
 //				}
 ////------------------------------------------------------------------------------
-//		TEST_CASE("2D_quad4_edge_normal_test_with_specific_mtk_mesh","[GE],[normal_test_2D_quad4]")
+//		TEST_CASE("2D_quad4_edge_normal_test_with_specific_stk_mesh","[GE],[normal_test_2D_quad4]")
 //				{
 //				/*	create a 2D MORIS mesh of quad4's using mtk database and determine the edge normals */
 //				//------------------------------------------------------------------------------

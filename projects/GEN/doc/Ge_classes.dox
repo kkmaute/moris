@@ -1,0 +1,43 @@
+namespace moris {
+namespace ge {
+
+/** @defgroup GE_classes Classes 
+
+<b>Analytic</b><br>
+
+
+<b>Core</b><br>
+
+
+<b>Discrete</b><br>
+
+
+<b>Element</b><br>
+
+
+<b>Enums</b><br>
+
+
+<b>Factory</b><br>
+
+
+<b>Geometry_Library</b><br>
+
+
+<b>Geometry</b><br>
+
+
+<b>Interface</b><br>
+
+
+<b>Node</b><br>
+
+
+<b>Output_Object</b><br>
+
+
+<b>SDF</b><br>
+
+*/
+}
+}

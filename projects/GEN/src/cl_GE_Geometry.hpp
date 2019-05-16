@@ -45,24 +45,24 @@ namespace ge
 		 * *****************************************************************************
 		 */
         //------------------------------------------------------------------------------
-		virtual
-		void set_analytical_function( real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ) )
+		virtual void
+		set_analytical_function( real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ) )
 		{
 		    MORIS_ASSERT(false,"set_analytical_function(): please specify your own analytic function");
 		};
 		//------------------------------------------------------------------------------
-		virtual
-        void set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat >        & aCoordinates,
-                                                                   Cell<Cell<moris::real>> & aCenter,
-                                                                   Cell<moris::real>       & aRadius,
-                                                                   Cell<moris::real>       & aLength,
-                                                                   Cell<Cell<moris::real>> & aAxis ) )
+		virtual void
+		set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat >        & aCoordinates,
+                                                              Cell<Cell<moris::real>> & aCenter,
+                                                              Cell<moris::real>       & aRadius,
+                                                              Cell<moris::real>       & aLength,
+                                                              Cell<Cell<moris::real>> & aAxis ) )
         {
 		    MORIS_ASSERT(false,"set_analytical_function(): please choose a valid function");
         };
         //------------------------------------------------------------------------------
-        virtual
-        void set_analytical_function( type aGeomType )
+        virtual void
+        set_analytical_function( type aGeomType )
         {
             MORIS_ASSERT(false,"set_analytical_function(): please choose a valid function");
         };
@@ -75,15 +75,15 @@ namespace ge
         };
 
         //------------------------------------------------------------------------------
-        virtual
-        void set_analytical_function_dphi_dx( type aGeomType )
+        virtual void
+        set_analytical_function_dphi_dx( type aGeomType )
         {
             MORIS_ASSERT(false,"set_analytical_function_dphi_dx(): please choose a valid dphi/dx function");
         };
 
         //------------------------------------------------------------------------------
-        virtual
-        real get_field_val_at_coordinate( const Matrix< DDRMat > & aPoint, moris::Cell< real > aConst = 0.0 )
+        virtual real
+        get_field_val_at_coordinate( const Matrix< DDRMat > & aPoint, moris::Cell< real > aConst = 0.0 )
         {
             MORIS_ASSERT(false,"get_field_val_at_coordinate(): function not implemented");
             return 0.0;
@@ -91,8 +91,7 @@ namespace ge
 
         //------------------------------------------------------------------------------
 
-        virtual
-        Matrix< DDRMat >
+        virtual Matrix< DDRMat >
         get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint,
                                                      moris::Cell< real > aConst)
         {
@@ -154,56 +153,9 @@ namespace ge
         }
 
         //------------------------------------------------------------------------------
-        virtual moris::size_t
-        get_num_levelset() const
-        {
-            MORIS_ASSERT(false, "get_num_levelset(): function not implemented");
-
-            size_t tReturn = 1.0;
-            return tReturn;
-        }
-
-        //------------------------------------------------------------------------------
-        virtual bool
-        advance_to_next_level_set()
-        {
-            MORIS_ASSERT(false, "advance_to_next_level_set(): function not implemented");
-
-            return false;
-        }
-
-        //------------------------------------------------------------------------------
-        virtual std::string const &
-        get_level_set_field_name(moris::size_t aLevelSetIndex) const
-        {
-            MORIS_ASSERT(false, "get_level_set_field_name(): not implemented");
-
-            return mDummyReturnString;
-        }
-
-        //------------------------------------------------------------------------------
-        virtual Cell<std::string> const &
-        get_level_set_field_name() const
-        {
-            MORIS_ASSERT(false, "get_level_set_field_name(): not implemented");
-
-            return mDummyReturnCell;
-        }
-
-
-        //------------------------------------------------------------------------------
-        virtual moris::mtk::Mesh*
-        get_level_set_mesh()
-        {
-            MORIS_ASSERT(false, "get_level_set_mesh(): not implemented");
-
-            return mDummyMeshPointer;
-        }
-
-        //------------------------------------------------------------------------------
         virtual void
-        set_member_variables(moris::mtk::Mesh*         aMeshWithLevelSetFields,
-                             Cell<std::string> const & aFieldNames)
+        set_member_variables(moris::mtk::Mesh_Manager*   aMeshWithLevelSetFields,
+                             Cell<std::string> const   & aFieldNames)
         {
             MORIS_ASSERT(false, "set_member_variables(): not implemented");
         }
@@ -213,23 +165,32 @@ namespace ge
          * *****************************************************************************
          */
         //------------------------------------------------------------------------------
-        virtual bool
-        is_analytic() const
+        /*
+         * @brief function to report if geometry representation type
+         */
+        virtual enum type
+        get_geom_type() const
         {
-//            MORIS_ASSERT(false, "is_analytic(): child geometry type not specified");
-            return true;
+            return type::END_ENUM;
         }
 
         //------------------------------------------------------------------------------
         /*
-         * @brief set the mesh and T-matrix for the geometry representation
+         * @brief set the mesh for the geometry representation
          */
         void
-        set_mesh_and_t_matrix(mtk::Mesh_Manager & aMyMesh,
-                              Matrix< DDRMat >  & aMyTMatrix)
+        set_mesh(mtk::Mesh_Manager & aMyMesh)
         {
-            mMyMesh    = & aMyMesh;
-            mMyTMatrix = aMyTMatrix;
+            mMyMesh = & aMyMesh;
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief sets the constants necessary for the specific geometry rep
+         */
+        void
+        set_my_constants( moris::Cell< real > aMyConstants )
+        {
+            mMyConstants = aMyConstants;
         }
         //------------------------------------------------------------------------------
         /*
@@ -242,20 +203,21 @@ namespace ge
         }
         //------------------------------------------------------------------------------
         /*
-         * @brief returns a pointer to the geometry object's T-matrix
+         * @brief returns the geometry object's specific constants
          */
-        Matrix< DDRMat >
-        get_my_t_matrix()
+        moris::Cell< real >
+        get_my_constants()
         {
-            return mMyTMatrix;
+            return mMyConstants;
         }
 
 
 	//------------------------------------------------------------------------------
     private:
-        mtk::Mesh_Manager* mMyMesh;
-        Matrix< DDRMat >   mMyTMatrix;
+        mtk::Mesh_Manager*  mMyMesh;
+        moris::Cell< real > mMyConstants;
 
+        // dummy member variables
         std::string mDummyReturnString;
         Cell<std::string> mDummyReturnCell;
         mtk::Mesh* mDummyMeshPointer = nullptr;

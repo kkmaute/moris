@@ -28,17 +28,23 @@ namespace ge
 {
 	class SDF : public Geometry
 	{
-	private:
-
-	protected:
-
 	public:
 
-		SDF()
-	{
-		std::cout<<"SDF constructor"<<std::endl;
-	};
+		SDF(){};
 		~SDF(){};
+
+        //------------------------------------------------------------------------------
+        /*
+         * @brief function to report if geometry representation type
+         */
+        enum type get_geom_type() const
+        {
+            return type::SDF;
+        }
+
+    private:
+
+    protected:
 
 	};
 } /* namespace gen */

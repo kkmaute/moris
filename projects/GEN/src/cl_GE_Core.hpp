@@ -14,6 +14,9 @@
 // GE includes
 #include "cl_GE_Geometry.hpp"
 #include "cl_GE_Output_Object.hpp"
+
+// HMR includes
+#include "../projects/HMR/src/cl_HMR_Field.hpp"
 //------------------------------------------------------------------------------
 // MTK includes
 #include "cl_MTK_Mapper.hpp"
@@ -21,8 +24,8 @@
 #include "cl_Mesh_Enums.hpp"
 //------------------------------------------------------------------------------
 // FEM includes
-#include "../projects/FEM/INT/src/cl_FEM_Integrator.hpp"
-#include "../projects/FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
+//#include "../projects/FEM/INT/src/cl_FEM_Integrator.hpp"
+//#include "../projects/FEM/INT/src/cl_FEM_Field_Interpolator.hpp"
 //------------------------------------------------------------------------------
 // LinAlg includes
 #include "cl_Matrix.hpp"
@@ -42,16 +45,6 @@ namespace moris
 		public:
 			GE_Core(){};
 
-			/*
-			 * initialize GE with a geometry pointer and its associated mesh/Tmatrix
-			 */
-			GE_Core( std::shared_ptr< Geometry > & aGeomPointer,
-			         mtk::Mesh_Manager           & aMyManager,
-			         Matrix< DDRMat >            & aMyTMatrix )
-            {
-                this->set_geometry( aGeomPointer,aMyManager,aMyTMatrix );
-            };
-
 			~GE_Core()
 			{
 			};
@@ -66,14 +59,13 @@ namespace moris
 			void
 			set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
                           mtk::Mesh_Manager           & aMyManager,
-                          Matrix< DDRMat >            & aMyTMatrix,
-			              real                          aThreshold   = 0.0 )
+			              real                          aThreshold = 0.0 )
 			{
 			    uint tGeomInd = mListOfGeoms.size();    //index of current geometry rep.
 			    mListOfGeoms.push_back( aGeomPointer );
 			    mThresholds.push_back( aThreshold );
 
-                this->get_geometry_pointer(tGeomInd)->set_mesh_and_t_matrix( aMyManager, aMyTMatrix );
+                this->get_geometry_pointer( tGeomInd )->set_mesh( aMyManager );
 			}
 
 //------------------------------------------------------------------------------
@@ -92,18 +84,71 @@ namespace moris
 
 //------------------------------------------------------------------------------
 			/*
-			 * @brief
+			 * @brief initialize empty output object
+			 *
+			 *
 			 */
 			void
-			initialize_output_object( uint aWhichGeometry )
+			initialize()
 			{
-std::cout<<"let's start here........."<<std::endl;
-                mapper::Mapper tMyMapper( this->get_geometry_pointer(aWhichGeometry)->get_my_mesh(), aWhichGeometry );
-std::cout<<"now we get to here........."<<std::endl;
-			    std::string tSource = "circle";             // these need to be defaulted
-			    std::string tTarget = "projectionVals";     // these need to be defaulted
-			    tMyMapper.perform_mapping( tSource, EntityRank::NODE, tTarget, EntityRank::NODE );
-std::cout<<"and finish here........."<<std::endl;
+                Output_Object tOutputObject;
+                mListOfOutputObjects.push_back( tOutputObject );
+			}
+//------------------------------------------------------------------------------
+			/*
+			 * @brief   initialize output object
+			 *
+			 * @param[in]   aWhichGeometry - which geometry pointer the output object is associated with
+			 * @param[in]   aMeshIndex     - associated mesh index for the geometry pointer of interest
+			 * @param[in]   aField         - source field on mesh
+			 * @param[in]   aTargetLabel   - target field label
+			 * @param[in]   aTargetEntityRank - target entity rank
+			 * @param[in]   aSourceEntityRank - source entity rank, defaulted to NODE
+			 *
+			 */
+			void
+			initialize( const uint        aWhichGeometry,
+			            const moris_index aMeshIndex,
+			                  std::shared_ptr<moris::hmr::Field>  & aField,
+			                  std::string aTargetLabel,
+			                  EntityRank  aTargetEntityRank,
+			                  EntityRank  aSourceEntityRank = EntityRank::NODE)
+			{
+                MeshType tMeshType = this->get_geometry_pointer(aWhichGeometry)->get_my_mesh()->get_interpolation_mesh(aMeshIndex)->get_mesh_type();
+                MORIS_ASSERT(tMeshType == MeshType::HMR, "GE_Core::initalize(): currently only set up to work with hmr mesh ");
+
+                uint tBSplineOrder = aField->get_bspline_order();
+
+			    enum type tType = this->get_geometry_pointer( aWhichGeometry )->get_geom_type();
+			    if (tType == type::DISCRETE)
+			    {
+
+			        mapper::Mapper tMapper( this->get_geometry_pointer(aWhichGeometry)->get_my_mesh(),
+			                                aMeshIndex,
+			                                tBSplineOrder );
+
+			        tMapper.perform_mapping( aField->get_label(),
+			                                 aSourceEntityRank,
+			                                 aTargetLabel,
+			                                 aTargetEntityRank );
+			        Output_Object tOutputObject( tMapper );
+			        mListOfOutputObjects.push_back( tOutputObject );
+			    }
+
+			}
+
+//------------------------------------------------------------------------------
+			/**
+			 *  @brief  get output object with all the queried information
+			 *
+			 *  @param[in]   aWhichGeometry                     output object associated with this geometry rep
+			 *
+			 *  @param[out]  mListOfOutputObjects( aWhichGeometry )     pointer to output object
+			 */
+			Output_Object
+			get_output_object_pointer( uint aWhichGeometry )
+			{
+			    return mListOfOutputObjects( aWhichGeometry );
 			}
 
 //------------------------------------------------------------------------------
@@ -250,7 +295,6 @@ std::cout<<"and finish here........."<<std::endl;
 
 			    return tNormal;
 			        }
-
 //------------------------------------------------------------------------------
 			/*
 			 * @brief determines volume elements (cells)
@@ -380,165 +424,13 @@ std::cout<<"and finish here........."<<std::endl;
 
 //------------------------------------------------------------------------------
 
-//fixme need to add default values for parts of this function (such as integration/interpolation rules, time evolution domain, etc.)
-//fixme need to make geometry class robust enough so that this function knows how to get the field values at the nodes (for loop over nodes)
-
-            /*@brief function to determine ADV's (phi) at the nodal locations
-             *
-             * @param[in]    aWhichGeom - which geometry representation from member list of geoms
-             * @param[in]    aGeomParams - constant needed for specific geometry
-             * @param[in]    aGeomType - elemental geometry type (e.g. QUAD)
-             * @param[in]    aIntegType - integration type for the geom rep
-             * @param[in]    aIntegOrder - integration order for the geom rep
-             * @param[in]    aInterpType - interpolation type for the geom rep (e.g. LAGRANGE)
-             * @param[in]    aInterpOrder - interpolation order for the geom rep (e.g. LINEAR)
-             *
-             * @param[out]   tADVs      - Bspline coefficient vector
-             */
-            Matrix< DDRMat >
-            compute_nodal_advs( uint                          aWhichGeom,
-                                moris::Cell< real >         & aGeomParams,
-                                mtk::Geometry_Type            aGeomType,
-                                fem::Integration_Type         aIntegType,
-                                fem::Integration_Order        aIntegOrder,
-                                fem::Interpolation_Type       aInterpType,
-                                mtk::Interpolation_Order      aInterpOrder,
-                                fem::Integration_Type         aTimeIntegType = fem::Integration_Type::GAUSS,
-                                fem::Integration_Order        aTimeIntegOrder = fem::Integration_Order::BAR_1,
-                                fem::Interpolation_Type       aTimeInterpTypeGeom = fem::Interpolation_Type::LAGRANGE,
-                                mtk::Interpolation_Order      aTimeInterpOrderGeom = mtk::Interpolation_Order::LINEAR,
-                                fem::Interpolation_Type       aTimeInterpTypeTime = fem::Interpolation_Type::CONSTANT,
-                                mtk::Interpolation_Order      aTImeInterpOrderTime = mtk::Interpolation_Order::CONSTANT,
-                                uint                          aNumberOfFields = 1,
-                                Matrix< DDRMat >      const & aTHat = Matrix< DDRMat >({{0},{1}}) )
-            {
-                // create a space time integration rule and interpolation rules
-                //------------------------------------------------------------------------------
-                // set up the integration rule to be used
-                fem::Integration_Rule tFieldIntegRule( aGeomType,
-                                                       aIntegType,
-                                                       aIntegOrder,
-                                                       aTimeIntegType,         // these last two are for the time integration
-                                                       aTimeIntegOrder );      // using BAR_1 as default since we are not evolving in time
-
-                fem::Integrator tFieldIntegrator( tFieldIntegRule );                        // field integration object
-
-                // interpolation rule for geometry
-                fem::Interpolation_Rule tGeomInterpRule( aGeomType,
-                                                         aInterpType,
-                                                         aInterpOrder,
-                                                         aTimeInterpTypeGeom,      // time integration
-                                                         aTimeInterpOrderGeom );   // time integration
-
-                fem::Geometry_Interpolator* tGeomInterpolator = new fem::Geometry_Interpolator( tGeomInterpRule );
-
-                // interpolation rule for the LS field
-                fem::Interpolation_Rule tFieldRule( aGeomType,
-                                                    aInterpType,
-                                                    aInterpOrder,
-                                                    aTimeInterpTypeTime,          // time integration (constant since we are not evolving in time)
-                                                    aTImeInterpOrderTime );       // time integration (constant since we are not evolving in time)
-
-                // field interpolator object
-                fem::Field_Interpolator tFieldInterpolator( aNumberOfFields,
-                                                            tFieldRule,
-                                                            tGeomInterpolator );
-
-                // get GPs and weights from integrator
-                Matrix< DDRMat > tSpaceIntegPoints  = tFieldIntegrator.get_points();
-                Matrix< DDRMat > tSpaceIntegWeights = tFieldIntegrator.get_weights();
-                // evaluate LS at GP and Nodes
-                //------------------------------------------------------------------------------
-                uint tNumNodes = mListOfGeoms(aWhichGeom)->get_my_mesh()->get_interpolation_mesh(0)->get_num_nodes();    // determine number of nodes in mesh
-                Matrix< DDRMat > tTempCoord(1,2);                       // temporary coordinate used to fill coordinate matrix
-                Matrix< DDRMat > tXHat(tNumNodes,2);                    // global coordinate matrix
-
-                for (uint j=0; j<tNumNodes; j++)                        // create global coordinate matrix
-                {
-                    tTempCoord = mListOfGeoms(aWhichGeom)->get_my_mesh()->get_interpolation_mesh(0)->get_node_coordinate(j);
-                    uint k = 0;
-
-                    tXHat(j,k)   = tTempCoord(0,0);
-                    tXHat(j,k+1) = tTempCoord(0,1);
-                }
-
-//                // create interpolation object
-//                fem::Interpolation_Function_Base* tFunction = tGeomInterpRule.create_space_interpolation_function();
-                tGeomInterpolator->set_coeff( tXHat, aTHat );       //set the coefficients xHat:(x,y), tHat:(t_0,t_f)
-
-                Matrix< DDRMat > tFieldValAtNodes(1,tNumNodes);
-                Matrix< DDRMat > tPoint;                            // temporary argument to be passed into LS function
-                Matrix< DDRMat > tPhiS(1,tNumNodes);                // field values at the Gauss Points
-
-                for (uint i=0; i<tNumNodes; i++)
-                {
-                    if(mListOfGeoms(aWhichGeom)->is_analytic())     // right now only implemented for analytic and discrete geometry classes
-                    {
-                        tFieldValAtNodes(i) = mListOfGeoms(aWhichGeom)->get_field_val_at_coordinate( mListOfGeoms(aWhichGeom)->get_my_mesh()->get_interpolation_mesh(0)->get_node_coordinate(i) , aGeomParams );
-                        //evaluate space and time at xi, tau
-                        tPoint   = tGeomInterpolator->valx( tSpaceIntegPoints.get_column(i) );    // N * ( x,y ) (determines global coordinates of the GPs)
-
-                        tPhiS(i) = mListOfGeoms(aWhichGeom)->get_field_val_at_coordinate( tPoint, aGeomParams );
-                    }
-                    else if(!mListOfGeoms(aWhichGeom)->is_analytic())
-                    {
-                        tFieldValAtNodes(i) = mListOfGeoms(aWhichGeom)->access_field_value_with_entity_index( i, EntityRank::NODE );
-
-                        tPoint   = tGeomInterpolator->valx( tSpaceIntegPoints.get_column(i) );    // N * ( x,y ) (determines global coordinates of the GPs)
-
-                        tPhiS(i) = mListOfGeoms(aWhichGeom)->access_field_value_with_entity_index( i, EntityRank::NODE );
-                    }
-                }
-                //------------------------------------------------------------------------------
-                // compute nodal advs from L2 projection
-                //------------------------------------------------------------------------------
-                Matrix< DDRMat > tADVs(tNumNodes,1, 1);
-
-                Matrix< DDRMat > tPhi(tNumNodes,1, 1);
-
-                real tTol = 1.0;
-
-                for (uint k=0; k<10; k++)   // N-R loop
-                {
-                    Matrix< DDRMat > tJacobian(tNumNodes,tNumNodes);
-                    tJacobian.fill( 0 );
-
-                    Matrix< DDRMat > tResidual(mListOfGeoms(aWhichGeom)->get_my_t_matrix().n_cols(), 1, 0.0);
-
-                    for(uint i=0; i<tNumNodes; i++)
-                    {
-                        tFieldInterpolator.set_space_time( tSpaceIntegPoints.get_column(i)); // sets up the integration points
-                        Matrix< DDRMat > tN = tFieldInterpolator.N(); // create the shape function vector
-
-                        real tMultFactor = tGeomInterpolator->det_J( tSpaceIntegPoints.get_column(i) ) * tSpaceIntegWeights(i); // multiplication factor for Jacobian and Residual
-                        tJacobian        = tJacobian + tMultFactor*trans(tN)*tN;
-
-                        tResidual        = tResidual + tMultFactor*trans(tN)*( tN*tPhi - tN*trans(tFieldValAtNodes));
-                    }
-                    Matrix< DDRMat > tJBar = trans(mListOfGeoms(aWhichGeom)->get_my_t_matrix())*tJacobian*mListOfGeoms(aWhichGeom)->get_my_t_matrix();  // in B-spline space (Tmatrix)
-                    Matrix< DDRMat > tRBar = trans(mListOfGeoms(aWhichGeom)->get_my_t_matrix())*tResidual;                              // in B-spline space (Tmatrix)
-                    if (k==0)
-                    {
-                        tTol = norm(tRBar*0.000001);
-                    }
-
-                    if (norm(tRBar)<tTol)
-                    {
-                        break;
-                    }
-                    tADVs = tADVs - solve(tJBar,tRBar);  // solve Ax=B problem
-                    tPhi    = mListOfGeoms(aWhichGeom)->get_my_t_matrix()*tADVs;              // determine tPhi for iteration loop
-                }
-                delete tGeomInterpolator;
-                return tADVs;
-            }
 
         //------------------------------------------------------------------------------
 		private:
             // member variables
             moris::Cell< std::shared_ptr< Geometry > >      mListOfGeoms;
             moris::Cell< real >                             mThresholds;
-            moris::Cell< std::shared_ptr< Output_Object > > mListOfOutputObjects;
+            moris::Cell< Output_Object >                    mListOfOutputObjects;
 
         //------------------------------------------------------------------------------
         protected:

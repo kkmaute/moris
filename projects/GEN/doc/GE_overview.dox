@@ -86,7 +86,7 @@ As noted above, the discretized field \f$ \phi \f$ can be defined as:
 
 \f[ \phi = \Sigma N_i \hat{\phi} \f]
 
-where the shape functions \f$ N_i \f$ can be of Lagrange or B-spline basis. When discretizing the field \f$ \phi \f$, we must first evaluate the approximated field values 
+where the shape functions \f$ N_i \f$ can be of Lagrange or B-spline basis (note that if they are of the B-spline basis, the above summation must also be multiplied by the associated T-matrix). When discretizing the field \f$ \phi \f$, we must first evaluate the approximated field values 
 \f$ \hat{\phi} \f$. One method of achieving this is through an \f$ L_2 \f$ projection. The process is as follows: given some parameters \f$ \underline{p} \f$, determine 
 the target field \f$ \phi_{target} \f$ through a predetermined method (analytic or signed distance field for example) and then use the target field in the \f$ L_2 \f$ 
 projection to determine the approximated \f$ \hat{\phi} \f$ field values. 
