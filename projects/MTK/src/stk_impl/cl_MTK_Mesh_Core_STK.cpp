@@ -1206,7 +1206,7 @@ namespace mtk
         // Setup Cells
         uint tNumElems = this->get_num_entities(EntityRank::ELEMENT);
         // allocate member data
-        mSTKMeshData->mMtkCells = moris::Cell<mtk::Cell_Core_STK>(tNumElems);
+        mSTKMeshData->mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
         Matrix< IndexMat > tElementToNode;
 
         for( moris_index iCellInd = 0; iCellInd<(moris_index)tNumElems; iCellInd++)
@@ -1221,7 +1221,7 @@ namespace mtk
             }
 
             // Add cell to member data
-            mSTKMeshData->mMtkCells(iCellInd) = Cell_Core_STK( CellTopology::HEX8,
+            mSTKMeshData->mMtkCells(iCellInd) = Cell_STK( CellTopology::HEX8,
                                             this->get_glb_entity_id_from_entity_loc_index(iCellInd,EntityRank::ELEMENT),
                                             iCellInd,
                                             tElementVertices,

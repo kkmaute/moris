@@ -175,6 +175,9 @@ namespace moris
                 Matrix< IndexMat >  aSidesetOrdinals;
 
                 // get the treated sideset elements and ordinals
+
+                // FIXME: This needs to be the integration mesh not the interpolation mesh
+                // FIXME: Integration mesh contains all the sets, interpolation sets define interpolation
                 tInterpolationMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
 
                 mElementBlocks( tElementBlockCounter ) = new fem::Set( tSideSetElement, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mNodes );

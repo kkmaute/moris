@@ -8,8 +8,11 @@
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_SIDE_CLUSTER_STK_HPP_
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_SIDE_CLUSTER_STK_HPP_
 
+#include <unordered_map>
+
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_Matrix.hpp"
+
 
 namespace moris
 {
@@ -27,122 +30,89 @@ private:
     moris::Cell<moris::mtk::Vertex const *> mVerticesInCluster;
     moris::Matrix<moris::DDRMat>            mVertexParamCoords;
 
+    // map from vertex id to local index
+    std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
+
 
 public:
-    Side_Cluster_STK():
-        mTrivial(true),
-        mInterpolationCell(nullptr),
-        mIntegrationCells(0,nullptr),
-        mIntegrationCellSideOrdinals(0,0),
-        mVerticesInCluster(0,nullptr),
-        mVertexParamCoords(0,0)
-    {};
+    //----------------------------------------------------------------
+
+    Side_Cluster_STK();
+
+    //----------------------------------------------------------------
 
 
     // trivial constructor
-    Side_Cluster_STK( moris::mtk::Cell const * aInterpCell):
-        mTrivial(true),
-        mInterpolationCell(aInterpCell),
-        mIntegrationCells(0,nullptr),
-        mIntegrationCellSideOrdinals(0,0),
-        mVerticesInCluster(0,nullptr),
-        mVertexParamCoords(0,0)
-    {};
+    Side_Cluster_STK( moris::mtk::Cell const * aInterpCell,
+                      moris::mtk::Cell const * aIntegrationCell,
+                      moris_index aSideOrdinal);
+
+    //----------------------------------------------------------------
+
 
     Side_Cluster_STK(bool aTrivial,
                      moris::mtk::Cell const *                        aInterpolationCell,
                      moris::Cell<moris::mtk::Cell const *>   const & aIntegrationCells,
                      moris::Matrix<moris::IndexMat>          const & aIntegrationCellSideOrdinals,
                      moris::Cell<moris::mtk::Vertex const *> const & aVerticesInCluster,
-                     moris::Matrix<moris::DDRMat> const & aVertexParamCoords):
-        mTrivial(aTrivial),
-        mInterpolationCell(aInterpolationCell),
-        mIntegrationCells(aIntegrationCells),
-        mIntegrationCellSideOrdinals(aIntegrationCellSideOrdinals),
-        mVerticesInCluster(aVerticesInCluster),
-        mVertexParamCoords(aVertexParamCoords)
-    {};
+                     moris::Matrix<moris::DDRMat> const & aVertexParamCoords);
 
-    void
-    set_interpolation_cell(moris::mtk::Cell const * aInterpCell)
-    {
-        MORIS_ASSERT(mInterpolationCell == nullptr,"Interpolation Cell already set");
-        mInterpolationCell = aInterpCell;
-    }
-
-    void
-    mark_as_non_trivial()
-    {
-        mTrivial = false;
-    }
-
-    void
-    add_integration_cell(moris::mtk::Cell  const * aIntegrationCell)
-    {
-        mIntegrationCells.push_back( aIntegrationCell );
-    }
-
-    void
-    add_integration_cells(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell)
-    {
-        mIntegrationCells.append( aIntegrationCell );
-    }
-
-    void
-    add_integration_cell_side_ordinals(moris::Matrix<moris::IndexMat> const & aIntegrationCellSideOrds)
-    {
-        mIntegrationCellSideOrdinals = aIntegrationCellSideOrds.copy();
-    }
-
-    void
-    add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex)
-    {
-        mVerticesInCluster.append(aVertex);
-    }
-
-    void
-    add_vertex_local_coordinates_wrt_interp_cell(moris::Matrix<moris::DDRMat> const & aLocalCoords)
-    {
-        MORIS_ASSERT(aLocalCoords.n_rows() == mVerticesInCluster.size(),"Local coordinates need to match the number of vertices in the cluster");
-        mVertexParamCoords = aLocalCoords.copy();
-    }
-
+    //----------------------------------------------------------------
 
     bool
-    is_trivial() const
-    {
-        return mTrivial;
-    }
+    is_trivial() const;
+
+    //----------------------------------------------------------------
 
     moris::mtk::Cell const &
-    get_interpolation_cell() const
-    {
-        return *mInterpolationCell;
-    }
+    get_interpolation_cell() const;
+
+    //----------------------------------------------------------------
 
     moris::Cell<moris::mtk::Cell const *> const &
-    get_cells_in_side_cluster() const
-    {
-        return mIntegrationCells;
-    }
+    get_cells_in_side_cluster() const;
+
+    //----------------------------------------------------------------
 
     moris::Matrix<moris::IndexMat>
-    get_cell_side_ordinals() const
-    {
-        return mIntegrationCellSideOrdinals;
-    }
+    get_cell_side_ordinals() const;
+
+    //----------------------------------------------------------------
+
+    moris_index
+    get_cell_side_ordinal(moris::moris_index aCellIndexInCluster) const;
+
+    //----------------------------------------------------------------
 
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster() const
-    {
-        return mVerticesInCluster;
-    }
+    get_vertices_in_cluster() const;
+
+    //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell() const
-    {
-        return mVertexParamCoords;
-    }
+    get_vertices_local_coordinates_wrt_interp_cell() const;
+
+    //----------------------------------------------------------------
+
+    moris::Matrix<moris::DDRMat>
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+
+    //----------------------------------------------------------------
+
+    moris_index
+    get_dim_of_param_coord() const;
+
+    //----------------------------------------------------------------
+
+    moris_index
+    get_vertex_cluster_local_index(moris_id aVertexId) const;
+
+    //----------------------------------------------------------------
+
+    void
+    add_vertex_to_map(moris_id aVertexId,
+                      moris_index aVertexLocalIndex);
+
 };
 }
 }

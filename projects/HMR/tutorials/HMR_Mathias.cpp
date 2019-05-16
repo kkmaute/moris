@@ -31,7 +31,9 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_Mesh_Factory.hpp"
 #include "cl_FEM_IWG_L2.hpp"
+
 //#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
+
 #include "../../FEM/INT/src/cl_FEM_Element_Bulk.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Database.hpp"
@@ -142,8 +144,8 @@ main(
 
      //-------------------------------------------------------------------------------------------
 
-     // create IWG object
-     fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
+//      create IWG object
+//     fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
 
      map< moris_id, moris_index >   tCoefficientsMap;
      Cell< fem::Node_Base* >        tNodes;
@@ -169,25 +171,27 @@ main(
      // create equation objects
      tElements.resize( tNumberOfElements, nullptr );
 
-     for( luint k=0; k<tNumberOfElements; ++k )
-     {
-         // create the element
-         tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
-                                            tIWG,
-                                            tNodes );
-     }
 
-     MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
-                                                                                  tMesh->get_communication_table(),
-                                                                                  tCoefficientsMap,
-                                                                                  tMesh->get_num_coeffs( tOrder ),
-                                                                                  tMesh.get() );
+     //fixme:This needs to be updated for integration/interpolation mesh
+//     for( luint k=0; k<tNumberOfElements; ++k )
+//     {
+//         // create the element
+//         tElements( k ) = new fem::Element( & tMesh->get_mtk_cell( k ),
+//                                            tIWG,
+//                                            tNodes );
+//     }
+//
+//     MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+//                                                                                  tMesh->get_communication_table(),
+//                                                                                  tCoefficientsMap,
+//                                                                                  tMesh->get_num_coeffs( tOrder ),
+//                                                                                  tMesh.get() );
 
-     tMSI->set_param("L2")= (sint)tOrder;
+//     tMSI->set_param("L2")= (sint)tOrder;
 
-     tMSI->finalize();
+//     tMSI->finalize();
 
-     std::cout << ( (int) ( tMSI != NULL ) ) << std::endl;
+//     std::cout << ( (int) ( tMSI != NULL ) ) << std::endl;
 //------------------------------------------------------------------------------
     // finalize MORIS global communication manager
     gMorisComm.finalize();

@@ -12,7 +12,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
-
+#include "cl_MTK_Double_Side_Cluster.hpp"
 namespace moris
 {
 namespace hmr
@@ -67,8 +67,49 @@ public:
         return tSideClusters;
     }
 
+    uint
+    get_num_double_sided_sets() const
+    {
+        MORIS_ERROR(0,"get_num_double_sided_sets not implemented in HMR Integration mesh");
+        return std::numeric_limits<uint>::max();
+    }
+
+    /*!
+     * Returns the label
+     */
+
+    std::string
+    get_double_sided_set_label(moris_index aSideSetOrdinal) const
+    {
+        MORIS_ERROR(0,"get_double_sided_set_label not implemented in HMR Integration mesh");
+        return "ERROR";
+    }
+
+    /*!
+     * Returns the index given a label
+     */
+
+    moris_index
+    get_double_sided_set_index(std::string aDoubleSideSetLabel) const
+    {
+        MORIS_ERROR(0,"get_double_sided_set_index not implemented in HMR Integration mesh");
+        return MORIS_INDEX_MAX;
+    }
+
+    /*!
+     * Returns the double side clusters in the side set
+     */
+
+    moris::Cell<moris::mtk::Double_Side_Cluster> const &
+    get_double_side_set_cluster(moris_index aSideSetOrdinal) const
+    {
+        MORIS_ERROR(0,"get_double_side_set_cluster not implemented in HMR Integration mesh");
+        return mDummyDoubleSide;
+    }
+
 private:
     mtk::Cell_Cluster * mDummyCluster     = nullptr;
+    moris::Cell<moris::mtk::Double_Side_Cluster> mDummyDoubleSide;
 };
 }
 }

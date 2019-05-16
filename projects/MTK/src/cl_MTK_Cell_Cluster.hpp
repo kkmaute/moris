@@ -20,6 +20,15 @@ public:
     Cell_Cluster(){};
 
     //##############################################
+    // Characteristic functions
+    //##############################################
+    virtual
+    bool
+    is_trivial() const = 0;
+
+
+
+    //##############################################
     // Cell/Vertex Access
     // (Pure Virtual)
     //##############################################
@@ -47,6 +56,24 @@ public:
     virtual
     moris::Matrix<moris::DDRMat> const &
     get_vertices_local_coordinates_wrt_interp_cell() const = 0;
+
+    /*
+     * Access a single local coordinate of a vertex
+     */
+    virtual
+    moris::Matrix<moris::DDRMat>
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const  = 0;
+
+    //##############################################
+    // Size Access
+    // (Pure Virtual)
+    //##############################################
+    /*!
+     * Size of the xsi vector in this side cluster
+     */
+    virtual
+    moris_index
+    get_dim_of_param_coord() const  = 0;
 
     // ---------------------------------------------
     // EVERYTHING BELOW THIS LINE HAS A DEFAULT
@@ -82,6 +109,9 @@ public:
     moris::Matrix<moris::IndexMat>
     get_void_cell_indices_in_cluster() const
     {
+        MORIS_ERROR(!this->is_trivial(),"get_void_cell_indices_in_cluster on trivial cluster is not allowed");
+
+
         // number of cells in cluster
         moris::uint tNumCells = this->get_num_void_cells();
 
@@ -111,6 +141,8 @@ public:
     moris::Matrix<moris::IndexMat>
     get_vertex_indices_in_cluster() const
     {
+        MORIS_ERROR(!this->is_trivial(),"get_vertex_indices_in_cluster on trivial cluster is not allowed");
+
         // number of cells in cluster
          moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
@@ -158,6 +190,8 @@ public:
     moris::Matrix<moris::IdMat>
     get_void_cell_ids_in_cluster() const
     {
+        MORIS_ERROR(!this->is_trivial(),"get_void_cell_ids_in_cluster on trivial cluster is not allowed");
+
         // number of cells in cluster
         moris::uint tNumCells = this->get_num_void_cells();
 
@@ -203,6 +237,69 @@ public:
          }
 
          return tVertexIds;
+    }
+
+    //##############################################
+    // Local Coordinate access
+    //##############################################
+
+    /*!
+     * Access a primary integration cells parametric coordinates relative to the interpolation cell
+     * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
+     */
+    virtual
+    moris::Matrix<moris::DDRMat>
+    get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex) const
+    {
+        MORIS_ERROR(!this->is_trivial(),"get_primary_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
+        MORIS_ASSERT(aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(),"Integration Cell Cluster index out of bounds");
+
+        // get the integration cell of interest
+        moris::mtk::Cell const * tIntegrationCell = this->get_primary_cells_in_cluster()(aPrimaryCellClusterIndex);
+
+        // get the vertex pointers on the side
+        moris::Cell<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+
+        // allocate output (nnode x dim_xsi)
+        moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord());
+
+        // iterate through vertices and collect local coordinates
+        for(moris::uint i = 0; i < tVerticesOnCell.size(); i++)
+        {
+            tVertexParamCoords.get_row(i) = this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnCell(i)).get_row(0);
+        }
+
+        return tVertexParamCoords;
+    }
+
+    /*!
+     * Access a void integration cells parametric coordinates relative to the interpolation cell
+     * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
+     */
+    virtual
+    moris::Matrix<moris::DDRMat>
+    get_void_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aVoidCellClusterIndex) const
+    {
+        MORIS_ERROR(!this->is_trivial(),"get_void_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
+
+        MORIS_ASSERT(aVoidCellClusterIndex < (moris_index)this->get_num_void_cells(),"Integration Cell Cluster index out of bounds");
+
+        // get the integration cell of interest
+        moris::mtk::Cell const * tIntegrationCell = this->get_void_cells_in_cluster()(aVoidCellClusterIndex);
+
+        // get the vertex pointers on the side
+        moris::Cell<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+
+        // allocate output (nnode x dim_xsi)
+        moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord());
+
+        // iterate through vertices and collect local coordinates
+        for(moris::uint i = 0; i < tVerticesOnCell.size(); i++)
+        {
+            tVertexParamCoords.get_row(i) = this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnCell(i)).get_row(0);
+        }
+
+        return tVertexParamCoords;
     }
 
     //##############################################

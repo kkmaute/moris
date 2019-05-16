@@ -154,16 +154,14 @@ create_integration_mesh(enum MeshType aMeshType,
 inline Integration_Mesh*
 create_integration_mesh(enum MeshType aMeshType,
                         MtkMeshData   aMeshData,
-                        Interpolation_Mesh* aInterpMesh,
-                        Cell_Cluster_Input* aCellClusterData = nullptr,
-                        Side_Cluster_Input* aSideClusterData = nullptr)
+                        Interpolation_Mesh* aInterpMesh)
 {
     Integration_Mesh* tMeshBase = nullptr;
     switch (aMeshType)
     {
         case(MeshType::STK):
         {
-            tMeshBase = new Integration_Mesh_STK( aMeshData, aInterpMesh, aCellClusterData, aSideClusterData );
+            tMeshBase = new Integration_Mesh_STK( aMeshData, aInterpMesh );
             break;
         }
         default:

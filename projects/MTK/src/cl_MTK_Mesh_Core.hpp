@@ -1006,7 +1006,17 @@ public:
             moris::Cell< mtk::Cell const * > & aCells,
             Matrix< IndexMat > &       aSidesetOrdinals ) const
     {
-        MORIS_ERROR(0,"get_sideset_cells_and_ords not implemented");
+        moris::Matrix<moris::IndexMat> tElemIndices;
+        this->get_sideset_elems_loc_inds_and_ords(aSetName,tElemIndices,aSidesetOrdinals);
+
+       // convert element indices to cell pointers
+        moris::uint tNumCellsInSet = tElemIndices.numel();
+        aCells = moris::Cell< mtk::Cell const * >(tNumCellsInSet);
+
+        for(moris::uint i = 0 ; i < tNumCellsInSet; i++)
+        {
+            aCells(i) = &this->get_mtk_cell(tElemIndices(i));
+        }
     }
 
 
