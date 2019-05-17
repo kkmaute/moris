@@ -27,7 +27,7 @@ class Dist_Vector;
     {
         class Pdof;
         class Pdof_Host;
-        class Equation_Block;
+        class Equation_Set;
         class Equation_Object
         {
 //-------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ class Dist_Vector;
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
 
-            //! weak BCs of element
+            //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
             Matrix< DDRMat > mPdofValues;
@@ -58,7 +58,7 @@ class Dist_Vector;
 
             Matrix< DDRMat >mTime;
 
-            Equation_Block * mEquationBlock;
+            Equation_Set * mEquationBlock;
 
             friend class fem::Element;
 
@@ -68,7 +68,7 @@ class Dist_Vector;
 
             Equation_Object() {};
 
-            Equation_Object( Equation_Block * aElementBlock) : mEquationBlock( aElementBlock )
+            Equation_Object( Equation_Set * aElementBlock) : mEquationBlock( aElementBlock )
             {};
 
 //-------------------------------------------------------------------------------------------------

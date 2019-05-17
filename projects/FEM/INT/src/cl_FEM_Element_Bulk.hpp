@@ -15,7 +15,7 @@ namespace moris
 {
     namespace fem
     {
-    class Element_Block;
+    class Set;
 //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -35,7 +35,7 @@ namespace moris
          * @param[ in ]     Pointer to element block
          */
         Element_Bulk( mtk::Cell    const *        aCell,
-                      Element_Block      * aElementBlock,
+                      Set                * aElementBlock,
                       Cluster            * aCluster );
 //------------------------------------------------------------------------------
         /**

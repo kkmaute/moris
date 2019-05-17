@@ -1,18 +1,18 @@
 /*
- * cl_XTK_Tetra4_Connectivity.hpp
+ * cl_MTK_Tetra4_Connectivity.hpp
  *
  *  Created on: Jan 16, 2019
  *      Author: doble
  */
 
-#ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_TETRA4_CONNECTIVITY_HPP_
-#define PROJECTS_XTK_SRC_XTK_CL_XTK_TETRA4_CONNECTIVITY_HPP_
+#ifndef PROJECTS_MTK_SRC_MTK_CL_MTK_TETRA4_CONNECTIVITY_HPP_
+#define PROJECTS_MTK_SRC_MTK_CL_MTK_TETRA4_CONNECTIVITY_HPP_
 
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-namespace xtk
+namespace moris
 {
     namespace Tetra4_Connectivity
     {
@@ -116,4 +116,4 @@ namespace xtk
 }
 
 
-#endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_TETRA4_CONNECTIVITY_HPP_ */
+#endif /* PROJECTS_MTK_SRC_MTK_CL_MTK_TETRA4_CONNECTIVITY_HPP_ */

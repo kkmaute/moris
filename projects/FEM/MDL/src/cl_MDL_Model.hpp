@@ -49,7 +49,7 @@ namespace moris
     {
         class Model_Solver_Interface;
         class MSI_Solver_Interface;
-        class Equation_Block;
+        class Equation_Set;
         class Equation_Object;
     }
     namespace tsa
@@ -69,7 +69,7 @@ namespace moris
             Cell< MSI::Equation_Object* >     mElements;
             Cell< Cell< fem::IWG* > >         mIWGs;
 
-            Cell< MSI::Equation_Block * >      mElementBlocks;
+            Cell< MSI::Equation_Set * >      mElementBlocks;
 
             Cell< fem::IWG* >         mIWGs1;
 

@@ -13,7 +13,7 @@
 
 #include "cl_Mesh_Enums.hpp"
 #include "MTK_Tools.hpp"
-#include "cl_MTK_Facet_Cluster.hpp"
+#include "cl_MTK_Side_Cluster.hpp"
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
@@ -579,30 +579,6 @@ public:
 
     //------------------------------------------------------------------------------
 
-    /*
-     * Get the a face cluster (provided a parent face index)
-     */
-    virtual
-    Facet_Cluster const &
-    get_face_cluster(moris_index aParentFaceIndex)
-    {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (register_face_cluster is not implemented)");
-        return mDummyFaceCluster;
-    }
-
-    //------------------------------------------------------------------------------
-
-    /*
-     * Manually add a face cluster to mesh.
-     */
-    virtual
-    void
-    register_face_cluster(Facet_Cluster & aFaceCluster)
-    {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (register_face_cluster is not implemented)");
-    }
-
-
     //------------------------------------------------------------------------------
     //##############################################
     // Cell and Vertex Pointer Functions
@@ -632,6 +608,14 @@ public:
     virtual
     mtk::Vertex &
     get_mtk_vertex( moris_index aVertexIndex )
+    {
+        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
+        return *mDummyVertex;
+    }
+
+    virtual
+    mtk::Vertex const &
+    get_mtk_vertex( moris_index aVertexIndex ) const
     {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
         return *mDummyVertex;
@@ -1022,7 +1006,17 @@ public:
             moris::Cell< mtk::Cell const * > & aCells,
             Matrix< IndexMat > &       aSidesetOrdinals ) const
     {
-        MORIS_ERROR(0,"get_sideset_cells_and_ords not implemented");
+        moris::Matrix<moris::IndexMat> tElemIndices;
+        this->get_sideset_elems_loc_inds_and_ords(aSetName,tElemIndices,aSidesetOrdinals);
+
+       // convert element indices to cell pointers
+        moris::uint tNumCellsInSet = tElemIndices.numel();
+        aCells = moris::Cell< mtk::Cell const * >(tNumCellsInSet);
+
+        for(moris::uint i = 0 ; i < tNumCellsInSet; i++)
+        {
+            aCells(i) = &this->get_mtk_cell(tElemIndices(i));
+        }
     }
 
 
@@ -1055,7 +1049,6 @@ protected:
     mtk::Cell*       mDummyCells;
     real             mDummyReal = 0.0;
     Matrix<DDRMat>   mDummyMatrix;
-    Facet_Cluster    mDummyFaceCluster;
 
     //! ref to hmr object
     std::shared_ptr< hmr::Database > mDatabase;

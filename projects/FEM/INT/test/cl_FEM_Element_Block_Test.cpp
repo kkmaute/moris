@@ -5,7 +5,7 @@
 
 #define protected public
 #define private   public
-#include "cl_FEM_Element_Block.hpp"              //FEM/INT/src
+#include "cl_FEM_Set.hpp"              //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"         //FEM/INT/src
 #undef protected
 #undef private
@@ -14,10 +14,10 @@ namespace moris
 {
     namespace fem
     {
-        TEST_CASE( "Element_Block", "[moris],[fem],[ElementBlock]" )
+        TEST_CASE( "Set", "[moris],[fem],[ElementBlock]" )
         {
-            //MSI::Equation_Block* tElementBlock = new Element_Block();
-            Element_Block tElementBlock;
+            //MSI::Equation_Set* tElementBlock = new Set();
+            Set tElementBlock;
 
             // create a cell of IWG pointers------------------------------------------------
             // list of IWG types
