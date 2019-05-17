@@ -51,6 +51,10 @@ namespace moris
 
 // test in this .cpp file:
 // "ElemDiff_HMR_Bar" - 4x1x1 'Bar' of higher order B-Spline elements with Ghost applied to last element
+    /*
+     *  Created on: Apr 30, 2019
+     *      Author: wunsch
+     */
 
 
         TEST_CASE( "Element_Diffusion_HMR_Bar_Ghost", "[moris],[fem],[ElemDiff_HMR_Bar]" )

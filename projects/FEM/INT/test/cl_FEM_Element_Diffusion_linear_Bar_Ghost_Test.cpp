@@ -49,7 +49,12 @@ namespace moris
     namespace fem
     {
 
-// test in this .cpp file: "ElemDiff_lin_Bar" - 5x1x1 'Bar' with linear elements and Ghost applied between elements 4 and 5
+// test in this .cpp file:
+// "ElemDiff_lin_Bar" - 5x1x1 'Bar' with linear elements and Ghost applied between elements 4 and 5
+    /*
+     *  Created on: Apr 30, 2019
+     *      Author: wunsch
+     */
 
 
         real
