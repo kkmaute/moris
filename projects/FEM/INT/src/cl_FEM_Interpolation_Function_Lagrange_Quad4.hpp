@@ -135,6 +135,23 @@ namespace moris
             td2NdXi2( 2, 3 ) = -0.25;
             return td2NdXi2;
         }
+
+//------------------------------------------------------------------------------
+
+        template<>
+        Matrix< DDRMat >
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        {
+
+            // make sure that input is correct
+            MORIS_ASSERT( aXi.length() >= 2,
+                          "QUAD4 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+
+            // populate output matrix
+            Matrix< DDRMat > td3NdXi3(4,4,0.0);
+            return td3NdXi3;
+        }
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

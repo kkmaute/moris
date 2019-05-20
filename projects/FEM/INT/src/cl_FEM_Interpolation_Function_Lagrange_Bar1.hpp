@@ -93,6 +93,21 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        template<>
+        Matrix< DDRMat >
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1  >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        {
+            // make sure that input is correct
+            MORIS_ASSERT( aXi.length() >= 1,
+                          "LINE1 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+
+            Matrix< DDRMat > td3NdXi3(1,1);
+            td3NdXi3( 0 ) =  0.0;
+            return td3NdXi3;
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

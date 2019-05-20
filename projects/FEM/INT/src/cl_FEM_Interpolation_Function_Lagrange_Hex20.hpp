@@ -422,6 +422,21 @@ namespace moris
             td2NdXi2( 5, 19 ) =   (  eta * ( zeta + 1.0 ) ) * 0.5;
             return td2NdXi2;
         }
+
+//------------------------------------------------------------------------------
+
+        template<>
+        Matrix< DDRMat >
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        {
+            // make sure that input is correct
+            MORIS_ASSERT( false,
+                          "HEX20 - eval_d3NdXi3: 3rd order derivatives not implemented for this element" );
+
+            Matrix< DDRMat > td3NdXi3(10,20,0.0);
+            return td3NdXi3;
+        }
+
 //------------------------------------------------------------------------------
 
     } /* namespace fem */
