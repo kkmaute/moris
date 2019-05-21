@@ -1084,13 +1084,79 @@ namespace moris
             // first help matrix
             aJ3at.set_size( 4, 4 );
 
+            /* matrix structured into 4 parts
+             *  _____________     ________
+             *  |(1)* |(2)* |     | ,xxx |
+             *  |_*_*_|_*_*_|  *  | ,yyy |
+             *  |(3)* |(4)* |     | ,xxy |
+             *  |_*_*_|_*_*_|     |_,xyy_|
+             */
+
+            // Block (1) ------------------------------------------------
+            for( uint j=0; j<2; ++j )
+            {
+                aJ3at( 0, j ) = std::pow( aJt( 0, j ), 3 );
+                aJ3at( 1, j ) = std::pow( aJt( 1, j ), 3 );
+            }
+
+            // Block (2) ------------------------------------------------
+            aJ3at( 0, 2 ) = 3 * std::pow( aJt( 0, 0 ), 2 ) * aJt( 0, 1 );
+            aJ3at( 1, 2 ) = 3 * std::pow( aJt( 1, 0 ), 2 ) * aJt( 1, 1 );
+
+            aJ3at( 0, 3 ) = 3 * std::pow( aJt( 0, 1 ), 2 ) * aJt( 0, 0 );
+            aJ3at( 1, 3 ) = 3 * std::pow( aJt( 1, 1 ), 2 ) * aJt( 1, 0 );
+
+            // Block (3) ------------------------------------------------
+            for( uint j=0; j<2; ++j )
+            {
+                aJ3at( 0, j ) = std::pow( aJt( 0, j ), 2 ) * aJt( 1, j );
+                aJ3at( 1, j ) = std::pow( aJt( 1, j ), 2 ) * aJt( 0, j );
+            }
+
+            // Block (4) ------------------------------------------------
+            aJ3at( 2, 2 ) = std::pow( aJt( 0, 0 ), 2 ) * aJt( 1, 1 )  +  2 * aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 0, 1 );
+            aJ3at( 3, 2 ) = std::pow( aJt( 1, 0 ), 2 ) * aJt( 0, 1 )  +  2 * aJt( 1, 0 ) * aJt( 0, 0 ) * aJt( 1, 1 );
+
+            aJ3at( 2, 3 ) = std::pow( aJt( 0, 1 ), 2 ) * aJt( 1, 0 )  +  2 * aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 0, 0 );
+            aJ3at( 3, 3 ) = std::pow( aJt( 1, 1 ), 2 ) * aJt( 0, 0 )  +  2 * aJt( 1, 1 ) * aJt( 0, 1 ) * aJt( 1, 0 );
+
             // second help matrix
             aJ3bt.set_size( 4, 3 );
 
+            /* matrix structured into 4 parts
+             *  ___________     _______
+             *  |(1)* |(2)|     | ,xx |
+             *  |_*_*_|_*_|  *  | ,yy |
+             *  |(3)* |(4)|     |_,xy_|
+             *  |_*_*_|_*_|
+             */
+
+            // Block (1) ------------------------------------------------
+            for( uint j=0; j<2; ++j )
+            {
+                aJ3bt( 0, j ) = 3 * aJ2bt( 0, j ) * aJt( 0, j );
+                aJ3bt( 1, j ) = 3 * aJ2bt( 1, j ) * aJt( 1, j );
+            }
+
+            // Block (2) ------------------------------------------------
+            aJ3bt( 0, 2 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 1 ) + 3 * aJ2bt( 0, 1 ) * aJt( 0, 0 );
+            aJ3bt( 1, 2 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 1 ) + 3 * aJ2bt( 1, 1 ) * aJt( 1, 0 );
+
+            // Block (3) ------------------------------------------------
+            for( uint j=0; j<3; ++j )
+            {
+                aJ3bt( 2, j ) = 2 * aJ2bt( 2, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 1, j );
+                aJ3bt( 3, j ) = 2 * aJ2bt( 2, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 0, j );
+            }
+
+            // Block (4) ------------------------------------------------
+            aJ3bt( 2, 2 ) =  2 * aJ2bt( 2, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 0, 0 )
+            		           + aJ2bt( 0, 1 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 1 );
+            aJ3bt( 3, 2 ) =  2 * aJ2bt( 2, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 1, 0 )
+            		           + aJ2bt( 1, 1 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 1 );
+
             // third help matrix
             aJ3ct = ad3NdXi3 * aXHat;
-
-            MORIS_ASSERT(false, "<Geometry_Interpolator::eval_matrices_for_third_derivative_2d>: this function is not implemented.");
         }
 
 //------------------------------------------------------------------------------
