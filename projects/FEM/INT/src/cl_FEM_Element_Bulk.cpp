@@ -169,6 +169,7 @@ namespace moris
                 {
                     // get the kth integration point
                     Matrix< DDRMat > tIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
+                    print(tIntegPointI,"tIntegPointI");
 
                     // set evaluation point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -216,7 +217,7 @@ namespace moris
 //                tCounterI = stopI + 1;
 //            }
 //            // print residual for check
-//            print( mCluster->mResidual, " mResidual " );
+//            print( mElementBlock->mResidual, " mResidual " );
         }
 
 //------------------------------------------------------------------------------
