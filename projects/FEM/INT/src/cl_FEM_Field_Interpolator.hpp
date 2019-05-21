@@ -190,9 +190,18 @@ namespace moris
              * evaluates the second derivatives of the space time shape functions
              * wrt space x
              * @param[ out ] d2Ndx2
-             *               ( < number of space dimensions > x <number of space time basis > )
+             *               ( < 1D:1, 2D:3, 3D:6 > x <number of space time basis > )
              */
             Matrix< DDRMat > eval_d2Ndx2();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the thrid derivatives of the space time shape functions
+             * wrt space x
+             * @param[ out ] d3Ndx3
+             *               ( < 1D:1, 2D:4, 3D:10 > x <number of space time basis > )
+             */
+            Matrix< DDRMat > eval_d3Ndx3();
 
 //------------------------------------------------------------------------------
             /**
