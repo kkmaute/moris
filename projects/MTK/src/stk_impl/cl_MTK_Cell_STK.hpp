@@ -9,6 +9,7 @@
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 
 #include "typedefs.hpp" //MRS/COR/src
+#include "cl_Logger.hpp"
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_MTK_Vertex_STK.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
@@ -265,6 +266,13 @@ public:
             {
                 MORIS_ERROR(aSideOrdinal<6,"Side ordinal out of bounds.");
 
+#ifdef DEBUG
+                if(this->get_vertex_pointers().size() > 8)
+                {
+                 MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
+                }
+#endif
+
                 // get the vertex coordinates
                 moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
 
@@ -276,6 +284,30 @@ public:
                 tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
                 break;
             }
+            case(Geometry_Type::TET):
+            {
+                MORIS_ERROR(aSideOrdinal<4,"Side ordinal out of bounds.");
+
+#ifdef DEBUG
+                if(this->get_vertex_pointers().size() > 4)
+                {
+                 MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
+                }
+#endif
+
+                // get the vertex coordinates
+                moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
+
+                // Get the nodes which need to be used to compute normal
+                moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Tetra4_Connectivity::get_node_map_outward_normal(aSideOrdinal);
+
+                // Get vector along these edges
+                tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+                tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
+
+                break;
+            }
+
             default:
                 MORIS_ERROR(0,"Only implemented for hex8 compute_outward_side_normal");
                 break;
