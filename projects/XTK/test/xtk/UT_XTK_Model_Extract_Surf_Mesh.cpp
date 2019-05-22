@@ -43,7 +43,7 @@ TEST_CASE("Extract a surface mesh from XTK","[Extract_Surf]")
 
             // extract the surface to an obj file
             std::string tOutputObj = "./extract_surf.obj";
-            tXTKModel.extract_surface_mesh_to_obj(tOutputObj,1,tBoundingSets);
+            tXTKModel.extract_surface_mesh_to_obj(tOutputObj,0,tBoundingSets);
 
             // dump full mesh
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
