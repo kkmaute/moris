@@ -164,6 +164,10 @@ Background_Mesh::batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & a
         mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aPendingNodes(i).get_node_id(),
                                                           aPendingNodes(i).get_node_index(),
                                                           this));
+
+        // add to map
+        MORIS_ASSERT(mVertexGlbToLocalMap.find(aPendingNodes(i).get_node_id()) == mVertexGlbToLocalMap.end(),"Vertex already in map");
+        mVertexGlbToLocalMap[aPendingNodes(i).get_node_id()] = aPendingNodes(i).get_node_index();
     }
 }
 
@@ -185,6 +189,10 @@ Background_Mesh::batch_create_new_nodes(Cell<moris_index> const & aNewNodeIds,
         mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
                                                           aNewNodeIndices(i),
                                                           this));
+
+        // add to map
+        MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),"Vertex already in map");
+        mVertexGlbToLocalMap[aNewNodeIds(i)] = aNewNodeIndices(i);
     }
 }
 
@@ -210,6 +218,10 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
         mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
                                                           aNewNodeIndices(i),
                                                           this));
+
+        // add to map
+        MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),"Vertex already in map");
+        mVertexGlbToLocalMap[aNewNodeIds(i)] = aNewNodeIndices(i);
     }
 }
 
@@ -860,6 +872,23 @@ Background_Mesh::get_element_phase_inds(moris::Matrix<moris::DDSTMat> const & aE
 
 // ----------------------------------------------------------------------------------
 
+moris_index
+Background_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
+                                                       enum EntityRank aEntityRank) const
+{
+
+    MORIS_ERROR(aEntityRank == EntityRank::NODE,"Only a node map is implemented in XTK");
+
+    auto tIter = mVertexGlbToLocalMap.find(aEntityId);
+
+    MORIS_ERROR(tIter!=mVertexGlbToLocalMap.end(),
+                "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",aEntityId, (uint)aEntityRank, par_rank());
+
+    return tIter->second;
+}
+
+// ----------------------------------------------------------------------------------
+
 void
 Background_Mesh::add_child_element_to_mtk_cells(moris::moris_index aElementIndex,
                                                 moris::moris_index aElementId,
@@ -977,7 +1006,12 @@ Background_Mesh::initialize_background_mesh_vertices()
 
     for(moris::uint  i = 0; i <tNumNodes; i++)
     {
-        mXtkMtkVertices.push_back(&mMeshData->get_mtk_vertex(i));
+        moris::mtk::Vertex * tVertex = &mMeshData->get_mtk_vertex(i);
+
+        MORIS_ASSERT(mVertexGlbToLocalMap.find(tVertex->get_id()) == mVertexGlbToLocalMap.end(),"Vertex already in map");
+
+        mVertexGlbToLocalMap[tVertex->get_id()] = tVertex->get_index();
+        mXtkMtkVertices.push_back(tVertex);
     }
 
 }

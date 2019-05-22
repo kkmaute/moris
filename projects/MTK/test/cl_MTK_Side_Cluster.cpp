@@ -257,6 +257,17 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         CHECK(tFixedSideClusters.size() == 1);
         CHECK(tFixedSideClusters(0)->is_trivial() == true);
 
+
+        // check side set labels, index
+        CHECK(tIntegMesh1->get_num_side_sets() == 3);
+
+
+        tSideSetOrd = tIntegMesh1->get_side_set_index("iside");
+        CHECK(tSideSetOrd == 0);
+
+        std::string tInterfaceLabel = tIntegMesh1->get_side_set_label(tSideSetOrd);
+        CHECK(tInterfaceLabel.compare("iside") == 0);
+
         // cleanup
         delete tInterpMesh1;
         delete tIntegMesh1;

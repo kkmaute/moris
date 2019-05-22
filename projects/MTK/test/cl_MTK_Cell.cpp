@@ -7,24 +7,22 @@
 
 
 #include "catch.hpp"
+#include "cl_Communication_Tools.hpp"
 
 // base class
 #include"cl_MTK_Cell.hpp"
-
-#include "../src/stk_impl/cl_MTK_Mesh_STK.hpp"
-// implementations to test
+#include "cl_MTK_Mesh_STK.hpp"
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
-#include "cl_Communication_Tools.hpp"
+#include "cl_MTK_Hex8_Connectivity.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-
-#include "fn_print.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
+#include "fn_reindex_mat.hpp"
+
 namespace moris
 {
 namespace mtk
@@ -99,6 +97,56 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
             // Verify coordinates are as expected
             REQUIRE(all_true(tGoldVertCoords == tCell.get_vertex_coords()));
         }
+
+
+        // Gold Normals
+        moris::Cell<moris::Matrix<moris::DDRMat>> tGoldNormals(6);
+        tGoldNormals(0) = {{+0.000000000000000e+00},
+                           {-1.000000000000000e+00},
+                           {+0.000000000000000e+00}};
+
+        tGoldNormals(1) = {{+1.000000000000000e+00},
+                           {+0.000000000000000e+00},
+                           {+0.000000000000000e+00}};
+
+        tGoldNormals(2) = {{+0.000000000000000e+00},
+                           {+1.000000000000000e+00},
+                           {+0.000000000000000e+00}};
+
+        tGoldNormals(3) = {{-1.000000000000000e+00},
+                           {+0.000000000000000e+00},
+                           {+0.000000000000000e+00}};
+
+        tGoldNormals(4) = {{+0.000000000000000e+00},
+                           {+0.000000000000000e+00},
+                           {-1.000000000000000e+00}};
+
+        tGoldNormals(5) = {{+0.000000000000000e+00},
+                           {+0.000000000000000e+00},
+                           {+1.000000000000000e+00}};
+
+        // Check normals
+        moris::moris_index tNumSides = 0;
+
+        // iterate through sides and verify normal
+        for(moris::uint i = 0; i < 6 ; i ++)
+        {
+            moris::Matrix<moris::IndexMat> tNodeToFaceMap = Hex8::get_node_to_face_map(i);
+
+            moris::Matrix<moris::IndexMat> tNodeIdsOnFace = reindex_mat(tNodeToFaceMap,0,tIdMat);
+
+            moris::Matrix<moris::DDRMat> tOutwardNormal = tCell.compute_outward_side_normal(i);
+
+            CHECK(all_true(tOutwardNormal == tGoldNormals(i) ));
+        }
+
+        // ===================================================
+        // Dump to file
+        // ===================================================
+        std::string tFileOutput = "./mtk_cell_ut.exo";
+        tMesh1.create_output_mesh(tFileOutput);
+
+
         // Delete because vertices were created with new call
         for(size_t i =0; i<tNodeIndices.numel(); i++)
         {
