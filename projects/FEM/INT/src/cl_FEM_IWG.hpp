@@ -13,6 +13,7 @@
 #include "cl_Matrix.hpp"                    //LNA/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
+#include "cl_FEM_Enums.hpp"        //FEM/MSI/src
 
 
 namespace moris
@@ -34,10 +35,13 @@ namespace moris
             Matrix< DDRMat > mNormal;
 
             // residual dof type
-            Cell< MSI::Dof_Type > mResidualDofType;
+            moris::Cell< MSI::Dof_Type > mResidualDofType;
 
             // active dof types
-            Cell< Cell< MSI::Dof_Type > > mActiveDofTypes;
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mActiveDofTypes;
+
+            // active model parameter type
+            moris::Cell< fem::Mp_Type > mActiveMpTypes;
 
             // FIXME temporary until other way
             uint mSpaceDim = 3;
@@ -80,7 +84,7 @@ namespace moris
             /**
              * returns a dof type for the residual
              */
-            Cell< MSI::Dof_Type > get_residual_dof_type() const
+            moris::Cell< MSI::Dof_Type > get_residual_dof_type() const
             {
                 return mResidualDofType;
             };
@@ -90,17 +94,27 @@ namespace moris
              * returns a cell of dof types used to evaluate the residual
              * and the jacobian
              */
-            Cell< Cell< MSI::Dof_Type > > get_active_dof_types() const
+            moris::Cell< moris::Cell< MSI::Dof_Type > > get_active_dof_types() const
             {
                 return mActiveDofTypes;
             };
 
 //------------------------------------------------------------------------------
             /**
+             * returns a cell of mp types used to evaluate the residual
+             * and the jacobian
+             */
+            moris::Cell< fem::Mp_Type > get_active_mp_types() const
+            {
+                return mActiveMpTypes;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * evaluates the residual
              */
-            virtual void compute_residual( Matrix< DDRMat >            & aResidual,
-                                           Cell< Field_Interpolator* > & aFieldInterpolators)
+            virtual void compute_residual( Matrix< DDRMat >                   & aResidual,
+                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators)
             {
                 MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
             }
@@ -109,8 +123,8 @@ namespace moris
             /**
              * evaluates the Jacobian
              */
-            virtual void compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                           Cell< Field_Interpolator* > & aFieldInterpolators)
+            virtual void compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators)
             {
                 MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
             }
@@ -118,9 +132,9 @@ namespace moris
             /**
              * evaluates the residual and the Jacobian
              */
-            virtual void compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                        Matrix< DDRMat >            & aResidual,
-                                                        Cell< Field_Interpolator* > & aFieldInterpolators )
+            virtual void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                        Matrix< DDRMat >                   & aResidual,
+                                                        moris::Cell< Field_Interpolator* > & aFieldInterpolators )
             {
                 MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
             }

@@ -6,39 +6,139 @@
  */
 #include <iostream>
 
-#include "cl_FEM_Set.hpp"
-#include "cl_FEM_Element_Factory.hpp"
-#include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_FEM_Integrator.hpp"   //FEM/INT/src
+#include "cl_MSI_Model_Solver_Interface.hpp" //FEM/MSI/src
+#include "cl_FEM_Set.hpp"                    //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"        //FEM/INT/src
+#include "cl_FEM_Integrator.hpp"             //FEM/INT/src
 
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
-    Set::Set( moris::Cell< mtk::Cell const * > & aCell,
-                                 enum fem::Element_Type      aElementType,
-                                 Cell< IWG* >              & aIWGs,
-                                 Cell< Node_Base* >        & aNodes) : mMeshElementPointer(aCell),
-                                                                       mNodes(aNodes),
-                                                                       mIWGs( aIWGs ),
-                                                                       mElementType(aElementType)
+//    Set::Set( moris::Cell< mtk::Cell const * > & aCell,
+//              enum fem::Element_Type             aElementType,
+//              Cell< IWG* >                     & aIWGs,
+//              Cell< Node_Base* >               & aNodes) : mMeshElementPointer(aCell),
+//                                                                       mNodes(aNodes),
+//                                                                       mIWGs( aIWGs ),
+//                                                                       mElementType(aElementType)
+//    {
+//        this->create_unique_dof_type_lists();
+//        this->create_dof_type_lists();
+//
+//        mEquationObjList.resize( mMeshElementPointer.size(), nullptr);
+//
+//        // a factory to create the elements
+//        fem::Element_Factory tElementFactory;
+//
+//        for( luint k=0; k < mMeshElementPointer.size(); ++k )
+//        {
+//            // create the element // FIXME replace with mtk::cluster information
+//            mEquationObjList( k ) = tElementFactory.create_cluster( mElementType,
+//                                                                    mMeshElementPointer( k ),
+//                                                                    mNodes,
+//                                                                    this );
+//        }
+//    }
+
+    Set::Set( moris::Cell< mtk::Cell_Cluster const * > & aMeshClusterList,
+              enum fem::Element_Type                     aElementType,
+              moris::Cell< IWG* >                      & aIWGs,
+              moris::Cell< Node_Base* >                & aNodes) : mMeshCellClusterList( aMeshClusterList ),
+                                                                   mNodes(aNodes),
+                                                                   mIWGs( aIWGs ),
+                                                                   mElementType( aElementType )
     {
+        // set the integration geometry type
+        mIPGeometryType = mMeshCellClusterList( 0 )->get_interpolation_cell().get_geometry_type();
+
+        // set the integration geometry type
+        mIGGeometryType = mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
+
+        // space interpolation order for IP cells fixme
+        mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
+                                                                         mIPGeometryType );
+        // space interpolation order for IG cells fixme
+        mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_number_of_vertices(),
+                                                                         mIPGeometryType );
+
+        // time interpolation order for IP cells fixme not linear
+        mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+        // time interpolation order for IG cells fixme not linear
+        mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+        // create a unique dof type list
         this->create_unique_dof_type_lists();
+
+        // create a dof type list for field interpolators
         this->create_dof_type_lists();
 
-        mEquationObjList.resize( mMeshElementPointer.size(), nullptr);
+        // init the equation object list
+        mEquationObjList.resize( mMeshCellClusterList.size(), nullptr);
 
-        // a factory to create the elements
-        fem::Element_Factory tElementFactory;
+        // create a factory to create fem cluster
+        fem::Element_Factory tClusterFactory;
 
-        for( luint k=0; k < mMeshElementPointer.size(); ++k )
+        for( luint k = 0; k < mMeshCellClusterList.size(); ++k )
         {
-            // create the element // FIXME replace with mtk::cluster information
-            mEquationObjList( k ) = tElementFactory.create_cluster( mElementType,
-                                                             mMeshElementPointer( k ),
-                                                             mNodes,
-                                                             this );
+            // create a cluster
+            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
+                                                                    mMeshCellClusterList( k ),
+                                                                    mNodes,
+                                                                    this );
+        }
+    }
+
+    Set::Set( moris::Cell< mtk::Side_Cluster const * > & aMeshClusterList,
+              enum fem::Element_Type                     aElementType,
+              moris::Cell< IWG* >                      & aIWGs,
+              moris::Cell< Node_Base* >                & aNodes) : mMeshSideClusterList( aMeshClusterList ),
+                                                                   mNodes(aNodes),
+                                                                   mIWGs( aIWGs ),
+                                                                   mElementType( aElementType )
+    {
+        // set the integration geometry type
+        mIPGeometryType = mMeshSideClusterList( 0 )->get_interpolation_cell().get_geometry_type();
+
+        // set the integration geometry type
+        //mIGGeometryType = get_auto_side_geometry_type( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
+        mIGGeometryType = mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type();
+
+        // interpolation order for IP cells fixme
+        mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
+                                                                         mIPGeometryType );
+
+        // interpolation order for IG cells fixme
+        mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_number_of_vertices(),
+                                                                         mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
+
+        // time interpolation order for IP cells fixme not linear
+        mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+        // time interpolation order for IG cells fixme not linear
+        mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+        // create a unique dof type list
+        this->create_unique_dof_type_lists();
+
+        // create a dof type list for field interpolators
+        this->create_dof_type_lists();
+
+        // init the equation object list
+        mEquationObjList.resize( mMeshSideClusterList.size(), nullptr);
+
+        // create a factory to create fem cluster
+        fem::Element_Factory tClusterFactory;
+
+        for( luint k = 0; k < mMeshSideClusterList.size(); ++k )
+        {
+            // create a side cluster
+            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
+                                                                    mMeshSideClusterList( k ),
+                                                                    mNodes,
+                                                                    this );
         }
     }
 
@@ -53,12 +153,6 @@ namespace moris
 
     void Set::delete_pointers()
     {
-        // delete the geometry interpolator pointer
-//        if ( mGeometryInterpolator != nullptr )
-//        {
-//            delete mGeometryInterpolator;
-//        }
-
         // delete the interpolation geometry interpolator pointer
         if ( mIPGeometryInterpolator != nullptr )
         {
@@ -82,44 +176,27 @@ namespace moris
     {
         this->delete_pointers();
 
-        if( mMeshElementPointer.size() > 0)
+        if( mMeshCellClusterList.size() > 0 )
         {
-//             Interpolation_Rule tGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
-//                                                            Interpolation_Type::LAGRANGE,
-//                                                            this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
-//                                                                                                mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
-//                                                            Interpolation_Type::LAGRANGE,
-//                                                            mtk::Interpolation_Order::LINEAR );
-
              // geometry interpolation rule for interpolation cells
-             Interpolation_Rule tIPGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
+             Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
                                                               Interpolation_Type::LAGRANGE,
-                                                              this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
-                                                                                                  mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
+                                                              mIPSpaceInterpolationOrder,
                                                               Interpolation_Type::LAGRANGE,
-                                                              mtk::Interpolation_Order::LINEAR );
+                                                              mIPTimeInterpolationOrder );
 
              // geometry interpolation rule for integration cells
-             //fixme geometry type not correct
-             Interpolation_Rule tIGGeometryInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),       // FIXME change to block information
+             Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
                                                               Interpolation_Type::LAGRANGE,
-                                                              this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
-                                                                                                  mMeshElementPointer( 0 )->get_geometry_type() ),           // FIXME change to block information
+                                                              mIGSpaceInterpolationOrder,
                                                               Interpolation_Type::LAGRANGE,
-                                                              mtk::Interpolation_Order::LINEAR );
+                                                              mIGTimeInterpolationOrder );
 
-             bool tSpaceSideset = false;
-             if (mElementType==fem::Element_Type::SIDESET)
-             {
-                 tSpaceSideset=true;
-             }
+             // create an interpolation geometry intepolator
+             mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
 
-//             // create the element geometry intepolator
-//             mGeometryInterpolator = new Geometry_Interpolator( tGeometryInterpolationRule, tSpaceSideset );
-
-             // create the element geometry intepolator
-             mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, tSpaceSideset );
-             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, tSpaceSideset );
+             // create an integration geometry intepolator
+             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
 
             // create the element field interpolators
             this->create_field_interpolators( aModelSolverInterface );
@@ -127,36 +204,15 @@ namespace moris
             // create the element dof assembly map
             this->create_dof_assembly_map();
 
-            Integration_Rule* tIntegrationRule;
+            // create an interpolation rule for the cell
+            Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
+                                                                  Integration_Type::GAUSS,
+                                                                  this->get_auto_integration_order( mIGGeometryType ),
+                                                                  Integration_Type::GAUSS,
+                                                                  Integration_Order::BAR_1 ); // fixme time integration
 
-            if (mElementType==fem::Element_Type::SIDESET)
-            {
-//                mtk::Geometry_Type tSideGeometryType = this->get_block_geometry_interpolator()->get_side_geometry_type();
-                mtk::Geometry_Type tSideGeometryType = this->get_block_IG_geometry_interpolator()->get_side_geometry_type();
-
-                enum fem::Integration_Order tSideIntegrationOrder = this->get_auto_integration_order( tSideGeometryType );
-
-                tIntegrationRule = new Integration_Rule( tSideGeometryType,
-                                                         Integration_Type::GAUSS,
-                                                         tSideIntegrationOrder,
-                                                         Integration_Type::GAUSS,
-                                                         Integration_Order::BAR_1 );
-            }
-            else
-            {
-                enum fem::Integration_Order tIntegrationOrder = this->get_auto_integration_order( mMeshElementPointer( 0 )->get_geometry_type() );
-
-                tIntegrationRule = new Integration_Rule( mMeshElementPointer( 0 )->get_geometry_type(),
-                                                         Integration_Type::GAUSS,
-                                                         tIntegrationOrder,
-                                                         Integration_Type::GAUSS,
-                                                         Integration_Order::BAR_1 );
-            }
-
-            // create an integrator for the ith IWG
-            Integrator tIntegrator( *tIntegrationRule );
-
-            delete tIntegrationRule;
+            // create an integrator
+            Integrator tIntegrator( tIntegrationRule );
 
             //get number of integration points
             mNumOfIntegPoints = tIntegrator.get_number_of_points();
@@ -167,6 +223,54 @@ namespace moris
             // get integration weights
             mIntegWeights = tIntegrator.get_weights();
         }
+        else if( mMeshSideClusterList.size() > 0 )
+        {
+            // geometry interpolation rule for interpolation cells
+            Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIPSpaceInterpolationOrder,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIPTimeInterpolationOrder );
+
+            // geometry interpolation rule for integration cells
+            Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIGSpaceInterpolationOrder,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIGTimeInterpolationOrder );
+
+            // create an interpolation geometry intepolator
+            mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+
+            // create an integration geometry intepolator
+            mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+
+            // create the element field interpolators
+            this->create_field_interpolators( aModelSolverInterface );
+
+            // create the element dof assembly map
+            this->create_dof_assembly_map();
+
+            // create an interpolation rule for the side
+            Integration_Rule tIntegrationRule = Integration_Rule( this->get_auto_side_geometry_type( mIGGeometryType ),
+                                                                  Integration_Type::GAUSS,
+                                                                  this->get_auto_integration_order( this->get_auto_side_geometry_type(mIGGeometryType) ),
+                                                                  Integration_Type::GAUSS,
+                                                                  Integration_Order::BAR_1 ); // fixme time order
+
+            // create an integrator
+            Integrator tIntegrator( tIntegrationRule );
+
+            //get number of integration points
+            mNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+            // get integration points
+            mSurfRefIntegPoints = tIntegrator.get_points();
+
+            // get integration weights
+            mIntegWeights = tIntegrator.get_weights();
+        }
+
     }
 
 //------------------------------------------------------------------------------
@@ -213,7 +317,7 @@ namespace moris
         }
 
         // get a unique list of the first dof type of each group
-        Cell<moris::moris_index> tUniqueDofTypeGroupsIndices = unique_index( tInterpDofTypeListBuild );
+        Cell< moris::moris_index > tUniqueDofTypeGroupsIndices = unique_index( tInterpDofTypeListBuild );
 
         // get the number of unique dof type groups
         uint tNumOfUniqueDofTypeGroupsIndices = tUniqueDofTypeGroupsIndices.size();
@@ -256,6 +360,31 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    void Set::create_unique_mp_type_list()
+       {
+           // set the size of the active mp type list
+           uint tCounter = 0;
+           for ( IWG * tIWG : mIWGs )
+           {
+               tCounter = tCounter + tIWG->get_active_mp_types().size();
+           }
+           mMpTypeList.reserve( tCounter );
+
+           // loop over the IWGs
+           tCounter = 0;
+           for ( IWG * tIWG : mIWGs )
+           {
+               mMpTypeList.append( tIWG->get_active_mp_types() );
+           }
+
+           auto last = std::unique( ( mMpTypeList.data() ).data(), ( mMpTypeList.data() ).data() + mMpTypeList.size() );
+           auto pos  = std::distance( ( mMpTypeList.data() ).data(), last );
+           mMpTypeList.resize( pos );
+
+       }
+
+//------------------------------------------------------------------------------
+
     void Set::create_dof_assembly_map( )
     {
         // set size of assembly mapping matrix
@@ -286,10 +415,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint aNumVertices,
-                                                                          const mtk::Geometry_Type aGeometryType )
+    mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint        aNumVertices,
+                                                                const mtk::Geometry_Type aGeometryType )
     {
-        switch( aGeometryType )                                 // FIXME change to block information
+        switch( aGeometryType )
         {
             case( mtk::Geometry_Type::LINE ) :
                 switch( aNumVertices )
@@ -405,24 +534,16 @@ namespace moris
             moris::uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( tDofTypeGroup( 0 ) );
 
             // create the field interpolation rule for the ith dof type group
-            //FIXME: space interpolation based on the mtk::Cell
-            //FIXME: time  interpolation set to constant
-            Interpolation_Rule tFieldInterpolationRule( mMeshElementPointer( 0 )->get_geometry_type(),           //FIXME
+            Interpolation_Rule tFieldInterpolationRule( mIPGeometryType,
                                                         Interpolation_Type::LAGRANGE,
-                                                        this->get_auto_interpolation_order( mMeshElementPointer( 0 )->get_number_of_vertices(),
-                                                                                            mMeshElementPointer( 0 )->get_geometry_type()),
-                                                        this->get_auto_time_interpolation_type( tNumTimeNodes ),
+                                                        mIPSpaceInterpolationOrder,
+                                                        this->get_auto_time_interpolation_type( tNumTimeNodes ), // fixme
                                                         // If interpolation type CONSTANT, iInterpolation order is not used
-                                                        this->get_auto_interpolation_order( tNumTimeNodes,
-                                                                                            mtk::Geometry_Type::LINE ) );
+                                                        this->get_auto_interpolation_order( tNumTimeNodes, mtk::Geometry_Type::LINE ) ); //fixme
 
             // get number of field interpolated by the ith field interpolator
             uint tNumOfFields = tDofTypeGroup.size();
 
-//            // create an interpolator for the ith dof type group
-//            mFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
-//                                                               tFieldInterpolationRule,
-//                                                               mGeometryInterpolator );
             // create an interpolator for the ith dof type group
             mFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
                                                                tFieldInterpolationRule,
@@ -433,16 +554,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
     moris::Cell< Field_Interpolator* > Set::get_IWG_field_interpolators ( IWG*                               & aIWG,
-                                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+                                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolators )
     {
         // ask the IWG for its active dof types
-        Cell< Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
+    	moris::Cell< moris::Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
 
         // number of active dof type for the IWG
         uint tNumOfIWGActiveDof = tIWGActiveDof.size();
 
         // select associated active interpolators
-        Cell< Field_Interpolator* > tIWGFieldInterpolators( tNumOfIWGActiveDof, nullptr );
+        moris::Cell< Field_Interpolator* > tIWGFieldInterpolators( tNumOfIWGActiveDof, nullptr );
         for( uint i = 0; i < tNumOfIWGActiveDof; i++ )
         {
             // find the index of active dof type in the list of element dof type
@@ -489,7 +610,49 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Set::initialize_mJacobianElement()
+    mtk::Geometry_Type Set::get_auto_side_geometry_type( const mtk::Geometry_Type aGeometryType )
+    {
+        mtk::Geometry_Type tSideGeometryType;
+
+        // depending on the parent geometry type
+        switch ( aGeometryType )
+        {
+            case ( mtk::Geometry_Type::LINE ):
+            {
+                tSideGeometryType = mtk::Geometry_Type::POINT;
+                break;
+            }
+            case ( mtk::Geometry_Type::QUAD ):
+            {
+                tSideGeometryType = mtk::Geometry_Type::LINE;
+                break;
+            }
+            case ( mtk::Geometry_Type::HEX ):
+            {
+                tSideGeometryType = mtk::Geometry_Type::QUAD;
+                break;
+            }
+            case ( mtk::Geometry_Type::TRI ):
+                {
+                    tSideGeometryType = mtk::Geometry_Type::LINE;
+                    break;
+                }
+            case ( mtk::Geometry_Type::TET ):
+                {
+                    tSideGeometryType = mtk::Geometry_Type::TRI;
+                    break;
+                }
+            default:
+            {
+                MORIS_ERROR( false, " Geometry_Interpolator::get_auto_side_geometry_type - undefined geometry type. " );
+                tSideGeometryType = mtk::Geometry_Type::UNDEFINED;
+            }
+        }
+        return tSideGeometryType;
+    }
+//------------------------------------------------------------------------------
+
+    void Set::initialize_mJacobian()
     {
         if ( !mJacobianExist )
         {
@@ -500,7 +663,7 @@ namespace moris
         }
         else
         {
-            MORIS_ASSERT( mJacobian.numel() > 0, "Set::initialize_mJacobianElement(): Jacobian not properly initialized.");
+            MORIS_ASSERT( mJacobian.numel() > 0, "Set::initialize_mJacobian() - Jacobian not properly initialized.");
 
             mJacobian.fill( 0.0 );
         }
@@ -508,7 +671,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Set::initialize_mResidualElement()
+    void Set::initialize_mResidual()
     {
         if ( !mResidualExist )
         {
@@ -518,7 +681,7 @@ namespace moris
         }
         else
         {
-            MORIS_ASSERT( mResidual.numel() > 0, "Set::initialize_mJacobianElement(): Residual not properly initialized.");
+            MORIS_ASSERT( mResidual.numel() > 0, "Set::initialize_mResidual() - Residual not properly initialized.");
 
             mResidual.fill( 0.0 );
         }

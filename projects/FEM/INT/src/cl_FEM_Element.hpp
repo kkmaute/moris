@@ -54,16 +54,16 @@ namespace moris
 
         moris::Matrix< DDSMat >   mInterpDofTypeMap;
 
-        Set      * mElementBlock = nullptr;
+        Set      * mSet = nullptr;
         Cluster  * mCluster      = nullptr;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
 
-        Element( const mtk::Cell     * aCell,
-                Set * aElementBlock,
-                       Cluster       * aCluster) : mElementBlock( aElementBlock ),
-                                                   mCluster( aCluster )
+        Element( const mtk::Cell * aCell,
+                 Set             * aSet,
+                 Cluster         * aCluster) : mSet( aSet ),
+                                               mCluster( aCluster )
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
@@ -79,9 +79,9 @@ namespace moris
             mCluster->get_weak_bcs().set_size( tNumOfNodes, 1 );             // FIXME
 
             // get the number of IWGs
-            mNumOfIWGs = mElementBlock->get_num_IWG();                //FIXME
+            mNumOfIWGs = mSet->get_num_IWG();                //FIXME
 
-            mInterpDofTypeMap = mElementBlock->get_interpolator_dof_type_map();          //Fixme
+            mInterpDofTypeMap = mSet->get_interpolator_dof_type_map();          //Fixme
         };
 //------------------------------------------------------------------------------
         /**
@@ -110,7 +110,7 @@ namespace moris
         real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
         {
             //get number of integration points
-            uint tNumOfIntegPoints = mElementBlock->get_num_integration_points();
+            uint tNumOfIntegPoints = mSet->get_num_integration_points();
 
             // init volume
             real tVolume = 0;
@@ -119,8 +119,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // compute integration point weight x detJ
-                real tWStar = aGeometryInterpolator->det_J( mElementBlock->get_integration_points().get_column( iGP ) )
-                            * mElementBlock->get_integration_weights()( iGP );
+                real tWStar = aGeometryInterpolator->det_J( mSet->get_integration_points().get_column( iGP ) )
+                            * mSet->get_integration_weights()( iGP );
 
                 // add contribution to jacobian from evaluation point
                 //FIXME: include a thickness if 2D

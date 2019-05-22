@@ -13,24 +13,14 @@ using namespace moris;
 using namespace fem;
 
 // a function pointer
-real force_1d_func( const Matrix< DDRMat > aPhysPoint )
+real force_func( const Matrix< DDRMat > aSpacePhysPoint,
+                 const Matrix< DDRMat > aTimePhysPoint )
 {
     real tUHat = 0;
     // evaluate nodal coeff at a physical point
-    if ( aPhysPoint( 0 ) > 1.0 )
+    if ( aSpacePhysPoint( 0 ) > 1.0 )
     {
-        tUHat = std::sin( aPhysPoint( 1 ) );
-    }
-    return tUHat;
-}
-
-real force_2d_func( const Matrix< DDRMat > aPhysPoint )
-{
-    real tUHat = 0;
-    // evaluate nodal coeff at a physical point
-    if ( aPhysPoint( 0 ) > 1.0 )
-    {
-        tUHat = std::sin( aPhysPoint( 2 ) );
+        tUHat = std::sin( aTimePhysPoint( 0 ) );
     }
     return tUHat;
 }
@@ -80,37 +70,61 @@ TEST_CASE( "Model_Parameter_Interpolator", "[moris],[fem],[MPInterpolator]" )
 
         //create a field interpolator
         uint tNumberOfFields = 1;
+        fem::Mp_Type tMpType = fem::Mp_Type::TEMP_DIRICHLET;
         Model_Parameter_Interpolator tMPInterpolator( tNumberOfFields,
                                                       tInterpolationRule,
                                                       tGeomInterpolator,
-                                                      force_1d_func);
+                                                      tMpType,
+                                                      force_func);
         tMPInterpolator.set_coeff();
 
         Matrix< DDRMat > tForceHat = tMPInterpolator.get_coeff();
-        //print(tForceHat,"tForceHat");
 
+        // expected coeff values for check
+        Matrix< DDRMat > tForceHatExpected = {{+0.000000000000000e+00},
+                                              {+0.000000000000000e+00},
+                                              {+0.000000000000000e+00},
+                                              {-9.589242746631385e-01},
+                                              {+0.000000000000000e+00},
+                                              {+5.984721441039565e-01}};
+
+        // boolean to check coeff values
+        bool tCoeffCheck = true;
+
+        // tol to check coeff values
+        real tEpsilon = 1E-12;
+
+        // loop over coeff values
+        for( uint iCheck = 0; iCheck < tForceHat.numel(); iCheck++)
+        {
+            // check coeff values
+            tCoeffCheck = tCoeffCheck && ( std::abs( tForceHatExpected( iCheck ) - tForceHat( iCheck ) ) < tEpsilon );
+        }
+        REQUIRE( tCoeffCheck );
+
+        Matrix< DDRMat > tForceHatGradDof = tMPInterpolator.val_gradDof( MSI::Dof_Type::UX );
+        print(tForceHatGradDof, "tForceHatGradDof");
 
         // clean up
         delete tGeomInterpolator;
     }
 
-    SECTION( "Field Interpolator : Space QUAD4 - Time BAR3" )
+    SECTION( "Field Interpolator : Space QUAD4 - Time BAR4" )
        {
            // space time geometry interpolator
            //------------------------------------------------------------------------------
            //create a bar2 space element
-           Matrix< DDRMat > tXHat( 4, 2 );
-           tXHat = {{ 0.0, 0.0 },
-                    { 2.0, 0.0 },
-                    { 2.0, 2.0 },
-                    { 0.0, 2.0 }};
-
+           Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
+                                     { 2.0, 0.0 },
+                                     { 2.0, 2.0 },
+                                     { 0.0, 2.0 }};
 
            //create a bar2 time element
-           Matrix< DDRMat > tTHat( 3, 1 );
+           Matrix< DDRMat > tTHat( 4, 1 );
            tTHat( 0 ) = 0.0;
            tTHat( 1 ) = 5.0;
-           tTHat( 2 ) = 2.5;
+           tTHat( 2 ) = 5.0/3.0;
+           tTHat( 3 ) = 2.0*5.0/3.0;
 
 
            //create a space geometry interpolation rule
@@ -118,7 +132,7 @@ TEST_CASE( "Model_Parameter_Interpolator", "[moris],[fem],[MPInterpolator]" )
                                                Interpolation_Type::LAGRANGE,
                                                mtk::Interpolation_Order::LINEAR,
                                                Interpolation_Type::LAGRANGE,
-                                               mtk::Interpolation_Order::QUADRATIC );
+                                               mtk::Interpolation_Order::CUBIC );
 
            //create a space and a time geometry interpolator
            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
@@ -133,19 +147,42 @@ TEST_CASE( "Model_Parameter_Interpolator", "[moris],[fem],[MPInterpolator]" )
                                                    Interpolation_Type::LAGRANGE,
                                                    mtk::Interpolation_Order::LINEAR,
                                                    Interpolation_Type::LAGRANGE,
-                                                   mtk::Interpolation_Order::QUADRATIC );
+                                                   mtk::Interpolation_Order::CUBIC );
 
            //create a field interpolator
            uint tNumberOfFields = 1;
+           fem::Mp_Type tMpType = fem::Mp_Type::TEMP_DIRICHLET;
            Model_Parameter_Interpolator tMPInterpolator( tNumberOfFields,
                                                          tInterpolationRule,
                                                          tGeomInterpolator,
-                                                         force_2d_func);
+                                                         tMpType,
+                                                         force_func);
            tMPInterpolator.set_coeff();
 
            Matrix< DDRMat > tForceHat = tMPInterpolator.get_coeff();
-           //print(tForceHat,"tForceHat");
 
+           // expected coeff values for check
+           Matrix< DDRMat > tForceHatExpected = {{ +0.000000000000000e+00 }, { +0.000000000000000e+00 }, { +0.000000000000000e+00 }, { +0.000000000000000e+00 },
+                                                 { +0.000000000000000e+00 }, { -9.589242746631385e-01 }, { -9.589242746631385e-01 }, { +0.000000000000000e+00 },
+                                                 { +0.000000000000000e+00 }, { +9.954079577517649e-01 }, { +9.954079577517649e-01 }, { +0.000000000000000e+00 },
+                                                 { +0.000000000000000e+00 }, { -1.905679628754854e-01 }, { -1.905679628754854e-01 }, { +0.000000000000000e+00 }};
+
+           // boolean to check coeff values
+           bool tCoeffCheck = true;
+
+           // tol to check coeff values
+           real tEpsilon = 1E-12;
+
+           // loop over coeff values
+           for( uint iCheck = 0; iCheck < tForceHat.numel(); iCheck++)
+           {
+               // check coeff values
+               tCoeffCheck = tCoeffCheck && ( std::abs( tForceHatExpected( iCheck ) - tForceHat( iCheck ) ) < tEpsilon );
+           }
+           REQUIRE( tCoeffCheck );
+
+           Matrix< DDRMat > tForceHatGradDof = tMPInterpolator.val_gradDof( MSI::Dof_Type::UX );
+           print(tForceHatGradDof, "tForceHatGradDof");
 
            // clean up
            delete tGeomInterpolator;

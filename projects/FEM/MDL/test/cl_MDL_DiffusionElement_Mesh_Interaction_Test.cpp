@@ -95,12 +95,11 @@ namespace moris
 
             // construct the mesh data
             mtk::Interpolation_Mesh* tInterpMesh1 = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
-            mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
+            mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh1 );
 
             // place the pair in mesh manager
             mtk::Mesh_Manager tMeshManager;
             tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
-
 
             // create a list of IWG type
             Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
@@ -124,7 +123,7 @@ namespace moris
             moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 1: create linear solver and algortihm
+            // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory  tSolFactory;
@@ -138,7 +137,7 @@ namespace moris
             tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create nonlinear solver and algortihm
+            // STEP 2: create nonlinear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory tNonlinFactory;

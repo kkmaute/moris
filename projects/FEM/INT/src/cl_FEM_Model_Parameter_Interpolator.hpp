@@ -15,6 +15,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_FEM_Field_Interpolator.hpp" //FEM/src
+#include "cl_MSI_Dof_Type_Enums.hpp" //FEM/MSI/src
 
 
 namespace moris
@@ -34,12 +35,17 @@ namespace moris
             // geometry interpolator associated with the model parameter
             const Geometry_Interpolator* mGeometryInterpolator = nullptr;
 
+            // field interpolator type
+            fem::Mp_Type mMPType;
+
             // active field interpolators
-        	//moris::Cell< MSI::Dof_Type > mDofDependencies;
+            moris::Cell< MSI::Dof_Type > mDofDependencies;
+
             //moris::Cell< Field_Interpolator* > mDependencyFieldInterpolators;
 
             // a function to set the model parameter coefficients
-            real ( *mFunc )( Matrix< DDRMat > aPhysPoint );
+            real ( *mFunc )( Matrix< DDRMat > aSpacePhysPoint,
+                             Matrix< DDRMat > aTimePhysPoint );
 
 
 //------------------------------------------------------------------------------
@@ -51,13 +57,13 @@ namespace moris
 //            Model_Parameter_Interpolator( const uint                    aNumberOfFields,
 //                                          const Interpolation_Rule     & aFieldInterpolationRule,
 //                                          const Geometry_Interpolator*   aGeometryInterpolator,
-//                                          fem::Mp_Type                   aMpType )
+//                                          fem::MP_Type                   aMpType )
 //                                        : mGeometryInterpolator( aGeometryInterpolator ){};
 
 //            Model_Parameter_Interpolator( const uint                    aNumberOfFields,
-//                                          const Interpolation_Rule     & aFieldInterpolationRule,
-//                                          const Geometry_Interpolator*   aGeometryInterpolator,
-//                                          MSI::Dof_Type                  aDofType )
+//                                          const Interpolation_Rule    & aFieldInterpolationRule,
+//                                          const Geometry_Interpolator * aGeometryInterpolator,
+//                                          MSI::Dof_Type                 aDofType )
 //                                        : mGeometryInterpolator( aGeometryInterpolator ){};
 
 //            Model_Parameter_Interpolator( const uint                    aNumberOfFields,
@@ -66,11 +72,14 @@ namespace moris
 //                                          MSI::Pdv_Type                  aPdvType )
 //                                        : mGeometryInterpolator( aGeometryInterpolator ){};
 
-            Model_Parameter_Interpolator( const uint                   aNumberOfFields,
-                                          const Interpolation_Rule&    aFieldInterpolationRule,
-                                          const Geometry_Interpolator* aGeometryInterpolator,
-                                          real ( *aFunc)( Matrix< DDRMat > aPhysPoint ) )
+            Model_Parameter_Interpolator( const uint                    aNumberOfFields,
+                                          const Interpolation_Rule    & aFieldInterpolationRule,
+                                          const Geometry_Interpolator * aGeometryInterpolator,
+                                          fem::Mp_Type                  aMpType,
+                                          real ( *aFunc)( Matrix< DDRMat > aSpacePhysPoint,
+                                                          Matrix< DDRMat > aTimePhysPoint ) )
             : mGeometryInterpolator( aGeometryInterpolator ),
+              mMPType( aMpType ),
               mFunc( aFunc )
             {
                 // create a field interpolator pointer
@@ -117,13 +126,21 @@ namespace moris
                  uint tNumCoeffs = mFieldInterpolator->get_number_of_space_time_coefficients();
                  Matrix< DDRMat > tUHat( tNumCoeffs, 1, 0.0 );
 
-                 // evaluate the coefficients from the provided function
-                 // from geometry interpolator of the interpolation cell
-                 Matrix< DDRMat > tPhysCoords = mGeometryInterpolator->build_space_time_phys_coords();
 
-                 for( uint iCoeff = 0; iCoeff < tNumCoeffs; iCoeff++ )
+                 // from geometry interpolator of the interpolation cell
+                 Matrix< DDRMat > tSpacePhysCoords = mGeometryInterpolator->get_space_coeff();
+                 Matrix< DDRMat > tTimePhysCoords  = mGeometryInterpolator->get_time_coeff();
+
+                 // evaluate the coefficients from the provided function
+                 uint tCoeffCounter = 0;
+                 for( uint iTime = 0; iTime < tTimePhysCoords.n_rows(); iTime++ )
                  {
-                    tUHat( iCoeff ) = mFunc( tPhysCoords.get_column( iCoeff ) );
+                     for( uint iSpace = 0; iSpace < tSpacePhysCoords.n_rows(); iSpace++ )
+                     {
+                         tUHat( tCoeffCounter ) = mFunc( tSpacePhysCoords.get_row( iSpace ),
+                                                         tTimePhysCoords.get_row( iTime ) );
+                         tCoeffCounter++;
+                     }
                  }
 
                  // set the coefficients for the field interpolator
@@ -166,21 +183,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
            /**
-            * evaluates the derivative of the model parameter wrt its coefficients
-            * @param[ out ] first derivative r
+            * evaluates the derivative of the model parameter wrt a given dof type
+            * @param[ out ] first derivative of the model parameter wrt to a dof_type
             */
-           Matrix < DDRMat > N( )
+           Matrix < DDRMat > val_gradDof( MSI::Dof_Type aDofType )
            {
-               return mFieldInterpolator->N();
+               Matrix< DDRMat > tValGradDof( mFieldInterpolator->get_number_of_fields(),
+                                             mFieldInterpolator->get_number_of_space_time_coefficients(),
+                                             0.0 );
+
+               // if no dof dependencies
+               if ( mDofDependencies.size()>0 )
+               {
+                   MORIS_ASSERT( false, "Model_Parameter_Interpolator::Modeval_gradDof - not implemented when dependencies.");
+               }
+               return tValGradDof;
            }
 
-//------------------------------------------------------------------------------
 //           /**
-//            * evaluates the derivative of the model parameter wrt a given dof type
-//            * @param[ out ] first derivative of the model parameter wrt to a dof_type
-//            */
-//           Matrix < DDRMat > gradDof( const msi::Dof_Type aDofType )
-//           {
+//             * evaluates the derivative of the model parameter wrt a given dof type
+//             * @param[ out ] first derivative of the model parameter wrt to a dof_type
+//             */
+//            Matrix < DDRMat > gradDof( const msi::Dof_Type aDofType )
+//            {
 //        	   // fixme two cases created with a func or with a model parameter function
 //
 //               // get the derivative of the model parameter wrt to its coeff

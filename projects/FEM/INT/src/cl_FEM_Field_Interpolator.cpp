@@ -107,6 +107,10 @@ namespace moris
 
          Matrix < DDRMat> Field_Interpolator::N()
          {
+             // check that mXi and mTau are set
+             MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::N - mXi  is not set." );
+             MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::N - mTau is not set." );
+
              //evaluate space and time SF at Xi, Tau
              Matrix < DDRMat > tNSpace = mSpaceInterpolation->eval_N( mXi );
              Matrix < DDRMat > tNTime  = mTimeInterpolation->eval_N( mTau );
@@ -119,6 +123,10 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::Bx()
         {
+            // check that mXi and mTau are set
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::Bx - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::Bx - mTau is not set." );
+
             // evaluate dNSpacedXi for the field time interpolation and transpose
             Matrix< DDRMat> tdNSpacedXi = mSpaceInterpolation->eval_dNdXi( mXi );
             tdNSpacedXi = trans( tdNSpacedXi );
@@ -147,6 +155,10 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::eval_d2Ndx2()
         {
+            // check that mXi and mTau are set
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_d2Ndx2 - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_d2Ndx2 - mTau is not set." );
+
             // get first and second derivatives of space SF wrt xi
             Matrix< DDRMat > tdNGeodxi   = mGeometryInterpolator->dNdXi( mXi );
             Matrix< DDRMat > td2NGeodxi2 = mGeometryInterpolator->d2NdXi2( mXi );
@@ -187,6 +199,10 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::Bt()
         {
+            // check that mXi and mTau are set
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::Bt - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::Bt - mTau is not set." );
+
             // evaluate dNdTau for the field time interpolation
             Matrix< DDRMat > tdNTimedTau = mTimeInterpolation->eval_dNdXi( mTau );
 
@@ -215,6 +231,10 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::eval_d2Ndt2()
         {
+            // check that mXi and mTau are set
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_d2Ndt2 - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_d2Ndt2 - mTau is not set." );
+
             // get first and second derivatives of space SF wrt tau
             Matrix< DDRMat > tdNGeodtau   = mGeometryInterpolator->dNdTau( mTau );
             Matrix< DDRMat > td2NGeodtau2 = mGeometryInterpolator->d2NdTau2( mTau );
@@ -257,6 +277,9 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::val()
         {
+            // check that mUHat is set
+            MORIS_ASSERT( mUHat.numel()>0,  "Field_Interpolator::val - mUHat  is not set." );
+
             //evaluate the field value
             return this->N() * mUHat ;
         }
@@ -265,6 +288,9 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::gradx( const uint & aDerivativeOrder )
         {
+            // check that mUHat is set
+            MORIS_ASSERT( mUHat.numel()>0,  "Field_Interpolator::gradx - mUHat  is not set." );
+
             switch ( aDerivativeOrder )
             {
                 case( 1 ) :
@@ -289,6 +315,9 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::gradt( const uint & aDerivativeOrder )
         {
+            // check that mUHat is set
+            MORIS_ASSERT( mUHat.numel()>0,  "Field_Interpolator::gradt - mUHat  is not set." );
+
             switch ( aDerivativeOrder )
             {
                 case( 1 ) :

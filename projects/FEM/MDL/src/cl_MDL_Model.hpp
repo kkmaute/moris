@@ -27,6 +27,7 @@ namespace moris
     {
         class IWG;
         class Node_Base;
+        class Cell;
         enum class IWG_Type;
         enum class BC_Type;
     }
@@ -64,14 +65,19 @@ namespace moris
         class Model
         {
             // pointer to reference mesh
-            mtk::Mesh_Manager*                mMeshManager;
-            Cell< fem::Node_Base* >           mNodes;
-            Cell< MSI::Equation_Object* >     mElements;
-            Cell< Cell< fem::IWG* > >         mIWGs;
+            mtk::Mesh_Manager*             mMeshManager;
 
-            Cell< MSI::Equation_Set * >      mElementBlocks;
+            moris::Cell< fem::Node_Base* > mIPNodes;
+            moris::Cell< fem::Node_Base* > mIGNodes;
+            moris::Cell< fem::Cell* >      mIPCells;
+            moris::Cell< fem::Cell* >      mIGCells;
 
-            Cell< fem::IWG* >         mIWGs1;
+            moris::Cell< MSI::Equation_Object* >    mElements;
+            moris::Cell< moris::Cell< fem::IWG* > > mIWGs;
+
+            moris::Cell< MSI::Equation_Set * >      mElementBlocks;
+
+            moris::Cell< fem::IWG* >         mIWGs1;
 
             // by default, this value is set to the order of the
             // Lagrange modes
@@ -101,11 +107,11 @@ namespace moris
 //                   const uint          aBSplineOrder,
 //                   Cell< Cell< fem::IWG_Type > >aIWGTypeList );
 
-            Model(       mtk::Mesh_Manager*             aMesh,
-                   const uint                          aBSplineOrder,
-                         Cell< Cell< fem::IWG_Type > > aIWGTypeList,
-                         Cell< moris_index >           aSidesetList,
-                         Cell< fem::BC_Type >          aSidesetBCTypeList );
+            Model(       mtk::Mesh_Manager*                    aMesh,
+                   const uint                                  aBSplineOrder,
+                   moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
+                   moris::Cell< moris_index >                  aSidesetList,
+                   moris::Cell< fem::BC_Type >                 aSidesetBCTypeList );
 //------------------------------------------------------------------------------
 
             Matrix< DDRMat> &

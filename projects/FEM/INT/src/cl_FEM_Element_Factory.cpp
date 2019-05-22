@@ -21,36 +21,34 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type         aElementType,
-                                                                mtk::Cell    const * aCell,
-                                                                Cell< Node_Base* > & aNodes,
-                                                                Set                * aElementBlock)
+//        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type         aElementType,
+//                                                                mtk::Cell    const * aCell,
+//                                                                Cell< Node_Base* > & aNodes,
+//                                                                Set                * aElementBlock)
+//        {
+//            MSI::Equation_Object * tElement = nullptr;
+//            tElement = new Cluster( aElementType, aCell, aNodes, aElementBlock );
+//            return tElement;
+//        }
+
+        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,
+                                                                mtk::Cell_Cluster const   * aCellCluster,
+                                                                moris::Cell< Node_Base* > & aNodes,
+                                                                Set                       * aSet )
         {
-            MSI::Equation_Object * tElement = nullptr;
+            MSI::Equation_Object * tCluster = nullptr;
+            tCluster = new Cluster( aElementType, aCellCluster, aNodes, aSet );
+            return tCluster;
+        }
 
-//            switch( aElementType )
-//            {
-//                case ( fem::Element_Type::BULK ):
-                    tElement = new Cluster( aElementType, aCell, aNodes, aElementBlock );
-//                    break;
-
-//                case ( fem::Element_Type::BULK ):
-//                    tElement = new Element_Bulk( aCell, aNodes, aElementBlock );
-//                    break;
-//
-//                case ( fem::Element_Type::SIDESET ):
-//                    tElement = new Element_Sideset( aCell, aNodes, aElementBlock );
-//                    break;
-//
-//                case ( fem::Element_Type::TIME_SIDESET ):
-//                    tElement = new Element_Time_Sideset( aCell, aNodes, aElementBlock );
-//                    break;
-
-//                default:
-//                    MORIS_ERROR( false, "Element_Factory::create_cluster - No element type specified" );
-//                    break;
-//            }
-            return tElement;
+        MSI::Equation_Object * Element_Factory::create_cluster( Element_Type                aElementType,
+                                                                mtk::Side_Cluster const   * aSideCluster,
+                                                                moris::Cell< Node_Base* > & aNodes,
+                                                                Set                       * aSet )
+        {
+            MSI::Equation_Object * tCluster = nullptr;
+            tCluster = new Cluster( aElementType, aSideCluster, aNodes, aSet );
+            return tCluster;
         }
 
 //------------------------------------------------------------------------------

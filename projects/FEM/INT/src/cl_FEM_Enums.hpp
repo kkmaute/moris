@@ -98,6 +98,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        enum class Mp_Type
+        {
+            UNDEFINED,
+            TEMP_DIRICHLET,
+            TEMP_NEUMANN,
+            END_MP_TYPE
+        };
+
+//------------------------------------------------------------------------------
+
         enum class BC_Type
         {
             UNDEFINED,

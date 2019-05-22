@@ -41,12 +41,14 @@ namespace moris
 
     protected:
 
-        //! pointer to cell on mesh
+        // pointer to the mesh interpolation cell
         const mtk::Cell * mInterpolationCell;
 
-        moris::Cell< mtk::Cell const * > mIntegrationCell;
+        // list of pointers to the mesh integration cells
+        moris::Cell< mtk::Cell const * > mIntegrationCells;
 
-        moris::Cell< fem::Element * > mInterpElements;
+        // list of pointers to element
+        moris::Cell< fem::Element * > mElements;
 
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
@@ -56,7 +58,7 @@ namespace moris
 
         uint mNumOfIWGs;
 
-        Set * mElementBlock;
+        Set * mSet;
 
         Element_Type mElementType;
 
@@ -71,13 +73,13 @@ namespace moris
         Cluster( const Element_Type                aElementType,
                  const mtk::Cell                 * aCell,
                        moris::Cell< Node_Base* > & aNodes,
-                       Set             * aElementBlock) : MSI::Equation_Object( aElementBlock ),
-                                                                    mElementBlock( aElementBlock )
+                       Set                       * aElementBlock) : MSI::Equation_Object( aElementBlock ),
+                                                                    mSet( aElementBlock )
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mInterpolationCell = aCell;
 
-            mIntegrationCell.resize( 1, mInterpolationCell );       //Fixme
+            mIntegrationCells.resize( 1, mInterpolationCell );       //Fixme
 
             mElementType = aElementType;
 
@@ -101,19 +103,126 @@ namespace moris
             mNodalWeakBCs.set_size( tNumOfNodes, 1 );
 
             // get the number of IWGs
-            mNumOfIWGs = mElementBlock->get_num_IWG(); //FIXME
+            mNumOfIWGs = mSet->get_num_IWG(); //FIXME
 
             fem::Element_Factory tElementFactory;
 
-            mInterpElements.resize( mIntegrationCell.size(), nullptr );
+            mElements.resize( mIntegrationCells.size(), nullptr );
 
-            for( moris::uint Ik = 0; Ik < mInterpElements.size(); Ik++)
+            for( moris::uint Ik = 0; Ik < mElements.size(); Ik++)
             {
                 // create the element
-                mInterpElements( Ik ) = tElementFactory.create_element( mElementType,
-                                                                        mIntegrationCell( Ik ),
-                                                                        mElementBlock,
-                                                                        this );
+                mElements( Ik ) = tElementFactory.create_element( mElementType,
+                                                                  mIntegrationCells( Ik ),
+                                                                  mSet,
+                                                                  this );
+            }
+        };
+
+        Cluster( const Element_Type                aElementType,
+                 const mtk::Cell_Cluster         * aCellCluster,
+                       moris::Cell< Node_Base* > & aNodes,
+                       Set                       * aSet ) : MSI::Equation_Object( aSet ),
+                                                            mSet( aSet )
+        {
+            // fill the interpolation cell
+            mInterpolationCell = & aCellCluster->get_interpolation_cell();
+
+            // fill the integration cells
+            mIntegrationCells = aCellCluster->get_primary_cells_in_cluster();
+
+            // fill the element type
+            mElementType = aElementType;
+
+            // select the element nodes from aNodes and fill mNodeObj
+            // get vertices from cell
+            moris::Cell< mtk::Vertex* > tVertices = mInterpolationCell->get_vertex_pointers();
+
+            // get number of nodes from cell
+            uint tNumOfNodes = tVertices.size();
+
+            // assign node object
+            mNodeObj.resize( tNumOfNodes, nullptr );
+
+            // fill node objects
+            for( uint i = 0; i < tNumOfNodes; i++)
+            {
+                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
+            }
+
+            // set size of Weak BCs
+            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
+
+            // get the number of IWGs
+            mNumOfIWGs = mSet->get_num_IWG(); //FIXME
+
+            // element factory
+            fem::Element_Factory tElementFactory;
+
+            mElements.resize( mIntegrationCells.size(), nullptr );
+
+            for( moris::uint Ik = 0; Ik < mIntegrationCells.size(); Ik++)
+            {
+                // create an element
+                mElements( Ik ) = tElementFactory.create_element( mElementType,
+                                                                  mIntegrationCells( Ik ),
+                                                                  mSet,
+                                                                  this );
+            }
+        };
+
+        Cluster( const Element_Type                aElementType,
+                 const mtk::Side_Cluster         * aSideCluster,
+                       moris::Cell< Node_Base* > & aNodes,
+                       Set                       * aSet ) : MSI::Equation_Object( aSet ),
+                                                            mSet( aSet )
+        {
+            // fill the interpolation cell
+            mInterpolationCell = & aSideCluster->get_interpolation_cell();
+
+            // fill the integration cells
+            mIntegrationCells = aSideCluster->get_cells_in_side_cluster();
+
+            // set the side ordinals for the IG cells in the cluster
+            mListOfSideOrdinals = aSideCluster->get_cell_side_ordinals();
+
+            // fill the element type
+            mElementType = aElementType;
+
+            // select the element nodes from aNodes and fill mNodeObj
+            // get vertices from cell
+            moris::Cell< mtk::Vertex* > tVertices = mInterpolationCell->get_vertex_pointers();
+
+            // get number of nodes from cell
+            uint tNumOfNodes = tVertices.size();
+
+            // assign node object
+            mNodeObj.resize( tNumOfNodes, nullptr );
+
+            // fill node objects
+            for( uint i = 0; i < tNumOfNodes; i++)
+            {
+                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
+            }
+
+            // set size of Weak BCs
+            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
+
+            // get the number of IWGs
+            mNumOfIWGs = mSet->get_num_IWG(); //FIXME
+
+            // element factory
+            fem::Element_Factory tElementFactory;
+
+            mElements.resize( mIntegrationCells.size(), nullptr );
+
+            for( moris::uint Ik = 0; Ik < mIntegrationCells.size(); Ik++)
+            {
+                // create an element
+                mElements( Ik ) = tElementFactory.create_element( mElementType,
+                                                                  mIntegrationCells( Ik ),
+                                                                  mSet,
+                                                                  this );
             }
         };
 //------------------------------------------------------------------------------
@@ -122,7 +231,7 @@ namespace moris
          */
         ~Cluster()
         {
-            mInterpElements.clear();
+            mElements.clear();
         };
 
 //------------------------------------------------------------------------------
@@ -181,7 +290,7 @@ namespace moris
         real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
         {
             //get number of integration points
-            uint tNumOfIntegPoints = mElementBlock->get_num_integration_points();
+            uint tNumOfIntegPoints = mSet->get_num_integration_points();
 
             // init volume
             real tVolume = 0;
@@ -190,8 +299,8 @@ namespace moris
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // compute integration point weight x detJ
-                real tWStar = aGeometryInterpolator->det_J( mElementBlock->get_integration_points().get_column( iGP ) )
-                            * mElementBlock->get_integration_weights()( iGP );
+                real tWStar = aGeometryInterpolator->det_J( mSet->get_integration_points().get_column( iGP ) )
+                            * mSet->get_integration_weights()( iGP );
 
                 // add contribution to jacobian from evaluation point
                 //FIXME: include a thickness if 2D
@@ -213,10 +322,10 @@ namespace moris
         void set_field_interpolators_coefficients( )
          {
              // loop on the dof types
-             for( uint i = 0; i < mElementBlock->get_num_interpolators(); i++ )
+             for( uint i = 0; i < mSet->get_num_interpolators(); i++ )
              {
                  // get the ith dof type group
-                 Cell< MSI::Dof_Type > tDofTypeGroup = mElementBlock->get_interpolator_dof_type_list()( i );
+                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_interpolator_dof_type_list()( i );
 
                  //FIXME:forced coefficients
                  // get the pdof values for the ith dof type group
@@ -224,22 +333,22 @@ namespace moris
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff );
 
                  // set the field coefficients
-                 mElementBlock->get_block_field_interpolator()( i )->set_coeff( tCoeff );
+                 mSet->get_block_field_interpolator()( i )->set_coeff( tCoeff );
              }
          }
 
  //------------------------------------------------------------------------------
         /**
-         * @Brief set the initial sizes and values for mJacobianElement
+         * @Brief set the initial sizes and values for mJacobian
          */
-         void initialize_mJacobianElement();
+         void initialize_mJacobian();
 
 //------------------------------------------------------------------------------
 
          /**
-          * @Brief set the initial sizes and values for mResidualElement
+          * @Brief set the initial sizes and values for mResidual
           */
-         void initialize_mResidualElement();
+         void initialize_mResidual();
 
 //------------------------------------------------------------------------------
     };

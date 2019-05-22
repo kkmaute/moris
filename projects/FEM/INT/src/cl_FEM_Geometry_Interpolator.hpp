@@ -66,6 +66,7 @@ namespace moris
         // boolean true if side interpolation
         bool mSpaceSideset = false;
 
+        //fixme to remove when GI on the side
         // side geometry type
         mtk::Geometry_Type mSideGeometryType;
 
@@ -89,6 +90,7 @@ namespace moris
 
         // Vertices ordinals for each face of the parent element
         moris::Cell< moris::Cell< moris::moris_index > > mVerticesOrdinalsPerFace;
+        //end fixme to remove when GI on the side
 
         // pointer to function for second derivative
         void ( * mSecondDerivativeMatricesSpace )( const Matrix< DDRMat > & aJt,
@@ -230,6 +232,9 @@ namespace moris
           */
           Matrix< DDRMat > get_space_coeff() const
           {
+              // check that mXHat is set
+              MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::get_space_coeff - mXHat is not set." );
+
               return mXHat;
           }
 
@@ -239,6 +244,9 @@ namespace moris
            */
            Matrix< DDRMat > get_time_coeff() const
            {
+               // check that mTHat is set
+               MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::get_time_coeff - mTHat is not set." );
+
                return mTHat;
            }
 
@@ -284,6 +292,9 @@ namespace moris
           */
           Matrix< DDRMat > get_space_param_coeff() const
           {
+              // check that mXiHat is set
+              MORIS_ASSERT( mXiHat.numel()>0, "Geometry_Interpolator::get_space_param_coeff - mXiHat is not set." );
+
               return mXiHat;
           }
 
@@ -293,15 +304,11 @@ namespace moris
            */
            Matrix< DDRMat > get_time_param_coeff() const
            {
+               // check that mTauHat is set
+               MORIS_ASSERT( mTauHat.numel()>0, "Geometry_Interpolator::get_time_param_coeff - mTauHat is not set." );
+
                return mTauHat;
            }
-
-//------------------------------------------------------------------------------
-//        /**
-//         * get the space time physical coordinates
-//         */
-        //fixme should not be used
-        Matrix< DDRMat > build_space_time_phys_coords() const;
 
 //------------------------------------------------------------------------------
         /**

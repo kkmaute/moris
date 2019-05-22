@@ -19,21 +19,28 @@ namespace moris
 
         void Cluster::compute_jacobian()
         {
-            // set the IP geometry interpolator coefficients
-            mElementBlock->get_block_IP_geometry_interpolator()->set_coeff( mInterpolationCell->get_vertex_coords(), this->mTime );
+            // set the IP geometry interpolator physical space and time coefficients
+            mSet->get_block_IP_geometry_interpolator()->set_space_coeff( mInterpolationCell->get_vertex_coords() );
+            mSet->get_block_IP_geometry_interpolator()->set_time_coeff( this->mTime );
+
+            // set the IP geometry interpolator param space and time coefficients
             // fixme param coeff from cluster
-            mElementBlock->get_block_IP_geometry_interpolator()->set_param_coeff();
+            mSet->get_block_IP_geometry_interpolator()->set_param_coeff();
 
             //Fixme do this only once
             this->get_my_pdof_values();
 
-            mElementBlock->initialize_mJacobianElement();
+            // init the jacobian
+            mSet->initialize_mJacobian();
 
+            // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
-            for ( uint Ik = 0; Ik < mInterpElements.size(); Ik++ )
+            // loop over the elements
+            for ( uint Ik = 0; Ik < mElements.size(); Ik++ )
             {
-                mInterpElements( Ik )->compute_jacobian();
+                // compute the jacobian for the element
+                mElements( Ik )->compute_jacobian();
             }
         }
 
@@ -41,20 +48,28 @@ namespace moris
 
         void Cluster::compute_residual()
         {
-            // set the IP geometry interpolator coefficients
-            mElementBlock->get_block_IP_geometry_interpolator()->set_coeff( mInterpolationCell->get_vertex_coords(), this->mTime );
-            // fixme param coeff from cluster
-            mElementBlock->get_block_IP_geometry_interpolator()->set_param_coeff();
+            // set the IP geometry interpolator physical space and time coefficients
+            mSet->get_block_IP_geometry_interpolator()->set_space_coeff( mInterpolationCell->get_vertex_coords() );
+            mSet->get_block_IP_geometry_interpolator()->set_time_coeff( this->mTime );
 
+            // set the IP geometry interpolator param space and time coefficients
+            // fixme param coeff from cluster
+            mSet->get_block_IP_geometry_interpolator()->set_param_coeff();
+
+            // fixme do this only once
             this->get_my_pdof_values();
 
-            mElementBlock->initialize_mResidualElement();
+            // init the residual
+            mSet->initialize_mResidual();
 
+            // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
-            for ( uint Ik = 0; Ik < mInterpElements.size(); Ik++ )
+            // loop over the elements
+            for ( uint Ik = 0; Ik < mElements.size(); Ik++ )
             {
-                mInterpElements( Ik )->compute_residual();
+                // compute the residual for the element
+                mElements( Ik )->compute_residual();
             }
         }
 
