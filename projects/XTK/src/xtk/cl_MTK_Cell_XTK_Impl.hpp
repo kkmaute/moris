@@ -115,11 +115,7 @@ namespace moris
              */
             //FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
             moris::Cell< Vertex* >
-            get_vertex_pointers() const
-            {
-                MORIS_ERROR(0, "get_vertex_pointers not implemented in XTK Cell");
-                return moris::Cell< Vertex* >(0);
-            }
+            get_vertex_pointers() const;
 
 //------------------------------------------------------------------------------
 
@@ -176,10 +172,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            moris::Cell<moris::mtk::Vertex const *>
+            get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+            {
+
+                moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
+
+                MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type tet");
+                moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Tetra4_Connectivity::get_node_to_face_map(aSideOrdinal);
+
+                moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(3);
+                tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+                tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+                tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+                return tVerticesOnSide;
+            }
+
+//------------------------------------------------------------------------------
+
         private:
-            moris::moris_id    mElementId;
-            moris::moris_index mElementIndex;
-            moris::moris_index mCMElementIndex;       /* Needed to access connectivity (verts) */
+            moris::moris_id       mElementId;
+            moris::moris_index    mElementIndex;
+            moris::moris_index    mCMElementIndex;    /* Needed to access connectivity (verts) */
             xtk::Child_Mesh*      mChildMeshPtr;      /* Needed to access connectivity (verts) */
             xtk::Background_Mesh* mBackgroundMeshPtr; /* Needed to access coordinates */
 

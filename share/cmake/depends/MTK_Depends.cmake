@@ -14,6 +14,7 @@ list(APPEND MORIS_SOURCE_DIRS ${MTK})
 # Include libraries needed by MTK
 set(MTK_TPL_DEPENDENCIES
     ${ARMADILLO_EIGEN}
+    "superlu"
     "trilinos"
     )
 

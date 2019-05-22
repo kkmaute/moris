@@ -566,8 +566,12 @@ public:
         mChildrenMeshes(aMeshIndex).pack_child_mesh_by_phase(aNumPhases,aElementCMInds,aElementIds);
     }
 
+    /*!
+     * pack interface side sets, if phase index not provided all are packaged
+     */
     moris::Matrix< moris::IdMat >
-    pack_interface_sides() const
+    pack_interface_sides(bool aIndexFlag = false,
+                         moris::moris_index aPhaseIndex = MORIS_INDEX_MAX) const
     {
         uint tNumElem = this->get_num_entities(EntityRank::ELEMENT);
 
@@ -577,7 +581,7 @@ public:
         uint tNumElemsFromCM = 0;
         for(uint i = 0; i <this->get_num_child_meshes(); i++)
         {
-           moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides();
+           moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides(aIndexFlag,aPhaseIndex);
 
            tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
            if(tNumElemsFromCM!=0)

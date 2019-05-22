@@ -37,9 +37,11 @@ set(TEST_DEPENDENCIES
     ${MTK}-lib
     ${ALG}-lib
     ${MORIS_BASE_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_SUPERLU_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
+    ${MORIS_ARMADILLO_EIGEN_LIBS}
+    ${MORIS_SUPERLU_LIBS}
+    ${MORIS_TRILINOS_LIBS}
+    ${MORIS_ARPACK_LIBS}
     )
 
 # Set the output path for test
