@@ -89,7 +89,6 @@ namespace moris
         mNodeSharing = Matrix<IdMat> ( tNumberOfNodes, mMesh->get_background_mesh()->get_number_of_proc_neighbors() );
         mNodeSharing.fill(MORIS_ID_MAX);
 
-
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 3: Populate Matrices
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -142,7 +141,6 @@ namespace moris
                {
                    mNodeSharing(k,iShare) = tNodeSharing(iShare);
                }
-
            }
 
             // copy node index into map
@@ -234,7 +232,6 @@ namespace moris
             mSetsInfo.SideSetsInfo.push_back( &tInfo );
         }
 
-
         if ( mParameters->is_verbose() )
         {
             // stop timer
@@ -251,8 +248,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    void
-    STK::save_to_file( const std::string & aFilePath )
+    void STK::save_to_file( const std::string & aFilePath )
     {
         tic tTimer;
 
@@ -285,8 +281,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    void
-    STK::flag_old_and_new_elements()
+    void STK::flag_old_and_new_elements()
     {
         uint tInputPattern  = mParameters->get_lagrange_input_pattern();
         uint tOutputPattern = mParameters->get_lagrange_output_pattern();

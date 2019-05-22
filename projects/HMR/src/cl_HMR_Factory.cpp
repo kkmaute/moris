@@ -5,7 +5,6 @@
  *      Author: messe
  */
 
-
 #include "cl_HMR_Factory.hpp" //HMR/src
 
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
@@ -44,7 +43,6 @@ namespace moris
     Background_Mesh_Base*
     Factory::create_background_mesh( const Parameters * aParameters )
     {
-
         // create background mesh object
         Background_Mesh_Base* aMesh;
 
@@ -53,30 +51,30 @@ namespace moris
 
         switch( tNumberOfDimensions )
         {
-        case( 1 ) :
-        {
-            // create mesh object
-            aMesh = new Background_Mesh< 1 >( aParameters );
-            break;
-        }
-        case( 2 ) :
-        {
-            aMesh = new Background_Mesh< 2 >( aParameters );
-            break;
-        }
-        case( 3 ) :
-        {
-            aMesh = new Background_Mesh< 3 >( aParameters );
-            break;
-        }
-        default :
-        {
-            std::fprintf( stdout,
-                    "create_background_mesh(): unknown number of dimensions %u\n",
-                    ( unsigned int ) tNumberOfDimensions );
-            exit(-1);
-            break;
-        }
+            case( 1 ) :
+            {
+                // create mesh object
+                aMesh = new Background_Mesh< 1 >( aParameters );
+                break;
+            }
+            case( 2 ) :
+            {
+                aMesh = new Background_Mesh< 2 >( aParameters );
+                break;
+            }
+            case( 3 ) :
+            {
+                aMesh = new Background_Mesh< 3 >( aParameters );
+                break;
+            }
+            default :
+            {
+                std::fprintf( stdout,
+                        "create_background_mesh(): unknown number of dimensions %u\n",
+                        ( unsigned int ) tNumberOfDimensions );
+                exit(-1);
+                break;
+            }
         }
 
         // reset main patterns of this mesh
@@ -90,8 +88,7 @@ namespace moris
     }
 //-------------------------------------------------------------------------------
 
-        Lagrange_Mesh_Base*
-        Factory::create_lagrange_mesh(
+        Lagrange_Mesh_Base * Factory::create_lagrange_mesh(
                 const Parameters            * aParameters,
                 Background_Mesh_Base        * aBackgroundMesh,
                 Cell< BSpline_Mesh_Base * > & aBSplineMeshes,
@@ -207,8 +204,7 @@ namespace moris
         }
 //-------------------------------------------------------------------------------
 
-        BSpline_Mesh_Base*
-        Factory::create_bspline_mesh(
+        BSpline_Mesh_Base * Factory::create_bspline_mesh(
                 const Parameters      * aParameters,
                 Background_Mesh_Base  * aBackgroundMesh,
                 const  uint           & aActivationPattern,

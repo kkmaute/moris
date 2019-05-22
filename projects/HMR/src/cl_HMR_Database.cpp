@@ -160,8 +160,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::create_meshes()
+        void Database::create_meshes()
         {
             // delete existing meshes
             this->delete_meshes();
@@ -215,10 +214,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
 
-        void
-        Database::delete_meshes()
+        void Database::delete_meshes()
         {
-
             // delete all pointers
             for( auto tMesh : mBSplineMeshes )
             {
@@ -236,8 +233,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::update_bspline_meshes()
+        void Database::update_bspline_meshes()
         {
             // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
@@ -255,8 +251,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::update_lagrange_meshes()
+        void Database::update_lagrange_meshes()
         {
             // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
@@ -275,8 +270,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::finalize()
+        void Database::finalize()
         {
             // remember active pattern
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
@@ -343,8 +337,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::create_communication_table()
+        void Database::create_communication_table()
         {
             moris_id tParSize = par_size();
             moris_id tMyRank  = par_rank();
@@ -491,8 +484,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        Background_Mesh_Base *
-        Database::get_background_mesh()
+        Background_Mesh_Base * Database::get_background_mesh()
         {
             return mBackgroundMesh;
         }
@@ -501,8 +493,7 @@ namespace moris
         /**
          * creates a union of two patterns
          */
-        void
-        Database::unite_patterns(
+        void Database::unite_patterns(
                 const uint & aSourceA,
                 const uint & aSourceB,
                 const uint & aTarget )
@@ -564,8 +555,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::add_extra_refinement_step_for_exodus()
+        void Database::add_extra_refinement_step_for_exodus()
         {
             // get refined pattern
             auto tPattern = mParameters->get_refined_output_pattern();
@@ -1021,8 +1011,6 @@ namespace moris
                 // get pointer to source element
                 const Element * tSourceElement = tSourceMesh->get_element( e );
 
-
-
                 for( uint i=0; i<tNumberOfNodesPerSourceElement; ++i )
                 {
                     tLocalSourceValues( i ) = tSourceValues(
@@ -1311,7 +1299,6 @@ namespace moris
             // get delta levels
             uint tDeltaLevel = mParameters->get_additional_lagrange_refinement();
 
-
             // loop over all active elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
@@ -1423,33 +1410,33 @@ namespace moris
                 // loop over all elements and make sure that neighbors exist
                 for( Background_Element_Base * tElement : tElements )
                 {
-                        // grab parent
-                        Background_Element_Base * tParent = tElement->get_parent();
+                    // grab parent
+                    Background_Element_Base * tParent = tElement->get_parent();
 
-                        // container for neighbors
-                        Cell< Background_Element_Base * > tNeighbors;
+                    // container for neighbors
+                    Cell< Background_Element_Base * > tNeighbors;
 
-                        // get neighbors of parent ( because of the staircase buffer, they must exist )
-                        tParent->get_neighbors_from_same_level( tBuffer, tNeighbors );
+                    // get neighbors of parent ( because of the staircase buffer, they must exist )
+                    tParent->get_neighbors_from_same_level( tBuffer, tNeighbors );
 
-                        // loop over all neighbors
-                        for( Background_Element_Base * tNeighbor : tNeighbors )
+                    // loop over all neighbors
+                    for( Background_Element_Base * tNeighbor : tNeighbors )
+                    {
+                        // check if neighbor has children
+                        if( ! tNeighbor->has_children() )
                         {
-                            // check if neighbor has children
-                            if( ! tNeighbor->has_children() )
+                            // remember refinement flag
+                            uint tFlag = tNeighbor->is_queued_for_refinement();
+
+                            // tell mesh to create children and keep state
+                            mBackgroundMesh->refine_element( tNeighbor, true );
+
+                            if( tFlag )
                             {
-                                // remember refinement flag
-                                uint tFlag = tNeighbor->is_queued_for_refinement();
-
-                                // tell mesh to create children and keep state
-                                mBackgroundMesh->refine_element( tNeighbor, true );
-
-                                if( tFlag )
-                                {
-                                    tNeighbor->put_on_refinement_queue();
-                                }
+                                tNeighbor->put_on_refinement_queue();
                             }
                         }
+                    }
                 }
             }
 

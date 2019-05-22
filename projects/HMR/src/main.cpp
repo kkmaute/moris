@@ -55,8 +55,7 @@ using namespace hmr;
 
 // -----------------------------------------------------------------------------
 
-void
-state_initialize_mesh( const Arguments & aArguments )
+void state_initialize_mesh( const Arguments & aArguments )
 {
     // create parameter file
     Paramfile tParams(  aArguments.get_parameter_path(), aArguments.get_state() );
@@ -98,8 +97,7 @@ state_initialize_mesh( const Arguments & aArguments )
 
 // -----------------------------------------------------------------------------
 
-void
-state_refine_mesh( const Arguments & aArguments )
+void state_refine_mesh( const Arguments & aArguments )
 {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 1: Load Parameter Lists
@@ -180,8 +178,7 @@ state_refine_mesh( const Arguments & aArguments )
 }
 // -----------------------------------------------------------------------------
 
-void
-state_map_fields( const Arguments & aArguments )
+void state_map_fields( const Arguments & aArguments )
 {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Step 1: Load Parameter Lists
@@ -293,5 +290,4 @@ main(
     gMorisComm.finalize();
 
     return 0;
-
 }
