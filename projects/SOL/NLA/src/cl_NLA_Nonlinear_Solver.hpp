@@ -37,7 +37,7 @@ namespace NLA
         moris::Cell< Nonlinear_Solver * > mNonLinearSubSolverList;
 
         //! Pointer to solver database
-        SOL_Warehouse * mSolverWarehouse;
+        SOL_Warehouse * mSolverWarehouse = nullptr;
 
         //! Pointer to nonlinear problem
         Nonlinear_Problem * mNonlinearProblem = nullptr;

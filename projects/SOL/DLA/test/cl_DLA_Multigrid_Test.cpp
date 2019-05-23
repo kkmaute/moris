@@ -254,11 +254,11 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          delete ( tNonlinearProblem );
          delete ( mLinSolver );
 
-         for( luint k=0; k<tNumberOfElements; ++k )
-         {
-             // create the element
-             delete tElements( k );
-         }
+//         for( luint k=0; k<tNumberOfElements; ++k )
+//         {
+//             // create the element
+//             delete tElements( k );
+//         }
 
          for( luint k = 0; k < tNumberOfNodes; ++k )
          {

@@ -46,6 +46,8 @@ namespace NLA
         //! Parameterlist for this nonlinear solver
         Param_List< boost::variant< bool, sint, real, const char* > > mParameterListNonlinearSolver;
 
+        bool mLinSolverOwned = true;
+
         friend class Convergence;
 
         //--------------------------------------------------------------------------------------------------
