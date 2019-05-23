@@ -37,7 +37,7 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
     // File prefix
     std::string tMORISROOT = std::getenv("MORISROOT");
 
-    std::string tPrefix =  tMORISROOT +"projects/STK/test/MeshFiles/";
+    std::string tPrefix =  tMORISROOT +"projects/MTK/test/Test_Files/";
 
 
         if( p_rank == 0 && p_size == 1 ) // specify it is a serial test only
