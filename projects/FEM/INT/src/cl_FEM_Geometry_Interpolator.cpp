@@ -969,7 +969,8 @@ namespace moris
                 const Matrix< DDRMat > & ad2NdXi2,
 				const Matrix< DDRMat > & ad3NdXi3) const
         {
-            // evaluate  geometry Jacobians
+
+        	// evaluate  geometry Jacobians
             aJt   = this->space_jacobian( adNdXi );
             aJ2bt = this->second_space_jacobian( ad2NdXi2 );
 
@@ -981,6 +982,7 @@ namespace moris
 												 aJ3ct,
                                                  ad3NdXi3,
                                                  mXHat);
+
         }
 
 //------------------------------------------------------------------------------
@@ -1081,7 +1083,9 @@ namespace moris
                 const Matrix< DDRMat > & ad3NdXi3,
                 const Matrix< DDRMat > & aXHat)
         {
-            // first help matrix
+
+
+        	// first help matrix
             aJ3at.set_size( 4, 4 );
 
             /* matrix structured into 4 parts
@@ -1109,8 +1113,8 @@ namespace moris
             // Block (3) ------------------------------------------------
             for( uint j=0; j<2; ++j )
             {
-                aJ3at( 0, j ) = std::pow( aJt( 0, j ), 2 ) * aJt( 1, j );
-                aJ3at( 1, j ) = std::pow( aJt( 1, j ), 2 ) * aJt( 0, j );
+                aJ3at( 2, j ) = std::pow( aJt( 0, j ), 2 ) * aJt( 1, j );
+                aJ3at( 3, j ) = std::pow( aJt( 1, j ), 2 ) * aJt( 0, j );
             }
 
             // Block (4) ------------------------------------------------
@@ -1143,7 +1147,7 @@ namespace moris
             aJ3bt( 1, 2 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 1 ) + 3 * aJ2bt( 1, 1 ) * aJt( 1, 0 );
 
             // Block (3) ------------------------------------------------
-            for( uint j=0; j<3; ++j )
+            for( uint j=0; j<2; ++j )
             {
                 aJ3bt( 2, j ) = 2 * aJ2bt( 2, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 1, j );
                 aJ3bt( 3, j ) = 2 * aJ2bt( 2, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 0, j );

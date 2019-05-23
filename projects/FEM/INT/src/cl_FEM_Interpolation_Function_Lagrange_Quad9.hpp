@@ -224,10 +224,6 @@ namespace moris
 
             // often used parameters
             // 1st dimension
-            real a0 = 0.5 * ( std::pow(xi,2) - xi );
-            real a1 = 1.0 - std::pow(xi,2);
-            real a2 = 0.5 * ( std::pow(xi,2) + xi );
-
             real da0 =   xi - 0.5;
             real da1 = - xi * 2.0;
             real da2 =   xi + 0.5;
@@ -237,10 +233,6 @@ namespace moris
             real dda2 =   1.0;
 
             // 2nd dimension
-            real b0 = 0.5 * ( std::pow(xi,2) - xi );
-            real b1 = 1.0 - std::pow(xi,2);
-            real b2 = 0.5 * ( std::pow(xi,2) + xi );
-
             real db0 =   eta - 0.5;
             real db1 = - eta * 2.0;
             real db2 =   eta + 0.5;
@@ -252,88 +244,44 @@ namespace moris
             // 3rd derivatives = 0 for all dimensions
 
 
-            Matrix< DDRMat > td3NdXi3(10,9,0.0);
+            Matrix< DDRMat > td3NdXi3(4,9,0.0);
 
             // 0th node: (0,0)
-            td3NdXi3( 3,  0 ) =  dda0*  db0;
-            td3NdXi3( 4,  0 ) =  dda0*   b0;
-            td3NdXi3( 5,  0 ) =   da0* ddb0;
-            td3NdXi3( 6,  0 ) =    a0* ddb0;
-            td3NdXi3( 7,  0 ) =   da0*   b0;
-            td3NdXi3( 8,  0 ) =    a0*  db0;
-            td3NdXi3( 9,  0 ) =   da0*  db0;
+            td3NdXi3( 2,  0 ) =   dda0*  db0;
+            td3NdXi3( 3,  0 ) =    da0* ddb0;
 
-            // 1th node: (2,0
-            td3NdXi3( 3,  1 ) =  dda2*  db0;
-            td3NdXi3( 4,  1 ) =  dda2*   b0;
-            td3NdXi3( 5,  1 ) =   da2* ddb0;
-            td3NdXi3( 6,  1 ) =    a2* ddb0;
-            td3NdXi3( 7,  1 ) =   da2*   b0;
-            td3NdXi3( 8,  1 ) =    a2*  db0;
-            td3NdXi3( 9,  1 ) =   da2*  db0;
+            // 1th node: (2,0)
+            td3NdXi3( 2, 1 ) =   dda2*  db0;
+            td3NdXi3( 3, 1 ) =    da2* ddb0;
 
             // 2th node: (2,2)
-            td3NdXi3( 3,  2 ) =  dda2*  db2;
-            td3NdXi3( 4,  2 ) =  dda2*   b2;
-            td3NdXi3( 5,  2 ) =   da2* ddb2;
-            td3NdXi3( 6,  2 ) =    a2* ddb2;
-            td3NdXi3( 7,  2 ) =   da2*   b2;
-            td3NdXi3( 8,  2 ) =    a2*  db2;
-            td3NdXi3( 9,  2 ) =   da2*  db2;
+            td3NdXi3( 2, 2 ) =   dda2*  db2;
+            td3NdXi3( 3, 2 ) =    da2* ddb2;
 
             // 3th node: (0,2)
-            td3NdXi3( 3,  3 ) =  dda0*  db2;
-            td3NdXi3( 4,  3 ) =  dda0*   b2;
-            td3NdXi3( 5,  3 ) =   da0* ddb2;
-            td3NdXi3( 6,  3 ) =    a0* ddb2;
-            td3NdXi3( 7,  3 ) =   da0*   b2;
-            td3NdXi3( 8,  3 ) =    a0*  db2;
-            td3NdXi3( 9,  3 ) =   da0*  db2;
+            td3NdXi3( 2, 3 ) =   dda0*  db2;
+            td3NdXi3( 3, 3 ) =    da0* ddb2;
 
             // 4th node: (1,0)
-            td3NdXi3( 3,  4 ) =  dda1*  db0;
-            td3NdXi3( 4,  4 ) =  dda1*   b0;
-            td3NdXi3( 5,  4 ) =   da1* ddb0;
-            td3NdXi3( 6,  4 ) =    a1* ddb0;
-            td3NdXi3( 7,  4 ) =   da1*   b0;
-            td3NdXi3( 8,  4 ) =    a1*  db0;
-            td3NdXi3( 9,  4 ) =   da1*  db0;
+            td3NdXi3( 2, 4 ) =   dda1*  db0;
+            td3NdXi3( 3, 4 ) =    da1* ddb0;
 
             // 5th node: (2,1)
-            td3NdXi3( 3,  5 ) =  dda2*  db1;
-            td3NdXi3( 4,  5 ) =  dda2*   b1;
-            td3NdXi3( 5,  5 ) =   da2* ddb1;
-            td3NdXi3( 6,  5 ) =    a2* ddb1;
-            td3NdXi3( 7,  5 ) =   da2*   b1;
-            td3NdXi3( 8,  5 ) =    a2*  db1;
-            td3NdXi3( 9,  5 ) =   da2*  db1;
+            td3NdXi3( 2, 5 ) =   dda2*  db1;
+            td3NdXi3( 3, 5 ) =    da2* ddb1;
+
 
             // 6th node: (1,2)
-            td3NdXi3( 3,  6 ) =  dda1*  db2;
-            td3NdXi3( 4,  6 ) =  dda1*   b2;
-            td3NdXi3( 5,  6 ) =   da1* ddb2;
-            td3NdXi3( 6,  6 ) =    a1* ddb2;
-            td3NdXi3( 7,  6 ) =   da1*   b2;
-            td3NdXi3( 8,  6 ) =    a1*  db2;
-            td3NdXi3( 9,  6 ) =   da1*  db2;
+            td3NdXi3( 2, 6 ) =   dda1*  db2;
+            td3NdXi3( 3, 6 ) =    da1* ddb2;
 
             // 7th node: (0,1)
-            td3NdXi3( 3,  7 ) =  dda0*  db1;
-            td3NdXi3( 4,  7 ) =  dda0*   b1;
-            td3NdXi3( 5,  7 ) =   da0* ddb1;
-            td3NdXi3( 6,  7 ) =    a0* ddb1;
-            td3NdXi3( 7,  7 ) =   da0*   b1;
-            td3NdXi3( 8,  7 ) =    a0*  db1;
-            td3NdXi3( 9,  7 ) =   da0*  db1;
+            td3NdXi3( 2, 7 ) =   dda0*  db1;
+            td3NdXi3( 3, 7 ) =    da0* ddb1;
 
             // 8th node: (1,1)
-            td3NdXi3( 3,  8 ) =  dda1*  db1;
-            td3NdXi3( 4,  8 ) =  dda1*   b1;
-            td3NdXi3( 5,  8 ) =   da1* ddb1;
-            td3NdXi3( 6,  8 ) =    a1* ddb1;
-            td3NdXi3( 7,  8 ) =   da1*   b1;
-            td3NdXi3( 8,  8 ) =    a1*  db1;
-            td3NdXi3( 9,  8 ) =   da1*  db1;
+            td3NdXi3( 2, 8 ) =   dda1*  db1;
+            td3NdXi3( 3, 8 ) =    da1* ddb1;
 
             return td3NdXi3;
         }
