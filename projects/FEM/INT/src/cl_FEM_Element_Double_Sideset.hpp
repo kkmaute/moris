@@ -2,7 +2,7 @@
  * cl_FEM_Element_Double_Sideset.hpp
  *
  *  Created on: May 13, 2019
- *      Author: noel
+ *  Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_ELEMENT_DOUBLE_SIDESET_HPP_
@@ -15,7 +15,7 @@ namespace moris
 {
     namespace fem
     {
-    class Element_Block;
+    class Set;
 //------------------------------------------------------------------------------
     /**
      * \brief Element_Sideset class
@@ -33,10 +33,11 @@ namespace moris
          * @param[ in ]     pointer to cluster
          *
          */
-        Element_Double_Sideset( mtk::Cell     const * aMasterIGCell,
-                                mtk::Cell     const * aSlaveIGCell,
-                                Element_Block       * aElementBlock,
-                                Cluster             * aCluster);
+        Element_Double_Sideset( mtk::Cell const  * aLeftIGCell,
+                                mtk::Cell const  * aRightIGCell,
+                                Set              * aSet,
+                                Cluster          * aCluster,
+                                moris::moris_index aCellIndexInCluster);
 
 //------------------------------------------------------------------------------
         /**

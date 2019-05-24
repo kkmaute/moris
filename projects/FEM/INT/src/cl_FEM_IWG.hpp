@@ -119,12 +119,26 @@ namespace moris
                 MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
             }
 
+            virtual void compute_residual( Matrix< DDRMat >                   & aResidual,
+                                           moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
+                                           moris::Cell< Field_Interpolator* > & aRightFieldInterpolators)
+            {
+                MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
+            }
+
 //------------------------------------------------------------------------------
             /**
              * evaluates the Jacobian
              */
             virtual void compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
                                            moris::Cell< Field_Interpolator* > & aFieldInterpolators)
+            {
+                MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
+            }
+
+            virtual void compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                           moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
+                                           moris::Cell< Field_Interpolator* > & aRightFieldInterpolators )
             {
                 MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
             }
@@ -135,6 +149,14 @@ namespace moris
             virtual void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
                                                         Matrix< DDRMat >                   & aResidual,
                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+            {
+                MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
+            }
+
+            virtual void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                        Matrix< DDRMat >                   & aResidual,
+                                                        moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
+                                                        moris::Cell< Field_Interpolator* > & aRightFieldInterpolators)
             {
                 MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
             }

@@ -73,6 +73,8 @@ namespace moris
 
         void Field_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
         {
+            //print(aParamPoint, "aParamPoint" );
+
             // check input size aParamPoint
             MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNSpaceParamDim + mNTimeDim )),
                          "Field_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");

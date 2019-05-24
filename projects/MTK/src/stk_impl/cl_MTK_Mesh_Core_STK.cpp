@@ -701,6 +701,7 @@ namespace mtk
         enum EntityRank tFacetRank = this->get_facet_rank();
 
         // Get facets in side set
+        std::cout<<"aSetName = "<<aSetName<<std::endl;
         Matrix<IndexMat> tSidesInSideSetInds = this->get_set_entity_loc_inds(tFacetRank,aSetName);
 
         // allocate space in inputs
@@ -739,6 +740,8 @@ namespace mtk
         Matrix<IndexMat> tCellInds;
 
         this->get_sideset_elems_loc_inds_and_ords(aSetName, tCellInds,aSidesetOrdinals);
+
+        moris::print(tCellInds,"tCellInds");
 
         aCells.resize(tCellInds.numel());
 
@@ -1470,14 +1473,9 @@ namespace mtk
         else if ( aMeshData.NodeProcOwner != NULL )
         {
             // Verify sizes
-            MORIS_ASSERT( ( aMeshData.NodeProcOwner[0].numel() == tNumNodes ) ||
-                          ( aMeshData.NodeProcOwner[0].numel() == aMeshData.get_num_elements() ),
-                          "Number of rows for EntProcOwner should match number of nodes or elements." );
+            MORIS_ASSERT( ( aMeshData.NodeProcOwner[0].numel() == tNumNodes ) ,
+                          "Number of rows for EntProcOwner should match number" );
         }
-//        else
-//        {
-//            MORIS_ASSERT( 0, "Elements or nodes processor owner list must be provided in parallel." );
-//        }
 
         // If nodal map was not provided and the simulation is run with 1 processor,
         // just generate the map. The number of ids provided in the map should match
@@ -1808,7 +1806,16 @@ namespace mtk
         {
             uint tNumNodesPerElem = aMeshData.ElemConn(iET)->n_cols();
             // Declare and initialize topology type. Also check if element type is supported
-            stk::topology::topology_t tTopology = get_mesh_topology( mSTKMeshData->mNumDims, tNumNodesPerElem );
+
+            stk::topology::topology_t tTopology;
+            if(aMeshData.CellTopology(iET) == CellTopology::INVALID)
+            {
+                tTopology = get_mesh_topology( mSTKMeshData->mNumDims, tNumNodesPerElem );
+            }
+            else
+            {
+                tTopology = get_stk_topo( aMeshData.CellTopology(iET) );
+            }
 
             // Add default part if no block sets were provided
             stk::mesh::Part& tBlock = mSTKMeshData->mMtkMeshMetaData->declare_part_with_topology( "noblock_"+std::to_string(iET), tTopology );
@@ -2321,47 +2328,6 @@ namespace mtk
         }
     }
 
-
-
-//            // Get all sets provided by the user and go to the block set
-//            uint tNumElems     = aMeshData.ElemConn(iET)->numel();
-//            uint tNumBlockSets = 1;
-//
-//            Matrix< IndexMat >  aOwnerPartInds( tNumElems, 1, 0 );
-//            std::vector< stk::mesh::PartVector > aPartBlocks( 1 );
-//
-////            // Update to number of blocks provided by the user
-////            if ( mSTKMeshData->mSetRankFlags[2] )
-////            {
-////                tNumBlockSets  = aMeshData.SetsInfo->get_num_block_sets();
-////                aOwnerPartInds = aMeshData.SetsInfo[0].BlockSetsInfo[0].BSetInds[0];
-////                aPartBlocks.resize( tNumBlockSets );
-////            }
-////
-////
-////            // Populate part blocks
-////            for ( uint iSet = 0; iSet < tNumBlockSets; ++iSet )
-////            {
-////                // Get block sets provided by user
-////                stk::mesh::Part* tBlock = mSTKMeshData->mMtkMeshMetaData->get_part( mSTKMeshData->mSetNames[2][iSet] + std::to_string(iET) );
-////                aPartBlocks[iSet]       = { tBlock };
-////            }
-////
-////            // Declare MPI communicator
-////            stk::ParallelMachine tPM = MPI_COMM_WORLD;
-////            uint tParallelSize       = stk::parallel_machine_size( tPM );
-////            if ( tParallelSize == 1 )
-////            {
-////                // serial run
-////                this->populate_mesh_database_serial( iET, aMeshData, aPartBlocks, aOwnerPartInds );
-////            }
-////            else
-////            {
-////                // Populating mesh is a bit more complicated in parallel because of entity sharing stuff
-////                this->populate_mesh_database_parallel( aMeshData, aPartBlocks, aOwnerPartInds );
-////            }
-////        }
-
     // ----------------------------------------------------------------------------
 
 
@@ -2688,30 +2654,32 @@ namespace mtk
     {
         stk::topology::topology_t tTopology = stk::topology::INVALID_TOPOLOGY;
 
-        switch ( aMTKCellTopo )
+        // MTK supports the following 1D, 2D and 3D element topology temporarily
+
+        switch(aMTKCellTopo)
         {
+            case CellTopology::TRI3:
+                tTopology = stk::topology::TRI_3;
+                break;
+            case CellTopology::QUAD4:
+                tTopology = stk::topology::QUAD_4;
+                break;
             case CellTopology::TET4:
-            {
                 tTopology = stk::topology::TET_4;
                 break;
-            }
+            case CellTopology::TET10:
+                tTopology = stk::topology::TET_10;
+                break;
             case CellTopology::HEX8:
-            {
                 tTopology = stk::topology::HEX_8;
                 break;
-            }
             case CellTopology::PRISM6:
-            {
                 tTopology = stk::topology::WEDGE_6;
                 break;
-            }
             default:
-            {
-                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, HEX8,  and  for 3D elements.");
+                MORIS_ERROR(0,"Unsupported element type in get_mesh_topology");
                 break;
-            }
         }
-
 
         return tTopology;
     }
@@ -2898,6 +2866,8 @@ namespace mtk
             // Get side set and size of node set
             MtkSideSetInfo* tSideSet = aMeshData.SetsInfo->get_side_set(iSet);
             uint tNumSidesInSet = tSideSet->mElemIdsAndSideOrds->n_rows();
+
+            moris::print((*tSideSet->mElemIdsAndSideOrds),"(*tSideSet->mElemIdsAndSideOrds)(");
 
             for ( uint iEntity = 0; iEntity < tNumSidesInSet; ++iEntity )
             {

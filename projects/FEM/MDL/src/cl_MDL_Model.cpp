@@ -36,11 +36,14 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
+#include "op_equal_equal.hpp"
+
 // fixme: temporary
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
 #include "fn_print.hpp" // for check
+
 
 namespace moris
 {
@@ -160,60 +163,82 @@ namespace moris
             luint tNumberOfEquationObjects = tIntegrationMesh->get_num_elems()
                                            + tIntegrationMesh->get_sidesets_num_faces( aSidesetList );
 
-            uint tNumberElementBlocks = 1 + aSidesetList.size();
+            // FIXME should be an input of the model as aSidesetList
+            moris::Cell< moris_index > aBlocksetList = { 0, 1 };
+
+            uint tNumberElementBlocks = aBlocksetList.size() + aSidesetList.size();
 
             // create equation objects
-            mElements.reserve( tNumberOfEquationObjects );
+            mElementClusters.reserve( tNumberOfEquationObjects );
 
             mElementBlocks.resize( tNumberElementBlocks, nullptr );
 
             //  Create Blockset Elements ---------------------------------------------------
-            std::cout<<" Create Blockset Elements "<<std::endl;
+            std::cout<<" Create Block-set Elements "<<std::endl;
             //------------------------------------------------------------------------------
-
-            // ask integration mesh about block-set names
-            moris::Cell<std::string> tBlockSetsNames = tIntegrationMesh->get_block_set_names();
-
-            // get cells in blockset (this needs to stay in scope somehow) // FIXME BLOCK OF CLUSTERS
-            //moris::Cell<mtk::Cell const*> tBlockSetCells = tIntegrationMesh->get_block_set_cells( tBlockSetsNames( 0 ) );
-            moris::Cell<mtk::Cell_Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( 0 );
-
-            // create new fem element block
+            // init the fem set counter
             moris::uint tElementBlockCounter = 0;
-            mElementBlocks( tElementBlockCounter ) = new fem::Set( tBlockSetClusterList, fem::Element_Type::BULK, mIWGs( 0 ), mIPNodes );
 
-            mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
+            moris::Cell<std::string> tBlockSetNames = tIntegrationMesh->get_block_set_names();
+            print( tBlockSetNames, "tBlockSetNames" );
 
-            //  Create Blockset Elements ---------------------------------------------------
-            std::cout<<" Create Sideset Elements "<<std::endl;
+            // loop over the used mesh block-set
+            for( luint Ik = 0; Ik < aBlocksetList.size(); ++Ik )
+            {
+                // create a list of cell clusters (this needs to stay in scope somehow)
+                moris::Cell<mtk::Cell_Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( aBlocksetList( Ik ) );
+
+                // create new fem set
+                mElementBlocks( tElementBlockCounter ) = new fem::Set( tBlockSetClusterList,
+                                                                       fem::Element_Type::BULK,
+                                                                       mIWGs( 0 ), mIPNodes );
+
+                // collect equation objects associated with the block-set
+                mElementClusters.append( mElementBlocks( tElementBlockCounter )->get_equation_object_list() );
+
+                tElementBlockCounter++;
+            }
+
+            // FIXME for setting the BC in the model, will be ultimately removed
+            moris::uint tEquationObjectCounter = mElementClusters.size();
+
+            //  Create Sideset Elements ---------------------------------------------------
+            std::cout<<" Create Side-set Elements "<<std::endl;
             //------------------------------------------------------------------------------
-
-            // ask integration mesh about side-set names
-            moris::Cell<std::string> tSideSetsNames = tIntegrationMesh->get_set_names( EntityRank::FACE );
-
+            // loop over the used mesh side-set
             for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
-//                // get the treated sideset name
-//                std::string tTreatedSidesetName = tSideSetsNames( aSidesetList( Ik ) );
-//
-//                // create a cell of sideset element
-//                moris::Cell< mtk::Cell const * > tSideSetElement;
-//
-//                // create a list of sideset ordinal
-//                Matrix< IndexMat >  aSidesetOrdinals;
-//
-//                // get the treated sideset elements and ordinals
-//
-//                // FIXME: This needs to be the integration mesh not the interpolation mesh
-//                // FIXME: Integration mesh contains all the sets, interpolation sets define interpolation
-//                tInterpolationMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
+                // create a list of side clusters
+                moris::Cell< mtk::Side_Cluster const * > tSideSetClusterList = tIntegrationMesh->get_side_set_cluster( aSidesetList( Ik ) );
 
-                // create a cell of sideset element
-                moris::Cell< mtk::Side_Cluster const * > tSideSetClustersList = tIntegrationMesh->get_side_set_cluster( aSidesetList( Ik ) );
+                // create a new fem set
+                mElementBlocks( tElementBlockCounter ) = new fem::Set( tSideSetClusterList,
+                                                                       fem::Element_Type::SIDESET,
+                                                                       mIWGs( Ik + 1 ), mIPNodes );
 
-                mElementBlocks( tElementBlockCounter ) = new fem::Set( tSideSetClustersList, fem::Element_Type::SIDESET, mIWGs( Ik + 1 ), mIPNodes );
+                // collect equation objects associated with the side-set
+                mElementClusters.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
+            }
 
-                mElements.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
+            //  Create Double Side-set Elements ---------------------------------------------
+            std::cout<<" Create Double Side-set Elements "<<std::endl;
+            //------------------------------------------------------------------------------
+            // FIXME should be an input of the model as aSidesetList
+            moris::Cell< moris_index > aDoubleSidesetList = {};
+
+            // loop over the used mesh double side-set
+            for( luint Ik = 0; Ik < aDoubleSidesetList.size(); ++Ik )
+            {
+                // create a list of double side clusters
+            	 moris::Cell< mtk::Double_Side_Cluster> const & tDoubleSideSetClusterList = tIntegrationMesh->get_double_side_set_cluster( aDoubleSidesetList( Ik ) );
+
+                // create a new fem set
+                mElementBlocks( tElementBlockCounter ) = new fem::Set( tDoubleSideSetClusterList,
+                                                                       fem::Element_Type::DOUBLE_SIDESET,
+                                                                       mIWGs( Ik + 1 ), mIPNodes );
+
+                // collect equation objects associated with the side-set
+                mElementClusters.append( mElementBlocks( tElementBlockCounter++ )->get_equation_object_list() );
             }
 
             if( par_rank() == 0)
@@ -222,6 +247,7 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
+
                 std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
                         ( unsigned int ) tNumberOfEquationObjects,
                         ( double ) tElapsedTime / 1000 );
@@ -278,41 +304,43 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
-            moris::uint tEquationObjectCounter = tBlockSetClusterList.size();
+            //moris::uint tEquationObjectCounter = tBlockSetClusterList.size();
             tElementBlockCounter = 0;
-            mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
+
+            for( luint Ik = 0; Ik < aBlocksetList.size(); ++Ik )
+            {
+                mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
+            }
+
+            moris::Cell<std::string> tSideSetsNames = tIntegrationMesh->get_set_names( EntityRank::FACE );
+
+            moris::print(tSideSetsNames,"tSideSetsNames");
+
+            moris::print(aSidesetList,"aSidesetList");
 
             for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
                 // get the treated sideset name
                 std::string tTreatedSidesetName = tSideSetsNames( aSidesetList( Ik ) );
 
-                // create a cell of sideset element
-                moris::Cell< mtk::Cell const * > tSideSetElement;
+                std::cout<<"tTreatedSidesetName = "<<tTreatedSidesetName<<std::endl;
 
-                // create a list of sideset ordinal
-                Matrix< IndexMat >  aSidesetOrdinals;
+                moris_index tSideSetOrd = tIntegrationMesh->get_side_set_index(tTreatedSidesetName);
 
-                // get the treated sideset elements and ordinals
-                tInterpolationMesh->get_sideset_cells_and_ords( tTreatedSidesetName, tSideSetElement, aSidesetOrdinals );
+                moris::Cell<moris::mtk::Side_Cluster const *> tClustersInSideSet = tIntegrationMesh->get_side_set_cluster(tSideSetOrd);
 
                 mElementBlocks( tElementBlockCounter++ )->finalize( mModelSolverInterface );
 
-                for( luint k = 0; k < tSideSetElement.size(); ++k )
+                for( luint k = 0; k < tClustersInSideSet.size(); ++k )
                 {
-                    //mElements( tEquationObjectCounter )->set_list_of_side_ordinals( {{aSidesetOrdinals( k )}} ); //FIXME
-
                     // get the nodal weak bcs of the element
-                    Matrix< DDRMat > & tNodalWeakBCs = mElements( tEquationObjectCounter )->get_weak_bcs();
+                    Matrix< DDRMat > & tNodalWeakBCs = mElementClusters( tEquationObjectCounter )->get_weak_bcs();
 
                     // get the element number of nodes
-                    uint tNumberOfNodes = mElements( tEquationObjectCounter++ )->get_num_nodes();
+                    uint tNumberOfNodes = mElementClusters( tEquationObjectCounter++ )->get_num_nodes();
 
                     // set size of the element nodal weak bc
                     tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-
-                    // loop over the element nodes
-                    Matrix< IndexMat > tNodeIndices = tSideSetElement( k )->get_vertex_inds();
 
                     //--------------------------------------------------------------------------------------------
                     for( uint l = 0; l < tNumberOfNodes; l++ )
@@ -366,24 +394,17 @@ namespace moris
             delete mModelSolverInterface;
 
             // delete IWGs
-            for( auto tIWG : mIWGs )
-            {
-                tIWG.clear();
-            }
+            mIWGs.clear();
 
-//            // delete elements
-//            for( auto tElement : mElements )
-//            {
-//                delete tElement;
-//            }
-
-            // delete nodes
-            for( auto tNode : mIPNodes )
-            {
-                delete tNode;
-            }
-
+            // delete fem nodes
+            mIPNodes.clear();
             mIGNodes.clear();
+
+            // delete the fem sets
+            mElementBlocks.clear();
+
+            // delete the fem elements
+            mElementClusters.clear();
         }
 
 //------------------------------------------------------------------------------
@@ -392,7 +413,7 @@ namespace moris
         Model::set_weak_bcs( const Matrix<DDRMat> & aWeakBCs )
         {
             // set weak BCs
-            for( auto tElement : mElements )
+            for( auto tElement : mElementClusters )
             {
                 Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
                 uint tNumberOfNodes = tElement->get_num_nodes();
@@ -411,7 +432,7 @@ namespace moris
         void
         Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
         {
-            for( auto tElement : mElements )
+            for( auto tElement : mElementClusters )
             {
                 Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
                 uint tNumberOfNodes = tElement->get_num_nodes();
@@ -434,7 +455,7 @@ namespace moris
                 real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             real aError = 0.0;
-            for( auto tElement : mElements )
+            for( auto tElement : mElementClusters )
             {
                 aError += tElement->compute_integration_error( aFunction );
             }
@@ -467,7 +488,7 @@ namespace moris
         real
         Model::compute_element_average( const uint aElementIndex )
         {
-            return mElements( aElementIndex )->compute_element_average_of_scalar_field();
+            return mElementClusters( aElementIndex )->compute_element_average_of_scalar_field();
         }
 
 //------------------------------------------------------------------------------
@@ -498,7 +519,7 @@ namespace moris
                        {
                            moris_index tID= tInterpMesh->get_mtk_cell( k ).get_vertex_pointers()( Jk) ->get_index();
 
-                           mSolHMR(tID) = mElements(k)->get_pdof_values()(Jk);
+                           mSolHMR(tID) = mElementClusters(k)->get_pdof_values()(Jk);
                        }
                     }
                 }
@@ -535,7 +556,7 @@ namespace moris
                 for( uint j = 0; j < tNumConnectElem; j++ )
                 {
                     // extract the field value at the ith node for the jth connected element
-                    real tElemVal = mElements( tConnectedElements( j ) )->get_element_nodal_pdof_value( i, tDofTypeList);
+                    real tElemVal = mElementClusters( tConnectedElements( j ) )->get_element_nodal_pdof_value( i, tDofTypeList);
                     // add up the contribution of each element to the node value
                     tNodeVal = tNodeVal + tElemVal;
                 }

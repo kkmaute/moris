@@ -154,9 +154,11 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
             //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
             // get the rotation matrix
+//            Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
+//                                                   tMasterSideOrd,
+//                                                   tSlaveSideOrd,
+//                                                   tSlaveNode );
             Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
-                                                   tMasterSideOrd,
-                                                   tSlaveSideOrd,
                                                    tSlaveNode );
 
             Matrix< DDRMat > tXHatIP_S = tXHatIP;
@@ -348,10 +350,11 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
             //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
             // get the rotation matrix
-            Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
-                                                   tMasterSideOrd,
-                                                   tSlaveSideOrd,
-                                                   tSlaveNode );
+//            Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
+//                                                   tMasterSideOrd,
+//                                                   tSlaveSideOrd,
+//                                                   tSlaveNode );
+            Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG, tSlaveNode );
 
             Matrix< DDRMat > tXHatIP_S = tXHatIP;
 
@@ -577,10 +580,11 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
                 //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
                 // get the rotation matrix
-                Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
-                                                       tMasterSideOrd,
-                                                       tSlaveSideOrd,
-                                                       tSlaveNode );
+//                Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
+//                                                       tMasterSideOrd,
+//                                                       tSlaveSideOrd,
+//                                                       tSlaveNode );
+                Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG, tSlaveNode );
 
                 // define an interpolation slave element in the phys space
                 Matrix< DDRMat > tXHatIP_S( 4, 3, 0.0 );
@@ -858,10 +862,11 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
                 //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
                 // get the rotation matrix
-                Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
-                                                       tMasterSideOrd,
-                                                       tSlaveSideOrd,
-                                                       tSlaveNode );
+//                Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG,
+//                                                       tMasterSideOrd,
+//                                                       tSlaveSideOrd,
+//                                                       tSlaveNode );
+                Matrix< DDRMat > tR = rotation_matrix( tGeoTypeIG, tSlaveNode );
 
                 // define an interpolation slave element in the phys space
                 Matrix< DDRMat > tXHatIP_S( 8, 3, 0.0 );

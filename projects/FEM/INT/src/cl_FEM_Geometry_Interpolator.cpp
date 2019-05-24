@@ -210,11 +210,11 @@ namespace moris
         void Geometry_Interpolator::build_space_side_space_param_coeff( moris_index aSpaceOrdinal )
         {
             // check if the space ordinal is appropriate
-            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( mVerticesOrdinalsPerFace.size() ) ,
+            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( mVerticesPerFace.size() ) ,
                          "Geometry_Interpolator::build_space_side_space_param_coeff - wrong ordinal" );
 
             // get space side vertices ordinals
-            moris::Cell< moris::moris_index > tVerticesOrdinals = mVerticesOrdinalsPerFace( aSpaceOrdinal );
+            moris::Cell< moris::moris_index > tVerticesOrdinals = mVerticesPerFace( aSpaceOrdinal );
 
             // initialize the time sideset parametric coordinates matrix
             uint tNumOfVertices = tVerticesOrdinals.size();
@@ -233,17 +233,56 @@ namespace moris
             }
         }
 
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::extract_space_side_space_param_coeff( moris_index aSpaceOrdinal )
+        {
+            // get the vertices per side map
+            this->get_face_vertices_ordinals();
+
+            // check if the space ordinal is appropriate
+            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( mVerticesPerFace.size() ) ,
+                          "Geometry_Interpolator::extract_space_side_space_param_coeff - wrong ordinal" );
+
+            // get space side vertices ordinals
+            moris::Cell< moris::moris_index > tVerticesOrdinals = mVerticesPerFace( aSpaceOrdinal );
+
+             // initialize the time sideset parametric coordinates matrix
+             uint tNumOfVertices = tVerticesOrdinals.size();
+
+             // init the matrix with the face param coords
+             Matrix< DDRMat > tSideXiHat( tNumOfVertices, mNumSpaceParamDim );
+
+             // loop over the vertices of the face
+             for( uint i = 0; i < tNumOfVertices; i++ )
+             {
+                 // get the treated vertex
+                 moris_index tTreatedVertex = tVerticesOrdinals( i );
+
+                 // get the vertex parametric coordinates for node tTreatedVertex
+                 tSideXiHat.get_row( i ) = mXiHat.get_row( tTreatedVertex );
+             }
+              return tSideXiHat;
+         }
+
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::extract_space_param_coeff()
+        {
+            return trans( mSpaceInterpolation->get_param_coords() );
+        }
+
 //------------------------------------------------------------------------------
 
         // fixme to remove
         void Geometry_Interpolator::build_space_side_space_phys_coeff( moris_index aSpaceOrdinal )
         {
             // check if the space ordinal is appropriate
-            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( mVerticesOrdinalsPerFace.size() ) ,
+            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( mVerticesPerFace.size() ) ,
                          "Geometry_Interpolator::build_space_side_space_phys_coeff - wrong ordinal" );
 
             // get space side vertices ordinals
-            moris::Cell< moris::moris_index > tVerticesOrdinals = mVerticesOrdinalsPerFace( aSpaceOrdinal );
+            moris::Cell< moris::moris_index > tVerticesOrdinals = mVerticesPerFace( aSpaceOrdinal );
 
             // initialize the time sideset parametric coordinates matrix
             uint tNumOfVertices = tVerticesOrdinals.size();
@@ -632,7 +671,7 @@ namespace moris
              // fixme check aSideParamPoint
 
              // check that there is a side interpolation
-             MORIS_ASSERT( mSpaceSideset, "Geometry_Interpolator::surf_val - no side interpolation." );
+             MORIS_ASSERT( mSpaceSideset, "Geometry_Interpolator::surf_normal - not a side." );
 
              // unpack the space and time param coords of the side param point
              Matrix< DDRMat > tXi = aSideParamPoint( { 0, mSideNumSpaceParamDim-1 }, { 0, 0 } );
@@ -707,7 +746,7 @@ namespace moris
 
                  default:
                  {
-                     MORIS_ERROR( false, "Geometry_Interpolator::surf_normqal - wrong geometry type or geometry type not implemented");
+                     MORIS_ERROR( false, "Geometry_Interpolator::surf_normal - wrong geometry type or geometry type not implemented");
                      return tNormal;
                      break;
                  }
@@ -1053,16 +1092,16 @@ namespace moris
                     switch ( mNumSpaceBases )
                     {
                         case ( 1 ):
-                            mVerticesOrdinalsPerFace = { { 0 } };
+                            mVerticesPerFace = { { 0 } };
                             break;
                         case ( 2 ):
-                            mVerticesOrdinalsPerFace = { { 0 }, { 1 } };
+                            mVerticesPerFace = { { 0 }, { 1 } };
                             break;
                         case ( 3 ):
-                            mVerticesOrdinalsPerFace = { { 0 }, { 1 }, { 2 } };
+                            mVerticesPerFace = { { 0 }, { 1 }, { 2 } };
 		                    break;
                         case ( 4 ):
-                            mVerticesOrdinalsPerFace = { { 0 }, { 1 }, { 2 }, { 3 } };
+                            mVerticesPerFace = { { 0 }, { 1 }, { 2 }, { 3 } };
                             break;
                         default:
                             MORIS_ERROR( false, "Geometry_Interpolator::get_face_vertices_ordinals - LINE order not implemented " );
@@ -1076,25 +1115,25 @@ namespace moris
                     switch ( mNumSpaceBases )
                     {
                         case ( 4 ):
-                            mVerticesOrdinalsPerFace = { { 0, 1 },
+                            mVerticesPerFace = { { 0, 1 },
                                                          { 1, 2 },
                                                          { 2, 3 },
                                                          { 3, 0 } };
                             break;
                         case ( 8 ):
-                            mVerticesOrdinalsPerFace = { { 0, 1, 4 },
+                            mVerticesPerFace = { { 0, 1, 4 },
                                                          { 1, 2, 5 },
                                                          { 2, 3, 6 },
                                                          { 3, 0, 7 } };
                             break;
                         case ( 9 ):
-                            mVerticesOrdinalsPerFace = { { 0, 1, 4 },
+                            mVerticesPerFace = { { 0, 1, 4 },
                                                          { 1, 2, 5 },
                                                          { 2, 3, 6 },
                                                          { 3, 0, 7 } };
                             break;
                         case ( 16 ):
-                            mVerticesOrdinalsPerFace = { { 0, 1,  4,  5 },
+                            mVerticesPerFace = { { 0, 1,  4,  5 },
                                                          { 1, 2,  6,  7 },
                                                          { 2, 3,  8,  9 },
                                                          { 3, 0, 10, 11 } };
@@ -1111,7 +1150,7 @@ namespace moris
                     switch( mNumSpaceBases )
                     {
                         case ( 8 ):
-                            mVerticesOrdinalsPerFace = { { 0, 1, 5, 4 },
+                            mVerticesPerFace = { { 0, 1, 5, 4 },
                                                          { 1, 2, 6, 5 },
                                                          { 2, 3, 7, 6 },
                                                          { 0, 4, 7, 3 },
@@ -1119,7 +1158,7 @@ namespace moris
                                                          { 4, 5, 6, 7 } };
                             break;
                         case ( 20 ):
-                            mVerticesOrdinalsPerFace = { { 0, 1, 5, 4,  8, 13, 16, 12 },
+                            mVerticesPerFace = { { 0, 1, 5, 4,  8, 13, 16, 12 },
                                                          { 1, 2, 6, 5,  9, 14, 17, 13 },
                                                          { 2, 3, 7, 6, 10, 15, 18, 14 },
                                                          { 0, 4, 7, 3, 12, 19, 15, 11 },
@@ -1127,7 +1166,7 @@ namespace moris
                                                          { 4, 5, 6, 7, 16, 17, 18, 19 } };
                             break;
                         case ( 27 ):
-                            mVerticesOrdinalsPerFace = { { 0, 1, 5, 4,  8, 13, 16, 12, 23 },
+                            mVerticesPerFace = { { 0, 1, 5, 4,  8, 13, 16, 12, 23 },
                                                          { 1, 2, 6, 5,  9, 14, 17, 13, 24 },
                                                          { 2, 3, 7, 6, 10, 15, 18, 14, 26 },
                                                          { 0, 4, 7, 3, 12, 19, 15, 11, 23 },
@@ -1135,7 +1174,7 @@ namespace moris
                                                          { 4, 5, 6, 7, 16, 17, 18, 19, 22 } };
                             break;
                         case ( 64 ):
-                            mVerticesOrdinalsPerFace = {{ 0, 1, 5, 4,  8,  9, 16, 17, 25, 24, 13, 12, 36, 37, 38, 39 },
+                            mVerticesPerFace = {{ 0, 1, 5, 4,  8,  9, 16, 17, 25, 24, 13, 12, 36, 37, 38, 39 },
                                                         { 1, 2, 6, 5, 14, 15, 20, 21, 29, 28, 17, 16, 44, 45, 46, 47 },
                                                         { 2, 3, 7, 6, 18, 19, 22, 23, 31, 30, 21, 20, 48, 49, 50, 51 },
                                                         { 0, 4, 7, 3, 12, 13, 26, 27, 23, 22, 11, 10, 40, 41, 42, 43 },
@@ -1154,17 +1193,17 @@ namespace moris
                     switch( mNumSpaceBases )
                     {
                         case ( 3 ):
-                            mVerticesOrdinalsPerFace = {{ 0, 1 },
+                            mVerticesPerFace = {{ 0, 1 },
                                                         { 1, 2 },
                                                         { 2, 0 }};
                             break;
                         case ( 6 ):
-                            mVerticesOrdinalsPerFace = {{ 0, 1, 3 },
+                            mVerticesPerFace = {{ 0, 1, 3 },
                                                         { 1, 2, 4 },
                                                         { 2, 0, 5 }};
                             break;
                         case ( 10 ):
-                            mVerticesOrdinalsPerFace = {{ 0, 1, 3, 4 },
+                            mVerticesPerFace = {{ 0, 1, 3, 4 },
                                                         { 1, 2, 5, 6 },
                                                         { 2, 0, 7, 8 }};
                             break;
@@ -1180,19 +1219,19 @@ namespace moris
                     switch( mNumSpaceBases )
                     {
                         case ( 4 ):
-                            mVerticesOrdinalsPerFace = {{ 0, 1, 3 },
+                            mVerticesPerFace = {{ 0, 1, 3 },
                                                         { 1, 2, 3 },
                                                         { 0, 3, 2 },
                                                         { 0, 2, 1 }};
                             break;
                         case ( 10 ):
-                            mVerticesOrdinalsPerFace = {{ 0, 1, 3, 4, 8, 7 },
+                            mVerticesPerFace = {{ 0, 1, 3, 4, 8, 7 },
                                                         { 1, 2, 3, 5, 9, 8 },
                                                         { 0, 3, 2, 7, 9, 6 },
                                                         { 0, 2, 1, 6, 5, 4 }};
                             break;
                         case ( 20 ):
-                            mVerticesOrdinalsPerFace = {{ 0, 1, 3,  4,  5, 12, 13, 11, 10, 17 },
+                            mVerticesPerFace = {{ 0, 1, 3,  4,  5, 12, 13, 11, 10, 17 },
                                                         { 1, 2, 3,  6,  7, 14, 15, 13, 12, 18 },
                                                         { 0, 3, 2, 10, 11, 15, 14,  9,  8, 19 },
                                                         { 0, 2, 1,  8,  9,  7,  6,  5,  4, 16 }};
@@ -1225,7 +1264,7 @@ namespace moris
 //            MORIS_ASSERT( mSpaceSideset, "Geometry_Interpolator::surf_val - no side interpolation." );
 //
 //            // check if the space ordinal is appropriate
-//            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( mVerticesOrdinalsPerFace.size() ) ,
+//            MORIS_ASSERT( aSpaceOrdinal < static_cast< moris_index > ( mVerticesPerFace.size() ) ,
 //                          "Geometry_Interpolator::get_space_sideset_param_coords - wrong ordinal" );
 //
 ////            // get the number of space time bases

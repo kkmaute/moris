@@ -559,7 +559,8 @@ public:
 
 
       moris::Matrix< moris::IdMat >
-      pack_interface_sides() const
+      pack_interface_sides( bool aIndexFlag = false,
+                            moris::moris_index aPhaseIndex = MORIS_INDEX_MAX) const
       {
           // Loop bound and sizing
           moris::size_t tNumElem = get_num_entities(EntityRank::ELEMENT);
@@ -572,12 +573,22 @@ public:
          // Iterate over each element and if the element has an interface side it will be in mElementInferfaceSides vector
          for(moris::size_t iEl =0 ; iEl<tNumElem; iEl++)
          {
-             //TODO: NOTE THIS WILL NOT WORK WITH MULTI-MATERIAL YET (AT LEAST NOT SPLIT THEM UP)
+
              if(mElementInterfaceSides(iEl) != std::numeric_limits<moris::size_t>::max())
              {
-                 tInterfaceSideSetInfo(tCount,0) = mChildElementIds(iEl);
-                 tInterfaceSideSetInfo(tCount,1) = mElementInterfaceSides(iEl);
-                 tCount++;
+                 if((moris_index)this->get_element_phase_index(iEl) == aPhaseIndex || aPhaseIndex == MORIS_INDEX_MAX)
+                 {
+                     if( aIndexFlag )
+                     {
+                         tInterfaceSideSetInfo(tCount,0) = mChildElementInds(iEl);
+                     }
+                     else
+                     {
+                         tInterfaceSideSetInfo(tCount,0) = mChildElementIds(iEl);
+                     }
+                     tInterfaceSideSetInfo(tCount,1) = mElementInterfaceSides(iEl);
+                     tCount++;
+                 }
              }
          }
 

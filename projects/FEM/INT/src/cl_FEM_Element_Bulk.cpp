@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "cl_FEM_Element_Bulk.hpp" //FEM/INT/src
-#include "cl_FEM_Integrator.hpp"   //FEM/INT/src
 #include "cl_FEM_Set.hpp"   //FEM/INT/src
 
 namespace moris
@@ -11,9 +10,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Element_Bulk::Element_Bulk( mtk::Cell const * aCell,
-                                    Set             * aSet,
-                                    Cluster         * aCluster ) : Element( aCell, aSet, aCluster )
+        Element_Bulk::Element_Bulk( mtk::Cell const  * aCell,
+                                    Set              * aSet,
+                                    Cluster          * aCluster,
+                                    moris::moris_index aCellIndexInCluster ) : Element( aCell, aSet, aCluster, aCellIndexInCluster )
         {
         }
 
@@ -26,12 +26,12 @@ namespace moris
         void Element_Bulk::compute_jacobian()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_block_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords());
-            mSet->get_block_IG_geometry_interpolator()->set_time_coeff ( mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords());
+            mSet->get_IG_geometry_interpolator()->set_time_coeff ( mCluster->mTime );
 
             // set the geometry interpolator param space and time coefficients for integration cell
-            //FIXME for global param coords from mesh
-            mSet->get_block_IG_geometry_interpolator()->set_param_coeff();
+            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+            mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -52,7 +52,7 @@ namespace moris
                 // get the field interpolators for the ith IWG
                 // in the list of element dof type
                 Cell< Field_Interpolator* > tIWGInterpolators
-                    = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_block_field_interpolator() );
+                    = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_field_interpolator() );
 
                 // get number of integration points
                 uint tNumOfIntegPoints = mSet->get_num_integration_points();
@@ -64,7 +64,7 @@ namespace moris
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // bring the ith integration point in the IP param space
-                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_block_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
+                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
 
                     // set evaluation point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -74,7 +74,7 @@ namespace moris
 
                     // compute integration point weight
                     real tWStar = mSet->get_integration_weights()( iGP )
-                                * mSet->get_block_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
+                                * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
 
                     // compute jacobian at evaluation point
                     moris::Cell< Matrix< DDRMat > > tJacobians;
@@ -101,30 +101,6 @@ namespace moris
                     }
                 }
             }
-
-//            // jacobian assembly
-//            uint tCounterI = 0;
-//            uint tCounterJ = 0;
-//            uint startI, stopI, startJ, stopJ;
-//
-//            for ( uint i = 0; i < mSet->get_num_interpolators(); i++ )
-//            {
-//                startI = tCounterI;
-//                stopI  = tCounterI + mSet->get_block_field_interpolator()( i )->get_number_of_space_time_coefficients() - 1;
-//
-//                tCounterJ = 0;
-//                for ( uint j = 0; j < mSet->get_num_interpolators(); j++ )
-//                {
-//                    startJ = tCounterJ;
-//                    stopJ  = tCounterJ + mSet->get_block_field_interpolator()( j )->get_number_of_space_time_coefficients() - 1;
-//
-//                    mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) = mCluster->mJacobian({ startI, stopI },{ startJ, stopJ }) +
-//                                                                               mCluster->mJacobianElement( i * mSet->get_num_interpolators() + j ).matrix_data();
-//
-//                    tCounterJ = stopJ + 1;
-//                }
-//                tCounterI = stopI + 1;
-//            }
 //            // print jacobian for check
 //            print( mCluster->mJacobian, " mJacobian " );
         }
@@ -134,12 +110,12 @@ namespace moris
         void Element_Bulk::compute_residual()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_block_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords());
-            mSet->get_block_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
+            mSet->get_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords());
+            mSet->get_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
 
-            // set the geometry interpolator global param space and time coefficients for integration cell
-            //FIXME for global param coords from mesh
-            mSet->get_block_IG_geometry_interpolator()->set_param_coeff();
+            // set the geometry interpolator param space and time coefficients for integration cell
+            mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
+            mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -159,7 +135,7 @@ namespace moris
 
                 // get the field interpolators for the ith IWG in the list of element dof type
                 Cell< Field_Interpolator* > tIWGInterpolators
-                    = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_block_field_interpolator() );
+                    = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_field_interpolator() );
 
                 //get number of integration points
                 uint tNumOfIntegPoints = mSet->get_num_integration_points();
@@ -171,7 +147,7 @@ namespace moris
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // bring the ith integration point in the IP param space
-                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_block_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
+                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
 
                     // set evaluation point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -181,7 +157,7 @@ namespace moris
 
                     // compute integration point weight
                     real tWStar = mSet->get_integration_weights()( iGP )
-                                * mSet->get_block_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
+                                * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
 
                     // compute jacobian at evaluation point
                     Matrix< DDRMat > tResidual;
@@ -196,25 +172,6 @@ namespace moris
                         = mSet->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
                 }
             }
-
-//            // residual assembly
-//            uint tCounterI = 0;
-//            uint startI, stopI;
-//
-//            // loop over the field interpolators
-//            for ( uint iBuild = 0; iBuild < mSet->get_num_interpolators(); iBuild++ )
-//            {
-//                // get the row position in the residual matrix
-//                startI = tCounterI;
-//                stopI  = tCounterI + mSet->get_block_field_interpolator()( iBuild )->get_number_of_space_time_coefficients() - 1;
-//
-//                // fill the global residual
-//                mCluster->mResidual( { startI, stopI }, { 0 , 0 } ) = mCluster->mResidual( { startI, stopI }, { 0 , 0 } ) +
-//                                                                      mCluster->mResidualElement( iBuild ).matrix_data();
-//
-//                // update the row counter
-//                tCounterI = stopI + 1;
-//            }
 //            // print residual for check
 //            print( mSet->mResidual, " mResidual " );
         }

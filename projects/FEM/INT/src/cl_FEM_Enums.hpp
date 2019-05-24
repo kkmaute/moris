@@ -74,6 +74,7 @@ namespace moris
             UNDEFINED,
             BULK,
             SIDESET,
+            DOUBLE_SIDESET,
             TIME_SIDESET,
             END_ELEMENT_TYPE
         };

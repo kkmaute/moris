@@ -105,6 +105,12 @@ Integration_Mesh_STK::get_cell_cluster(moris_index aInterpCellIndex) const
    return mCellClusters(aInterpCellIndex);
 }
 
+moris::Cell<std::string>
+Integration_Mesh_STK::get_block_set_names() const
+{
+    return mPrimaryBlockSetNames;
+}
+
 // ----------------------------------------------------------------------------
 
 moris::Cell<Cell_Cluster const *>
@@ -142,6 +148,35 @@ Integration_Mesh_STK::get_side_set_cluster(moris_index aSideSetOrdinal) const
     }
 
     return tSideClustersInSet;
+}
+
+// ----------------------------------------------------------------------------
+
+uint
+Integration_Mesh_STK::get_num_side_sets() const
+{
+    return mSideSets.size();
+}
+
+// ----------------------------------------------------------------------------
+
+std::string
+Integration_Mesh_STK::get_side_set_label(moris_index aSideSetOrdinal) const
+{
+    MORIS_ASSERT(aSideSetOrdinal<(moris_index)mSideSetLabels.size(),"Side set ordinal out of bounds");
+    return mSideSetLabels(aSideSetOrdinal);
+}
+
+// ----------------------------------------------------------------------------
+
+moris_index
+Integration_Mesh_STK::get_side_set_index(std::string aSideSetLabel) const
+{
+    auto tIter = mSideSideSetLabelToOrd.find(aSideSetLabel);
+
+    MORIS_ERROR(tIter != mSideSideSetLabelToOrd.end(),"side side set label not found");
+
+    return tIter->second;
 }
 
 // ----------------------------------------------------------------------------
@@ -340,6 +375,13 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
     mSideSets.resize(aSideSetNames.size());
 
+    // add side set labels to map
+    for(moris::uint i =0; i <aSideSetNames.size(); i++)
+    {
+    	MORIS_ASSERT(mSideSideSetLabelToOrd.find(aSideSetNames(i)) == mSideSideSetLabelToOrd.end(),"Side Set label provided twice");
+    	mSideSideSetLabelToOrd[aSideSetNames(i)] = i;
+    }
+
     moris::print(aSideSetNames,"aSideSetNames");
 
     // iterate through block sets
@@ -416,21 +458,21 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
                 }
             }
 
-            // loop over cells in the side set and make sure they have all been included
-            for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
-            {
-                moris_id tCellId = tCellsInSet(iIGCell)->get_id();
-
-                if(tIntegrationCellsInSideSet.find(tCellId) == tIntegrationCellsInSideSet.end())
-                {
-                    // interpolation cell index
-                    moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
-
-                    // construct a trivial side cluster
-                    moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                    mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell),tSideOrdsInSet(iIGCell)));
-                }
-            }
+//            // loop over cells in the side set and make sure they have all been included
+//            for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
+//            {
+//                moris_id tCellId = tCellsInSet(iIGCell)->get_id();
+//
+//                if(tIntegrationCellsInSideSet.find(tCellId) == tIntegrationCellsInSideSet.end())
+//                {
+//                    // interpolation cell index
+//                    moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+//
+//                    // construct a trivial side cluster
+//                    moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
+//                    mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell),tSideOrdsInSet(iIGCell)));
+//                }
+//            }
 
 
         }

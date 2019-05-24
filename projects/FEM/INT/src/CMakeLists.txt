@@ -14,6 +14,7 @@ set(HEADERS
     cl_FEM_Element_Bulk.hpp
     cl_FEM_Set.hpp
     cl_FEM_Element_Sideset.hpp
+    cl_FEM_Element_Double_Sideset.hpp
     cl_FEM_Element_Time_Sideset.hpp
     cl_FEM_IWG_Factory.hpp
     cl_FEM_IWG.hpp
@@ -112,6 +113,7 @@ set(LIB_SOURCES
     cl_FEM_Element_Factory.cpp
     cl_FEM_Element_Bulk.cpp
     cl_FEM_Element_Sideset.cpp
+    cl_FEM_Element_Double_Sideset.cpp
     cl_FEM_Element_Time_Sideset.cpp
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp

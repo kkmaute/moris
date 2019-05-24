@@ -72,7 +72,7 @@ namespace moris
             moris::Cell< fem::Cell* >      mIPCells;
             moris::Cell< fem::Cell* >      mIGCells;
 
-            moris::Cell< MSI::Equation_Object* >    mElements;
+            moris::Cell< MSI::Equation_Object* >    mElementClusters;
             moris::Cell< moris::Cell< fem::IWG* > > mIWGs;
 
             moris::Cell< MSI::Equation_Set * >      mElementBlocks;

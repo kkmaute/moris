@@ -18,9 +18,11 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
+//        Matrix< DDRMat> rotation_matrix( mtk::Geometry_Type aGeometryType,
+//                                         moris_index        aMasterSideOrdinal,
+//                                         moris_index        aSlaveSideOrdinal,
+//                                         moris_index        aSlaveNode )
         Matrix< DDRMat> rotation_matrix( mtk::Geometry_Type aGeometryType,
-                                         moris_index        aMasterSideOrdinal,
-                                         moris_index        aSlaveSideOrdinal,
                                          moris_index        aSlaveNode )
         {
             // init the rotation matrix

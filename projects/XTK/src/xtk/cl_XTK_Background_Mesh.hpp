@@ -357,6 +357,11 @@ public:
     get_element_phase_inds(moris::Matrix<moris::DDSTMat> const & aElementInds );
 
 
+
+    moris_index
+    get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId,
+                                          enum EntityRank aEntityRank) const;
+
     /*!
      * add childe element to mtk cells
      */
@@ -431,6 +436,7 @@ private:
     moris::Cell<moris::mtk::Cell_XTK> mChildMtkCells;
 
     // Vertex constructed by the decomposition process
+    std::map< moris_id, moris_index> mVertexGlbToLocalMap;
     moris::Cell<moris::mtk::Vertex_XTK> mXtkMtkVertices;
     moris::Cell<moris::mtk::Vertex_Interpolation_XTK> mXtkMtkVerticesInterpolation;
 

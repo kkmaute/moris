@@ -176,6 +176,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            /*!
+             * Compute facet normal
+             */
+            virtual
+            moris::Matrix<moris::DDRMat>
+            compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+            {
+                MORIS_ERROR(0,"compute_outward_side_normal has no default implementation");
+                return  moris::Matrix<moris::DDRMat>(0,0);
+            }
+
             /**
              * returns the order of the element
              */

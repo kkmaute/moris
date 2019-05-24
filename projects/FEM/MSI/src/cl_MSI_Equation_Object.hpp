@@ -52,10 +52,6 @@ class Dist_Vector;
 
             moris::uint mEqnObjInd;
 
-            // sideset information //FIXME Side ordinals are not part of the equation object
-            Matrix< IndexMat > mListOfSideOrdinals;
-            Matrix< IndexMat > mListOfTimeOrdinals;
-
             Matrix< DDRMat > mTime;
 
             Equation_Set * mEquationBlock;
@@ -264,23 +260,23 @@ class Dist_Vector;
                 return mNodalWeakBCs;
             }
 
-//-------------------------------------------------------------------------------------------------
-            /**
-             * set the list of side ordinals
-             */
-            void set_list_of_side_ordinals( const Matrix< IndexMat > & aListOfSideOrdinals )
-            {
-                mListOfSideOrdinals = aListOfSideOrdinals;
-            }
-
-//-------------------------------------------------------------------------------------------------
-            /**
-             * set the list of time ordinals
-             */
-            void set_list_of_time_ordinals( const Matrix< IndexMat > & aListOfTimeOrdinals )
-            {
-                mListOfTimeOrdinals = aListOfTimeOrdinals;
-            }
+////-------------------------------------------------------------------------------------------------
+//            /**
+//             * set the list of side ordinals
+//             */
+//            void set_list_of_side_ordinals( const Matrix< IndexMat > & aListOfSideOrdinals )
+//            {
+//                mListOfSideOrdinals = aListOfSideOrdinals;
+//            }
+//
+////-------------------------------------------------------------------------------------------------
+//            /**
+//             * set the list of time ordinals
+//             */
+//            void set_list_of_time_ordinals( const Matrix< IndexMat > & aListOfTimeOrdinals )
+//            {
+//                mListOfTimeOrdinals = aListOfTimeOrdinals;
+//            }
 
 //-------------------------------------------------------------------------------------------------
             /**

@@ -87,10 +87,10 @@ namespace moris
         // matrix of time coefficients for the side in the interpolation parametric space
         Matrix< DDRMat > mSideXiHat;
         Matrix< DDRMat > mSideTauHat;
+        //end fixme to remove when GI on the side
 
         // Vertices ordinals for each face of the parent element
-        moris::Cell< moris::Cell< moris::moris_index > > mVerticesOrdinalsPerFace;
-        //end fixme to remove when GI on the side
+        moris::Cell< moris::Cell< moris::moris_index > > mVerticesPerFace;
 
         // pointer to function for second derivative
         void ( * mSecondDerivativeMatricesSpace )( const Matrix< DDRMat > & aJt,
@@ -322,6 +322,15 @@ namespace moris
          * @param[ in ] a space face ordinal
          */
         void build_space_side_space_param_coeff( moris_index aSpaceOrdinal );
+
+//------------------------------------------------------------------------------
+        /**
+         * get the parametric coordinates of a space side
+         * @param[ in ] a space face ordinal
+         */
+        Matrix< DDRMat > extract_space_side_space_param_coeff( moris_index aSpaceOrdinal );
+
+        Matrix< DDRMat > extract_space_param_coeff();
 
 //------------------------------------------------------------------------------
         /**

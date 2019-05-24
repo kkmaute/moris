@@ -23,12 +23,6 @@ namespace moris
     class Element_Sideset : public Element
     {
 //------------------------------------------------------------------------------
-    protected:
-//------------------------------------------------------------------------------
-//    // a member list of side ordinals
-//    moris::Cell< moris_index > mListOfSideOrdinals;
-
-//------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
         /**
@@ -39,9 +33,10 @@ namespace moris
          * @param[ in ]     cell of pointer to fem nodes
          * @param[ in ]     Pointer to element block
          */
-        Element_Sideset( mtk::Cell            const * aCell,
-                         Set                   * aElementBlock,
-                         Cluster            * aCluster);
+        Element_Sideset( mtk::Cell const  * aCell,
+                         Set              * aElementBlock,
+                         Cluster          * aCluster,
+                         moris::moris_index aCellIndexInCluster );
 
 //------------------------------------------------------------------------------
         /**

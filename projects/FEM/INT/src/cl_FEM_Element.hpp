@@ -44,6 +44,12 @@ namespace moris
         //! pointer to integration cell on mesh
         const mtk::Cell * mCell;
 
+        //! pointer to left and right integration cells on mesh
+        const mtk::Cell * mLeftCell;
+        const mtk::Cell * mRightCell;
+
+        moris::moris_index mCellIndexInCluster;
+
         //! node indices of this element
         //  @node: MTK interface returns copy of vertices. T
         //         storing the indices in private matrix is faster,
@@ -54,17 +60,21 @@ namespace moris
 
         moris::Matrix< DDSMat >   mInterpDofTypeMap;
 
-        Set      * mSet = nullptr;
-        Cluster  * mCluster      = nullptr;
+        Set      * mSet     = nullptr;
+        Cluster  * mCluster = nullptr;
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
 
         Element( const mtk::Cell * aCell,
                  Set             * aSet,
-                 Cluster         * aCluster) : mSet( aSet ),
-                                               mCluster( aCluster )
+                 Cluster         * aCluster,
+                 moris::moris_index tCellIndexInCluster ) : mSet( aSet ),
+                                                            mCluster( aCluster )
         {
+            // fill the cell index in cluster
+            mCellIndexInCluster = tCellIndexInCluster;
+
             // fill the bulk mtk::Cell pointer //FIXME
             mCell = aCell;
 
@@ -77,6 +87,26 @@ namespace moris
 
             // set size of Weak BCs
             mCluster->get_weak_bcs().set_size( tNumOfNodes, 1 );             // FIXME
+
+            // get the number of IWGs
+            mNumOfIWGs = mSet->get_num_IWG();                //FIXME
+
+            mInterpDofTypeMap = mSet->get_interpolator_dof_type_map();          //Fixme
+        };
+
+        Element( const mtk::Cell  * aLeftCell,
+                 const mtk::Cell  * aRightCell,
+                 Set              * aSet,
+                 Cluster          * aCluster,
+                 moris::moris_index tCellIndexInCluster ) : mSet( aSet ),
+                                                            mCluster( aCluster )
+        {
+            // fill the cell index in cluster
+            mCellIndexInCluster = tCellIndexInCluster;
+
+            // fill the left and right cell pointers
+            mLeftCell  = aLeftCell;
+            mRightCell = aRightCell;
 
             // get the number of IWGs
             mNumOfIWGs = mSet->get_num_IWG();                //FIXME
