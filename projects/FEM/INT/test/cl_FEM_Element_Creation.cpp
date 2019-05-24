@@ -132,7 +132,7 @@ namespace moris
             for( uint k = 0; k < tNumOfElements; k++ )
             {
                 // create the element
-                tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+                tElements( k ) = tElementFactory.create_cluster( Element_Type::BULK,
                                                                  & tMesh2D_Quad4->get_mtk_cell( k ),
                                                                  tIWGs,
                                                                  tNodes );
@@ -419,7 +419,7 @@ namespace moris
 //            {
 //                // create a fem element for the ith mesh element
 //                std::cout<<" Create an element "<<std::endl;
-//                tListOfElements( i ) = tElementFactory.create_element( Element_Type::UNDEFINED,
+//                tListOfElements( i ) = tElementFactory.create_cluster( Element_Type::UNDEFINED,
 //                                                                       Elems( i ),
 //                                                                       tIWGs,
 //                                                                       tNodes );

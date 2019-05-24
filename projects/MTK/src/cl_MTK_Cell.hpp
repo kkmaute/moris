@@ -116,6 +116,21 @@ namespace moris
             virtual Matrix< DDRMat >
             get_vertex_coords() const = 0;
 
+
+//------------------------------------------------------------------------------
+
+            /*!
+             * get vertices on side ordinal.
+             * This functions is needed for side clustering
+             */
+            virtual
+            moris::Cell<moris::mtk::Vertex const *>
+            get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+            {
+                MORIS_ERROR(0,"get_vertices_on_side_ordinal has no default implementation");
+                return  moris::Cell<moris::mtk::Vertex const *>(0);
+            }
+
 //------------------------------------------------------------------------------
 
             /**
@@ -125,6 +140,17 @@ namespace moris
             get_geometry_type() const = 0;
 
 //------------------------------------------------------------------------------
+
+            /*!
+             * Compute facet normal
+             */
+            virtual
+            moris::Matrix<moris::DDRMat>
+            compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+            {
+                MORIS_ERROR(0,"compute_outward_side_normal has no default implementation");
+                return  moris::Matrix<moris::DDRMat>(0,0);
+            }
 
             /**
              * returns the order of the element

@@ -655,13 +655,14 @@ namespace mtk
             }
         }
 
+//        print(tSetNames,"tSetNames");
         // For whatever reason, the face sets have some additional internal sets
-        if(aSetEntityRank == EntityRank::FACE)
-        {
-            moris::size_t  tNumParts = tSetNames.size()/2;
-            std::string tDummy = "dummy";
-            tSetNames.resize(tNumParts,tDummy);
-        }
+//        if(aSetEntityRank == EntityRank::FACE)
+//        {
+//            moris::size_t  tNumParts = tSetNames.size()/2;
+//            std::string tDummy = "dummy";
+//            tSetNames.resize(tNumParts,tDummy);
+//        }
         return tSetNames;
     }
     // ----------------------------------------------------------------------------
@@ -747,6 +748,38 @@ namespace mtk
             aCells(i) = &this->get_mtk_cell(tCellInds(i));
         }
 
+    }
+
+    // ----------------------------------------------------------------------------
+
+    uint
+    Mesh_Core_STK::get_num_fields(  const enum EntityRank aEntityRank ) const
+    {
+        stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aEntityRank);
+        const stk::mesh::FieldVector & tFieldVector = mSTKMeshData->mMtkMeshMetaData->get_fields(tEntityRank);
+        return tFieldVector.size();
+    }
+
+    moris_index
+    Mesh_Core_STK::get_field_ind(
+            const std::string & aFieldLabel,
+            const enum EntityRank aEntityRank ) const
+    {
+        stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank(aEntityRank);
+        const stk::mesh::FieldVector & tFieldVector = mSTKMeshData->mMtkMeshMetaData->get_fields(tEntityRank);
+
+        moris_index tFieldIndex = MORIS_INDEX_MAX;
+        for(moris::uint i = 0; i < tFieldVector.size(); i++)
+        {
+            if(tFieldVector[i]->name().compare(aFieldLabel) == 0)
+            {
+                tFieldIndex = i;
+                break;
+            }
+        }
+
+        MORIS_ERROR(tFieldIndex != MORIS_INDEX_MAX, "Field not found in get_field_ind()");
+        return tFieldIndex;
     }
 
     // ----------------------------------------------------------------------------
@@ -868,6 +901,12 @@ namespace mtk
 
     mtk::Vertex &
     Mesh_Core_STK::get_mtk_vertex(moris_index aVertexIndex)
+    {
+        return mSTKMeshData->mMtkVertices(aVertexIndex);
+    }
+
+    mtk::Vertex const &
+    Mesh_Core_STK::get_mtk_vertex(moris_index aVertexIndex) const
     {
         return mSTKMeshData->mMtkVertices(aVertexIndex);
     }
@@ -1167,7 +1206,7 @@ namespace mtk
         // Setup Cells
         uint tNumElems = this->get_num_entities(EntityRank::ELEMENT);
         // allocate member data
-        mSTKMeshData->mMtkCells = moris::Cell<mtk::Cell_Core_STK>(tNumElems);
+        mSTKMeshData->mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
         Matrix< IndexMat > tElementToNode;
 
         for( moris_index iCellInd = 0; iCellInd<(moris_index)tNumElems; iCellInd++)
@@ -1182,7 +1221,7 @@ namespace mtk
             }
 
             // Add cell to member data
-            mSTKMeshData->mMtkCells(iCellInd) = Cell_Core_STK( CellTopology::HEX8,
+            mSTKMeshData->mMtkCells(iCellInd) = Cell_STK( CellTopology::HEX8,
                                             this->get_glb_entity_id_from_entity_loc_index(iCellInd,EntityRank::ELEMENT),
                                             iCellInd,
                                             tElementVertices,
@@ -1431,14 +1470,9 @@ namespace mtk
         else if ( aMeshData.NodeProcOwner != NULL )
         {
             // Verify sizes
-            MORIS_ASSERT( ( aMeshData.NodeProcOwner[0].numel() == tNumNodes ) ||
-                          ( aMeshData.NodeProcOwner[0].numel() == aMeshData.get_num_elements() ),
-                          "Number of rows for EntProcOwner should match number of nodes or elements." );
+            MORIS_ASSERT( ( aMeshData.NodeProcOwner[0].numel() == tNumNodes ) ,
+                          "Number of rows for EntProcOwner should match number" );
         }
-//        else
-//        {
-//            MORIS_ASSERT( 0, "Elements or nodes processor owner list must be provided in parallel." );
-//        }
 
         // If nodal map was not provided and the simulation is run with 1 processor,
         // just generate the map. The number of ids provided in the map should match
@@ -1769,7 +1803,16 @@ namespace mtk
         {
             uint tNumNodesPerElem = aMeshData.ElemConn(iET)->n_cols();
             // Declare and initialize topology type. Also check if element type is supported
-            stk::topology::topology_t tTopology = get_mesh_topology( mSTKMeshData->mNumDims, tNumNodesPerElem );
+
+            stk::topology::topology_t tTopology;
+            if(aMeshData.CellTopology(iET) == CellTopology::INVALID)
+            {
+                tTopology = get_mesh_topology( mSTKMeshData->mNumDims, tNumNodesPerElem );
+            }
+            else
+            {
+                tTopology = get_stk_topo( aMeshData.CellTopology(iET) );
+            }
 
             // Add default part if no block sets were provided
             stk::mesh::Part& tBlock = mSTKMeshData->mMtkMeshMetaData->declare_part_with_topology( "noblock_"+std::to_string(iET), tTopology );
@@ -2282,47 +2325,6 @@ namespace mtk
         }
     }
 
-
-
-//            // Get all sets provided by the user and go to the block set
-//            uint tNumElems     = aMeshData.ElemConn(iET)->numel();
-//            uint tNumBlockSets = 1;
-//
-//            Matrix< IndexMat >  aOwnerPartInds( tNumElems, 1, 0 );
-//            std::vector< stk::mesh::PartVector > aPartBlocks( 1 );
-//
-////            // Update to number of blocks provided by the user
-////            if ( mSTKMeshData->mSetRankFlags[2] )
-////            {
-////                tNumBlockSets  = aMeshData.SetsInfo->get_num_block_sets();
-////                aOwnerPartInds = aMeshData.SetsInfo[0].BlockSetsInfo[0].BSetInds[0];
-////                aPartBlocks.resize( tNumBlockSets );
-////            }
-////
-////
-////            // Populate part blocks
-////            for ( uint iSet = 0; iSet < tNumBlockSets; ++iSet )
-////            {
-////                // Get block sets provided by user
-////                stk::mesh::Part* tBlock = mSTKMeshData->mMtkMeshMetaData->get_part( mSTKMeshData->mSetNames[2][iSet] + std::to_string(iET) );
-////                aPartBlocks[iSet]       = { tBlock };
-////            }
-////
-////            // Declare MPI communicator
-////            stk::ParallelMachine tPM = MPI_COMM_WORLD;
-////            uint tParallelSize       = stk::parallel_machine_size( tPM );
-////            if ( tParallelSize == 1 )
-////            {
-////                // serial run
-////                this->populate_mesh_database_serial( iET, aMeshData, aPartBlocks, aOwnerPartInds );
-////            }
-////            else
-////            {
-////                // Populating mesh is a bit more complicated in parallel because of entity sharing stuff
-////                this->populate_mesh_database_parallel( aMeshData, aPartBlocks, aOwnerPartInds );
-////            }
-////        }
-
     // ----------------------------------------------------------------------------
 
 
@@ -2649,30 +2651,32 @@ namespace mtk
     {
         stk::topology::topology_t tTopology = stk::topology::INVALID_TOPOLOGY;
 
-        switch ( aMTKCellTopo )
+        // MTK supports the following 1D, 2D and 3D element topology temporarily
+
+        switch(aMTKCellTopo)
         {
+            case CellTopology::TRI3:
+                tTopology = stk::topology::TRI_3;
+                break;
+            case CellTopology::QUAD4:
+                tTopology = stk::topology::QUAD_4;
+                break;
             case CellTopology::TET4:
-            {
                 tTopology = stk::topology::TET_4;
                 break;
-            }
+            case CellTopology::TET10:
+                tTopology = stk::topology::TET_10;
+                break;
             case CellTopology::HEX8:
-            {
                 tTopology = stk::topology::HEX_8;
                 break;
-            }
             case CellTopology::PRISM6:
-            {
                 tTopology = stk::topology::WEDGE_6;
                 break;
-            }
             default:
-            {
-                MORIS_ASSERT( 0, "MTK mesh build from data currently handles only TET_4, HEX8,  and  for 3D elements.");
+                MORIS_ERROR(0,"Unsupported element type in get_mesh_topology");
                 break;
-            }
         }
-
 
         return tTopology;
     }

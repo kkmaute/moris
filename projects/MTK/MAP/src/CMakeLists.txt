@@ -14,6 +14,8 @@ set(MAP_INCLUDES
     ${COM}
     ${SOL}/${DLA}
     ${SOL}/${NLA}
+    ${SOL}/${TSA}
+    ${SOL}/${SOL_CORE}
     ${MTK}
     ${HMR}
     ${MTK}/${MAP}
@@ -39,6 +41,7 @@ set( LIB_SOURCES
 set(LIB_DEPENDENCIES
     ${MTK}-lib
     ${COM}-lib
+    ${TSA}-lib
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_BOOST_LIBS}
     )

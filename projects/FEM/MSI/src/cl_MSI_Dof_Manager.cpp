@@ -7,8 +7,8 @@
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
+#include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
-
 #include "cl_MSI_Pdof_Host.hpp"
 
 #include "fn_sort.hpp"
@@ -53,7 +53,7 @@ namespace moris
     }
 
 //-----------------------------------------------------------------------------------------------------------
-    void Dof_Manager::initialize_pdof_type_list( moris::Cell < Equation_Object* > & aListEqnObj )
+    void Dof_Manager::initialize_pdof_type_list( Cell< MSI::Equation_Set * > & aListEqnBlock )
     {
         // Reserve of temporary pdof type list
         moris::Cell< enum Dof_Type > tTemporaryPdofTypeList;
@@ -62,16 +62,16 @@ namespace moris
         Matrix< DDUMat > tListToCheckIfEnumExist( (static_cast< int >(Dof_Type::END_ENUM) + 1), 1, 0 );
 
         // Get number of equation objects
-        moris::uint tNumEquationObjects = aListEqnObj.size();
+        moris::uint tNumEquationBlocks = aListEqnBlock.size();
 
         //loop over all equation objects, asking for their pdof types
-        for ( moris::uint Ii=0; Ii < tNumEquationObjects; Ii++ )
+        for ( moris::uint Ii=0; Ii < tNumEquationBlocks; Ii++ )
         {
             // Create temporary dof type list
             moris::Cell< enum Dof_Type > tDofType;
 
             // Ask equation object for its dof types
-            aListEqnObj( Ii )->get_dof_types( tDofType );
+            aListEqnBlock( Ii )->get_dof_types( tDofType );
 
             // Loop over all dof types
             for ( moris::uint Ik=0; Ik < tDofType.size(); Ik++ )

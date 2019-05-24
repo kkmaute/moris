@@ -52,6 +52,8 @@ namespace NLA
 
         void set_solution_vector( Dist_Vector * aSolutionVector );
 
+        void free_block_memory( const uint aBlockInd ){};
+
         // ----------------------------------------------------------------------------------------------
 
         void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
@@ -106,8 +108,38 @@ namespace NLA
             return mNumElements=1;
         };
 
+        uint get_num_my_blocks(){return 1; };
+
+        uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements=1; };
+
         // ----------------------------------------------------------------------------------------------
         void get_element_matrix(const uint             & aMyElementInd,
+                                      Matrix< DDRMat > & aElementMatrix)
+        {
+            if( mListOfDofTypes.size() == 1)
+            {
+                aElementMatrix.resize(2,2);
+                aElementMatrix(0,0)=-10;
+                aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 0, 0 ),2)+6*mMySolVec( 0, 0 );
+                aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 1, 0 ),2)+10*mMySolVec( 1, 0 );
+                aElementMatrix(1,1)=-10;
+            }
+            else if( mListOfDofTypes.size() == 2)
+            {
+                aElementMatrix.resize(2,2);
+                aElementMatrix(0,0)=-10;
+                aElementMatrix(0,1)=-1.2*std::pow(mMySolVec( 2, 0 ),2)+6*mMySolVec( 2, 0 );
+                aElementMatrix(1,0)=-1.2*std::pow(mMySolVec( 3, 0 ),2)+10*mMySolVec( 3, 0 );
+                aElementMatrix(1,1)=-10;
+            }
+            else if( mListOfDofTypes.size() == 3)
+            {
+                MORIS_ERROR(false,"NLA_Node_Proxy_II::get_element_matrix: not defined");
+            }
+        };
+
+        void get_element_matrix(const uint             & aMyBlockInd,
+                                const uint             & aMyElementInd,
                                       Matrix< DDRMat > & aElementMatrix)
         {
             if( mListOfDofTypes.size() == 1)
@@ -152,6 +184,28 @@ namespace NLA
                 aElementTopology(0,0)=0;                aElementTopology(1,0)=1;
                 aElementTopology(2,0)=2;                aElementTopology(3,0)=3;
             }
+        }
+
+        void  get_element_topology(const uint             & aMyBlockInd,
+                                   const uint             & aMyElementInd,
+                                         Matrix< DDSMat > & aElementTopology)
+        {
+            if( mListOfDofTypes.size() == 1)
+            {
+                aElementTopology.resize(2,1);
+                aElementTopology(0,0)=0;                aElementTopology(1,0)=1;
+            }
+            else if( mListOfDofTypes.size() == 2)
+            {
+                aElementTopology.resize(2,1);
+                aElementTopology(0,0)=2;                aElementTopology(1,0)=3;
+            }
+            else if( mListOfDofTypes.size() == 3)
+            {
+                aElementTopology.resize(4,1);
+                aElementTopology(0,0)=0;                aElementTopology(1,0)=1;
+                aElementTopology(2,0)=2;                aElementTopology(3,0)=3;
+            }
         };
 
         // ----------------------------------------------------------------------------------------------
@@ -159,6 +213,10 @@ namespace NLA
 
         // ----------------------------------------------------------------------------------------------
         void get_element_rhs( const uint             & aMyElementInd,
+                                    Matrix< DDRMat > & aElementRHS );
+
+        void get_element_rhs( const uint             & aMyBlockInd,
+                              const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------

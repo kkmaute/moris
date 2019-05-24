@@ -142,7 +142,7 @@ void Matrix_PETSc::fill_matrix_row( const moris::Matrix< DDRMat > & aA_val,
     MatSetValues( mPETScMat, 1, aRow.data(), aCols.length(), aCols.data(), aA_val.data(), INSERT_VALUES );
 }
 
-void Matrix_PETSc::matrix_global_asembly()
+void Matrix_PETSc::matrix_global_assembly()
 {
     MatAssemblyBegin( mPETScMat, MAT_FINAL_ASSEMBLY );
     MatAssemblyEnd( mPETScMat, MAT_FINAL_ASSEMBLY );

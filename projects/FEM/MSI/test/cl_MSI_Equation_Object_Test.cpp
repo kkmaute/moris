@@ -154,7 +154,7 @@ namespace moris
 
         moris::uint tNumNodes = 2;
 
-        // Create List with node pointern correponding to generic equation object
+        // Create List with node pointer corresponding to generic equation object
         moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
         tNodeIds_1( 0 ) = Node1;
         tNodeIds_1( 1 ) = Node2;
@@ -162,7 +162,7 @@ namespace moris
         // Create generic equation objects
         Equation_Object EquObj( tNodeIds_1 );
 
-        // Create pdof hosts of this equation object
+        // Create the pdof hosts of this equation object
         moris::Cell < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 1;
@@ -171,6 +171,10 @@ namespace moris
         tDofTypeIndexMap(3, 0) = 0;
 
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        Equation_Set tEqnBlock;
+        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationBlock = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
@@ -264,6 +268,10 @@ namespace moris
 
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
 
+        Equation_Set tEqnBlock;
+        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationBlock = &tEqnBlock;
+
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 
         // resize pdof host list. Shortcut. Functionality is tested in another test
@@ -337,7 +345,6 @@ namespace moris
         Node1 = new Node_Proxy( tNodeId1, tAdofsListId1, tAdofsListInd1, tMatrix1, tAdofOwningProcessor1 );
         Node2 = new Node_Proxy( tNodeId2, tAdofsListId2, tAdofsListInd2, tMatrix2, tAdofOwningProcessor2 );
 
-
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
@@ -357,6 +364,10 @@ namespace moris
         tDofTypeIndexMap(3, 0) = 0;
 
         Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+
+        Equation_Set tEqnBlock;
+        tEqnBlock.mEqnObjDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
+        EquObj.mEquationBlock = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
 

@@ -57,7 +57,7 @@ namespace tsa
         //!  flag indicating if this is the master time solver
         bool mIsMasterTimeSolver = false;
 
-        Map_Class       * mFullMap;
+        Map_Class * mFullMap = nullptr;
 
         //! Parameterlist for this nonlinear solver
         Param_List< boost::variant< bool, sint, real, const char* > > mParameterListTimeSolver;

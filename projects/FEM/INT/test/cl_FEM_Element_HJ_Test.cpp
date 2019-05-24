@@ -20,7 +20,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "cl_MDL_Model.hpp"
 
@@ -153,8 +153,8 @@ namespace moris
                 }
 
                 // create a fem element block
-                Cell< fem::Element_Block * > tElementBlocks( 1, nullptr );
-                tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+                Cell< MSI::Equation_Set * > tElementBlocks( 1, nullptr );
+                tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
                 // put the equation object of block 0 in the global list of equation objects
                 tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
@@ -176,7 +176,7 @@ namespace moris
 //                for( uint k = 0; k < tNumOfElements; k++ )
 //                {
 //                    // create the element
-//                    tElements( k ) = tElementFactory.create_element( Element_Type::BULK,
+//                    tElements( k ) = tElementFactory.create_cluster( Element_Type::BULK,
 //                                                                     & tMesh->get_mtk_cell( k ),
 //                                                                     tIWGs,
 //                                                                     tNodes );
@@ -204,7 +204,7 @@ namespace moris
                 //= tMesh->get_num_coeffs( 1 )
 
                 moris::MSI::Model_Solver_Interface* tModelSolverInterface
-                    = new moris::MSI::Model_Solver_Interface( tElements,
+                    = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                               tCommunicationTable,
                                                               tCoefficientsMap,
                                                               tNumCoeff,

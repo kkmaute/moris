@@ -3,7 +3,7 @@
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mapper.hpp"
 
-#include "../../../FEM/INT/src/cl_FEM_Element_Bulk.hpp"
+#include "cl_FEM_Element_Bulk.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
@@ -13,6 +13,23 @@
 
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_Node.hpp"
+
+#include "cl_DLA_Solver_Factory.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
+
+#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
+#include "cl_MSI_Solver_Interface.hpp"
+#include "cl_MSI_Equation_Object.hpp"
+#include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_DLA_Linear_Solver_Aztec.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
+
+#include "cl_TSA_Time_Solver_Factory.hpp"
+#include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_TSA_Time_Solver.hpp"
+
 
 #include "op_elemwise_mult.hpp"
 #include "op_div.hpp"
@@ -219,19 +236,93 @@ namespace moris
             // set weak bcs from field
             mModel->set_weak_bcs_from_nodal_field( aSourceIndex );
 
+            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::L2 );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 1: create linear solver and algortihm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            dla::Solver_Factory  tSolFactory;
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+            tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+            tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+
+            dla::Linear_Solver tLinSolver;
+
+            tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 2: create nonlinear solver and algortihm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            NLA::Nonlinear_Solver_Factory tNonlinFactory;
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+            tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+            tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
+            tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+            tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+
+            tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+
+            NLA::Nonlinear_Solver tNonlinearSolver;
+
+            tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 3: create time Solver and algorithm
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            tsa::Time_Solver_Factory tTimeSolverFactory;
+            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+
+            tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
+
+            tsa::Time_Solver tTimeSolver;
+
+            tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+
+            NLA::SOL_Warehouse tSolverWarehouse;
+
+            tSolverWarehouse.set_solver_interface(mModel->get_solver_interface());
+
+            tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
+            tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+
+            tNonlinearSolver.set_dof_type_list( tDofTypes1 );
+            tTimeSolver.set_dof_type_list( tDofTypes1 );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // STEP 4: Solve and check
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            tTimeSolver.solve();
+
             // test if output mesh is HMR
             if( mTargetInterpMesh->get_mesh_type() == MeshType::HMR )
             {
                 // perform L2 projection
-                mModel->solve( mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ) );
+                tTimeSolver.get_full_solution( mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ) );
+
+                Matrix< DDUMat > tAdofMap = mModel->get_adof_map();
+
+                // temporary array for solver
+                Matrix< DDRMat > tSolution = mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank );
+
+                uint tLength = tSolution.length();
+
+                // rearrange data into output
+                mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ).set_size( tLength, 1 );
+
+                for( uint k=0; k<tLength; ++k )
+                {
+                    mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank )( k ) = tSolution( tAdofMap( k ) );
+                }
             }
             else
             {
-                // create vector with solution
-                Matrix< DDRMat > tSolution;
-
-                // perform L2 projection
-                mModel->solve( tSolution );
+                moris::Matrix< DDRMat > tSolution;
+                tTimeSolver.get_full_solution( tSolution );
 
                 // get number of coeffs of
                 uint tNumberOfCoeffs = mTargetInterpMesh->get_num_coeffs( mBSplineOrder );
@@ -249,7 +340,6 @@ namespace moris
                             aBSplineRank,
                             k ) = tSolution( k );
                 }
-
             }
         }
 

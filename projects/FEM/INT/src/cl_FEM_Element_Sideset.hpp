@@ -15,7 +15,7 @@ namespace moris
 {
     namespace fem
     {
-    class Element_Block;
+    class Set;
 //------------------------------------------------------------------------------
     /**
      * \brief Element_Sideset class
@@ -40,9 +40,8 @@ namespace moris
          * @param[ in ]     Pointer to element block
          */
         Element_Sideset( mtk::Cell            const * aCell,
-                         moris::Cell< IWG* >        & aIWGs,
-                         moris::Cell< Node_Base* >  & aNodes,
-                         Element_Block      * aElementBlock);
+                         Set                   * aElementBlock,
+                         Cluster            * aCluster);
 
 //------------------------------------------------------------------------------
         /**

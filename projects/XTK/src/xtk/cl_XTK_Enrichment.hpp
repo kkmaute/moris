@@ -292,8 +292,8 @@ public:
     }
 
 
-    void
-    create_multilevel_enrichments();
+//    void
+//    create_multilevel_enrichments();
 
 //    void
 //    declare_enrichment_fields_in_output_options(size_t aNumBasis,
@@ -408,15 +408,6 @@ private:
 
     moris::Cell<moris::Matrix< DDSMat >> mChildrenToParents;
     moris::Cell<moris::Matrix< DDSMat >> mParentsToChildren;
-
-    /*
-     * performs local enrichment on all child meshes in the cut mesh. The subphase data (result of floodfill)
-     * is stored as a member variable in each child mesh as sub-phase bins
-     * @param[in] aCutMesh - Mesh containing elements around the interface
-     * @param[in] aMatrixFactory - Means of creating matrix objects
-     */
-    void
-    perform_local_subphase_identification();
 
     /*
      * Performs enrichment on elements in support of full basis cluster. This enrichment includes all children elements of parents in
@@ -604,11 +595,11 @@ private:
     void
     set_up_basis_enrichment_to_bulk_phase();
 
-    void
-    create_multilevel_children_to_parent_relations();
-
-    void
-    create_multilevel_parent_to_children_relations();
+//    void
+//    create_multilevel_children_to_parent_relations();
+//
+//    void
+//    create_multilevel_parent_to_children_relations();
 
 
 

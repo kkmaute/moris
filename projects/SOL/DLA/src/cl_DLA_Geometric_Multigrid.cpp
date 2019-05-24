@@ -111,7 +111,7 @@ namespace dla
                     MORIS_ERROR(false, "Geometric_Multigrid::Geometric_Multigrid: Problem with Geometric multigrid. Dof either on a level which is too fine, or coarse but not refined  ");
                 }
             }
-            mProlongationList( Ik - 1 )->matrix_global_asembly();
+            mProlongationList( Ik - 1 )->matrix_global_assembly();
             //mProlongationList( Ik - 1 )->print();
         }
     }

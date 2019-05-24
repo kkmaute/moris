@@ -72,6 +72,8 @@ namespace NLA
          */
         SOL_Warehouse( Solver_Interface * aSolverInterface ) : mSolverInterface( aSolverInterface ){};
 
+        SOL_Warehouse(){};
+
 //--------------------------------------------------------------------------------------------------------
 
         /**
@@ -92,6 +94,11 @@ namespace NLA
          * @brief Returns a pointer to the solver interface.
          */
         Solver_Interface * get_solver_interface(){ return mSolverInterface; };
+
+        void set_solver_interface( Solver_Interface * aSolverInterface  )
+        {
+            mSolverInterface = aSolverInterface;
+        };
 
 //--------------------------------------------------------------------------------------------------------
 

@@ -15,6 +15,8 @@
 #include "cl_MTK_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
+#include "cl_MTK_Cell_Cluster_Input.hpp"
+#include "cl_MTK_Side_Cluster_Input.hpp"
 
 namespace moris
 {
@@ -130,11 +132,33 @@ create_integration_mesh(enum MeshType aMeshType,
 }
 
 inline Integration_Mesh*
+create_integration_mesh(enum MeshType aMeshType,
+                        MtkMeshData   aMeshData,
+                        Interpolation_Mesh* aInterpMesh)
+{
+    Integration_Mesh* tMeshBase = nullptr;
+    switch (aMeshType)
+    {
+        case(MeshType::STK):
+        {
+            tMeshBase = new Integration_Mesh_STK( aMeshData, aInterpMesh );
+            break;
+        }
+        default:
+        {
+            MORIS_ASSERT( 0, "Specified mesh type not supported by MORIS or this construction method not implemented" );
+        }
+    }
+    return tMeshBase;
+}
+
+inline Integration_Mesh*
 create_integration_mesh_from_interpolation_mesh(enum MeshType       aMeshType,
-                                                Interpolation_Mesh* aInterpMesh)
+                                                Interpolation_Mesh* aInterpMesh,
+                                                Cell_Cluster_Input* aCellClusterData = nullptr)
 {
     MORIS_ERROR(aMeshType == MeshType::STK,"create_integration_mesh_from_interpolation_mesh only currently set up for STK meshes");
-    return new Integration_Mesh_STK(*aInterpMesh);
+    return new Integration_Mesh_STK(*aInterpMesh,aCellClusterData);
 }
 
 }

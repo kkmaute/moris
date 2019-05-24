@@ -66,6 +66,8 @@ namespace tsa
         {
             mT = aTime;
         }
+
+        void free_block_memory( const uint aBlockInd ){};
         // ----------------------------------------------------------------------------------------------
 
         void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
@@ -121,6 +123,10 @@ namespace tsa
             return mNumElements=1;
         };
 
+        uint get_num_my_blocks(){return 1; };
+
+        uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements=1; };
+
         void perform_mapping();
 
         // ----------------------------------------------------------------------------------------------
@@ -140,15 +146,47 @@ namespace tsa
             }
         };
 
+        void get_element_matrix(const uint             & aMyBlockInd,
+                                const uint             & aMyElementInd,
+                                      Matrix< DDRMat > & aElementMatrix)
+        {
+            mDeltaT = mT( 1, 0 ) - mT( 0, 0 );
+            if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
+            {
+                aElementMatrix.resize(1, 1);
+                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+            }
+            else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX)
+            {
+                aElementMatrix.resize(1, 1);
+                aElementMatrix(0,0)=( mk + 1/( mDeltaT) );
+            }
+        };
+
         // ----------------------------------------------------------------------------------------------
         void  get_element_topology(const uint             & aMyElementInd,
                                          Matrix< DDSMat > & aElementTopology)
         {
-//            if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP && mListOfDofTypes( 1 ) == MSI::Dof_Type::UX)
-//            {
-//                MORIS_ERROR( false, "get_element_topology");
-//            }
-//            else
+            if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP )
+            {
+                aElementTopology.resize(1,1);
+                aElementTopology(0,0)=0;
+            }
+            else if( mListOfDofTypes( 0 ) == MSI::Dof_Type::UX )
+            {
+                aElementTopology.resize(1,1);
+                aElementTopology(0,0)=1;
+            }
+            else
+            {
+                MORIS_ERROR( false, "get_element_topology");
+            }
+        };
+
+        void  get_element_topology(const uint             & aMyBlockInd,
+                                   const uint             & aMyElementInd,
+                                         Matrix< DDSMat > & aElementTopology)
+        {
             if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP )
             {
                 aElementTopology.resize(1,1);
@@ -170,6 +208,10 @@ namespace tsa
 
         // ----------------------------------------------------------------------------------------------
         void get_element_rhs( const uint             & aMyElementInd,
+                                    Matrix< DDRMat > & aElementRHS );
+
+        void get_element_rhs( const uint             & aMyBlockInd,
+                              const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS );
 
         // ----------------------------------------------------------------------------------------------

@@ -25,6 +25,8 @@ enum class MeshType
 
 enum class CellTopology
 {
+    TRI3,
+    QUAD4,
     TET4,
     TET10,
     HEX8,

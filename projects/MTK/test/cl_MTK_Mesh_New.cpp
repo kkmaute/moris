@@ -397,7 +397,6 @@ TEST_CASE("Interpolation are the same Integration Mesh","[NEW_MTK]")
 
 }
 
-
 TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
 {    // Parallel
     uint p_rank = moris::par_rank();
@@ -465,7 +464,6 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         CHECK( moris::equal_to(edgesConnectedToNode(1), 4) );
         CHECK( moris::equal_to(edgesConnectedToNode(2), 9) );
 
-        std::cout<<"1113"<<std::endl;
         // ================================================
         // Testing entities connected to edge with ID = 25
         // ================================================
@@ -521,7 +519,6 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
 
         uint NumberOfElemsConnectedToFace = elementsConnectedToFace.numel();
 
-        std::cout<<"1115"<<std::endl;
         // Check the number of elements and its IDs connected to current face
         CHECK( moris::equal_to(NumberOfElemsConnectedToFace, 2) );
         CHECK( moris::equal_to(elementsConnectedToFace(0), 74) );

@@ -46,32 +46,28 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        moris_id
-        Facet::get_id() const
+        moris_id Facet::get_id() const
         {
             return mID;
         }
 
 // ----------------------------------------------------------------------------
 
-        moris_index
-        Facet::get_index() const
+        moris_index Facet::get_index() const
         {
             return mIndex;
         }
 
 // ----------------------------------------------------------------------------
 
-        moris_id
-        Facet::get_owner() const
+        moris_id Facet::get_owner() const
         {
             return mMaster->get_owner();
         }
 
 // ----------------------------------------------------------------------------
 
-        moris::Cell< mtk::Vertex* >
-        Facet::get_vertex_pointers() const
+        moris::Cell< mtk::Vertex * > Facet::get_vertex_pointers() const
         {
             MORIS_ERROR( false, "get_vertex_pointers() not implemented for facet");
             return moris::Cell< mtk::Vertex* >( 0 );
@@ -79,8 +75,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        Matrix< IdMat >
-        Facet::get_vertex_ids() const
+        Matrix< IdMat > Facet::get_vertex_ids() const
         {
             // get number of vertices
             uint tNumberOfVertices = this->get_number_of_vertices();
@@ -99,8 +94,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        Matrix< IndexMat >
-        Facet::get_vertex_inds() const
+        Matrix< IndexMat > Facet::get_vertex_inds() const
         {
             // get number of vertices
             uint tNumberOfVertices = this->get_number_of_vertices();
@@ -120,8 +114,7 @@ namespace moris
 //  HMR public:
 // ----------------------------------------------------------------------------
 
-        bool
-        Facet::is_active() const
+        bool Facet::is_active() const
         {
             if( mSlave == NULL )
             {
@@ -135,32 +128,28 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        Facet::set_id( const moris_id & aID )
+        void Facet::set_id( const moris_id & aID )
         {
             mID = aID;
         }
 
 // ----------------------------------------------------------------------------
 
-        void
-        Facet::set_index( const moris_index & aIndex )
+        void Facet::set_index( const moris_index & aIndex )
         {
             mIndex = aIndex;
         }
 
 // ----------------------------------------------------------------------------
 
-        uint
-        Facet::get_index_on_master() const
+        uint Facet::get_index_on_master() const
         {
             return mIndexOnMaster;
         }
 
 // ----------------------------------------------------------------------------
 
-        uint
-        Facet::get_index_on_slave() const
+        uint Facet::get_index_on_slave() const
         {
             return mFacet->get_index_on_other( mIndexOnMaster );
         }
@@ -169,69 +158,60 @@ namespace moris
 //  private:
 // ----------------------------------------------------------------------------
 
-        uint
-        Facet::get_level() const
+        uint Facet::get_level() const
         {
             return mMaster->get_level();
         }
 
 // ----------------------------------------------------------------------------
 
-        Element *
-        Facet::get_hmr_master()
+        Element * Facet::get_hmr_master()
         {
             return mMaster;
         }
 
 // ----------------------------------------------------------------------------
 
-        Element *
-        Facet::get_hmr_slave()
+        Element * Facet::get_hmr_slave()
         {
             return mSlave;
         }
 
 // ----------------------------------------------------------------------------
-        mtk::Cell *
-        Facet::get_master()
+        mtk::Cell * Facet::get_master()
         {
             return mMaster;
         }
 
 // ----------------------------------------------------------------------------
 
-        const mtk::Cell *
-        Facet::get_master() const
+        const mtk::Cell * Facet::get_master() const
         {
             return mMaster;
         }
 
 // ----------------------------------------------------------------------------
 
-        mtk::Cell *
-        Facet::get_slave()
+        mtk::Cell * Facet::get_slave()
         {
             return mSlave;
         }
 
 // ----------------------------------------------------------------------------
 
-        const mtk::Cell *
-        Facet::get_slave() const
+        const mtk::Cell * Facet::get_slave() const
         {
             return mSlave;
         }
 
 // ----------------------------------------------------------------------------
 
-        void
-        Facet::swap_master_and_slave()
+        void Facet::swap_master_and_slave()
         {
             mIndexOnMaster = mFacet->get_index_on_other( mIndexOnMaster );
             Element * tSwap = mMaster;
             mMaster = mSlave;
             mSlave = tSwap;
-
         }
 // ----------------------------------------------------------------------------
     } /* namespace hmr */

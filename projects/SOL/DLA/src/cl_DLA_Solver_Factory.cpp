@@ -33,9 +33,9 @@ std::shared_ptr< Linear_Solver_Algorithm > Solver_Factory::create_solver( const 
     case ( SolverType::AZTEC_IMPL ):
         tLinSol = std::make_shared< Linear_Solver_Aztec >();
         break;
-//    case ( SolverType::AMESOS_IMPL ):
-//        tLinSol = std::make_shared< Linear_Solver_Amesos >( aSolverInterface );
-//        break;
+    case ( SolverType::AMESOS_IMPL ):
+        tLinSol = std::make_shared< Linear_Solver_Amesos >();
+        break;
 //    case ( SolverType::AMESOS2_IMPL ):
 //        tLinSol = std::make_shared< Linear_Solver_Amesos2 >( aSolverInterface );
 //        break;

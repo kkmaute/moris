@@ -39,6 +39,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mapper.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MDL_Model.hpp"
 #include "cl_FEM_IWG_L2.hpp"
@@ -351,16 +352,24 @@ namespace moris
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
 
+            // set flag whether 1st order lagrange mesh has been found
+            bool tFoundLagrMesh = false;
+
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k )
             {
-                // Renumber Lagrange nodes to be the same than B-Spline basis. Only serial and linear
-                if(  mParameters->get_renumber_lagrange_nodes() )
+                // Get Lagrange mesh
+                tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+
+                if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
                 {
-                    if (k ==1)
+                    // Renumber Lagrange nodes to be the same than B-Spline basis. Only serial and linear
+                    if( mParameters->get_renumber_lagrange_nodes() && tFoundLagrMesh == false && tMesh->get_order() == 1 )
                     {
                         tic tTimer;
 
-                        mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();
+                        tMesh->nodes_renumbering_hack_for_femdoc();
+
+                        tFoundLagrMesh = true;
 
                         // print output if verbose level is set
                         if ( mParameters->is_verbose() )
@@ -373,12 +382,6 @@ namespace moris
                                     ( double ) tElapsedTime / 1000 );
                         }
                     }
-                }
-
-                tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
-                {
 
                     // add order to path
                     std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
@@ -1159,10 +1162,10 @@ namespace moris
                                         const uint          aLagrangeOrder,
                                         const uint          aBSpineOrder )
         {
-            if(  mParameters->get_renumber_lagrange_nodes() )
-            {
-                MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
-            }
+            //if(  mParameters->get_renumber_lagrange_nodes() )
+            //{
+            //    MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
+            //}
 
             // opens an existing file with read and write access
             hid_t tFileID = open_hdf5_file( aFilePath );
@@ -1338,20 +1341,47 @@ namespace moris
             //-----------------------------------------------------------------------------
             if(  mParameters->get_renumber_lagrange_nodes() )
             {
-                Matrix< DDRMat >tTempValues = tValues;
+                Matrix< DDRMat > tTempValues = tValues;
                 Matrix< DDSMat > tReverseMap;
+
                 // load values into field
                 herr_t tStatus = 0;
                 hid_t tHDF5File = open_hdf5_file( "Reverse_Map_1.hdf5" );
                 load_matrix_from_hdf5_file( tHDF5File, "Id", tReverseMap, tStatus );
                 close_hdf5_file( tHDF5File );
 
+                // check that the map has the correct size
+                MORIS_ERROR( tNumberOfNodes == (uint)tReverseMap.size(0) - 1,
+                        "Number of Nodes does not match between Reverse_Map_1.hdf5 field mesh: %-5i versus %-5i.", tNumberOfNodes, tReverseMap.size(0));
+
+                // check that the entries in the map are such that they do not exceed the size of the target vector
+                MORIS_ERROR( (uint)tReverseMap.max() <= tNumberOfNodes,
+                         "Maximum entry in reverse map (%i) is larger than size of field array (%i).", tNumberOfNodes, tReverseMap.size(0) );
+
+                // initialize target vector with real_max such that we can check later that all entries in the target vector received values from the source
+                tValues.fill(MORIS_REAL_MAX);
+
+                // loop over all nodes in mesh
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
-                    tValues( tReverseMap( k ) ) = tTempValues( k );
+                    // check that map is valid
+                    if ( tReverseMap( k ) >= 0 )
+                    {
+                        tValues( tReverseMap( k ) ) = tTempValues( k );
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "Reverse map (%i) points to negative index.", k );
+                    }
+                }
+
+                // check that all entries in target vector received values from source vector
+                for( uint k=0; k<tNumberOfNodes; ++k )
+                {
+                    MORIS_ERROR( tValues( k ) < MORIS_REAL_MAX,
+                            "Map did not cover component %i of vecto tValues: %e", k, tValues( k ));
                 }
             }
-
 
             //------------------------------------------------------------------------------
 

@@ -541,42 +541,6 @@ public :
 
      //------------------------------------------------------------------------------
 
-     /*
-      * Is this face a parent of a face cluster?
-      */
-     
-     bool
-     is_face_cluster_a_parent(moris_index aFaceIndex)
-     {
-         MORIS_ERROR(0,"Entered  function in Mesh base class, (has_face_cluster_membership is not implemented)");
-         return 0;
-     }
-
-     //------------------------------------------------------------------------------
-
-     /*
-      * Get the a face cluster (provided a parent face index)
-      */
-     
-     const Facet_Cluster &
-     get_face_cluster(moris_index aParentFaceIndex)
-     {
-         MORIS_ERROR(0,"Entered  function in Mesh base class, (register_face_cluster is not implemented)");
-         return mDummyFaceCluster;
-     }
-
-     //------------------------------------------------------------------------------
-
-     /*
-      * Manually add a face cluster to mesh.
-      */
-     
-     void
-     register_face_cluster(Facet_Cluster & aFaceCluster)
-     {
-         MORIS_ERROR(0,"Entered  function in Mesh base class, (register_face_cluster is not implemented)");
-     }
-
 
      //------------------------------------------------------------------------------
      //##############################################

@@ -21,11 +21,13 @@ class Dist_Vector;
     namespace fem
     {
         class Node_Base;
+        class Element;
     }
     namespace MSI
     {
         class Pdof;
         class Pdof_Host;
+        class Equation_Set;
         class Equation_Object
         {
 //-------------------------------------------------------------------------------------------------
@@ -34,21 +36,13 @@ class Dist_Vector;
             moris::Cell< fem::Node_Base * >         mNodeObj;
             moris::Cell< Pdof_Host * >              mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
-            moris::Cell< enum Dof_Type >            mEqnObjDofTypeList; // List of dof types of this equation obj
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
 
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
 
-            //! weak BCs of element
+            //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
-
-            Matrix< DDRMat > mResidual;
-            Matrix< DDRMat > mJacobian;
-
-            // working jacobian and residual for the element
-            Cell< Matrix< DDRMat > > mJacobianElement;
-            Cell< Matrix< DDRMat > > mResidualElement;
 
             Matrix< DDRMat > mPdofValues;
 
@@ -58,17 +52,24 @@ class Dist_Vector;
 
             moris::uint mEqnObjInd;
 
-            // sideset information
+            // sideset information //FIXME Side ordinals are not part of the equation object
             Matrix< IndexMat > mListOfSideOrdinals;
             Matrix< IndexMat > mListOfTimeOrdinals;
 
             Matrix< DDRMat >mTime;
+
+            Equation_Set * mEquationBlock;
+
+            friend class fem::Element;
 
 //-------------------------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------------------------
 
             Equation_Object() {};
+
+            Equation_Object( Equation_Set * aElementBlock) : mEquationBlock( aElementBlock )
+            {};
 
 //-------------------------------------------------------------------------------------------------
             Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs );
@@ -100,45 +101,7 @@ class Dist_Vector;
                 return mPdofValues;
             };
 
-//-------------------------------------------------------------------------------------------------
-            /**
-             * @brief Get function to get the dof types used by this equation object. This function is tested by the test [Dof_Mgn_create_unique_dof_type_list]
-             * [Dof_Mgn_create_unique_dof_type_map_matrix]
-             *
-             * @param[in] aDofType   List of dof types.
-             *
-             */
-            void get_dof_types( moris::Cell< enum Dof_Type > & aDofType )
-            {
-                aDofType = mEqnObjDofTypeList;
 
-//                // get the number of groups of dof types
-//                uint tNumOfDofTypeGropups = mEqnObjDofTypeList.size();
-//
-//                // get the total number of dof types
-//                uint tCounter = 0;
-//                for ( uint i = 0; i < tNumOfDofTypeGropups; i++ )
-//                {
-//                    tCounter = tCounter + mEqnObjDofTypeList( i ).size();
-//                }
-//
-//                // set the size of aDofType
-//                aDofType.resize( tCounter );
-//
-//                // loop over the groups of dof types
-//                tCounter = 0;
-//                for ( uint i = 0; i < tNumOfDofTypeGropups; i++ )
-//                {
-//                    Cell< MSI::Dof_Type > tDofTypeGroup = mEqnObjDofTypeList( i );
-//                    uint tNumOfDofTypesInGroupI = tDofTypeGroup.size();
-//
-//                    for( uint j = 0; j < tNumOfDofTypesInGroupI; j++ )
-//                    {
-//                        aDofType( tCounter ) = tDofTypeGroup( j );
-//                        tCounter++;
-//                    }
-//                }
-            }
 //-------------------------------------------------------------------------------------------------
             /**
              * @brief Returns the number of nodes, elements and ghosts related to this equation object.
@@ -156,7 +119,8 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
             /**
-             * @brief Creates the pdof hosts of this equation object, if not created earlier, and puts them into the local pdof host list. This function is tested by the test [Eqn_Obj_create_pdof_host]
+             * @brief Creates the pdof hosts of this equation object, if not created earlier, and puts them into the local pdof host list.
+             *  This function is tested by the test [Eqn_Obj_create_pdof_host]
              *
              * @param[in] aNumUsedDofTypes   Number of globally used dof types
              * @param[in] aPdofTypeMap       Map which maps the dof type enum values to a consecutive list of dof type indices.
@@ -223,21 +187,7 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix,
-                                       Dist_Vector      * aSolutionVector )
-            {
-                mSolVec = aSolutionVector;
-
-                Matrix< DDRMat > tTMatrix;
-                this->build_PADofMap( tTMatrix );
-
-                this->compute_jacobian();
-
-//                print( tTMatrix, "tTMatrix" );
-//                print( mJacobian, "mJacobian" );
-
-                aEqnObjMatrix = trans( tTMatrix ) * mJacobian * tTMatrix ;
-
-            };
+                                       Dist_Vector      * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -300,7 +250,7 @@ class Dist_Vector;
             /**
              * return Neumann boundary conditions, writable version
              */
-            Matrix< DDRMat > & get_weak_bcs()
+            virtual Matrix< DDRMat > & get_weak_bcs()
             {
                 return mNodalWeakBCs;
             }

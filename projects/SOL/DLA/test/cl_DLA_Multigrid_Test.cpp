@@ -30,7 +30,7 @@
 
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_L2.hpp"
-#include "cl_FEM_Element_Block.hpp"
+#include "cl_FEM_Set.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
@@ -137,7 +137,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // create equation objects
         tElements.reserve( tNumberOfElements );
 
-        Cell< fem::Element_Block * >      tElementBlocks(1,nullptr);
+        Cell< MSI::Equation_Set * >      tElementBlocks(1,nullptr);
 
         // ask mesh about number of elements on proc
         moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
@@ -154,11 +154,11 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             }
 
         }
-        tElementBlocks( 0 ) = new fem::Element_Block( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+        tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
         tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
-        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElements,
+        MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                                                      tMesh->get_communication_table(),
                                                                                      tCoefficientsMap,
                                                                                      tMesh->get_num_coeffs( tOrder ),
@@ -254,11 +254,11 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          delete ( tNonlinearProblem );
          delete ( mLinSolver );
 
-         for( luint k=0; k<tNumberOfElements; ++k )
-         {
-             // create the element
-             delete tElements( k );
-         }
+//         for( luint k=0; k<tNumberOfElements; ++k )
+//         {
+//             // create the element
+//             delete tElements( k );
+//         }
 
          for( luint k = 0; k < tNumberOfNodes; ++k )
          {

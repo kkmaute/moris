@@ -44,8 +44,7 @@ namespace moris
 // -----------------------------------------------------------------------------
     // print dots for nice output
 
-    std::string
-    proc_string()
+    std::string proc_string()
     {
         std::string tString = "              ";
 
@@ -145,8 +144,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-    std::string
-    parallelize_path( const std::string & aFilePath )
+    std::string parallelize_path( const std::string & aFilePath )
     {
         if( par_size() == 1 || aFilePath.size() == 0 )
         {
@@ -167,8 +165,7 @@ namespace moris
         /**
          * returns the binominalcoefficient of n over k as real
          */
-        real
-        nchoosek( const uint & aN, const uint aK )
+        real nchoosek( const uint & aN, const uint aK )
         {
             real aResult = 1.0;
 
@@ -183,8 +180,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         template < typename T >
-        void
-        string_to_mat( const std::string & aString, Matrix< T > & aMat )
+        void string_to_mat( const std::string & aString, Matrix< T > & aMat )
         {
             if( aString.size() > 0 )
             {
@@ -204,7 +200,6 @@ namespace moris
                 // reset string
                 tString = aString;
 
-
                 while( tPos < tString.size() )
                 {
                     // find string
@@ -216,7 +211,6 @@ namespace moris
                         aMat( tCount++ ) = stod(  tString.substr( 0, tPos ) );
                         tString =  tString.substr( tPos+1, tString.size() );
                     }
-
                 }
 
                 // copy value into output matrix
@@ -231,8 +225,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         template < typename T >
-        void
-        mat_to_string(
+        void mat_to_string(
                 const Matrix< T > & aMat,
                 std::string & aString )
         {

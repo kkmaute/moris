@@ -4,6 +4,7 @@
 # List source files
 set(TEST_SOURCES
     cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
+    cl_MDL_DiffusionElement_Cut_Mesh.cpp
     test_main.cpp
     )
 
@@ -15,6 +16,10 @@ set(TEST_INCLUDES
     ${MTK}
     ${HMR}
     ${ALG}
+    ${SOL}/${DLA}
+    ${SOL}/${NLA}
+    ${SOL}/${TSA}
+    ${SOL}/${SOL_CORE}
     ${FEM}/${INT}
     ${FEM}/${MSI}
     ${FEM}/${MDL}
@@ -36,6 +41,10 @@ set(TEST_DEPENDENCIES
     ${TOL}-lib
     ${HMR}-lib
     ${MAP}-lib
+    ${DLA}-lib
+    ${NLA}-lib
+    ${TSA}-lib
+    ${SOL_CORE}-lib
     ${MORIS_BASE_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS}
