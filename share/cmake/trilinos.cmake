@@ -191,9 +191,9 @@ if(NOT TRILINOS_FOUND_ONCE)
     set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS} ${PARDISO_LIBS}
         CACHE INTERNAL "Trilinos Libraries.")
     
+    message(STATUS "TRILINOS_PATH: ${TRILINOS_PATH}")
+    
 endif()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-message(STATUS "TRILINOS_PATH: ${TRILINOS_PATH}")
 
 include_directories(${MORIS_TRILINOS_INCLUDE_DIRS})
