@@ -36,10 +36,10 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
     if ( mIsMasterTimeSolver )
     {
         delete( mFullVector );
-        delete( mPrevFullVector );
+//        delete( mPrevFullVector );
     }
-//    delete( mPrevFullVector );                 // FIXME There's a delete somewhere in HMR which need this memory leak. has to be fixed
-//    delete( mFullMap );
+    delete( mPrevFullVector );                 // FIXME There's a delete somewhere in HMR which need this memory leak. has to be fixed
+    delete( mFullMap );
 
 }
 //-------------------------------------------------------------------------------

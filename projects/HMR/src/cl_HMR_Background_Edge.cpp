@@ -8,38 +8,35 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Background_Edge::Background_Edge( Background_Element_Base * aElement, const uint & aIndex  )
+        Background_Edge::Background_Edge(       Background_Element_Base * aElement,
+                                          const uint                    & aIndex  )
         {
             this->insert_element( aElement, aIndex );
         }
 
 //-------------------------------------------------------------------------------
-        void
-        Background_Edge::flag()
+        void Background_Edge::flag()
         {
             mFlag = true;
         }
 
 //-------------------------------------------------------------------------------
 
-        void
-        Background_Edge::unflag()
+        void Background_Edge::unflag()
         {
             mFlag = false;
         }
 
 //-------------------------------------------------------------------------------
 
-        bool
-        Background_Edge::is_flagged() const
+        bool Background_Edge::is_flagged() const
         {
             return mFlag;
         }
 
 //-------------------------------------------------------------------------------
 
-        void
-        Background_Edge::insert_element(
+        void Background_Edge::insert_element(
                 Background_Element_Base * aElement,
                 const uint & aIndex )
         {
@@ -51,24 +48,21 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        uint
-        Background_Edge::get_number_of_elements() const
+        uint Background_Edge::get_number_of_elements() const
         {
             return mElementCounter;
         }
 
 //-------------------------------------------------------------------------------
 
-        Background_Element_Base *
-        Background_Edge::get_element( const uint & aIndex )
+        Background_Element_Base * Background_Edge::get_element( const uint & aIndex )
         {
             return mElements[ aIndex ];
         }
 
 //-------------------------------------------------------------------------------
 
-        uint
-        Background_Edge::get_index_on_element( const uint & aIndex ) const
+        uint Background_Edge::get_index_on_element( const uint & aIndex ) const
         {
             return mIndexInElement[ aIndex ];
         }

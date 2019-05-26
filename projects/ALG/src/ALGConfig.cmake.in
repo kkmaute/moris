@@ -4,7 +4,13 @@
 @PACKAGE_INIT@
 
 # Set *_INCLUDE_DIR
-set_and_check(@ALGORITHMS@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@ALG@)
+set_and_check(@ALG@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@ALG@)
 
 # Create library target
-include(@ALGORITHMS@Targets.cmake)
+include(@CMAKE_CURRENT_LIST_DIR@/@ALG@Targets.cmake)
+
+# Library target list
+set(@ALG@_LIBRARIES @ALG@-lib)
+
+# Executable target list
+set(@ALG@_EXECUTABLE)

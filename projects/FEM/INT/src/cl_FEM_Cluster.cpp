@@ -17,6 +17,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    Cluster::~Cluster()
+    {
+        for( auto tInterpElements : mInterpElements )
+        {
+            delete tInterpElements;
+        }
+
+//            mInterpElements.clear();
+    }
+
+//------------------------------------------------------------------------------
+
         void Cluster::compute_jacobian()
         {
             this->get_my_pdof_values();

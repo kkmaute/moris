@@ -100,8 +100,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void
-            load_pattern_from_hdf5_file(
+            void load_pattern_from_hdf5_file(
                     const std::string & aPath,
                     const bool          aMode  );
 
@@ -111,16 +110,14 @@ namespace moris
              * sets the flag that the parameter object must be deleted
              * by the destructor
              */
-            void
-            set_parameter_owning_flag();
+            void set_parameter_owning_flag();
 
 // -----------------------------------------------------------------------------
 
             /**
              * creates a union of two patterns
              */
-            void
-            unite_patterns(
+            void unite_patterns(
                     const uint & aSourceA,
                     const uint & aSourceB,
                     const uint & aTarget );
@@ -130,8 +127,7 @@ namespace moris
             /**
              * copies a source pattern to a target pattern
              */
-            void
-            copy_pattern(
+            void copy_pattern(
                     const uint & aSource,
                     const uint & aTarget );
 // -----------------------------------------------------------------------------
@@ -141,8 +137,7 @@ namespace moris
              *
              * returns true if at least one element has been refined
              */
-            void
-            perform_refinement(
+            void perform_refinement(
                     const enum RefinementMode aRefinementMode,
                     const bool aResetPattern = true );
 
@@ -151,16 +146,14 @@ namespace moris
             /**
              * aTarget must be a refined variant of aSource
              */
-            void
-            interpolate_field(
+            void interpolate_field(
                     const uint                   & aSourcePattern,
                     const std::shared_ptr<Field>   aSource,
                     const uint                   & aTargetPattern,
                     std::shared_ptr<Field>         aTarget );
 // -----------------------------------------------------------------------------
 
-            void
-            change_field_order(
+            void change_field_order(
                           std::shared_ptr<Field>   aSource,
                           std::shared_ptr<Field>   aTarget );
 
@@ -170,8 +163,7 @@ namespace moris
              * Returns the pointer to a T-Matrix object.
              * Needed by Field constructor.
              */
-            T_Matrix *
-            get_t_matrix( const uint & aLagrangeMeshIndex );
+            T_Matrix * get_t_matrix( const uint & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -179,8 +171,7 @@ namespace moris
              * returns the pointer to a Lagrange mesh, needed by interface
              * constructor
              */
-            Lagrange_Mesh_Base*
-            get_lagrange_mesh_by_index( const uint& aIndex )
+            Lagrange_Mesh_Base * get_lagrange_mesh_by_index( const uint& aIndex )
             {
                 return mLagrangeMeshes( aIndex );
             }
@@ -190,24 +181,21 @@ namespace moris
              * returns the pointer to a Bspline mesh, needed by interface
              * constructor
              */
-            BSpline_Mesh_Base*
-            get_bspline_mesh_by_index( const uint& aIndex )
+            BSpline_Mesh_Base * get_bspline_mesh_by_index( const uint& aIndex )
             {
                 return mBSplineMeshes( aIndex );
             }
 
 // -----------------------------------------------------------------------------
 
-            Background_Mesh_Base *
-            get_background_mesh();
+            Background_Mesh_Base * get_background_mesh();
 
 // -----------------------------------------------------------------------------
 
             /**
              * returns the number of ( active ) elements on this proc
              */
-            auto
-            get_number_of_elements_on_proc()
+            auto get_number_of_elements_on_proc()
                 -> decltype( mBackgroundMesh->get_number_of_active_elements_on_proc() )
             {
                 return mBackgroundMesh->get_number_of_active_elements_on_proc();
@@ -218,8 +206,7 @@ namespace moris
             /**
              * returns the number of dimensions in space
              */
-            auto
-            get_number_of_dimensions() const
+            auto get_number_of_dimensions() const
                 -> decltype( mParameters->get_number_of_dimensions() )
             {
                 return mParameters->get_number_of_dimensions();
@@ -230,8 +217,7 @@ namespace moris
             /**
              * returns the number of Lagrange meshes
              */
-            uint
-            get_number_of_lagrange_meshes() const
+            uint get_number_of_lagrange_meshes() const
             {
                 return mLagrangeMeshes.size();
             }
@@ -241,8 +227,7 @@ namespace moris
             /**
              * returns the number of Bspline meshes
              */
-            uint
-            get_number_of_bspline_meshes() const
+            uint get_number_of_bspline_meshes() const
             {
                 return mBSplineMeshes.size();
             }
@@ -252,8 +237,7 @@ namespace moris
             /**
              * set active pattern of background mesh
              */
-            void
-            set_activation_pattern( const uint & aPattern )
+            void set_activation_pattern( const uint & aPattern )
             {
                 mBackgroundMesh->set_activation_pattern( aPattern );
             }
@@ -263,8 +247,7 @@ namespace moris
             /**
              * returns the active pattern
              */
-            auto
-            get_activation_pattern() const
+            auto get_activation_pattern() const
                 -> decltype( mBackgroundMesh->get_activation_pattern() )
             {
                 return  mBackgroundMesh->get_activation_pattern();
@@ -275,27 +258,22 @@ namespace moris
             /**
              * function needed for tests etc
              */
-            void
-            flag_element( const luint & aIndex );
-
+            void flag_element( const luint & aIndex );
 
 // -----------------------------------------------------------------------------
 
-            void
-            flag_parent( const luint & aIndex );
+            void flag_parent( const luint & aIndex );
 
 // -----------------------------------------------------------------------------
 
-            void
-            create_extra_refinement_buffer_for_level( const uint aLevel );
+            void create_extra_refinement_buffer_for_level( const uint aLevel );
 
 // -----------------------------------------------------------------------------
 
             /**
              * returns the communication table that is needed by FEM
              */
-            const Matrix< IdMat > &
-            get_communication_table() const
+            const Matrix< IdMat > & get_communication_table() const
             {
                 return mCommunicationTable;
             }
@@ -305,8 +283,7 @@ namespace moris
             /**
              * return pointer to parameter object ( const version )
              */
-            Parameters *
-            get_parameters()
+            Parameters * get_parameters()
             {
                 return mParameters;
             }
@@ -316,8 +293,7 @@ namespace moris
             /**
              * return pointer to parameter object ( const version )
              */
-            const Parameters *
-            get_parameters() const
+            const Parameters * get_parameters() const
             {
                 return mParameters;
             }
@@ -328,41 +304,35 @@ namespace moris
              * populates the member variables of the relevant nodes
              * with their T-Matrices
              */
-            void
-            finalize();
+            void finalize();
 
 // -----------------------------------------------------------------------------
 
             /**
              * needed for exodus output of cubic meshes, called by finalize
              */
-            void
-            add_extra_refinement_step_for_exodus();
+            void add_extra_refinement_step_for_exodus();
 
 // -----------------------------------------------------------------------------
 
             /**
              *  this function updates the meshes after an refinement step
              */
-            void
-            update_bspline_meshes();
+            void update_bspline_meshes();
 
-            void
-            update_lagrange_meshes();
+            void update_lagrange_meshes();
 
 // -----------------------------------------------------------------------------
 
             /**
              *  test that all relevant entitiy IDs are set
              */
-            void
-            check_entity_ids();
+            void check_entity_ids();
 
 // -----------------------------------------------------------------------------
 
             // tells if at least one element has been refined in this database
-            bool
-            have_refined_at_least_one_element() const
+            bool have_refined_at_least_one_element() const
             {
                 return mHaveRefinedAtLeastOneElement;
             }
@@ -372,8 +342,7 @@ namespace moris
             /**
              * returns a sideset based on its label
              */
-            const Side_Set &
-            get_output_side_set( const std::string & aLabel ) const
+            const Side_Set & get_output_side_set( const std::string & aLabel ) const
             {
                 return mOutputSideSets( mOutputSideSetMap.find( aLabel ) );
             }
@@ -382,24 +351,21 @@ namespace moris
             /**
              * returns list of all side sets
              */
-            const Cell< Side_Set > &
-            get_side_sets() const
+            const Cell< Side_Set > & get_side_sets() const
             {
                 return mOutputSideSets;
             }
 
 // -----------------------------------------------------------------------------
 
-            void
-            calculate_t_matrices_for_input();
+            void calculate_t_matrices_for_input();
 
 // -----------------------------------------------------------------------------
 
             /**
              * creates a union mesh of the input and the output patterns
              */
-            void
-            create_union_pattern()
+            void create_union_pattern()
             {
                 this->unite_patterns(
                         mParameters->get_lagrange_input_pattern(),
@@ -417,8 +383,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            create_meshes();
+            void create_meshes();
 
 // -----------------------------------------------------------------------------
 
@@ -426,8 +391,7 @@ namespace moris
              * this function deletes the Lagrange and B-Spline meshes
              * the function is called before create_meshes
              */
-            void
-            delete_meshes();
+            void delete_meshes();
 
 // -----------------------------------------------------------------------------
 
@@ -435,22 +399,18 @@ namespace moris
              * creates the communication table and writes it into
              * mCommunicationTable. Must be called after mesh has been finalized.
              */
-            void
-            create_communication_table();
-
+            void create_communication_table();
 
 // -----------------------------------------------------------------------------
 
             /**
              * creates the sidesets
              */
-            void
-            create_side_sets();
+            void create_side_sets();
 
 // -----------------------------------------------------------------------------
 
-            void
-            create_working_pattern_for_bspline_refinement();
+            void create_working_pattern_for_bspline_refinement();
 
 // -----------------------------------------------------------------------------
         };

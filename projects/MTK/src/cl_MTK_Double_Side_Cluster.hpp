@@ -23,21 +23,37 @@ class Double_Side_Cluster
      */
     moris::mtk::Side_Cluster * mLeftSideCluster;
     moris::mtk::Side_Cluster * mRightSideCluster;
+
+    /*!
+     * A one way pairing from left vertices to right vertices
+     */
+    moris::Cell<moris::mtk::Vertex const *> mLeftToRightVertexPairs;
+
+
 public:
     Double_Side_Cluster():
     mLeftSideCluster(nullptr),
     mRightSideCluster(nullptr){};
 
-    Double_Side_Cluster(moris::mtk::Side_Cluster * aLeftSideCluster,
-                        moris::mtk::Side_Cluster * aRightSideCluster):
+    Double_Side_Cluster(moris::mtk::Side_Cluster *                      aLeftSideCluster,
+                        moris::mtk::Side_Cluster *                     aRightSideCluster,
+                        moris::Cell<moris::mtk::Vertex const *> const & aLeftToRightVertexPair):
         mLeftSideCluster(aLeftSideCluster),
         mRightSideCluster(aRightSideCluster)
     {
         MORIS_ASSERT(this->get_left_num_sides() == this->get_right_num_sides(),"Number of sides in left cluster do not match the number in right cluster");
+
+        if(!this->is_left_trivial())
+        {
+            MORIS_ASSERT(this->get_left_num_vertices_in_cluster() == this->get_right_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
+        }
+
+        mLeftToRightVertexPairs.append(aLeftToRightVertexPair);
+
     };
 
     //##############################################
-    // Side Cluster traits acess
+    // Side Cluster traits access
     //##############################################
 
     /*!
@@ -93,10 +109,24 @@ public:
         return *mRightSideCluster;
     }
 
-    //----------------------------------------------------------------
-    // EVERYTHING BELOW THIS LINE HAS A DEFAULT IMPLEMENTATION
-    //----------------------------------------------------------------
+    //##############################################
+    // Vertex Pair Access
+    //##############################################
+    /*!
+     * Provided a vertex in the left cluster, returns the corresponding
+     * vertex in the right cluster.
+     */
+    moris::mtk::Vertex const *
+    get_left_vertex_pair(moris::mtk::Vertex const * aLeftVertex) const
+    {
+        moris_index tLeftClusterIndex = this->get_left_side_cluster().get_vertex_cluster_index(aLeftVertex);
 
+        MORIS_ASSERT(tLeftClusterIndex < (moris_index)mLeftToRightVertexPairs.size(),"Vertex index out of bounds in pairing.");
+
+        return mLeftToRightVertexPairs(tLeftClusterIndex);
+    }
+
+    //----------------------------------------------------------------
 
     //##############################################
     // Cell Side Ordinals/Vertex Access

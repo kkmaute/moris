@@ -352,16 +352,24 @@ namespace moris
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
 
+            // set flag whether 1st order lagrange mesh has been found
+            bool tFoundLagrMesh = false;
+
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k )
             {
-                // Renumber Lagrange nodes to be the same than B-Spline basis. Only serial and linear
-                if(  mParameters->get_renumber_lagrange_nodes() )
+                // Get Lagrange mesh
+                tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+
+                if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
                 {
-                    if (k ==1)
+                    // Renumber Lagrange nodes to be the same than B-Spline basis. Only serial and linear
+                    if( mParameters->get_renumber_lagrange_nodes() && tFoundLagrMesh == false && tMesh->get_order() == 1 )
                     {
                         tic tTimer;
 
-                        mDatabase->get_lagrange_mesh_by_index( k )->nodes_renumbering_hack_for_femdoc();
+                        tMesh->nodes_renumbering_hack_for_femdoc();
+
+                        tFoundLagrMesh = true;
 
                         // print output if verbose level is set
                         if ( mParameters->is_verbose() )
@@ -374,12 +382,6 @@ namespace moris
                                     ( double ) tElapsedTime / 1000 );
                         }
                     }
-                }
-
-                tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
-                {
 
                     // add order to path
                     std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
@@ -1160,10 +1162,10 @@ namespace moris
                                         const uint          aLagrangeOrder,
                                         const uint          aBSpineOrder )
         {
-            if(  mParameters->get_renumber_lagrange_nodes() )
-            {
-                MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
-            }
+            //if(  mParameters->get_renumber_lagrange_nodes() )
+            //{
+            //    MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
+            //}
 
             // opens an existing file with read and write access
             hid_t tFileID = open_hdf5_file( aFilePath );

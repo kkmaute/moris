@@ -59,12 +59,44 @@ public:
         return tCellInCluster;
     }
 
+    /*!
+     * get number of side sets
+     */
+    uint
+    get_num_side_sets() const
+    {
+        MORIS_ERROR(0,"get_num_side_sets not implemented in HMR");
+        return std::numeric_limits<moris_index>::max();
+    }
+
     moris::Cell<mtk::Side_Cluster const *>
     get_side_set_cluster(moris_index aSideSetOrdinal) const
     {
         MORIS_ERROR(0,"get_side_set_cluster not implemented in HMR");
         moris::Cell<mtk::Side_Cluster const *> tSideClusters(0);
         return tSideClusters;
+    }
+
+    /*!
+     * Returns the label
+     */
+    virtual
+    std::string
+    get_side_set_label(moris_index aSideSetOrdinal) const
+    {
+        MORIS_ERROR(0,"get_side_set_label not implemented in HMR Integration mesh");
+        return "ERROR";
+    }
+
+    /*!
+     * Returns the index given a label
+     */
+    virtual
+    moris_index
+    get_side_set_index(std::string aSideSetLabel) const
+    {
+        MORIS_ERROR(0,"get_side_set_index not implemented in HMR Integration mesh");
+        return std::numeric_limits<moris_index>::max();
     }
 
     uint

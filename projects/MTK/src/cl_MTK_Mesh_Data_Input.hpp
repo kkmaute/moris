@@ -53,6 +53,7 @@ namespace mtk
         // Node coordinates (row - node index, col - (x,y,z)
         Matrix < DDRMat >*              NodeCoords;
         moris::Cell<Matrix < IdMat >*>  LocaltoGlobalElemMap;
+        moris::Cell<enum CellTopology>  CellTopology;
         Matrix < IdMat >*               LocaltoGlobalNodeMap;
         bool                            CreateAllEdgesAndFaces;
         MtkFieldsInfo*                  FieldsInfo;
@@ -70,6 +71,7 @@ namespace mtk
             NodeProcsShared(nullptr),
             NodeCoords(),
             LocaltoGlobalElemMap(aNumElementTypes),
+            CellTopology(aNumElementTypes,CellTopology::INVALID),
             LocaltoGlobalNodeMap(),
             CreateAllEdgesAndFaces(true),
             FieldsInfo(),
@@ -85,6 +87,7 @@ namespace mtk
             NodeProcsShared(nullptr),
             NodeCoords(),
             LocaltoGlobalElemMap(1),
+            CellTopology(1,CellTopology::INVALID),
             LocaltoGlobalNodeMap(),
             CreateAllEdgesAndFaces(true),
             FieldsInfo(),

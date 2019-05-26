@@ -53,6 +53,7 @@ set(TEST_SOURCES
 	xtk/UT_MTK_Cell_Cluster_XTK_Impl.cpp
 	xtk/UT_XTK_Model_Unzip.cpp
 	xtk/UT_XTK_Model_Export.cpp
+	xtk/UT_XTK_Model_Extract_Surf_Mesh.cpp
 	)
 
 # List additional includes

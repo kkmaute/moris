@@ -67,8 +67,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         // special funciton for HMR
-        Facet *
-        Element::get_hmr_facet( const uint & aIndex )
+        Facet * Element::get_hmr_facet( const uint & aIndex )
         {
             MORIS_ERROR( false,
                     "get_lagrange_facet() cannot be called from this element type" );
@@ -77,8 +76,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        Element::set_hmr_facet( Facet * aFacet, const uint & aIndex )
+        void Element::set_hmr_facet( Facet * aFacet, const uint & aIndex )
         {
             MORIS_ERROR( false,
                     "set_hmr_facet() cannot be called from this element type" );
@@ -86,8 +84,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Edge *
-        Element::get_hmr_edge( const uint & aIndex )
+        Edge * Element::get_hmr_edge( const uint & aIndex )
         {
             MORIS_ERROR( false,
                     "get_hmr_edge() cannot be called from this element type" );
@@ -96,8 +93,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        const Edge *
-        Element::get_hmr_edge( const uint & aIndex ) const
+        const Edge * Element::get_hmr_edge( const uint & aIndex ) const
         {
             MORIS_ERROR( false,
                     "get_hmr_edge() cannot be called from this element type" );
@@ -106,8 +102,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        Element::set_hmr_edge( Edge * aEdge, const uint & aIndex )
+        void Element::set_hmr_edge( Edge * aEdge, const uint & aIndex )
         {
             MORIS_ERROR( false,
                     "set_hmr_edge() cannot be called from this element type" );

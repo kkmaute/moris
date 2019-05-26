@@ -38,6 +38,8 @@ public:
      */
     Integration_Mesh_STK(std::shared_ptr<Mesh_Data_STK> aSTKMeshData);
 
+    // ----------------------------------------------------------------------------
+
     /*!
      * Create a new integration mesh from file
      */
@@ -46,10 +48,14 @@ public:
             MtkMeshData*   aSuppMeshData,
             const bool     aCreateFacesAndEdges = true );
 
+    // ----------------------------------------------------------------------------
+
     /*!
      * Create a new integration mesh from data structure
      */
     Integration_Mesh_STK( MtkMeshData & aMeshData );
+
+    // ---------------------------------------------------------------------------
 
     /*!
      * Create a new integration mesh from data structure
@@ -57,6 +63,8 @@ public:
      */
     Integration_Mesh_STK( MtkMeshData & aMeshData,
                           Interpolation_Mesh* aInterpMesh);
+
+    // ----------------------------------------------------------------------------
 
     /*!
      * Create a integration mesh from an existing interpolation mesh
@@ -77,6 +85,8 @@ public:
     Cell_Cluster const &
     get_cell_cluster(Cell const & aInterpCell) const;
 
+    // ----------------------------------------------------------------------------
+
     /*
      * Get a cell cluster related to an interpolation
      * cell
@@ -84,24 +94,53 @@ public:
     Cell_Cluster const &
     get_cell_cluster(moris_index aInterpCellIndex) const;
 
+    // ----------------------------------------------------------------------------
+
+
     //##############################################
     // Block set with cluster access
     //##############################################
+    /*!
+     * Returns the block set names
+     */
     moris::Cell<std::string>
-    get_block_set_names() const
-    {
-        return mPrimaryBlockSetNames;
-    }
+    get_block_set_names() const;
+
+    // ----------------------------------------------------------------------------
+
 
     moris::Cell<Cell_Cluster const *>
     get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const;
 
+    // ----------------------------------------------------------------------------
 
     //##############################################
     // Side Set Cluster Access
     //##############################################
+
+    /*!
+     * Return a side set containing clusters
+     */
     moris::Cell<Side_Cluster const *>
     get_side_set_cluster(moris_index aSideSetOrdinal) const;
+
+    /*!
+     * Retuns the number of side sets
+     */
+    uint
+    get_num_side_sets() const;
+
+    /*!
+     * Returns the label
+     */
+    std::string
+    get_side_set_label(moris_index aSideSetOrdinal) const;
+
+    /*!
+     * Returns the index given a label
+     */
+    moris_index
+    get_side_set_index(std::string aSideSetLabel) const;
 
 
     //##############################################
@@ -143,14 +182,15 @@ private:
     moris::Cell<moris::Cell<moris::moris_index>> mPrimaryBlockSetClusters;
 
     // side sets
-    moris::Cell<std::string>                   mSideSetNames;
-    moris::Cell<moris::Cell<Side_Cluster_STK>> mSideSets;
+    std::unordered_map<std::string, moris_index> mSideSideSetLabelToOrd;
+    moris::Cell<std::string>                     mSideSetLabels;
+    moris::Cell<moris::Cell<Side_Cluster_STK>>   mSideSets;
 
     // double side sets
-    std::unordered_map<std::string, moris_index> mDoubleSideSetLabelToOrd;
-    moris::Cell<std::string> mDoubleSideSetLabels;
+    std::unordered_map<std::string, moris_index>  mDoubleSideSetLabelToOrd;
+    moris::Cell<std::string>                      mDoubleSideSetLabels;
     moris::Cell<moris::Cell<Double_Side_Cluster>> mDoubleSideSets;
-    moris::Cell<Side_Cluster_STK> mDoubleSideSetSideClusters;
+    moris::Cell<Side_Cluster_STK>                 mDoubleSideSetSideClusters;
 
     /*!
      * Setup the clustering interface

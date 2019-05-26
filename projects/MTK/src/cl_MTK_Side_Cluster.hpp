@@ -77,6 +77,7 @@ public:
     moris::Cell<moris::mtk::Vertex const *> const &
     get_vertices_in_cluster() const = 0;
 
+
     //##############################################
     // Local Coordinate Access
     // (Pure Virtual)
@@ -88,6 +89,13 @@ public:
     virtual
     moris::Matrix<moris::DDRMat> const &
     get_vertices_local_coordinates_wrt_interp_cell() const = 0;
+
+    /*
+     * Access vertex local index in cluster
+     */
+    virtual
+    moris::moris_index
+    get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const = 0;
 
     /*
      * Access a single local coordinate of a vertex
@@ -142,6 +150,8 @@ public:
         return get_interpolation_cell().get_index();
     }
 
+    // ---------------------------------------------
+
     virtual
     moris::Matrix<moris::IndexMat>
     get_vertex_indices_in_cluster() const
@@ -163,11 +173,7 @@ public:
 
          return tVertexIndices;
     }
-
     // ---------------------------------------------
-
-
-
     //##############################################
     // Cell/Vertex Id Access
     //##############################################

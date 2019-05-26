@@ -10,8 +10,7 @@ if(NOT SUITESPARSE_FOUND_ONCE)
             "SuiteSparse was found." FORCE)
         set(SUITESPARSE_INCLUDE_DIRS ${SUITESPARSE_INCLUDE_DIRS} CACHE INTERNAL "SuiteSparse include directories" FORCE)
     endif()
+    message(STATUS "SUITESPARSE_LIBRARIES: ${SUITESPARSE_LIBRARIES}")
 endif()
-
-message(STATUS "SUITESPARSE_LIBRARIES: ${SUITESPARSE_LIBRARIES}")
 
 include_directories(${SUITESPARSE_INCLUDE_DIRS})

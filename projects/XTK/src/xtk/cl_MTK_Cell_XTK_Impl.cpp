@@ -25,6 +25,20 @@ namespace mtk
                            mChildMeshPtr(aChildMeshPtr),
                            mBackgroundMeshPtr(aBackgroundMeshPtr)
                            {}
+
+    moris::Cell< Vertex* >
+    Cell_XTK::get_vertex_pointers() const
+    {
+        Matrix< IndexMat > tVertexIndices = this->get_vertex_inds();
+        moris::Cell< Vertex* > tVertices(tVertexIndices.numel());
+
+        for(moris::uint  i = 0; i < tVertices.size(); i++)
+        {
+            tVertices(i) = &mBackgroundMeshPtr->get_mtk_vertex(tVertexIndices(i));
+        }
+        return tVertices;
+    }
+
     // ----------------------------------------------------------------------------------
     // Cell get functions
     // ----------------------------------------------------------------------------------

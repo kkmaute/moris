@@ -29,11 +29,11 @@ if(NOT EIGEN_FOUND_ONCE)
         Eigen_DIR
         )
     
-    message(STATUS "EIGEN3_FOUND: ${EIGEN3_FOUND}")
-    
     if(EIGEN3_FOUND)
         set(EIGEN_FOUND_ONCE TRUE CACHE INTERNAL "Eigen was found.")
     endif()
+    
+    message(STATUS "EIGEN3_ROOT_DIR: ${EIGEN3_ROOT_DIR}")
 else()
     include(${MORIS_EIGEN_TARGETS})
 endif()
