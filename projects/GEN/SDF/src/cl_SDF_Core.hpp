@@ -183,7 +183,7 @@ namespace moris
             void
             get_nodes_withing_bounding_box_of_triangle(
                             Triangle * aTriangle, moris::Cell< Vertex* > & aNodes,
-							moris::Cell< Vertex * > & aCandList ); //==============================
+							moris::Cell< Vertex * > & aCandList );
 
 //-------------------------------------------------------------------------------
 

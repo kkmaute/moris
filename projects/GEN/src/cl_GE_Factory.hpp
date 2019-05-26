@@ -39,7 +39,7 @@ namespace moris
     	     *
     	     */
     		std::shared_ptr< Geometry >
-    		set_geometry_type( const enum type aGeomType = type::ANALYTIC );
+    		set_geometry_type( const enum GeomType aGeomType = GeomType::ANALYTIC );
 
 
         private:

@@ -14,21 +14,24 @@ set(HEADERS
     cl_GE_Factory.hpp
     cl_GE_Geometry_Library.hpp
     cl_GE_Geometry.hpp
-    cl_GE_Interface.hpp
   	cl_GE_Node.hpp
-  	cl_GE_Output_Object.hpp
+  	cl_GE_Nodal_Info.hpp
+  	cl_GE_Primitive.hpp
  	cl_GE_SDF.hpp 
     )
 
 # List header dependencies
 set(GEN_INCLUDES
+    ${GEN}
     ${COM}
     ${FEM}
-    ${FEM}/${INT}  # for L2    
+    ${FEM}/${INT}  
     ${HMR}
     ${IOS}
     ${LINALG}
     ${MTK}
+    ${MTK}/${MAP} 
+    ${SDF}
     ${TOL}
     )
 
@@ -45,8 +48,6 @@ include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
 # List library source files
 set(LIB_SOURCES
     cl_GE_Factory.cpp
-    cl_GE_Interface.cpp
-    cl_GE_SDF.cpp
     )
 
 # List library dependencies

@@ -298,7 +298,7 @@ main( int    argc,
      */
 
     Ge_Factory tFactory;
-    std::shared_ptr< Geometry > circle = tFactory.set_geometry_type(type::DISCRETE);
+    std::shared_ptr< Geometry > circle = tFactory.set_geometry_type(GeomType::DISCRETE);
     circle->set_my_constants( tInputs );
 
     Cell<std::string> tFields(1);   // cell of field names

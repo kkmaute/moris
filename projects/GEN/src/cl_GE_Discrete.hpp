@@ -29,16 +29,103 @@ namespace ge
          * note: this is taken from XTK's discrete geometry class, currently merging into a general Geometry Engine
          */
     public:
-        Discrete(){};
+        Discrete()
+        {
+            mMySpaceInterpType  = fem::Interpolation_Type::LAGRANGE;
+            mMySpaceInterpOrder = mtk::Interpolation_Order::LINEAR;
+            mMyTimeInterpType   = fem::Interpolation_Type::CONSTANT;
+            mMyTimeInterpOrder  = mtk::Interpolation_Order::CONSTANT;
+        };
 
         ~Discrete(){};
         //------------------------------------------------------------------------------
         /*
-         * @brief function to report if geometry representation type
+         * @brief function to report geometry representation type
          */
-        enum type get_geom_type() const
+        enum GeomType
+        get_geom_type() const
         {
-            return type::DISCRETE;
+            return GeomType::DISCRETE;
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief set associated mesh
+         */
+        void
+        set_my_mesh(mtk::Mesh_Manager* aMyMesh)
+        {
+            MORIS_ASSERT( mMyMesh != nullptr, "ge::Geometry::get_my_mesh(): the associated mesh has not been set" );
+            mMyMesh = aMyMesh;
+        }
+        //------------------------------------------------------------------------------
+        void
+        set_my_interpolation_rules( fem::Interpolation_Type  aSpaceInterpType,
+                                    mtk::Interpolation_Order aSpaceInterpOrder,
+                                    fem::Interpolation_Type  aTimeInterpType  = fem::Interpolation_Type::CONSTANT,
+                                    mtk::Interpolation_Order aTimeInterpOrder = mtk::Interpolation_Order::CONSTANT )
+        {
+            mMySpaceInterpType  = aSpaceInterpType;
+            mMySpaceInterpOrder = aSpaceInterpOrder;
+            mMyTimeInterpType   = aTimeInterpType;
+            mMyTimeInterpOrder  = aTimeInterpOrder;
+        }
+        //------------------------------------------------------------------------------
+        void
+        set_my_target_field( std::shared_ptr< hmr::Field > &aField )
+        {
+            MORIS_ASSERT(mMyMesh->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR, "ge::Discrete::set_my_target_field(): currently only set for use with an hmr field");
+            mMyTargetField = aField;
+        }
+        //------------------------------------------------------------------------------
+        void
+        set_my_output_field( std::shared_ptr< hmr::Field > &aField )
+        {
+            MORIS_ASSERT(mMyMesh->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR, "ge::Discrete::set_my_target_field(): currently only set for use with an hmr field");
+            mMyOutputField = aField;
+        }
+        //------------------------------------------------------------------------------
+        std::shared_ptr< hmr::Field >
+        get_my_target_field()
+        {
+            MORIS_ASSERT( mMyTargetField != nullptr, "ge::Geometry::get_my_target_field(): target field not set, make sure to set the field before using geometry rep" );
+            return mMyTargetField;
+        }
+        //------------------------------------------------------------------------------
+        std::shared_ptr< hmr::Field >
+        get_my_output_field()
+        {
+            MORIS_ASSERT( mMyOutputField != nullptr, "ge::Geometry::get_my_output_field(): output field not set, make sure to set the field before using geometry rep" );
+            return mMyOutputField;
+        }
+        //------------------------------------------------------------------------------
+        mtk::Mesh_Manager*
+        get_my_mesh()
+        {
+            return mMyMesh;
+        }
+        //------------------------------------------------------------------------------
+        fem::Interpolation_Type
+        get_my_space_interpolation_type()
+        {
+            return mMySpaceInterpType;
+        }
+        //------------------------------------------------------------------------------
+        mtk::Interpolation_Order
+        get_my_space_interpolation_order()
+        {
+            return mMySpaceInterpOrder;
+        }
+        //------------------------------------------------------------------------------
+        fem::Interpolation_Type
+        get_my_time_interpolation_type()
+        {
+            return mMyTimeInterpType;
+        }
+        //------------------------------------------------------------------------------
+        mtk::Interpolation_Order
+        get_my_time_interpolation_order()
+        {
+            return mMyTimeInterpOrder;
         }
         //------------------------------------------------------------------------------
         /*
@@ -94,6 +181,17 @@ namespace ge
 
         //------------------------------------------------------------------------------
     private:
+        moris::Cell< real > mMyConstants = 0.0;
+        mtk::Mesh_Manager*  mMyMesh = nullptr;
+        std::shared_ptr< hmr::Field > mMyTargetField = nullptr;   // currently only set up for hmr::field, need generalized field class?
+        std::shared_ptr< hmr::Field > mMyOutputField = nullptr;   // reiterate above; note that this is the field resulting from the map of the target field
+
+        fem::Interpolation_Type  mMySpaceInterpType;
+        mtk::Interpolation_Order mMySpaceInterpOrder;
+        fem::Interpolation_Type  mMyTimeInterpType;
+        mtk::Interpolation_Order mMyTimeInterpOrder;
+
+        // don't think these are necessary anymore?
         moris::size_t     mNumLevelSets;
         moris::size_t     mActiveLevelSetIndex;
         Cell<std::string> mLevelSetFieldNames;

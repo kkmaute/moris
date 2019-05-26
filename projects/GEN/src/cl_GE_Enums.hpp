@@ -12,11 +12,14 @@ namespace moris
 {
 	namespace ge
 	{
-		enum class type{
+		enum class GeomType{
 // geometry pointer types
 			ANALYTIC,
 			DISCRETE,
 			SDF,
+			END_ENUM
+		};
+		enum class AnalyticType{
 // analytic geometry types
 			CIRCLE,
 			COMPOSITE_FIBER,
@@ -31,8 +34,18 @@ namespace moris
 			PLANE,
 			SPHERE,
 			SPIRAL,
-// end of enums
 			END_ENUM
+		};
+		enum class NodalValType{
+// nodal information types
+			FIELDVALS,
+			SENSITIVITIES,
+			NORMALS,
+			END_ENUM
+		};
+		enum class IntersectionObjectType{
+		    LINE,
+		    END_ENUM
 		};
 	} /* namespace gen */
 } /* namespace moris */

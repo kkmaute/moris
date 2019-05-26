@@ -14,16 +14,19 @@ namespace moris
         Ge_Factory::Ge_Factory(){}
         Ge_Factory::~Ge_Factory(){}
 
-        std::shared_ptr< Geometry > Ge_Factory::set_geometry_type( const enum type aGeomType )
+        std::shared_ptr< Geometry > Ge_Factory::set_geometry_type( const enum GeomType aGeomType )
         {
             std::shared_ptr< Geometry > tGeomPointer = nullptr;
             switch(aGeomType)
             {
-            case(type::ANALYTIC):
+            case(GeomType::ANALYTIC):
                     tGeomPointer = std::make_shared< Analytic >();
                     break;
-            case(type::DISCRETE):
+            case(GeomType::DISCRETE):
                     tGeomPointer = std::make_shared< Discrete >();
+                    break;
+            case(GeomType::SDF):
+                    tGeomPointer = std::make_shared< SDF >();
                     break;
             default:
                     MORIS_ERROR(false, "Ge_Factory::set_geometry_type() please input a valid geometry type");

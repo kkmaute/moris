@@ -11,11 +11,10 @@ set(TEST_SOURCES
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
     
-    GE_Test_Proxy/cl_GE_Interface_Proxy.cpp
     cl_GE_test.cpp
     geometry_classes/cl_GE_test_analytic.cpp
     geometry_classes/cl_GE_test_discrete.cpp
-    cl_GE_test_with_interface.cpp
+    geometry_classes/cl_GE_test_sdf.cpp
     )
 
 # List test includes

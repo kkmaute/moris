@@ -5,11 +5,11 @@ namespace ge {
 	     
 	Tutorials for using the GE module:
 	
-	1)  The first tutorial...
+	1)  The first geometry tutorial goes over setting up an analytic representaion and using it with the geometry engine. 
 	
-	2)	The second tutorial ...
+	2)	The second geometry tutorial goes over setting up a discrete representaion and using it with the geometry engine.
 	
-	3)	The third tutorial ...
+	3)	The third geometry tutorial goes over setting up a signed distance field representaiton and using it with the geometry engine.
 	
 	...
 	

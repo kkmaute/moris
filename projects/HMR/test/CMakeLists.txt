@@ -18,8 +18,11 @@ set(TEST_SOURCES
 set(TEST_INCLUDES
     ${LINALG}
     ${COM}
+    ${FEM}
+    ${FEM}/${INT}
     ${HMR}
     ${MTK}
+    ${MTK}/${MAP}
     ${ALG} #MTK
     ${TOL} #MTK
     ${XTK} #MTK

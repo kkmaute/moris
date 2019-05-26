@@ -8,20 +8,25 @@
 #ifndef PROJECTS_GEN_SRC_CL_GEOMETRY_HPP_
 #define PROJECTS_GEN_SRC_CL_GEOMETRY_HPP_
 
+// fem includes
+#include "cl_FEM_Enums.hpp"
+
 // ge includes
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Enums.hpp"
-#include "cl_GE_Interface.hpp"
 #include "cl_GE_Geometry_Library.hpp"
-//------------------------------------------------------------------------------
+
+// hmr includes
+#include "../projects/HMR/src/cl_HMR_Field.hpp"
+
 // linalg includes
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_norm.hpp"
-//------------------------------------------------------------------------------
+
 // mtk includes
 #include "cl_MTK_Mesh_Manager.hpp"
-//------------------------------------------------------------------------------
+
 // other includes
 #include <cmath>
 //------------------------------------------------------------------------------
@@ -45,10 +50,28 @@ namespace ge
 		 * *****************************************************************************
 		 */
         //------------------------------------------------------------------------------
+        /*
+         * @brief check that the analytic function have been set before attempting to use them
+         */
+        virtual void
+        check_if_functions_are_set()
+        {
+            MORIS_ASSERT(false, "ge::Geometry::chekc_if_functions_are_set(): not implemented");
+        };
+        //------------------------------------------------------------------------------
+        /*
+         * @brief sets the constants necessary for the specific geometry rep
+         */
+        virtual void
+        set_my_constants( moris::Cell< real > aMyConstants )
+        {
+            MORIS_ASSERT(false, "ge::Geometry::set_my_constants(): not implemented for this type of geometry representaion");
+        }
+        //------------------------------------------------------------------------------
 		virtual void
 		set_analytical_function( real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ) )
 		{
-		    MORIS_ASSERT(false,"set_analytical_function(): please specify your own analytic function");
+		    MORIS_ASSERT(false,"ge::Geometry::set_analytical_function(): please specify your own analytic function");
 		};
 		//------------------------------------------------------------------------------
 		virtual void
@@ -58,48 +81,46 @@ namespace ge
                                                               Cell<moris::real>       & aLength,
                                                               Cell<Cell<moris::real>> & aAxis ) )
         {
-		    MORIS_ASSERT(false,"set_analytical_function(): please choose a valid function");
+		    MORIS_ASSERT(false,"ge::Geometry::set_analytical_function(): please choose a valid function");
         };
         //------------------------------------------------------------------------------
         virtual void
-        set_analytical_function( type aGeomType )
+        set_analytical_function( AnalyticType aGeomType )
         {
-            MORIS_ASSERT(false,"set_analytical_function(): please choose a valid function");
-        };
-
-        //------------------------------------------------------------------------------
-        virtual
-        void set_analytical_function_dphi_dx( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ) )
-        {
-            MORIS_ASSERT(false,"set_analytical_function_dphi_dx(): please specify your own analytic function dphi/dx");
+            MORIS_ASSERT(false,"ge::Geometry::set_analytical_function(): please choose a valid function");
         };
 
         //------------------------------------------------------------------------------
         virtual void
-        set_analytical_function_dphi_dx( type aGeomType )
+        set_analytical_function_dphi_dx( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ) )
         {
-            MORIS_ASSERT(false,"set_analytical_function_dphi_dx(): please choose a valid dphi/dx function");
+            MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_dphi_dx(): please specify your own analytic function dphi/dx");
+        };
+
+        //------------------------------------------------------------------------------
+        virtual void
+        set_analytical_function_dphi_dx( AnalyticType aGeomType )
+        {
+            MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_dphi_dx(): please choose a valid dphi/dx function");
         };
 
         //------------------------------------------------------------------------------
         virtual real
-        get_field_val_at_coordinate( const Matrix< DDRMat > & aPoint, moris::Cell< real > aConst = 0.0 )
+        get_field_val_at_coordinate( const Matrix< DDRMat > & aPoint )
         {
-            MORIS_ASSERT(false,"get_field_val_at_coordinate(): function not implemented");
+            MORIS_ASSERT(false,"ge::Geometry::get_field_val_at_coordinate(): function not implemented");
             return 0.0;
         };
 
         //------------------------------------------------------------------------------
 
         virtual Matrix< DDRMat >
-        get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint,
-                                                     moris::Cell< real > aConst)
+        get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint )
         {
-            MORIS_ASSERT(false,"get_sensitivity_dphi_dp_at_coordinate(): function not implemented");
+            MORIS_ASSERT(false,"ge::Geometry::get_sensitivity_dphi_dp_at_coordinate(): function not implemented");
             Matrix< DDRMat > tSensitivityDxDp(4, 3, 0.0);
             return tSensitivityDxDp;
         };
-
         //------------------------------------------------------------------------------
         /*
          * *****************************************************************************
@@ -110,7 +131,7 @@ namespace ge
         virtual moris::Matrix< moris::IndexMat >
         get_node_adv_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
         {
-            MORIS_ASSERT(false,"get_node_adv_indices(): function not implemented");
+            MORIS_ASSERT(false,"ge::Geometry::get_node_adv_indices(): function not implemented");
             Matrix< IndexMat > tTemp(1,1);
             tTemp(0,0) = 0.0;
             return tTemp;
@@ -129,7 +150,7 @@ namespace ge
         access_field_value_with_entity_index(moris::moris_index aEntityIndex,
                                              enum EntityRank    aEntityRank) const
         {
-            MORIS_ASSERT(false,"access_field_value_with_entity_index(): function not implemented");
+            MORIS_ASSERT(false,"ge::Geometry::access_field_value_with_entity_index(): function not implemented");
             return 0.0;
         }
 
@@ -137,7 +158,7 @@ namespace ge
         virtual moris::Matrix< moris::DDRMat >
         evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, enum EntityRank aEntityRank)
         {
-            MORIS_ASSERT(false,"evaluate_sensitivity_dx_dp(): function not implemented");
+            MORIS_ASSERT(false,"ge::Geometry::evaluate_sensitivity_dx_dp(): function not implemented");
 
             moris::Matrix< moris::DDRMat > tSensitivityDxDp(1,1,0);
             return tSensitivityDxDp;
@@ -147,7 +168,7 @@ namespace ge
         virtual std::string const &
         get_active_level_set_field_name() const
         {
-            MORIS_ASSERT(false, "get_active_level_set_field_name(): function not implemented");
+            MORIS_ASSERT(false, "ge::Geometry::get_active_level_set_field_name(): function not implemented");
 
             return mDummyReturnString;
         }
@@ -157,71 +178,162 @@ namespace ge
         set_member_variables(moris::mtk::Mesh_Manager*   aMeshWithLevelSetFields,
                              Cell<std::string> const   & aFieldNames)
         {
-            MORIS_ASSERT(false, "set_member_variables(): not implemented");
-        }
-        /*
-         * *****************************************************************************
-         * ************************* FUNCTIONS FOR BOTH TYPES **************************
-         * *****************************************************************************
-         */
-        //------------------------------------------------------------------------------
-        /*
-         * @brief function to report if geometry representation type
-         */
-        virtual enum type
-        get_geom_type() const
-        {
-            return type::END_ENUM;
+            MORIS_ASSERT(false, "ge::Geometry::set_member_variables(): not implemented");
         }
 
+        //------------------------------------------------------------------------------
+        //fixme not sure what to pass in here, need generalized MTK field class or something similar
+        //      to directly add the field to the mesh
+        virtual void
+        set_my_target_field( std::shared_ptr< hmr::Field > &aField )
+        {
+            MORIS_ASSERT(false, "ge::Geometry::set_my_target_field(): not implemented");
+        }
+        //------------------------------------------------------------------------------
+        virtual void
+        set_my_output_field( std::shared_ptr< hmr::Field > &aField )
+        {
+            MORIS_ASSERT(false, "ge::Geometry::set_my_target_field(): not implemented");
+        }
+        //------------------------------------------------------------------------------
+        virtual std::shared_ptr< hmr::Field >
+        get_my_target_field()
+        {
+            MORIS_ASSERT( false, "ge::Geometry::get_my_target_field(): not implemented" );
+            return mDummyField;
+        }
+        //------------------------------------------------------------------------------
+        virtual std::shared_ptr< hmr::Field >
+        get_my_output_field()
+        {
+            MORIS_ASSERT( false, "ge::Geometry::get_my_output_field(): not implemented" );
+            return mDummyField;
+        }
+        /*
+         * *****************************************************************************
+         * ************************* SDF GEOMETRY FUNCTIONS ****************************
+         * *****************************************************************************
+         */
+        virtual void
+        add_hmr_field( std::shared_ptr< hmr::Field > &aField )
+        {
+            MORIS_ASSERT(false, "ge::Geometry::add_hmr_field(): not implemented");
+        }
+        //------------------------------------------------------------------------------
+        virtual void
+        initialize_sdf( const std::string & aObjectPath,
+                        std::shared_ptr< mtk::Mesh > aMTKMesh,
+                        const bool aVerboseFlag = true,
+                        const uint aFieldIndex = 0 )
+        {
+            MORIS_ASSERT(false, "ge::Geometry::initalize_sdf(): not implemented");
+        }
+        //------------------------------------------------------------------------------
+        virtual real
+        get_sdf_vals( moris_index )
+        {
+            MORIS_ASSERT(false, "ge::Geometry::get_sdf_val_at_node_index(): not implemented");
+            return 0.0;
+        }
+
+        /*
+         * *****************************************************************************
+         * ************************* FUNCTIONS FOR ALL TYPES ***************************
+         * *****************************************************************************
+         */
         //------------------------------------------------------------------------------
         /*
          * @brief set the mesh for the geometry representation
          */
-        void
-        set_mesh(mtk::Mesh_Manager & aMyMesh)
+        virtual void
+        set_my_mesh(mtk::Mesh_Manager* aMyMesh)
         {
-            mMyMesh = & aMyMesh;
+            MORIS_ASSERT(false, "ge::Geometry::set_mesh(): mesh not set");
         }
         //------------------------------------------------------------------------------
         /*
-         * @brief sets the constants necessary for the specific geometry rep
+         * @brief sets the interpolation type and rule in both space and time, if these are not directly set, they are defaulted to linear Legrange in
+         *        space and constant in time
          */
-        void
-        set_my_constants( moris::Cell< real > aMyConstants )
+        virtual void
+        set_my_interpolation_rules( fem::Interpolation_Type  aSpaceInterpType,
+                                    mtk::Interpolation_Order aSpaceInterpOrder,
+                                    fem::Interpolation_Type  aTimeInterpType  = fem::Interpolation_Type::CONSTANT,
+                                    mtk::Interpolation_Order aTimeInterpOrder = mtk::Interpolation_Order::CONSTANT )
         {
-            mMyConstants = aMyConstants;
+            MORIS_ERROR( false, "ge::Geometry::set_my_interpolation_rules(): not implemented" );
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief add fields to the mesh associated with the geometry representation
+         */
+        virtual void
+        add_field()
+        {
+            MORIS_ASSERT(false, "ge::Geometry::add_field(): not implemented");
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief function to report geometry representation type
+         */
+        virtual enum GeomType
+        get_geom_type() const
+        {
+            MORIS_ASSERT(false, "ge::Geometry::get_geom_type(): not implemented");
+            return GeomType::END_ENUM;
         }
         //------------------------------------------------------------------------------
         /*
          * @brief returns a pointer to the geometry object's mesh
          */
-        mtk::Mesh_Manager*
+        virtual mtk::Mesh_Manager*
         get_my_mesh()
         {
-            return mMyMesh;
+            MORIS_ASSERT(false, "ge::Geometry::get_my_mesh(): mesh has not been set");
+            return mDummyMeshPointer;
         }
         //------------------------------------------------------------------------------
         /*
          * @brief returns the geometry object's specific constants
          */
-        moris::Cell< real >
+        virtual moris::Cell< real >
         get_my_constants()
         {
-            return mMyConstants;
+            MORIS_ASSERT(false, "ge::Geometry::get_my_constants(): constants not set");
+            return 0.0;
         }
-
-
+        //------------------------------------------------------------------------------
+        virtual fem::Interpolation_Type
+        get_my_space_interpolation_type()
+        {
+            return fem::Interpolation_Type::LAGRANGE;
+        }
+        //------------------------------------------------------------------------------
+        virtual mtk::Interpolation_Order
+        get_my_space_interpolation_order()
+        {
+            return mtk::Interpolation_Order::LINEAR;
+        }
+        //------------------------------------------------------------------------------
+        virtual fem::Interpolation_Type
+        get_my_time_interpolation_type()
+        {
+            return fem::Interpolation_Type::LAGRANGE;
+        }
+        //------------------------------------------------------------------------------
+        virtual mtk::Interpolation_Order
+        get_my_time_interpolation_order()
+        {
+            return mtk::Interpolation_Order::LINEAR;
+        }
 	//------------------------------------------------------------------------------
     private:
-        mtk::Mesh_Manager*  mMyMesh;
-        moris::Cell< real > mMyConstants;
-
         // dummy member variables
         std::string mDummyReturnString;
         Cell<std::string> mDummyReturnCell;
-        mtk::Mesh* mDummyMeshPointer = nullptr;
+        mtk::Mesh_Manager* mDummyMeshPointer = nullptr;
         Matrix< DDRMat > mDummyMatrix;
+        std::shared_ptr< hmr::Field > mDummyField = nullptr;
 	//------------------------------------------------------------------------------
     protected:
 

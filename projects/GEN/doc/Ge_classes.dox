@@ -27,13 +27,10 @@ namespace ge {
 <b>Geometry</b><br>
 
 
-<b>Interface</b><br>
+<b>Nodal_Info</b><br>
 
 
 <b>Node</b><br>
-
-
-<b>Output_Object</b><br>
 
 
 <b>SDF</b><br>

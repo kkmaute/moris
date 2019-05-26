@@ -8,7 +8,7 @@
 #ifndef PROJECTS_GEN_SRC_CL_GE_GEOMETRY_LIBRARY_HPP_
 #define PROJECTS_GEN_SRC_CL_GE_GEOMETRY_LIBRARY_HPP_
 
-
+#include "fn_norm.hpp"
 namespace moris{
 namespace ge{
 //------------------------------------------------------------------------------
@@ -26,18 +26,26 @@ circle_function( const Matrix< DDRMat > & aPoint,
     // aInputs(1) = y location of center
     // aInputs(2) = radius
 
-      return (std::pow((aPoint(0,0) - aInputs(0)),2) + std::pow((aPoint(0,1) - aInputs(1)),2) - std::pow(aInputs(2),2));
+    Matrix< DDRMat > tCenter(1,2);
+    tCenter(0) = aInputs(0); tCenter(1) = aInputs(1);
+
+    return norm(aPoint-tCenter) - aInputs(2);   // using this form linearizes the circle equation
+//    return std::pow((aPoint(0,0) - aInputs(0)),2) + std::pow((aPoint(0,1) - aInputs(1)),2) - std::pow(aInputs(2),1);  // using this form results in a non-linear circle equaiton
 }
 //------------------------------------------------------------------------------
 Matrix< DDRMat >
 circle_function_dphi_dx( const Matrix< DDRMat > & aPoint,
                                Cell< real >       aInputs )
 {
+    real tXc = aInputs(0);
+    real tYc = aInputs(1);
+    real tR  = aInputs(2);
+
     moris::Matrix< DDRMat > tSensitivity( 3, 2, 0.0 );
     moris::real tSign = 0.0;
 
     // dx/dr = r/sqrt(r^2 - y^2)
-    moris::real tSqrt = aInputs(2)*aInputs(2) - std::pow((aPoint(1)-aInputs(1)),2);
+    moris::real tSqrt = tR*tR - std::pow((aPoint(1)-tYc),2);
     if(tSqrt < 0.0)
     {
         tSign = -1.0;
@@ -50,10 +58,10 @@ circle_function_dphi_dx( const Matrix< DDRMat > & aPoint,
     {
         std::cout << "zero denominator detected";
     }
-    tSensitivity(0,0) = tSign * aInputs(2) / std::sqrt(std::abs(tSqrt));
+    tSensitivity(0,0) = tSign * tR / std::sqrt(std::abs(tSqrt));
 
     // dy/dr = r/sqrt(r^2 - x^2)
-    tSqrt = aInputs(2)*aInputs(2) - std::pow((aPoint(0)-aInputs(0)),2);
+    tSqrt = tR*tR - std::pow((aPoint(0)-tXc),2);
     if(tSqrt < 0.0)
     {
         tSign = -1.0;
@@ -66,7 +74,7 @@ circle_function_dphi_dx( const Matrix< DDRMat > & aPoint,
     {
         std::cout << "zero denominator detected";
     }
-    tSensitivity(0,1) = tSign * aInputs(2) / std::sqrt(std::abs(tSqrt));
+    tSensitivity(0,1) = tSign * tR / std::sqrt(std::abs(tSqrt));
 
     // fill remaining values in tSensitivity
     tSensitivity(1,0) = 1.0; // dx/dxc
@@ -83,24 +91,34 @@ sphere_function( const Matrix< DDRMat > & aCoordinate,
 {   /* aCoordinate = point vector to determine value at (x,y,z)
      * aInputs(0)  = x location of center;      aInputs(1)  = y location of center
      * aInputs(2)  = z location of center;      aInputs(3)  = radius of sphere */
-    real tFuncVal = (aCoordinate(0,0) - aInputs(0))*(aCoordinate(0,0) - aInputs(0)) +
-                    (aCoordinate(0,1) - aInputs(1))*(aCoordinate(0,1) - aInputs(1)) +
-                    (aCoordinate(0,2) - aInputs(2))*(aCoordinate(0,2) - aInputs(2)) -
-                    (aInputs(3)*aInputs(3));
-    return tFuncVal;
+    Matrix< DDRMat > tCenterVec(1,3);   // (x,y,z)
+    tCenterVec(0,0) = aInputs(0);
+    tCenterVec(0,1) = aInputs(1);
+    tCenterVec(0,2) = aInputs(2);
+    return norm( aCoordinate - tCenterVec ) - aInputs(3);     //linearized form of the sphere equation
+
+//    real tFuncVal = (aCoordinate(0,0) - aInputs(0))*(aCoordinate(0,0) - aInputs(0)) +
+//                    (aCoordinate(0,1) - aInputs(1))*(aCoordinate(0,1) - aInputs(1)) +
+//                    (aCoordinate(0,2) - aInputs(2))*(aCoordinate(0,2) - aInputs(2)) -
+//                    (aInputs(3)*aInputs(3));
+//    return tFuncVal;
 }
 //------------------------------------------------------------------------------
 Matrix< DDRMat >
 sphere_function_dphi_dx( const Matrix< DDRMat > & aCoordinate,
                                Cell< real>        aInputs)
 {
+    real tXc = aInputs(0);
+    real tYc = aInputs(1);
+    real tZc = aInputs(2);
+    real tR  = aInputs(3);
     moris::Matrix< moris::DDRMat > tSensitivityDxDp(4, 3, 0.0);
 
     moris::real sign = 0.0;
 
     // dx/dr
-    moris::real tSqrt = aInputs(3) * aInputs(3) - (aCoordinate(1) - aInputs(1)) * (aCoordinate(1) - aInputs(1))
-                                  - (aCoordinate(2) - aInputs(2)) * (aCoordinate(2) - aInputs(2));
+    moris::real tSqrt = tR * tR - (aCoordinate(1) - tYc) * (aCoordinate(1) - tYc)
+                                  - (aCoordinate(2) - tZc) * (aCoordinate(2) - tZc);
 
     if(tSqrt < 0.0)
     {
@@ -115,11 +133,11 @@ sphere_function_dphi_dx( const Matrix< DDRMat > & aCoordinate,
         std::cout << "zero denominator detected";
     }
 
-    tSensitivityDxDp(0, 0) = sign * aInputs(3) / std::sqrt(std::abs(tSqrt));
+    tSensitivityDxDp(0, 0) = sign * tR/ std::sqrt(std::abs(tSqrt));
 
     //dy/dr
-    tSqrt = aInputs(3) * aInputs(3) - (aCoordinate(0) - aInputs(0)) * (aCoordinate(0) - aInputs(0))
-                             - (aCoordinate(2) - aInputs(2)) * (aCoordinate(2) - aInputs(2));
+    tSqrt = tR * tR - (aCoordinate(0) - tXc) * (aCoordinate(0) - tXc)
+                             - (aCoordinate(2) - tZc) * (aCoordinate(2) - tZc);
 
     if(tSqrt < 0.0)
     {
@@ -130,13 +148,15 @@ sphere_function_dphi_dx( const Matrix< DDRMat > & aCoordinate,
         sign = 1.0;
     }
     else
+    {
         std::cout << "zero denominator detected";
+    }
 
-    tSensitivityDxDp(0, 1) = aInputs(3) / std::sqrt(std::abs(tSqrt));
+    tSensitivityDxDp(0, 1) = tR / std::sqrt(std::abs(tSqrt));
 
     //dz/dr
-    tSqrt = aInputs(3) * aInputs(3) - (aCoordinate(0) - aInputs(0)) * (aCoordinate(0) - aInputs(0))
-                             - (aCoordinate(1) - aInputs(1)) * (aCoordinate(1) - aInputs(1));
+    tSqrt = tR*tR - (aCoordinate(0) - tXc) * (aCoordinate(0) - tXc)
+                             - (aCoordinate(1) - tYc) * (aCoordinate(1) - tYc);
     if(tSqrt < 0.0)
     {
         sign = -1.0;
@@ -146,9 +166,10 @@ sphere_function_dphi_dx( const Matrix< DDRMat > & aCoordinate,
         sign = 1.0;
     }
     else
+    {
         std::cout << "zero denominator detected";
-
-    tSensitivityDxDp(0, 2) = sign * aInputs(3) / std::sqrt(std::abs(tSqrt));
+    }
+    tSensitivityDxDp(0, 2) = sign*tR / std::sqrt(std::abs(tSqrt));
 
     tSensitivityDxDp(1, 0) = 1.0; // dx/dxc
     tSensitivityDxDp(1, 1) = 0.0; // dy/dxc
@@ -166,11 +187,15 @@ sphere_function_dphi_dx( const Matrix< DDRMat > & aCoordinate,
 real
 plane_function( const Matrix< DDRMat > & aCoordinates,
                       Cell< real>        aInputs)
-{   /* aInputs(0) = aXc;     aInputs(1) = aYc;
-     * aInputs(2) = aZc;     aInputs(3) = aXn;
-     * aInputs(4) = aYn;     aInputs(5) = aZn;     */
+{
+    real tXc = aInputs(0);
+    real tYc = aInputs(1);
+    real tZc = aInputs(2);
+    real tXn = aInputs(3);
+    real tYn = aInputs(4);
+    real tZn = aInputs(5);
 
-    real tDist = aInputs(3)*(aCoordinates(0)-aInputs(0)) + aInputs(4)*(aCoordinates(1)-aInputs(1)) + aInputs(5)*(aCoordinates(2)-aInputs(2));
+    real tDist = tXn*(aCoordinates(0)-tXc) + tYn*(aCoordinates(1)-tYc) + tZn*(aCoordinates(2)-tZc);
     // moris::real tDist = mXn*(aCoordinates(aRowIndex,0)-mXc) + mYn*(aCoordinates(aRowIndex,1)-mYc) + mZn*(aCoordinates(aRowIndex,2)-mZc);
     return tDist;
 }
@@ -717,15 +742,15 @@ multi_cylinder_function( const Matrix< DDRMat >        & aCoordinates,
                                Cell<Cell<moris::real>> & aAxis  )
 {
     Cell< Cell< real > > tCenters = aCenter;
-    Cell< real > tRadiuses        = aRadius;
+    Cell< real > tRadii           = aRadius;
     Cell< real > tLengths         = aLength;
     Cell< Cell< real > > tAxes    = aAxis;
 
-    real lsVal = getSingleCylLSVal(tCenters(0),tAxes(0),tRadiuses(0),tLengths(0),aCoordinates);
+    real lsVal = getSingleCylLSVal(tCenters(0),tAxes(0),tRadii(0),tLengths(0),aCoordinates);
 
     for (size_t cInd = 1; cInd < tCenters.size(); ++cInd)
     {
-        real thisLsVal  =  getSingleCylLSVal(tCenters(cInd),tAxes(cInd),tRadiuses(cInd),tLengths(cInd),aCoordinates);
+        real thisLsVal  =  getSingleCylLSVal(tCenters(cInd),tAxes(cInd),tRadii(cInd),tLengths(cInd),aCoordinates);
 
         lsVal = std::min(thisLsVal, lsVal);
     }

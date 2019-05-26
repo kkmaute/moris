@@ -121,6 +121,8 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 set(XTK_INCLUDES
     ${LINALG}
     ${ALG}
+    ${FEM}          # necessary, added by Noah 
+    ${FEM}/${INT}   # necessary, added by Noah
     ${MTK}
     ${MTK}/stk_impl
     ${MTK}/${MAP}

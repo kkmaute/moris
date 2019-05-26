@@ -315,10 +315,10 @@ main(
 	 */
 
 	Ge_Factory tFactory;
-	Geometry* type0 = tFactory.set_geometry_type(type::ANALYTIC);
+	Geometry* type0 = tFactory.set_geometry_type(GeomType::ANALYTIC);
 	type0->set_analytical_function(sphere_function);
 
-	Geometry* type1 = tFactory.set_geometry_type(type::ANALYTIC);
+	Geometry* type1 = tFactory.set_geometry_type(GeomType::ANALYTIC);
 	type1->set_analytical_function(sphere_function);
 
 	/*!
@@ -444,7 +444,7 @@ main(
 	}
 
 	/*!
-	 * create the total flag field from both geomtries and add to mesh
+	 * create the total flag field from both geometries and add to mesh
 	 *
 	 * \code{.cpp}
 	 *
