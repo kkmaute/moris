@@ -200,6 +200,12 @@ set(EXE_DEPENDENCIES
 	${COM}-lib
 	${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_SUPERLU_LIBS})
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE EXE_DEPENDENCIES)
+list(REMOVE_DUPLICATES EXE_DEPENDENCIES)
+list(REVERSE EXE_DEPENDENCIES)
 	
 # Set the output path for library
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})

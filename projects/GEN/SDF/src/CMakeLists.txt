@@ -52,6 +52,12 @@ set(LIB_DEPENDENCIES
     ${MORIS_BOOST_LIBS}
     ${MORIS_BASE_LIBS})
 
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE LIB_DEPENDENCIES)
+list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
+list(REVERSE LIB_DEPENDENCIES)
+
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
@@ -125,6 +131,12 @@ set(EXE_DEPENDENCIES
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
     )
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE EXE_DEPENDENCIES)
+list(REMOVE_DUPLICATES EXE_DEPENDENCIES)
+list(REVERSE EXE_DEPENDENCIES)
 
 # Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
