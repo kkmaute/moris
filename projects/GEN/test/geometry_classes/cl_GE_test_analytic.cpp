@@ -221,82 +221,82 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
 //------------------------------------------------------------------------------
 TEST_CASE("analytic_geom_setup","[GE],[analytic_geom_setup]")
         {
-            /* ------------------------------------------------------------------------------
-             * Step (1): create the mesh
-             * ------------------------------------------------------------------------------
-             */
-            const std::string tFileName = "generated:10x10x10";
-
-            moris::mtk::Scalar_Field_Info<DDRMat> tInnerSphereField;
-            std::string tSphere1FieldName = "innerSphere";
-            tInnerSphereField.set_field_name(tSphere1FieldName);
-            tInnerSphereField.set_field_entity_rank(EntityRank::NODE);
-
-            moris::mtk::Scalar_Field_Info<DDRMat> tOuterSphereField;
-            std::string tSphere2FieldName = "outerSphere";
-            tOuterSphereField.set_field_name(tSphere2FieldName);
-            tOuterSphereField.set_field_entity_rank(EntityRank::NODE);
-
-            moris::mtk::MtkFieldsInfo tFieldsInfo;
-
-            add_field_for_mesh_input(&tInnerSphereField,tFieldsInfo);
-            add_field_for_mesh_input(&tOuterSphereField,tFieldsInfo);
-
-            mtk::MtkMeshData tMeshData;
-            tMeshData.FieldsInfo = &tFieldsInfo;
-
-            // create mesh pair
-            mtk::Interpolation_Mesh* tInterpMesh1 = create_interpolation_mesh( MeshType::STK, tFileName, &tMeshData );
-            mtk::Integration_Mesh*   tIntegMesh1  = create_integration_mesh_from_interpolation_mesh(MeshType::STK, tInterpMesh1);
-
-            // place the pair in mesh manager
-            mtk::Mesh_Manager tMeshManager;
-            uint tMeshIndex = tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
-            /* ------------------------------------------------------------------------------
-             * Step (2): define the geometry representations
-             * ------------------------------------------------------------------------------
-             */
-            moris::Cell< real > tInnerSphereConsts = {{5.0},{5.0},{5.0},{3.0}};
-            moris::Cell< real > tOuterSphereConsts = {{5.0},{5.0},{5.0},{3.5}};
-
-            Ge_Factory tFactory;
-            std::shared_ptr< Geometry > tInnerSphere = tFactory.set_geometry_type(GeomType::ANALYTIC);
-            std::shared_ptr< Geometry > tOuterSphere = tFactory.set_geometry_type(GeomType::ANALYTIC);
-
-            tInnerSphere->set_analytical_function(AnalyticType::SPHERE);
-            tInnerSphere->set_analytical_function_dphi_dx(AnalyticType::SPHERE);
-            tInnerSphere->set_my_mesh(&tMeshManager);
-            tInnerSphere->set_my_constants(tInnerSphereConsts);
-
-            tOuterSphere->set_analytical_function(AnalyticType::SPHERE);
-            tOuterSphere->set_analytical_function_dphi_dx(AnalyticType::SPHERE);
-            tOuterSphere->set_my_mesh(&tMeshManager);
-            tOuterSphere->set_my_constants(tOuterSphereConsts);
-            /* ------------------------------------------------------------------------------
-             * Step (3): build the geometry engine, access data, add geometries to mesh
-             * ------------------------------------------------------------------------------
-             */
-            GE_Core tGeometryEngine;
-            moris_index tInnerSphereIndex = tGeometryEngine.set_geometry( tInnerSphere, tMeshIndex );
-            moris_index tOuterSphereIndex = tGeometryEngine.set_geometry( tOuterSphere, tMeshIndex );
-
-            uint tNumNodes = tMeshManager.get_interpolation_mesh(tMeshIndex)->get_num_nodes();
-            Matrix< DDRMat > tInnerFieldData(tNumNodes,1, 0.0);
-            Matrix< DDRMat > tOuterFieldData(tNumNodes,1, 0.0);
-            for(moris_index n=0; n<(moris_index)tNumNodes; n++)
-            {
-                Matrix< DDRMat > tInnerSphereVals = tGeometryEngine.get_field_vals(tInnerSphereIndex,n);
-                Matrix< DDRMat > tOuterSphereVals = tGeometryEngine.get_field_vals(tOuterSphereIndex,n);
-
-                tInnerFieldData(n) = tInnerSphereVals(0,0);
-                tOuterFieldData(n) = tOuterSphereVals(0,0);
-            }
-            tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tSphere1FieldName, EntityRank::NODE, tInnerFieldData);
-            tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tSphere2FieldName, EntityRank::NODE, tOuterFieldData);
-            /* ------------------------------------------------------------------------------
-             * Step (4): build the geometry intersection object and check for an intersection
-             * ------------------------------------------------------------------------------
-             */
+//            /* ------------------------------------------------------------------------------
+//             * Step (1): create the mesh
+//             * ------------------------------------------------------------------------------
+//             */
+//            const std::string tFileName = "generated:10x10x10";
+//
+//            moris::mtk::Scalar_Field_Info<DDRMat> tInnerSphereField;
+//            std::string tSphere1FieldName = "innerSphere";
+//            tInnerSphereField.set_field_name(tSphere1FieldName);
+//            tInnerSphereField.set_field_entity_rank(EntityRank::NODE);
+//
+//            moris::mtk::Scalar_Field_Info<DDRMat> tOuterSphereField;
+//            std::string tSphere2FieldName = "outerSphere";
+//            tOuterSphereField.set_field_name(tSphere2FieldName);
+//            tOuterSphereField.set_field_entity_rank(EntityRank::NODE);
+//
+//            moris::mtk::MtkFieldsInfo tFieldsInfo;
+//
+//            add_field_for_mesh_input(&tInnerSphereField,tFieldsInfo);
+//            add_field_for_mesh_input(&tOuterSphereField,tFieldsInfo);
+//
+//            mtk::MtkMeshData tMeshData;
+//            tMeshData.FieldsInfo = &tFieldsInfo;
+//
+//            // create mesh pair
+//            mtk::Interpolation_Mesh* tInterpMesh1 = create_interpolation_mesh( MeshType::STK, tFileName, &tMeshData );
+//            mtk::Integration_Mesh*   tIntegMesh1  = create_integration_mesh_from_interpolation_mesh(MeshType::STK, tInterpMesh1);
+//
+//            // place the pair in mesh manager
+//            mtk::Mesh_Manager tMeshManager;
+//            uint tMeshIndex = tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
+//            /* ------------------------------------------------------------------------------
+//             * Step (2): define the geometry representations
+//             * ------------------------------------------------------------------------------
+//             */
+//            moris::Cell< real > tInnerSphereConsts = {{5.0},{5.0},{5.0},{3.0}};
+//            moris::Cell< real > tOuterSphereConsts = {{5.0},{5.0},{5.0},{3.5}};
+//
+//            Ge_Factory tFactory;
+//            std::shared_ptr< Geometry > tInnerSphere = tFactory.set_geometry_type(GeomType::ANALYTIC);
+//            std::shared_ptr< Geometry > tOuterSphere = tFactory.set_geometry_type(GeomType::ANALYTIC);
+//
+//            tInnerSphere->set_analytical_function(AnalyticType::SPHERE);
+//            tInnerSphere->set_analytical_function_dphi_dx(AnalyticType::SPHERE);
+//            tInnerSphere->set_my_mesh(&tMeshManager);
+//            tInnerSphere->set_my_constants(tInnerSphereConsts);
+//
+//            tOuterSphere->set_analytical_function(AnalyticType::SPHERE);
+//            tOuterSphere->set_analytical_function_dphi_dx(AnalyticType::SPHERE);
+//            tOuterSphere->set_my_mesh(&tMeshManager);
+//            tOuterSphere->set_my_constants(tOuterSphereConsts);
+//            /* ------------------------------------------------------------------------------
+//             * Step (3): build the geometry engine, access data, add geometries to mesh
+//             * ------------------------------------------------------------------------------
+//             */
+//            GE_Core tGeometryEngine;
+//            moris_index tInnerSphereIndex = tGeometryEngine.set_geometry( tInnerSphere, tMeshIndex );
+//            moris_index tOuterSphereIndex = tGeometryEngine.set_geometry( tOuterSphere, tMeshIndex );
+//
+//            uint tNumNodes = tMeshManager.get_interpolation_mesh(tMeshIndex)->get_num_nodes();
+//            Matrix< DDRMat > tInnerFieldData(tNumNodes,1, 0.0);
+//            Matrix< DDRMat > tOuterFieldData(tNumNodes,1, 0.0);
+//            for(moris_index n=0; n<(moris_index)tNumNodes; n++)
+//            {
+//                Matrix< DDRMat > tInnerSphereVals = tGeometryEngine.get_field_vals(tInnerSphereIndex,n);
+//                Matrix< DDRMat > tOuterSphereVals = tGeometryEngine.get_field_vals(tOuterSphereIndex,n);
+//
+//                tInnerFieldData(n) = tInnerSphereVals(0,0);
+//                tOuterFieldData(n) = tOuterSphereVals(0,0);
+//            }
+//            tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tSphere1FieldName, EntityRank::NODE, tInnerFieldData);
+//            tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tSphere2FieldName, EntityRank::NODE, tOuterFieldData);
+//            /* ------------------------------------------------------------------------------
+//             * Step (4): build the geometry intersection object and check for an intersection
+//             * ------------------------------------------------------------------------------
+//             */
 //            mtk::Geometry_Type       aGeomType        = mtk::Geometry_Type::LINE;
 //            fem::Interpolation_Type  aInterpType      = fem::Interpolation_Type::LAGRANGE;
 //            mtk::Interpolation_Order aInterpOrder     = mtk::Interpolation_Order::LINEAR;
@@ -322,8 +322,8 @@ TEST_CASE("analytic_geom_setup","[GE],[analytic_geom_setup]")
 
 //            std::string tOutputFile = "./analytic_functionalities_3D.exo";
 //            tInterpMesh1->create_output_mesh(tOutputFile);
-            //------------------------------------------------------------------------------
-            delete tInterpMesh1;
-            delete tIntegMesh1;
+//            //------------------------------------------------------------------------------
+//            delete tInterpMesh1;
+//            delete tIntegMesh1;
         }
 //------------------------------------------------------------------------------
