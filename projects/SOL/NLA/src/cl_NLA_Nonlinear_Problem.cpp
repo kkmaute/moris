@@ -157,6 +157,11 @@ Nonlinear_Problem::~Nonlinear_Problem()
         delete( mMap );
     }
 
+    if( mMapFull != nullptr )
+    {
+        delete( mMapFull );
+    }
+
     if( mIsMasterSystem )
     {
         delete( mFullVector );
@@ -178,8 +183,6 @@ Nonlinear_Problem::~Nonlinear_Problem()
         delete( mFext );
 
         delete( mJacobian );
-
-
     }
 
     if ( mMapType == MapType::Petsc)

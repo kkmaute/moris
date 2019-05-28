@@ -128,6 +128,9 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
+//        print(tElementRHS,"tElementRHS");
+//        print(tElementTopology,"tElementTopology");
+
             Matrix< DDRMat > tElementRHS;
             this->get_element_rhs( Ii, Ik, tElementRHS );
 

@@ -121,6 +121,8 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 set(XTK_INCLUDES
     ${LINALG}
     ${ALG}
+    ${FEM}          # necessary, added by Noah 
+    ${FEM}/${INT}   # necessary, added by Noah
     ${MTK}
     ${MTK}/stk_impl
     ${MTK}/${MAP}
@@ -160,6 +162,12 @@ set(LIB_DEPENDENCIES
     ${MORIS_TRILINOS_LIBS}
     ${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_ARMADILLO_EIGEN_LIBS})
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE LIB_DEPENDENCIES)
+list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
+list(REVERSE LIB_DEPENDENCIES)
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

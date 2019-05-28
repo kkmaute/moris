@@ -62,6 +62,12 @@ set(LIB_DEPENDENCIES
       ${MORIS_T_LIBS}
    )
 
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE LIB_DEPENDENCIES)
+list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
+list(REVERSE LIB_DEPENDENCIES)
+
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

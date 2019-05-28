@@ -2,10 +2,10 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-#include(${MORIS_CMAKE_DIR}/viennacl.cmake)
+#include(${MORIS_TPL_DIR}/viennacl.cmake)
 list(REMOVE_DUPLICATES TOL_TPL_DEPENDENCIES)
 foreach(TOL_TPL ${TOL_TPL_DEPENDENCIES})
-    include(${MORIS_CMAKE_DIR}/${TOL_TPL}.cmake)
+    include(${MORIS_TPL_DIR}/${TOL_TPL}.cmake)
 endforeach()
 
 # Add source directory

@@ -18,8 +18,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void
-    File::create( const std::string & aPath )
+    void File::create( const std::string & aPath )
     {
         // Create a new file using default properties
         mFileID = create_hdf5_file( aPath );
@@ -27,8 +26,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void
-    File::open( const std::string & aPath )
+    void File::open( const std::string & aPath )
     {
         // opens an existing file with read and write access
         mFileID = open_hdf5_file( aPath );
@@ -36,8 +34,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void
-    File::close()
+    void File::close()
     {
         // close the hdf file
         mStatus = close_hdf5_file( mFileID );
@@ -45,8 +42,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        File::save_settings( const Parameters * aParameters )
+        void File::save_settings( const Parameters * aParameters )
         {
             // save dimensions of field
             save_matrix_to_hdf5_file(
@@ -96,7 +92,6 @@ namespace moris
                     "MultigridFlag",
                     aParameters->use_multigrid(),
                     mStatus );
-
 
             // save truncation flag
             save_scalar_to_hdf5_file(
@@ -186,14 +181,11 @@ namespace moris
                     "SideSets",
                     tSideSets,
                     mStatus );
-
-
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        File::load_settings( Parameters * aParameters )
+        void File::load_settings( Parameters * aParameters )
         {
             // placeholders for data read from file
             Matrix< DDRMat >  tMatReal;
@@ -301,7 +293,6 @@ namespace moris
                                mStatus );
             aParameters->set_additional_lagrange_refinement( tValUint );
 
-
             // loadmaximal refinement level
             load_scalar_from_hdf5_file(
                     mFileID,
@@ -389,13 +380,11 @@ namespace moris
                     aParameters->set_side_sets( tMatUint );
                 }
             }
-
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        File::save_refinement_pattern(
+        void File::save_refinement_pattern(
                 Background_Mesh_Base * aMesh  )
         {
             // step 1: count how many elements need are refined on each level
@@ -485,12 +474,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        File::load_refinement_pattern(
+        void File::load_refinement_pattern(
                 Background_Mesh_Base * aMesh,
                 const bool             aMode )
         {
-
             uint tBSplinePattern;
             uint tLagrangePattern;
 
@@ -529,7 +516,6 @@ namespace moris
                     "LagrangeElements",
                     tLagrangeElements,
                     mStatus );
-
 
             // get number of levels
             uint tNumberOfLevels = tElementCounter.n_rows();
@@ -612,10 +598,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        std::string
-        File::parralize_filename( const std::string & aPath )
+        std::string File::parralize_filename( const std::string & aPath )
         {
-
             // test if running in parallel mode
             if ( par_size() > 1 )
             {
@@ -647,8 +631,7 @@ namespace moris
         /**
          * free function needed by loading constructor
          */
-        Parameters *
-        create_hmr_parameters_from_hdf5_file( const std::string & aPath )
+        Parameters * create_hmr_parameters_from_hdf5_file( const std::string & aPath )
         {
             // create file object
             File tHDF5;

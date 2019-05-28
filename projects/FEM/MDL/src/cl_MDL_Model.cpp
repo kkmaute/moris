@@ -338,14 +338,17 @@ namespace moris
             // delete IWGs
             for( auto tIWG : mIWGs )
             {
-                tIWG.clear();
+                for( auto tIWGs : tIWG )
+                {
+                    delete tIWGs;
+                }
             }
 
-//            // delete elements
-//            for( auto tElement : mElements )
-//            {
-//                delete tElement;
-//            }
+            // delete nodes
+            for( auto tElementBlocks : mElementBlocks )
+            {
+                delete tElementBlocks;
+            }
 
             // delete nodes
             for( auto tNode : mNodes )

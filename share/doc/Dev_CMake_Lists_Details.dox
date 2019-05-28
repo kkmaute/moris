@@ -13,7 +13,7 @@ The first few lines of code remove any duplicate entries from the @p TPL_DEPENDE
     # Third party library dependencies
     list(REMOVE_DUPLICATES PROJ_TPL_DEPENDENCIES)
     foreach(PROJ_TPL ${PROJ_TPL_DEPENDENCIES})
-        include(${MORIS_CMAKE_DIR}/${PROJ_TPL}.cmake)
+        include(${MORIS_TPL_DIR}/${PROJ_TPL}.cmake)
     endforeach()
 
 The second portion of the file processes the CMakeLists in the source directory so that the project's library is built. Then, if @p MORIS_USE_TESTS and your project's build option has been selected, the @p test directory is also processed.

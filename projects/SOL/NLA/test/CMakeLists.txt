@@ -5,6 +5,7 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
+    cl_NLA_Arc_Length_Solver_Test.cpp
     cl_NLA_Newton_Solver_Test.cpp
     cl_NLA_NonlinearDatabase.cpp
     NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy.cpp
@@ -32,6 +33,12 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     ${NLA}-lib
     ${MSI}-lib )
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE TEST_DEPENDENCIES)
+list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
+list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

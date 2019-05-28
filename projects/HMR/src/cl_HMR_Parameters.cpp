@@ -57,8 +57,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
-    void
-    load_hmr_parameter_list_from_xml( const std::string & aFilePath, ParameterList & aParameterList )
+    void load_hmr_parameter_list_from_xml( const std::string & aFilePath, ParameterList & aParameterList )
     {
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
@@ -218,8 +217,7 @@ namespace moris
 
 
     // creates a parameter list from parameters
-    ParameterList
-    create_hmr_parameter_list( const Parameters * aParameters )
+    ParameterList create_hmr_parameter_list( const Parameters * aParameters )
     {
         // create default values
         ParameterList aParameterList = create_hmr_parameter_list();
@@ -248,14 +246,12 @@ namespace moris
 
         aParameterList.set( "renumber_lagrange_nodes", ( sint ) aParameters->get_renumber_lagrange_nodes() );
 
-
         return aParameterList;
     }
 
 //--------------------------------------------------------------------------------
 
-    void
-    Parameters::copy_selected_parameters( const Parameters & aParameters )
+    void Parameters::copy_selected_parameters( const Parameters & aParameters )
     {
         // buffer size
         this->set_refinement_buffer( aParameters.get_refinement_buffer() );
@@ -292,8 +288,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-    void
-    Parameters::copy_selected_parameters( ParameterList & aParameterList )
+    void Parameters::copy_selected_parameters( ParameterList & aParameterList )
     {
         // create a temporary parameter object
         Parameters tParameters( aParameterList );
@@ -304,8 +299,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::error( const std::string & aMessage ) const
+        void Parameters::error( const std::string & aMessage ) const
         {
             if( par_rank() == 0 )
             {
@@ -317,8 +311,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::error_if_locked( const std::string & aFunctionName ) const
+        void Parameters::error_if_locked( const std::string & aFunctionName ) const
         {
             if( mParametersAreLocked )
             {
@@ -332,15 +325,13 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::lock()
+        void Parameters::lock()
         {
             mParametersAreLocked = true;
         }
 
 //--------------------------------------------------------------------------------
-        void
-        Parameters::print() const
+        void Parameters::print() const
         {
             if ( mVerbose && par_rank() == 0 )
             {
@@ -387,8 +378,7 @@ namespace moris
         /**
          * sets the mesh orders according to given matrix
          */
-        void
-        Parameters::set_lagrange_orders( const Matrix< DDUMat > & aMeshOrders )
+        void Parameters::set_lagrange_orders( const Matrix< DDUMat > & aMeshOrders )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_lagrange_orders" );
@@ -407,8 +397,7 @@ namespace moris
         /**
          * sets the mesh orders according to given matrix
          */
-        void
-        Parameters::set_bspline_orders( const Matrix< DDUMat > & aMeshOrders )
+        void Parameters::set_bspline_orders( const Matrix< DDUMat > & aMeshOrders )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_lagrange_orders" );
@@ -420,13 +409,11 @@ namespace moris
 
             // make sure that max polynomial is up to date
             this->update_max_polynomial_and_truncated_buffer();
-
         }
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::update_max_polynomial_and_truncated_buffer()
+        void Parameters::update_max_polynomial_and_truncated_buffer()
         {
             mMaxPolynomial = ( mLagrangeOrders.max() > mBSplineOrders.max() ) ?
                                    ( mLagrangeOrders.max() ) : ( mBSplineOrders.max() );
@@ -434,8 +421,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        auto
-        Parameters::get_padding_size() const -> decltype ( mStaircaseBuffer )
+        auto Parameters::get_padding_size() const -> decltype ( mStaircaseBuffer )
         {
             // returns the larger value of max polynomial and buffer size.
             // in the future, filter with will be regarded here
@@ -445,9 +431,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_number_of_elements_per_dimension(
-                const Matrix< DDLUMat > & aNumberOfElementsPerDimension )
+        void Parameters::set_number_of_elements_per_dimension( const Matrix< DDLUMat > & aNumberOfElementsPerDimension )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_number_of_elements_per_dimension");
@@ -464,10 +448,8 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_number_of_elements_per_dimension(
-                const luint & aElementsX,
-                const luint & aElementsY )
+        void Parameters::set_number_of_elements_per_dimension( const luint & aElementsX,
+                                                               const luint & aElementsY )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_number_of_elements_per_dimension");
@@ -478,16 +460,13 @@ namespace moris
 
             // auto setting for dimensions and offset
             this->set_default_dimensions_and_offset();
-
         }
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_number_of_elements_per_dimension(
-                const luint & aElementsX,
-                const luint & aElementsY,
-                const luint & aElementsZ )
+        void Parameters::set_number_of_elements_per_dimension( const luint & aElementsX,
+                                                               const luint & aElementsY,
+                                                               const luint & aElementsZ )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_number_of_elements_per_dimension");
@@ -503,8 +482,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-       void
-       Parameters::set_default_dimensions_and_offset()
+       void Parameters::set_default_dimensions_and_offset()
        {
            // test if calling this function is allowed
            this->error_if_locked("set_default_dimensions_and_offset");
@@ -526,12 +504,10 @@ namespace moris
        }
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions )
+        void Parameters::set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_dimensions");
-
 
             // check sanity of input
             MORIS_ERROR(
@@ -548,14 +524,11 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_domain_dimensions(
-                const real & aDomainDimensionsX,
-                const real & aDomainDimensionsY )
+        void Parameters::set_domain_dimensions( const real & aDomainDimensionsX,
+                                                const real & aDomainDimensionsY )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_dimensions");
-
 
             // check sanity of input
             MORIS_ERROR( aDomainDimensionsX > 0.0,
@@ -571,15 +544,12 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_domain_dimensions(
-                const real & aDomainDimensionsX,
-                const real & aDomainDimensionsY,
-                const real & aDomainDimensionsZ)
+        void Parameters::set_domain_dimensions( const real & aDomainDimensionsX,
+                                                const real & aDomainDimensionsY,
+                                                const real & aDomainDimensionsZ)
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_dimensions");
-
 
             // check sanity of input
             MORIS_ERROR( aDomainDimensionsX > 0.0,
@@ -599,8 +569,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_domain_offset( const Matrix< DDRMat > & aDomainOffset )
+        void Parameters::set_domain_offset( const Matrix< DDRMat > & aDomainOffset )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");
@@ -616,10 +585,8 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_domain_offset(
-                const real & aDomainOffsetX,
-                const real & aDomainOffsetY )
+        void Parameters::set_domain_offset( const real & aDomainOffsetX,
+                                            const real & aDomainOffsetY )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");
@@ -631,11 +598,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_domain_offset(
-                const real & aDomainOffsetX,
-                const real & aDomainOffsetY,
-                const real & aDomainOffsetZ )
+        void Parameters::set_domain_offset( const real & aDomainOffsetX,
+                                            const real & aDomainOffsetY,
+                                            const real & aDomainOffsetZ )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_domain_offset");
@@ -648,8 +613,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        Matrix< DDLUMat >
-        Parameters::get_domain_ijk() const
+        Matrix< DDLUMat > Parameters::get_domain_ijk() const
         {
             // ask settings for number of dimensions
             auto tNumberOfDimensions = get_number_of_dimensions();
@@ -677,8 +641,7 @@ namespace moris
          *
          * @return Matrix< DDRMat >
          */
-        Matrix< DDRMat >
-        Parameters::get_domain_dimensions() const
+        Matrix< DDRMat > Parameters::get_domain_dimensions() const
         {
             // see if dimensions have been set
             if( mDomainDimensions.length() != 0 )
@@ -713,8 +676,7 @@ namespace moris
         /**
          * sets the patterns for the Lagrange Meshes
          */
-        void
-        Parameters::set_lagrange_patterns( const Matrix< DDUMat > & aPatterns )
+        void Parameters::set_lagrange_patterns( const Matrix< DDUMat > & aPatterns )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_lagrange_patterns");
@@ -731,8 +693,7 @@ namespace moris
         /**
          * sets the patterns for the Lagrange Meshes
          */
-        void
-        Parameters::set_bspline_patterns( const Matrix< DDUMat > & aPatterns )
+        void Parameters::set_bspline_patterns( const Matrix< DDUMat > & aPatterns )
         {
             // test if calling this function is allowed
             this->error_if_locked("set_bspline_patterns");
@@ -745,8 +706,7 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        void
-        Parameters::set_mesh_orders_simple( const uint & aMaxOrder )
+        void Parameters::set_mesh_orders_simple( const uint & aMaxOrder )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_mesh_orders_simple" );
@@ -758,11 +718,9 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
-                                     const Matrix< DDUMat > & aLagrangeOrders )
+        void Parameters::set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
+                                          const Matrix< DDUMat > & aLagrangeOrders )
         {
-
             // test if calling this function is allowed
             this->error_if_locked( "set_mesh_orders" );
 
@@ -864,13 +822,10 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void
-        Parameters::check_sanity() const
+        void Parameters::check_sanity() const
         {
             if ( par_rank() == 0 )
             {
-
-
                 // get dimensions
                 auto tNumberOfDimensions = this->get_number_of_dimensions();
 
@@ -886,7 +841,6 @@ namespace moris
                 MORIS_ERROR(
                         mDomainOffset.length() == tNumberOfDimensions,
                         "Domain offset and Number of Elements per dimension do not match");
-
 
                 // get number of B-Spline meshes
                 auto tNumberOfBSplineMeshes = mBSplineOrders.length();
@@ -906,8 +860,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        std::string
-        Parameters::get_side_sets_as_string() const
+        std::string Parameters::get_side_sets_as_string() const
         {
             std::string aString;
             mat_to_string( mSideSets, aString );
