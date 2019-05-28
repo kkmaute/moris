@@ -1220,28 +1220,28 @@ namespace moris
             td3NdXi3( 9,  7 ) =   da0*  db3*  dc3;
 
             // 9th node: (1,0,0)
-            td3NdXi3( 0, 8 ) = ddda1*   b0*   c0;
-            td3NdXi3( 1, 8 ) =    a1*dddb0*   c0;
-            td3NdXi3( 2, 8 ) =    a1*   b0*dddc0;
-            td3NdXi3( 3, 8 ) =  dda1*  db0*   c0;
-            td3NdXi3( 4, 8 ) =  dda1*   b0*  dc0;
-            td3NdXi3( 5, 8 ) =   da1* ddb0*   c0;
-            td3NdXi3( 6, 8 ) =    a1* ddb0*  dc0;
-            td3NdXi3( 7, 8 ) =   da1*   b0* ddc0;
-            td3NdXi3( 8, 8 ) =    a1*  db0* ddc0;
-            td3NdXi3( 9, 8 ) =   da1*  db0*  dc0;
+            td3NdXi3( 0,  8 ) = ddda1*   b0*   c0;
+            td3NdXi3( 1,  8 ) =    a1*dddb0*   c0;
+            td3NdXi3( 2,  8 ) =    a1*   b0*dddc0;
+            td3NdXi3( 3,  8 ) =  dda1*  db0*   c0;
+            td3NdXi3( 4,  8 ) =  dda1*   b0*  dc0;
+            td3NdXi3( 5,  8 ) =   da1* ddb0*   c0;
+            td3NdXi3( 6,  8 ) =    a1* ddb0*  dc0;
+            td3NdXi3( 7,  8 ) =   da1*   b0* ddc0;
+            td3NdXi3( 8,  8 ) =    a1*  db0* ddc0;
+            td3NdXi3( 9,  8 ) =   da1*  db0*  dc0;
 
             // 10th node: (2,0,0)
-            td3NdXi3( 0, 9 ) = ddda2*   b0*   c0;
-            td3NdXi3( 1, 9 ) =    a2*dddb0*   c0;
-            td3NdXi3( 2, 9 ) =    a2*   b0*dddc0;
-            td3NdXi3( 3, 9 ) =  dda2*  db0*   c0;
-            td3NdXi3( 4, 9 ) =  dda2*   b0*  dc0;
-            td3NdXi3( 5, 9 ) =   da2* ddb0*   c0;
-            td3NdXi3( 6, 9 ) =    a2* ddb0*  dc0;
-            td3NdXi3( 7, 9 ) =   da2*   b0* ddc0;
-            td3NdXi3( 8, 9 ) =    a2*  db0* ddc0;
-            td3NdXi3( 9, 9 ) =   da2*  db0*  dc0;
+            td3NdXi3( 0,  9 ) = ddda2*   b0*   c0;
+            td3NdXi3( 1,  9 ) =    a2*dddb0*   c0;
+            td3NdXi3( 2,  9 ) =    a2*   b0*dddc0;
+            td3NdXi3( 3,  9 ) =  dda2*  db0*   c0;
+            td3NdXi3( 4,  9 ) =  dda2*   b0*  dc0;
+            td3NdXi3( 5,  9 ) =   da2* ddb0*   c0;
+            td3NdXi3( 6,  9 ) =    a2* ddb0*  dc0;
+            td3NdXi3( 7,  9 ) =   da2*   b0* ddc0;
+            td3NdXi3( 8,  9 ) =    a2*  db0* ddc0;
+            td3NdXi3( 9,  9 ) =   da2*  db0*  dc0;
 
             // 11th node: (0,1,0)
             td3NdXi3( 0, 10 ) = ddda0*   b1*   c0;
@@ -1292,16 +1292,16 @@ namespace moris
             td3NdXi3( 9, 13 ) =   da0*  db0*  dc2;
 
             // 15th node: (3,1,0)
-            td3NdXi3( 0, 146 ) = ddda3*   b1*   c0;
-            td3NdXi3( 1, 146 ) =    a3*dddb1*   c0;
-            td3NdXi3( 2, 146 ) =    a3*   b1*dddc0;
-            td3NdXi3( 3, 146 ) =  dda3*  db1*   c0;
-            td3NdXi3( 4, 146 ) =  dda3*   b1*  dc0;
-            td3NdXi3( 5, 146 ) =   da3* ddb1*   c0;
-            td3NdXi3( 6, 146 ) =    a3* ddb1*  dc0;
-            td3NdXi3( 7, 146 ) =   da3*   b1* ddc0;
-            td3NdXi3( 8, 146 ) =    a3*  db1* ddc0;
-            td3NdXi3( 9, 146 ) =   da3*  db1*  dc0;
+            td3NdXi3( 0, 14 ) = ddda3*   b1*   c0;
+            td3NdXi3( 1, 14 ) =    a3*dddb1*   c0;
+            td3NdXi3( 2, 14 ) =    a3*   b1*dddc0;
+            td3NdXi3( 3, 14 ) =  dda3*  db1*   c0;
+            td3NdXi3( 4, 14 ) =  dda3*   b1*  dc0;
+            td3NdXi3( 5, 14 ) =   da3* ddb1*   c0;
+            td3NdXi3( 6, 14 ) =    a3* ddb1*  dc0;
+            td3NdXi3( 7, 14 ) =   da3*   b1* ddc0;
+            td3NdXi3( 8, 14 ) =    a3*  db1* ddc0;
+            td3NdXi3( 9, 14 ) =   da3*  db1*  dc0;
 
             // 16th node: (3,2,0)
             td3NdXi3( 0, 15 ) = ddda3*   b2*   c0;
@@ -1760,7 +1760,7 @@ namespace moris
             td3NdXi3( 9, 52 ) =   da1*  db1*  dc3;
 
             // 54th node: (2,1,3)
-            td3NdXi3( 0, 5 ) = ddda2*   b1*   c3;
+            td3NdXi3( 0, 53 ) = ddda2*   b1*   c3;
             td3NdXi3( 1, 53 ) =    a2*dddb1*   c3;
             td3NdXi3( 2, 53 ) =    a2*   b1*dddc3;
             td3NdXi3( 3, 53 ) =  dda2*  db1*   c3;
@@ -1795,7 +1795,7 @@ namespace moris
             td3NdXi3( 8, 55 ) =    a1*  db2* ddc3;
             td3NdXi3( 9, 55 ) =   da1*  db2*  dc3;
 
-            // 57th node: 7(1,1,1)
+            // 57th node: (1,1,1)
             td3NdXi3( 0, 56 ) = ddda1*   b1*   c1;
             td3NdXi3( 1, 56 ) =    a1*dddb1*   c1;
             td3NdXi3( 2, 56 ) =    a1*   b1*dddc1;

@@ -519,9 +519,9 @@ namespace moris
             real dda2 =   1.0;
 
             // 2nd dimension
-            real b0 = 0.5 * ( std::pow(xi,2) - eta );
+            real b0 = 0.5 * ( std::pow(eta,2) - eta );
             real b1 = 1.0 - std::pow(eta,2);
-            real b2 = 0.5 * ( std::pow(xi,2) + eta );
+            real b2 = 0.5 * ( std::pow(eta,2) + eta );
 
             real db0 =   eta - 0.5;
             real db1 = - eta * 2.0;
@@ -532,9 +532,9 @@ namespace moris
             real ddb2 =   1.0;
 
             // 3rd dimension
-            real c0 = 0.5 * ( std::pow(xi,2) - zeta );
+            real c0 = 0.5 * ( std::pow(zeta,2) - zeta );
             real c1 = 1.0 - std::pow(zeta,2);
-            real c2 = 0.5 * ( std::pow(xi,2) + zeta );
+            real c2 = 0.5 * ( std::pow(zeta,2) + zeta );
 
             real dc0 =   zeta - 0.5;
             real dc1 = - zeta * 2.0;

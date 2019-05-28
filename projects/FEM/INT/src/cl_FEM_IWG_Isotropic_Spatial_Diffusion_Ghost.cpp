@@ -108,7 +108,7 @@ namespace moris
             	uint tNumOfShapeFunctions_Right = tB2x_Right.n_cols();
 
             	// create combined B-Matrix, put left and right B2x*n next to each other B2x_comined = [B2x_L, -B2x_R]
-            	Matrix <DDRMat> tB2x_combined( 3, tNumOfShapeFunctions_Left + tNumOfShapeFunctions_Right, 0.0 );
+            	Matrix <DDRMat> tB2x_combined( 6, tNumOfShapeFunctions_Left + tNumOfShapeFunctions_Right, 0.0 );
 
             	// assemble into combined matrix
             	for(uint i = 0; i < tNumOfShapeFunctions_Left; i++)
@@ -116,6 +116,9 @@ namespace moris
             		tB2x_combined(0,i) = tB2x_Left(0,i);
             		tB2x_combined(1,i) = tB2x_Left(1,i);
             		tB2x_combined(2,i) = tB2x_Left(2,i);
+            		tB2x_combined(3,i) = tB2x_Left(3,i);
+            		tB2x_combined(4,i) = tB2x_Left(4,i);
+            		tB2x_combined(5,i) = tB2x_Left(5,i);
             	}
 
             	// assemble into combined matrix
@@ -124,6 +127,9 @@ namespace moris
             		tB2x_combined(0,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(0,i);
             		tB2x_combined(1,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(1,i);
             		tB2x_combined(2,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(2,i);
+            		tB2x_combined(3,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(3,i);
+            		tB2x_combined(4,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(4,i);
+            		tB2x_combined(5,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(5,i);
             	}
 
         		// assemble gradient vector
@@ -210,7 +216,7 @@ namespace moris
             	uint tNumOfShapeFunctions_Right = tB2x_Right.n_cols();
 
             	// create combined B-Matrix, put left and right B2x*n next to each other B2x_comined = [B2x_L, -B2x_R]
-            	Matrix <DDRMat> tB2x_combined( 3, tNumOfShapeFunctions_Left + tNumOfShapeFunctions_Right, 0.0 );
+            	Matrix <DDRMat> tB2x_combined( 6, tNumOfShapeFunctions_Left + tNumOfShapeFunctions_Right, 0.0 );
 
             	// assemble into combined matrix
             	for(uint i = 0; i < tNumOfShapeFunctions_Left; i++)
@@ -218,6 +224,9 @@ namespace moris
             		tB2x_combined(0,i) = tB2x_Left(0,i);
             		tB2x_combined(1,i) = tB2x_Left(1,i);
             		tB2x_combined(2,i) = tB2x_Left(2,i);
+            		tB2x_combined(3,i) = tB2x_Left(3,i);
+            		tB2x_combined(4,i) = tB2x_Left(4,i);
+            		tB2x_combined(5,i) = tB2x_Left(5,i);
             	}
 
             	//  assemble into combined matrix
@@ -226,6 +235,9 @@ namespace moris
             		tB2x_combined(0,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(0,i);
             		tB2x_combined(1,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(1,i);
             		tB2x_combined(2,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(2,i);
+            		tB2x_combined(3,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(3,i);
+            		tB2x_combined(4,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(4,i);
+            		tB2x_combined(5,tNumOfShapeFunctions_Left - 1 + i) = tB2x_Left(5,i);
             	}
 
         		// get normal matrix
@@ -234,8 +246,8 @@ namespace moris
 
             	// compute Jacobian ---------------
             	aJacobians( 0 ) =   aJacobians( 0 )
-                		          + mGammaGhost * mMeshParameter // * mKappa          // scaling parameters (p=2)
-                		          * trans(tB2x_combined) * trans(tNormalMatrix_2) * tNormalMatrix_2 * B2x_combined;   // matrices & vectors (p=2)
+                		          + mGammaGhost * mMeshParameter // * mKappa                                        // scaling parameters (p=2)
+                		          * trans(tB2x_combined) * trans(tNormalMatrix_2) * tNormalMatrix_2 * B2x_combined; // matrices & vectors (p=2)
             }
 
             // --------- Ghost for other shape functions not supported (yet) ---------
@@ -292,14 +304,24 @@ namespace moris
         		tNormalMatrix(1,1) = mNormal(1);
         		tNormalMatrix(2,2) = mNormal(2);
 
-        		tNormalMatrix(0,3) = mNormal(1);
-        		tNormalMatrix(0,4) = mNormal(2);
+//        		tNormalMatrix(0,3) = mNormal(1);
+//        		tNormalMatrix(0,4) = mNormal(2);
+//
+//        		tNormalMatrix(1,3) = mNormal(0);
+//        		tNormalMatrix(1,5) = mNormal(2);
+//
+//        		tNormalMatrix(2,4) = mNormal(1);
+//        		tNormalMatrix(2,5) = mNormal(0);
 
-        		tNormalMatrix(1,1) = mNormal(0);
-        		tNormalMatrix(1,5) = mNormal(2);
+        		tNormalMatrix(0,5) = mNormal(1);
+        		tNormalMatrix(0,3) = mNormal(2);
+
+        		tNormalMatrix(1,5) = mNormal(0);
+        		tNormalMatrix(1,4) = mNormal(2);
 
         		tNormalMatrix(2,3) = mNormal(1);
-        		tNormalMatrix(2,5) = mNormal(0);
+        		tNormalMatrix(2,4) = mNormal(0);
+
 
         		return tNormalMatrix;
         	}

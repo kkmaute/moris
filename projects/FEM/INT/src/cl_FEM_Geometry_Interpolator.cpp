@@ -971,7 +971,7 @@ namespace moris
         {
 
         	// evaluate  geometry Jacobians
-            aJt   = this->space_jacobian( adNdXi );
+        	aJt   = this->space_jacobian( adNdXi );
             aJ2bt = this->second_space_jacobian( ad2NdXi2 );
 
             // call calculator for second derivatives
@@ -1358,29 +1358,29 @@ namespace moris
             }
 
             // Block (8) ------------------------------------------------
-            aJ3at( 9, 3 ) =   aJt( 1, 0 ) * aJt( 2, 0 ) * aJt( 3, 1 )
-                    		+ aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 3, 0 )
-        					+ aJt( 1, 1 ) * aJt( 2, 0 ) * aJt( 3, 0 );
+            aJ3at( 9, 3 ) =   aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 1 )
+                    		+ aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 0 )
+        					+ aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 0 );
 
-            aJ3at( 9, 4 ) =   aJt( 1, 0 ) * aJt( 2, 0 ) * aJt( 3, 2 )
-                    		+ aJt( 1, 0 ) * aJt( 2, 2 ) * aJt( 3, 0 )
-        					+ aJt( 1, 2 ) * aJt( 2, 0 ) * aJt( 3, 0 );
+            aJ3at( 9, 4 ) =   aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 2 )
+                    		+ aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 0 )
+        					+ aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 0 );
 
-            aJ3at( 9, 5 ) =   aJt( 1, 1 ) * aJt( 2, 1 ) * aJt( 3, 0 )
-                    		+ aJt( 1, 1 ) * aJt( 2, 0 ) * aJt( 3, 1 )
-        					+ aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 3, 1 );
+            aJ3at( 9, 5 ) =   aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 0 )
+                    		+ aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 1 )
+        					+ aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 1 );
 
-            aJ3at( 9, 6 ) =   aJt( 1, 1 ) * aJt( 2, 1 ) * aJt( 3, 2 )
-                    		+ aJt( 1, 1 ) * aJt( 2, 2 ) * aJt( 3, 1 )
-        					+ aJt( 1, 2 ) * aJt( 2, 1 ) * aJt( 3, 1 );
+            aJ3at( 9, 6 ) =   aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 2 )
+                    		+ aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 1 )
+        					+ aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 1 );
 
-            aJ3at( 9, 7 ) =   aJt( 1, 2 ) * aJt( 2, 2 ) * aJt( 3, 0 )
-                    		+ aJt( 1, 2 ) * aJt( 2, 0 ) * aJt( 3, 2 )
-        					+ aJt( 1, 0 ) * aJt( 2, 2 ) * aJt( 3, 2 );
+            aJ3at( 9, 7 ) =   aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 0 )
+                    		+ aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 2 )
+        					+ aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 2 );
 
-            aJ3at( 9, 8 ) =   aJt( 1, 2 ) * aJt( 2, 2 ) * aJt( 3, 1 )
-                    		+ aJt( 1, 2 ) * aJt( 2, 1 ) * aJt( 3, 2 )
-        					+ aJt( 1, 1 ) * aJt( 2, 2 ) * aJt( 3, 2 );
+            aJ3at( 9, 8 ) =   aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 1 )
+                    		+ aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 2 )
+        					+ aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 2 );
 
             // Block (9) ------------------------------------------------
             aJ3at( 9, 9 ) =   aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 )
@@ -1389,9 +1389,6 @@ namespace moris
 							+ aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 1 )
 							+ aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 1 )
 							+ aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 2 );
-
-
-
 
 
             // second help matrix
@@ -1404,9 +1401,9 @@ namespace moris
              *  |_*_*_*_|_*_*_*_|    | ,xx |
              *  | * * * | * * * |    | ,yy |
              *  | * * * | * * * |    | ,zz |
-             *  | *(3)* | *(4)* |  * | ,xy |
-             *  | * * * | * * * |    | ,yz |
-             *  | * * * | * * * |    |_,xz_|
+             *  | *(3)* | *(4)* |  * | ,yz |
+             *  | * * * | * * * |    | ,xz |
+             *  | * * * | * * * |    |_,xy_|
              *  |_*_*_*_|_*_*_*_|
              *  |_*(5)*_|_*(6)*_|
              */
@@ -1420,82 +1417,80 @@ namespace moris
             }
 
             // Block (2) ------------------------------------------------
-            aJ3bt( 0, 3 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 1 )
+            aJ3bt( 0, 5 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 1 )
             		        + 3 * aJ2bt( 0, 1 ) * aJt( 0, 0 );
-            aJ3bt( 1, 3 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 1 )
+            aJ3bt( 1, 5 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 1 )
             		        + 3 * aJ2bt( 1, 1 ) * aJt( 1, 0 );
-            aJ3bt( 2, 3 ) =   3 * aJ2bt( 2, 0 ) * aJt( 2, 1 )
+            aJ3bt( 2, 5 ) =   3 * aJ2bt( 2, 0 ) * aJt( 2, 1 )
             		        + 3 * aJ2bt( 2, 1 ) * aJt( 2, 0 );
 
-            aJ3bt( 0, 4 ) =   3 * aJ2bt( 0, 1 ) * aJt( 0, 2 )
+            aJ3bt( 0, 3 ) =   3 * aJ2bt( 0, 1 ) * aJt( 0, 2 )
             		        + 3 * aJ2bt( 0, 2 ) * aJt( 0, 1 );
-            aJ3bt( 1, 4 ) =   3 * aJ2bt( 1, 1 ) * aJt( 1, 2 )
+            aJ3bt( 1, 3 ) =   3 * aJ2bt( 1, 1 ) * aJt( 1, 2 )
             		        + 3 * aJ2bt( 1, 2 ) * aJt( 1, 1 );
-            aJ3bt( 2, 4 ) =   3 * aJ2bt( 2, 1 ) * aJt( 2, 2 )
+            aJ3bt( 2, 3 ) =   3 * aJ2bt( 2, 1 ) * aJt( 2, 2 )
             		        + 3 * aJ2bt( 2, 2 ) * aJt( 2, 1 );
 
-            aJ3bt( 0, 5 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 2 )
+            aJ3bt( 0, 4 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 2 )
             		        + 3 * aJ2bt( 0, 2 ) * aJt( 0, 0 );
-            aJ3bt( 1, 5 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 2 )
+            aJ3bt( 1, 4 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 2 )
             		        + 3 * aJ2bt( 1, 2 ) * aJt( 1, 0 );
-            aJ3bt( 2, 5 ) =   3 * aJ2bt( 2, 0 ) * aJt( 2, 2 )
+            aJ3bt( 2, 4 ) =   3 * aJ2bt( 2, 0 ) * aJt( 2, 2 )
             		        + 3 * aJ2bt( 2, 2 ) * aJt( 2, 0 );
-
 
             // Block (3) ------------------------------------------------
             for( uint j=0; j<3; ++j )
             {
-                aJ3bt( 3, j ) = 2 * aJ2bt( 3, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 1, j );
-                aJ3bt( 4, j ) = 2 * aJ2bt( 5, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 2, j );
-                aJ3bt( 5, j ) = 2 * aJ2bt( 3, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 0, j );
-                aJ3bt( 6, j ) = 2 * aJ2bt( 4, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 2, j );
-                aJ3bt( 7, j ) = 2 * aJ2bt( 5, j ) * aJt( 2, j )  +  aJ2bt( 2, j ) * aJt( 0, j );
-                aJ3bt( 8, j ) = 2 * aJ2bt( 4, j ) * aJt( 2, j )  +  aJ2bt( 2, j ) * aJt( 1, j );
+                aJ3bt( 3, j ) = 2 * aJ2bt( 5, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 1, j );
+                aJ3bt( 4, j ) = 2 * aJ2bt( 4, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 2, j );
+                aJ3bt( 5, j ) = 2 * aJ2bt( 5, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 0, j );
+                aJ3bt( 6, j ) = 2 * aJ2bt( 3, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 2, j );
+                aJ3bt( 7, j ) = 2 * aJ2bt( 4, j ) * aJt( 2, j )  +  aJ2bt( 2, j ) * aJt( 0, j );
+                aJ3bt( 8, j ) = 2 * aJ2bt( 3, j ) * aJt( 2, j )  +  aJ2bt( 2, j ) * aJt( 1, j );
             }
 
             // Block (4) ------------------------------------------------
-            aJ3bt( 3, 3 ) =  2 * aJ2bt( 3, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 3, 1 ) * aJt( 0, 0 )  +  aJ2bt( 0, 1 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 1 );
-            aJ3bt( 4, 3 ) =  2 * aJ2bt( 5, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 5, 1 ) * aJt( 0, 0 )  +  aJ2bt( 0, 1 ) * aJt( 2, 0 )  +  aJ2bt( 0, 0 ) * aJt( 2, 1 );
-            aJ3bt( 5, 3 ) =  2 * aJ2bt( 3, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 3, 1 ) * aJt( 1, 0 )  +  aJ2bt( 1, 1 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 1 );
-            aJ3bt( 6, 3 ) =  2 * aJ2bt( 4, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 4, 1 ) * aJt( 1, 0 )  +  aJ2bt( 1, 1 ) * aJt( 2, 0 )  +  aJ2bt( 1, 0 ) * aJt( 2, 1 );
-            aJ3bt( 7, 3 ) =  2 * aJ2bt( 5, 0 ) * aJt( 2, 1 )  +  2 * aJ2bt( 5, 1 ) * aJt( 2, 0 )  +  aJ2bt( 2, 1 ) * aJt( 0, 0 )  +  aJ2bt( 2, 0 ) * aJt( 0, 1 );
-            aJ3bt( 8, 3 ) =  2 * aJ2bt( 4, 0 ) * aJt( 2, 1 )  +  2 * aJ2bt( 4, 1 ) * aJt( 2, 0 )  +  aJ2bt( 2, 1 ) * aJt( 1, 0 )  +  aJ2bt( 2, 0 ) * aJt( 1, 1 );
+            aJ3bt( 3, 5 ) =  2 * aJ2bt( 5, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 5, 1 ) * aJt( 0, 0 )  +  aJ2bt( 0, 1 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 1 );
+            aJ3bt( 4, 5 ) =  2 * aJ2bt( 4, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 4, 1 ) * aJt( 0, 0 )  +  aJ2bt( 0, 1 ) * aJt( 2, 0 )  +  aJ2bt( 0, 0 ) * aJt( 2, 1 );
+            aJ3bt( 5, 5 ) =  2 * aJ2bt( 5, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 5, 1 ) * aJt( 1, 0 )  +  aJ2bt( 1, 1 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 1 );
+            aJ3bt( 6, 5 ) =  2 * aJ2bt( 3, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 3, 1 ) * aJt( 1, 0 )  +  aJ2bt( 1, 1 ) * aJt( 2, 0 )  +  aJ2bt( 1, 0 ) * aJt( 2, 1 );
+            aJ3bt( 7, 5 ) =  2 * aJ2bt( 4, 0 ) * aJt( 2, 1 )  +  2 * aJ2bt( 4, 1 ) * aJt( 2, 0 )  +  aJ2bt( 2, 1 ) * aJt( 0, 0 )  +  aJ2bt( 2, 0 ) * aJt( 0, 1 );
+            aJ3bt( 8, 5 ) =  2 * aJ2bt( 3, 0 ) * aJt( 2, 1 )  +  2 * aJ2bt( 3, 1 ) * aJt( 2, 0 )  +  aJ2bt( 2, 1 ) * aJt( 1, 0 )  +  aJ2bt( 2, 0 ) * aJt( 1, 1 );
 
-            aJ3bt( 3, 4 ) =  2 * aJ2bt( 3, 1 ) * aJt( 0, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 0, 1 )  +  aJ2bt( 0, 2 ) * aJt( 1, 1 )  +  aJ2bt( 0, 1 ) * aJt( 1, 2 );
-            aJ3bt( 4, 4 ) =  2 * aJ2bt( 5, 1 ) * aJt( 0, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 0, 1 )  +  aJ2bt( 0, 2 ) * aJt( 2, 1 )  +  aJ2bt( 0, 1 ) * aJt( 2, 2 );
-            aJ3bt( 5, 4 ) =  2 * aJ2bt( 3, 1 ) * aJt( 1, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 1, 1 )  +  aJ2bt( 1, 2 ) * aJt( 0, 1 )  +  aJ2bt( 1, 1 ) * aJt( 0, 2 );
-            aJ3bt( 6, 4 ) =  2 * aJ2bt( 4, 1 ) * aJt( 1, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 1, 1 )  +  aJ2bt( 1, 2 ) * aJt( 2, 1 )  +  aJ2bt( 1, 1 ) * aJt( 2, 2 );
-            aJ3bt( 7, 4 ) =  2 * aJ2bt( 5, 1 ) * aJt( 2, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 2, 1 )  +  aJ2bt( 2, 2 ) * aJt( 0, 1 )  +  aJ2bt( 2, 1 ) * aJt( 0, 2 );
-            aJ3bt( 8, 4 ) =  2 * aJ2bt( 4, 1 ) * aJt( 2, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 2, 1 )  +  aJ2bt( 2, 2 ) * aJt( 1, 1 )  +  aJ2bt( 2, 1 ) * aJt( 1, 2 );
+            aJ3bt( 3, 3 ) =  2 * aJ2bt( 5, 1 ) * aJt( 0, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 0, 1 )  +  aJ2bt( 0, 2 ) * aJt( 1, 1 )  +  aJ2bt( 0, 1 ) * aJt( 1, 2 );
+            aJ3bt( 4, 3 ) =  2 * aJ2bt( 4, 1 ) * aJt( 0, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 0, 1 )  +  aJ2bt( 0, 2 ) * aJt( 2, 1 )  +  aJ2bt( 0, 1 ) * aJt( 2, 2 );
+            aJ3bt( 5, 3 ) =  2 * aJ2bt( 5, 1 ) * aJt( 1, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 1, 1 )  +  aJ2bt( 1, 2 ) * aJt( 0, 1 )  +  aJ2bt( 1, 1 ) * aJt( 0, 2 );
+            aJ3bt( 6, 3 ) =  2 * aJ2bt( 3, 1 ) * aJt( 1, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 1, 1 )  +  aJ2bt( 1, 2 ) * aJt( 2, 1 )  +  aJ2bt( 1, 1 ) * aJt( 2, 2 );
+            aJ3bt( 7, 3 ) =  2 * aJ2bt( 4, 1 ) * aJt( 2, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 2, 1 )  +  aJ2bt( 2, 2 ) * aJt( 0, 1 )  +  aJ2bt( 2, 1 ) * aJt( 0, 2 );
+            aJ3bt( 8, 3 ) =  2 * aJ2bt( 3, 1 ) * aJt( 2, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 2, 1 )  +  aJ2bt( 2, 2 ) * aJt( 1, 1 )  +  aJ2bt( 2, 1 ) * aJt( 1, 2 );
 
-            aJ3bt( 3, 5 ) =  2 * aJ2bt( 3, 0 ) * aJt( 0, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 0, 0 )  +  aJ2bt( 0, 2 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 2 );
-            aJ3bt( 4, 5 ) =  2 * aJ2bt( 5, 0 ) * aJt( 0, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 0, 0 )  +  aJ2bt( 0, 2 ) * aJt( 2, 0 )  +  aJ2bt( 0, 0 ) * aJt( 2, 2 );
-            aJ3bt( 5, 5 ) =  2 * aJ2bt( 3, 0 ) * aJt( 1, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 1, 0 )  +  aJ2bt( 1, 2 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 2 );
-            aJ3bt( 6, 5 ) =  2 * aJ2bt( 4, 0 ) * aJt( 1, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 1, 0 )  +  aJ2bt( 1, 2 ) * aJt( 2, 0 )  +  aJ2bt( 1, 0 ) * aJt( 2, 2 );
-            aJ3bt( 7, 5 ) =  2 * aJ2bt( 5, 0 ) * aJt( 2, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 2, 0 )  +  aJ2bt( 2, 2 ) * aJt( 0, 0 )  +  aJ2bt( 2, 0 ) * aJt( 0, 2 );
-            aJ3bt( 8, 5 ) =  2 * aJ2bt( 4, 0 ) * aJt( 2, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 2, 0 )  +  aJ2bt( 2, 2 ) * aJt( 1, 0 )  +  aJ2bt( 2, 0 ) * aJt( 1, 2 );
+            aJ3bt( 3, 4 ) =  2 * aJ2bt( 5, 0 ) * aJt( 0, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 0, 0 )  +  aJ2bt( 0, 2 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 2 );
+            aJ3bt( 4, 4 ) =  2 * aJ2bt( 4, 0 ) * aJt( 0, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 0, 0 )  +  aJ2bt( 0, 2 ) * aJt( 2, 0 )  +  aJ2bt( 0, 0 ) * aJt( 2, 2 );
+            aJ3bt( 5, 4 ) =  2 * aJ2bt( 5, 0 ) * aJt( 1, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 1, 0 )  +  aJ2bt( 1, 2 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 2 );
+            aJ3bt( 6, 4 ) =  2 * aJ2bt( 3, 0 ) * aJt( 1, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 1, 0 )  +  aJ2bt( 1, 2 ) * aJt( 2, 0 )  +  aJ2bt( 1, 0 ) * aJt( 2, 2 );
+            aJ3bt( 7, 4 ) =  2 * aJ2bt( 4, 0 ) * aJt( 2, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 2, 0 )  +  aJ2bt( 2, 2 ) * aJt( 0, 0 )  +  aJ2bt( 2, 0 ) * aJt( 0, 2 );
+            aJ3bt( 8, 4 ) =  2 * aJ2bt( 3, 0 ) * aJt( 2, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 2, 0 )  +  aJ2bt( 2, 2 ) * aJt( 1, 0 )  +  aJ2bt( 2, 0 ) * aJt( 1, 2 );
 
             // Block (5) ------------------------------------------------
             for( uint j=0; j<3; ++j )
             {
-                aJ3bt( 9, j ) =   aJ2bt( 3, j ) * aJt( 2, j )
-                		        + aJ2bt( 4, j ) * aJt( 0, j )
-								+ aJ2bt( 5, j ) * aJt( 1, j );
+                aJ3bt( 9, j ) =   aJ2bt( 4, j ) * aJt( 1, j )
+                		        + aJ2bt( 3, j ) * aJt( 0, j )
+								+ aJ2bt( 5, j ) * aJt( 2, j );
             }
 
             // Block (6) ------------------------------------------------
-            aJ3bt( 9, 3 ) =   aJ2bt( 0, 3 ) * aJt( 1, 2 ) + aJ2bt( 1, 3 ) * aJt( 0, 2 )
-            		        + aJ2bt( 0, 4 ) * aJt( 1, 0 ) + aJ2bt( 1, 4 ) * aJt( 0, 0 )
-							+ aJ2bt( 0, 5 ) * aJt( 1, 1 ) + aJ2bt( 1, 5 ) * aJt( 0, 1 );
+            aJ3bt( 9, 5 ) =   aJ2bt( 5, 0 ) * aJt( 2, 1 ) + aJ2bt( 5, 1 ) * aJt( 2, 0 )
+            		        + aJ2bt( 3, 0 ) * aJt( 0, 1 ) + aJ2bt( 3, 1 ) * aJt( 0, 0 )
+							+ aJ2bt( 4, 0 ) * aJt( 1, 1 ) + aJ2bt( 4, 1 ) * aJt( 1, 0 );
 
-            aJ3bt( 9, 4 ) =   aJ2bt( 1, 3 ) * aJt( 2, 2 ) + aJ2bt( 2, 3 ) * aJt( 1, 2 )
-            		        + aJ2bt( 1, 4 ) * aJt( 2, 0 ) + aJ2bt( 2, 4 ) * aJt( 1, 0 )
-							+ aJ2bt( 1, 5 ) * aJt( 2, 1 ) + aJ2bt( 2, 5 ) * aJt( 1, 1 );
+            aJ3bt( 9, 3 ) =   aJ2bt( 5, 1 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 1 )
+            		        + aJ2bt( 3, 1 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 1 )
+							+ aJ2bt( 4, 1 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 1 );
 
-            aJ3bt( 9, 5 ) =   aJ2bt( 0, 3 ) * aJt( 2, 2 ) + aJ2bt( 2, 3 ) * aJt( 0, 2 )
-            		        + aJ2bt( 0, 4 ) * aJt( 2, 0 ) + aJ2bt( 2, 4 ) * aJt( 0, 0 )
-							+ aJ2bt( 0, 5 ) * aJt( 2, 1 ) + aJ2bt( 2, 5 ) * aJt( 0, 1 );
-
+            aJ3bt( 9, 4 ) =   aJ2bt( 5, 0 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 0 )
+            		        + aJ2bt( 3, 0 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 0 )
+							+ aJ2bt( 4, 0 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 0 );
 
             // third help matrix
             aJ3ct = ad3NdXi3 * aXHat;
