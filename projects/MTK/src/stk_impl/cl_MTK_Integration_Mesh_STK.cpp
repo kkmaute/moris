@@ -47,17 +47,11 @@ Integration_Mesh_STK::Integration_Mesh_STK( MtkMeshData &       aMeshData,
         Mesh_Core_STK(aMeshData)
 {
     // setup cells and cell clusters
-    if(aMeshData.CellClusterInput != nullptr)
-    {
         this->setup_cell_clusters(*aInterpMesh,aMeshData.CellClusterInput);
         this->setup_blockset_with_cell_clusters();
-    }
 
     // setup side set clusters
-    if(aMeshData.SideClusterInput != nullptr)
-    {
         this->setup_side_set_clusters(*aInterpMesh,aMeshData.SideClusterInput);
-    }
 
     if(aMeshData.DoubleSideClusterInput != nullptr)
     {
@@ -82,6 +76,8 @@ Integration_Mesh_STK::Integration_Mesh_STK(Interpolation_Mesh & aInterpMesh,
 
     this->setup_blockset_with_cell_clusters();
 
+    // setup side set clusters
+    this->setup_side_set_clusters(aInterpMesh,nullptr);
 
 }
 
@@ -220,56 +216,74 @@ void
 Integration_Mesh_STK::setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
                                           Cell_Cluster_Input * aCellClusterInput)
 {
+
+    // Number of interpolation cells
+    moris::uint tNumInterpCells = aInterpMesh.get_num_entities(EntityRank::ELEMENT);
+
+    mCellClusters.resize(tNumInterpCells);
+
     if( aCellClusterInput != nullptr)
     {
-        // Number of interpolation cells
-        moris::uint tNumInterpCells = aInterpMesh.get_num_entities(EntityRank::ELEMENT);
-
-        mCellClusters.resize(tNumInterpCells);
-
-        // iterate through cells
-        for(moris::uint i = 0; i <tNumInterpCells; i++)
-        {
-            moris_id tCellId = aInterpMesh.get_glb_entity_id_from_entity_loc_index((moris_index)i,EntityRank::ELEMENT);
-
-            moris_index tClusterIndex = aCellClusterInput->get_cluster_index(tCellId);
-
-            if(tClusterIndex != MORIS_INDEX_MAX)
+            // iterate through cells
+            for(moris::uint i = 0; i <tNumInterpCells; i++)
             {
-                // mark as nontrivial
-                mCellClusters(i).mark_as_nontrivial();
+                    moris_id tCellId = aInterpMesh.get_glb_entity_id_from_entity_loc_index((moris_index)i,EntityRank::ELEMENT);
 
-                mCellClusters(i).set_interpolation_cell( aCellClusterInput->get_interp_cell(tClusterIndex) );
+                    moris_index tClusterIndex = aCellClusterInput->get_cluster_index(tCellId);
 
-                moris::Matrix<IndexMat>* tPrimaryCellIds  = aCellClusterInput->get_primary_cell_ids(tClusterIndex);
-                mCellClusters(i).add_primary_integration_cell(this->get_cell_pointers_from_ids(*tPrimaryCellIds));
+                    if(tClusterIndex != MORIS_INDEX_MAX)
+                    {
+                            // mark as nontrivial
+                            mCellClusters(i).mark_as_nontrivial();
 
-                moris::Matrix<IndexMat>* tVoidCellIds  = aCellClusterInput->get_void_cell_ids(tClusterIndex);
-                mCellClusters(i).add_void_integration_cell(this->get_cell_pointers_from_ids(*tVoidCellIds));
+                            mCellClusters(i).set_interpolation_cell( aCellClusterInput->get_interp_cell(tClusterIndex) );
 
-                moris::Matrix<IndexMat>* tVertexIds  = aCellClusterInput->get_vertex_in_cluster_ids(tClusterIndex);
+                            moris::Matrix<IndexMat>* tPrimaryCellIds  = aCellClusterInput->get_primary_cell_ids(tClusterIndex);
+                            mCellClusters(i).add_primary_integration_cell(this->get_cell_pointers_from_ids(*tPrimaryCellIds));
 
-                mCellClusters(i).add_vertex_to_cluster(this->get_vertex_pointers_from_ids(*tVertexIds));
+                            moris::Matrix<IndexMat>* tVoidCellIds  = aCellClusterInput->get_void_cell_ids(tClusterIndex);
+                            mCellClusters(i).add_void_integration_cell(this->get_cell_pointers_from_ids(*tVoidCellIds));
 
-                moris::Matrix<DDRMat>* tVertexLocalCoords = aCellClusterInput->get_vertex_local_coords_wrt_interpolation_cell(tClusterIndex);
-                mCellClusters(i).add_vertex_local_coordinates_wrt_interp_cell(*tVertexLocalCoords);
+                            moris::Matrix<IndexMat>* tVertexIds  = aCellClusterInput->get_vertex_in_cluster_ids(tClusterIndex);
+
+                            mCellClusters(i).add_vertex_to_cluster(this->get_vertex_pointers_from_ids(*tVertexIds));
+
+                            moris::Matrix<DDRMat>* tVertexLocalCoords = aCellClusterInput->get_vertex_local_coords_wrt_interpolation_cell(tClusterIndex);
+                            mCellClusters(i).add_vertex_local_coordinates_wrt_interp_cell(*tVertexLocalCoords);
+
+                    }
+                    else
+                    {
+                            // an assumption is made here that if the cell does not have a cluster then it is related 1 to 1
+                            // with the interpolation cell with the same id
+
+                            // interpolation cell
+                            mtk::Cell const * tInterpCell = &aInterpMesh.get_mtk_cell((moris_index) i);
+                            mCellClusters(i).set_interpolation_cell( tInterpCell );
+
+                            // integration cell (only primary cells here)
+                            moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+                            mtk::Cell const * tPrimaryCell = &this->get_mtk_cell(tIntegCellIndex);
+                            mCellClusters(i).add_primary_integration_cell(tPrimaryCell);
+                    }
+            }
+    }
+    else
+    {
+            for(moris::uint i = 0; i <tNumInterpCells; i++)
+            {
+                    moris_id tCellId = aInterpMesh.get_glb_entity_id_from_entity_loc_index((moris_index)i,EntityRank::ELEMENT);
+
+                    // interpolation cell
+                    mtk::Cell const * tInterpCell = &aInterpMesh.get_mtk_cell((moris_index) i);
+                    mCellClusters(i).set_interpolation_cell( tInterpCell );
+
+                    // integration cell (only primary cells here)
+                    moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+                    mtk::Cell const * tPrimaryCell = &this->get_mtk_cell(tIntegCellIndex);
+                    mCellClusters(i).add_primary_integration_cell(tPrimaryCell);
 
             }
-            else
-            {
-                // an assumption is made here that if the cell does not have a cluster then it is related 1 to 1
-                // with the interpolation cell with the same id
-
-                // interpolation cell
-                mtk::Cell const * tInterpCell = &aInterpMesh.get_mtk_cell((moris_index) i);
-                mCellClusters(i).set_interpolation_cell( tInterpCell );
-
-                // integration cell (only primary cells here)
-                moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
-                mtk::Cell const * tPrimaryCell = &this->get_mtk_cell(tIntegCellIndex);
-                mCellClusters(i).add_primary_integration_cell(tPrimaryCell);
-            }
-        }
     }
 
 }
@@ -277,73 +291,72 @@ Integration_Mesh_STK::setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
 void
 Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
 {
-   // construct integration to cell cluster relationship
-    moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex(this->get_num_entities(EntityRank::ELEMENT),MORIS_INDEX_MAX);
+    // construct integration to cell cluster relationship
+     moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex(this->get_num_entities(EntityRank::ELEMENT),MORIS_INDEX_MAX);
 
-    // iterate through clusters
-    for(moris::uint  i = 0; i < mCellClusters.size(); i++)
-    {
-        Cell_Cluster_STK const & tCellCluster = mCellClusters(i);
-        moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCellCluster.get_primary_cells_in_cluster();
+     // iterate through clusters
+     for(moris::uint  i = 0; i < mCellClusters.size(); i++)
+     {
+         Cell_Cluster_STK const & tCellCluster = mCellClusters(i);
+         moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCellCluster.get_primary_cells_in_cluster();
 
-        // iterate through primary cells
-        for(moris::uint j = 0; j <tCellCluster.get_num_primary_cells(); j++)
-        {
-            moris::moris_index tCellIndex = tPrimaryCells(j)->get_index();
+         // iterate through primary cells
+         for(moris::uint j = 0; j <tCellCluster.get_num_primary_cells(); j++)
+         {
+             moris::moris_index tCellIndex = tPrimaryCells(j)->get_index();
 
-            MORIS_ASSERT(tPrimaryIntegrationCellToClusterIndex(tCellIndex) == MORIS_INDEX_MAX,"Integration cell can only appear as a primary cell in one cell cluster");
-            tPrimaryIntegrationCellToClusterIndex(tCellIndex) = (moris_index) i;
-        }
-    }
+             MORIS_ASSERT(tPrimaryIntegrationCellToClusterIndex(tCellIndex) == MORIS_INDEX_MAX,"Integration cell can only appear as a primary cell in one cell cluster");
+             tPrimaryIntegrationCellToClusterIndex(tCellIndex) = (moris_index) i;
+         }
+     }
 
-    // get all block sets from the mesh
-    moris::Cell<std::string> tBlockSetNames = this->get_set_names(EntityRank::ELEMENT);
+     // get all block sets from the mesh
+     moris::Cell<std::string> tBlockSetNames = this->get_set_names(EntityRank::ELEMENT);
 
-    mPrimaryBlockSetClusters.resize(tBlockSetNames.size());
-    mPrimaryBlockSetNames = tBlockSetNames;
+     mPrimaryBlockSetClusters.resize(tBlockSetNames.size());
+     mPrimaryBlockSetNames = tBlockSetNames;
 
-    moris::Cell<uint> tSetsToRemove;
+     moris::Cell<uint> tSetsToRemove;
 
-    for(moris::uint i = 0; i<tBlockSetNames.size(); i++)
-    {
+     for(moris::uint i = 0; i<tBlockSetNames.size(); i++)
+     {
 
-        moris::Matrix<moris::IndexMat> tCellsInSet = this->get_set_entity_loc_inds(EntityRank::ELEMENT,tBlockSetNames(i));
+         moris::Matrix<moris::IndexMat> tCellsInSet = this->get_set_entity_loc_inds(EntityRank::ELEMENT,tBlockSetNames(i));
 
-        bool tSetHasCluster = false;
+         bool tSetHasCluster = false;
 
-        // add the cells in set's primary cluster to member data (make unique later)
-        for(moris::uint j =0; j<tCellsInSet.numel(); j++)
-        {
-            moris::moris_index tCellIndex    = tCellsInSet(j);
-            moris::moris_index tClusterIndex = tPrimaryIntegrationCellToClusterIndex(tCellIndex);
+         // add the cells in set's primary cluster to member data (make unique later)
+         for(moris::uint j =0; j<tCellsInSet.numel(); j++)
+         {
+             moris::moris_index tCellIndex    = tCellsInSet(j);
+             moris::moris_index tClusterIndex = tPrimaryIntegrationCellToClusterIndex(tCellIndex);
 
-            if(tClusterIndex != MORIS_INDEX_MAX )
-            {
-                tSetHasCluster = true;
-                mPrimaryBlockSetClusters(i).push_back(tClusterIndex);
-            }
-        }
+             if(tClusterIndex != MORIS_INDEX_MAX )
+             {
+                 tSetHasCluster = true;
+                 mPrimaryBlockSetClusters(i).push_back(tClusterIndex);
+             }
+         }
 
-        // if there are no elements which are a primary cell in one cluster for this block set, then we remove it.
-        if( !tSetHasCluster )
-        {
-            tSetsToRemove.push_back(i);
-        }
+         // if there are no elements which are a primary cell in one cluster for this block set, then we remove it.
+         if( !tSetHasCluster )
+         {
+             tSetsToRemove.push_back(i);
+         }
 
-        // remove duplicates
-        else
-        {
-            moris::unique( mPrimaryBlockSetClusters(i));
-        }
-    }
+         // remove duplicates
+         else
+         {
+             moris::unique( mPrimaryBlockSetClusters(i));
+         }
+     }
 
-
-    // remove block sets which had not primary clusters
-    for(moris::uint i = tSetsToRemove.size(); i>0; i--)
-    {
-        mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
-        mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
-    }
+     // remove block sets which had not primary clusters
+     for(moris::uint i = tSetsToRemove.size(); i>0; i--)
+     {
+         mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
+         mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
+     }
 }
 
 void
@@ -394,7 +407,9 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
                 // construct a trivial side cluster
                 moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell),tSideOrdsInSet(iIGCell)));
+
+
+                mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
             }
         }
         else
@@ -451,12 +466,30 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
                     // construct a trivial side cluster
                     moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                    mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell),tSideOrdsInSet(iIGCell)));
+                    mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
+
                 }
             }
 
 
         }
+        }
+        // all trivial case
+        else
+        {
+                // loop over cells in the side set and make sure they have all been included
+                for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
+                {
+                        moris_id tCellId = tCellsInSet(iIGCell)->get_id();
+
+                        // interpolation cell index
+                        moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+
+                        // construct a trivial side cluster
+                        moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
+                        mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
+
+                }
         }
 
     }
@@ -514,11 +547,11 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
                 MORIS_ASSERT(tIntegCellId->numel() == 2,"more than one integration cell in interpolation cluster");
 
                 // integration cell
-                moris_index tCellIndex              = this->get_loc_entity_ind_from_entity_glb_id((*tIntegCellId)(0),EntityRank::ELEMENT);
-                moris::mtk::Cell const * tIntegCell = &this->get_mtk_cell(tCellIndex);
-
-
-                mDoubleSideSetSideClusters.push_back(Side_Cluster_STK(tInterpCell,tIntegCell,(*tIntegCellId)(1)));
+                moris_index tCellIndex                                  = this->get_loc_entity_ind_from_entity_glb_id((*tIntegCellId)(0),EntityRank::ELEMENT);
+                moris::mtk::Cell const * tIntegCell                     = &this->get_mtk_cell(tCellIndex);
+                moris_index tSideOrd                                    = (*tIntegCellId)(1);
+                moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide =  tIntegCell->get_vertices_on_side_ordinal(tSideOrd);
+                mDoubleSideSetSideClusters.push_back(Side_Cluster_STK(tInterpCell,tIntegCell,tVerticesOnSide,tSideOrd));
 
             }
             // if not trivial
@@ -542,10 +575,15 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
 
                 // integration cell
                 moris_index tCellIndex              = this->get_loc_entity_ind_from_entity_glb_id((*tIntegCellId)(0),EntityRank::ELEMENT);
+                moris_index tSideOrd                = (*tIntegCellId)(1);
                 moris::mtk::Cell const * tIntegCell = &this->get_mtk_cell(tCellIndex);
+                moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide =  tIntegCell->get_vertices_on_side_ordinal(tSideOrd);
 
 
-                mDoubleSideSetSideClusters.push_back(Side_Cluster_STK(tInterpCell,tIntegCell,(*tIntegCellId)(1)));
+
+
+
+                mDoubleSideSetSideClusters.push_back(Side_Cluster_STK(tInterpCell,tIntegCell,tVerticesOnSide,(*tIntegCellId)(1)));
             }
             // if not trivial
             else
@@ -554,14 +592,27 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
 
             }
 
-            // construct the double side cluster
+            // construct left to right vertex pairing
+            moris::Matrix<moris::IdMat> * tVertexPairing = aDoubleSideClusterInput->mVertexPairing(i)(iC);
+            moris::uint tNumVertPairs = tVertexPairing->n_rows();
+            moris::Cell<moris::mtk::Vertex const *> tVertexLeftToRightPair(tNumVertPairs);
 
-            mDoubleSideSets(i).push_back(Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex)));
+            // left vertex pointers
+            moris::Cell<moris::mtk::Vertex const *> tLeftVertPtrs  = this->get_vertex_pointers_from_ids(tVertexPairing->get_column(0));
+            moris::Cell<moris::mtk::Vertex const *> tRightVertPtrs = this->get_vertex_pointers_from_ids(tVertexPairing->get_column(1));
+
+            for(moris::uint iV = 0; iV < tNumVertPairs; iV++)
+            {
+                // get left vertex index
+                moris_index tLeftClustIndex = mDoubleSideSetSideClusters(tLeftIndex).get_vertex_cluster_index( tLeftVertPtrs(iV) );
+                tVertexLeftToRightPair(tLeftClustIndex) = tRightVertPtrs(iV);
+            }
+
+
+            // construct the double side cluster
+            mDoubleSideSets(i).push_back(Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex),tVertexLeftToRightPair));
 
         }
-
-
-
     }
 
 }

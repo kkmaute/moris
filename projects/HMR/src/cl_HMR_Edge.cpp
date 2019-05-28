@@ -8,73 +8,63 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Edge::Edge( Mesh_Base * aMesh,
+        Edge::Edge( Mesh_Base       * aMesh,
                     Background_Edge * aBackgroundEdge )
         {
-
             this->find_master( aMesh, aBackgroundEdge );
-
         }
 
 //------------------------------------------------------------------------------
 
-        moris_id
-        Edge::get_id() const
+        moris_id Edge::get_id() const
         {
             return mID;
         }
 
 //------------------------------------------------------------------------------
 
-        moris_id
-        Edge::get_index() const
+        moris_id Edge::get_index() const
         {
             return mIndex;
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Edge::set_index( const moris_index & aIndex )
+        void Edge::set_index( const moris_index & aIndex )
         {
             mIndex = aIndex;
         }
 //------------------------------------------------------------------------------
 
-        void
-        Edge::set_id( const moris_id & aID )
+        void Edge::set_id( const moris_id & aID )
         {
             mID = aID;
         }
 
 //------------------------------------------------------------------------------
 
-        moris_id
-        Edge::get_owner() const
+        moris_id Edge::get_owner() const
         {
             return mOwner;
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Edge::set_owner( const moris_id & aOwner )
+        void Edge::set_owner( const moris_id & aOwner )
         {
             mOwner = aOwner;
         }
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Vertex* >
-        Edge::get_vertex_pointers() const
+        moris::Cell< mtk::Vertex * > Edge::get_vertex_pointers() const
         {
             return moris::Cell< mtk::Vertex* >(0);
         }
 
 //------------------------------------------------------------------------------
 
-        Matrix< IdMat >
-        Edge::get_vertex_ids() const
+        Matrix< IdMat > Edge::get_vertex_ids() const
         {
             // get number of vertices
             uint tNumberOfVertices =  this->get_number_of_vertices();
@@ -95,8 +85,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< IndexMat >
-        Edge::get_vertex_inds() const
+        Matrix< IndexMat > Edge::get_vertex_inds() const
         {
             // get number of vertices
             uint tNumberOfVertices = this->get_number_of_vertices();
@@ -117,8 +106,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Edge::get_vertex_coords() const
+        Matrix< DDRMat > Edge::get_vertex_coords() const
         {
             // get number of vertices
             uint tNumberOfVertices = this->get_number_of_vertices();
@@ -141,18 +129,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        mtk::Geometry_Type
-        Edge::get_geometry_type() const
+        mtk::Geometry_Type Edge::get_geometry_type() const
         {
             return mtk::Geometry_Type::LINE;
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Edge::find_master(
-                Mesh_Base       * aMesh,
-                Background_Edge * aBackgroundEdge )
+        void Edge::find_master( Mesh_Base       * aMesh,
+                                Background_Edge * aBackgroundEdge )
         {
             // master is element with lowest id and active
 
@@ -235,12 +220,10 @@ namespace moris
 
             // set owner of this edge
             mOwner = mElements( mIndexOfMaster )->get_owner();
-
         }
 //------------------------------------------------------------------------------
 
-        bool
-        Edge::is_active() const
+        bool Edge::is_active() const
         {
             uint tNumberOfElements = mElements.size();
 

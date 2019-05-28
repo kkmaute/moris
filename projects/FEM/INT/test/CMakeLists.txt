@@ -70,6 +70,12 @@ set(TEST_DEPENDENCIES
     ${MORIS_BOOST_LIBS}
     )
 
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE TEST_DEPENDENCIES)
+list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
+list(REVERSE TEST_DEPENDENCIES)
+
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 

@@ -57,6 +57,11 @@ namespace moris
     Set::~Set()
     {
         this->delete_pointers();
+
+        for( auto tEquationObj : mEquationObjList )
+        {
+            delete tEquationObj;
+        }
     }
 
 //------------------------------------------------------------------------------
@@ -69,9 +74,10 @@ namespace moris
             delete mGeometryInterpolator;
         }
 
-        mFieldInterpolators.clear();
-
-//        mEquationObjList.clear();        // FIXME memory leak
+        for( auto tFieldInterpolator : mFieldInterpolators )
+        {
+            delete tFieldInterpolator;
+        }
     }
 
 //------------------------------------------------------------------------------

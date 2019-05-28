@@ -60,7 +60,6 @@ namespace moris
 
             mLagrangeMesh = aMesh->get_lagrange_mesh();
 
-
             // create data on target mesh
             mFieldIndex = mLagrangeMesh->create_real_scalar_field_data( aLabel );
 
@@ -97,7 +96,6 @@ namespace moris
             mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, mInputBSplineOrder );
 
             this->evaluate_node_values();
-
         }
 
 //------------------------------------------------------------------------------
@@ -110,40 +108,35 @@ namespace moris
 //------------------------------------------------------------------------------
 
         // parameter copied from input settings
-        void
-        Field::set_min_surface_level( const uint & aLevel )
+        void Field::set_min_surface_level( const uint & aLevel )
         {
             mMinSurfaceLevel = aLevel;
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::set_min_volume_level( const uint & aLevel )
+        void Field::set_min_volume_level( const uint & aLevel )
         {
             mMinVolumeLevel = aLevel;
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::set_max_surface_level( const uint & aLevel )
+        void Field::set_max_surface_level( const uint & aLevel )
         {
             mMaxSurfaceLevel = aLevel;
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::set_max_volume_level( const uint & aLevel )
+        void Field::set_max_volume_level( const uint & aLevel )
         {
             mMaxVolumeLevel = aLevel;
         }
 
 //------------------------------------------------------------------------------
 
-        uint
-        Field::get_min_surface_level() const
+        uint Field::get_min_surface_level() const
         {
             return mMinSurfaceLevel;
         }
@@ -151,8 +144,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         // parameter copied from input settings
-        uint
-        Field::get_min_volume_level() const
+        uint Field::get_min_volume_level() const
         {
             return mMinVolumeLevel;
         }
@@ -160,8 +152,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         // parameter copied from input settings
-        uint
-        Field::get_max_surface_level() const
+        uint Field::get_max_surface_level() const
         {
             return mMaxSurfaceLevel;
         }
@@ -169,16 +160,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         // parameter copied from input settings
-        uint
-        Field::get_max_volume_level() const
+        uint Field::get_max_volume_level() const
         {
             return mMaxVolumeLevel;
         }
 
 //------------------------------------------------------------------------------
 
-        const std::string &
-        Field::get_label() const
+        const std::string & Field::get_label() const
         {
             return mLagrangeMesh->get_real_scalar_field_label( mFieldIndex );
 
@@ -186,49 +175,43 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::set_label( const std::string & aLabel )
+        void Field::set_label( const std::string & aLabel )
         {
             mLagrangeMesh->set_real_scalar_field_label( mFieldIndex, aLabel );
         }
 
 //------------------------------------------------------------------------------
 
-
-        Matrix< DDRMat > &
-        Field::get_node_values()
+        Matrix< DDRMat > & Field::get_node_values()
         {
             return mLagrangeMesh->get_real_scalar_field_data( mFieldIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
-        Field::get_node_values() const
+        const Matrix< DDRMat > & Field::get_node_values() const
         {
             return mLagrangeMesh->get_real_scalar_field_data( mFieldIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > &
-        Field::get_coefficients()
+        Matrix< DDRMat > & Field::get_coefficients()
         {
             return mLagrangeMesh->get_real_scalar_field_coeffs( mFieldIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
-        Field::get_coefficients() const
+        const Matrix< DDRMat > & Field::get_coefficients() const
         {
             return mLagrangeMesh->get_real_scalar_field_coeffs( mFieldIndex );
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::change_mesh( Lagrange_Mesh_Base * aMesh, const uint aFieldIndex )
+        void Field::change_mesh(       Lagrange_Mesh_Base * aMesh,
+                                 const uint                 aFieldIndex )
         {
             // set order of B-Spline
             mLagrangeMesh->set_real_scalar_field_bspline_order(
@@ -243,8 +226,7 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        void
-        Field::get_element_local_node_values(
+        void Field::get_element_local_node_values(
                 const moris_index  aElementIndex,
                 Matrix< DDRMat > & aValues )
         {
@@ -267,8 +249,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::evaluate_node_values( const Matrix< DDRMat > & aCoefficients )
+        void Field::evaluate_node_values( const Matrix< DDRMat > & aCoefficients )
         {
             // ask mesh for number of nodes
             uint tNumberOfNodes = mMesh->get_num_nodes();
@@ -313,16 +294,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::evaluate_node_values()
+        void Field::evaluate_node_values()
         {
             this->evaluate_node_values( this->get_coefficients() );
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::evaluate_scalar_function(
+        void Field::evaluate_scalar_function(
                 real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             // get pointer to node values
@@ -341,12 +320,10 @@ namespace moris
 
                 tNodeValues( k ) = aFunction(
                         mMesh->get_mtk_vertex( k ).get_coords() );
-
             }
         }
 
-        void
-        Field::put_scalar_values_on_field( const Matrix< DDRMat > & aValues )
+        void Field::put_scalar_values_on_field( const Matrix< DDRMat > & aValues )
         {
             // get pointer to node values
             Matrix< DDRMat > & tNodeValues = this->get_node_values();
@@ -366,8 +343,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::save_field_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile )
+        void Field::save_field_to_hdf5( const std::string & aFilePath,
+                                        const bool          aCreateNewFile )
         {
            // test if file exists
            std::string tFilePath = make_path_parallel( aFilePath );
@@ -418,8 +395,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::save_node_values_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile )
+        void Field::save_node_values_to_hdf5( const std::string & aFilePath,
+                                              const bool          aCreateNewFile )
         {
            // test if file exists
            std::string tFilePath = make_path_parallel( aFilePath );
@@ -470,8 +447,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::load_field_from_hdf5(
+        void Field::load_field_from_hdf5(
                 const std::string & aFilePath,
                 const uint          aBSplineOrder )
         {
@@ -490,8 +466,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
 
-        void
-        Field::save_node_values_to_binary( const std::string & aFilePath )
+        void Field::save_node_values_to_binary( const std::string & aFilePath )
         {
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
@@ -501,8 +476,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::save_bspline_coeffs_to_binary( const std::string & aFilePath )
+        void Field::save_bspline_coeffs_to_binary( const std::string & aFilePath )
         {
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
@@ -513,8 +487,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Field::set_bspline_order( const uint & aOrder )
+        void Field::set_bspline_order( const uint & aOrder )
         {
             mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, aOrder );
         }
@@ -522,8 +495,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
 
-        EntityRank
-        Field::get_bspline_rank() const
+        EntityRank Field::get_bspline_rank() const
         {
             switch( this->get_bspline_order() )
             {

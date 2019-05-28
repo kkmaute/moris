@@ -4,7 +4,7 @@
 # Third party library dependencies
 list(REMOVE_DUPLICATES SOL_CORE_TPL_DEPENDENCIES)
 foreach(SOL_CORE_TPL ${SOL_CORE_TPL_DEPENDENCIES})
-    include(${MORIS_CMAKE_DIR}/${SOL_CORE_TPL}.cmake)
+    include(${MORIS_TPL_DIR}/${SOL_CORE_TPL}.cmake)
 endforeach()
 
 # Add source directory

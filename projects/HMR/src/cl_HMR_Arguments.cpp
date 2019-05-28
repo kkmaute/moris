@@ -14,11 +14,9 @@ namespace moris
     {
 //--------------------------------------------------------------------------------
 
-        Arguments::Arguments(
-                int  & argc,
-                char * argv[] )
+        Arguments::Arguments( int  & argc,
+                              char * argv[] )
         {
-
             if( argc == 1 )
             {
                 // print usage and exit
@@ -26,7 +24,6 @@ namespace moris
             }
             else
             {
-
                 bool tArgumentsError = false;
                 bool tMapFlag = false;
                 bool tRefineFlag = false;
@@ -37,7 +34,6 @@ namespace moris
                 // loop over all arguments
                 for( int k=0; k<argc; ++k )
                 {
-
                     if (   std::string( argv[ k ] ) == "--version"
                         || std::string( argv[ k ] ) == "-v" )
                     {
@@ -126,7 +122,6 @@ namespace moris
                             tRefineFlag = true;
                         }
                     }
-
                 }
 
                 if ( tRefineFlag )
@@ -151,9 +146,7 @@ namespace moris
 
 //---------------------------------------------------------------------------------
 
-
-        void
-        Arguments::print_usage()
+        void Arguments::print_usage()
         {
             if( par_rank() == 0 )
             {
@@ -165,8 +158,7 @@ namespace moris
 
 //---------------------------------------------------------------------------------
 
-        void
-        Arguments::print_help()
+        void Arguments::print_help()
         {
             if( par_rank() == 0 )
             {

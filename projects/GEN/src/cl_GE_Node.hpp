@@ -16,22 +16,19 @@ namespace moris
 	{
 		class Node : public mtk::Vertex
 		{
-			//------------------------------------------------------------------------------
-		private:
-			moris::Matrix< DDRMat > coord;
-
-			//------------------------------------------------------------------------------
 
 		public:
 			//------------------------------------------------------------------------------
 			Node(double xval, double yval){
-				coord.set_size(1,2,1.0);
-				coord(0,0) = xval; coord(0,1) = yval;
+			    mMyIndex = 0;   // default the index to zero
+			    mCoord.set_size(1,2,1.0);
+				mCoord(0,0) = xval; mCoord(0,1) = yval;
 			}
 
             Node(double xval, double yval, double zval){
-                coord.set_size(1,3,1.0);
-                coord(0,0) = xval; coord(0,1) = yval; coord(0,2) = zval;
+                mMyIndex = 0;   // default the index to zero
+                mCoord.set_size(1,3,1.0);
+                mCoord(0,0) = xval; mCoord(0,1) = yval; mCoord(0,2) = zval;
             }
 			//------------------------------------------------------------------------------
 			~Node(){};
@@ -40,7 +37,7 @@ namespace moris
 			// gives the coordinates of node
 			Matrix< DDRMat > get_coords() const
 			{
-				return coord;
+				return mCoord;
 			};
 
 			//------------------------------------------------------------------------------
@@ -57,9 +54,15 @@ namespace moris
 			moris_index
 			get_index() const
 			{
-				MORIS_ERROR( false, "get_index() not implemented " );
-				return 0;
+				return mMyIndex;
 			};
+            //------------------------------------------------------------------------------
+            // set the node index (defaults to zero if not set)
+            void
+            set_index( moris_index aIndex )
+            {
+                mMyIndex = aIndex;
+            };
 
 			//------------------------------------------------------------------------------
 			// gives owner of node
@@ -114,7 +117,12 @@ namespace moris
 				MORIS_ERROR( false, "is_flagged() not implemented " );
 				return false;
 			};
+            //------------------------------------------------------------------------------
 
+        private:
+            moris::Matrix< DDRMat > mCoord;
+
+            moris_index mMyIndex;
 
 		};
 

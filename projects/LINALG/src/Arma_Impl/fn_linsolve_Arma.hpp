@@ -9,10 +9,10 @@
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_LINSOLVE_ARMA_HPP_
 #include <armadillo>
 
-#include "viennacl/linalg/cg.hpp"
-#include "viennacl/linalg/bicgstab.hpp"
-#include "viennacl/linalg/gmres.hpp"
-#include "viennacl/io/matrix_market.hpp"
+//#include "viennacl/linalg/cg.hpp"
+//#include "viennacl/linalg/bicgstab.hpp"
+//#include "viennacl/linalg/gmres.hpp"
+//#include "viennacl/io/matrix_market.hpp"
 
 namespace moris
 {

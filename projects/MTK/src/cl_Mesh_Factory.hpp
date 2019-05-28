@@ -94,6 +94,26 @@ create_interpolation_mesh(enum MeshType  aMeshType,
     return tMesh;
 }
 
+inline Interpolation_Mesh*
+create_interpolation_mesh(enum MeshType aMeshType,
+            MtkMeshData   aMeshData )
+{
+    Interpolation_Mesh* tMeshBase = nullptr;
+    switch (aMeshType)
+    {
+        case(MeshType::STK):
+        {
+            tMeshBase = new Interpolation_Mesh_STK( aMeshData );
+            break;
+        }
+        default:
+        {
+            MORIS_ASSERT( 0, "Specified mesh type not supported by MORIS or this construction method not implemented" );
+        }
+    }
+    return tMeshBase;
+}
+
 
 inline Integration_Mesh*
 create_integration_mesh(enum MeshType  aMeshType,

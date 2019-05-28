@@ -169,8 +169,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           print() const;
+           void print() const;
 
 //--------------------------------------------------------------------------------
 
@@ -179,8 +178,7 @@ namespace moris
             *
             * @return bool
             */
-           auto
-           is_verbose() const
+           auto is_verbose() const
                -> decltype ( mVerbose )
            {
                return mVerbose;
@@ -194,8 +192,7 @@ namespace moris
             * @param[in] aSwitch    true or false
             * @return void
             */
-           void
-           set_verbose( const bool aSwitch )
+           void set_verbose( const bool aSwitch )
            {
                mVerbose = aSwitch;
            }
@@ -209,8 +206,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_refinement_buffer( const luint & aBufferSize )
+           void set_refinement_buffer( const luint & aBufferSize )
            {
                mRefinementBuffer = aBufferSize;
            }
@@ -224,16 +220,15 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_staircase_buffer( const luint & aBufferSize )
+           void set_staircase_buffer( const luint & aBufferSize )
            {
                mStaircaseBuffer = aBufferSize;
            }
 
 //--------------------------------------------------------------------------------
 
-           auto
-           get_staircase_buffer() const -> decltype( mStaircaseBuffer )
+           auto get_staircase_buffer() const
+               -> decltype( mStaircaseBuffer )
            {
                if( mBSplineTruncationFlag )
                {
@@ -252,9 +247,8 @@ namespace moris
             *
             * @return luint
             */
-           auto
-           get_refinement_buffer()
-           const -> decltype( mRefinementBuffer )
+           auto get_refinement_buffer() const
+               -> decltype( mRefinementBuffer )
            {
                return mRefinementBuffer;
            }
@@ -265,15 +259,13 @@ namespace moris
             * a function which sets orders for lagrange and B-Spline meshes
             * in the most simple way
             */
-           void
-           set_mesh_orders_simple( const uint & aMaxOrder );
+           void set_mesh_orders_simple( const uint & aMaxOrder );
 
 //--------------------------------------------------------------------------------
            /**
             * sets the mesh orders according to given matrix
             */
-           void
-           set_lagrange_orders( const Matrix< DDUMat > & aMeshOrders );
+           void set_lagrange_orders( const Matrix< DDUMat > & aMeshOrders );
 
 //--------------------------------------------------------------------------------
 
@@ -281,16 +273,15 @@ namespace moris
            /**
             * sets the mesh orders according to given matrix
             */
-           void
-           set_bspline_orders( const Matrix< DDUMat > & aMeshOrders );
+           void set_bspline_orders( const Matrix< DDUMat > & aMeshOrders );
 
 //--------------------------------------------------------------------------------
 
            /**
             * returns a matrix with mesh orders
             */
-           auto
-           get_lagrange_orders() const -> decltype( mLagrangeOrders )
+           auto get_lagrange_orders() const
+               -> decltype( mLagrangeOrders )
            {
                return mLagrangeOrders;
            }
@@ -300,8 +291,8 @@ namespace moris
            /**
             * returns a matrix with mesh orders
             */
-           auto
-           get_bspline_orders() const -> decltype( mBSplineOrders )
+           auto get_bspline_orders() const
+               -> decltype( mBSplineOrders )
            {
                return mBSplineOrders;
            }
@@ -314,16 +305,15 @@ namespace moris
             * @param[ in ] aPattern patterns set by set_mesh_orders the Lagrange meshes refer to.
             *
             */
-           void
-           set_lagrange_patterns( const Matrix< DDUMat > & aPatterns );
+           void set_lagrange_patterns( const Matrix< DDUMat > & aPatterns );
 
 //-------------------------------------------------------------------------------
 
            /**
             * returns a moris::Mat containing the patterns the meshes are linked to
             */
-           auto
-           get_lagrange_patterns() const -> decltype ( mLagrangePatterns )
+           auto get_lagrange_patterns() const
+               -> decltype ( mLagrangePatterns )
            {
                return mLagrangePatterns;
            }
@@ -333,8 +323,7 @@ namespace moris
            /**
             * returns an entry of mLagrangeOrders
             */
-           auto
-           get_lagrange_order( const uint & aIndex ) const
+           auto get_lagrange_order( const uint & aIndex ) const
                -> decltype( mLagrangeOrders( aIndex ) )
            {
                return mLagrangeOrders( aIndex );
@@ -345,8 +334,7 @@ namespace moris
            /**
             * returns an entry of mLagrangePatterns
             */
-           auto
-           get_lagrange_pattern( const uint & aIndex ) const
+           auto get_lagrange_pattern( const uint & aIndex ) const
                -> decltype( mLagrangePatterns( aIndex ) )
            {
                return mLagrangePatterns( aIndex );
@@ -359,16 +347,15 @@ namespace moris
             *
            * @param[ in ] aPattern patterns set by set_mesh_orders the B-Spline meshes refer to.
             */
-           void
-           set_bspline_patterns( const Matrix< DDUMat > & aPatterns );
+           void set_bspline_patterns( const Matrix< DDUMat > & aPatterns );
 
 //-------------------------------------------------------------------------------
 
            /**
             * returns a moris::Mat containing the patterns the meshes are linked to
             */
-           auto
-           get_bspline_patterns() const -> decltype ( mBSplinePatterns )
+           auto get_bspline_patterns() const
+               -> decltype ( mBSplinePatterns )
            {
                return mBSplinePatterns;
            }
@@ -378,8 +365,7 @@ namespace moris
            /**
             * returns an entry of mBSplinePatterns
             */
-           auto
-           get_bspline_pattern( const uint & aIndex ) const
+           auto get_bspline_pattern( const uint & aIndex ) const
                -> decltype( mBSplinePatterns( aIndex ) )
            {
                return mBSplinePatterns( aIndex );
@@ -390,8 +376,7 @@ namespace moris
            /**
             * returns an entry of mBSplineOrders
             */
-           auto
-           get_bspline_order( const uint & aIndex ) const
+           auto get_bspline_order( const uint & aIndex ) const
                -> decltype( mBSplineOrders( aIndex ) )
            {
                return mBSplineOrders( aIndex );
@@ -402,8 +387,7 @@ namespace moris
            /**
             * returns the number of B-Spline meshes
             */
-           uint
-           get_number_of_bspline_meshes() const
+           uint get_number_of_bspline_meshes() const
            {
                return mBSplineOrders.length();
            }
@@ -413,8 +397,7 @@ namespace moris
            /**
             * returns the number of Lagrange meshes
             */
-           uint
-           get_number_of_lagrange_meshes() const
+           uint get_number_of_lagrange_meshes() const
            {
                return mLagrangeOrders.length();
            }
@@ -423,8 +406,7 @@ namespace moris
            /**
             * returns the index of the defined Lagrange union mesh for a specified order
             */
-           uint
-           get_union_mesh( const uint & aOrder ) const
+           uint get_union_mesh( const uint & aOrder ) const
            {
                return mUnionMeshes( aOrder-1 );
            }
@@ -434,8 +416,7 @@ namespace moris
            /**
             * returns the index of the defined Lagrange output mesh for a specified order
             */
-           uint
-           get_output_mesh( const uint & aOrder ) const
+           uint get_output_mesh( const uint & aOrder ) const
            {
                return mOutputMeshes( aOrder-1 );
            }
@@ -445,8 +426,8 @@ namespace moris
            /**
             * returns the mesh for refined output
             */
-           auto
-           get_refined_output_mesh() const -> decltype( mRefinedOutputMesh )
+           auto get_refined_output_mesh() const
+               -> decltype( mRefinedOutputMesh )
            {
                return mRefinedOutputMesh;
            }
@@ -472,8 +453,7 @@ namespace moris
             *
             * @return luint number of padding elements defining aura width
             */
-           auto
-           get_padding_size() const
+           auto get_padding_size() const
                -> decltype ( mStaircaseBuffer ) ;
 
 //--------------------------------------------------------------------------------
@@ -483,8 +463,7 @@ namespace moris
             *
             * @return Matrix< DDLUMat >
             */
-           auto
-           get_number_of_elements_per_dimension() const
+           auto get_number_of_elements_per_dimension() const
                -> decltype ( mNumberOfElementsPerDimension )
            {
                return mNumberOfElementsPerDimension ;
@@ -499,9 +478,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_number_of_elements_per_dimension(
-                   const Matrix< DDLUMat > & aNumberOfElementsPerDimension );
+           void set_number_of_elements_per_dimension( const Matrix< DDLUMat > & aNumberOfElementsPerDimension );
 
 //--------------------------------------------------------------------------------
 
@@ -513,10 +490,8 @@ namespace moris
             * @param[in] aElementsY
             * @return void
             */
-           void
-           set_number_of_elements_per_dimension(
-                           const luint & aElementsX,
-                           const luint & aElementsY );
+           void set_number_of_elements_per_dimension( const luint & aElementsX,
+                                                      const luint & aElementsY );
 
 //--------------------------------------------------------------------------------
 
@@ -529,8 +504,7 @@ namespace moris
             * @param[in] aElementsZ
             * @return void
             */
-           void
-           set_number_of_elements_per_dimension(
+           void set_number_of_elements_per_dimension(
                    const luint & aElementsX,
                    const luint & aElementsY,
                    const luint & aElementsZ );
@@ -542,8 +516,7 @@ namespace moris
             *
             * return luint
             */
-           luint
-           get_number_of_dimensions() const
+           luint get_number_of_dimensions() const
            {
                return mNumberOfElementsPerDimension.length();
            }
@@ -557,8 +530,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions );
+           void set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions );
 
 //-------------------------------------------------------------------------------
 
@@ -569,8 +541,7 @@ namespace moris
             * @param[in] real dimension in Y-Direction
             * @return void
             */
-           void
-           set_domain_dimensions(
+           void set_domain_dimensions(
                    const real & aDomainDimensionsX,
                    const real & aDomainDimensionsY );
 
@@ -584,8 +555,7 @@ namespace moris
             * @param[in] real dimension in Z-Direction
             * @return void
             */
-           void
-           set_domain_dimensions(
+           void set_domain_dimensions(
                    const real & aDomainDimensionsX,
                    const real & aDomainDimensionsY,
                    const real & aDomainDimensionsZ);
@@ -597,8 +567,7 @@ namespace moris
             *
             * @return Matrix< DDRMat >
             */
-           Matrix< DDRMat >
-           get_domain_dimensions() const ;
+           Matrix< DDRMat > get_domain_dimensions() const;
 
 //-------------------------------------------------------------------------------
 
@@ -609,8 +578,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_domain_offset( const Matrix< DDRMat > & aDomainOffset );
+           void set_domain_offset( const Matrix< DDRMat > & aDomainOffset );
 
 //-------------------------------------------------------------------------------
 
@@ -622,8 +590,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_domain_offset(
+           void set_domain_offset(
                    const real & aDomainOffsetX,
                    const real & aDomainOffsetY );
 
@@ -638,8 +605,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           set_domain_offset(
+           void set_domain_offset(
                    const real & aDomainOffsetX,
                    const real & aDomainOffsetY,
                    const real & aDomainOffsetZ );
@@ -650,8 +616,8 @@ namespace moris
             *
             * return Matrix< DDRMat >
             */
-           auto
-           get_domain_offset() const -> decltype( mDomainOffset )
+           auto get_domain_offset() const
+               -> decltype( mDomainOffset )
            {
                return mDomainOffset;
            }
@@ -669,8 +635,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           auto
-           get_max_polynomial() const -> decltype ( mMaxPolynomial )
+           auto get_max_polynomial() const
+               -> decltype ( mMaxPolynomial )
            {
                return mMaxPolynomial;
            }
@@ -693,23 +659,21 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_gmsh_scale( const real& aScaleFactor )
+           void set_gmsh_scale( const real& aScaleFactor )
            {
                mGmshScale = aScaleFactor;
            }
 
 //-------------------------------------------------------------------------------
-           auto
-           get_gmsh_scale() const -> decltype( mGmshScale )
+           auto get_gmsh_scale() const
+               -> decltype( mGmshScale )
            {
                return  mGmshScale;
            }
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_bspline_truncation( const bool aSwitch )
+           void set_bspline_truncation( const bool aSwitch )
            {
                mBSplineTruncationFlag = aSwitch;
            }
@@ -720,8 +684,7 @@ namespace moris
            /**
             * returns the flag that tells if the truncation flag is set
             */
-           bool
-           truncate_bsplines() const
+           bool truncate_bsplines() const
            {
                return mBSplineTruncationFlag;
            }
@@ -731,16 +694,14 @@ namespace moris
            /**
             * test if input is sane
             */
-           void
-           check_sanity() const;
+           void check_sanity() const;
 
 //-------------------------------------------------------------------------------
 
            /**
             * returns the default pattern for input meshes
             */
-           uint
-           get_bspline_input_pattern() const
+           uint get_bspline_input_pattern() const
            {
                return mBSplineInputPattern;
            }
@@ -750,8 +711,7 @@ namespace moris
            /**
             * returns the default pattern for input meshes
             */
-           uint
-           get_lagrange_input_pattern() const
+           uint get_lagrange_input_pattern() const
            {
                return mLagrangeInputPattern;
            }
@@ -761,8 +721,7 @@ namespace moris
            /**
             * returns the default pattern for output meshes
             */
-           uint
-           get_bspline_output_pattern() const
+           uint get_bspline_output_pattern() const
            {
                return mBSplineOutputPattern;
            }
@@ -770,8 +729,7 @@ namespace moris
            /**
             * returns the default pattern for output meshes
             */
-           uint
-           get_lagrange_output_pattern() const
+           uint get_lagrange_output_pattern() const
            {
                return mLagrangeOutputPattern;
            }
@@ -782,8 +740,7 @@ namespace moris
            /**
             * returns the default pattern for union meshes
             */
-           uint
-           get_union_pattern() const
+           uint get_union_pattern() const
            {
                return mUnionPattern;
            }
@@ -793,8 +750,7 @@ namespace moris
            /**
             * returns the default pattern for union meshes
             */
-           uint
-           get_refined_output_pattern() const
+           uint get_refined_output_pattern() const
            {
                return mRefinedOutputPattern;
            }
@@ -804,8 +760,7 @@ namespace moris
            /**
             * returns the working pattern
             */
-           uint
-           get_working_pattern() const
+           uint get_working_pattern() const
            {
                return mWorkingPattern;
            }
@@ -815,8 +770,7 @@ namespace moris
             * Copy selected parameters from other parameter object
             * Note that not all parameters can be copied
             */
-           void
-           copy_selected_parameters( const Parameters & aParameters );
+           void copy_selected_parameters( const Parameters & aParameters );
 
 //-------------------------------------------------------------------------------
 
@@ -824,93 +778,81 @@ namespace moris
             * Copy selected parameters from other parameter list
             * Note that not all parameters can be copied
             */
-           void
-           copy_selected_parameters( ParameterList & aParameterList );
+           void copy_selected_parameters( ParameterList & aParameterList );
 
 //-------------------------------------------------------------------------------
 
            /**
             * lock critical parameters
             */
-           void
-           lock();
+           void lock();
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_initial_bspline_refinement( const uint & aLevel )
+           void set_initial_bspline_refinement( const uint & aLevel )
            {
                mInitialBSplineRefinementLevel = aLevel;
            }
 
 //-------------------------------------------------------------------------------
 
-           uint
-           get_initial_bspline_refinement() const
+           uint get_initial_bspline_refinement() const
            {
                return mInitialBSplineRefinementLevel;
            }
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_additional_lagrange_refinement( const uint & aLevel )
+           void set_additional_lagrange_refinement( const uint & aLevel )
            {
                mAdditionalLagrangeRefinementLevel = aLevel;
            }
 
 //-------------------------------------------------------------------------------
 
-           uint
-           get_additional_lagrange_refinement() const
+           uint get_additional_lagrange_refinement() const
            {
                return mAdditionalLagrangeRefinementLevel;
            }
 
 //-------------------------------------------------------------------------------
 
-           Matrix< DDUMat>
-           get_bspline_input_map() const
+           Matrix< DDUMat> get_bspline_input_map() const
            {
                return mBSplineInputMap;
            }
 
  //-------------------------------------------------------------------------------
 
-           Matrix< DDUMat>
-           get_bspline_output_map() const
+           Matrix< DDUMat> get_bspline_output_map() const
            {
                return mBSplineOutputMap;
            }
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
+           void set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
            {
                mBSplineInputMap = aBSplineInputMap;
            }
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
+           void set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
            {
                mBSplineOutputMap = aBSplineOutputMap;
            }
 
 //-------------------------------------------------------------------------------
 
-           const Matrix< DDUMat > &
-           get_side_sets() const
+           const Matrix< DDUMat > & get_side_sets() const
            {
                return mSideSets;
            }
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_side_sets(  const Matrix< DDUMat > & aSideSets )
+           void set_side_sets( const Matrix< DDUMat > & aSideSets )
            {
                mSideSets = aSideSets;
            }
@@ -920,68 +862,59 @@ namespace moris
            /**
             * returns a string with the specified side set ordinals
             */
-           std::string
-           get_side_sets_as_string() const;
+           std::string get_side_sets_as_string() const;
 
 //-------------------------------------------------------------------------------
 
-           bool
-           use_multigrid() const
+           bool use_multigrid() const
            {
                return mUseMultigrid;
            }
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_multigrid( const bool aSwitch )
+           void set_multigrid( const bool aSwitch )
            {
                mUseMultigrid = aSwitch;
            }
 
 //-------------------------------------------------------------------------------
 
-           uint
-           get_max_refinement_level() const
+           uint get_max_refinement_level() const
            {
                return mMaxRefinementLevel;
            }
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_max_refinement_level( const uint aLevel )
+           void set_max_refinement_level( const uint aLevel )
            {
                mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
            }
            //-------------------------------------------------------------------------------
 
-           bool
-           get_refinement_interrelation() const
+           bool get_refinement_interrelation() const
            {
                return mRefinementInterrelation;
            }
 
            //-------------------------------------------------------------------------------
 
-           void
-           set_renumber_lagrange_nodes( const bool aSwitch )
+           void set_renumber_lagrange_nodes( const bool aSwitch )
            {
                mRenumberLagrangeNodes = aSwitch;
            }
 
            //-------------------------------------------------------------------------------
 
-           bool
-           get_renumber_lagrange_nodes() const
+           bool get_renumber_lagrange_nodes() const
            {
                return mRenumberLagrangeNodes;
            }
 
            //-------------------------------------------------------------------------------
 
-           void
-           set_refinement_interrelation( const bool aSwitch )
+           void set_refinement_interrelation( const bool aSwitch )
            {
                mRefinementInterrelation = aSwitch;
            }
@@ -993,37 +926,32 @@ namespace moris
            /**
             * returns an error message for an invalid parameter
             */
-           void
-           error( const std::string & aMessage ) const;
+           void error( const std::string & aMessage ) const;
 
 //-------------------------------------------------------------------------------
 
            /**
             * calls error message only if parameters are locked
             */
-           void
-           error_if_locked( const std::string & aFunctionName  ) const;
+           void error_if_locked( const std::string & aFunctionName  ) const;
 
 //-------------------------------------------------------------------------------
 
            /**
             * called from set_lagrange_orders and set_bspline_orders
             */
-           void
-           update_max_polynomial_and_truncated_buffer();
+           void update_max_polynomial_and_truncated_buffer();
 
 //-------------------------------------------------------------------------------
 
            /**
             * auto setting for dimension lengths and offset
             */
-           void
-           set_default_dimensions_and_offset();
+           void set_default_dimensions_and_offset();
 
 //-------------------------------------------------------------------------------
 
-           void
-           set_mesh_orders(
+           void set_mesh_orders(
                    const Matrix< DDUMat > & aBSplineOrders,
                    const Matrix< DDUMat > & aLagrangeOrders );
 
@@ -1033,16 +961,14 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         // creates a parameter list with default options
-        ParameterList
-        create_hmr_parameter_list();
+        ParameterList create_hmr_parameter_list();
 
 // -----------------------------------------------------------------------------
 
         /**
          * creates a parameter list from a parameter object
          */
-        ParameterList
-        create_hmr_parameter_list( const Parameters * aParameters );
+        ParameterList create_hmr_parameter_list( const Parameters * aParameters );
 
 // -----------------------------------------------------------------------------
     } /* namespace hmr */

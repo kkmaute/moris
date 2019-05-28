@@ -121,10 +121,7 @@ namespace moris
         /**
          * trivial destructor
          */
-        ~Cluster()
-        {
-            mInterpElements.clear();
-        };
+        ~Cluster();
 
 //------------------------------------------------------------------------------
 

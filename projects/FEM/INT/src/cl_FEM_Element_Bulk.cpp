@@ -184,6 +184,7 @@ namespace moris
                     // compute jacobian at evaluation point
                     Matrix< DDRMat > tResidual;
                     mElementBlock->get_IWGs()( iIWG )->compute_residual( tResidual, tIWGInterpolators );
+//                    print(tResidual, "tResidual");
 
 //                    // option1 = add contribution to jacobian from evaluation point
 //                    mCluster->mResidualElement( tIWGResDofIndex ) = mCluster->mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;

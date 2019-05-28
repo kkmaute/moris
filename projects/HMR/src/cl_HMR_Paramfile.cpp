@@ -60,16 +60,14 @@ namespace moris
     }
 // -----------------------------------------------------------------------------
 
-    ParameterList &
-    Paramfile::get_parameter_list()
+    ParameterList & Paramfile::get_parameter_list()
     {
         return mParameterList;
     }
 
 // -----------------------------------------------------------------------------
 
-    void
-    Paramfile::load_mesh_params()
+    void Paramfile::load_mesh_params()
     {
         // count meshes
         uint tNumberOfMeshes
@@ -124,7 +122,6 @@ namespace moris
             MORIS_ERROR( tMesh.mID != gNoID, "Mesh ID is not set." );
             MORIS_ERROR( tMesh.mPath.size() > 0, "Mesh path must not be empty." );
             MORIS_ERROR( tMesh.mOrder > 0 && tMesh.mOrder <= 3, "Mesh order must be between 0 and 3." );
-
         }
 
         // make IDs unique
@@ -138,8 +135,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Paramfile::load_field_params()
+        void Paramfile::load_field_params()
         {
             // count fields
             uint tNumberOfFields
@@ -227,10 +223,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Paramfile::load_state_params()
+        void Paramfile::load_state_params()
         {
-
             Cell< std::string > tFirst;
             Cell< std::string > tSecond;
 
@@ -242,7 +236,6 @@ namespace moris
                 {
                     mParser->get_keys_from_subtree( "moris.hmr",
                             "initialize", 0, tFirst, tSecond );
-
                     break;
                 }
                 case( State::REFINE_MESH ) :
@@ -312,8 +305,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Paramfile::load_parameter_list()
+        void Paramfile::load_parameter_list()
         {
             // call parameter list initializer from cl_Parameters.hpp
             mParameterList = create_hmr_parameter_list();
@@ -404,8 +396,7 @@ namespace moris
 
         // this function merges parameters in the parameters tag with those
         // from other tags to make everythig consistent
-        void
-        Paramfile::update_parameter_list()
+        void Paramfile::update_parameter_list()
         {
             // - - - - - - - - - - - - - - - - - - - - - - - -
             // Part 1: Make Lagrange orders consistent
@@ -505,8 +496,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
 
-        void
-        Paramfile::load_user_refinement_parameters()
+        void Paramfile::load_user_refinement_parameters()
         {
             Cell< std::string > tFirst;
             Cell< std::string > tSecond;

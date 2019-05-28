@@ -22,17 +22,25 @@ Side_Cluster_STK::Side_Cluster_STK():
     {}
 //----------------------------------------------------------------
 
-Side_Cluster_STK::Side_Cluster_STK( moris::mtk::Cell const * aInterpCell,
-                  moris::mtk::Cell const * aIntegrationCell,
-                  moris_index aSideOrdinal):
+Side_Cluster_STK::Side_Cluster_STK( moris::mtk::Cell const *                        aInterpCell,
+                                    moris::mtk::Cell const *                        aIntegrationCell,
+                                    moris::Cell<moris::mtk::Vertex const *> const & aVerticesInCluster,
+                                    moris_index aSideOrdinal):
     mTrivial(true),
     mInterpolationCell(aInterpCell),
     mIntegrationCells(0,nullptr),
     mIntegrationCellSideOrdinals({{aSideOrdinal}}),
-    mVerticesInCluster(0,nullptr),
+    mVerticesInCluster(aVerticesInCluster),
     mVertexParamCoords(0,0)
 {
     mIntegrationCells.push_back(aIntegrationCell);
+
+    // add to map
+    for(moris::uint i = 0; i <aVerticesInCluster.size(); i++)
+    {
+        this->add_vertex_to_map(aVerticesInCluster(i)->get_id(),i);
+    }
+
 }
 
 //----------------------------------------------------------------
@@ -107,8 +115,6 @@ Side_Cluster_STK::get_cell_side_ordinal(moris::moris_index aCellIndexInCluster) 
 moris::Cell<moris::mtk::Vertex const *> const &
 Side_Cluster_STK::get_vertices_in_cluster() const
 {
-    MORIS_ERROR(!mTrivial,"Accessing vertices in a trivial cluster is not allowed");
-
     return mVerticesInCluster;
 }
 
@@ -120,6 +126,15 @@ Side_Cluster_STK::get_vertices_local_coordinates_wrt_interp_cell() const
     MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");
 
     return mVertexParamCoords;
+}
+
+//----------------------------------------------------------------
+
+moris::moris_index
+Side_Cluster_STK::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const
+{
+
+     return this->get_vertex_cluster_local_index(aVertex->get_id());
 }
 
 //----------------------------------------------------------------
