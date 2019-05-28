@@ -28,17 +28,15 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Field::Field(
-                const std::string             & aLabel,
-                std::shared_ptr< mtk::Mesh >    aMesh,
-                const uint                    & aBSplineOrder,
-                std::shared_ptr< Database >     aDatabase,
-                Lagrange_Mesh_Base *            aLagrangeMesh ) :
-                        mMesh( aMesh ),
-                        mDatabase( aDatabase ),
-                        mLagrangeMesh( aLagrangeMesh ),
-                        mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
-
+        Field::Field( const std::string                  & aLabel,
+                            std::shared_ptr< mtk::Mesh >   aMesh,
+                      const uint                         & aBSplineOrder,
+                            std::shared_ptr< Database >    aDatabase,
+                            Lagrange_Mesh_Base *           aLagrangeMesh ) :
+                                           mMesh( aMesh ),
+                                           mDatabase( aDatabase ),
+                                           mLagrangeMesh( aLagrangeMesh ),
+                                           mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
         {
             this->set_label( aLabel );
             mInputBSplineOrder = aBSplineOrder;
@@ -214,9 +212,8 @@ namespace moris
                                  const uint                 aFieldIndex )
         {
             // set order of B-Spline
-            mLagrangeMesh->set_real_scalar_field_bspline_order(
-                    mFieldIndex,
-                    this->get_bspline_order() );
+            mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex,
+                                                                this->get_bspline_order() );
 
             // change mesh pointer
             mLagrangeMesh = aMesh;
@@ -242,8 +239,7 @@ namespace moris
             // write values into matrix
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
-                aValues( k ) = this->get_node_values()(
-                        tElement->get_basis( k )->get_index() );
+                aValues( k ) = this->get_node_values()( tElement->get_basis( k )->get_index() );
             }
         }
 
@@ -259,8 +255,7 @@ namespace moris
             // allocate memory for matrix
             tNodeValues.set_size( tNumberOfNodes, mNumberOfDimensions );
 
-            MORIS_ERROR( mNumberOfDimensions == 1,
-                    "currently, only scalar fields are supported" );
+            MORIS_ERROR( mNumberOfDimensions == 1, "currently, only scalar fields are supported" );
 
             uint tOrder = this->get_bspline_order();
 
@@ -317,9 +312,7 @@ namespace moris
             for( uint k=0; k<tNumberOfVertices; ++k )
             {
                 // evaluate function at vertex cooridinates
-
-                tNodeValues( k ) = aFunction(
-                        mMesh->get_mtk_vertex( k ).get_coords() );
+                tNodeValues( k ) = aFunction( mMesh->get_mtk_vertex( k ).get_coords() );
             }
         }
 
@@ -451,7 +444,6 @@ namespace moris
                 const std::string & aFilePath,
                 const uint          aBSplineOrder )
         {
-
             hid_t tFile    = open_hdf5_file( aFilePath );
             herr_t tStatus = 0;
             load_matrix_from_hdf5_file(
@@ -464,7 +456,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
 
         void Field::save_node_values_to_binary( const std::string & aFilePath )
         {
@@ -484,7 +475,6 @@ namespace moris
             save_matrix_to_binary_file( this->get_coefficients(), tFilePath );
         }
 
-
 //------------------------------------------------------------------------------
 
         void Field::set_bspline_order( const uint & aOrder )
@@ -493,7 +483,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
 
         EntityRank Field::get_bspline_rank() const
         {

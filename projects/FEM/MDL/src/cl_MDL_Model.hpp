@@ -65,6 +65,8 @@ namespace moris
         {
             // pointer to reference mesh
             mtk::Mesh_Manager*                mMeshManager;
+
+            moris_index mMeshPairIndex;
             Cell< fem::Node_Base* >           mNodes;
             Cell< MSI::Equation_Object* >     mElements;
             Cell< Cell< fem::IWG* > >         mIWGs;
@@ -88,6 +90,8 @@ namespace moris
 
             tsa::Time_Solver * mTimeSolver;
 
+
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -105,7 +109,8 @@ namespace moris
                    const uint                          aBSplineOrder,
                          Cell< Cell< fem::IWG_Type > > aIWGTypeList,
                          Cell< moris_index >           aSidesetList,
-                         Cell< fem::BC_Type >          aSidesetBCTypeList );
+                         Cell< fem::BC_Type >          aSidesetBCTypeList,
+                   const moris_index                   aMeshPairIndex = 0);
 //------------------------------------------------------------------------------
 
             Matrix< DDRMat> &

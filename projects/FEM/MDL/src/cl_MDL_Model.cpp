@@ -15,7 +15,7 @@
 #include "cl_FEM_Enums.hpp"               //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
-#include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
+#include "cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_FEM_Set.hpp"
@@ -52,7 +52,9 @@ namespace moris
                       const uint                          aBSplineOrder,
                             Cell< Cell< fem::IWG_Type > > aIWGTypeList,
                             Cell< moris_index >           aSidesetList,
-                            Cell< fem::BC_Type >          aSidesetBCTypeList  ) : mMeshManager( aMeshManager )
+                            Cell< fem::BC_Type >          aSidesetBCTypeList,
+                      const moris_index                   aMeshPairIndex) : mMeshManager( aMeshManager ),
+                                                                            mMeshPairIndex( aMeshPairIndex )
         {
             // start timer
             tic tTimer1;
@@ -391,9 +393,10 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     // copy weakbc into element
-                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh(0)->get_value_of_scalar_field( aFieldIndex,
-                                                                           EntityRank::NODE,
-                                                                           tElement->get_node_index( k ) );
+                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex )
+                                                     ->get_value_of_scalar_field( aFieldIndex,
+                                                                                  EntityRank::NODE,
+                                                                                  tElement->get_node_index( k ) );
                 }
             }
         }

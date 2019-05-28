@@ -284,10 +284,9 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             std::shared_ptr< Field >
-            create_field(
-                    const std::string & aLabel,
-                    const uint        & aLagrangeOrder,
-                    const uint        & aBSplineOrder );
+            create_field( const std::string & aLabel,
+                          const uint        & aLagrangeOrder,
+                          const uint        & aBSplineOrder );
 
  // -----------------------------------------------------------------------------
 

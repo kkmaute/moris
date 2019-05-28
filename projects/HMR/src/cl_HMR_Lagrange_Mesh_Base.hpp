@@ -343,8 +343,7 @@ namespace moris
              * links the elements on the mesh with their twins on the
              * B-Spline mesh. This is needed for the T-Matrix etc
              */
-            void
-            link_twins();
+            void link_twins();
 
 // ----------------------------------------------------------------------------
 
@@ -353,8 +352,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            calculate_node_indices();
+            void calculate_node_indices();
 
             // ----------------------------------------------------------------------------
 
@@ -364,38 +362,32 @@ namespace moris
              *
              * @return void
              */
-            void
-            calculate_node_sharing();
+            void calculate_node_sharing();
 
             // ----------------------------------------------------------------------------
 
             /**
              * returns the number of active basis for the linked B-Spline mesh
              */
-            luint
-            get_number_of_bsplines_on_proc( const uint & aOrder ) const
+            luint get_number_of_bsplines_on_proc( const uint & aOrder ) const
             {
                 return mBSplineMeshes( aOrder )->get_number_of_active_basis_on_proc();
             }
 
 // ----------------------------------------------------------------------------
 
-            Basis *
-            get_bspline( const uint aOrder, const uint & aBasisIndex )
+            Basis * get_bspline( const uint aOrder, const uint & aBasisIndex )
             {
                 return mBSplineMeshes( aOrder )->get_active_basis( aBasisIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            void
-            save_faces_to_vtk( const std::string & aPath );
+            void save_faces_to_vtk( const std::string & aPath );
 
 // ----------------------------------------------------------------------------
 
-            void
-            save_edges_to_vtk( const std::string & aPath );
-
+            void save_edges_to_vtk( const std::string & aPath );
 
 // ----------------------------------------------------------------------------
 

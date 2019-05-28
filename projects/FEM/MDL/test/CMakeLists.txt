@@ -1,11 +1,15 @@
 # Integration and Interpolation Tests -------------------------------------
 # -------------------------------------------------------------------------
+include_directories(DLA_Test_Proxys)
 
 # List source files
 set(TEST_SOURCES
     cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     cl_MDL_DiffusionElement_Cut_Mesh.cpp
+    UT_MDL_Mesh_Model_Helper.cpp
     test_main.cpp
+    #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
+    #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp
     )
 
 # List test includes

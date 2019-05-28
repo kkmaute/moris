@@ -196,27 +196,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void
-            set_label( const std::string & aLabel );
+            void set_label( const std::string & aLabel );
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat > &
-            get_node_values();
+            Matrix< DDRMat > & get_node_values();
 
 //------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
-            get_node_values() const;
+            const Matrix< DDRMat > & get_node_values() const;
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat > &
-            get_coefficients();
+            Matrix< DDRMat > & get_coefficients();
 //------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
-            get_coefficients() const;
+            const Matrix< DDRMat > & get_coefficients() const;
 
 //------------------------------------------------------------------------------
 
