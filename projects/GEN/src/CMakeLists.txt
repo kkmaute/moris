@@ -39,9 +39,6 @@ foreach(GEN_INCLUDE ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${GEN_INCLUDE}/src)
 endforeach()
 
-# Additional includes
-include_directories(${MORIS_PACKAGE_DIR}/${STK}/src/Hierarchical)
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 
