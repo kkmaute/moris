@@ -148,10 +148,10 @@ option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
 option(MORIS_USE_MKL
-    "Use the Inel Math kernel library as the linear algebra package." ON )
+    "Use the Inel Math kernel library as the linear algebra package." OFF )
 
 option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
+    "Use the LAPACK and LAPACK as the linear algebra packages." ON )
 
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
