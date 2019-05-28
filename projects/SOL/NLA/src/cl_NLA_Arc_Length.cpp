@@ -59,15 +59,20 @@ Arc_Length_Solver::~Arc_Length_Solver()
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-// this is the work horse of the solution algorithm (where stuff actually gets done)
-void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem )
+void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem *  aNonlinearProblem )
 {
+    //------------------------------------------------------------------------------
+    // temporary vectors for printing solutions
+    Matrix<DDRMat> tDis(136,1);
+    tDis(0,0)        = 0.0;
+    Matrix<DDRMat> tFor(136,1);
+    tFor(0,0)        = 0.0;
     //------------------------------------------------------------------------------
     mNonlinearProblem = aNonlinearProblem;
 
-//    moris::real tTolR = 0.00000001;
-//    moris::real tTolF = 0.00000001;
-//    moris::real tR0   = 1.0;
+    moris::real tTolR = 0.00000001;
+    moris::real tTolF = 0.00000001;
+    moris::real tR0   = 1.0;
 
     moris::real tB      = 0.5;
     moris::real tDeltaA = 0.1;
@@ -78,7 +83,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
     moris::real tFArc     = 0;
 
     moris::real tDeltaLambda = 0.0;
-    moris::real tLambdaK     = 1.0;
+    moris::real tLambdaK     = 0.0;
 
     moris::real tLambdaSolve        = 0;
     moris::real tLambdaSolveNMinus1 = 0;
@@ -90,16 +95,26 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
     moris::real tDelLambdaDen = 0;
     moris::real tdeltaLambda  = 0;
 
+//    Dist_Vector* tFext = mNonlinearProblem->get_f_ext();
+//    moris::uint tNumDof = 1;
+//    moris::Matrix< DDSMat > tEleConn(1,1);
+//    tEleConn(0,0) = 0;
+//    moris::Matrix< DDRMat > tFextVal(1,1);
+//    tFextVal(0,0) = 8.0;
+//    tFext->sum_into_global_values( tNumDof,tEleConn,tFextVal );
+
     Dist_Vector* tFext = mNonlinearProblem->get_f_ext();
-    moris::uint tNumDof = 1;
-    moris::Matrix< DDSMat > tEleConn(1,1);
+    moris::uint tNumDof = 2;
+    moris::Matrix< DDSMat > tEleConn(2,1);
     tEleConn(0,0) = 0;
-    moris::Matrix< DDRMat > tFextVal(1,1);
-    tFextVal(0,0) = 8.0;
+    tEleConn(1,0) = 1;
+    moris::Matrix< DDRMat > tFextVal(2,1, 0.0);
+    tFextVal(0,0) = 1.5;
+    tFextVal(1,0) = 300.75;
     tFext->sum_into_global_values( tNumDof,tEleConn,tFextVal );
     //------------------------------------------------------------------------------
 
-    moris::sint tMaxIts  = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
+    moris::sint tMaxIts     = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
     moris::real tRelaxation = mParameterListNonlinearSolver.get< moris::real >( "NLA_relaxation_parameter" );
 
     bool tIsConverged            = false;
@@ -136,14 +151,16 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
     Dist_Vector* tDeltaD    = mNonlinearProblem->get_del_d_upper();
     Dist_Vector* tdeltaD    = mNonlinearProblem->get_del_d();
     //------------------------------------------------------------------------------
+
     sint tDummy = 1;
+
     mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tDummy );      // build the linearized problem
     this->solve_linear_system( tDummy, tHardBreak );                              // solve linearized problem
 
     tGlobalRHS = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();   // set pointer to RHS
     tJac       = mNonlinearProblem->get_linearized_problem()->get_matrix();       // set pointer to jacobian matrix
     //------------------------------------------------------------------------------
-    for ( sint timeStep = 1; timeStep < 6; timeStep++ )
+    for ( sint timeStep = 1; timeStep < 85; timeStep++ )
     {   // temporary time step loop
         //------------------------------------------------------------------------------
         /*
@@ -157,9 +174,7 @@ void Arc_Length_Solver::solver_nonlinear_system( Nonlinear_Problem * aNonlinearP
         mNonlinearProblem->get_linearized_problem()->assemble_jacobian( tDSolve );  // reassemble jacobian
         mNonlinearProblem->get_linearized_problem()->assemble_residual( tDSolve );  // reassemble residual
 
-        tJac->get_diagonal( *tJacVal );                                             // fill vector with diagonal values
-std::cout<<"++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-std::cout<<"K_tilde:  "<<tJacVal->get_values_pointer()[0]<<std::endl;
+        tJac->get_diagonal( *tJacVal );                                             // fill vector tJacVal with diagonal values of the Jacobian matrix
 
         if ( timeStep < 3 )
         { // since tD_tilde is only used in the first initialization step, only compute it while timeStep < 3
@@ -172,7 +187,7 @@ std::cout<<"K_tilde:  "<<tJacVal->get_values_pointer()[0]<<std::endl;
 
         sint tSize = tDeltaD->vec_local_length();
         if ( timeStep==1 )
-        {   // store K_tilde0 diagonal values, d_tilde0 vectorm, and r_arc denominator ( all constant throughout )
+        {   // store K_tilde0 diagonal values, d_tilde0 vector, and f_arc denominator ( all constant throughout )
             tJacVal0->vec_plus_vec(1,*tJacVal,0);
             tD_tilde0->vec_plus_vec(1,*tD_tilde,0);
             for ( sint i=0; i<tSize; i++ )
@@ -195,7 +210,7 @@ std::cout<<"K_tilde:  "<<tJacVal->get_values_pointer()[0]<<std::endl;
 
             tDeltaLambda = tDeltaA/tF_tilde;
             tDeltaD->vec_plus_vec(1,*tD_tilde,0);
-            tDeltaD->scale_vector( tDeltaLambda );      // DeltaD=DeltaLambda*Dtilde
+            tDeltaD->scale_vector( tDeltaLambda );      // DeltaD = DeltaLambda*Dtilde
 
             tLambdaK = tLambdaSolve+tDeltaLambda;
 
@@ -224,16 +239,15 @@ std::cout<<"K_tilde:  "<<tJacVal->get_values_pointer()[0]<<std::endl;
         {
             tArcNumer += tDeltaD->get_values_pointer()[i] * tJacVal0->get_values_pointer()[i] * tDeltaD->get_values_pointer()[i];
         }
-
         tFArc = std::sqrt((1-tB)*(tArcNumer/tArcDenom)+tB*std::pow(tDeltaLambda,2));
+
+        tR0 = tGlobalRHS->vec_norm2();
         mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()->vec_put_scalar(0.0);
-std::cout<<"d_k going in:  "<<tDK->get_values_pointer()[0]<<std::endl;
-std::cout<<"++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
         //------------------------------------------------------------------------------
         // Arc Length loop
         //------------------------------------------------------------------------------
-//        while ( std::abs(tGlobalRHS->get_values_pointer()[0]/) )
-        for ( sint iter=1; iter<=tMaxIts; iter++ )
+        sint tIter = 1;
+        while ( ((std::abs(tGlobalRHS->vec_norm2()/tR0) > tTolR) || ((tFArc-tDeltaA)/tDeltaA > tTolF))  &&  (tIter<=tMaxIts) )
         {
             clock_t tArcLengthLoopStart = clock();
             clock_t tStartAssemblyTime  = clock();
@@ -244,9 +258,7 @@ std::cout<<"++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
             mNonlinearProblem->get_linearized_problem()->assemble_jacobian( tDK );
 
             tMaxAssemblyTime = this->calculate_time_needed( tStartAssemblyTime );
-std::cout<<"=========================================="<<std::endl;
-std::cout<<"R:  "<<tGlobalRHS->get_values_pointer()[0]<<std::endl;
-std::cout<<"=========================================="<<std::endl;
+
             tHardBreak = false;
             //------------------------------------------------------------------------------
             /* Iteration Steps:
@@ -270,6 +282,7 @@ std::cout<<"=========================================="<<std::endl;
             tDFArcDDeltaD->scale_vector( tScaleVal );
 
             tDFArcDDeltaLambda = (tB*tDeltaLambda)/tFArc;
+
             //------------------------------------------------------------------------------
             /*
              * (2) Static Condensation Method
@@ -289,13 +302,14 @@ std::cout<<"=========================================="<<std::endl;
             // solve linear system for denominator
             tGlobalRHS = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();
             tGlobalRHS->vec_plus_vec(1,*tFext,0);
-            this->solve_linear_system( iter, tHardBreak );
+            this->solve_linear_system( tIter, tHardBreak );
+
             tDelLamDen->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
             //-------------------------------------------------
 
             // solve linear system for numerator
             mNonlinearProblem->get_linearized_problem()->assemble_residual( tDK );
-            this->solve_linear_system( iter, tHardBreak );
+            this->solve_linear_system( tIter, tHardBreak );
 
             tDelLamNum->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
 
@@ -312,7 +326,7 @@ std::cout<<"=========================================="<<std::endl;
             tdeltaD->scale_vector( tdeltaLambda );
 
             tGlobalRHS->vec_plus_vec(1,*tdeltaD,1);
-            this->solve_linear_system( iter, tHardBreak );
+            this->solve_linear_system( tIter, tHardBreak );
             tdeltaD->vec_plus_vec(1,*mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),0);
 
             mNonlinearProblem->get_linearized_problem()->assemble_residual( tDK );
@@ -338,8 +352,7 @@ std::cout<<"=========================================="<<std::endl;
             tDeltaD->vec_plus_vec(1,*tdeltaD,1);
 
             tDeltaLambda = tDeltaLambda + tdeltaLambda;
-std::cout<<"d_k at end of iteration:  "<<tDK->get_values_pointer()[0]<<std::endl;
-std::cout<<"=========================================="<<std::endl;
+
             tArcNumer = 0.0;    // reset arc numerator
             for ( sint i=0; i<tSize; i++ )
             {
@@ -355,7 +368,7 @@ std::cout<<"=========================================="<<std::endl;
             Convergence tConvergence;
 
             tIsConverged = tConvergence.check_for_convergence( this,
-                    iter,
+                    tIter,
                     mMyNonLinSolverManager->get_ref_norm(),
                     mMyNonLinSolverManager->get_residual_norm(),
                     tMaxAssemblyTime,
@@ -372,7 +385,7 @@ std::cout<<"=========================================="<<std::endl;
             }
 
             // Solve linear system
-            this->solve_linear_system( iter, tHardBreak );
+            this->solve_linear_system( tIter, tHardBreak );
 
             //PreconTime
             //SolveTime
@@ -381,7 +394,9 @@ std::cout<<"=========================================="<<std::endl;
 
             tMaxNewTime = this->calculate_time_needed( tArcLengthLoopStart );
 
-            mNonlinearProblem->print_sol_vec( iter );
+//            mNonlinearProblem->print_sol_vec( tIter );
+
+            tIter++;
         }// end iteration loop
         //------------------------------------------------------------------------------
         // store previously converged values
@@ -396,18 +411,35 @@ std::cout<<"=========================================="<<std::endl;
         // update converged values
         tDSolve->vec_plus_vec(1,*tDK,0);
         tLambdaSolve = tLambdaK;
-std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
-std::cout<<"dSolve:  "<<tDSolve->get_values_pointer()[0]<<std::endl;
-std::cout<<"lambdaSolve:  "<<tLambdaSolve<<std::endl;
-std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<std::endl;
+
         // clear iteration loop variables
-        tDK->scale_vector( 0 );
+        tDK->vec_put_scalar( 0 );
+        tdeltaD->vec_put_scalar( 0 );
         tLambdaK     = 0.0;
         tDeltaLambda = 0.0;
 
         //------------------------------------------------------------------------------
+        // save solutions into vector to print to screen
+        tDis(timeStep,0) = tDSolve->get_values_pointer()[1];
+
+        tFor(timeStep,0) = tFext->get_values_pointer()[1]*tLambdaSolve;
+        //------------------------------------------------------------------------------
     }// end timeStep loop
 
+    //------------------------------------------------------------------------------
+    // printing solutions
+    std::cout<<"displacement:   "<<std::endl;
+    for(uint i=0; i<90; i++)
+    {
+        std::cout<<tDis(i,0)<<std::endl;
+    }
+    std::cout<<"------------------------------------------------------"<<std::endl;
+    std::cout<<"external force:  "<<std::endl;
+    for(uint i=0; i<90; i++)
+    {
+        std::cout<<tFor(i,0)<<std::endl;
+    }
+    //------------------------------------------------------------------------------
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -438,6 +470,4 @@ void Arc_Length_Solver::extract_my_values( const moris::uint             & aNumI
     mNonlinearProblem->get_full_vector()->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }
 //--------------------------------------------------------------------------------------------------------------------------
-
-
 

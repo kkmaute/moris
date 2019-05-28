@@ -18,8 +18,11 @@ set(TEST_SOURCES
 set(TEST_INCLUDES
     ${LINALG}
     ${COM}
+    ${FEM}
+    ${FEM}/${INT}
     ${HMR}
     ${MTK}
+    ${MTK}/${MAP}
     ${ALG} #MTK
     ${TOL} #MTK
     ${XTK} #MTK
@@ -68,6 +71,12 @@ set(TEST_DEPENDENCIES
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
     )
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE TEST_DEPENDENCIES)
+list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
+list(REVERSE TEST_DEPENDENCIES)
     
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

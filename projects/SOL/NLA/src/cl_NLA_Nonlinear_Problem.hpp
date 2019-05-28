@@ -96,7 +96,6 @@ namespace NLA
                            const moris::sint        aNonlinearSolverManagerIndex = 0,
                            const bool               aBuildLinerSystemFlag = true,
                            const enum MapType       aMapType = MapType::Epetra );
-
         //--------------------------------------------------------------------------------------------------
         /**
          * @brief Constructor. Creates nonlinear system
@@ -228,6 +227,7 @@ namespace NLA
         {
             return mGlobalRHS;
         }
+        //--------------------------------------------------------------------------------------------------
 
         //--------------------------------------------------------------------------------------------------
         Dist_Vector * get_f_ext()
