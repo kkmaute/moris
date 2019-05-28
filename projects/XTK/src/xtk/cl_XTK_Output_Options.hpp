@@ -62,6 +62,8 @@ moris::Cell<std::string> mIntNodeExternalFieldNames;
 moris::Cell<std::string> mRealElementExternalFieldNames;
 moris::Cell<std::string> mIntElementExternalFieldNames;
 
+// Add cluster information to STK integration Mesh
+bool mAddClusters;
 
 Output_Options():
     mAddNodeSets(true),
@@ -81,6 +83,7 @@ Output_Options():
     mIntNodeExternalFieldNames({}),
     mRealElementExternalFieldNames({}),
     mIntElementExternalFieldNames({}),
+    mAddClusters(false),
     mOutputAllPhases(true)
 {
 

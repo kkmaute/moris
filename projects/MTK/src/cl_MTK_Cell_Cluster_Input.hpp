@@ -30,10 +30,10 @@ struct Cell_Cluster_Input
 
     void
     add_cluster_data(mtk::Cell*               aInterpCell,
-                     moris::Matrix<IndexMat>* aPrimaryCellIds,
-                     moris::Matrix<IndexMat>* aVoidCellIds,
-                     moris::Matrix<IndexMat>* aVerticesInCluster,
-                     moris::Matrix<DDRMat>*   aLocalCoordsRelativeToInterpCell)
+                     moris::Matrix<IndexMat> const * aPrimaryCellIds,
+                     moris::Matrix<IndexMat> const * aVoidCellIds,
+                     moris::Matrix<IndexMat> const * aVerticesInCluster,
+                     moris::Matrix<DDRMat> const *   aLocalCoordsRelativeToInterpCell)
     {
         MORIS_ASSERT(aVerticesInCluster->numel() == aLocalCoordsRelativeToInterpCell->n_rows(),"Number of vertices in the cluster must match the number of rows in local coord mat");
 
@@ -79,28 +79,28 @@ struct Cell_Cluster_Input
         return mInterpolationCells(aClusterIndex);
     }
 
-    moris::Matrix<IndexMat>*
+    moris::Matrix<IndexMat> const *
     get_primary_cell_ids(moris_index aClusterIndex)
     {
         MORIS_ASSERT(aClusterIndex< (moris_index)get_num_cell_clusters()," Cell cluster index out of bounds");
         return mPrimaryCellIds(aClusterIndex);
     }
 
-    moris::Matrix<IndexMat>*
+    moris::Matrix<IndexMat> const *
     get_void_cell_ids(moris_index aClusterIndex)
     {
         MORIS_ASSERT(aClusterIndex< (moris_index)get_num_cell_clusters()," Cell cluster index out of bounds");
         return mVoidCellsIds(aClusterIndex);
     }
 
-    moris::Matrix<IndexMat>*
+    moris::Matrix<IndexMat> const *
     get_vertex_in_cluster_ids(moris_index aClusterIndex)
     {
         MORIS_ASSERT(aClusterIndex<(moris_index) get_num_cell_clusters()," Cell cluster index out of bounds");
         return mVerticesIdsInCluster(aClusterIndex);
     }
 
-    moris::Matrix<DDRMat>*
+    moris::Matrix<DDRMat> const *
     get_vertex_local_coords_wrt_interpolation_cell(moris_index aClusterIndex)
     {
         MORIS_ASSERT(aClusterIndex< (moris_index)get_num_cell_clusters()," Cell cluster index out of bounds");
@@ -110,10 +110,10 @@ struct Cell_Cluster_Input
 
 private:
     moris::Cell<mtk::Cell*>               mInterpolationCells;
-    moris::Cell<moris::Matrix<IndexMat>*> mPrimaryCellIds;
-    moris::Cell<moris::Matrix<IndexMat>*> mVoidCellsIds;
-    moris::Cell<moris::Matrix<IndexMat>*> mVerticesIdsInCluster;
-    moris::Cell<moris::Matrix<DDRMat>*>   mLocalCoordsRelativeToInterpCell;
+    moris::Cell<moris::Matrix<IndexMat> const *> mPrimaryCellIds;
+    moris::Cell<moris::Matrix<IndexMat> const *> mVoidCellsIds;
+    moris::Cell<moris::Matrix<IndexMat> const *> mVerticesIdsInCluster;
+    moris::Cell<moris::Matrix<DDRMat> const *>   mLocalCoordsRelativeToInterpCell;
 
     std::unordered_map<moris_index, moris_index> mInterpCellIndexToIndex;
 

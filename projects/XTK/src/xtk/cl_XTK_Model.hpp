@@ -226,7 +226,7 @@ public:
     /*!
      * Outputs the Mesh to a mesh data which can then be written to exodus files as desired.
      */
-    moris::mtk::Mesh*
+    moris::mtk::Integration_Mesh*
     get_output_mesh(Output_Options const & aOutputOptions = Output_Options());
 
 
@@ -671,7 +671,7 @@ private:
     /*!
      * Constructs the output mesh using provided Output_Options
      */
-    moris::mtk::Mesh*
+    moris::mtk::Integration_Mesh*
     construct_output_mesh( Output_Options const & aOutputOptions );
 
     /*!
@@ -752,6 +752,27 @@ private:
      */
     Cell<Matrix<IdMat>>
     pack_ghost_as_side_set();
+
+    /*
+     * Returns the number of phases to output given the output options
+     */
+    uint
+    get_num_phases_to_output(Output_Options const & aOutputOptions);
+
+    /*!
+     * Setup clustering data
+     */
+    void
+    setup_cell_clusters_for_output(moris::mtk::Cell_Cluster_Input & aCellClusterInput,
+                                   Output_Options const & aOutputOptions,
+                                   moris::Cell<Matrix<IdMat>> & tCellIds);
+
+    void
+    setup_interface_side_cluster(std::string                      aInterfaceSideLabelBase,
+                                 moris::mtk::Side_Cluster_Input & aCellClusterInput,
+                                 Output_Options const        & aOutputOptions,
+                                 moris::Cell<Matrix<IdMat>>  & tCellIdsandSideOrds,
+                                 moris::Cell<Matrix<DDRMat>> & tParametricCoordinates);
 
     bool
     output_node(moris::moris_index aNodeIndex,
