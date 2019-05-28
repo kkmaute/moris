@@ -152,9 +152,9 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
         {
             Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
-            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
-            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
-            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
+//            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
+//            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
+//            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
         }
 
         // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.

@@ -9,8 +9,8 @@
 
 #include "cl_DLA_Linear_Solver_Amesos2.hpp"
 
-#include "Amesos2.hpp"
-#include "Amesos2_Version.hpp"
+//#include "Amesos2.hpp"
+//#include "Amesos2_Version.hpp"
 
 using namespace moris;
 using namespace dla;
