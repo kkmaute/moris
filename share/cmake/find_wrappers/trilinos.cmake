@@ -67,7 +67,7 @@ if(NOT TRILINOS_FOUND_ONCE)
         endif()
     endif()
 
-    MESSAGE("\nLooking for ${TRILINOS_PATH}\n\n")
+    MESSAGE(STATUS "\nLooking for ${TRILINOS_PATH}\n\n")
 
 
     if(NOT "${TRILINOS_PATH}" MATCHES "${TRILINOS_DIR}")
@@ -90,7 +90,7 @@ if(NOT TRILINOS_FOUND_ONCE)
         
         # If Trilinos is included, it needs the MKL libraries for Pardiso.
         if(NOT ${MORIS_USE_MKL})
-            include(${MORIS_CMAKE_DIR}/modules/FindMKL.cmake)
+            include(${MORIS_CMAKE_DIR}/find_modules/FindMKL.cmake)
             set(PARDISO_LIBS ${MKL_LIBRARIES})
             set(PARDISO_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
         endif()

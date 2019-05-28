@@ -13,7 +13,7 @@ list(APPEND MORIS_SOURCE_DIRS ${FEM}/${MDL})
 
 # Include libraries needed by MDL
 # PETSc and Trilinos; add later
-# include(${MORIS_CMAKE_DIR}/PETSc.cmake)
+# include(${MORIS_TPL_DIR}/PETSc.cmake)
 set(MDL_TPL_DEPENDENCIES
     "PETSc"
     "trilinos"

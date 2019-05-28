@@ -2,6 +2,8 @@
 # Linear algebra library fixing -------------------------------------------
 # -------------------------------------------------------------------------
 
+#> might not be useful anymore - May 28, 2019
+
 # Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
 if(MORIS_USE_ACML)
     string(REGEX REPLACE

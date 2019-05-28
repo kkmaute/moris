@@ -38,7 +38,7 @@ set(LINALG_MORIS_DEPENDENCIES
 
 foreach(MORIS_DEPENDENCY ${LINALG_MORIS_DEPENDENCIES})
     # Include moris projects directly needed by LINALG
-    include(${MORIS_CMAKE_DIR}/depends/${MORIS_DEPENDENCY}_Depends.cmake)
+    include(${MORIS_DEPENDS_DIR}/${MORIS_DEPENDENCY}_Depends.cmake)
 
     # Include third party libraries indirectly needed by LINALG
     list(APPEND LINALG_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )

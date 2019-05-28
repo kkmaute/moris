@@ -82,7 +82,8 @@ set(XTK "XTK")
 # Common paths
 set(MORIS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(MORIS_CMAKE_DIR ${MORIS_DIR}/${SHARE}/${CMAKE})
-set(MORIS_DEPENDS_DIR ${MORIS_CMAKE_DIR}/depends)
+set(MORIS_DEPENDS_DIR ${MORIS_CMAKE_DIR}/dependencies)
+set(MORIS_TPL_DIR ${MORIS_CMAKE_DIR}/find_wrappers)
 set(MORIS_PACKAGE_DIR ${MORIS_DIR}/projects)
 
 # Build directories
@@ -107,7 +108,7 @@ set(HEADER_INSTALL_DIR ${INC})
 # -------------------------------------------------------------------------
 ## CMake Paths
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_modules")
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 # -------------------------------------------------------------------------
@@ -460,7 +461,7 @@ elseif(MORIS_USE_LAPACK)
     #include(${SHARE}/${CMAKE}/lapack.cmake)
     set(ACML_LAPACK_MKL "lapack")
 else()
-    message(FATAL_ERROR "MORIS only supports the ACML and LAPACK linear algebra libraries." )
+    message(FATAL_ERROR "MORIS only supports the ACML, LAPACK, and MKL linear algebra libraries." )
 endif()
 
 if (MORIS_USE_32BIT)
@@ -478,7 +479,7 @@ endif()
 set(ARMADILLO_EIGEN)
 if (MORIS_USE_ARMA)
     list(APPEND ARMADILLO_EIGEN "armadillo")
-#     include(${MORIS_CMAKE_DIR}/armadillo.cmake)
+#     include(${MORIS_TPL_DIR}/armadillo.cmake)
 #     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
 #     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")
 #     list(APPEND MORIS_LDFLAGS "${ARMADILLO_LIBRARY_DIRS}")
@@ -501,7 +502,7 @@ endif()
 # ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${MORIS_CMAKE_DIR}/arpack.cmake)
+include(${MORIS_TPL_DIR}/arpack.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -660,11 +661,11 @@ endif()
 ##### Include LINALG Implementation
 
 if(MORIS_USE_ARMA)
-include(${MORIS_CMAKE_DIR}/armadillo.cmake)
+	include(${MORIS_TPL_DIR}/armadillo.cmake)
 endif()
 
 if(MORIS_USE_EIGEN)
-include(${MORIS_CMAKE_DIR}/eigen.cmake)
+	include(${MORIS_TPL_DIR}/eigen.cmake)
 endif()
 
 # # -------------------------------------------------------------------------

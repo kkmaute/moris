@@ -13,7 +13,7 @@ set(SDF_CONFIGURED_ONCE "YES")
 
 # Include libraries needed by SDF
 # PETSc and Trilinos; add later
-# include(${MORIS_CMAKE_DIR}/PETSc.cmake)
+# include(${MORIS_TPL_DIR}/PETSc.cmake)
 set(SDF_TPL_DEPENDENCIES
     ${ARMADILLO_EIGEN}
     "superlu" #Armadillo
