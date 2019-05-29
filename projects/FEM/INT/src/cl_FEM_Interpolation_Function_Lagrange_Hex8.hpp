@@ -228,6 +228,21 @@ namespace moris
              td2NdXi2( 5, 7 ) = 0.125 * ( - zeta - 1.0 );
              return td2NdXi2;
          }
+
+//------------------------------------------------------------------------------
+
+         template<>
+         Matrix< DDRMat >
+         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+         {
+             // make sure that input is correct
+             MORIS_ASSERT( aXi.length() >= 3,
+                     "HEX8 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+
+             // populate output matrix
+             Matrix< DDRMat > td3NdXi3(10,8,0.0);
+             return td3NdXi3;
+         }
 //------------------------------------------------------------------------------
 
     } /* namespace fem */

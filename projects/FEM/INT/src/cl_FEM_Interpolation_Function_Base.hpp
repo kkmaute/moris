@@ -84,6 +84,20 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
+             * calculates the third derivatives of the shape function
+             * in parameter space
+             *
+             * @param[ out ] ad3NdXi3 ( <number of dimensions> x <number of nodes> )
+             *
+             * @param[ in ] aXi    point where function is evaluated
+             *                     ( <number of dimensions>  x 1 )
+             *
+             */
+            virtual Matrix< DDRMat > eval_d3NdXi3 ( const Matrix< DDRMat > & aXi ) const = 0;
+
+//------------------------------------------------------------------------------
+
+            /**
              * returns a matrix containing the parameter coordinates
              * < number of dimensions * number of basis >
              */

@@ -153,11 +153,13 @@ namespace moris
             // init the matrix with the face param coords
             Matrix< DDRMat > tSideParamCoords( mNumSpaceParamDim + mNumTimeDim, tNumOfVertices * mNumTimeBases );
 
+
             // loop over the vertices of the face
             for( uint i = 0; i < tNumOfVertices; i++ )
             {
                 // get the treated vertex
                 moris_index tTreatedVertex = tVerticesOrdinals( i );
+
 
                 // loop over the time bases
                 for ( uint j = 0; j < mNumTimeBases; j++ )
@@ -328,6 +330,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        Matrix< DDRMat > Geometry_Interpolator::d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        {
+            // pass data through interpolation function
+            Matrix <DDRMat> td3NdXi3 = mSpaceInterpolation->eval_d3NdXi3( aXi );
+            return td3NdXi3;
+        }
+
+//------------------------------------------------------------------------------
+
         Matrix< DDRMat > Geometry_Interpolator::d2NdTau2( const Matrix< DDRMat > & aTau ) const
         {
             // pass data through interpolation function
@@ -340,6 +351,22 @@ namespace moris
         {
             Matrix< DDRMat > tJt = adNdXi * mXHat ;
             return tJt;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::second_space_jacobian( const Matrix< DDRMat > & ad2NdXi2 ) const
+        {
+            Matrix< DDRMat > tJ2bt = ad2NdXi2 * mXHat ;
+            return tJ2bt;
+        }
+
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > Geometry_Interpolator::third_space_jacobian( const Matrix< DDRMat > & ad3NdXi3 ) const
+        {
+            Matrix< DDRMat > tJ3ct = ad3NdXi3 * mXHat ;
+            return tJ3ct;
         }
 
 //------------------------------------------------------------------------------
@@ -923,11 +950,39 @@ namespace moris
             aJt = this->space_jacobian( adNdXi );
 
             // call calculator for second derivatives
-            this->mSecondDerivativeMatricesSpace( aJt,
+            this->mSecondDerivativeMatricesSpace( aJt, // contains first geometric derivs
                                                   aKt,
                                                   aLt,
                                                   ad2NdXi2,
                                                   mXHat);
+        }
+
+//------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives(
+                      Matrix< DDRMat > & aJt,  // contains first geometric derivs
+                      Matrix< DDRMat > & aJ2bt, // contains second geometric derivs = second help matrix for 2nd field derivs
+                      Matrix< DDRMat > & aJ3at, // first help matrix for 3rd field derivs
+					  Matrix< DDRMat > & aJ3bt, // second help matrix for 3rd field derivs
+					  Matrix< DDRMat > & aJ3ct, // third help matrix for 3rd field derivs
+                const Matrix< DDRMat > & adNdXi,
+                const Matrix< DDRMat > & ad2NdXi2,
+				const Matrix< DDRMat > & ad3NdXi3) const
+        {
+
+        	// evaluate  geometry Jacobians
+        	aJt   = this->space_jacobian( adNdXi );
+            aJ2bt = this->second_space_jacobian( ad2NdXi2 );
+
+            // call calculator for second derivatives
+            this->mThirdDerivativeMatricesSpace( aJt,
+            		                             aJ2bt,
+												 aJ3at,
+												 aJ3bt,
+												 aJ3ct,
+                                                 ad3NdXi3,
+                                                 mXHat);
+
         }
 
 //------------------------------------------------------------------------------
@@ -969,6 +1024,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        void Geometry_Interpolator::eval_matrices_for_third_derivative_1d(
+                const Matrix< DDRMat > & aJt,
+                const Matrix< DDRMat > & aJ2bt,
+                      Matrix< DDRMat > & aJ3at,
+					  Matrix< DDRMat > & aJ3bt,
+					  Matrix< DDRMat > & aJ3ct,
+                const Matrix< DDRMat > & ad3NdXi3,
+                const Matrix< DDRMat > & aXHat)
+        {
+            // first help matrix
+            aJ3at.set_size( 1, 1 );
+            aJ3at( 0, 0 ) = std::pow( aJt( 0, 0 ), 3 );
+
+            // second help matrix
+            aJ3bt.set_size( 1, 1 );
+            aJ3bt( 0, 0 ) = 3 * aJ2bt( 0, 0 ) * aJt( 0, 0 );
+
+            // third help matrix
+            aJ3ct = ad3NdXi3 * aXHat;
+        }
+
+//------------------------------------------------------------------------------
+
         void Geometry_Interpolator::eval_matrices_for_second_derivative_2d(
                 const Matrix< DDRMat > & aJt,
                       Matrix< DDRMat > & aKt,
@@ -992,6 +1070,97 @@ namespace moris
             aLt( 0, 2 ) = 2.0 * aJt( 0, 0 ) * aJt( 0, 1 );
             aLt( 1, 2 ) = 2.0 * aJt( 1, 0 ) * aJt( 1, 1 );
             aLt( 2, 2 ) = aJt( 0, 0 )* aJt( 1, 1 ) +  aJt( 0, 1 ) * aJt( 1, 0 );
+        }
+
+//------------------------------------------------------------------------------
+
+        void Geometry_Interpolator::eval_matrices_for_third_derivative_2d(
+                const Matrix< DDRMat > & aJt,
+                const Matrix< DDRMat > & aJ2bt,
+                      Matrix< DDRMat > & aJ3at,
+					  Matrix< DDRMat > & aJ3bt,
+					  Matrix< DDRMat > & aJ3ct,
+                const Matrix< DDRMat > & ad3NdXi3,
+                const Matrix< DDRMat > & aXHat)
+        {
+
+
+        	// first help matrix
+            aJ3at.set_size( 4, 4 );
+
+            /* matrix structured into 4 parts
+             *  _____________     ________
+             *  |(1)* |(2)* |     | ,xxx |
+             *  |_*_*_|_*_*_|  *  | ,yyy |
+             *  |(3)* |(4)* |     | ,xxy |
+             *  |_*_*_|_*_*_|     |_,xyy_|
+             */
+
+            // Block (1) ------------------------------------------------
+            for( uint j=0; j<2; ++j )
+            {
+                aJ3at( 0, j ) = std::pow( aJt( 0, j ), 3 );
+                aJ3at( 1, j ) = std::pow( aJt( 1, j ), 3 );
+            }
+
+            // Block (2) ------------------------------------------------
+            aJ3at( 0, 2 ) = 3 * std::pow( aJt( 0, 0 ), 2 ) * aJt( 0, 1 );
+            aJ3at( 1, 2 ) = 3 * std::pow( aJt( 1, 0 ), 2 ) * aJt( 1, 1 );
+
+            aJ3at( 0, 3 ) = 3 * std::pow( aJt( 0, 1 ), 2 ) * aJt( 0, 0 );
+            aJ3at( 1, 3 ) = 3 * std::pow( aJt( 1, 1 ), 2 ) * aJt( 1, 0 );
+
+            // Block (3) ------------------------------------------------
+            for( uint j=0; j<2; ++j )
+            {
+                aJ3at( 2, j ) = std::pow( aJt( 0, j ), 2 ) * aJt( 1, j );
+                aJ3at( 3, j ) = std::pow( aJt( 1, j ), 2 ) * aJt( 0, j );
+            }
+
+            // Block (4) ------------------------------------------------
+            aJ3at( 2, 2 ) = std::pow( aJt( 0, 0 ), 2 ) * aJt( 1, 1 )  +  2 * aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 0, 1 );
+            aJ3at( 3, 2 ) = std::pow( aJt( 1, 0 ), 2 ) * aJt( 0, 1 )  +  2 * aJt( 1, 0 ) * aJt( 0, 0 ) * aJt( 1, 1 );
+
+            aJ3at( 2, 3 ) = std::pow( aJt( 0, 1 ), 2 ) * aJt( 1, 0 )  +  2 * aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 0, 0 );
+            aJ3at( 3, 3 ) = std::pow( aJt( 1, 1 ), 2 ) * aJt( 0, 0 )  +  2 * aJt( 1, 1 ) * aJt( 0, 1 ) * aJt( 1, 0 );
+
+            // second help matrix
+            aJ3bt.set_size( 4, 3 );
+
+            /* matrix structured into 4 parts
+             *  ___________     _______
+             *  |(1)* |(2)|     | ,xx |
+             *  |_*_*_|_*_|  *  | ,yy |
+             *  |(3)* |(4)|     |_,xy_|
+             *  |_*_*_|_*_|
+             */
+
+            // Block (1) ------------------------------------------------
+            for( uint j=0; j<2; ++j )
+            {
+                aJ3bt( 0, j ) = 3 * aJ2bt( 0, j ) * aJt( 0, j );
+                aJ3bt( 1, j ) = 3 * aJ2bt( 1, j ) * aJt( 1, j );
+            }
+
+            // Block (2) ------------------------------------------------
+            aJ3bt( 0, 2 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 1 ) + 3 * aJ2bt( 0, 1 ) * aJt( 0, 0 );
+            aJ3bt( 1, 2 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 1 ) + 3 * aJ2bt( 1, 1 ) * aJt( 1, 0 );
+
+            // Block (3) ------------------------------------------------
+            for( uint j=0; j<2; ++j )
+            {
+                aJ3bt( 2, j ) = 2 * aJ2bt( 2, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 1, j );
+                aJ3bt( 3, j ) = 2 * aJ2bt( 2, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 0, j );
+            }
+
+            // Block (4) ------------------------------------------------
+            aJ3bt( 2, 2 ) =  2 * aJ2bt( 2, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 0, 0 )
+            		           + aJ2bt( 0, 1 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 1 );
+            aJ3bt( 3, 2 ) =  2 * aJ2bt( 2, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 2, 1 ) * aJt( 1, 0 )
+            		           + aJ2bt( 1, 1 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 1 );
+
+            // third help matrix
+            aJ3ct = ad3NdXi3 * aXHat;
         }
 
 //------------------------------------------------------------------------------
@@ -1042,6 +1211,293 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        void Geometry_Interpolator::eval_matrices_for_third_derivative_3d(
+                const Matrix< DDRMat > & aJt,
+                const Matrix< DDRMat > & aJ2bt,
+                      Matrix< DDRMat > & aJ3at,
+					  Matrix< DDRMat > & aJ3bt,
+					  Matrix< DDRMat > & aJ3ct,
+                const Matrix< DDRMat > & ad3NdXi3,
+                const Matrix< DDRMat > & aXHat)
+        {
+            // first help matrix
+            aJ3at.set_size( 10, 10 );
+
+            /* matrix structured into 9 parts
+             *  ___________________________     ________
+             *  | * * * | * * * * * * | * |     | ,xxx |
+             *  | *(1)* | * *(2)* * * |(3)|     | ,yyy |
+             *  |_*_*_*_|_*_*_*_*_*_*_|_*_|     | ,zzz |
+             *  | * * * | * * * * * * | * |     | ,xxy |
+             *  | * * * | * * * * * * | * |     | ,xxz |
+             *  | *(4)* | * *(5)* * * |(6)|  *  | ,xyy |
+             *  | * * * | * * * * * * | * |     | ,yyz |
+             *  | * * * | * * * * * * | * |     | ,xzz |
+             *  |_*_*_*_|_*_*_*_*_*_*_|_*_|     | ,yzz |
+             *  |_*(7)*_|_*_*(8)*_*_*_|(9)|     |_,xyz_|
+             */
+
+            // Block (1) ------------------------------------------------
+            for( uint j=0; j<3; ++j )
+            {
+                aJ3at( 0, j ) = std::pow( aJt( 0, j ), 3 );
+                aJ3at( 1, j ) = std::pow( aJt( 1, j ), 3 );
+                aJ3at( 2, j ) = std::pow( aJt( 2, j ), 3 );
+            }
+
+            // Block (2) ------------------------------------------------
+            aJ3at( 0, 3 ) = 3 * std::pow( aJt( 0, 0 ), 2 ) * aJt( 0, 1 );
+            aJ3at( 1, 3 ) = 3 * std::pow( aJt( 1, 0 ), 2 ) * aJt( 1, 1 );
+            aJ3at( 2, 3 ) = 3 * std::pow( aJt( 2, 0 ), 2 ) * aJt( 2, 1 );
+
+            aJ3at( 0, 4 ) = 3 * std::pow( aJt( 0, 0 ), 2 ) * aJt( 0, 2 );
+            aJ3at( 1, 4 ) = 3 * std::pow( aJt( 1, 0 ), 2 ) * aJt( 1, 2 );
+            aJ3at( 2, 4 ) = 3 * std::pow( aJt( 2, 0 ), 2 ) * aJt( 2, 2 );
+
+            aJ3at( 0, 5 ) = 3 * std::pow( aJt( 0, 1 ), 2 ) * aJt( 0, 0 );
+            aJ3at( 1, 5 ) = 3 * std::pow( aJt( 1, 1 ), 2 ) * aJt( 1, 0 );
+            aJ3at( 2, 5 ) = 3 * std::pow( aJt( 2, 1 ), 2 ) * aJt( 2, 0 );
+
+            aJ3at( 0, 6 ) = 3 * std::pow( aJt( 0, 1 ), 2 ) * aJt( 0, 2 );
+            aJ3at( 1, 6 ) = 3 * std::pow( aJt( 1, 1 ), 2 ) * aJt( 1, 2 );
+            aJ3at( 2, 6 ) = 3 * std::pow( aJt( 2, 1 ), 2 ) * aJt( 2, 2 );
+
+            aJ3at( 0, 7 ) = 3 * std::pow( aJt( 0, 2 ), 2 ) * aJt( 0, 0 );
+            aJ3at( 1, 7 ) = 3 * std::pow( aJt( 1, 2 ), 2 ) * aJt( 1, 0 );
+            aJ3at( 2, 7 ) = 3 * std::pow( aJt( 2, 2 ), 2 ) * aJt( 2, 0 );
+
+            aJ3at( 0, 8 ) = 3 * std::pow( aJt( 0, 2 ), 2 ) * aJt( 0, 1 );
+            aJ3at( 1, 8 ) = 3 * std::pow( aJt( 1, 2 ), 2 ) * aJt( 1, 1 );
+            aJ3at( 2, 8 ) = 3 * std::pow( aJt( 2, 2 ), 2 ) * aJt( 2, 1 );
+
+
+            // Block (3) ------------------------------------------------
+            aJ3at( 0, 9 ) = 6 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
+            aJ3at( 1, 9 ) = 6 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
+            aJ3at( 2, 9 ) = 6 * aJt( 2, 0 ) * aJt( 2, 1 ) * aJt( 2, 2 );
+
+            // Block (4) ------------------------------------------------
+            for( uint j=0; j<3; ++j )
+            {
+                aJ3at( 3, j ) = std::pow( aJt( 0, j ) , 2 ) * aJt( 1, j );
+                aJ3at( 4, j ) = std::pow( aJt( 0, j ) , 2 ) * aJt( 2, j );
+                aJ3at( 5, j ) = std::pow( aJt( 1, j ) , 2 ) * aJt( 0, j );
+                aJ3at( 6, j ) = std::pow( aJt( 1, j ) , 2 ) * aJt( 2, j );
+                aJ3at( 7, j ) = std::pow( aJt( 2, j ) , 2 ) * aJt( 0, j );
+                aJ3at( 8, j ) = std::pow( aJt( 2, j ) , 2 ) * aJt( 1, j );
+            }
+
+            // Block (5) ------------------------------------------------
+            aJ3at( 3, 3 ) = std::pow( aJt( 0, 0 ), 2 ) * aJt( 1, 1 ) + 2 * aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 0, 1 );
+            aJ3at( 4, 3 ) = std::pow( aJt( 0, 0 ), 2 ) * aJt( 2, 1 ) + 2 * aJt( 0, 0 ) * aJt( 2, 0 ) * aJt( 0, 1 );
+            aJ3at( 5, 3 ) = std::pow( aJt( 1, 0 ), 2 ) * aJt( 0, 1 ) + 2 * aJt( 1, 0 ) * aJt( 0, 0 ) * aJt( 1, 1 );
+            aJ3at( 6, 3 ) = std::pow( aJt( 1, 0 ), 2 ) * aJt( 2, 1 ) + 2 * aJt( 1, 0 ) * aJt( 2, 0 ) * aJt( 1, 1 );
+            aJ3at( 7, 3 ) = std::pow( aJt( 2, 0 ), 2 ) * aJt( 0, 1 ) + 2 * aJt( 2, 0 ) * aJt( 0, 0 ) * aJt( 2, 1 );
+            aJ3at( 8, 3 ) = std::pow( aJt( 2, 0 ), 2 ) * aJt( 1, 1 ) + 2 * aJt( 2, 0 ) * aJt( 1, 0 ) * aJt( 2, 1 );
+
+            aJ3at( 3, 4 ) = std::pow( aJt( 0, 0 ), 2 ) * aJt( 1, 2 ) + 2 * aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 0, 2 );
+            aJ3at( 4, 4 ) = std::pow( aJt( 0, 0 ), 2 ) * aJt( 2, 2 ) + 2 * aJt( 0, 0 ) * aJt( 2, 0 ) * aJt( 0, 2 );
+            aJ3at( 5, 4 ) = std::pow( aJt( 1, 0 ), 2 ) * aJt( 0, 2 ) + 2 * aJt( 1, 0 ) * aJt( 0, 0 ) * aJt( 1, 2 );
+            aJ3at( 6, 4 ) = std::pow( aJt( 1, 0 ), 2 ) * aJt( 2, 2 ) + 2 * aJt( 1, 0 ) * aJt( 2, 0 ) * aJt( 1, 2 );
+            aJ3at( 7, 4 ) = std::pow( aJt( 2, 0 ), 2 ) * aJt( 0, 2 ) + 2 * aJt( 2, 0 ) * aJt( 0, 0 ) * aJt( 2, 2 );
+            aJ3at( 8, 4 ) = std::pow( aJt( 2, 0 ), 2 ) * aJt( 1, 2 ) + 2 * aJt( 2, 0 ) * aJt( 1, 0 ) * aJt( 2, 2 );
+
+            aJ3at( 3, 5 ) = std::pow( aJt( 0, 1 ), 2 ) * aJt( 1, 0 ) + 2 * aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 0, 0 );
+            aJ3at( 4, 5 ) = std::pow( aJt( 0, 1 ), 2 ) * aJt( 2, 0 ) + 2 * aJt( 0, 1 ) * aJt( 2, 1 ) * aJt( 0, 0 );
+            aJ3at( 5, 5 ) = std::pow( aJt( 1, 1 ), 2 ) * aJt( 0, 0 ) + 2 * aJt( 1, 1 ) * aJt( 0, 1 ) * aJt( 1, 0 );
+            aJ3at( 6, 5 ) = std::pow( aJt( 1, 1 ), 2 ) * aJt( 2, 0 ) + 2 * aJt( 1, 1 ) * aJt( 2, 1 ) * aJt( 1, 0 );
+            aJ3at( 7, 5 ) = std::pow( aJt( 2, 1 ), 2 ) * aJt( 0, 0 ) + 2 * aJt( 2, 1 ) * aJt( 0, 1 ) * aJt( 2, 0 );
+            aJ3at( 8, 5 ) = std::pow( aJt( 2, 1 ), 2 ) * aJt( 1, 0 ) + 2 * aJt( 2, 1 ) * aJt( 1, 1 ) * aJt( 2, 0 );
+
+            aJ3at( 3, 6 ) = std::pow( aJt( 0, 1 ), 2 ) * aJt( 1, 2 ) + 2 * aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 0, 2 );
+            aJ3at( 4, 6 ) = std::pow( aJt( 0, 1 ), 2 ) * aJt( 2, 2 ) + 2 * aJt( 0, 1 ) * aJt( 2, 1 ) * aJt( 0, 2 );
+            aJ3at( 5, 6 ) = std::pow( aJt( 1, 1 ), 2 ) * aJt( 0, 2 ) + 2 * aJt( 1, 1 ) * aJt( 0, 1 ) * aJt( 1, 2 );
+            aJ3at( 6, 6 ) = std::pow( aJt( 1, 1 ), 2 ) * aJt( 2, 2 ) + 2 * aJt( 1, 1 ) * aJt( 2, 1 ) * aJt( 1, 2 );
+            aJ3at( 7, 6 ) = std::pow( aJt( 2, 1 ), 2 ) * aJt( 0, 2 ) + 2 * aJt( 2, 1 ) * aJt( 0, 1 ) * aJt( 2, 2 );
+            aJ3at( 8, 6 ) = std::pow( aJt( 2, 1 ), 2 ) * aJt( 1, 2 ) + 2 * aJt( 2, 1 ) * aJt( 1, 1 ) * aJt( 2, 2 );
+
+            aJ3at( 3, 7 ) = std::pow( aJt( 0, 2 ), 2 ) * aJt( 1, 0 ) + 2 * aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 0, 0 );
+            aJ3at( 4, 7 ) = std::pow( aJt( 0, 2 ), 2 ) * aJt( 2, 0 ) + 2 * aJt( 0, 2 ) * aJt( 2, 2 ) * aJt( 0, 0 );
+            aJ3at( 5, 7 ) = std::pow( aJt( 1, 2 ), 2 ) * aJt( 0, 0 ) + 2 * aJt( 1, 2 ) * aJt( 0, 2 ) * aJt( 1, 0 );
+            aJ3at( 6, 7 ) = std::pow( aJt( 1, 2 ), 2 ) * aJt( 2, 0 ) + 2 * aJt( 1, 2 ) * aJt( 2, 2 ) * aJt( 1, 0 );
+            aJ3at( 7, 7 ) = std::pow( aJt( 2, 2 ), 2 ) * aJt( 0, 0 ) + 2 * aJt( 2, 2 ) * aJt( 0, 2 ) * aJt( 2, 0 );
+            aJ3at( 8, 7 ) = std::pow( aJt( 2, 2 ), 2 ) * aJt( 1, 0 ) + 2 * aJt( 2, 2 ) * aJt( 1, 2 ) * aJt( 2, 0 );
+
+            aJ3at( 3, 8 ) = std::pow( aJt( 0, 2 ), 2 ) * aJt( 1, 1 ) + 2 * aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 0, 1 );
+            aJ3at( 4, 8 ) = std::pow( aJt( 0, 2 ), 2 ) * aJt( 2, 1 ) + 2 * aJt( 0, 2 ) * aJt( 2, 2 ) * aJt( 0, 1 );
+            aJ3at( 5, 8 ) = std::pow( aJt( 1, 2 ), 2 ) * aJt( 0, 1 ) + 2 * aJt( 1, 2 ) * aJt( 0, 2 ) * aJt( 1, 1 );
+            aJ3at( 6, 8 ) = std::pow( aJt( 1, 2 ), 2 ) * aJt( 2, 1 ) + 2 * aJt( 1, 2 ) * aJt( 2, 2 ) * aJt( 1, 1 );
+            aJ3at( 7, 8 ) = std::pow( aJt( 2, 2 ), 2 ) * aJt( 0, 1 ) + 2 * aJt( 2, 2 ) * aJt( 0, 2 ) * aJt( 2, 1 );
+            aJ3at( 8, 8 ) = std::pow( aJt( 2, 2 ), 2 ) * aJt( 1, 1 ) + 2 * aJt( 2, 2 ) * aJt( 1, 2 ) * aJt( 2, 1 );
+
+
+            // Block (6) ------------------------------------------------
+            aJ3at( 3, 9 ) =   2 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 1, 2 )
+            		        + 2 * aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 0, 2 )
+							+ 2 * aJt( 1, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
+            aJ3at( 4, 9 ) =   2 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 2, 2 )
+            		        + 2 * aJt( 0, 0 ) * aJt( 2, 1 ) * aJt( 0, 2 )
+							+ 2 * aJt( 2, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
+            aJ3at( 5, 9 ) =   2 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 0, 2 )
+            		        + 2 * aJt( 1, 0 ) * aJt( 0, 1 ) * aJt( 1, 2 )
+							+ 2 * aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
+            aJ3at( 6, 9 ) =   2 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 )
+            		        + 2 * aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 1, 2 )
+							+ 2 * aJt( 2, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
+            aJ3at( 7, 9 ) =   2 * aJt( 2, 0 ) * aJt( 2, 1 ) * aJt( 0, 2 )
+            		        + 2 * aJt( 2, 0 ) * aJt( 0, 1 ) * aJt( 2, 2 )
+							+ 2 * aJt( 0, 0 ) * aJt( 2, 1 ) * aJt( 2, 2 );
+            aJ3at( 8, 9 ) =   2 * aJt( 2, 0 ) * aJt( 2, 1 ) * aJt( 1, 2 )
+            		        + 2 * aJt( 2, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 )
+							+ 2 * aJt( 1, 0 ) * aJt( 2, 1 ) * aJt( 2, 2 );
+
+            // Block (7) ------------------------------------------------
+            for( uint j=0; j<3; ++j )
+            {
+                aJ3at( 9, j ) = aJt( 0, j ) * aJt( 1, j ) * aJt( 2, j );
+            }
+
+            // Block (8) ------------------------------------------------
+            aJ3at( 9, 3 ) =   aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 1 )
+                    		+ aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 0 )
+        					+ aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 0 );
+
+            aJ3at( 9, 4 ) =   aJt( 0, 0 ) * aJt( 1, 0 ) * aJt( 2, 2 )
+                    		+ aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 0 )
+        					+ aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 0 );
+
+            aJ3at( 9, 5 ) =   aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 0 )
+                    		+ aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 1 )
+        					+ aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 1 );
+
+            aJ3at( 9, 6 ) =   aJt( 0, 1 ) * aJt( 1, 1 ) * aJt( 2, 2 )
+                    		+ aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 1 )
+        					+ aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 1 );
+
+            aJ3at( 9, 7 ) =   aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 0 )
+                    		+ aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 2 )
+        					+ aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 2 );
+
+            aJ3at( 9, 8 ) =   aJt( 0, 2 ) * aJt( 1, 2 ) * aJt( 2, 1 )
+                    		+ aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 2 )
+        					+ aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 2 );
+
+            // Block (9) ------------------------------------------------
+            aJ3at( 9, 9 ) =   aJt( 0, 0 ) * aJt( 1, 1 ) * aJt( 2, 2 )
+            		        + aJt( 0, 2 ) * aJt( 1, 1 ) * aJt( 2, 0 )
+							+ aJt( 0, 1 ) * aJt( 1, 2 ) * aJt( 2, 0 )
+							+ aJt( 0, 0 ) * aJt( 1, 2 ) * aJt( 2, 1 )
+							+ aJt( 0, 2 ) * aJt( 1, 0 ) * aJt( 2, 1 )
+							+ aJt( 0, 1 ) * aJt( 1, 0 ) * aJt( 2, 2 );
+
+
+            // second help matrix
+            aJ3bt.set_size( 10, 6 );
+
+            /* matrix structured into 6 parts
+             *  _________________
+             *  | * * * | * * * |
+             *  | *(1)* | *(2)* |    _______
+             *  |_*_*_*_|_*_*_*_|    | ,xx |
+             *  | * * * | * * * |    | ,yy |
+             *  | * * * | * * * |    | ,zz |
+             *  | *(3)* | *(4)* |  * | ,yz |
+             *  | * * * | * * * |    | ,xz |
+             *  | * * * | * * * |    |_,xy_|
+             *  |_*_*_*_|_*_*_*_|
+             *  |_*(5)*_|_*(6)*_|
+             */
+
+            // Block (1) ------------------------------------------------
+            for( uint j=0; j<3; ++j )
+            {
+                aJ3bt( 0, j ) = 3 * aJ2bt( 0, j ) * aJt( 0, j );
+                aJ3bt( 1, j ) = 3 * aJ2bt( 1, j ) * aJt( 1, j );
+                aJ3bt( 2, j ) = 3 * aJ2bt( 2, j ) * aJt( 2, j );
+            }
+
+            // Block (2) ------------------------------------------------
+            aJ3bt( 0, 5 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 1 )
+            		        + 3 * aJ2bt( 0, 1 ) * aJt( 0, 0 );
+            aJ3bt( 1, 5 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 1 )
+            		        + 3 * aJ2bt( 1, 1 ) * aJt( 1, 0 );
+            aJ3bt( 2, 5 ) =   3 * aJ2bt( 2, 0 ) * aJt( 2, 1 )
+            		        + 3 * aJ2bt( 2, 1 ) * aJt( 2, 0 );
+
+            aJ3bt( 0, 3 ) =   3 * aJ2bt( 0, 1 ) * aJt( 0, 2 )
+            		        + 3 * aJ2bt( 0, 2 ) * aJt( 0, 1 );
+            aJ3bt( 1, 3 ) =   3 * aJ2bt( 1, 1 ) * aJt( 1, 2 )
+            		        + 3 * aJ2bt( 1, 2 ) * aJt( 1, 1 );
+            aJ3bt( 2, 3 ) =   3 * aJ2bt( 2, 1 ) * aJt( 2, 2 )
+            		        + 3 * aJ2bt( 2, 2 ) * aJt( 2, 1 );
+
+            aJ3bt( 0, 4 ) =   3 * aJ2bt( 0, 0 ) * aJt( 0, 2 )
+            		        + 3 * aJ2bt( 0, 2 ) * aJt( 0, 0 );
+            aJ3bt( 1, 4 ) =   3 * aJ2bt( 1, 0 ) * aJt( 1, 2 )
+            		        + 3 * aJ2bt( 1, 2 ) * aJt( 1, 0 );
+            aJ3bt( 2, 4 ) =   3 * aJ2bt( 2, 0 ) * aJt( 2, 2 )
+            		        + 3 * aJ2bt( 2, 2 ) * aJt( 2, 0 );
+
+            // Block (3) ------------------------------------------------
+            for( uint j=0; j<3; ++j )
+            {
+                aJ3bt( 3, j ) = 2 * aJ2bt( 5, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 1, j );
+                aJ3bt( 4, j ) = 2 * aJ2bt( 4, j ) * aJt( 0, j )  +  aJ2bt( 0, j ) * aJt( 2, j );
+                aJ3bt( 5, j ) = 2 * aJ2bt( 5, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 0, j );
+                aJ3bt( 6, j ) = 2 * aJ2bt( 3, j ) * aJt( 1, j )  +  aJ2bt( 1, j ) * aJt( 2, j );
+                aJ3bt( 7, j ) = 2 * aJ2bt( 4, j ) * aJt( 2, j )  +  aJ2bt( 2, j ) * aJt( 0, j );
+                aJ3bt( 8, j ) = 2 * aJ2bt( 3, j ) * aJt( 2, j )  +  aJ2bt( 2, j ) * aJt( 1, j );
+            }
+
+            // Block (4) ------------------------------------------------
+            aJ3bt( 3, 5 ) =  2 * aJ2bt( 5, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 5, 1 ) * aJt( 0, 0 )  +  aJ2bt( 0, 1 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 1 );
+            aJ3bt( 4, 5 ) =  2 * aJ2bt( 4, 0 ) * aJt( 0, 1 )  +  2 * aJ2bt( 4, 1 ) * aJt( 0, 0 )  +  aJ2bt( 0, 1 ) * aJt( 2, 0 )  +  aJ2bt( 0, 0 ) * aJt( 2, 1 );
+            aJ3bt( 5, 5 ) =  2 * aJ2bt( 5, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 5, 1 ) * aJt( 1, 0 )  +  aJ2bt( 1, 1 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 1 );
+            aJ3bt( 6, 5 ) =  2 * aJ2bt( 3, 0 ) * aJt( 1, 1 )  +  2 * aJ2bt( 3, 1 ) * aJt( 1, 0 )  +  aJ2bt( 1, 1 ) * aJt( 2, 0 )  +  aJ2bt( 1, 0 ) * aJt( 2, 1 );
+            aJ3bt( 7, 5 ) =  2 * aJ2bt( 4, 0 ) * aJt( 2, 1 )  +  2 * aJ2bt( 4, 1 ) * aJt( 2, 0 )  +  aJ2bt( 2, 1 ) * aJt( 0, 0 )  +  aJ2bt( 2, 0 ) * aJt( 0, 1 );
+            aJ3bt( 8, 5 ) =  2 * aJ2bt( 3, 0 ) * aJt( 2, 1 )  +  2 * aJ2bt( 3, 1 ) * aJt( 2, 0 )  +  aJ2bt( 2, 1 ) * aJt( 1, 0 )  +  aJ2bt( 2, 0 ) * aJt( 1, 1 );
+
+            aJ3bt( 3, 3 ) =  2 * aJ2bt( 5, 1 ) * aJt( 0, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 0, 1 )  +  aJ2bt( 0, 2 ) * aJt( 1, 1 )  +  aJ2bt( 0, 1 ) * aJt( 1, 2 );
+            aJ3bt( 4, 3 ) =  2 * aJ2bt( 4, 1 ) * aJt( 0, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 0, 1 )  +  aJ2bt( 0, 2 ) * aJt( 2, 1 )  +  aJ2bt( 0, 1 ) * aJt( 2, 2 );
+            aJ3bt( 5, 3 ) =  2 * aJ2bt( 5, 1 ) * aJt( 1, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 1, 1 )  +  aJ2bt( 1, 2 ) * aJt( 0, 1 )  +  aJ2bt( 1, 1 ) * aJt( 0, 2 );
+            aJ3bt( 6, 3 ) =  2 * aJ2bt( 3, 1 ) * aJt( 1, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 1, 1 )  +  aJ2bt( 1, 2 ) * aJt( 2, 1 )  +  aJ2bt( 1, 1 ) * aJt( 2, 2 );
+            aJ3bt( 7, 3 ) =  2 * aJ2bt( 4, 1 ) * aJt( 2, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 2, 1 )  +  aJ2bt( 2, 2 ) * aJt( 0, 1 )  +  aJ2bt( 2, 1 ) * aJt( 0, 2 );
+            aJ3bt( 8, 3 ) =  2 * aJ2bt( 3, 1 ) * aJt( 2, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 2, 1 )  +  aJ2bt( 2, 2 ) * aJt( 1, 1 )  +  aJ2bt( 2, 1 ) * aJt( 1, 2 );
+
+            aJ3bt( 3, 4 ) =  2 * aJ2bt( 5, 0 ) * aJt( 0, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 0, 0 )  +  aJ2bt( 0, 2 ) * aJt( 1, 0 )  +  aJ2bt( 0, 0 ) * aJt( 1, 2 );
+            aJ3bt( 4, 4 ) =  2 * aJ2bt( 4, 0 ) * aJt( 0, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 0, 0 )  +  aJ2bt( 0, 2 ) * aJt( 2, 0 )  +  aJ2bt( 0, 0 ) * aJt( 2, 2 );
+            aJ3bt( 5, 4 ) =  2 * aJ2bt( 5, 0 ) * aJt( 1, 2 )  +  2 * aJ2bt( 5, 2 ) * aJt( 1, 0 )  +  aJ2bt( 1, 2 ) * aJt( 0, 0 )  +  aJ2bt( 1, 0 ) * aJt( 0, 2 );
+            aJ3bt( 6, 4 ) =  2 * aJ2bt( 3, 0 ) * aJt( 1, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 1, 0 )  +  aJ2bt( 1, 2 ) * aJt( 2, 0 )  +  aJ2bt( 1, 0 ) * aJt( 2, 2 );
+            aJ3bt( 7, 4 ) =  2 * aJ2bt( 4, 0 ) * aJt( 2, 2 )  +  2 * aJ2bt( 4, 2 ) * aJt( 2, 0 )  +  aJ2bt( 2, 2 ) * aJt( 0, 0 )  +  aJ2bt( 2, 0 ) * aJt( 0, 2 );
+            aJ3bt( 8, 4 ) =  2 * aJ2bt( 3, 0 ) * aJt( 2, 2 )  +  2 * aJ2bt( 3, 2 ) * aJt( 2, 0 )  +  aJ2bt( 2, 2 ) * aJt( 1, 0 )  +  aJ2bt( 2, 0 ) * aJt( 1, 2 );
+
+            // Block (5) ------------------------------------------------
+            for( uint j=0; j<3; ++j )
+            {
+                aJ3bt( 9, j ) =   aJ2bt( 4, j ) * aJt( 1, j )
+                		        + aJ2bt( 3, j ) * aJt( 0, j )
+								+ aJ2bt( 5, j ) * aJt( 2, j );
+            }
+
+            // Block (6) ------------------------------------------------
+            aJ3bt( 9, 5 ) =   aJ2bt( 5, 0 ) * aJt( 2, 1 ) + aJ2bt( 5, 1 ) * aJt( 2, 0 )
+            		        + aJ2bt( 3, 0 ) * aJt( 0, 1 ) + aJ2bt( 3, 1 ) * aJt( 0, 0 )
+							+ aJ2bt( 4, 0 ) * aJt( 1, 1 ) + aJ2bt( 4, 1 ) * aJt( 1, 0 );
+
+            aJ3bt( 9, 3 ) =   aJ2bt( 5, 1 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 1 )
+            		        + aJ2bt( 3, 1 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 1 )
+							+ aJ2bt( 4, 1 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 1 );
+
+            aJ3bt( 9, 4 ) =   aJ2bt( 5, 0 ) * aJt( 2, 2 ) + aJ2bt( 5, 2 ) * aJt( 2, 0 )
+            		        + aJ2bt( 3, 0 ) * aJt( 0, 2 ) + aJ2bt( 3, 2 ) * aJt( 0, 0 )
+							+ aJ2bt( 4, 0 ) * aJt( 1, 2 ) + aJ2bt( 4, 2 ) * aJt( 1, 0 );
+
+            // third help matrix
+            aJ3ct = ad3NdXi3 * aXHat;
+        }
+
+//------------------------------------------------------------------------------
+
         void Geometry_Interpolator::set_function_pointers()
         {
             // get number of dimensions and set pointer to function
@@ -1051,16 +1507,19 @@ namespace moris
                 case( 1 ) :
                 {
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
+                    mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
                     break;
                 }
                 case( 2 ) :
                 {
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
+                    mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
                     break;
                 }
                 case( 3 ) :
                 {
                     mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
+                    mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
                     break;
                 }
                 default :

@@ -100,6 +100,7 @@ namespace moris
                 }
             }
 //            // print residual for check
+//            	print( mElementBlock->mResidual, "mResidual");
 //            print( mCluster->mResidual, " mResidual " );
         }
 

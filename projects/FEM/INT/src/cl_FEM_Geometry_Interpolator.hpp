@@ -88,6 +88,16 @@ namespace moris
                                                    const Matrix< DDRMat > & ad2NdXi2,
                                                    const Matrix< DDRMat > & aXHat );
 
+        // pointer to function for third derivatives
+        void ( * mThirdDerivativeMatricesSpace )(  const Matrix< DDRMat > & aJt,
+                                                   const Matrix< DDRMat > & aJ2bt,
+                                                         Matrix< DDRMat > & aJ3at,
+														 Matrix< DDRMat > & aJ3bt,
+														 Matrix< DDRMat > & aJ3ct,
+                                                   const Matrix< DDRMat > & ad3NdXi3,
+                                                   const Matrix< DDRMat > & aXHat );
+
+
         void ( * mSecondDerivativeMatricesTime )( const Matrix< DDRMat > & aJt,
                                                         Matrix< DDRMat > & aKt,
                                                         Matrix< DDRMat > & aLt,
@@ -315,11 +325,22 @@ namespace moris
          * evaluates the second derivatives of the space shape functions
          *  wrt parametric coordinates at a given evaluation point
          * @param[ out ] ad2NdXi2 second order derivatives
-         *                        ( <number of dimensions> x <number of nodes> )
+         *                        ( <1D:1, 2D:3, 3D:6> x <number of nodes> )
          * @param[ in ] aXi       evaluation point
          *                        ( <number of dimensions>  x 1 )
          */
         Matrix< DDRMat > d2NdXi2 ( const Matrix< DDRMat > & aXi ) const;
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the third derivatives of the space shape functions
+         *  wrt parametric coordinates at a given evaluation point
+         * @param[ out ] ad3NdXi3 third order derivatives
+         *                        ( <1D:1, 2D:4, 3D: 10> x <number of nodes> )
+         * @param[ in ] aXi       evaluation point
+         *                        ( <number of dimensions>  x 1 )
+         */
+        Matrix< DDRMat > d3NdXi3 ( const Matrix< DDRMat > & aXi ) const;
 
 //------------------------------------------------------------------------------
         /**
@@ -335,11 +356,30 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * evaluates the geometry Jacobian in space
-         * @param[ out ] tJt    transposed of geometry Jacobian in space
-         * @param[ in ]  adNdXi first derivatives of space shape functions in
-         *                      parameter space
+         * @param[ out ] tJt     transposed of geometry Jacobian in space
+         * @param[ in ]  adNdXi  first derivatives of space shape functions in
+         *                       parameter space
          */
         Matrix< DDRMat > space_jacobian( const Matrix< DDRMat > & adNdXi ) const;
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the 2nd geometry Jacobian in space
+         *
+         * @param[ out ] tJ2bt     2nd geometry Jacobian in space
+         * @param[ in ]  ad2NdXi2  second derivatives of space shape functions in
+         *                         parameter space
+         */
+        Matrix< DDRMat > second_space_jacobian( const Matrix< DDRMat > & adN2dXi2 ) const;
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the geometry Jacobian in space
+         * @param[ out ] tJ3ct     3rd geometry Jacobian in space
+         * @param[ in ]  ad3NdXi3  third derivatives of space shape functions in
+         *                         parameter space
+         */
+        Matrix< DDRMat > third_space_jacobian( const Matrix< DDRMat > & ad3NdXi3 ) const;
 
 //------------------------------------------------------------------------------
         /**
@@ -441,6 +481,7 @@ namespace moris
                                                                  const Matrix< DDRMat > & adNdXi,
                                                                  const Matrix< DDRMat > & ad2NdXi2 ) const;
 
+
 //------------------------------------------------------------------------------
         /**
          * evaluates the geometry Jacobian and the matrices needed for the second
@@ -457,6 +498,31 @@ namespace moris
                                                                       Matrix< DDRMat > & aLt,
                                                                 const Matrix< DDRMat > & adNdTau,
                                                                 const Matrix< DDRMat > & ad2NdTau2 ) const;
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the geometry Jacobian and the matrices needed for the second
+         * derivatives wrt to space in physical space
+         * @param[ in ]  aJ1t       transposed of 1st geometry Jacobian
+         * @param[ in ]  aJ2bt      2nd geometry Jacobian = 2nd help matrix for 2nd derivs
+         *
+         * @param[ out ] aJ3at      first help matrix for 3rd field derivs
+         * @param[ out ] aJ3bt      second help matrix for 3rd field derivs
+         * @param[ out ] aJ3ct      third help matrix for 3rd field derivs
+         *
+         * @param[ in ]  adNdXi   first derivatives of N in parameter space
+         * @param[ in ]  ad2NdXi2 second derivatives of N in parameter space
+         * @param[ in ]  ad3NdXi3 third derivatives of N in parameter space
+         *
+         */
+        void space_jacobian_and_matrices_for_third_derivatives(       Matrix< DDRMat > & aJt,
+                                                                      Matrix< DDRMat > & aJ2bt,
+                                                                      Matrix< DDRMat > & aJ3at,
+				                                                      Matrix< DDRMat > & aJ3bt,
+				                                                      Matrix< DDRMat > & aJ3ct,
+                                                                const Matrix< DDRMat > & adNdXi,
+                                                                const Matrix< DDRMat > & ad2NdXi2,
+			                                                    const Matrix< DDRMat > & ad3NdXi3) const;
 
 //------------------------------------------------------------------------------
         /**
@@ -548,11 +614,77 @@ namespace moris
          * @param[ in ]  ad2NdX2i     second derivatives in parameter space
          *
          */
-        static void eval_matrices_for_second_derivative_3d( const Matrix< DDRMat > & aJt,
+         static void eval_matrices_for_second_derivative_3d( const Matrix< DDRMat > & aJt,
                                                                   Matrix< DDRMat > & aKt,
                                                                   Matrix< DDRMat > & aLt,
                                                             const Matrix< DDRMat > & ad2NdXi2,
                                                             const Matrix< DDRMat > & aXHat );
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the geometry Jacobian and the matrices needed for the second
+         * derivatives wrt to space in 1D physical space
+         * @param[ in ]  aJ1t       transposed of 1st geometry Jacobian
+         * @param[ in ]  aJ2bt      2nd geometry Jacobian = 2nd help matrix for 2nd derivs
+         *
+         * @param[ out ] aJ3at      first help matrix for 3rd field derivs
+         * @param[ out ] aJ3bt      second help matrix for 3rd field derivs
+         * @param[ out ] aJ3ct      third help matrix for 3rd field derivs
+         *
+         * @param[ in ]  ad3NdXi3 third derivatives of N in parameter space
+         *
+         */
+         static void eval_matrices_for_third_derivative_1d( const Matrix< DDRMat > & aJt,
+                                                           const Matrix< DDRMat > & aJ2bt,
+                                                                 Matrix< DDRMat > & aJ3at,
+				                                                 Matrix< DDRMat > & aJ3bt,
+                                                                 Matrix< DDRMat > & aJ3ct,
+                                                           const Matrix< DDRMat > & ad3NdXi3,
+                                                           const Matrix< DDRMat > & aXHat );
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the geometry Jacobian and the matrices needed for the second
+         * derivatives wrt to space in 2D physical space
+         * @param[ in ]  aJ1t       transposed of 1st geometry Jacobian
+         * @param[ in ]  aJ2bt      2nd geometry Jacobian = 2nd help matrix for 2nd derivs
+         *
+         * @param[ out ] aJ3at      first help matrix for 3rd field derivs
+         * @param[ out ] aJ3bt      second help matrix for 3rd field derivs
+         * @param[ out ] aJ3ct      third help matrix for 3rd field derivs
+         *
+         * @param[ in ]  ad3NdXi3 third derivatives of N in parameter space
+         *
+         */
+         static void eval_matrices_for_third_derivative_2d( const Matrix< DDRMat > & aJt,
+                                                           const Matrix< DDRMat > & aJ2bt,
+                                                                 Matrix< DDRMat > & aJ3at,
+				                                                 Matrix< DDRMat > & aJ3bt,
+                                                                 Matrix< DDRMat > & aJ3ct,
+                                                           const Matrix< DDRMat > & ad3NdXi3,
+                                                           const Matrix< DDRMat > & aXHat );
+
+//------------------------------------------------------------------------------
+        /**
+         * evaluates the geometry Jacobian and the matrices needed for the second
+         * derivatives wrt to space in 3D physical space
+         * @param[ in ]  aJ1t       transposed of 1st geometry Jacobian
+         * @param[ in ]  aJ2bt      2nd geometry Jacobian = 2nd help matrix for 2nd derivs
+         *
+         * @param[ out ] aJ3at      first help matrix for 3rd field derivs
+         * @param[ out ] aJ3bt      second help matrix for 3rd field derivs
+         * @param[ out ] aJ3ct      third help matrix for 3rd field derivs
+         *
+         * @param[ in ]  ad3NdXi3 third derivatives of N in parameter space
+         *
+         */
+         static void eval_matrices_for_third_derivative_3d( const Matrix< DDRMat > & aJt,
+                                                           const Matrix< DDRMat > & aJ2bt,
+                                                                 Matrix< DDRMat > & aJ3at,
+				                                                 Matrix< DDRMat > & aJ3bt,
+                                                                 Matrix< DDRMat > & aJ3ct,
+                                                           const Matrix< DDRMat > & ad3NdXi3,
+                                                           const Matrix< DDRMat > & aXHat );
 
 //------------------------------------------------------------------------------
         /**

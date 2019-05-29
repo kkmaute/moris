@@ -39,7 +39,7 @@ namespace moris
 
             // compute the residual r_T
             aResidual = trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 )
-                      + trans( tTemp->N() ) * tQ;
+                      - trans( tTemp->N() ) * tQ;
         }
 
 //------------------------------------------------------------------------------

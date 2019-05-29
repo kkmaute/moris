@@ -176,6 +176,11 @@ namespace moris
            void output_solution( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
+
+           void
+           output_solution_nils_HACK( const std::string & aFilePath, mtk::Mesh * aMesh );
+
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace mdl */

@@ -529,5 +529,37 @@ namespace moris
             }
         }
 
+        void
+        Model::output_solution_nils_HACK( const std::string & aFilePath,
+        		                                mtk::Mesh * aMesh )
+        {
+            if ( aMesh->get_mesh_type() == MeshType::HMR )
+            {
+                mSolHMR.set_size(aMesh->get_num_nodes(),1,-1.0);
+
+                moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
+
+                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
+                {
+                    Matrix< IndexMat > tBlockSetElementInd
+                        = aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                    {
+                       uint tNumVert = aMesh->get_mtk_cell( k ).get_number_of_vertices();
+
+                       //print( mElements(k)->get_pdof_values(), "Element");
+
+                       for( luint Jk=0; Jk < tNumVert; ++Jk )
+                       {
+                           moris_index tID= aMesh->get_mtk_cell( k ).get_vertex_pointers()( Jk) ->get_index();
+
+                           mSolHMR(tID) = mElements(k)->get_pdof_values()(Jk);
+                       }
+                    }
+                }
+            }
+        }
+
     } /* namespace mdl */
 } /* namespace moris */
