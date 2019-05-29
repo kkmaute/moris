@@ -23,9 +23,8 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"            //FEM/INT/src
-
-#include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
-#include "cl_FEM_Set.hpp"   //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"       //FEM/INT/src
+#include "cl_FEM_Set.hpp"                   //FEM/INT/src
 
 namespace moris
 {
@@ -272,9 +271,9 @@ namespace moris
             // element factory
             fem::Element_Factory tElementFactory;
 
-            mElements.resize( mIntegrationCells.size(), nullptr );
+            mElements.resize( mLeftIntegrationCells.size(), nullptr );
 
-            for( moris::uint Ik = 0; Ik < mIntegrationCells.size(); Ik++)
+            for( moris::uint Ik = 0; Ik < mLeftIntegrationCells.size(); Ik++)
             {
                 // create an element
                 mElements( Ik ) = tElementFactory.create_element( mElementType,
@@ -283,7 +282,6 @@ namespace moris
                                                                   mSet,
                                                                   this,
                                                                   Ik );
-
             }
         };
 
@@ -291,10 +289,7 @@ namespace moris
         /**
          * trivial destructor
          */
-        ~Cluster()
-        {
-            mElements.clear();
-        };
+        ~Cluster();
 
 //------------------------------------------------------------------------------
 
@@ -383,6 +378,56 @@ namespace moris
                  return mDoubleSideCluster.get_right_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster );
              }
          }
+
+//------------------------------------------------------------------------------
+
+        Matrix< DDRMat > get_side_normal( const mtk::Cell        * aCell,
+                                          moris::moris_index aSideOrdinal,
+                                          Matrix< DDRMat > & aParamPoint )
+        {
+            // init normal
+            Matrix < DDRMat > tNormal;
+
+            // if interpolation cell is linear
+            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+            {
+                // egt normal from the mesh
+                tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
+            }
+            // if integration cell is higher order
+            else
+            {
+                if( mElementType == fem::Element_Type::SIDESET )
+                {
+                    // get normal from the integration cell geometry interpolator
+                    tNormal = mSet->get_IG_geometry_interpolator()->get_normal( aParamPoint );
+                }
+                else if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                {
+                    // get normal from the integration cell geometry interpolator
+                    tNormal = mSet->get_left_IG_geometry_interpolator()->get_normal( aParamPoint );
+                }
+            }
+
+            return tNormal;
+
+		}
+
+//------------------------------------------------------------------------------
+
+        moris::moris_index get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex )
+        {
+            // check we are working with a side cluster
+            MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
+                          "Cluster::get_left_vertex_pair - not a double side cluster.");
+
+            // get the paired vertex on the right
+            moris::mtk::Vertex const * tRightVertex = mDoubleSideCluster.get_left_vertex_pair( aLeftVertex );
+
+            // return the index of the paired vertex on the right
+            return mDoubleSideCluster.get_right_side_cluster().get_vertex_cluster_index( tRightVertex );
+
+        }
 
 //------------------------------------------------------------------------------
 

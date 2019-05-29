@@ -31,7 +31,8 @@ namespace moris
             // switch on geometry type
             switch( aGeometryType )
             {
-                case( mtk::Geometry_Type::HEX ):
+                //case( mtk::Geometry_Type::HEX ):
+                case( mtk::Geometry_Type::QUAD ):
                 {
                     switch( aSlaveNode )
                     {
@@ -53,7 +54,8 @@ namespace moris
                     }
                     break;
                 }
-                case( mtk::Geometry_Type::TET ):
+                //case( mtk::Geometry_Type::TET ):
+                case( mtk::Geometry_Type::TRI ):
                 {
                     switch( aSlaveNode )
                     {
@@ -72,8 +74,9 @@ namespace moris
                     }
                     break;
                 }
-                case( mtk::Geometry_Type::QUAD ):
-                case( mtk::Geometry_Type::TRI ):
+                //case( mtk::Geometry_Type::QUAD ):
+                //case( mtk::Geometry_Type::TRI ):
+                case( mtk::Geometry_Type::LINE ):
                 {
                     tR = {{ -1.0 }};
                     break;

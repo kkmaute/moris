@@ -19,8 +19,9 @@ class Double_Side_Cluster_Input
 {
 
 public:
-    moris::Cell<Side_Set_Cluster_Data> mLeftSideClusters; /*all side cluster data for a given side set*/
-    moris::Cell<Side_Set_Cluster_Data> mRightSideClusters; /*all side cluster data for a given side set*/
+    moris::Cell<Side_Set_Cluster_Data>                     mLeftSideClusters; /*all side cluster data for a given side set*/
+    moris::Cell<Side_Set_Cluster_Data>                     mRightSideClusters; /*all side cluster data for a given side set*/
+    moris::Cell<moris::Cell<moris::Matrix<moris::IdMat>*>> mVertexPairing;     /*vertex pairing for a given cluster*/
 
     moris::Cell<std::string> mDoubleSideSetLabel;
     std::unordered_map<std::string, moris_index> mSideSetLabelToOrd;
@@ -36,6 +37,7 @@ public:
 
         mLeftSideClusters.resize(tIndex+1);
         mRightSideClusters.resize(tIndex+1);
+        mVertexPairing.resize(tIndex+1);
 
         return tIndex;
     }
@@ -80,15 +82,18 @@ public:
                      mtk::Cell*                aRightInterpCell,
                      moris::Matrix<IndexMat>*  aRightCellIdsAndSideOrds,
                      moris::Matrix<IndexMat>*  aRightVerticesInCluster,
-                     moris::Matrix<DDRMat>*    aRightLocalCoordsRelativeToInterpCell)
+                     moris::Matrix<DDRMat>*    aRightLocalCoordsRelativeToInterpCell,
+                     moris::Matrix<IdMat>*     aVertexPairing)
     {
         MORIS_ASSERT(aLeftVerticesInCluster->numel() == aLeftLocalCoordsRelativeToInterpCell->n_rows(),"Number of vertices in the cluster must match the number of rows in local coord mat");
         MORIS_ASSERT(aLeftVerticesInCluster->numel() == aLeftLocalCoordsRelativeToInterpCell->n_rows(),"Number of vertices in the cluster must match the number of rows in local coord mat");
 
         MORIS_ASSERT(aSideSetOrd < mSideSetLabelToOrd.size(),"Side set ordinal out of bounds.");
+        MORIS_ASSERT(aVertexPairing->n_cols() == 2, "There needs to be two columns (one for each vertex pairing) Col 0 - Left vert, Col 1 Right Vert");
 
         mLeftSideClusters(aSideSetOrd).add_cluster_data(aLeftTrivial,aLeftInterpCell,aLeftCellIdsAndSideOrds, aLeftVerticesInCluster,aLeftLocalCoordsRelativeToInterpCell);
         mRightSideClusters(aSideSetOrd).add_cluster_data(aRightTrivial,aRightInterpCell,aRightCellIdsAndSideOrds, aRightVerticesInCluster,aRightLocalCoordsRelativeToInterpCell);
+        mVertexPairing(aSideSetOrd).push_back( aVertexPairing );
     }
 
 };

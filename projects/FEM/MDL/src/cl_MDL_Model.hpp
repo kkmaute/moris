@@ -68,14 +68,12 @@ namespace moris
             mtk::Mesh_Manager*             mMeshManager;
 
             moris::Cell< fem::Node_Base* > mIPNodes;
-            moris::Cell< fem::Node_Base* > mIGNodes;
             moris::Cell< fem::Cell* >      mIPCells;
             moris::Cell< fem::Cell* >      mIGCells;
 
-            moris::Cell< MSI::Equation_Object* >    mElementClusters;
+            moris::Cell< MSI::Equation_Set * >      mFemSets;
+            moris::Cell< MSI::Equation_Object* >    mFemClusters;
             moris::Cell< moris::Cell< fem::IWG* > > mIWGs;
-
-            moris::Cell< MSI::Equation_Set * >      mElementBlocks;
 
             moris::Cell< fem::IWG* >         mIWGs1;
 
@@ -103,27 +101,23 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-//            Model(       mtk::Mesh   * aMesh,
-//                   const uint          aBSplineOrder,
-//                   Cell< Cell< fem::IWG_Type > >aIWGTypeList );
-
             Model(       mtk::Mesh_Manager*                    aMesh,
                    const uint                                  aBSplineOrder,
                    moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
+                   moris::Cell< moris_index >                  aBlocksetList,
                    moris::Cell< moris_index >                  aSidesetList,
-                   moris::Cell< fem::BC_Type >                 aSidesetBCTypeList );
+                   moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
+                   moris::Cell< moris_index >                  aDoubleSidesetList );
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat> &
-            get_mSolHMR( )
+            Matrix< DDRMat> & get_mSolHMR( )
             {
                 return mSolHMR;
             };
 
 //------------------------------------------------------------------------------
 
-            void
-            set_dof_order( const uint aOrder );
+            void set_dof_order( const uint aOrder );
 
 //------------------------------------------------------------------------------
 

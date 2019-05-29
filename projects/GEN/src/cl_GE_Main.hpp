@@ -24,6 +24,8 @@
 // LinAlg includes
 #include "op_minus.hpp"
 #include "fn_norm.hpp"
+#include "fn_inv.hpp"    //LINALG/src
+
 //------------------------------------------------------------------------------
 
 namespace moris

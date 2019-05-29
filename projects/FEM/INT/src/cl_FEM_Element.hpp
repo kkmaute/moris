@@ -117,7 +117,7 @@ namespace moris
         /**
          * trivial destructor
          */
-        ~Element(){};
+        virtual ~Element(){};
 
 //------------------------------------------------------------------------------
 

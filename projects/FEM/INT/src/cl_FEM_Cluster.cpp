@@ -17,6 +17,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    Cluster::~Cluster()
+    {
+      mElements.clear();
+    }
+
+//------------------------------------------------------------------------------
+
         void Cluster::compute_jacobian()
         {
             // if double side cluster

@@ -45,6 +45,7 @@ public:
     // trivial constructor
     Side_Cluster_STK( moris::mtk::Cell const * aInterpCell,
                       moris::mtk::Cell const * aIntegrationCell,
+                      moris::Cell<moris::mtk::Vertex const *> const & aVerticesInCluster,
                       moris_index aSideOrdinal);
 
     //----------------------------------------------------------------
@@ -91,6 +92,11 @@ public:
 
     moris::Matrix<moris::DDRMat> const &
     get_vertices_local_coordinates_wrt_interp_cell() const;
+
+    //----------------------------------------------------------------
+
+    moris_index
+    get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const;
 
     //----------------------------------------------------------------
 

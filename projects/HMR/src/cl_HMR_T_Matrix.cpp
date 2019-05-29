@@ -87,7 +87,6 @@ namespace moris
 
         T_Matrix::~T_Matrix()
         {
-
         }
 
 //-------------------------------------------------------------------------------
@@ -190,15 +189,12 @@ namespace moris
 
                 // jump to next
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
-
             }
-
         }
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::calculate_truncated_t_matrix(
+        void T_Matrix::calculate_truncated_t_matrix(
                 const luint    & aMemoryIndex,
                 Matrix< DDRMat >    & aTMatrixTransposed,
                 Cell< Basis* > & aDOFs  )
@@ -262,7 +258,6 @@ namespace moris
 
                 // jump to next parent
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
-
             }
 
             // reserve memory for truncated matrix
@@ -278,8 +273,7 @@ namespace moris
             // copy basis on lowest level into output
             for( uint k=0; k<tNumberOfBasisPerElement; ++k )
             {
-                if (  mBSplineMesh
-                        ->get_basis_by_memory_index( tBasisIndices( k ) )->is_active() )
+                if (  mBSplineMesh -> get_basis_by_memory_index( tBasisIndices( k ) )->is_active() )
                 {
                     tTMatrixTruncatedTransposed.set_column( tCount, tTmatrixTransposed.get_column( k ) );
                     tDOFs( tCount++ ) = tBasisIndices( k );
@@ -300,8 +294,7 @@ namespace moris
                 for( uint k=tK1; k<tK2; ++k )
                 {
                     // get pointer to basis
-                    Basis * tBasis = mBSplineMesh
-                            ->get_basis_by_memory_index( tBasisIndices( k ) );
+                    Basis * tBasis = mBSplineMesh ->get_basis_by_memory_index( tBasisIndices( k ) );
 
                     // test if basis is active
                     if ( tBasis->is_active() )
@@ -417,17 +410,13 @@ namespace moris
                     aDOFs( tCount++ ) =
                             mBSplineMesh->get_basis_by_memory_index( tDOFs( k ) );
                 }
-
             }
         }
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_basis_index()
+        void T_Matrix::init_basis_index()
         {
-
-
             // get dimensions
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
@@ -443,8 +432,7 @@ namespace moris
             uint tNodesPerDirection = mBSplineOrder + 1;
 
             // calculate number of basis per element
-            uint tNumberOfBasis
-                = std::pow( tNodesPerDirection , tNumberOfDimensions );
+            uint tNumberOfBasis = std::pow( tNodesPerDirection , tNumberOfDimensions );
 
             // initialize index matrix
             mBasisIndex.set_size( tNumberOfBasis, 1 );
@@ -462,12 +450,11 @@ namespace moris
                     tElement->get_ijk_of_basis( k, tIJ );
 
                     // calculate index in matrix
-                     uint tIndex = tIJ[ 0 ] + tIJ[ 1 ]*tNodesPerDirection;
+                    uint tIndex = tIJ[ 0 ] + tIJ[ 1 ]*tNodesPerDirection;
 
-                     mBasisIndex( tIndex ) = k;
-                     mBSplineIJK( 0, k ) = tIJ[ 0 ];
-                     mBSplineIJK( 1, k ) = tIJ[ 1 ];
-
+                    mBasisIndex( tIndex ) = k;
+                    mBSplineIJK( 0, k ) = tIJ[ 0 ];
+                    mBSplineIJK( 1, k ) = tIJ[ 1 ];
                 }
             }
             else if ( tNumberOfDimensions == 3 )
@@ -499,10 +486,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Background_Element_Base*
-        T_Matrix::create_background_element()
+        Background_Element_Base * T_Matrix::create_background_element()
         {
-
             Background_Element_Base* aBackElement = nullptr;
 
             // create a prototype for a background element
@@ -545,8 +530,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_unity_matrix()
+        void T_Matrix::init_unity_matrix()
         {
             // get number of basis per element
             uint tNumberOfBasis
@@ -564,8 +548,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_child_matrices()
+        void T_Matrix::init_child_matrices()
         {
             // get order of mesh
             uint tOrder = mBSplineMesh->get_order();
@@ -848,8 +831,7 @@ namespace moris
         /**
          * 1D shape function
          */
-        real
-        T_Matrix::b_spline_shape_1d(
+        real T_Matrix::b_spline_shape_1d(
                 const uint & aOrder,
                 const uint & aK,
                 const real & aXi ) const
@@ -896,13 +878,11 @@ namespace moris
 
             // first value in entry is shape value
             return tN( 0 );
-
         }
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::b_spline_shape(
+        void T_Matrix::b_spline_shape(
                 const real        & aXi,
                 const real        & aEta,
                 Matrix< DDRMat >       & aN ) const
@@ -937,8 +917,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::b_spline_shape(
+        void T_Matrix::b_spline_shape(
                 const real        & aXi,
                 const real        & aEta,
                 const real        & aZeta,
@@ -973,7 +952,6 @@ namespace moris
                         aZeta );
             }
 
-
             // create shape vector in correct order
             for( uint k=0; k<mNumberOfNodes; ++k )
             {
@@ -981,12 +959,10 @@ namespace moris
                              *  tNeta( mBSplineIJK( 1, k ) )
                              * tNzeta( mBSplineIJK( 2, k ) );
             }
-
         }
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_lagrange_coefficients()
+        void T_Matrix::init_lagrange_coefficients()
         {
             // number of Lagrange nodes per direction
             mLagrangeOrder = mLagrangeMesh->get_order();
@@ -1044,8 +1020,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        real
-        T_Matrix::lagrange_shape_1d(
+        real T_Matrix::lagrange_shape_1d(
                 const uint        & aBasisNumber,
                 const real        & aXi ) const
         {
@@ -1063,8 +1038,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::lagrange_shape_2d(
+        void T_Matrix::lagrange_shape_2d(
                 const Matrix< DDRMat > & aXi,
                       Matrix< DDRMat > & aN ) const
         {
@@ -1091,8 +1065,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::lagrange_shape_3d(
+        void T_Matrix::lagrange_shape_3d(
                 const Matrix< DDRMat > & aXi,
                       Matrix< DDRMat > & aN ) const
         {
@@ -1127,8 +1100,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::evaluate( const bool aBool  )
+        void T_Matrix::evaluate( const bool aBool  )
         {
             // get B-Spline pattern of this mesh
             auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
@@ -1536,10 +1508,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_lagrange_refinement_matrices()
+        void T_Matrix::init_lagrange_refinement_matrices()
         {
-
             // tidy up memory
             mLagrangeRefinementMatrix.clear();
 
@@ -1555,7 +1525,6 @@ namespace moris
             // initialize container
             Matrix< DDRMat > tEmpty( tNumberOfNodes, tNumberOfNodes, 0.0 );
             mLagrangeRefinementMatrix.resize( tNumberOfChildren,tEmpty );
-
 
             // matrix containing corner nodes
             Matrix< DDRMat > tCorners( tNumberOfChildren, tNumberOfDimensions );
@@ -1592,15 +1561,13 @@ namespace moris
 
                     // copy result into matrix
                     mLagrangeRefinementMatrix( c ).set_row( k , tN.get_row( 0 ) );
-
                 }
             }
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_lagrange_change_order_matrices()
+        void T_Matrix::init_lagrange_change_order_matrices()
         {
             // empty matrix
             Matrix< DDRMat > tEmpty;
@@ -1617,7 +1584,6 @@ namespace moris
 
             for( uint tOrder = 1; tOrder <=3; ++tOrder )
             {
-
                 // grab the parameter coordinates
                 Matrix< DDRMat > tXi = get_supporting_points( tNumberOfDimensions, tOrder );
 
@@ -1640,7 +1606,6 @@ namespace moris
                         tPoint( i ) = tXi( i, j );
                     }
 
-
                     // evaluate shape function
                     ( this->*mEvalN )(
                             tPoint,
@@ -1654,7 +1619,6 @@ namespace moris
 
                 mLagrangeChangeOrderMatrix.push_back( tT );
             }
-
         }
 
 //------------------------------------------------------------------------------
@@ -1662,8 +1626,7 @@ namespace moris
         /**
          * returns the corner nodes of a child and dimension
          */
-        void
-        T_Matrix::get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
+        void T_Matrix::get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
         {
             switch ( aChildIndex )
             {
@@ -1737,8 +1700,7 @@ namespace moris
         /**
          * returns the corner nodes of a child and dimension
          */
-        void
-        T_Matrix::get_child_corner_nodes_3d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
+        void T_Matrix::get_child_corner_nodes_3d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
         {
             switch ( aChildIndex )
             {
@@ -1999,8 +1961,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::N_quad4( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
+        void T_Matrix::N_quad4( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
         {
             // unpack xi and eta from input vector
             auto  xi = aXi( 0 );
@@ -2015,8 +1976,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
+        void T_Matrix::N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
         {
             // unpack xi and eta from input vector
             auto    xi = aXi( 0 );
@@ -2036,8 +1996,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        T_Matrix::get_supporting_points( const uint aDimension, const uint aOrder )
+        Matrix< DDRMat > T_Matrix::get_supporting_points( const uint aDimension, const uint aOrder )
         {
             // the following lines are needed to get the interpolation points
             Matrix< DDRMat > aXihat;
@@ -2050,7 +2009,6 @@ namespace moris
                     {
                         case( 1 ) :
                         {
-
                             // quad 4
                             aXihat.set_size( 2, 4 );
 

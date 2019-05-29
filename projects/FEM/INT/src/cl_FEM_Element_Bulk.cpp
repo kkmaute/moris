@@ -161,7 +161,11 @@ namespace moris
 
                     // compute jacobian at evaluation point
                     Matrix< DDRMat > tResidual;
+
                     mSet->get_IWGs()( iIWG )->compute_residual( tResidual, tIWGInterpolators );
+
+//                    // option1 = add contribution to jacobian from evaluation point
+//                    mCluster->mResidualElement( tIWGResDofIndex ) = mCluster->mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;
 
                     // get location of computed residual in global element residual
                     uint startDof = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );

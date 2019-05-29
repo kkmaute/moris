@@ -330,53 +330,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
 
         moris::mtk::MtkSetsInfo tMtkMeshSets;
         // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
-
-        // interface side set
-        moris::mtk::MtkSideSetInfo tInterfaceSideSet;
-        Matrix<IndexMat> tInterfaceElemIdandSideOrd = {{6, 2},
-                                                       {8, 1},
-                                                       {9, 2},
-                                                       {10, 2},
-                                                       {12, 1},
-                                                       {13, 2},
-                                                       {14, 1},
-                                                       {16, 2},
-                                                       {17, 1},
-                                                       {18, 1},
-                                                       {20, 2},
-                                                       {21, 2},
-                                                       {22, 2},
-                                                       {23, 2},
-                                                       {24, 1},
-                                                       {29, 1},
-                                                       {30, 1},
-                                                       {32, 2},
-                                                       {33, 1},
-                                                       {34, 1},
-                                                       {37, 2},
-                                                       {41, 2},
-                                                       {43, 1},
-                                                       {44, 1},
-                                                       {45, 1},
-                                                       {48, 2},
-                                                       {52, 2},
-                                                       {54, 1},
-                                                       {55, 1},
-                                                       {56, 2},
-                                                       {59, 1},
-                                                       {63, 1},
-                                                       {65, 2},
-                                                       {66, 2},
-                                                       {67, 2},
-                                                       {70, 1},
-                                                       {73, 1},
-                                                       {76, 1},
-                                                       {79, 1},
-                                                       {82, 2}};
-        tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
-        tInterfaceSideSet.mSideSetName        = "iside" ;
-        tMtkMeshSets.add_side_set(&tInterfaceSideSet);
-
         // Fixed bc
         moris::mtk::MtkSideSetInfo tFixed;
         Matrix<IndexMat> tFixedElementsAndOrds = {{1, 4}};

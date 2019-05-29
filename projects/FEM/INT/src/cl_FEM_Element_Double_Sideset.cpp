@@ -36,7 +36,7 @@ namespace moris
 
             // set the geometry interpolator physical space and time coefficients for left integration cell
             mSet->get_left_IG_geometry_interpolator()->set_space_coeff( mLeftCell->get_cell_physical_coords_on_side_ordinal( tLeftSideOrd ) );
-            mSet->get_left_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
+            mSet->get_left_IG_geometry_interpolator()->set_time_coeff(  mCluster->mTime );
 
             // set the geometry interpolator physical space and time coefficients for right integration cell
             mSet->get_right_IG_geometry_interpolator()->set_space_coeff( mRightCell->get_cell_physical_coords_on_side_ordinal( tRightSideOrd ) );
@@ -75,8 +75,10 @@ namespace moris
                      // get local integration point for the left integration cell
                      Matrix< DDRMat > tLeftLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                     // get corresponding nodes from left to right
-                     uint tSlaveNode = 0; //fixme from mesh
+                     // get first corresponding node from left to right
+                     //FIXME not sure it works, seems right
+                     moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mLeftCell->get_vertices_on_side_ordinal( tLeftSideOrd )( 0 ) );
+                     //std::cout<<tSlaveNode<<std::endl;
 
                      // get rotation matrix from left to right
                      Matrix< DDRMat> tR = rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode );
@@ -88,9 +90,11 @@ namespace moris
 
                      // get global integration point  for the left integration cell
                      Matrix< DDRMat > tLeftGlobalIntegPoint = mSet->get_left_IG_geometry_interpolator()->map_integration_point( tLeftLocalIntegPoint );
+                     //print(tLeftGlobalIntegPoint,"tLeftGlobalIntegPoint");
 
                      // get global integration point for the right integration cell
                      Matrix< DDRMat > tRightGlobalIntegPoint = mSet->get_right_IG_geometry_interpolator()->map_integration_point( tRightLocalIntegPoint );
+                     //print(tRightGlobalIntegPoint,"tRightGlobalIntegPoint");
 
                      // set integration point for left and right field interpolators
                      for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -104,7 +108,7 @@ namespace moris
                                  * mSet->get_left_IG_geometry_interpolator()->det_J( tLeftLocalIntegPoint );
 
                      // get the normal from mesh and set if for the IWG
-                     Matrix< DDRMat > tNormal = mLeftCell->compute_outward_side_normal( tLeftSideOrd );
+                     Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeftCell, tLeftSideOrd, tLeftLocalIntegPoint );
                      tTreatedIWG->set_normal( tNormal );
 
                      // compute residual at integration point
@@ -125,7 +129,7 @@ namespace moris
                  }
             }
 //            // print residual for check
-//            print( mSet->mResidual, " mResidual " );
+            print( mSet->mResidual, " mResidual " );
         }
 
 //------------------------------------------------------------------------------
@@ -181,16 +185,16 @@ namespace moris
                      // get local integration point for the left integration cell
                      Matrix< DDRMat > tLeftLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                     // get corresponding nodes from left to right
-                     //fixme from mesh
-                     uint tSlaveNode = 0;
+                     // get first corresponding node from left to right
+                     //FIXME not sure it works or provide the right thing
+                     moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mLeftCell->get_vertices_on_side_ordinal( tLeftSideOrd )( 0 ) );
 
                      // get rotation matrix from left to right
                      Matrix< DDRMat> tR = rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode );
 
                      // get local integration point for the right integration cell
                      Matrix< DDRMat > tRightLocalIntegPoint = tLeftLocalIntegPoint;
-                     tRightLocalIntegPoint({0,tRightLocalIntegPoint.numel()-2},{0,0})
+                     tRightLocalIntegPoint({0,tLeftLocalIntegPoint.numel()-2},{0,0})
                          = tR * tLeftLocalIntegPoint({0,tRightLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                      // get global integration point  for the left integration cell
@@ -211,7 +215,7 @@ namespace moris
                                  * mSet->get_left_IG_geometry_interpolator()->det_J( tLeftLocalIntegPoint );
 
                      // get the normal from mesh and set if for the IWG
-                     Matrix< DDRMat > tNormal = mLeftCell->compute_outward_side_normal( tLeftSideOrd );
+                     Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeftCell, tLeftSideOrd, tLeftLocalIntegPoint );
                      tTreatedIWG->set_normal( tNormal );
 
                      // compute residual at integration point

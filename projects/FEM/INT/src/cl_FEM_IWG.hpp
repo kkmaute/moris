@@ -140,6 +140,7 @@ namespace moris
                                            moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
                                            moris::Cell< Field_Interpolator* > & aRightFieldInterpolators )
             {
+                std::cout<<"Are you here with left right?"<<std::endl;
                 MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
             }
 //------------------------------------------------------------------------------

@@ -47,6 +47,10 @@ using namespace dla;
 
     Newton_Solver::~Newton_Solver()
     {
+        if(mLinSolverOwned)
+        {
+            delete mLinSolverManager;
+        }
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

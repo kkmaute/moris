@@ -182,7 +182,7 @@ namespace moris
         {
             switch ( aInterpolationOrder )
             {
-                case(mtk::Interpolation_Order::CONSTANT ) :
+                case( mtk::Interpolation_Order::CONSTANT ) :
                 {
                     // bar1
                     return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1 >();

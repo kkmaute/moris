@@ -48,7 +48,9 @@ using namespace NLA;
 
     //--------------------------------------------------------------------------------------------------
     Nonlinear_Solver::~Nonlinear_Solver()
-    {}
+    {
+        delete( mNonlinearProblem );
+    }
 
     //--------------------------------------------------------------------------------------------------
     void Nonlinear_Solver::set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,

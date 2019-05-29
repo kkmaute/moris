@@ -97,15 +97,24 @@ namespace moris
                 Cell< Cell< fem::IWG_Type > >tIWGTypeList( 1 );
                 tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::L2 );
 
-                // create a list of active sidesets
+                // create a list of active block-sets
+                //FIXME should be provided to the function
+                Cell< moris_index >  tBlocksetList = { 0 };
+
+                // create a list of active side-sets
                 Cell< moris_index >  tSidesetList;
 
-                // create a list of BC type for the sidesets
+                // create a list of BC type for the side-sets
                 Cell< fem::BC_Type > tSidesetBCTypeList;
+
+                // create a list of active double side-sets
+                Cell< moris_index >  tDoubleSidesetList;
 
                 // create model
                 mModel = new mdl::Model( mMeshManager, mBSplineOrder, tIWGTypeList,
-                                         tSidesetList, tSidesetBCTypeList );
+                                         tBlocksetList,
+                                         tSidesetList, tSidesetBCTypeList,
+                                         tDoubleSidesetList );
 
                 mHaveIwgAndModel = true;
             }

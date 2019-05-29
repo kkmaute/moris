@@ -9,6 +9,7 @@
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 
 #include "typedefs.hpp" //MRS/COR/src
+#include "cl_Logger.hpp"
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_MTK_Vertex_STK.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
@@ -338,48 +339,48 @@ public:
         switch ( mSTKMeshData->get_spatial_dim() )
         {
             case ( 1 ) :
-                                return Geometry_Type::LINE;
-            break;
+                return Geometry_Type::LINE;
+                break;
 
             case ( 2 ) :
-                        {
+            {
                 uint tNumEdges = mSTKMeshData->get_edges_connected_to_element_loc_inds( this->get_index() ).numel();
                 switch ( tNumEdges )
                 {
                     case ( 3 ):
-                                        return Geometry_Type::TRI;
-                    break;
+                        return Geometry_Type::TRI;
+                        break;
 
                     case ( 4 ):
-                                        return Geometry_Type::QUAD;
-                    break;
+                        return Geometry_Type::QUAD;
+                        break;
 
                     default:
                         return Geometry_Type::UNDEFINED;
                         break;
                 }
                 break;
-                        }
+            }
 
             case ( 3 ) :
-                        {
+            {
                 uint tNumFaces = mSTKMeshData->get_faces_connected_to_element_loc_inds( this->get_index() ).numel();
                 switch ( tNumFaces )
                 {
                     case ( 4 ):
-                                       return Geometry_Type::TET;
-                    break;
+                        return Geometry_Type::TET;
+                        break;
 
                     case ( 6 ):
-                                       return Geometry_Type::HEX;
-                    break;
+                        return Geometry_Type::HEX;
+                        break;
 
                     default:
                         return Geometry_Type::UNDEFINED;
                         break;
                 }
                 break;
-                        }
+            }
 
             default :
                 return Geometry_Type::UNDEFINED;

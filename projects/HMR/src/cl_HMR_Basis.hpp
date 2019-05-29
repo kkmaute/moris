@@ -95,7 +95,6 @@ namespace moris
                        mLevel( aLevel ),
                        mOwner( aOwner ),
                        mSharingProcs(0,0,MORIS_INDEX_MAX)
-
             {
 
             }
@@ -114,8 +113,7 @@ namespace moris
              *
              * @return uint    ID of proc that owns this basis
              */
-            moris_id
-            get_owner() const
+            moris_id get_owner() const
             {
                 return mOwner;
             }
@@ -126,8 +124,7 @@ namespace moris
              *
              * @return const Matrix<IdMat> &    IDs of proc that share this basis
              */
-            const Matrix<IdMat> &
-            get_node_sharing() const
+            const Matrix<IdMat> & get_node_sharing() const
             {
                 return mSharingProcs;
             }
@@ -138,8 +135,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            add_node_sharing(moris_id aSharedProcRank)
+            void add_node_sharing(moris_id aSharedProcRank)
             {
                 uint tNumShared = mSharingProcs.n_rows();
                 mSharingProcs.resize(tNumShared+1,1);
@@ -151,8 +147,7 @@ namespace moris
              *
              * @return bool, true = has node sharing, false = does not have node sharing
              */
-            bool
-            has_node_sharing()
+            bool has_node_sharing()
             {
                 if(mSharingProcs.numel()>0)
                 {
@@ -167,8 +162,7 @@ namespace moris
             /**
              * MTK Interface: returns a domain wide id of the vertex
              */
-            moris_id
-            get_id() const
+            moris_id get_id() const
             {
                 // fixme: add +1 and check against MTK output
                 return mDomainIndex + 1 ; // < -- this is correct
@@ -182,8 +176,7 @@ namespace moris
             /**
              * MTK Interface: returns a local proc index of the vertex
              */
-            virtual moris_index
-            get_index() const
+            virtual moris_index get_index() const
             {
                 return mLocalIndex;
             }
@@ -224,7 +217,6 @@ namespace moris
                   return mFlag;
               }
 
-
 // -----------------------------------------------------------------------------
 
             /**
@@ -246,8 +238,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_owner( const uint & aOwner )
+            void set_owner( const uint & aOwner )
             {
                 mOwner = aOwner;
             }
@@ -259,8 +250,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            increment_element_counter()
+            void increment_element_counter()
             {
                 ++mNumberOfConnectedElements;
             }
@@ -272,8 +262,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            reset_element_counter()
+            void reset_element_counter()
             {
                 mNumberOfConnectedElements = 0;
             }
@@ -283,8 +272,7 @@ namespace moris
             /**
              * returns the value of the element counter
              */
-            auto
-            get_element_counter() const
+            auto get_element_counter() const
                 -> decltype ( mNumberOfConnectedElements )
             {
                 return mNumberOfConnectedElements;
@@ -297,8 +285,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            increment_facet_counter()
+            void increment_facet_counter()
             {
                 ++mNumberOfConnectedFacets;
             }
@@ -310,8 +297,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            reset_facet_counter()
+            void reset_facet_counter()
             {
                 mNumberOfConnectedFacets = 0;
             }
@@ -321,8 +307,7 @@ namespace moris
             /**
              * returns the value of the element counter
              */
-            auto
-            get_facet_counter() const
+            auto get_facet_counter() const
             -> decltype ( mNumberOfConnectedFacets )
             {
                 return mNumberOfConnectedFacets;
@@ -335,8 +320,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            increment_edge_counter()
+            void increment_edge_counter()
             {
                 ++mNumberOfConnectedEdges;
             }
@@ -348,8 +332,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            reset_edge_counter()
+            void reset_edge_counter()
             {
                 mNumberOfConnectedEdges = 0;
             }
@@ -359,9 +342,8 @@ namespace moris
             /**
              * returns the value of the element counter
              */
-            auto
-            get_edge_counter() const
-            -> decltype ( mNumberOfConnectedEdges )
+            auto get_edge_counter() const
+                -> decltype ( mNumberOfConnectedEdges )
             {
                 return mNumberOfConnectedEdges;
             }
@@ -375,8 +357,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_domain_id( const luint & aID )
+            void set_domain_id( const luint & aID )
             {
                 mDomainID = aID;
             }
@@ -388,8 +369,8 @@ namespace moris
              *
              * @return luint global index of basis
              */
-            auto
-            get_hmr_id() const -> decltype( mDomainID  )
+            auto get_hmr_id() const
+                -> decltype( mDomainID  )
             {
                 return mDomainID;
             }
@@ -427,8 +408,8 @@ namespace moris
              *
              * @return luint global index of basis
              */
-            auto
-            get_hmr_index() -> decltype( mDomainIndex  )
+            auto get_hmr_index()
+                -> decltype( mDomainIndex  )
             {
                 return mDomainIndex;
             }
@@ -440,8 +421,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            use()
+            void use()
             {
                 mUsedFlag = true;
             }
@@ -453,8 +433,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            unuse()
+            void unuse()
             {
                 mUsedFlag = false;
             }
@@ -466,8 +445,8 @@ namespace moris
              *
              * @return bool
              */
-            auto
-            is_used() const -> decltype( mUsedFlag )
+            auto is_used() const
+                -> decltype( mUsedFlag )
             {
                 return mUsedFlag;
             }
@@ -481,8 +460,7 @@ namespace moris
              * @return luint pointer to array containing ijk-position
              *               careful: element must not go out of scope.
              */
-            virtual const luint *
-            get_ijk( ) const = 0;
+            virtual const luint * get_ijk( ) const = 0;
 
 // ----------------------------------------------------------------------------
 
@@ -493,8 +471,7 @@ namespace moris
              *
              * @return void
              */
-            virtual void
-            set_xyz( const real * aXYZ ) = 0;
+            virtual void set_xyz( const real * aXYZ ) = 0;
 
 // ----------------------------------------------------------------------------
 
@@ -503,8 +480,7 @@ namespace moris
              *
              * @return real*
              */
-            virtual const real*
-            get_xyz() const = 0;
+            virtual const real * get_xyz() const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -515,8 +491,7 @@ namespace moris
              *
              * @return void
              */
-             void
-             set_memory_index( const luint& aMemoryIndex )
+             void set_memory_index( const luint& aMemoryIndex )
              {
                  mMemoryIndex = aMemoryIndex;
              }
@@ -525,8 +500,7 @@ namespace moris
              /**
               * returns the value of the memory index
               */
-             auto
-             get_memory_index() const
+             auto get_memory_index() const
                  -> decltype ( mMemoryIndex )
              {
                  return mMemoryIndex;
@@ -540,8 +514,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             init_element_container()
+             void init_element_container()
              {
                  // assign memory to container
                  mElements = new Element* [ mNumberOfConnectedElements ];
@@ -559,8 +532,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             insert_element( Element* aElement )
+             void insert_element( Element* aElement )
              {
                  mElements[ mNumberOfConnectedElements++ ] = aElement;
              }
@@ -574,8 +546,7 @@ namespace moris
               *
               * @return     Element_Base*    pointer to connected element
               */
-             Element*
-             get_element( const uint& aIndex )
+             Element * get_element( const uint& aIndex )
              {
                  return mElements[ aIndex ];
              }
@@ -589,8 +560,7 @@ namespace moris
               *
               * @return     Element_Base*    pointer to connected element
               */
-             const Element*
-             get_element( const uint& aIndex ) const
+             const Element * get_element( const uint& aIndex ) const
              {
                  return mElements[ aIndex ];
              }
@@ -603,8 +573,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             init_facet_container()
+             void init_facet_container()
              {
                  if ( mNumberOfConnectedFacets != 0 )
                  {
@@ -624,8 +593,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             delete_facet_container()
+             void delete_facet_container()
              {
                  if( mNumberOfConnectedFacets != 0 )
                  {
@@ -645,8 +613,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             insert_facet( Facet* aFacet )
+             void insert_facet( Facet* aFacet )
              {
                  mFacets[ mNumberOfConnectedFacets++ ] = aFacet;
              }
@@ -660,8 +627,7 @@ namespace moris
               *
               * @return     Element_Base*    pointer to connected element
               */
-             Facet*
-             get_facet( const uint& aIndex )
+             Facet * get_facet( const uint& aIndex )
              {
                  return mFacets[ aIndex ];
              }
@@ -675,8 +641,7 @@ namespace moris
               *
               * @return     Element_Base*    pointer to connected element
               */
-             const Facet*
-             get_facet( const uint& aIndex ) const
+             const Facet * get_facet( const uint& aIndex ) const
              {
                  return mFacets[ aIndex ];
              }
@@ -689,8 +654,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             init_edge_container()
+             void init_edge_container()
              {
                  if ( mNumberOfConnectedEdges != 0 )
                  {
@@ -710,8 +674,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             delete_edge_container()
+             void delete_edge_container()
              {
                  if( mNumberOfConnectedEdges != 0 )
                  {
@@ -731,8 +694,7 @@ namespace moris
               *
               * @return void
               */
-             void
-             insert_edge( Edge* aEdge )
+             void insert_edge( Edge* aEdge )
              {
                  mEdges[ mNumberOfConnectedEdges++ ] = aEdge;
              }
@@ -746,8 +708,7 @@ namespace moris
               *
               * @return     Element_Base*    pointer to connected element
               */
-             Edge*
-             get_edge( const uint& aIndex )
+             Edge * get_edge( const uint& aIndex )
              {
                  return mEdges[ aIndex ];
              }
@@ -761,40 +722,35 @@ namespace moris
               *
               * @return     Element_Base*    pointer to connected element
               */
-             const Edge*
-             get_edge( const uint& aIndex ) const
+             const Edge * get_edge( const uint& aIndex ) const
              {
                  return mEdges[ aIndex ];
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             set_active_flag()
+             virtual void set_active_flag()
              {
                  MORIS_ERROR( false, "set_active_flag() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             set_refined_flag()
+             virtual void set_refined_flag()
              {
                  MORIS_ERROR( false, "set_refined_flag() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             set_deactive_flag()
+             virtual void set_deactive_flag()
              {
                  MORIS_ERROR( false, "set_deactive_flag() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual bool
-             is_active()
+             virtual bool is_active()
              {
                  MORIS_ERROR( false, "is_active() not available for selected basis type." );
                  return false;
@@ -802,8 +758,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual bool
-             is_refined()
+             virtual bool is_refined()
              {
                  MORIS_ERROR( false, "is_refinded() not available for selected basis type." );
                  return false;
@@ -816,8 +771,7 @@ namespace moris
               *
               * @return void
               */
-             virtual void
-             init_neighbor_container( )
+             virtual void init_neighbor_container( )
              {
                  MORIS_ERROR( false, "init_neighbor_container() not available for selected basis type." );
              }
@@ -829,8 +783,7 @@ namespace moris
               *
               * @return void
               */
-             virtual void
-             delete_neighbor_container( )
+             virtual void delete_neighbor_container( )
              {
                  MORIS_ERROR( false, "delete_neighbor_container() not available for selected basis type." );
              }
@@ -842,40 +795,35 @@ namespace moris
               *
               * @return void
               */
-             virtual void
-             init_children_container( )
+             virtual void init_children_container( )
              {
                  MORIS_ERROR( false, "init_children_container() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             increment_parent_counter()
+             virtual void increment_parent_counter()
              {
                  MORIS_ERROR( false, "increment_parent_counter() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             insert_parent( Basis      * aParent )
+             virtual void insert_parent( Basis * aParent )
              {
                  MORIS_ERROR( false, "insert_parent() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual Basis*
-             get_parent( const uint & aParentNumber )
+             virtual Basis * get_parent( const uint & aParentNumber )
              {
                  MORIS_ERROR( false, "get_parent() not available for selected basis type." );
                  return nullptr;
              }
 //------------------------------------------------------------------------------
 
-             virtual uint
-             get_number_of_parents()
+             virtual uint get_number_of_parents()
              {
                  MORIS_ERROR( false, "get_number_of_parents() not available for selected basis type." );
                  return 0;
@@ -883,9 +831,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             insert_neighbor( const uint & aaNeighborNumber,
-                              Basis      * aNeighbor )
+             virtual void insert_neighbor( const uint  & aaNeighborNumber,
+                                                 Basis * aNeighbor )
              {
                  MORIS_ERROR( false, "insert_neighbor() not available for selected basis type." );
              }
@@ -893,8 +840,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual Basis*
-             get_neighbor( const uint & aNeighborNumber )
+             virtual Basis * get_neighbor( const uint & aNeighborNumber )
              {
                  MORIS_ERROR( false, "get_neighbor() not available for selected basis type." );
                  return nullptr;
@@ -902,8 +848,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             insert_child(
+             virtual void insert_child(
                      const uint & aChildNumbner,
                      Basis      * aChild )
              {
@@ -912,8 +857,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual Basis*
-             get_child( const uint & aChildNumber )
+             virtual Basis * get_child( const uint & aChildNumber )
              {
                  MORIS_ERROR( false, "get_child() not available for selected basis type." );
                  return nullptr;
@@ -921,8 +865,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual bool
-             has_children()
+             virtual bool has_children()
              {
                  MORIS_ERROR( false, "has_children() not available for selected basis type." );
                  return false;
@@ -930,24 +873,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             flag_descendants( )
+             virtual void flag_descendants( )
              {
                  MORIS_ERROR( false, "flag_descendants() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             unflag_descendants( )
+             virtual void unflag_descendants( )
              {
                  MORIS_ERROR( false, "unflag_descendants() not available for selected basis type." );
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             collect_descendants(
+             virtual void collect_descendants(
                      Cell< Basis* > & aBasisList,
                      luint          & aBasisCount )
              {
@@ -956,8 +896,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             count_descendants( luint & aBasisCount )
+             virtual void count_descendants( luint & aBasisCount )
              {
                  MORIS_ERROR( false, " count_descendants() not available for selected basis type." );
              }
@@ -978,8 +917,7 @@ namespace moris
              }
 //------------------------------------------------------------------------------
 
-             virtual mtk::Vertex_Interpolation *
-             get_interpolation( const uint aOrder )
+             virtual mtk::Vertex_Interpolation * get_interpolation( const uint aOrder )
              {
                  MORIS_ERROR( false, "get_interpolation() not available for for selected basis type.");
                  return nullptr;
@@ -987,8 +925,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual const mtk::Vertex_Interpolation *
-             get_interpolation(  const uint aOrder ) const
+             virtual const mtk::Vertex_Interpolation * get_interpolation( const uint aOrder ) const
              {
                  MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type.");
                  return nullptr;
@@ -1000,8 +937,8 @@ namespace moris
              /**
               * set the DOFs
               */
-             virtual void
-             set_coefficients( const uint aOrder, Cell< mtk::Vertex* > &  aDOFs )
+             virtual void set_coefficients( const uint                   aOrder,
+                                                  Cell< mtk::Vertex* > & aDOFs )
              {
                  MORIS_ERROR( false, "set_coefficients() not available for for selected basis type.");
              }
@@ -1011,8 +948,8 @@ namespace moris
              /**
               * set the T-Matrix coefficients
               */
-             virtual void
-             set_weights( const uint aOrder, const Matrix< DDRMat > & aTMatrix )
+             virtual void set_weights( const uint               aOrder,
+                                       const Matrix< DDRMat > & aTMatrix )
              {
                  MORIS_ERROR( false, "set_weights() not available for for selected basis type.");
              }
@@ -1072,8 +1009,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual Matrix< DDRMat >
-             get_coords() const
+             virtual Matrix< DDRMat > get_coords() const
              {
                  MORIS_ERROR( false, "get_coords() not available for for selected basis type.");
                  return Matrix< DDRMat >(0,0);
@@ -1081,20 +1017,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             get_basis_local_child_inds( Matrix< DDSMat > & aChildren )
+             virtual void get_basis_local_child_inds( Matrix< DDSMat > & aChildren )
              {
                   MORIS_ERROR( false, "get_basis_local_child_inds() not available for for selected basis type.");
              }
 
 //------------------------------------------------------------------------------
 
-             virtual void
-             init_interpolation( const uint & aOrder )
+             virtual void init_interpolation( const uint & aOrder )
              {
                  MORIS_ERROR( false, "init_interpolation() not available for for selected basis type.");
              }
-
 
         };
 //------------------------------------------------------------------------------

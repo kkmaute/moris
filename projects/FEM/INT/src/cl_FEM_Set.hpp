@@ -187,6 +187,8 @@ namespace MSI
 
         void create_dof_assembly_map();
 
+        void create_dof_assembly_map_double();
+
 //------------------------------------------------------------------------------
 
         uint get_num_equation_objects()
@@ -245,9 +247,17 @@ namespace MSI
             return mRightIGGeometryInterpolator;
         }
 
+//------------------------------------------------------------------------------
+
         mtk::Geometry_Type get_IG_geometry_type()
         {
             return mIGGeometryType;
+        }
+
+//------------------------------------------------------------------------------
+        mtk::Interpolation_Order get_IG_space_interpolation_order()
+        {
+            return mIGSpaceInterpolationOrder;
         }
 //------------------------------------------------------------------------------
 

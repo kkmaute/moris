@@ -91,9 +91,9 @@ namespace moris
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK,      // spatial diffusion bulk
-            SPATIALDIFF_SIDESET,   // spatial diffusion sideset
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
+            SPATIALDIFF_GHOST,     // spatial diffusion ghost
             END_IWG_TYPE
         };
 

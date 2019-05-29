@@ -22,7 +22,6 @@
 #include "op_minus.hpp"  //LINALG/src
 #include "fn_trans.hpp"  //LINALG/src
 #include "fn_det.hpp"    //LINALG/src
-#include "fn_inv.hpp"    //LINALG/src
 
 namespace moris
 {
@@ -321,26 +320,9 @@ namespace moris
          * get the parametric coordinates of a space side
          * @param[ in ] a space face ordinal
          */
-        void build_space_side_space_param_coeff( moris_index aSpaceOrdinal );
-
-//------------------------------------------------------------------------------
-        /**
-         * get the parametric coordinates of a space side
-         * @param[ in ] a space face ordinal
-         */
         Matrix< DDRMat > extract_space_side_space_param_coeff( moris_index aSpaceOrdinal );
 
         Matrix< DDRMat > extract_space_param_coeff();
-
-//------------------------------------------------------------------------------
-        /**
-         * get the parametric coordinates of a space side
-         * @param[ in ] a space face ordinal
-         */
-        Matrix< DDRMat > get_space_side_space_param_coeff() const
-        {
-            return mSideXiHat;
-        }
 
 //------------------------------------------------------------------------------
         /**
@@ -353,46 +335,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * get the parametric coordinates of a space side
-         */
-        Matrix< DDRMat > get_time_side_time_param_coeff() const
-        {
-            return mSideTauHat;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * build the space physical coordinates for a space side
-         * @param[ in ] a space face ordinal
-         */
-        void build_space_side_space_phys_coeff( moris_index aSpaceOrdinal );
-
-//------------------------------------------------------------------------------
-        /**
-         * get the space physical coordinates for a space side
-         */
-        Matrix< DDRMat > get_space_side_space_phys_coeff()
-        {
-            return mSideXHat;
-        }
-
-//------------------------------------------------------------------------------
-        /**
          * build the time physical coordinates for a time side
          * @param[ in ] a time side ordinal
          */
         void build_time_side_time_phys_coeff( moris_index aTimeOrdinal )
         {
             mSideTHat = {{ mTHat( aTimeOrdinal ) }};
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get the time physical coordinates for a time side
-         */
-        Matrix< DDRMat > get_time_side_time_phys_coeff()
-        {
-            return mSideTHat;
         }
 
 //------------------------------------------------------------------------------
@@ -482,15 +430,6 @@ namespace moris
         real det_J( const Matrix< DDRMat > & aParamPoint );
 
 //------------------------------------------------------------------------------
-         /**
-          * evaluates the determinant of the Jacobian mapping
-          * in the case of a space side interpolation
-          * at given space and time evaluation point
-          * @param[ in ]  aSideParamPoint evaluation point on the face
-          */
-         real surf_det_J( const Matrix< DDRMat > & aSideParamPoint );
-
-//------------------------------------------------------------------------------
         /**
          * evaluates the determinant of the Jacobian mapping
          * in the case of a time side interpolation
@@ -498,14 +437,6 @@ namespace moris
          * @param[ in ]  aSideParamPoint evaluation point on the side
          */
          real time_surf_det_J( const Matrix< DDRMat > & aSideParamPoint );
-
-//------------------------------------------------------------------------------
-         /**
-          * get the parametric coordinates of a point
-          * in the side parametric space
-          * in the parent parametric space
-          */
-         Matrix< DDRMat > surf_val( const Matrix< DDRMat > & aSideParamPoint );
 
 //------------------------------------------------------------------------------
          /**
@@ -521,9 +452,8 @@ namespace moris
           * in the case of a space side interpolation
           * at given space and time evaluation point
           * @param[ in ]  aSideParamPoint evaluation point on the face
-          * @param[ in ]  aSpaceOrdinal   a space face ordinal
           */
-         Matrix< DDRMat > surf_normal( const Matrix< DDRMat > & aSideParamPoint );
+         Matrix< DDRMat > get_normal( const Matrix< DDRMat > & aSideParamPoint );
 
 //------------------------------------------------------------------------------
         /**

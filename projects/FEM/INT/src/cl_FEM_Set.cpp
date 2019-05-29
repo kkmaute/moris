@@ -125,7 +125,6 @@ namespace moris
                                                                           mIWGs( aIWGs ),
                                                                           mElementType( aElementType )
         {
-
             // set the integration geometry type
             mIPGeometryType = mMeshDoubleSideClusterList( 0 ).get_left_interpolation_cell().get_geometry_type();
 
@@ -153,12 +152,12 @@ namespace moris
             this->create_dof_type_lists();
 
             // init the equation object list
-            mEquationObjList.resize( mMeshSideClusterList.size(), nullptr);
+            mEquationObjList.resize( mMeshDoubleSideClusterList.size(), nullptr);
 
             // create a factory to create fem cluster
             fem::Element_Factory tClusterFactory;
 
-            for( luint k = 0; k < mMeshSideClusterList.size(); ++k )
+            for( luint k = 0; k < mMeshDoubleSideClusterList.size(); ++k )
             {
                 // create a side cluster
                 mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
@@ -173,6 +172,11 @@ namespace moris
     Set::~Set()
     {
         this->delete_pointers();
+
+        for( auto tEquationObj : mEquationObjList )
+        {
+            delete tEquationObj;
+        }
     }
 
 //------------------------------------------------------------------------------
@@ -223,155 +227,166 @@ namespace moris
     {
         this->delete_pointers();
 
-        if( mMeshCellClusterList.size() > 0 )
+        switch ( mElementType )
         {
-             // geometry interpolation rule for interpolation cells
-             Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
-                                                              Interpolation_Type::LAGRANGE,
-                                                              mIPSpaceInterpolationOrder,
-                                                              Interpolation_Type::LAGRANGE,
-                                                              mIPTimeInterpolationOrder );
+            case( fem::Element_Type::BULK ):
+            {
+                // geometry interpolation rule for interpolation cells
+                Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIPSpaceInterpolationOrder,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIPTimeInterpolationOrder );
 
-             // geometry interpolation rule for integration cells
-             Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
-                                                              Interpolation_Type::LAGRANGE,
-                                                              mIGSpaceInterpolationOrder,
-                                                              Interpolation_Type::LAGRANGE,
-                                                              mIGTimeInterpolationOrder );
+                // geometry interpolation rule for integration cells
+                Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIGSpaceInterpolationOrder,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIGTimeInterpolationOrder );
 
-             // create an interpolation geometry intepolator
-             mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
+                // create an interpolation geometry intepolator
+                mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
 
-             // create an integration geometry intepolator
-             mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
+                // create an integration geometry intepolator
+                mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
 
-            // create the element field interpolators
-            this->create_field_interpolators( aModelSolverInterface );
+                // create the element field interpolators
+                this->create_field_interpolators( aModelSolverInterface );
 
-            // create the element dof assembly map
-            this->create_dof_assembly_map();
+                // create the element dof assembly map
+                this->create_dof_assembly_map();
 
-            // create an interpolation rule for the cell
-            Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
-                                                                  Integration_Type::GAUSS,
-                                                                  this->get_auto_integration_order( mIGGeometryType ),
-                                                                  Integration_Type::GAUSS,
-                                                                  Integration_Order::BAR_1 ); // fixme time integration
+                // create an interpolation rule for the cell
+                Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
+                                                                      Integration_Type::GAUSS,
+                                                                      this->get_auto_integration_order( mIGGeometryType ),
+                                                                      Integration_Type::GAUSS,
+                                                                      Integration_Order::BAR_1 ); // fixme time integration
 
-            // create an integrator
-            Integrator tIntegrator( tIntegrationRule );
+                // create an integrator
+                Integrator tIntegrator( tIntegrationRule );
 
-            //get number of integration points
-            mNumOfIntegPoints = tIntegrator.get_number_of_points();
+                //get number of integration points
+                mNumOfIntegPoints = tIntegrator.get_number_of_points();
 
-            // get integration points
-            mIntegPoints = tIntegrator.get_points();
+                // get integration points
+                mIntegPoints = tIntegrator.get_points();
 
-            // get integration weights
-            mIntegWeights = tIntegrator.get_weights();
+                // get integration weights
+                mIntegWeights = tIntegrator.get_weights();
+
+                break;
+            }
+
+            case( fem::Element_Type::SIDESET ):
+            {
+                // geometry interpolation rule for interpolation cells
+                Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIPSpaceInterpolationOrder,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIPTimeInterpolationOrder );
+
+                // geometry interpolation rule for integration cells
+                Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIGSpaceInterpolationOrder,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIGTimeInterpolationOrder );
+
+                // create an interpolation geometry intepolator
+                mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+
+                // create an integration geometry intepolator
+                mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+
+                // create the element field interpolators
+                this->create_field_interpolators( aModelSolverInterface );
+
+                // create the element dof assembly map
+                this->create_dof_assembly_map();
+
+                // create an interpolation rule for the side
+                Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
+                                                                      Integration_Type::GAUSS,
+                                                                      this->get_auto_integration_order( mIGGeometryType ),
+                                                                      Integration_Type::GAUSS,
+                                                                      Integration_Order::BAR_1 ); // fixme time order
+
+                // create an integrator
+                Integrator tIntegrator( tIntegrationRule );
+
+                //get number of integration points
+                mNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+                // get integration points
+                mIntegPoints = tIntegrator.get_points();
+
+                // get integration weights
+                mIntegWeights = tIntegrator.get_weights();
+
+                break;
+            }
+
+            case( fem::Element_Type::DOUBLE_SIDESET ):
+            {
+                // geometry interpolation rule for interpolation cells
+                Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIPSpaceInterpolationOrder,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIPTimeInterpolationOrder );
+
+                // geometry interpolation rule for integration cells
+                Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIGSpaceInterpolationOrder,
+                                                                 Interpolation_Type::LAGRANGE,
+                                                                 mIGTimeInterpolationOrder );
+
+                // create an interpolation geometry intepolator
+                mLeftIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+                mRightIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+
+                // create an integration geometry intepolator
+                mLeftIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+                mRightIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+
+                // create the element field interpolators
+                this->create_field_interpolators_double( aModelSolverInterface );
+
+                // create the element dof assembly map
+                this->create_dof_assembly_map_double();
+
+                // create an interpolation rule for the side
+                Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
+                                                                      Integration_Type::GAUSS,
+                                                                      this->get_auto_integration_order( mIGGeometryType ),
+                                                                      Integration_Type::GAUSS,
+                                                                      Integration_Order::BAR_1 ); // fixme time order
+
+                // create an integrator
+                Integrator tIntegrator( tIntegrationRule );
+
+                //get number of integration points
+                mNumOfIntegPoints = tIntegrator.get_number_of_points();
+
+                // get integration points
+                mIntegPoints = tIntegrator.get_points();
+
+                // get integration weights
+                mIntegWeights = tIntegrator.get_weights();
+
+                break;
+            }
+
+            default:
+            {
+                MORIS_ASSERT( false, " Set::finalize - unknown element type.");
+                break;
+            }
         }
-
-        else if( mMeshSideClusterList.size() > 0 )
-        {
-            // geometry interpolation rule for interpolation cells
-            Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIPSpaceInterpolationOrder,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIPTimeInterpolationOrder );
-
-            // geometry interpolation rule for integration cells
-            Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIGSpaceInterpolationOrder,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIGTimeInterpolationOrder );
-
-            // create an interpolation geometry intepolator
-            mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-            // create an integration geometry intepolator
-            mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-            // create the element field interpolators
-            this->create_field_interpolators( aModelSolverInterface );
-
-            // create the element dof assembly map
-            this->create_dof_assembly_map();
-
-            // create an interpolation rule for the side
-            Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
-                                                                  Integration_Type::GAUSS,
-                                                                  this->get_auto_integration_order( mIGGeometryType ),
-                                                                  Integration_Type::GAUSS,
-                                                                  Integration_Order::BAR_1 ); // fixme time order
-
-            // create an integrator
-            Integrator tIntegrator( tIntegrationRule );
-
-            //get number of integration points
-            mNumOfIntegPoints = tIntegrator.get_number_of_points();
-
-            // get integration points
-            mIntegPoints = tIntegrator.get_points();
-
-            // get integration weights
-            mIntegWeights = tIntegrator.get_weights();
-        }
-        else if( mMeshDoubleSideClusterList.size() > 0 )
-        {
-            // geometry interpolation rule for interpolation cells
-            Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIPSpaceInterpolationOrder,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIPTimeInterpolationOrder );
-
-            // geometry interpolation rule for integration cells
-            Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIGSpaceInterpolationOrder,
-                                                             Interpolation_Type::LAGRANGE,
-                                                             mIGTimeInterpolationOrder );
-
-            // create an interpolation geometry intepolator
-            mLeftIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-            mRightIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-            // create an integration geometry intepolator
-            mLeftIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-            mRightIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-            // create the element field interpolators
-            this->create_field_interpolators_double( aModelSolverInterface );
-
-            // create the element dof assembly map
-            this->create_dof_assembly_map();
-
-            // create an interpolation rule for the side
-            Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
-                                                                  Integration_Type::GAUSS,
-                                                                  this->get_auto_integration_order( mIGGeometryType ),
-                                                                  Integration_Type::GAUSS,
-                                                                  Integration_Order::BAR_1 ); // fixme time order
-
-            // create an integrator
-            Integrator tIntegrator( tIntegrationRule );
-
-            //get number of integration points
-            mNumOfIntegPoints = tIntegrator.get_number_of_points();
-
-            // get integration points
-            mIntegPoints = tIntegrator.get_points();
-
-            // get integration weights
-            mIntegWeights = tIntegrator.get_weights();
-        }
-        else
-        {
-            MORIS_ASSERT( false, " Set::finalize - unknown cluster type.");
-        }
-
     }
 
 //------------------------------------------------------------------------------
@@ -514,6 +529,36 @@ namespace moris
         mTotalDof = tDofCounter;
     }
 
+    void Set::create_dof_assembly_map_double( )
+    {
+        // set size of assembly mapping matrix
+        mInterpDofAssemblyMap.set_size( mNumOfInterp, 2, -1 );
+
+        // init dof counter
+        uint tDofCounter = 0;
+
+        // loop on the dof type groups and create a field interpolator for each
+        for( uint i = 0; i < mNumOfInterp; i++ )
+        {
+            // fill the assembly map with starting dof counter
+            mInterpDofAssemblyMap( i, 0 ) = tDofCounter;
+
+            // update dof counter
+            //FIXME works if left and right field interpolators are the same
+            tDofCounter = tDofCounter + 2 * mLeftFieldInterpolators( i )->get_number_of_space_time_coefficients()-1;
+
+            // fill the assembly map with starting dof counter
+            mInterpDofAssemblyMap( i, 1 ) = tDofCounter;
+
+            // update dof counter
+            tDofCounter = tDofCounter + 1;
+        }
+
+        // set mTotalDof (two times what we have on the left side)
+        mTotalDof = tDofCounter;
+    }
+
+
 //------------------------------------------------------------------------------
 
     mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint        aNumVertices,
@@ -596,6 +641,14 @@ namespace moris
                 {
                     case( 4 ) :
                         return mtk::Interpolation_Order::LINEAR;
+                        break;
+
+                    case( 10 ) :
+                        return mtk::Interpolation_Order::QUADRATIC;
+                        break;
+
+                    case( 20 ) :
+                        return mtk::Interpolation_Order::CUBIC;
                         break;
 
                     default :

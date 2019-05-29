@@ -47,6 +47,8 @@ moris::real Nonlinear_Algorithm::calculate_time_needed( const clock_t aTime )
 //--------------------------------------------------------------------------------------------------------------------------
 void Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager )
 {
+    mLinSolverOwned = false;
+
     mMyNonLinSolverManager = aNonlinSolverManager;
 }
 

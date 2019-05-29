@@ -74,9 +74,8 @@ namespace moris
                                 * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
 
                     // get the normal from mesh and set if for the IWG
-                    Matrix< DDRMat > tNormal = mCell->compute_outward_side_normal( tSideOrd );
+                    Matrix< DDRMat > tNormal = mCluster->get_side_normal( mCell, tSideOrd, tLocalIntegPoint );
                     tTreatedIWG->set_normal( tNormal );
-                    //print( tNormal, "tNormal" );
 
                     // compute residual at integration point
                     Matrix< DDRMat > tResidual;

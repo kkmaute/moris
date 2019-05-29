@@ -373,34 +373,14 @@ namespace moris
             Matrix<IndexMat> tCellToNodeGhost0 = {{21, 27, 31, 30},{17, 18, 21, 27},{31, 27, 34, 36},{18, 20, 22, 27},{36, 27, 38, 40},{20, 19, 23, 27},{17, 24, 19, 27},{30, 27, 31, 44},{31, 27, 36, 44},{36, 27, 40, 44},{27, 30, 40, 44},{17, 26, 18, 27},{18, 26, 20, 27},{20, 26, 19, 27},{17, 19, 26, 27},{21, 28, 30, 31},{21, 28, 31, 29},{21, 29, 31, 32},{27, 21, 31, 32},{18, 21, 27, 32},{28, 21, 30, 33},{21, 27, 30, 33},{21, 17, 27, 33},{27, 22, 34, 36},{34, 22, 35, 36},{22, 35, 36, 37},{27, 22, 36, 37},{20, 22, 27, 37},{31, 27, 32, 34},{27, 18, 32, 34},{27, 22, 18, 34},{27, 23, 38, 40},{38, 23, 39, 40},{36, 27, 37, 38},{27, 20, 37, 38},{27, 23, 20, 38},{23, 39, 40, 41},{27, 23, 40, 41},{19, 23, 27, 41},{27, 24, 42, 43},{30, 27, 40, 43},{40, 27, 42, 43},{40, 27, 41, 42},{27, 19, 41, 42},{27, 24, 19, 42},{27, 30, 33, 43},{17, 27, 33, 43},{24, 27, 17, 43}};
             Matrix<IndexMat> tCellIdsGhost0 = {{5, 7, 9, 11, 13, 15, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 69, 70, 71, 72}};
 
-
-
             moris::mtk::MtkSetsInfo tMtkMeshSets;
             // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
 
             // interface side set (all placed in a single cluster)
             moris::mtk::MtkSideSetInfo tInterfaceSideSet;
-            Matrix<IndexMat> tInterfaceElemIdandSideOrd (
-            	   {{6, 2},
-            		{8, 1},
-            		{10, 2},
-            		{12, 1},
-            		{14, 1},
-            		{16, 2},
-            		{17, 1},
-            		{18, 1},
-            		{20, 2},
-            		{32, 2},
-            		{33, 1},
-            		{43, 1},
-            		{44, 1},
-            		{54, 1},
-            		{55, 1},
-            		{63, 1},
-            		{73, 1},
-            		{76, 1},
-            		{79, 1},
-            		{82, 2}});
+            Matrix<IndexMat> tInterfaceElemIdandSideOrd ( {{ 6, 2}, { 8, 1}, {10, 2}, {12, 1}, {14, 1}, {16, 2}, {17, 1},
+                                                           {18, 1}, {20, 2}, {32, 2}, {33, 1}, {43, 1}, {44, 1}, {54, 1},
+                                                           {55, 1}, {63, 1}, {73, 1}, {76, 1}, {79, 1}, {82, 2}});
 
             tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
             tInterfaceSideSet.mSideSetName        = "iside" ;
@@ -419,8 +399,6 @@ namespace moris
             tGhost.mElemIdsAndSideOrds = &tGhostCellAndOrds;
             tGhost.mSideSetName        = "ghost_facets" ;
             tMtkMeshSets.add_side_set(&tGhost);
-
-
 
             // add block sets (Still in the mesh but not tested here)
             // Tet Cells in Omega 0
@@ -503,7 +481,6 @@ namespace moris
             // add cluster to input data
             tMeshDataInput.CellClusterInput = &tCellClusterInput;
 
-
             // ---------------------------------------
             // SIDE CLUSTERING
             // NOTE: Only add non-trivial side clusters to this data structure
@@ -517,7 +494,7 @@ namespace moris
             Matrix<IdMat> tInterfaceVertexIDsInCluster             = {{28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}};
             Matrix<DDRMat> tInterfaceLocalCoordinatesWrtInterpCell = {{-0.8, -1, -0.8},{0.8, -1, -0.8},{-0.8, -0.8, -0.8},{0.8, -0.8, -0.8},{1, -1, -0.8},{-1, -1, -0.8},{1, -0.8, -0.8},{1, 0.8, -0.8},{0.8, 0.8, -0.8},{1, 1, -0.8},{0.8, 1, -0.8},{-0.8, 1, -0.8},{-0.8, 0.8, -0.8},{-1, 1, -0.8},{-1, 0.8, -0.8},{-1, -0.8, -0.8},{0, 0, -0.8}};
 
-            moris::print(tInterfaceElemIdandSideOrd,"tInterfaceElemIdandSideOrd");
+            //moris::print(tInterfaceElemIdandSideOrd,"tInterfaceElemIdandSideOrd");
             tSideClusterInput.add_cluster_data(false,tInterfaceOrd,tInterpCell,&tInterfaceElemIdandSideOrd,&tInterfaceVertexIDsInCluster,&tInterfaceLocalCoordinatesWrtInterpCell);
 
             // add cluster to input data
@@ -546,8 +523,11 @@ namespace moris
             Matrix<IndexMat> tRightGhostCellIdAndOrd = {{4,4}};
             bool             tRightTrivial = true;
 
+            // Vertex pairing
+            Matrix<IdMat> tVertexPair = {{13,13}, {14,14}, {15,15}, {16,16}};
+
             tDoubleSideClusterInput.add_cluster_data(tOrd,tLeftTrivial,tLeftInterpCell,&tLeftGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords,
-                                                     tRightTrivial,tRightInterpCell,&tRightGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords);
+                                                     tRightTrivial,tRightInterpCell,&tRightGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords, &tVertexPair);
 
             tMeshDataInput.DoubleSideClusterInput = &tDoubleSideClusterInput;
 
@@ -558,26 +538,35 @@ namespace moris
             tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
             // create a list of IWG type
-            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
             tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
             tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+            tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_GHOST );
 
-            // create a list of active sidesets
+            // create a list of active block-sets
+            moris::Cell< moris_index >  tBlocksetList = { 0, 1 };
+
+            // create a list of active side-sets
             moris::Cell< moris_index >  tSidesetList = { 1, 0 };
 
-            // create a list of BC type for the sidesets
+            // create a list of BC type for the side-sets
             moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
                                                                fem::BC_Type::NEUMANN };
 
+            // create a list of active double side-sets
+            moris::Cell< moris_index >  tDoubleSidesetList = { 0 };
+
             // create model
             mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
-                                                  tSidesetList, tSidesetBCTypeList );
+                                                  tBlocksetList, tSidesetList,
+                                                  tSidesetBCTypeList,
+                                                  tDoubleSidesetList );
 
             moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 1: create linear solver and algortihm
+            // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             dla::Solver_Factory  tSolFactory;
@@ -591,7 +580,7 @@ namespace moris
             tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create nonlinear solver and algortihm
+            // STEP 2: create nonlinear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -629,6 +618,7 @@ namespace moris
 
             tNonlinearSolver.set_dof_type_list( tDofTypes1 );
             tTimeSolver.set_dof_type_list( tDofTypes1 );
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 4: Solve and check
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

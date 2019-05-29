@@ -209,8 +209,14 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
         Matrix<IndexMat> tRightGhostCellIdAndOrd = {{4,4}};
         bool             tRightTrivial = true;
 
+        // Vertex pairing
+        Matrix<IdMat> tVertexPair = {{13,13},
+                                     {14,14},
+                                     {15,15},
+                                     {16,16}};
+
         tDoubleSideClusterInput.add_cluster_data(tOrd,tLeftTrivial,tLeftInterpCell,&tLeftGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords,
-                                                 tRightTrivial,tRightInterpCell,&tRightGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords);
+                                                 tRightTrivial,tRightInterpCell,&tRightGhostCellIdAndOrd,&tDummyVerts,&tDummyCoords, &tVertexPair);
 
         tMeshDataInput.DoubleSideClusterInput = &tDoubleSideClusterInput;
 
@@ -248,6 +254,16 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
         moris::Matrix<moris::IndexMat> tRightCellSideOrds = tRightCluster.get_cell_side_ordinals();
         CHECK(tRightCellSideOrds.numel() == 1);
         CHECK(tRightCellSideOrds(0) == 4);
+
+        // iterate through pairs and chekc ids of vertices (should be the same in this case)
+        moris::Cell<moris::mtk::Vertex const *> tLeftVerts = tLeftCluster.get_vertices_in_cluster();
+        for(moris::uint  i = 0; i < tLeftVerts.size(); i++)
+        {
+            moris::mtk::Vertex const * tRightVertex = tGhostDoubleSide(0).get_left_vertex_pair(tLeftVerts(i));
+
+            CHECK(tRightVertex->get_id() == tLeftVerts(i)->get_id());
+        }
+
 
 
         // cleanup

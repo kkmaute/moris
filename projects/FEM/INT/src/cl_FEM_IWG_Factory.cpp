@@ -1,19 +1,19 @@
 #include "assert.hpp"
-#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-
-#include "cl_FEM_IWG_L2.hpp"                     //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"         //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"        //FEM/INT/src
-#include "cl_FEM_IWG_Helmholtz_Interface.hpp"    //FEM/INT/src
-#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"   //FEM/INT/src
-#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"  //FEM/INT/src
-#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"  //FEM/INT/src
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp" //FEM/INT/src
+#include "cl_FEM_IWG_Factory.hpp"                               //FEM/INT/src
+#include "cl_FEM_IWG_L2.hpp"                                    //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Bulk.hpp"                        //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Bulk2.hpp"                       //FEM/INT/src
+#include "cl_FEM_IWG_Helmholtz_Interface.hpp"                   //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"                  //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp"                 //FEM/INT/src
+#include "cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp"             //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp"      //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp" //FEM/INT/src
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp" //FEM/INT/src
-#include "cl_FEM_IWG_LSNormal_Bulk.hpp"          //FEM/INT/src
-#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"        //FEM/INT/src
-#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"   //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp"   //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"     //FEM/INT/src
+#include "cl_FEM_IWG_LSNormal_Bulk.hpp"                         //FEM/INT/src
+#include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"                       //FEM/INT/src
+#include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"                  //FEM/INT/src
 
 namespace moris
 {
@@ -61,6 +61,10 @@ namespace moris
 
                 case ( IWG_Type::SPATIALDIFF_NEUMANN ):
                     tIWG = new IWG_Isotropic_Spatial_Diffusion_Neumann();
+                    break;
+
+                case ( IWG_Type::SPATIALDIFF_GHOST ):
+                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Ghost();
                     break;
 
                 default:
