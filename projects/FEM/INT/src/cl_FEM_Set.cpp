@@ -17,12 +17,12 @@ namespace moris
     {
 //------------------------------------------------------------------------------
     Set::Set( moris::Cell< mtk::Cell const * > & aCell,
-                                 enum fem::Element_Type      aElementType,
-                                 Cell< IWG* >              & aIWGs,
-                                 Cell< Node_Base* >        & aNodes) : mMeshElementPointer(aCell),
-                                                                       mNodes(aNodes),
-                                                                       mIWGs( aIWGs ),
-                                                                       mElementType(aElementType)
+              enum fem::Element_Type      aElementType,
+              Cell< IWG* >              & aIWGs,
+              Cell< Node_Base* >        & aNodes) : mMeshElementPointer(aCell),
+                                                    mNodes(aNodes),
+                                                    mIWGs( aIWGs ),
+                                                    mElementType(aElementType)
     {
         this->create_unique_dof_type_lists();
         this->create_dof_type_lists();

@@ -49,10 +49,10 @@ namespace moris
         Mapper::Mapper( mtk::Mesh_Manager* aMesh,
                         const moris_index  aMeshPairIndex,
                         const uint         aBSplineOrder) :
-                        mSourceMeshPairIndex( aMeshPairIndex ),
-                        mTargetMeshPairIndex( aMeshPairIndex ),
-                        mMeshManager( aMesh ),
-                        mBSplineOrder( aBSplineOrder )
+                                    mSourceMeshPairIndex( aMeshPairIndex ),
+                                    mTargetMeshPairIndex( aMeshPairIndex ),
+                                    mMeshManager( aMesh ),
+                                    mBSplineOrder( aBSplineOrder )
 
         {
             // Retrieve source mesh pair

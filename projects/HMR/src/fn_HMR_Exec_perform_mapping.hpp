@@ -157,7 +157,7 @@ namespace moris
                 moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
 
                 // create mapper
-                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex );
+                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
             }
 
 
@@ -220,11 +220,6 @@ namespace moris
                                                 tUnionField->get_bspline_rank() );
 
                 // a small sanity test
-
-                std::cout<<tUnionField->get_coefficients().length()<<std::endl;
-                std::cout<<tUnionInterpMeshes( m )->get_num_entities(mtk::order_to_entity_rank( 1 ) )<<std::endl;
-                std::cout<<tUnionInterpMeshes( m )->get_num_entities(mtk::order_to_entity_rank( tBSplineOrder ) )<<std::endl;
-
                 MORIS_ASSERT( tUnionField->get_coefficients().length()
                            == tUnionInterpMeshes( m )->get_num_entities( mtk::order_to_entity_rank( tBSplineOrder ) ),
                                     "Number of B-Splines does not match" );
