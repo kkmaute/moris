@@ -27,7 +27,7 @@ Background_Mesh::Background_Mesh(moris::mtk::Mesh* aMeshData):
 // ----------------------------------------------------------------------------------
 
 Background_Mesh::Background_Mesh(moris::mtk::Mesh* aMeshData,
-         Geometry_Engine & aGeometryEngine):
+                                 Geometry_Engine & aGeometryEngine):
     mMeshData(aMeshData),
     mChildMtkCells(0),
     mXtkMtkVertices(0),
