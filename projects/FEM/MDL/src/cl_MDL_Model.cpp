@@ -67,7 +67,7 @@ namespace moris
             // STEP 0: initialize
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Get pointers to interpolation and integration mesh
-            moris::moris_index tMeshPairIndex = 0;
+            moris::moris_index tMeshPairIndex = 0; //fixme
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
             mMeshManager->get_mesh_pair( tMeshPairIndex, tInterpolationMesh, tIntegrationMesh );

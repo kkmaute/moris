@@ -390,7 +390,7 @@ namespace moris
 
                     default :
                     {
-                        MORIS_ERROR( false, "Geometry_Interpolator::det_J - unknown or not implemented geometry type ");
+                        MORIS_ERROR( false, "Geometry_Interpolator::det_J - unknown or not implemented space geometry type ");
                         break;
                     }
                 }
@@ -404,7 +404,11 @@ namespace moris
             real detJTime;
             switch ( mTimeGeometryType )
             {
-            // fixme in case we want to have a point for time side-set
+                case ( mtk::Geometry_Type::POINT ) :
+                {
+                    detJTime = 1.0;
+                    break;
+                }
                 case ( mtk::Geometry_Type::LINE ) :
                 {
                     detJTime = det( tTimeJt );
