@@ -559,8 +559,8 @@ public:
 
     void pack_cut_mesh_by_phase(moris::size_t const & aMeshIndex,
                                 moris::size_t const & aNumPhases,
-                                Cell<moris::Matrix< moris::DDSTMat >> & aElementIds,
-                                Cell<moris::Matrix< moris::DDSTMat >> & aElementCMInds) const
+                                Cell<moris::Matrix< moris::IdMat >> & aElementIds,
+                                Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const
     {
 
         mChildrenMeshes(aMeshIndex).pack_child_mesh_by_phase(aNumPhases,aElementCMInds,aElementIds);
