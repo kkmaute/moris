@@ -54,6 +54,7 @@ set(TEST_SOURCES
 	xtk/UT_XTK_Model_Unzip.cpp
 	xtk/UT_XTK_Model_Export.cpp
 	xtk/UT_XTK_Model_Extract_Surf_Mesh.cpp
+	xtk/UT_XTK_Model_Mesh_Clusters.cpp
 	)
 
 # List additional includes
@@ -120,6 +121,12 @@ set(TEST_DEPENDENCIES
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS} 
     )
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE TEST_DEPENDENCIES)
+list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
+list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

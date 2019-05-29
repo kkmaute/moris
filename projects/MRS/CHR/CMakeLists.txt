@@ -4,7 +4,7 @@
 # Third party library dependencies
 list(REMOVE_DUPLICATES CHR_TPL_DEPENDENCIES)
 foreach(CHR_TPL ${CHR_TPL_DEPENDENCIES})
-    include(${MORIS_CMAKE_DIR}/${CHR_TPL}.cmake)
+    include(${MORIS_TPL_DIR}/${CHR_TPL}.cmake)
 endforeach()
 
 # Add source directory

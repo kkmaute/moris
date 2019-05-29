@@ -522,18 +522,18 @@ public:
       // --------------------------------------------------------------
 
       void pack_child_mesh_by_phase(moris::size_t const & aNumPhases,
-                                    Cell<moris::Matrix< moris::DDSTMat >> & aElementIds,
-                                    Cell<moris::Matrix< moris::DDSTMat >> & aElementCMInds) const
+                                    Cell<moris::Matrix< moris::IdMat >> & aElementIds,
+                                    Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const
       {
           moris::size_t tNumElems = get_num_entities(EntityRank::ELEMENT);
 
-          aElementIds = Cell<moris::Matrix< moris::DDSTMat >>(aNumPhases);
-          aElementCMInds = Cell<moris::Matrix< moris::DDSTMat >>(aNumPhases);
+          aElementIds = Cell<moris::Matrix< moris::IdMat >>(aNumPhases);
+          aElementCMInds = Cell<moris::Matrix< moris::IdMat >>(aNumPhases);
 
           for(moris::size_t i = 0; i<aNumPhases; i++)
           {
-              aElementIds(i) = moris::Matrix< moris::DDSTMat >(1,tNumElems);
-              aElementCMInds(i) = moris::Matrix< moris::DDSTMat >(1,tNumElems);
+              aElementIds(i) = moris::Matrix< moris::IdMat >(1,tNumElems);
+              aElementCMInds(i) = moris::Matrix< moris::IdMat >(1,tNumElems);
           }
 
           Cell<moris::size_t> tPhaseCounter(aNumPhases,0);

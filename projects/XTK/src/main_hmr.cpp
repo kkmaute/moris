@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 // moris core includes
+#include "../../GEN/src/cl_GE_Core.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -27,10 +28,6 @@
 
 // geometry engine
 //#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
-#include "GEN/src/cl_GE_Main.hpp"
-
-//------------------------------------------------------------------------------
-// HMR
 #include "cl_HMR_Parameters.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"

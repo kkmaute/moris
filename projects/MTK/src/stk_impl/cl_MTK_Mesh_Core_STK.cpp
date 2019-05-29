@@ -1081,7 +1081,7 @@ namespace mtk
         const int tParallelRank = mSTKMeshData->mMtkMeshBulkData->parallel_rank();
 
         // Declare vector of entity counts
-        std::vector<unsigned int> tEntityCounts;
+        std::vector<long unsigned int> tEntityCounts;
 
         // Get all entities from meta data
         stk::mesh::Selector tSharedSelector = mSTKMeshData->mMtkMeshMetaData->universal_part();
@@ -1901,7 +1901,7 @@ namespace mtk
         if(!aMeshData.SupplementaryToFile)
         {
             Field3CompReal* tCoord_field = &mSTKMeshData->mMtkMeshMetaData->declare_field<Field3CompReal>( stk::topology::NODE_RANK, "coordinates" );
-            stk::mesh::put_field( *tCoord_field, mSTKMeshData->mMtkMeshMetaData->universal_part() );
+            stk::mesh::put_field_on_mesh( *tCoord_field, mSTKMeshData->mMtkMeshMetaData->universal_part(),(stk::mesh::FieldTraits<stk::mesh::Field<real>>::data_type*) nullptr );
         }
 
         // Declare all additional fields provided by the user
@@ -1929,7 +1929,7 @@ namespace mtk
                 stk::mesh::Field<real> &   tSTKRealScalarField  =
                         mSTKMeshData->mMtkMeshMetaData->declare_field<stk::mesh::Field<real> >(this->get_stk_entity_rank(tFieldEntityRank),tFieldName , 1);
 
-                stk::mesh::put_field( tSTKRealScalarField, tFieldPart );
+                stk::mesh::put_field_on_mesh( tSTKRealScalarField, tFieldPart,(stk::mesh::FieldTraits<stk::mesh::Field<real>>::data_type*) nullptr );
 
                 stk::io::set_field_role(tSTKRealScalarField, Ioss::Field::TRANSIENT);
             }
@@ -2001,7 +2001,7 @@ namespace mtk
             {
                 // Declare fields
                 mSTKMeshData->mField1CompVecsReal.push_back( & mSTKMeshData->mMtkMeshMetaData->declare_field< Field1CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
-                stk::mesh::put_field( *mSTKMeshData->mField1CompVecsReal.back(), aFieldPart, 1 );
+                stk::mesh::put_field_on_mesh( *mSTKMeshData->mField1CompVecsReal.back(), aFieldPart, (stk::mesh::FieldTraits<Field1CompReal>::data_type*) nullptr );
                 stk::io::set_field_role(*mSTKMeshData->mField1CompVecsReal.back(), Ioss::Field::TRANSIENT);
                 break;
             }
@@ -2009,7 +2009,7 @@ namespace mtk
             {
                 // Declare fields
                 mSTKMeshData->mField2CompVecsReal.push_back( & mSTKMeshData->mMtkMeshMetaData->declare_field< Field2CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
-                stk::mesh::put_field( *mSTKMeshData->mField2CompVecsReal.back(), aFieldPart );
+                stk::mesh::put_field_on_mesh( *mSTKMeshData->mField2CompVecsReal.back(), aFieldPart, (stk::mesh::FieldTraits<Field2CompReal>::data_type*) nullptr );
                 stk::io::set_field_role(*mSTKMeshData->mField2CompVecsReal.back(), Ioss::Field::TRANSIENT);
                 break;
             }
@@ -2017,7 +2017,7 @@ namespace mtk
             {
                 // Declare fields
                 mSTKMeshData->mField3CompVecsReal.push_back( & mSTKMeshData->mMtkMeshMetaData->declare_field< Field3CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
-                stk::mesh::put_field( *mSTKMeshData->mField3CompVecsReal.back(), aFieldPart );
+                stk::mesh::put_field_on_mesh( *mSTKMeshData->mField3CompVecsReal.back(), aFieldPart, (stk::mesh::FieldTraits<Field3CompReal>::data_type*) nullptr );
                 stk::io::set_field_role(*mSTKMeshData->mField3CompVecsReal.back(), Ioss::Field::TRANSIENT);
                 break;
             }
@@ -2025,7 +2025,7 @@ namespace mtk
             {
                 // Declare fields
                 mSTKMeshData->mField4CompVecsReal.push_back( & mSTKMeshData->mMtkMeshMetaData->declare_field< Field4CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
-                stk::mesh::put_field( *mSTKMeshData->mField4CompVecsReal.back(), aFieldPart );
+                stk::mesh::put_field_on_mesh( *mSTKMeshData->mField4CompVecsReal.back(), aFieldPart, (stk::mesh::FieldTraits<Field4CompReal>::data_type*) nullptr );
                 stk::io::set_field_role(*mSTKMeshData->mField4CompVecsReal.back(), Ioss::Field::TRANSIENT);
                 break;
             }
@@ -2033,7 +2033,7 @@ namespace mtk
             {
                 // Declare fields
                 mSTKMeshData->mField9CompVecsReal.push_back( & mSTKMeshData->mMtkMeshMetaData->declare_field< Field9CompReal >( this->get_stk_entity_rank(aFieldRank), aFieldName ) );
-                stk::mesh::put_field( *mSTKMeshData->mField9CompVecsReal.back(), aFieldPart );
+                stk::mesh::put_field_on_mesh( *mSTKMeshData->mField9CompVecsReal.back(), aFieldPart, (stk::mesh::FieldTraits<Field9CompReal>::data_type*) nullptr );
                 stk::io::set_field_role(*mSTKMeshData->mField9CompVecsReal.back(), Ioss::Field::TRANSIENT);
                 break;
             }
@@ -2876,33 +2876,33 @@ namespace mtk
                 aElemEntity       = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::ELEMENT_RANK, aGlobalElemId );
                 tRequestedSideOrd = (*tSideSet->mElemIdsAndSideOrds)( iEntity, 1 );
 
-                if ( !aMeshData.CreateAllEdgesAndFaces )
-                {
+//                if ( !aMeshData.CreateAllEdgesAndFaces )
+//                {
                     if(mSTKMeshData->mMtkMeshBulkData->is_valid( aElemEntity ))
                     {
                     // Create side entity
                     mSTKMeshData->mMtkMeshBulkData->declare_element_side( aElemEntity, tRequestedSideOrd, aAddPart );
                     }
-                }
-                else
-                {
-                    // all faces and edges where created already. Only need to move entities to a
-                    // different (previously declared) part assuming no new entities need to be created.
-                    const stk::mesh::Entity * tSides                   = mSTKMeshData->mMtkMeshBulkData->begin( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
-                    const stk::mesh::ConnectivityOrdinal* tSideOrdinal = mSTKMeshData->mMtkMeshBulkData->begin_ordinals( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
-                    size_t tNumSides                                   = mSTKMeshData->mMtkMeshBulkData->num_connectivity( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
-
-                    for ( size_t sideI = 0 ; sideI < tNumSides ; ++sideI )
-                    {
-                        uint tCurrentSideOrd = static_cast<stk::mesh::ConnectivityOrdinal>( tSideOrdinal[sideI] );
-                        if ( tRequestedSideOrd == tCurrentSideOrd )
-                        {
-                            // Move elements to side set part
-                            mSTKMeshData->mMtkMeshBulkData->change_entity_parts( tSides[sideI], aAddPart );
-                            break;
-                        }
-                    }
-                }
+//                }
+//                else
+//                {
+//                    // all faces and edges where created already. Only need to move entities to a
+//                    // different (previously declared) part assuming no new entities need to be created.
+//                    const stk::mesh::Entity * tSides                   = mSTKMeshData->mMtkMeshBulkData->begin( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
+//                    const stk::mesh::ConnectivityOrdinal* tSideOrdinal = mSTKMeshData->mMtkMeshBulkData->begin_ordinals( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
+//                    size_t tNumSides                                   = mSTKMeshData->mMtkMeshBulkData->num_connectivity( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
+//
+//                    for ( size_t sideI = 0 ; sideI < tNumSides ; ++sideI )
+//                    {
+//                        uint tCurrentSideOrd = static_cast<stk::mesh::ConnectivityOrdinal>( tSideOrdinal[sideI] );
+//                        if ( tRequestedSideOrd == tCurrentSideOrd )
+//                        {
+//                            // Move elements to side set part
+//                            mSTKMeshData->mMtkMeshBulkData->change_entity_parts( tSides[sideI], aAddPart );
+//                            break;
+//                        }
+//                    }
+//                }
             }// end of side sets declarations
         }
 

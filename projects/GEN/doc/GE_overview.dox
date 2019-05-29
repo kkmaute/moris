@@ -1,93 +1,107 @@
 namespace moris {
+namespace ge {
 
-/** @defgroup GE_overview GE Overview 
+/** @defgroup GE_overview Overview
+         
+Consider a design space as shown in Figure 1. The domain which lies inside the geometry is denoted by \f$ \Omega_1 \f$, while the domain which lies outside the geometry 
+is denoted by \f$ \Omega_2 \f$, and the surface of the geometry is denoted by \f$ \Gamma \f$. A point \f$ x_i \f$ can therefore only exist in one of the described domains,
 
-@section IOs Inputs and Outputs
+inside:         \f[         x_i \in \Omega_1    \f]
+outside:        \f[         x_i \in \Omega_2    \f]
+on boundary:    \f[         x_i \in \Gamma      \f]
 
-@image html ./images/primInOut.jpg "Figure 1: Diagram of Geometry Engine inputs and outputs."
+A method for determining which domain the point \f$ x_i \f$ resides in is necessary to answer questions about the geometries or fields, especially when asked about 
+an intersection point with the geometry. An intersection with the geometry would imply that there is a point on the primitive which resides in the domain of \f$ \Gamma \f$.
 
-The GE is a querty of information relating to the geometry of interest. 
-Given some primitive, the GE will explain how the geometry relates to it (intersection points for example). 
+@image html ./images/domain.jpg "Figure 1: Generalized design space."
 
-The design space is defined as shown in Figure 2. The domain which lies inside the geometry is denoted
-by \f$ \Omega_1 \f$, while the domain which lies outside the geometry is denoted by \f$ \Omega_2 \f$, and the surface of the geometry
-is denoted by \f$ \Gamma \f$. A point \f$ x_i \f$ can therefore only exist in one of the described domains,
+@section Qs Questions on Intersection
+Two possible ways of representing the geometry are discussed: 
 
-inside:			\f[ 		x_i \in \Omega_1 	\f]
-outside:		\f[ 		x_i \in \Omega_2 	\f]
-on boundary:	\f[   		x_i \in \Gamma   	\f]
+1) future representing (F-reps) using level sets:
 
-A method for determining which domain the point \f$ x_i \f$ resides in is necessary to move forward with the
-analysis, especially when determining an intersection point with the geometry. An intersection with the
-geometry would imply that there is a point on the primitive which resides in the domain of \f$ \Gamma \f$.
+The idea is as such: given some function \f$ \phi \f$ which defines the geometry, determine the value of some point \f$ x_i \f$ for which the sign is specified as :
 
-@image html ./images/domain.jpg "Figure 2: Generalized design space."
+    \f[ - \qquad            x_i \in \Omega_1    \f]
+    \f[ + \qquad            x_i \in \Omega_2    \f]
+    \f[ 0 \qquad            x_i \in \Gamma      \f]
 
-The geometry can be represented in two possible ways:
+The case for when \f$ x_i \f$ is zero can then be determined by using the canonical form of the function \f$ \phi \f$. There are two subsets of the F-rep; one being purely
+analytic and requiring no mesh and the other being a discetized form. The discretized form comes from a mesh where values of the function, now denoted as \f$ \hat{\phi} \f$, 
+are known at the nodal locations.
 
-1)	Future representation (F-rep) using level sets. The idea is that given some function \f$ \phi \f$ which
-defines the geometry, determine the value of the point \f$ x_i \f$ where we define the sign as:
+2) computer aided design (CAD) based:
 
-	\f[ - \qquad			x_i \in \Omega_1 	\f]
-	\f[ + \qquad			x_i \in \Omega_2 	\f]
-	\f[ 0 \qquad	  		x_i \in \Gamma   	\f]
+Through the CAD based approach, a known set of data, say \f$ S(\underline{t}) \f$, can be used to determine the intersection point with the primitive. 
 
-Thus, we can determine the case for when \f$ x_i \f$ is zero by using the canonical form of the function \f$ \phi \f$.
-There are two subsets of the F-rep. One being purely analytic and requiring no mesh. The other being a discetized form. The discretized
-form comes from a mesh where values of the function, now denoted as \f$ \hat{\phi} \f$ are known at the nodal locations.
+In the following section, an example is given to better understand the methods for representing a geometry and determining the intersection points.
 
-2) CAD based model. Through the CAD based approach, a known set of data, say \f$ S(t) \f$, can be used to determine
-the intersection point with the primitive.
+@section intEx Intersection Example
 
-@section Ex Example and Discussion 
+In this example, a circle is enclosed in a box. There is no mesh as we observe the purely analytic form of the F-rep. Figure 2 below outlines the problem. The GE is asked 
+about intersection with a line type primitive and the circle geometry.
 
-In this example, a circle is enclosed in a box. There is no mesh as we observe the purely analytic form
-of the F-rep. Figure 3 below outlines the problem. A line type primitive is passed into the space and the
-intersection point is to be determined.
+@image html ./images/exFig.png "Figure 2: Simple example. The geometry here is a circle which can be described by an analytic function or by a set of points. The primitive for this example is a line intersecting the geometry at one point."
 
-@image html ./images/exFig.png "Figure 3: Circle in a box with the primite defined as a line containing one intersection point with the geometry."
+1) Determine intersection from the F-rep:
 
-1) F-rep:
+\f[ \phi = r - \left\| \underline{x} - \underline{x^c} \right\|             \f]
+\f[ \underline{x_{\Gamma}}: \qquad \phi(\underline{x},\underline{x^c},r) = 0 \f]
 
-	\f[ \phi = r - \left\| \underline{x} - \underline{x^c} \right\|				\f]
-	\f[ \underline{x_{\Gamma}}: \qquad \phi(\underline{x},\underline{x^c},r) = 0 \f]
-	
 Where \f$ x_{\Gamma} \f$ is the intersection of the primitive with the geometry. This can be found by determining
 the intersection of the two functions \f$ \phi = 0 \f$ and that of the primitive.
+    
+2) Determine Intersection from CAD:
 
-2) CAD:
-
-	\f[	\underline{x_{\Gamma}}: \qquad		x_1^c + rcos(t)\\ \qquad x_2^c + rsin(t)	\f]
-	
+    \f[ \underline{x_{\Gamma}}: \qquad      x_1^c + rcos(t)\\ \qquad x_2^c + rsin(t)    \f]   
+    
 From here, \f$ \underline{x_{\Gamma}} \f$ can be determined through a linear interpolation of points on the circle. It should
 be noted that having more points will help to better define the circle. For example, interpolate
 between two points which are on either sides of the primitive and determine the intersection with the
 interpolated line and the primitive.
-	
-For completeness, consider the discretized form of the F-rep. The function φ is disretized on the mesh and
+    
+For completeness, consider the discretized form of the F-rep. The function \f$ \phi \f$ is disretized on the mesh and
 the nodal values, \f$ \hat{\phi} \f$ are known. The general approach for this is to first find the elements 
-which contain \f$ X_A \f$ and \f$ X_B \f$, elements \f$ i \f$ and \f$ j \f$, respectively, in Figure 4.
+which contain \f$ X_A \f$ and \f$ X_B \f$, elements \f$ i \f$ and \f$ j \f$, respectively, in Figure 3.
 From these elements, we can use the known \f$ \hat{\phi} \f$ values in the elements to determine the values 
 of the discretized function \f$ \phi \f$ as:
 
-in element i:		\f[ \phi_A = \Sigma N_i\hat{\phi_A}  \f]
-in element j:		\f[ \phi_B = \Sigma N_i\hat{\phi_B}  \f]
+in element i:       \f[ \phi_A = \Sigma N_n\hat{\phi_A}  \f]
+in element j:       \f[ \phi_B = \Sigma N_n\hat{\phi_B}  \f]    
 
-Where \f$ N_i \f$ represent the element shape functions. Once these values are determined, the primitive can be
+Where \f$ N_n \f$ represent the element shape functions. Once these values are determined, the line type primitive can be
 searched for intersection.
 
-@image html ./images/grid.jpg "Figure 4: Consider a discretized mesh containing a line primitive."
+@image html ./images/grid_1.jpg "Figure 3: Consider a discretized mesh containing a line primitive. Determining the intersection point for this case is not as trivial as in the above example."
 
 There is a special case to the discretized version of the F-rep when the primitive is actually an edge in the
-mesh which discretizes \f$ \phi \f$, Figure 5. In this case, the primitive can be defined by the corresponding 
+mesh which discretizes \f$ \phi \f$, Figure 4. In this case, the primitive can be defined by the corresponding 
 edge index in the mesh.
 
-@image html ./images/edge.jpg "Figure 5: Special case when the primitive passed in is an edge of the mesh 
-which discretizes \f$ \phi \f$. This makes the analysis simpler as the primitive can be accessed from the 
-corresponding edge index."
-   
-	
+@image html ./images/grid_2.jpg "Figure 4: Special case when the primitive passed in is an edge of the mesh. This makes the analysis simpler as the primitive can be accessed from the corresponding edge index."
 
+@section def Defining the Field
+
+As noted above, the discretized field \f$ \phi \f$ can be defined as:
+
+\f[ \phi = \Sigma N_i \hat{\phi} \f]
+
+where the shape functions \f$ N_i \f$ can be of Lagrange or B-spline basis (note that if they are of the B-spline basis, the above summation must also be multiplied by the associated T-matrix). When discretizing the field \f$ \phi \f$, we must first evaluate the approximated field values 
+\f$ \hat{\phi} \f$. One method of achieving this is through an \f$ L_2 \f$ projection. The process is as follows: given some parameters \f$ \underline{p} \f$, determine 
+the target field \f$ \phi_{target} \f$ through a predetermined method (analytic or signed distance field for example) and then use the target field in the \f$ L_2 \f$ 
+projection to determine the approximated \f$ \hat{\phi} \f$ field values. 
+
+@section fieldEx Field Example
+
+Given the information of a mesh and the corresponding T-matrix, determine the intersection point with a simple analytic geometry fieldvia an \f$ L_2 \f$ projection. 
+The problem setup is shown in Figure 5 and the solution method is outlined in Figures 6 and 7.
+
+@image html ./images/exSetup.png "Figure 5: Left: four element mesh with a circle geometry. Right: graphical representation of level set fields."
+
+@image html ./images/example03.png "Figure 6: Analytic function and \f$ \L_2 \f$ projection."
+
+@image html ./images/example04.png "Figure 7: Post processing."
 
 */
+}
 }

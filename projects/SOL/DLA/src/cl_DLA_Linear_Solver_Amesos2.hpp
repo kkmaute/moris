@@ -9,18 +9,18 @@
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 
-#include <Teuchos_ScalarTraits.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_GlobalMPISession.hpp>
-#include <Teuchos_VerboseObject.hpp>
-#include <Teuchos_CommandLineProcessor.hpp>
-
-#include <Tpetra_DefaultPlatform.hpp>
-#include <Tpetra_Map.hpp>
-#include <Tpetra_MultiVector.hpp>
-#include <Tpetra_CrsMatrix.hpp>
-
-#include "Amesos2.hpp"
+//#include <Teuchos_ScalarTraits.hpp>
+//#include <Teuchos_RCP.hpp>
+//#include <Teuchos_GlobalMPISession.hpp>
+//#include <Teuchos_VerboseObject.hpp>
+//#include <Teuchos_CommandLineProcessor.hpp>
+//
+////#include <Tpetra_DefaultPlatform.hpp>
+//#include <Tpetra_Map.hpp>
+//#include <Tpetra_MultiVector.hpp>
+//#include <Tpetra_CrsMatrix.hpp>
+//
+//#include "Amesos2.hpp"
 
 namespace moris
 {

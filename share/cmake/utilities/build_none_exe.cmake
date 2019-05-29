@@ -1,4 +1,4 @@
-# BUILD_ALL Utility -------------------------------------------------------
+# BUILD_NONE Utility ------------------------------------------------------
 # -------------------------------------------------------------------------
 
 set(BUILD_ALG OFF CACHE BOOL "Build the algorithms executable." FORCE)
@@ -7,7 +7,7 @@ set(BUILD_ASR OFF CACHE BOOL "Build the assert executable." FORCE)
 
 set(BUILD_CHR OFF CACHE BOOL "Build the chronos executable." FORCE)
 
-set(BUILD_COM OFF CACHE BOOL "Build the communicatiOFF executable." FORCE)
+set(BUILD_COM OFF CACHE BOOL "Build the communication executable." FORCE)
 
 set(BUILD_COFF OFF CACHE BOOL "Build the containers executable." FORCE)
 
@@ -45,7 +45,7 @@ set(BUILD_SDF OFF CACHE BOOL "Build the SDF executable." FORCE)
 
 set(BUILD_STK OFF CACHE BOOL "Build the STK executable." FORCE)
 
-set(BUILD_TIN OFF CACHE BOOL "Build the TIN executable." FORCE)
+# set(BUILD_TIN OFF CACHE BOOL "Build the TIN executable." FORCE)
 
 set(BUILD_TSA OFF CACHE BOOL "Build the TSA executable." FORCE)
 

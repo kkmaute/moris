@@ -7,6 +7,8 @@
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
@@ -1865,7 +1867,7 @@ Model::extract_surface_mesh_to_obj_internal(std::string                      aOu
      tOFS.close();
 }
 
-moris::mtk::Mesh*
+moris::mtk::Integration_Mesh*
 Model::get_output_mesh(Output_Options const & aOutputOptions)
 
 {
@@ -1873,7 +1875,7 @@ Model::get_output_mesh(Output_Options const & aOutputOptions)
     std::clock_t start = std::clock();
 
     // create the output mtk mesh
-    moris::mtk::Mesh* tOutputMesh = construct_output_mesh(aOutputOptions);
+    moris::mtk::Integration_Mesh* tOutputMesh = construct_output_mesh(aOutputOptions);
 
     if(moris::par_rank() == 0  && mVerbose)
     {
@@ -1900,7 +1902,7 @@ Model::get_num_elements_unzipped()
 
 //------------------------------------------------------------------------------
 
-moris::mtk::Mesh*
+moris::mtk::Integration_Mesh*
 Model::construct_output_mesh( Output_Options const & aOutputOptions )
 {
 
@@ -1949,7 +1951,6 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
 
     }
 
-
     // Interface nodes
     Cell<moris::Matrix<moris::IndexMat>> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_glob_ids();
 
@@ -1966,15 +1967,7 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     moris::Matrix<moris::IdMat> tInterfaceElemIdandSideOrd = mCutMesh.pack_interface_sides();
 
     // number of phases being output
-    moris::uint tNumPhasesOutput = 0;
-    if(aOutputOptions.output_all_phases())
-    {
-        tNumPhasesOutput = mGeometryEngine.get_num_bulk_phase();
-    }
-    else
-    {
-        tNumPhasesOutput = aOutputOptions.num_phases_to_output();
-    }
+    moris::uint tNumPhasesOutput = get_num_phases_to_output(aOutputOptions);
 
     // Set up field data structure for MTK input
     moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -2017,7 +2010,6 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
 
     if(aOutputOptions.mPackageDxDpSparsely && mSensitivity)
     {
-
         // place into a field
         for(moris::uint  i = 0; i <tdxdpDataFields.size(); i++)
         {
@@ -2143,7 +2135,7 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     if(aOutputOptions.mHaveInterface)
     {
         tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
-        tInterfaceSideSet.mSideSetName        = "iside" ;
+        tInterfaceSideSet.mSideSetName        = "iside_0" ;
 
         // Add side side set to mesh sets
         tMtkMeshSets.add_side_set(&tInterfaceSideSet);
@@ -2173,8 +2165,10 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     moris::Cell<moris::mtk::MtkSideSetInfo> tBackgroundSideSets;
     if(aOutputOptions.mAddSideSets)
     {
+        // collect information about background side set
         tBackgroundSideSets = this->propogate_background_side_sets(tSideSetData,aOutputOptions);
 
+        // add to mesh input structure
         for(moris::uint i = 0; i<tBackgroundSideSets.size(); i++)
         {
             tMtkMeshSets.add_side_set(&tBackgroundSideSets(i));
@@ -2194,7 +2188,6 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     tMeshDataInput.LocaltoGlobalElemMap = moris::Cell<moris::Matrix<IdMat>*>(tNumElemTypes);
     tMeshDataInput.CellTopology         = moris::Cell<enum CellTopology>(tNumElemTypes,CellTopology::INVALID);
 
-    tMeshDataInput.CreateAllEdgesAndFaces  = false;
     tMeshDataInput.Verbose                 = mVerbose;
     tMeshDataInput.SpatialDim              = &tSpatialDim;
 
@@ -2218,6 +2211,29 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     tMeshDataInput.LocaltoGlobalNodeMap    = &tLocalToGlobalNodeMap;
     tMeshDataInput.SetsInfo                = &tMtkMeshSets;
     tMeshDataInput.MarkNoBlockForIO        = false;
+    tMeshDataInput.CreateAllEdgesAndFaces  = true;
+
+    //Add clustering information
+    moris::mtk::Cell_Cluster_Input tCellClusterInput;       // Cell clusters
+    moris::Cell<Matrix<IdMat>>     tClusterCellIds;         // Cell cluster Ids
+    moris::mtk::Side_Cluster_Input tInterfaceSideClusterInput;       // Side clusters
+    moris::Cell<Matrix<IdMat>>     tInterfaceCellIdsandSideOrds;     // side cluster ids and side ordinals
+    moris::Cell<Matrix<DDRMat>>    tInterfaceSideClusterParamCoords; // side cluster vertex parametric coordinates
+
+    if(aOutputOptions.mAddClusters)
+    {
+        // cell clustering
+        this->setup_cell_clusters_for_output(tCellClusterInput,aOutputOptions,tClusterCellIds);
+        tMeshDataInput.CellClusterInput = &tCellClusterInput;
+
+        setup_interface_side_cluster(tInterfaceSideSet.mSideSetName,
+                                     tInterfaceSideClusterInput,
+                                     aOutputOptions,
+                                     tInterfaceCellIdsandSideOrds,
+                                     tInterfaceSideClusterParamCoords);
+
+        tMeshDataInput.SideClusterInput = &tInterfaceSideClusterInput;
+    }
 
     // Interface elements
     if(mUnzipped)
@@ -2234,7 +2250,16 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
 
     start = std::clock();
 
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshDataInput );
+    // cast background mesh to an interpolation mesh and pass in
+    moris::mtk::Integration_Mesh* tMeshData = nullptr;
+    if(aOutputOptions.mAddClusters)
+    {
+        tMeshData = moris::mtk::create_integration_mesh( MeshType::STK, tMeshDataInput, dynamic_cast<moris::mtk::Interpolation_Mesh*>(&mBackgroundMesh.get_mesh_data()) );
+    }
+    else
+    {
+        tMeshData = moris::mtk::create_integration_mesh( MeshType::STK, tMeshDataInput);
+    }
 
     if(moris::par_rank() == 0 && mVerbose)
     {
@@ -2615,6 +2640,113 @@ Model::pack_ghost_as_side_set()
     return tGhostCellIdsAndSideOrdByBulkPhase;
 }
 
+//------------------------------------------------------------------------------
+
+uint
+Model::get_num_phases_to_output(Output_Options const & aOutputOptions)
+{
+    uint tNumPhasesOutput = 0;
+    if(aOutputOptions.output_all_phases())
+    {
+        tNumPhasesOutput = mGeometryEngine.get_num_bulk_phase();
+    }
+    else
+    {
+        tNumPhasesOutput = aOutputOptions.num_phases_to_output();
+    }
+
+    return tNumPhasesOutput;
+}
+
+//------------------------------------------------------------------------------
+
+void
+Model::setup_cell_clusters_for_output(moris::mtk::Cell_Cluster_Input & aCellClusterInput,
+                                      Output_Options const & aOutputOptions,
+                                      moris::Cell<Matrix<IdMat>> & aCellIds)
+{
+    // iterate through child meshes and construct cells
+    uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
+
+    for(moris::uint i = 0; i < tNumChildMeshes; i ++)
+    {
+        // Get child mesh
+        Child_Mesh const & tChildMesh = mCutMesh.get_child_mesh(i);
+
+        // pack the element ids into phase grouping
+        Cell<moris::Matrix< moris::IdMat >> tElementIds;
+        Cell<moris::Matrix< moris::IdMat >> tCMElementInds;
+        tChildMesh.pack_child_mesh_by_phase(mGeometryEngine.get_num_bulk_phase(), tElementIds, tCMElementInds);
+
+
+        // primary index
+        moris_index tPrimaryCellIndex = aCellIds.size();
+        moris_index tVoidCellIndex    = tPrimaryCellIndex+1;
+
+        // add them to cell to keep in scope
+        aCellIds.append(tElementIds);
+
+        // parent index
+        moris_index tParentCellIndex = tChildMesh.get_parent_element_index();
+
+        // access the parent element from the background mesh
+        moris::mtk::Cell* tInterpCell = &mBackgroundMesh.get_mesh_data().get_mtk_cell(tParentCellIndex);
+
+        // add to cluster
+        aCellClusterInput.add_cluster_data(tInterpCell,&aCellIds(tPrimaryCellIndex),&aCellIds(tVoidCellIndex),&tChildMesh.get_node_ids(),&tChildMesh.get_parametric_coordinates());
+
+    }
+}
+
+void
+Model::setup_interface_side_cluster(std::string                      aInterfaceSideLabelBase,
+                                    moris::mtk::Side_Cluster_Input & aSideClusterInput,
+                                    Output_Options           const & aOutputOptions,
+                                    moris::Cell<Matrix<IdMat>>     & aCellIdsandSideOrds,
+                                    moris::Cell<Matrix<DDRMat>>    & aParametricCoordinates)
+{
+    moris::uint tNumPhases = mGeometryEngine.get_num_bulk_phase();
+
+    moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
+
+    for(moris::uint  iP = 0; iP<tNumPhases; iP++)
+    {
+        // if we are outputting this phase
+//        if(aOutputOptions.output_phase((size_t)iP))
+        if(iP == 0)
+        {
+            // add side set to output
+            std::string tSetName = aInterfaceSideLabelBase;
+            std::cout<<"tSetName = "<<tSetName<<std::endl;
+           moris_index tSideSetOrd = aSideClusterInput.add_side_set_label(tSetName);
+
+
+            //iterate through children meshes
+            for(moris::uint iC = 0; iC < tNumChildMeshes; iC ++)
+            {
+                // Get child mesh
+                Child_Mesh const & tChildMesh = mCutMesh.get_child_mesh(iC);
+
+                // package this child element by bulk phase
+                moris::Matrix< moris::IdMat > tInterfaceElementIdsAndSideOrd = tChildMesh.pack_interface_sides( false, iP );
+
+                // add to data which will stay in scope
+                moris_index tIdsIndex = aCellIdsandSideOrds.size();
+                aCellIdsandSideOrds.push_back(tInterfaceElementIdsAndSideOrd);
+
+                // parent cell index
+                moris_index tParentCellIndex = tChildMesh.get_parent_element_index();
+
+                // access the parent element from the background mesh
+                moris::mtk::Cell* tInterpCell = &mBackgroundMesh.get_mesh_data().get_mtk_cell(tParentCellIndex);
+
+                // add to cluster input data
+                //fixme: Add only vertex indices on the interface to cluster. Adding all.
+                aSideClusterInput.add_cluster_data(false,tSideSetOrd,tInterpCell,&aCellIdsandSideOrds(tIdsIndex),&tChildMesh.get_node_ids(),&tChildMesh.get_parametric_coordinates());
+            }
+        }
+    }
+}
 //------------------------------------------------------------------------------
 
 

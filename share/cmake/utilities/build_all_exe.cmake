@@ -45,7 +45,7 @@ set(BUILD_SDF ON CACHE BOOL "Build the SDF executable." FORCE)
 
 set(BUILD_STK OFF CACHE BOOL "Build the STK executable." FORCE)
 
-set(BUILD_TIN ON CACHE BOOL "Build the TIN executable." FORCE)
+#set(BUILD_TIN ON CACHE BOOL "Build the TIN executable." FORCE)
 
 set(BUILD_TSA ON CACHE BOOL "Build the TSA executable." FORCE)
 

@@ -77,7 +77,7 @@ Copy and paste the following into your project's new depends file:
     
     foreach(MORIS_DEPENDENCY ${PROJ_MORIS_DEPENDENCIES})
         # Include moris projects directly needed by PROJ
-        include(${MORIS_CMAKE_DIR}/depends/${MORIS_DEPENDENCY}_Depends.cmake)
+        include(${MORIS_DEPENDS_DIR}/${MORIS_DEPENDENCY}_Depends.cmake)
 
         # Include third party libraries indirectly needed by PROJ
         list(APPEND PROJ_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )

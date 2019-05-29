@@ -10,6 +10,7 @@
 
 #include "dlfcn.h"
 
+#include "../projects/GEN/src/cl_GE_Core.hpp"
 #include "typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
@@ -19,7 +20,6 @@
 #include "fn_eye.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
 #include "fn_print.hpp" //LINALG/src
-#include "GEN/src/cl_GE_Main.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
@@ -1747,7 +1747,7 @@ namespace moris
 
             // create geometry engine
 
-            ge::GE tRefMan;
+            ge::GE_Core tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell*  > tCandidates;
@@ -1799,7 +1799,7 @@ namespace moris
 
             // create geometry engine
 
-            ge::GE tRefMan;
+            ge::GE_Core tRefMan;
 
             // candidates for refinement
             Cell< mtk::Cell* > tCandidates;

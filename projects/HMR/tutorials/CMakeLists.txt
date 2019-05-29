@@ -37,6 +37,12 @@ set(EXE_DEPENDENCIES
     ${MORIS_ARPACK_LIBS}
     ${MORIS_BOOST_LIBS}
     )
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE EXE_DEPENDENCIES)
+list(REMOVE_DUPLICATES EXE_DEPENDENCIES)
+list(REVERSE EXE_DEPENDENCIES)
     
 # Create Tutorial 1
 add_executable(HMR_Tutorial_1-exe HMR_Tutorial_1.cpp )

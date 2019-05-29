@@ -238,17 +238,17 @@ Integration_Mesh_STK::setup_cell_clusters(Interpolation_Mesh & aInterpMesh,
 
                             mCellClusters(i).set_interpolation_cell( aCellClusterInput->get_interp_cell(tClusterIndex) );
 
-                            moris::Matrix<IndexMat>* tPrimaryCellIds  = aCellClusterInput->get_primary_cell_ids(tClusterIndex);
+                            moris::Matrix<IndexMat> const * tPrimaryCellIds  = aCellClusterInput->get_primary_cell_ids(tClusterIndex);
                             mCellClusters(i).add_primary_integration_cell(this->get_cell_pointers_from_ids(*tPrimaryCellIds));
 
-                            moris::Matrix<IndexMat>* tVoidCellIds  = aCellClusterInput->get_void_cell_ids(tClusterIndex);
+                            moris::Matrix<IndexMat> const * tVoidCellIds  = aCellClusterInput->get_void_cell_ids(tClusterIndex);
                             mCellClusters(i).add_void_integration_cell(this->get_cell_pointers_from_ids(*tVoidCellIds));
 
-                            moris::Matrix<IndexMat>* tVertexIds  = aCellClusterInput->get_vertex_in_cluster_ids(tClusterIndex);
+                            moris::Matrix<IndexMat> const * tVertexIds  = aCellClusterInput->get_vertex_in_cluster_ids(tClusterIndex);
 
                             mCellClusters(i).add_vertex_to_cluster(this->get_vertex_pointers_from_ids(*tVertexIds));
 
-                            moris::Matrix<DDRMat>* tVertexLocalCoords = aCellClusterInput->get_vertex_local_coords_wrt_interpolation_cell(tClusterIndex);
+                            moris::Matrix<DDRMat> const * tVertexLocalCoords = aCellClusterInput->get_vertex_local_coords_wrt_interpolation_cell(tClusterIndex);
                             mCellClusters(i).add_vertex_local_coordinates_wrt_interp_cell(*tVertexLocalCoords);
 
                     }
@@ -381,6 +381,8 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // iterate through block sets
     for(moris::uint i = 0;  i < aSideSetNames.size(); i++)
     {
+        std::cout<<"aSideSetNames = "<<aSideSetNames(i)<<std::endl;
+
         // get the cells and side ordinals from the mesh for this side set
         moris::Cell< mtk::Cell const * > tCellsInSet(0);
         moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);
@@ -411,6 +413,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
                 mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
             }
+
         }
         else
         {
@@ -454,7 +457,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
                 }
             }
 
-//            // loop over cells in the side set and make sure they have all been included
+            // loop over cells in the side set and make sure they have all been included
 //            for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
 //            {
 //                moris_id tCellId = tCellsInSet(iIGCell)->get_id();
@@ -477,6 +480,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
         // all trivial case
         else
         {
+            std::cout<<"all trivial"<<std::endl;
                 // loop over cells in the side set and make sure they have all been included
                 for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
                 {

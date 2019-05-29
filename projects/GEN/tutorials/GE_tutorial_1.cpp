@@ -1,5 +1,6 @@
 //------------------------------------------------------------------------------
 // moris core includes
+#include "cl_GE_Core.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -8,8 +9,6 @@
 #include "catch.hpp"
 
 #include "cl_GE_Factory.hpp"
-#include "cl_GE_Main.hpp"
-
 #include "cl_GE_Element.hpp"
 #include "cl_GE_Node.hpp"
 #include "fn_equal_to.hpp"
@@ -194,7 +193,7 @@ main(
      */
 
     /*!
-     * create MORIS mesh using MTK database
+     * create MORIS mesh using STK database
      *
      * \code{.cpp}
      * mtk::Mesh* tMesh3DHexs = mtk::create_mesh( MeshType::STK, tFileName2, &tMeshData );
@@ -316,10 +315,10 @@ main(
 	 */
 
 	Ge_Factory tFactory;
-	Geometry* type0 = tFactory.set_geometry_type(type::ANALYTIC);
+	Geometry* type0 = tFactory.set_geometry_type(GeomType::ANALYTIC);
 	type0->set_analytical_function(sphere_function);
 
-	Geometry* type1 = tFactory.set_geometry_type(type::ANALYTIC);
+	Geometry* type1 = tFactory.set_geometry_type(GeomType::ANALYTIC);
 	type1->set_analytical_function(sphere_function);
 
 	/*!
@@ -445,7 +444,7 @@ main(
 	}
 
 	/*!
-	 * create the total flag field from both geomtries and add to mesh
+	 * create the total flag field from both geometries and add to mesh
 	 *
 	 * \code{.cpp}
 	 *

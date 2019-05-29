@@ -2,11 +2,11 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-#include(${MORIS_CMAKE_DIR}/PETSc.cmake)
-#include(${MORIS_CMAKE_DIR}/viennacl.cmake)
+#include(${MORIS_TPL_DIR}/PETSc.cmake)
+#include(${MORIS_TPL_DIR}/viennacl.cmake)
 list(REMOVE_DUPLICATES GEN_TPL_DEPENDENCIES)
 foreach(GEN_TPL ${GEN_TPL_DEPENDENCIES})
-    include(${MORIS_CMAKE_DIR}/${GEN_TPL}.cmake)
+    include(${MORIS_TPL_DIR}/${GEN_TPL}.cmake)
 endforeach()
 
 # Add source directory

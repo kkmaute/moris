@@ -1,5 +1,6 @@
 # Geometry Engine Tests ---------------------------------------------------
 # -------------------------------------------------------------------------
+    include_directories(GE_Test_Proxy)
 
 # List source files
 set(TEST_SOURCES
@@ -9,7 +10,11 @@ set(TEST_SOURCES
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
+    
     cl_GE_test.cpp
+    geometry_classes/cl_GE_test_analytic.cpp
+    geometry_classes/cl_GE_test_discrete.cpp
+    geometry_classes/cl_GE_test_sdf.cpp
     )
 
 # List test includes
@@ -43,6 +48,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+    ${GEN}-lib
     ${HMR}-lib
     ${MAP}-lib
     ${MTK}-lib
@@ -62,6 +68,12 @@ set(TEST_DEPENDENCIES
     ${MORIS_BOOST_LIBS}
     ${MORIS_BASE_LIBS}
     )
+
+# Remove duplicate dependencies
+# REVERSE is required to maintain proper linking order
+list(REVERSE TEST_DEPENDENCIES)
+list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
+list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

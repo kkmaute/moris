@@ -26,11 +26,11 @@ public:
 
 
     void
-    add_cluster_data(bool                     aTrivial,
-                     mtk::Cell*               aInterpCell,
-                     moris::Matrix<IndexMat>* aCellIdsAndSideOrds,
-                     moris::Matrix<IndexMat>* aVerticesInCluster,
-                     moris::Matrix<DDRMat>*   aLocalCoordsRelativeToInterpCell)
+    add_cluster_data(bool                            aTrivial,
+                     mtk::Cell*                      aInterpCell,
+                     moris::Matrix<IndexMat> const * aCellIdsAndSideOrds,
+                     moris::Matrix<IndexMat> const * aVerticesInCluster,
+                     moris::Matrix<DDRMat>   const * aLocalCoordsRelativeToInterpCell)
     {
 
         moris::uint tIndex = mInterpolationCells.size();
@@ -110,11 +110,11 @@ public:
 
 private:
 
-    moris::Cell<moris::uint>              mTrivialFlag;
-    moris::Cell<mtk::Cell*>               mInterpolationCells;
-    moris::Cell<moris::Matrix<IndexMat>*> mCellIdsAndSideOrdinals;
-    moris::Cell<moris::Matrix<IndexMat>*> mVerticesIdsInCluster;
-    moris::Cell<moris::Matrix<DDRMat>*>   mLocalCoordsRelativeToInterpCell;
+    moris::Cell<moris::uint>                     mTrivialFlag;
+    moris::Cell<mtk::Cell*>                      mInterpolationCells;
+    moris::Cell<moris::Matrix<IndexMat> const *> mCellIdsAndSideOrdinals;
+    moris::Cell<moris::Matrix<IndexMat> const *> mVerticesIdsInCluster;
+    moris::Cell<moris::Matrix<DDRMat>   const *> mLocalCoordsRelativeToInterpCell;
     std::unordered_map<moris_index, moris_index> mInterpCellIndexToIndex;
 
 };
@@ -166,12 +166,12 @@ public:
 
 
     void
-    add_cluster_data(bool                      aTrivial,
-                     moris::uint               aSideSetOrd,
-                     mtk::Cell*                aInterpCell,
-                     moris::Matrix<IndexMat>*  aCellIdsAndSideOrds,
-                     moris::Matrix<IndexMat>*  aVerticesInCluster,
-                     moris::Matrix<DDRMat>*    aLocalCoordsRelativeToInterpCell)
+    add_cluster_data(bool                            aTrivial,
+                     moris::uint                     aSideSetOrd,
+                     mtk::Cell*                      aInterpCell,
+                     moris::Matrix<IndexMat> const * aCellIdsAndSideOrds,
+                     moris::Matrix<IndexMat> const * aVerticesInCluster,
+                     moris::Matrix<DDRMat>   const * aLocalCoordsRelativeToInterpCell)
     {
         MORIS_ASSERT(aVerticesInCluster->numel() == aLocalCoordsRelativeToInterpCell->n_rows(),"Number of vertices in the cluster must match the number of rows in local coord mat");
         MORIS_ASSERT(aSideSetOrd < mSideSetLabelToOrd.size(),"Side set ordinal out of bounds.");

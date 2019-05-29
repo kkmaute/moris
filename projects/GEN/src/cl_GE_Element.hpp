@@ -17,12 +17,7 @@ namespace moris{
 
 	class Element : public mtk::Cell
 	{
-		//------------------------------------------------------------------------------
-	private:
 
-		moris::Cell< mtk::Vertex* > mListOfNodes;
-
-		//------------------------------------------------------------------------------
 	public:
 		//------------------------------------------------------------------------------
 
@@ -130,7 +125,12 @@ namespace moris{
         	MORIS_ERROR( false, "get_memory_index_of_background_element() not available for this element " );
         	return 0;
         };
+        //------------------------------------------------------------------------------
+    private:
 
+        moris::Cell< mtk::Vertex* > mListOfNodes;
+
+        //------------------------------------------------------------------------------
 	protected:
 	};
 
