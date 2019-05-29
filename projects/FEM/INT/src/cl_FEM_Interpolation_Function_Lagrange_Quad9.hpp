@@ -209,6 +209,84 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        template<>
+        Matrix< DDRMat >
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 9 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        {
+            // make sure that input is correct
+            MORIS_ASSERT( aXi.length() >= 2,
+                          "QUAD9 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+
+            // unpack xi and eta from input vector
+            auto   xi = aXi( 0 );
+            auto  eta = aXi( 1 );
+
+            // often used parameters
+            // 1st dimension
+            real da0 =   xi - 0.5;
+            real da1 = - xi * 2.0;
+            real da2 =   xi + 0.5;
+
+            real dda0 =   1.0;
+            real dda1 = - 2.0;
+            real dda2 =   1.0;
+
+            // 2nd dimension
+            real db0 =   eta - 0.5;
+            real db1 = - eta * 2.0;
+            real db2 =   eta + 0.5;
+
+            real ddb0 =   1.0;
+            real ddb1 = - 2.0;
+            real ddb2 =   1.0;
+
+            // 3rd derivatives = 0 for all dimensions
+
+
+            Matrix< DDRMat > td3NdXi3(4,9,0.0);
+
+            // 0th node: (0,0)
+            td3NdXi3( 2,  0 ) =   dda0*  db0;
+            td3NdXi3( 3,  0 ) =    da0* ddb0;
+
+            // 1th node: (2,0)
+            td3NdXi3( 2, 1 ) =   dda2*  db0;
+            td3NdXi3( 3, 1 ) =    da2* ddb0;
+
+            // 2th node: (2,2)
+            td3NdXi3( 2, 2 ) =   dda2*  db2;
+            td3NdXi3( 3, 2 ) =    da2* ddb2;
+
+            // 3th node: (0,2)
+            td3NdXi3( 2, 3 ) =   dda0*  db2;
+            td3NdXi3( 3, 3 ) =    da0* ddb2;
+
+            // 4th node: (1,0)
+            td3NdXi3( 2, 4 ) =   dda1*  db0;
+            td3NdXi3( 3, 4 ) =    da1* ddb0;
+
+            // 5th node: (2,1)
+            td3NdXi3( 2, 5 ) =   dda2*  db1;
+            td3NdXi3( 3, 5 ) =    da2* ddb1;
+
+
+            // 6th node: (1,2)
+            td3NdXi3( 2, 6 ) =   dda1*  db2;
+            td3NdXi3( 3, 6 ) =    da1* ddb2;
+
+            // 7th node: (0,1)
+            td3NdXi3( 2, 7 ) =   dda0*  db1;
+            td3NdXi3( 3, 7 ) =    da0* ddb1;
+
+            // 8th node: (1,1)
+            td3NdXi3( 2, 8 ) =   dda1*  db1;
+            td3NdXi3( 3, 8 ) =    da1* ddb1;
+
+            return td3NdXi3;
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_QUAD9_HPP_ */

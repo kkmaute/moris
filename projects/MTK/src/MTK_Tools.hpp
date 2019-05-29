@@ -18,9 +18,7 @@ namespace moris
     {
 
 // ----------------------------------------------------------------------------
-    inline
-    uint
-    entity_rank_to_order( const enum EntityRank aEntityRank )
+    inline uint entity_rank_to_order( const enum EntityRank aEntityRank )
     {
         switch( aEntityRank )
         {
@@ -49,9 +47,7 @@ namespace moris
     }
 
 // ----------------------------------------------------------------------------
-    inline
-        EntityRank
-        order_to_entity_rank( const uint aOrder )
+    inline EntityRank order_to_entity_rank( const uint aOrder )
         {
             switch( aOrder )
             {
@@ -76,7 +72,6 @@ namespace moris
                     return  EntityRank::INVALID;
                     break;
                 }
-
             }
         }
 
@@ -84,9 +79,7 @@ namespace moris
         /**
          * converts an interpolation order to a numeric value
          */
-    inline
-        uint
-        interpolation_order_to_uint( const Interpolation_Order& aOrder )
+    inline uint interpolation_order_to_uint( const Interpolation_Order& aOrder )
         {
             switch( aOrder )
             {

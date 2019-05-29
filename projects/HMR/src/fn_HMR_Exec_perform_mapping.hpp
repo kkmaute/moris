@@ -157,7 +157,7 @@ namespace moris
                 moris::uint tMeshPairIndex = tMeshManager.register_mesh_pair(tUnionInterpMeshes(m).get(),tUnionIntegMeshes(m).get());
 
                 // create mapper
-                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex );
+                tMappers( m ) = new mapper::Mapper( &tMeshManager,tMeshPairIndex, tMeshOrders( m ) );              //FIXME check tMeshOrders( m )
             }
 
 
@@ -178,18 +178,16 @@ namespace moris
                 uint m = tMapperIndex( tBSplineOrder );
 
                 // get pointer to field on union mesh
-                std::shared_ptr< Field > tUnionField =  tUnionInterpMeshes( m )->create_field(
-                        tInputField->get_label(),
-                        tBSplineOrder );
+                std::shared_ptr< Field > tUnionField =  tUnionInterpMeshes( m )->create_field( tInputField->get_label(),
+                                                                                               tBSplineOrder );
 
                 if( tLagrangeOrder == tBSplineOrder )
                 {
                     // interpolate field onto union mesh
-                    aHMR->get_database()->interpolate_field(
-                            aHMR->get_parameters()->get_lagrange_input_pattern(),
-                            tInputField,
-                            aHMR->get_parameters()->get_union_pattern(),
-                            tUnionField );
+                    aHMR->get_database()->interpolate_field( aHMR->get_parameters()->get_lagrange_input_pattern(),
+                                                             tInputField,
+                                                             aHMR->get_parameters()->get_union_pattern(),
+                                                             tUnionField );
 
                     // copy field id
                     tUnionField->set_id( tInputField->get_id() );
@@ -197,52 +195,45 @@ namespace moris
                 else
                 {
                     // first, project field on mesh with correct order
-                    std::shared_ptr< Field > tTemporaryField =
-                            tInputInterpMeshes( m )->create_field(
-                                    tInputField->get_label(),
-                                    tBSplineOrder );
+                    std::shared_ptr< Field > tTemporaryField = tInputInterpMeshes( m )->create_field( tInputField->get_label(),
+                                                                                                      tBSplineOrder );
 
-                    aHMR->get_database()->change_field_order(
-                            tInputField, tTemporaryField );
+                    aHMR->get_database()->change_field_order( tInputField, tTemporaryField );
 
-                    // now, interpolate this field onto the inion
-                    aHMR->get_database()->interpolate_field(
-                            aHMR->get_parameters()->get_lagrange_input_pattern(),
-                            tTemporaryField,
-                            aHMR->get_parameters()->get_union_pattern(),
-                            tUnionField );
+                    // now, interpolate this field onto the union
+                    aHMR->get_database()->interpolate_field( aHMR->get_parameters()->get_lagrange_input_pattern(),
+                                                             tTemporaryField,
+                                                             aHMR->get_parameters()->get_union_pattern(),
+                                                             tUnionField );
 
                     // copy field id
                     tUnionField->set_id( tInputField->get_id() );
                 }
 
                 // set alpha parameter of mapper
-                tMappers( m )->set_l2_alpha(
-                        aParamfile.get_field_params( f ).mL2alpha );
+                tMappers( m )->set_l2_alpha( aParamfile.get_field_params( f ).mL2alpha );
 
                 // perform mapping
-                tMappers( m )->perform_mapping(
-                        tInputField->get_label(),
-                        EntityRank::NODE,
-                        tInputField->get_label(),
-                        tUnionField->get_bspline_rank() );
+                tMappers( m )->perform_mapping( tInputField->get_label(),
+                                                EntityRank::NODE,
+                                                tInputField->get_label(),             //FIXME should this be tUnionField
+                                                tUnionField->get_bspline_rank() );
 
                 // a small sanity test
-                MORIS_ASSERT(  tUnionField->get_coefficients().length()
-                        == tUnionInterpMeshes( m )->get_num_entities(
-                                mtk::order_to_entity_rank( tBSplineOrder ) ),
-                                "Number of B-Splines does not match" );
+                MORIS_ASSERT( tUnionField->get_coefficients().length()
+                           == tUnionInterpMeshes( m )->get_num_entities( mtk::order_to_entity_rank( tBSplineOrder ) ),
+                                    "Number of B-Splines does not match" );
 
                 // get pointer to output mesh
-                std::shared_ptr< Mesh >  tOutputMesh = aHMR->create_mesh(
-                        tLagrangeOrder,
-                        aHMR->get_parameters()->get_lagrange_output_pattern() );
+                std::shared_ptr< Mesh >  tOutputMesh = aHMR->create_mesh( tLagrangeOrder,
+                                                                          aHMR->get_parameters()
+                                                                              ->get_lagrange_output_pattern() );
 
                 // create output field
-                std::shared_ptr< Field >  tOutputField =
-                        tOutputMesh->create_field(
-                                tInputField->get_label(),
-                                tBSplineOrder );
+                std::shared_ptr< Field >  tOutputField = tOutputMesh->create_field( tInputField->get_label(),
+                                                                                    tBSplineOrder );
+
+                std::cout<<tOutputField->get_coefficients().length()<<std::endl;
 
                 // move coefficients to output field
                 // fixme: to be tested with Eigen also

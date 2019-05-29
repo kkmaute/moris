@@ -66,6 +66,7 @@ namespace moris
         {
             // pointer to reference mesh
             mtk::Mesh_Manager*             mMeshManager;
+            moris_index mMeshPairIndex;
 
             moris::Cell< fem::Node_Base* > mIPNodes;
             moris::Cell< fem::Cell* >      mIPCells;
@@ -92,6 +93,8 @@ namespace moris
 
             tsa::Time_Solver * mTimeSolver;
 
+
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -101,13 +104,15 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-            Model(       mtk::Mesh_Manager*                    aMesh,
-                   const uint                                  aBSplineOrder,
-                   moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
-                   moris::Cell< moris_index >                  aBlocksetList,
-                   moris::Cell< moris_index >                  aSidesetList,
-                   moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
-                   moris::Cell< moris_index >                  aDoubleSidesetList );
+            Model(       mtk::Mesh_Manager*                          aMesh,
+                   const uint                                        aBSplineOrder,
+                         moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
+                         moris::Cell< moris_index >                  aBlocksetList,
+                         moris::Cell< moris_index >                  aSidesetList,
+                         moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
+                         moris::Cell< moris_index >                  aDoubleSidesetList,
+                   const moris_index                                 aMeshPairIndex = 0 );
+
 //------------------------------------------------------------------------------
 
             Matrix< DDRMat> & get_mSolHMR( )
@@ -169,6 +174,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
            void output_solution( const std::string & aFilePath );
+
+//------------------------------------------------------------------------------
+
+           void
+           output_solution_nils_HACK( const std::string & aFilePath, mtk::Mesh * aMesh );
 
 //------------------------------------------------------------------------------
         };

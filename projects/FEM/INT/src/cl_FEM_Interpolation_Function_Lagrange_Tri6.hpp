@@ -131,6 +131,20 @@ namespace moris
 
             return td2NdZeta2;
         }
+
+//------------------------------------------------------------------------------
+
+        template<>
+        Matrix< DDRMat >
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 6 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        {
+            // make sure that input is correct
+            MORIS_ASSERT( false , "TRI6 - eval_d3NdXi3: 3rd order derivatives not implemented for this element." );
+
+            Matrix< DDRMat > td3NdXi3(1,6,0.0);
+            return td3NdXi3;
+        }
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

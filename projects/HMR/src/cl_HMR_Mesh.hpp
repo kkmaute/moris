@@ -121,9 +121,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_num_entities(
-                    enum EntityRank aEntityRank) const;
+            uint get_num_entities( enum EntityRank aEntityRank) const;
 
 //-------------------------------------------------------------------------------
 

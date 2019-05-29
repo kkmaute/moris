@@ -49,10 +49,11 @@ namespace moris
         Mapper::Mapper( mtk::Mesh_Manager* aMesh,
                         const moris_index  aMeshPairIndex,
                         const uint         aBSplineOrder) :
-                        mSourceMeshPairIndex( aMeshPairIndex ),
-                        mTargetMeshPairIndex( aMeshPairIndex ),
-                        mMeshManager( aMesh ),
-                        mBSplineOrder( aBSplineOrder )
+                                    mSourceMeshPairIndex( aMeshPairIndex ),
+                                    mTargetMeshPairIndex( aMeshPairIndex ),
+                                    mMeshManager( aMesh ),
+                                    mBSplineOrder( aBSplineOrder )
+
         {
             // Retrieve source mesh pair
             mMeshManager->get_mesh_pair(aMeshPairIndex,mSourceInterpMesh,mSourceIntegMesh);
@@ -114,8 +115,8 @@ namespace moris
                 mModel = new mdl::Model( mMeshManager, mBSplineOrder, tIWGTypeList,
                                          tBlocksetList,
                                          tSidesetList, tSidesetBCTypeList,
-                                         tDoubleSidesetList );
-
+                                         tDoubleSidesetList,
+                                         mTargetMeshPairIndex );
                 mHaveIwgAndModel = true;
             }
         }
@@ -138,36 +139,27 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        void
-        Mapper::perform_mapping(
-                const std::string      & aSourceLabel,
-                const enum EntityRank    aSourceEntityRank,
-                const std::string      & aTargetLabel,
-                const enum EntityRank    aTargetEntityRank )
+        void Mapper::perform_mapping( const std::string      & aSourceLabel,
+                                      const enum EntityRank    aSourceEntityRank,
+                                      const std::string      & aTargetLabel,
+                                      const enum EntityRank    aTargetEntityRank )
         {
-
-
             // get index of source
-            moris_index tSourceIndex = mSourceInterpMesh->get_field_ind(
-                    aSourceLabel,
-                    aSourceEntityRank );
+            moris_index tSourceIndex = mSourceInterpMesh->get_field_ind( aSourceLabel,
+                                                                         aSourceEntityRank );
 
             MORIS_ERROR( tSourceIndex != gNoIndex, "perform_mapping() Source Field not found");
 
             // get target index
-            moris_index tTargetIndex = mTargetInterpMesh->get_field_ind(
-                    aTargetLabel,
-                    aTargetEntityRank );
+            moris_index tTargetIndex = mTargetInterpMesh->get_field_ind( aTargetLabel,
+                                                                         aTargetEntityRank );
 
             // test if output field has to be initialized
             if( tTargetIndex == gNoIndex )
             {
                 // create target field
-                tTargetIndex =
-                        mTargetInterpMesh->create_scalar_field(
-                                aTargetLabel,
-                                aTargetEntityRank );
-
+                tTargetIndex = mTargetInterpMesh->create_scalar_field( aTargetLabel,
+                                                                       aTargetEntityRank );
             }
 
             switch( aSourceEntityRank )
@@ -181,12 +173,9 @@ namespace moris
                        case( EntityRank::BSPLINE_2 ) :
                        case( EntityRank::BSPLINE_3 ) :
                        {
-                          this->map_node_to_bspline_same_mesh(
-                                  tSourceIndex,
-                                  tTargetIndex,
-                                  aTargetEntityRank );
-
-
+                          this->map_node_to_bspline_same_mesh( tSourceIndex,
+                                                               tTargetIndex,
+                                                               aTargetEntityRank );
                            break;
                        }
                        default :
@@ -205,10 +194,9 @@ namespace moris
                     {
                         case( EntityRank::NODE ) :
                         {
-                            this->map_bspline_to_node_same_mesh(
-                                    tSourceIndex,
-                                    aSourceEntityRank,
-                                    tTargetIndex );
+                            this->map_bspline_to_node_same_mesh( tSourceIndex,
+                                                                 aSourceEntityRank,
+                                                                 tTargetIndex );
                             break;
                         }
                         default :

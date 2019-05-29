@@ -107,7 +107,9 @@ namespace moris
 
             mDofMgn.set_max_num_adofs( aNumMaxAdofs );
 
+
             mDofMgn.initialize_pdof_type_list( mEquationBlocks );
+
         };
 
 //------------------------------------------------------------------------------

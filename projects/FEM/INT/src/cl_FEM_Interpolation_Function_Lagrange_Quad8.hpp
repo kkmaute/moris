@@ -193,6 +193,20 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        template<>
+        Matrix< DDRMat >
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        {
+            // make sure that input is correct
+            MORIS_ASSERT( false,
+                          "QUAD8 - eval_d3NdXi3: 3rd order derivatives not implemented for this element." );
+
+            Matrix<DDRMat> td3NXi3(4,8,0.0);
+            return td3NXi3;
+        }
+
+//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_INTERPOLATION_FUNCTION_LAGRANGE_QUAD8_HPP_ */

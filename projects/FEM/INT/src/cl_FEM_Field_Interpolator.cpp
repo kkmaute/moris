@@ -197,6 +197,56 @@ namespace moris
             Matrix< DDRMat > td2NFielddXi2 = td2NFielddxi2 - tKGeot * tdNFielddx;
             return solve( tLGeot, td2NFielddXi2 );
         }
+
+//------------------------------------------------------------------------------
+//FIXME: Function not complete
+
+        Matrix< DDRMat > Field_Interpolator::eval_d3Ndx3()
+        {
+            // get first and second derivatives of space SF wrt xi
+            Matrix< DDRMat > tdNGeodxi   = mGeometryInterpolator->dNdXi( mXi );
+            Matrix< DDRMat > td2NGeodxi2 = mGeometryInterpolator->d2NdXi2( mXi );
+            Matrix< DDRMat > td3NGeodxi3 = mGeometryInterpolator->d3NdXi3( mXi );
+
+            // get matrices for second space derivatives from geometry interpolator
+            Matrix< DDRMat > tJGeot, tJ2bGeot, tJ3aGeot, tJ3bGeot, tJ3cGeot;
+            mGeometryInterpolator->space_jacobian_and_matrices_for_third_derivatives( tJGeot,    // contains first geometric derivs.
+                                                                                      tJ2bGeot,  // contains second geometric derivs.
+                                                                                      tJ3aGeot,  // first help matrix for 3rd field derivs
+																					  tJ3bGeot,  // second help matrix for 3rd field derivs
+																					  tJ3cGeot,  // third help matrix for 3rd field derivs
+                                                                                      tdNGeodxi,
+                                                                                      td2NGeodxi2,
+																					  td3NGeodxi3);
+
+            // get the derivatives of the space time SF wrt x
+            Matrix< DDRMat > tdNFielddx = this->Bx();
+            Matrix< DDRMat > td2NFielddx2 = this->eval_d2Ndx2();
+
+            // evaluate N for the field time interpolation
+            Matrix< DDRMat > tNTime = mTimeInterpolation->eval_N( mTau );
+
+            // evaluate derivatives of the field space interpolation
+            Matrix< DDRMat > td2NSpacedxi2 = mSpaceInterpolation->eval_d2NdXi2( mXi );
+            td2NSpacedxi2 = trans( td2NSpacedxi2 );
+            Matrix< DDRMat > td3NSpacedxi3 = mSpaceInterpolation->eval_d3NdXi3( mXi );
+            td3NSpacedxi3 = trans( td3NSpacedxi3 );
+
+            // get the number 3rd derivatives
+            uint tNThirdDerivatives  = td3NGeodxi3.n_rows();
+
+            // FIXME: is this multiplication correct ???
+            // compute td3NFielddxi3 row by row
+            Matrix< DDRMat > td3NFielddxi3( tNThirdDerivatives, mNFieldBases );
+            for ( moris::uint Ik = 0; Ik < tNThirdDerivatives; Ik++ )
+            {
+                td3NFielddxi3.get_row( Ik ) = reshape( td3NSpacedxi3.get_column(Ik) * tNTime , 1, mNFieldBases );
+            }
+
+            //build the third derivatives of the space time SF wrt x
+            return inv( tJ3aGeot ) * ( td3NFielddxi3 - tJ3bGeot * td2NFielddx2 - tJ3cGeot * tdNFielddx );
+        }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Field_Interpolator::Bt()

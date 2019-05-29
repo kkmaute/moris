@@ -15,7 +15,7 @@
 #include "cl_FEM_Enums.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
-#include "../../INT/src/cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
+#include "cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_FEM_Set.hpp"
@@ -57,7 +57,9 @@ namespace moris
                             moris::Cell< moris_index >                  aBlocksetList,
                             moris::Cell< moris_index >                  aSidesetList,
                             moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
-                            moris::Cell< moris_index >                  aDoubleSidesetList ) : mMeshManager( aMeshManager )
+                            moris::Cell< moris_index >                  aDoubleSidesetList,
+                      const moris_index                                 aMeshPairIndex) : mMeshManager( aMeshManager ),
+                                                                                          mMeshPairIndex( aMeshPairIndex )
         {
             // start timer
             tic tTimer1;
@@ -67,7 +69,7 @@ namespace moris
             // STEP 0: initialize
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Get pointers to interpolation and integration mesh
-            moris::moris_index tMeshPairIndex = 0; //fixme
+            moris::moris_index tMeshPairIndex = aMeshPairIndex;
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
             mMeshManager->get_mesh_pair( tMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
@@ -418,9 +420,10 @@ namespace moris
                 for( uint k=0; k<tNumberOfNodes; ++k )
                 {
                     // copy weakbc into element
-                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh(0)->get_value_of_scalar_field( aFieldIndex,
-                                                                           EntityRank::NODE,
-                                                                           tElement->get_node_index( k ) );
+                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex )
+                                                     ->get_value_of_scalar_field( aFieldIndex,
+                                                                                  EntityRank::NODE,
+                                                                                  tElement->get_node_index( k ) );
                 }
             }
         }
@@ -550,6 +553,38 @@ namespace moris
             // create output mesh
             std::string tOutputFile = "./int_ElemDiff_test_11.exo";
             tInterpMesh->create_output_mesh( tOutputFile );
+            }
+        }
+
+        void
+        Model::output_solution_nils_HACK( const std::string & aFilePath,
+        		                                mtk::Mesh * aMesh )
+        {
+            if ( aMesh->get_mesh_type() == MeshType::HMR )
+            {
+                mSolHMR.set_size(aMesh->get_num_nodes(),1,-1.0);
+
+                moris::Cell<std::string> tBlockSetsNames = aMesh->get_set_names( EntityRank::ELEMENT);
+
+                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
+                {
+                    Matrix< IndexMat > tBlockSetElementInd
+                        = aMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+
+                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+                    {
+                       uint tNumVert = aMesh->get_mtk_cell( k ).get_number_of_vertices();
+
+                       //print( mElements(k)->get_pdof_values(), "Element");
+
+                       for( luint Jk=0; Jk < tNumVert; ++Jk )
+                       {
+                           moris_index tID= aMesh->get_mtk_cell( k ).get_vertex_pointers()( Jk) ->get_index();
+
+                           mSolHMR(tID) = mElements(k)->get_pdof_values()(Jk);
+                       }
+                    }
+                }
             }
         }
 

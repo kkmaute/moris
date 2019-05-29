@@ -129,32 +129,28 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
-            get_refinement_matrix( const uint & aChildIndex ) const
+            const Matrix< DDRMat > & get_refinement_matrix( const uint & aChildIndex ) const
             {
                 return mLagrangeRefinementMatrix( aChildIndex );
             }
 
 //-------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
-            get_change_order_matrix( const uint & aOrder ) const
+            const Matrix< DDRMat > & get_change_order_matrix( const uint & aOrder ) const
             {
                 return mLagrangeChangeOrderMatrix( aOrder );
             }
 
 //-------------------------------------------------------------------------------
 
-            void
-            calculate_t_matrix(
+            void calculate_t_matrix(
                     const luint      & aMemoryIndex,
                     Matrix< DDRMat > & aTMatrixTransposed,
                     Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
 
-            void
-            calculate_untruncated_t_matrix(
+            void calculate_untruncated_t_matrix(
                     const luint    & aMemoryIndex,
                     Matrix< DDRMat >    & aTMatrixTransposed,
                     Cell< Basis* > & aDOFs );
@@ -169,8 +165,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
-            get_child_matrix( const uint aChildIndex ) const
+            const Matrix< DDRMat > & get_child_matrix( const uint aChildIndex ) const
             {
                 return mChild( aChildIndex );
             }
@@ -192,15 +187,13 @@ namespace moris
             /**
              * initializes the container for the unity matrix
              */
-            void
-            init_unity_matrix();
+            void init_unity_matrix();
 
 //-------------------------------------------------------------------------------
             /**
              * pre-calculates the child relation matrices
              */
-            void
-            init_child_matrices();
+            void init_child_matrices();
 
 //------------------------------------------------------------------------------
 
@@ -251,16 +244,14 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            Background_Element_Base*
-            create_background_element();
+            Background_Element_Base * create_background_element();
 
 //------------------------------------------------------------------------------
 
             /**
              * 1D shape function
              */
-            real
-            b_spline_shape_1d(
+            real b_spline_shape_1d(
                     const uint & aOrder,
                     const uint & aK,
                     const real & aXi ) const;
@@ -270,8 +261,7 @@ namespace moris
             /**
              * 2D shape function
              */
-            void
-            b_spline_shape(
+            void b_spline_shape(
                     const real        & aXi,
                     const real        & aEta,
                     Matrix< DDRMat >  & aN ) const;
@@ -281,8 +271,7 @@ namespace moris
             /**
              * 3D shape function
              */
-            void
-            b_spline_shape(
+            void b_spline_shape(
                     const real        & aXi,
                     const real        & aEta,
                     const real        & aZeta,
@@ -293,8 +282,7 @@ namespace moris
             /**
              * 1D shape function
              */
-            real
-            lagrange_shape_1d(
+            real lagrange_shape_1d(
                     const uint        & aBasisNumber,
                     const real        & aXi ) const;
 
@@ -303,8 +291,7 @@ namespace moris
             /**
              * 2D shape function
              */
-            void
-            lagrange_shape_2d(
+            void lagrange_shape_2d(
                     const Matrix< DDRMat > & aXi,
                     Matrix< DDRMat >       & aN ) const;
 
@@ -313,8 +300,7 @@ namespace moris
             /**
              * 3D shape function
              */
-            void
-            lagrange_shape_3d(
+            void lagrange_shape_3d(
                     const Matrix< DDRMat > & aXi,
                     Matrix< DDRMat >       & aN ) const;
 
@@ -328,8 +314,7 @@ namespace moris
              * @param[ in ] value of polynomial
              * @param[ in ] first derivative of polynomial
              */
-            void
-            legendre(
+            void legendre(
                     const uint         & aIndex,
                     const long double  & aX,
                     long double        & aP,
@@ -340,37 +325,32 @@ namespace moris
             /**
              * returns the corner nodes of a child and dimension
              */
-            static void
-            get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi );
+            static void get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the corner nodes of a child and dimension
              */
-            static void
-            get_child_corner_nodes_3d(  const uint & aChildIndex, Matrix< DDRMat > & aXi );
+            static void get_child_corner_nodes_3d(  const uint & aChildIndex, Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
 
             /**
              * quam4 shape function
              */
-            static void
-            N_quad4( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
+            static void N_quad4( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
 //------------------------------------------------------------------------------
 
             /**
              * quam4 shape function
              */
-            static void
-            N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
+            static void N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_supporting_points( const uint aDimension, const uint aOrder );
+            Matrix< DDRMat > get_supporting_points( const uint aDimension, const uint aOrder );
 
         };
 

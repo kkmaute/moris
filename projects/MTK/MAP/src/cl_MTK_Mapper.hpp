@@ -92,20 +92,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-         void
-         perform_mapping(
-                 const std::string      & aSourceLabel,
-                 const enum EntityRank    aSourceEntityRank,
-                 const std::string      & aTargetLabel,
-                 const enum EntityRank    aTargetEntityRank );
+         void perform_mapping( const std::string      & aSourceLabel,
+                               const enum EntityRank    aSourceEntityRank,
+                               const std::string      & aTargetLabel,
+                               const enum EntityRank    aTargetEntityRank );
 
 //------------------------------------------------------------------------------
 
-         void
-         perform_filter(
-                 const std::string & aSourceLabel,
-                 const real        & aFilterRadius,
-                 Matrix< DDRMat >  & aValues );
+         void perform_filter( const std::string      & aSourceLabel,
+                              const real             & aFilterRadius,
+                                    Matrix< DDRMat > & aValues );
 
 //------------------------------------------------------------------------------
 
@@ -121,48 +117,41 @@ namespace moris
          /*
           * set the parameter for the L2 projection
           */
-         void
-         set_l2_alpha( const real & aAlpha );
+         void set_l2_alpha( const real & aAlpha );
 
 //------------------------------------------------------------------------------
      private:
 //------------------------------------------------------------------------------
 
-         void
-         map_node_to_bspline_same_mesh(
+         void map_node_to_bspline_same_mesh(
                  const moris_index        aSourceIndex,
                  const moris_index        aTargetIndex,
                  const enum EntityRank    aBSplineRank );
 
 //------------------------------------------------------------------------------
 
-         void
-         map_node_to_element_same_mesh(
+         void map_node_to_element_same_mesh(
                           const moris_index   aSourceIndex,
                           const moris_index   aTargetIndex );
 
 //------------------------------------------------------------------------------
 
-         void
-         map_bspline_to_node_same_mesh(
+         void map_bspline_to_node_same_mesh(
                  const moris_index     aSourceIndex,
                  const enum EntityRank aBSplineRank,
                  const moris_index     aTargetIndex );
 
 //------------------------------------------------------------------------------
 
-         void
-         create_iwg_and_model( const real aAlpha = 0.0 );
+         void create_iwg_and_model( const real aAlpha = 0.0 );
 
 //------------------------------------------------------------------------------
 
-         void
-         create_nodes_for_filter();
+         void create_nodes_for_filter();
 
 //------------------------------------------------------------------------------
 
-         void
-         calculate_filter_weights( const real & aFilterRadius );
+         void calculate_filter_weights( const real & aFilterRadius );
 
 //------------------------------------------------------------------------------
      };

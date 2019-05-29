@@ -817,8 +817,8 @@ namespace moris
         {
             // make sure that mesh orders match
 
-//            MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
-//                                       "Database::interpolate_field: Source and Target Field must have same interpolation order" );
+            MORIS_ERROR( aSource->get_interpolation_order() == aTarget->get_interpolation_order(),
+                                       "Database::interpolate_field: Source and Target Field must have same interpolation order" );
 
             // make sure that both fields are scalar or of equal dimension
             MORIS_ERROR( aSource->get_number_of_dimensions() == aTarget->get_number_of_dimensions(),
@@ -955,10 +955,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::change_field_order(
-                            std::shared_ptr< Field >   aSource,
-                            std::shared_ptr< Field >   aTarget )
+        void Database::change_field_order( std::shared_ptr< Field > aSource,
+                                           std::shared_ptr< Field > aTarget )
         {
             // pointer to in mesh
             Lagrange_Mesh_Base * tSourceMesh = aSource->get_mesh();
@@ -967,8 +965,7 @@ namespace moris
             Lagrange_Mesh_Base * tTargetMesh = aTarget->get_mesh();
 
             // make sure that meshes are compatible
-            MORIS_ASSERT(    tSourceMesh->get_activation_pattern()
-                          == tTargetMesh->get_activation_pattern(),
+            MORIS_ASSERT( tSourceMesh->get_activation_pattern() == tTargetMesh->get_activation_pattern(),
                           "incompatible meshes in change_field_order()" );
 
             this->set_activation_pattern( tSourceMesh->get_activation_pattern() );
@@ -989,12 +986,13 @@ namespace moris
             uint tNumberOfElements = tSourceMesh->get_number_of_elements();
 
             // create t-matrix object
-            T_Matrix * tTMatrix = new T_Matrix(
-                    mParameters,
-                    tSourceMesh->get_bspline_mesh( aSource->get_bspline_order() ),
-                    tSourceMesh);
+            uint tBsplineOrder = aSource->get_bspline_order();
+            T_Matrix * tTMatrix = new T_Matrix( mParameters,
+                                                tSourceMesh->get_bspline_mesh( tBsplineOrder ),
+                                                tSourceMesh );
 
-            Matrix< DDRMat > tT = tTMatrix->get_change_order_matrix( tTargetMesh->get_order() );
+            uint tTargetMeshOrder = tTargetMesh->get_order();
+            Matrix< DDRMat > tT = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
 
             // delete t-Matrix object
             delete tTMatrix;
@@ -1013,8 +1011,7 @@ namespace moris
 
                 for( uint i=0; i<tNumberOfNodesPerSourceElement; ++i )
                 {
-                    tLocalSourceValues( i ) = tSourceValues(
-                            tSourceElement->get_basis( i )->get_index() );
+                    tLocalSourceValues( i ) = tSourceValues( tSourceElement->get_basis( i )->get_index() );
                 }
 
                 // get pointer to target element
@@ -1032,8 +1029,7 @@ namespace moris
                         tT.get_row( k, tN );
 
                         // interpolate values
-                        tTargetValues( tNode->get_index() )
-                            = dot( tN, tLocalSourceValues );
+                        tTargetValues( tNode->get_index() ) = dot( tN, tLocalSourceValues );
 
                         // flag node
                         tNode->flag();
