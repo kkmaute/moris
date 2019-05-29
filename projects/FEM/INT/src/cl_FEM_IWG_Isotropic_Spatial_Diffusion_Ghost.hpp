@@ -56,37 +56,44 @@ namespace moris
              * compute the residual
              * r =
              *
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aResidual                residual vector to fill
+             * @param[ in ] aLeftFieldInterpolators  list of active left field interpolators
+             * @param[ in ] aRightFieldInterpolators list of active right field interpolators
+             *
              */
             void
-            compute_residual( Matrix< DDRMat >            & aResidual,
-                              Cell< Field_Interpolator* > & aFieldInterpolators );
+            compute_residual( Matrix< DDRMat >                   & aResidual,
+                              moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
+                              moris::Cell< Field_Interpolator* > & aRightFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
              * j =
              *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aJacobians               list of jacobian matrices to fill
+             * @param[ in ] aLeftFieldInterpolators  list of active left field interpolators
+             * @param[ in ] aRightFieldInterpolators list of active right field interpolators
              */
             void
-            compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                               Cell< Field_Interpolator* > & aFieldInterpolators );
+            compute_jacobian( Cell< Matrix< DDRMat > >           & aJacobians,
+                              moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
+                              moris::Cell< Field_Interpolator* > & aRightFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
              *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aJacobians              list of jacobian matrices to fill
+             * @param[ in ] aResidual               residual vector to fill
+             * @param[ in ] aLeftFieldInterpolators  list of active left field interpolators
+             * @param[ in ] aRightFieldInterpolators list of active right field interpolators
              */
             void
-            compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                           Matrix< DDRMat >            & aResidual,
-                                           Cell< Field_Interpolator* > & aFieldInterpolators );
+            compute_jacobian_and_residual( Cell< Matrix< DDRMat > >           & aJacobians,
+                                           Matrix< DDRMat >                   & aResidual,
+                                           moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
+                                           moris::Cell< Field_Interpolator* > & aRightFieldInterpolators );
 
 
 //------------------------------------------------------------------------------

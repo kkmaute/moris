@@ -41,7 +41,7 @@ namespace moris
                 }
             }
 
-             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
+             //MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
         }
 
 //-----------------------------------------------------------------------------
