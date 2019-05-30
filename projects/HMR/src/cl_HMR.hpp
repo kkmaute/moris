@@ -275,7 +275,9 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             std::shared_ptr< Integration_Mesh_HMR >
-            create_integration_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+            create_integration_mesh( const uint &             aLagrangeOrder,
+                                     const uint &             aPattern,
+                                     Interpolation_Mesh_HMR & aInterpolationMesh);
 
 // -----------------------------------------------------------------------------
             std::shared_ptr< Field >

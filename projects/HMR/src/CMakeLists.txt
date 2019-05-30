@@ -121,6 +121,7 @@ set(LIB_SOURCES
     cl_HMR_Paramfile.cpp
     cl_HMR_STK.cpp
     cl_HMR_T_Matrix.cpp
+    cl_HMR_Cell_Cluster.cpp
    )
 
 # List library dependencies
