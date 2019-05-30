@@ -14,6 +14,7 @@
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_MTK_Block.hpp"
 
 namespace moris
 {
@@ -21,6 +22,8 @@ namespace mtk
 {
 class Integration_Mesh : public virtual Mesh
 {
+protected:
+    moris::Cell< moris::mtk::Block * >             mListofBlocks;
 public:
     Integration_Mesh(){};
     // Functions only valid for integration meshes
@@ -45,6 +48,26 @@ public:
     virtual
     moris::Cell<std::string>
     get_block_set_names() const = 0;
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get number of blocks
+     */
+    moris::uint
+    get_num_blocks() const
+    {
+        return mListofBlocks.size();
+    };
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by index
+     */
+    moris::mtk::Block *
+    get_block_by_index( moris::uint aBlockIndex) const
+    {
+        return mListofBlocks(aBlockIndex);
+    };
 
     // ----------------------------------------------------------------------------
 

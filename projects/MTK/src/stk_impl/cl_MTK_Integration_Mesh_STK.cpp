@@ -13,6 +13,8 @@
 #include "cl_MTK_Cell_Cluster_Input.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
+
+#include "cl_MTK_Block_STK.hpp"
 namespace moris
 {
 namespace mtk
@@ -357,6 +359,14 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
          mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
          mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
      }
+
+     mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
+
+     for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
+     {
+         mListofBlocks( Ik ) = new moris::mtk::Block_STK( mPrimaryBlockSetClusters( Ik ), this->get_cell_clusters_in_set( Ik ));
+     }
+
 }
 
 void
