@@ -41,7 +41,7 @@ namespace moris
                 }
             }
 
-             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
+//             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
         }
 
 //-----------------------------------------------------------------------------
@@ -72,12 +72,11 @@ namespace moris
             auto tWptr = std::shared_ptr<Mesh>( this, [](Mesh*){} );
 
             // create field
-            return std::make_shared< Field >(
-                    aLabel,
-                    this->shared_from_this(),
-                    aBSplineOrder,
-                    mDatabase,
-                    mMesh );
+            return std::make_shared< Field >( aLabel,
+                                              this->shared_from_this(),
+                                              aBSplineOrder,
+                                              mDatabase,
+                                              mMesh );
         }
 
 //-----------------------------------------------------------------------------
@@ -91,8 +90,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        uint Mesh::get_num_entities(
-                enum EntityRank aEntityRank ) const
+        uint Mesh::get_num_entities( enum EntityRank aEntityRank ) const
         {
             switch ( aEntityRank )
             {
@@ -161,7 +159,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        uint Mesh::get_num_coeffs( const uint aOrder  ) const
+        uint Mesh::get_num_coeffs( const uint aOrder ) const
         {
             return mMesh->get_number_of_bsplines_on_proc( aOrder );
         }

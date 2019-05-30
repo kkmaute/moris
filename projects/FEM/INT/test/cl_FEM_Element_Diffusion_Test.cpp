@@ -14,13 +14,14 @@
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 #include "fn_norm.hpp"
+#include "fn_unique.hpp"
 
 #include "cl_FEM_NodeProxy.hpp"                //FEM/INT/src
 #include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Set.hpp"            //FEM/INT/src
+#include "cl_FEM_Set.hpp"                      //FEM/INT/src
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -34,10 +35,22 @@
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 
+#include "cl_HMR.hpp"
+#include "cl_HMR_Background_Mesh.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Field.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Parameters.hpp" //HMR/src
+
 namespace moris
 {
     namespace fem
     {
+
+// test in this .cpp file: "ElemDiff" - 2x2x2 Block with Neumann + Dirichlet BCs
+
         TEST_CASE( "Element_Diffusion", "[moris],[fem],[ElemDiff]" )
         {
             if(par_size() == 1 )
@@ -611,6 +624,7 @@ namespace moris
 
             }/* if( par_size() */
         }/* TEST_CASE */
+
 
     }/* namespace fem */
 }/* namespace moris */

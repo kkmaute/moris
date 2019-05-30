@@ -7,6 +7,7 @@ set(${MDL}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_MDL_Model.hpp
+    cl_MDL_Mesh_Model_Helper.hpp
     )
 
 # List header dependencies

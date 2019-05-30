@@ -17,23 +17,33 @@ namespace moris
     {
 //------------------------------------------------------------------------------
     Set::Set( moris::Cell< mtk::Cell const * > & aCell,
-                                 enum fem::Element_Type      aElementType,
-                                 Cell< IWG* >              & aIWGs,
-                                 Cell< Node_Base* >        & aNodes) : mMeshElementPointer(aCell),
-                                                                       mNodes(aNodes),
-                                                                       mIWGs( aIWGs ),
-                                                                       mElementType(aElementType)
+              enum fem::Element_Type      aElementType,
+              Cell< IWG* >              & aIWGs,
+              Cell< Node_Base* >        & aNodes) : mMeshElementPointer(aCell),
+                                                    mNodes(aNodes),
+                                                    mIWGs( aIWGs ),
+                                                    mElementType(aElementType)
     {
+
+//    	this->create_unique_dof_type_lists();
+//    	this->create_unique_list_of_first_dof_type_of_group();
+//    	this->create_dof_type_lists();
+
         this->create_unique_dof_type_lists();
         this->create_dof_type_lists();
 
+
         mEquationObjList.resize( mMeshElementPointer.size(), nullptr);
 
-        // a factory to create the elements
+    	// a factory to create the elements
         fem::Element_Factory tElementFactory;
 
         for( luint k=0; k < mMeshElementPointer.size(); ++k )
         {
+
+        	// create the element
+            //mElements( k ) = tElementFactory.create_element( mElementType,
+
             // create the element // FIXME replace with mtk::cluster information
             mEquationObjList( k ) = tElementFactory.create_cluster( mElementType,
                                                              mMeshElementPointer( k ),

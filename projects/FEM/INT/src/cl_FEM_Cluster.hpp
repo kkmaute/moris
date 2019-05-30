@@ -73,7 +73,7 @@ namespace moris
                  const mtk::Cell                 * aCell,
                        moris::Cell< Node_Base* > & aNodes,
                        Set             * aElementBlock) : MSI::Equation_Object( aElementBlock ),
-                                                                    mElementBlock( aElementBlock )
+                                                          mElementBlock( aElementBlock )
         {
             // fill the bulk mtk::Cell pointer //FIXME
             mInterpolationCell = aCell;
