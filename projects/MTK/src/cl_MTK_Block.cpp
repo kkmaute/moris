@@ -1,15 +1,15 @@
-//
-//
-//#include "assert.hpp"
-//#include "cl_MTK_Block.hpp"
-//
-//
-//namespace moris
-//{
-//    namespace mtk
-//    {
-////------------------------------------------------------------------------------
-//
+
+
+#include "assert.hpp"
+#include "cl_MTK_Block.hpp"
+
+
+namespace moris
+{
+    namespace mtk
+    {
+//------------------------------------------------------------------------------
+
 //        std::string
 //        Block::get_label() const
 //        {
@@ -127,7 +127,7 @@
 //                    "get_interpolation_order() const not implemented for this Block" );
 //            return 0;
 //        }
-//
-////------------------------------------------------------------------------------
-//    } /* namespace mtk */
-//} /* namespace moris */
+
+//------------------------------------------------------------------------------
+    } /* namespace mtk */
+} /* namespace moris */

@@ -34,6 +34,7 @@ cl_MTK_Topology.hpp
 cl_MTK_Vertex_Interpolation.hpp
 cl_MTK_Vertex.hpp
 MTK_Tools.hpp
+stk_impl/cl_MTK_Block_STK.hpp
 stk_impl/cl_MTK_Cell_STK.hpp
 stk_impl/cl_MTK_Integration_Mesh_STK.hpp
 stk_impl/cl_MTK_Interpolation_Mesh_STK.hpp
