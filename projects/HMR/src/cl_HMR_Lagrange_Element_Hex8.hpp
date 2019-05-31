@@ -104,6 +104,23 @@ namespace moris
                 aBasis( k ) = mNodes[ k ]->get_memory_index();
             }
         }
+
+// ----------------------------------------------------------------------------
+
+        template<>
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< 3, 8 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ASSERT(aSideOrdinal<6,"Side ordinal out of bounds for cell type hex");
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Hex8::get_node_to_face_map(aSideOrdinal);
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(4);
+            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+            tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+            tVerticesOnSide(3) = tVertices(tNodeOrdsOnSide(3));
+            return tVerticesOnSide;
+        }
 // ----------------------------------------------------------------------------
 
         /**

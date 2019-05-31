@@ -382,6 +382,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+           /*!
+            * Returns the vertices on a given side ordinal
+            */
+           moris::Cell<moris::mtk::Vertex const *>
+           get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+
+//------------------------------------------------------------------------------
+
            /**
             * returns the interpolation order of this element
             */
@@ -560,6 +568,14 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        template< uint N, uint D >
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< N, D >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            std::cout<<"Num Vertices = "<<this->get_number_of_vertices()<<std::endl;
+            MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
+            return moris::Cell<moris::mtk::Vertex const *>(0);
+        }
 
     } /* namespace hmr */
 } /* namespace moris */

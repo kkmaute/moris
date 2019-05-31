@@ -41,6 +41,14 @@ namespace moris
             friend class Interpolation_Mesh_HMR;
             friend class Integration_Mesh_HMR;
 
+            // Global to Local Entity Map
+            // moris::Cell(0) - Node Global to Local
+            // moris::Cell(1) - Edge Global to Local
+            // moris::Cell(2) - Face Global to Local
+            // moris::Cell(3) - Cell Global to Local
+            // Keep in mind not all of these are created
+            moris::Cell<std::unordered_map<moris_id,moris_index>> mEntityGlobaltoLocalMap;
+
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
@@ -243,6 +251,13 @@ namespace moris
             get_glb_entity_id_from_entity_loc_index(
                     moris_index     aEntityIndex,
                     enum EntityRank aEntityRank) const ;
+
+//-------------------------------------------------------------------------------
+            moris_index
+            get_loc_entity_ind_from_entity_glb_id(
+                    moris_id        aEntityId,
+                    enum EntityRank aEntityRank) const;
+
 //-------------------------------------------------------------------------------
 
             moris_id
@@ -411,6 +426,15 @@ private:
             Matrix< IndexMat >
             get_inds_of_active_elements_connected_to_basis(
                     const Basis * aBasis ) const;
+
+
+            void
+            setup_glb_to_local_maps();
+
+            void
+            setup_entity_global_to_local_map(enum EntityRank aEntityRank);
+
+
 
 //-------------------------------------------------------------------------------
         };

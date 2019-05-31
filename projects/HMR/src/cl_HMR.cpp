@@ -998,7 +998,7 @@ namespace moris
             return std::make_shared< Integration_Mesh_HMR >(  mDatabase,
                                                               aLagrangeOrder,
                                                               aPattern,
-                                                             &aInterpolationMesh);
+                                                              aInterpolationMesh);
         }
 
 

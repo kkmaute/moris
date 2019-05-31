@@ -448,7 +448,7 @@ namespace moris
 
             // construct a mesh manager for the fem
             std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
-            std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
+            std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern(),*tInterpolationMesh);
 
 
            // place the pair in mesh manager
@@ -843,7 +843,7 @@ namespace moris
 
            // construct a mesh manager for the fem
            std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
-           std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
+           std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern(),*tInterpolationMesh);
 
 
           // place the pair in mesh manager
@@ -1072,7 +1072,7 @@ namespace moris
 
            // construct a mesh manager for the fem
            std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
-           std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
+           std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern(),*tInterpolationMesh);
 
 
           // place the pair in mesh manager

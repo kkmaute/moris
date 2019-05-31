@@ -49,7 +49,7 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
         tHMR.finalize();
 
         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
-        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern());
+        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern(),*tInterpolationMesh);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;

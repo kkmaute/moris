@@ -41,6 +41,11 @@ namespace moris
                 }
             }
 
+            if(mMesh !=nullptr)
+            {
+            setup_glb_to_local_maps();
+            }
+
 //             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
         }
 
@@ -866,6 +871,21 @@ namespace moris
         }
 
 //-----------------------------------------------------------------------------
+
+        moris_index
+        Mesh::get_loc_entity_ind_from_entity_glb_id(
+                moris_id        aEntityId,
+                enum EntityRank aEntityRank) const
+        {
+            auto tIter = mEntityGlobaltoLocalMap((uint)aEntityRank).find(aEntityId);
+
+            MORIS_ERROR(tIter!=mEntityGlobaltoLocalMap((uint)aEntityRank).end(),
+                        "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",aEntityId, (uint)aEntityRank, par_rank());
+
+            return tIter->second;
+        }
+
+//-----------------------------------------------------------------------------
         moris_id Mesh::get_max_entity_id( enum EntityRank aEntityRank ) const
         {
             switch ( aEntityRank )
@@ -1324,6 +1344,48 @@ namespace moris
 
             return aElementIndices;
         }
+
+        void
+        Mesh::setup_glb_to_local_maps()
+        {
+            moris::uint tSpatialDim = this->get_spatial_dim();
+
+            // Initialize global to local map
+            mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(4);
+
+            if(tSpatialDim == 2)
+            {
+                setup_entity_global_to_local_map(EntityRank::NODE);
+                setup_entity_global_to_local_map(EntityRank::EDGE);
+                setup_entity_global_to_local_map(EntityRank::FACE);
+            }
+
+            else if(tSpatialDim == 3)
+            {
+                setup_entity_global_to_local_map(EntityRank::NODE);
+                setup_entity_global_to_local_map(EntityRank::EDGE);
+                setup_entity_global_to_local_map(EntityRank::FACE);
+                setup_entity_global_to_local_map(EntityRank::ELEMENT);
+            }
+
+        }
+
+        void
+        Mesh::setup_entity_global_to_local_map(enum EntityRank aEntityRank)
+        {
+            uint tNumEntities = this->get_num_entities(aEntityRank);
+            moris_id tCount = 0;
+            for(uint i = 0; i<tNumEntities; i++)
+            {
+                moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
+
+                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");
+
+                mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
+                tCount++;
+            }
+        }
+
 
     } /* namespace hmr */
 } /* namespace moris */
