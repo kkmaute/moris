@@ -12,7 +12,9 @@ set(TEST_SOURCES
     cl_HMR_Node_Sharing.cpp
     cl_HMR_T_Matrix_Private.cpp
     cl_HMR_SideSets.cpp
-    cl_HMR_L2.cpp )
+    cl_HMR_L2.cpp
+    cl_HMR_Integration_Mesh.cpp
+    cl_HMR_Lagrange_Elements.cpp )
   
 # List test includes
 set(TEST_INCLUDES

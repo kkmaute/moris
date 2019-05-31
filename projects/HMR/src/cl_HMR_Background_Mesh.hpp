@@ -534,8 +534,7 @@ namespace moris
                         if ( tNumberOfElementsPerDimension( k )
                                 % mProcDims( k ) != 0 )
                         {
-                            std::fprintf( stdout, "proc size incompatible to defined elements per dimension" );
-                            exit( -1);
+                            MORIS_ASSERT(0,"proc size incompatible to defined elements per dimension");
                         }
                     }
                 }

@@ -139,10 +139,27 @@ namespace moris
                 MORIS_ERROR( false,"Function not implemented in base vertex" );
                 return false;
             }
-
         };
 //------------------------------------------------------------------------------
     } /* namespace mtk */
+
+    // operators for printing
+    std::ostream &
+    operator<<(std::ostream & os, const mtk::Vertex & dt)
+    {
+        os<<"Vertex Id: "<< dt.get_id() << " | Vertex Index: "<<dt.get_index();
+
+        return os;
+    }
+
+    std::ostream &
+    operator<<(std::ostream & os, mtk::Vertex const * const & dt)
+    {
+        os<<"Vertex Id: "<< dt->get_id() << " | Vertex Index: "<<dt->get_index();
+
+        return os;
+    }
+
 } /* namespace moris */
 //------------------------------------------------------------------------------
 #endif /* SRC_MESH_CL_MTK_VERTEX_HPP_ */
