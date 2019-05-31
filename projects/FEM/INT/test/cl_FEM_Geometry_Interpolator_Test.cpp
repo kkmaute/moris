@@ -209,9 +209,6 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
             ttCheckBool = ttCheckBool && ( std::abs( ttMatlab( i ) - tt( i ) ) < tEpsilon );
         }
         REQUIRE( ttCheckBool );
-
-
-
     }
 
     SECTION( "Geometry Interpolator : 2D space time" )
@@ -452,11 +449,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
             switch( tSpaceOrdinal )
             {
                 case( 0 ):
-                {
                     tSpaceParamCoords = {{ -1.0, -1.0 }, { 1.0, -1.0 }};
-                    tSpacePhysCoords = {{ 0.0, 0.0 }, { 3.0, 1.25 }};
+                    tSpacePhysCoords  = {{  0.0,  0.0 }, { 3.0,  1.25 }};
                     break;
-                }
                 case( 1 ):
                     tSpaceParamCoords = {{ 1.0, -1.0 }, { 1.0, 1.0 }};
                     tSpacePhysCoords  = {{ 3.0, 1.25 }, { 4.5, 4.0 }};
@@ -472,50 +467,6 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
                 default:
                     MORIS_ASSERT( false, " wrong side ordinal "); break;
             }
-
-//            // build and get space param coords for the side
-//            tGeoInterpolator.build_space_side_space_param_coeff( tSpaceOrdinal );
-//            Matrix< DDRMat > tSpaceSideParamCoords = tGeoInterpolator.get_space_side_space_param_coeff();
-//
-//            // build and get space phys coords for the side
-//            tGeoInterpolator.build_space_side_space_phys_coeff( tSpaceOrdinal );
-//            Matrix< DDRMat > tSpaceSidePhysCoords = tGeoInterpolator.get_space_side_space_phys_coeff();
-//
-//            bool tSpaceParamCoordsCheck = true;
-//            bool tSpacePhysCoordsCheck = true;
-//
-//            for( uint i = 0; i < 2; i++ )
-//            {
-//                for( uint j = 0; j < 2; j++ )
-//                {
-//                    tSpaceParamCoordsCheck = tSpaceParamCoordsCheck
-//                        && ( std::abs( tSpaceParamCoords( i, j ) - tSpaceSideParamCoords( i, j ) ) < tEpsilon );
-//                    tSpacePhysCoordsCheck = tSpacePhysCoordsCheck
-//                        && ( std::abs( tSpacePhysCoords( i, j ) - tSpaceSidePhysCoords( i, j ) ) < tEpsilon );
-//                }
-//            }
-//            REQUIRE( tSpaceParamCoordsCheck );
-        }
-
-        // getting the parametric coordinates of a time side
-        Cell< moris_index > tAllTimeOrdinals = { 0, 1 };
-
-        // Param coords for check
-        Matrix< DDRMat > tTimeParamCoords = {{ -1.0 }, { 1.0 }};
-
-        for( uint iSide = 0; iSide < tAllTimeOrdinals.size(); iSide++ )
-        {
-            // get the treated time ordinal
-            moris_index tTimeOrdinal = tAllTimeOrdinals( iSide );
-
-            // get the time param coords for the time side
-            tGeoInterpolator.build_time_side_time_param_coeff( tTimeOrdinal );
-//            Matrix< DDRMat > tTimeSideParamCoords = tGeoInterpolator.get_time_side_time_param_coeff();
-//
-//            bool tTimeParamCoordsCheck = true;
-//            tTimeParamCoordsCheck = tTimeParamCoordsCheck
-//                                  && ( std::abs( tTimeParamCoords( iSide ) - tTimeSideParamCoords( 0 ) ) < tEpsilon );
-//            REQUIRE( tTimeParamCoordsCheck );
         }
     }
 
@@ -811,52 +762,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
                     MORIS_ASSERT( false, " wrong side ordinal "); break;
                 }
             }
-
-//            // build and get space param coords for the side
-//            tGeoInterpolator.build_space_side_space_param_coeff( tSpaceOrdinal );
-//            Matrix< DDRMat > tSpaceSideParamCoords = tGeoInterpolator.get_space_side_space_param_coeff();
-//
-//            // build and get space phys coords for the side
-//            tGeoInterpolator.build_space_side_space_phys_coeff( tSpaceOrdinal );
-//            Matrix< DDRMat > tSpaceSidePhysCoords = tGeoInterpolator.get_space_side_space_phys_coeff();
-//
-//            bool tSpaceParamCoordsCheck = true;
-//            bool tSpacePhysCoordsCheck = true;
-//
-//            for( uint i = 0; i < 4; i++ )
-//            {
-//                for( uint j = 0; j < 3; j++ )
-//                {
-//                    tSpaceParamCoordsCheck = tSpaceParamCoordsCheck
-//                        && ( std::abs( tSpaceParamCoords( i, j ) - tSpaceSideParamCoords( i, j ) ) < tEpsilon );
-//                    tSpacePhysCoordsCheck = tSpacePhysCoordsCheck
-//                        && ( std::abs( tSpacePhysCoords( i, j ) - tSpaceSidePhysCoords( i, j ) ) < tEpsilon );
-//                }
-//            }
-//            REQUIRE( tSpaceParamCoordsCheck );
         }
-
-        // getting the parametric coordinates of a time side
-        Cell< moris_index > tAllTimeOrdinals = { 0, 1 };
-
-        // Param coords for check
-        Matrix< DDRMat > tTimeParamCoords = {{ -1.0 }, { 1.0 }};
-
-        for( uint iSide = 0; iSide < tAllTimeOrdinals.size(); iSide++ )
-        {
-            // get the treated time ordinal
-            moris_index tTimeOrdinal = tAllTimeOrdinals( iSide );
-
-            // get the time param coords for the time side
-            tGeoInterpolator.build_time_side_time_param_coeff( tTimeOrdinal );
-//            Matrix< DDRMat > tTimeSideParamCoords = tGeoInterpolator.get_time_side_time_param_coeff();
-//
-//            bool tTimeParamCoordsCheck = true;
-//            tTimeParamCoordsCheck = tTimeParamCoordsCheck
-//                                  && ( std::abs( tTimeParamCoords( iSide ) - tTimeSideParamCoords( 0 ) ) < tEpsilon );
-//            REQUIRE( tTimeParamCoordsCheck );
-        }
-
     }
 
 //------------------------------------------------------------------------------

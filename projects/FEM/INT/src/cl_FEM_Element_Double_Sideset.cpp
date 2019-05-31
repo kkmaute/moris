@@ -221,6 +221,14 @@ namespace moris
                      // compute residual at integration point
                      Cell< Matrix< DDRMat > > tJacobians;
                      tTreatedIWG->compute_jacobian( tJacobians, tLeftIWGInterpolators, tRightIWGInterpolators );
+//                     print(tJacobians(0),"tJacobians");
+
+//                     real tPerturbation = 1E-6;
+//                     Cell< Matrix< DDRMat > > tJacobiansFD;
+//                     tTreatedIWG->compute_jacobian_FD( tJacobiansFD,
+//                                                       tLeftIWGInterpolators, tRightIWGInterpolators,
+//                                                       tPerturbation );
+//                     print(tJacobiansFD(0),"tJacobiansFD");
 
                      // fixme does it work as is?
                      // get location of computed jacobian in global element residual rows

@@ -303,7 +303,8 @@ namespace moris
             if( mSideCluster->is_trivial() )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal );
+                return mSet->get_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal,
+                                                                                                   mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
@@ -325,7 +326,7 @@ namespace moris
             if( mCellCluster->is_trivial() )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_IP_geometry_interpolator()->extract_space_param_coeff();
+                return mSet->get_IP_geometry_interpolator()->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
@@ -348,7 +349,8 @@ namespace moris
             if( mDoubleSideCluster.is_left_trivial() )
             {
                 // get the side param coords from the IG geometry interpolator
-                return mSet->get_left_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal );
+                return mSet->get_left_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal,
+                                                                                                        mSet->get_IG_space_interpolation_order() );
             }
             // if non trivial cluster
             else
@@ -369,7 +371,8 @@ namespace moris
              if( mDoubleSideCluster.is_right_trivial() )
              {
                  // get the side param coords from the IG geometry interpolator
-                 return mSet->get_right_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal );
+                 return mSet->get_right_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal,
+                                                                                                          mSet->get_IG_space_interpolation_order() );
              }
              // if non trivial cluster
              else
@@ -546,6 +549,7 @@ namespace moris
                  Matrix< DDRMat > tCoeff;
                  this->get_my_pdof_values( tDofTypeGroup, tCoeff );
 
+                 // FIXME ok only if both left and right have same interpolation
                  // set the field coefficients for the left interpolation cell
                  mSet->get_left_field_interpolator()( i )->set_coeff( tCoeff({0,tCoeff.numel()/2 -1},{0,0}) );
 

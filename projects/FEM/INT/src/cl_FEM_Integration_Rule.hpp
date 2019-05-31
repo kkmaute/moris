@@ -25,10 +25,10 @@ namespace moris
     class Integration_Rule
     {
         const mtk::Geometry_Type        mGeometryType;
-
         const Integration_Type          mSpaceIntegrationType;
         const Integration_Order         mSpaceIntegrationOrder;
 
+        const mtk::Geometry_Type        mTimeGeometryType;
         const Integration_Type          mTimeIntegrationType;
         const Integration_Order         mTimeIntegrationOrder;
 
@@ -51,6 +51,13 @@ namespace moris
                           const Integration_Type    & aTimeIntegrationType,
                           const Integration_Order   & aTimeIntegrationOrder );
 
+        Integration_Rule( const mtk::Geometry_Type  & aGeometryType,
+                          const Integration_Type    & aSpaceIntegrationType,
+                          const Integration_Order   & aSpaceIntegrationOrder,
+                          const mtk::Geometry_Type  & aTimeGeometryType,
+                          const Integration_Type    & aTimeIntegrationType,
+                          const Integration_Order   & aTimeIntegrationOrder );
+
 //------------------------------------------------------------------------------
         /**
          * trivial destructor
@@ -66,6 +73,14 @@ namespace moris
             return mGeometryType;
         }
 
+//------------------------------------------------------------------------------
+        /**
+         * returns the integration primitive
+         */
+        mtk::Geometry_Type get_time_geometry_type() const
+        {
+            return mTimeGeometryType;
+        }
 //------------------------------------------------------------------------------
         /**
          * returns the space integration order
@@ -156,4 +171,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_INTEGRAITION_RULE_CPP_ */
+#endif /* SRC_FEM_CL_FEM_INTEGRATION_RULE_CPP_ */

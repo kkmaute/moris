@@ -98,7 +98,7 @@ namespace moris
         void Field_Interpolator::set_coeff( const Matrix< DDRMat > & aUHat )
         {
             // check the input size
-            MORIS_ASSERT( ( ( aUHat.n_cols() == mNumberOfFields ) && ( aUHat.n_rows() == mNFieldBases )),
+            MORIS_ASSERT( ( ( aUHat.n_cols() == mNumberOfFields ) && ( aUHat.n_rows() == mNFieldBases ) ),
                           "Field_Interpolator::set_coeff - Wrong input size (aUHat).");
 
             // set the coefficients
@@ -110,8 +110,8 @@ namespace moris
          Matrix < DDRMat> Field_Interpolator::N()
          {
              // check that mXi and mTau are set
-             MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::N - mXi  is not set." );
-             MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::N - mTau is not set." );
+             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::N - mXi  is not set." );
+             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::N - mTau is not set." );
 
              //evaluate space and time SF at Xi, Tau
              Matrix < DDRMat > tNSpace = mSpaceInterpolation->eval_N( mXi );
@@ -119,8 +119,8 @@ namespace moris
 
              //evaluate space time SF by multiplying space and time SF
              return reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
-
          }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Field_Interpolator::Bx()
@@ -203,6 +203,10 @@ namespace moris
 
         Matrix< DDRMat > Field_Interpolator::eval_d3Ndx3()
         {
+            // check that mXi and mTau are set
+            MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::eval_d3Ndx3 - mXi is not set." );
+            MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::eval_d3Ndx3 - mTau is not set." );
+
             // get first and second derivatives of space SF wrt xi
             Matrix< DDRMat > tdNGeodxi   = mGeometryInterpolator->dNdXi( mXi );
             Matrix< DDRMat > td2NGeodxi2 = mGeometryInterpolator->d2NdXi2( mXi );
@@ -210,14 +214,14 @@ namespace moris
 
             // get matrices for second space derivatives from geometry interpolator
             Matrix< DDRMat > tJGeot, tJ2bGeot, tJ3aGeot, tJ3bGeot, tJ3cGeot;
-            mGeometryInterpolator->space_jacobian_and_matrices_for_third_derivatives( tJGeot,    // contains first geometric derivs.
-                                                                                      tJ2bGeot,  // contains second geometric derivs.
-                                                                                      tJ3aGeot,  // first help matrix for 3rd field derivs
-																					  tJ3bGeot,  // second help matrix for 3rd field derivs
-																					  tJ3cGeot,  // third help matrix for 3rd field derivs
+            mGeometryInterpolator->space_jacobian_and_matrices_for_third_derivatives( tJGeot,
+                                                                                      tJ2bGeot,
+                                                                                      tJ3aGeot,
+                                                                                      tJ3bGeot,
+                                                                                      tJ3cGeot,
                                                                                       tdNGeodxi,
                                                                                       td2NGeodxi2,
-																					  td3NGeodxi3);
+                                                                                      td3NGeodxi3 );
 
             // get the derivatives of the space time SF wrt x
             Matrix< DDRMat > tdNFielddx = this->Bx();
@@ -235,7 +239,6 @@ namespace moris
             // get the number 3rd derivatives
             uint tNThirdDerivatives  = td3NGeodxi3.n_rows();
 
-            // FIXME: is this multiplication correct ???
             // compute td3NFielddxi3 row by row
             Matrix< DDRMat > td3NFielddxi3( tNThirdDerivatives, mNFieldBases );
             for ( moris::uint Ik = 0; Ik < tNThirdDerivatives; Ik++ )
@@ -244,7 +247,8 @@ namespace moris
             }
 
             //build the third derivatives of the space time SF wrt x
-            return inv( tJ3aGeot ) * ( td3NFielddxi3 - tJ3bGeot * td2NFielddx2 - tJ3cGeot * tdNFielddx );
+            Matrix< DDRMat > td3NFielddXi3 = td3NFielddxi3 - tJ3bGeot * td2NFielddx2 - tJ3cGeot * tdNFielddx;
+            return solve( tJ3aGeot, td3NFielddXi3 );
         }
 
 //------------------------------------------------------------------------------
@@ -330,7 +334,7 @@ namespace moris
         Matrix< DDRMat > Field_Interpolator::val()
         {
             // check that mUHat is set
-            MORIS_ASSERT( mUHat.numel()>0,  "Field_Interpolator::val - mUHat  is not set." );
+            MORIS_ASSERT( mUHat.numel() > 0, "Field_Interpolator::val - mUHat  is not set." );
 
             //evaluate the field value
             return this->N() * mUHat ;
@@ -353,6 +357,11 @@ namespace moris
                 case ( 2 ) :
                     //evaluate the field second space derivative
                     return this->eval_d2Ndx2() * mUHat ;
+                    break;
+
+                case ( 3 ) :
+                    //evaluate the field second space derivative
+                    return this->eval_d3Ndx3() * mUHat ;
                     break;
 
                 default :

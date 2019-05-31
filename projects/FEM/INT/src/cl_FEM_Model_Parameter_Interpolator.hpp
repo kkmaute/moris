@@ -36,7 +36,7 @@ namespace moris
             const Geometry_Interpolator* mGeometryInterpolator = nullptr;
 
             // field interpolator type
-            fem::Mp_Type mMPType;
+            fem::Property_Type mPropertyType;
 
             // active field interpolators
             moris::Cell< MSI::Dof_Type > mDofDependencies;
@@ -75,11 +75,11 @@ namespace moris
             Model_Parameter_Interpolator( const uint                    aNumberOfFields,
                                           const Interpolation_Rule    & aFieldInterpolationRule,
                                           const Geometry_Interpolator * aGeometryInterpolator,
-                                          fem::Mp_Type                  aMpType,
+                                          fem::Property_Type            aPropertyType,
                                           real ( *aFunc)( Matrix< DDRMat > aSpacePhysPoint,
                                                           Matrix< DDRMat > aTimePhysPoint ) )
             : mGeometryInterpolator( aGeometryInterpolator ),
-              mMPType( aMpType ),
+              mPropertyType( aPropertyType ),
               mFunc( aFunc )
             {
                 // create a field interpolator pointer
@@ -125,7 +125,6 @@ namespace moris
                  // init the coefficient vector
                  uint tNumCoeffs = mFieldInterpolator->get_number_of_space_time_coefficients();
                  Matrix< DDRMat > tUHat( tNumCoeffs, 1, 0.0 );
-
 
                  // from geometry interpolator of the interpolation cell
                  Matrix< DDRMat > tSpacePhysCoords = mGeometryInterpolator->get_space_coeff();

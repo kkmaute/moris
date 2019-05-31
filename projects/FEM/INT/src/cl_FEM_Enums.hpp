@@ -99,12 +99,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        enum class Mp_Type
+        enum class Property_Type
         {
             UNDEFINED,
             TEMP_DIRICHLET,
             TEMP_NEUMANN,
-            END_MP_TYPE
+            END_PROPERTY_TYPE
         };
 
 //------------------------------------------------------------------------------

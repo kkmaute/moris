@@ -21,7 +21,7 @@ namespace moris
             mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
 
             // set the active mp type
-            mActiveMpTypes = { fem::Mp_Type::TEMP_NEUMANN };
+            mActivePropertyTypes = { fem::Property_Type::TEMP_NEUMANN };
         }
 
 //------------------------------------------------------------------------------

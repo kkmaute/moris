@@ -70,11 +70,11 @@ TEST_CASE( "Model_Parameter_Interpolator", "[moris],[fem],[MPInterpolator]" )
 
         //create a field interpolator
         uint tNumberOfFields = 1;
-        fem::Mp_Type tMpType = fem::Mp_Type::TEMP_DIRICHLET;
+        fem::Property_Type tPropertyType = fem::Property_Type::TEMP_DIRICHLET;
         Model_Parameter_Interpolator tMPInterpolator( tNumberOfFields,
                                                       tInterpolationRule,
                                                       tGeomInterpolator,
-                                                      tMpType,
+                                                      tPropertyType,
                                                       force_func);
         tMPInterpolator.set_coeff();
 
@@ -151,11 +151,11 @@ TEST_CASE( "Model_Parameter_Interpolator", "[moris],[fem],[MPInterpolator]" )
 
            //create a field interpolator
            uint tNumberOfFields = 1;
-           fem::Mp_Type tMpType = fem::Mp_Type::TEMP_DIRICHLET;
+           fem::Property_Type tPropertyType = fem::Property_Type::TEMP_DIRICHLET;
            Model_Parameter_Interpolator tMPInterpolator( tNumberOfFields,
                                                          tInterpolationRule,
                                                          tGeomInterpolator,
-                                                         tMpType,
+                                                         tPropertyType,
                                                          force_func);
            tMPInterpolator.set_coeff();
 

@@ -4,6 +4,7 @@
 #include "cl_FEM_Interpolation_Function_Factory.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Base.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function.hpp" //FEM/INT/src
+
 #include "cl_FEM_Interpolation_Function_Lagrange_Bar1.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Bar2.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Bar3.hpp" //FEM/INT/src
@@ -16,13 +17,15 @@
 #include "cl_FEM_Interpolation_Function_Lagrange_Hex20.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Hex27.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Hex64.hpp" //FEM/INT/src
-#include "cl_FEM_Interpolation_Function_Constant_Bar2.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Tri3.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Tri6.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Tri10.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Tet4.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Tet10.hpp" //FEM/INT/src
 #include "cl_FEM_Interpolation_Function_Lagrange_Tet20.hpp" //FEM/INT/src
+
+#include "cl_FEM_Interpolation_Function_Constant_Bar2.hpp" //FEM/INT/src
+#include "cl_FEM_Interpolation_Function_Constant_Point.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -81,6 +84,11 @@ namespace moris
                 {
                     switch ( aGeometryType )
                     {
+                        case( mtk::Geometry_Type::POINT ) :
+                        {
+                            return this->create_constant_point( aInterpolationOrder );
+                            break;
+                        }
                         case( mtk::Geometry_Type::LINE ) :
                         {
                             return this->create_constant_bar( aInterpolationOrder );
@@ -182,12 +190,6 @@ namespace moris
         {
             switch ( aInterpolationOrder )
             {
-                case( mtk::Interpolation_Order::CONSTANT ) :
-                {
-                    // bar1
-                    return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1 >();
-                    break;
-                }
                 case( mtk::Interpolation_Order::LINEAR ) :
                 {
                     // bar2
@@ -278,12 +280,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    Interpolation_Function_Base *
-    Interpolation_Function_Factory::create_constant_bar( const mtk::Interpolation_Order & aInterpolationOrder )
-    {
-        // bar 2 with one constant shape fucntion
-        return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::CONSTANT, 1, 1 >();
-    }
+        Interpolation_Function_Base *
+        Interpolation_Function_Factory::create_constant_bar( const mtk::Interpolation_Order & aInterpolationOrder )
+        {
+            // bar 2 with one constant shape function
+            return new Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::CONSTANT, 1, 1 >();
+        }
+
+//------------------------------------------------------------------------------
+
+            Interpolation_Function_Base *
+            Interpolation_Function_Factory::create_constant_point( const mtk::Interpolation_Order & aInterpolationOrder )
+            {
+                // point with one constant shape function
+                return new Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1 >();
+            }
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

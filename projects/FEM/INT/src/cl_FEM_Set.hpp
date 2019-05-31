@@ -104,7 +104,7 @@ namespace MSI
         uint                                      mNumOfInterp;
 
         // list of model parameter type for the set
-        moris::Cell< fem::Mp_Type > mMpTypeList;
+        moris::Cell< fem::Property_Type > mPropertyTypeList;
 
         // number of integration points
         uint mNumOfIntegPoints;
@@ -181,7 +181,7 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        void create_unique_mp_type_list();
+        void create_unique_property_type_list();
 
 //------------------------------------------------------------------------------
 

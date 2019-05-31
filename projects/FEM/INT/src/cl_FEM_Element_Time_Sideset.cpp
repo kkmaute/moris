@@ -32,12 +32,12 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_param_coeff();
 
             // get the treated time ordinal
-            moris_index tTreatedTimeOrdinal = mCluster->mListOfTimeOrdinals( mCellIndexInCluster );
+            //moris_index tTreatedTimeOrdinal = mCluster->mListOfTimeOrdinals( mCellIndexInCluster );
 
-            // get the side phys and param coords
-            // fixme to be removed with new approach
-            mSet->get_IG_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
-            mSet->get_IG_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
+//            // get the side phys and param coords
+//            // fixme to be removed with new approach
+//            mSet->get_IG_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
+//            mSet->get_IG_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -73,8 +73,10 @@ namespace moris
                     }
 
                     // compute integration point weight
-                    real tSurfDetJ = mSet->get_IG_geometry_interpolator()->time_surf_det_J( tLocalIntegPoint );
-                    real tWStar = mSet->get_integration_weights()( iGP ) * tSurfDetJ;
+//                    real tSurfDetJ = mSet->get_IG_geometry_interpolator()->time_surf_det_J( tLocalIntegPoint );
+//                    real tWStar = mSet->get_integration_weights()( iGP ) * tSurfDetJ;
+                    real tWStar = mSet->get_integration_weights()( iGP )
+                                * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
 
                     // compute jacobian at evaluation point
                     Matrix< DDRMat > tResidual;
@@ -106,12 +108,12 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_param_coeff();
 
             // get the treated time ordinal
-            moris_index tTreatedTimeOrdinal = mCluster->mListOfTimeOrdinals( mCellIndexInCluster );
+            //moris_index tTreatedTimeOrdinal = mCluster->mListOfTimeOrdinals( mCellIndexInCluster );
 
-            // get the side phys and param coords
-            // fixme to remove with new implementation of GI
-            mSet->get_IG_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
-            mSet->get_IG_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
+//            // get the side phys and param coords
+//            // fixme to remove with new implementation of GI
+//            mSet->get_IG_geometry_interpolator()->build_time_side_time_phys_coeff( tTreatedTimeOrdinal );
+//            mSet->get_IG_geometry_interpolator()->build_time_side_time_param_coeff( tTreatedTimeOrdinal );
 
             // loop over the IWGs
             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
@@ -139,7 +141,8 @@ namespace moris
                    Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                    // get global integration point location
-                   Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->time_surf_val( tLocalIntegPoint );
+//                   Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->time_surf_val( tLocalIntegPoint );
+                   Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
 
                    // set integration point for field interpolator
                    for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -148,8 +151,10 @@ namespace moris
                    }
 
                    // compute integration point weight
+//                   real tWStar = mSet->get_integration_weights()( iGP )
+//                               * mSet->get_IG_geometry_interpolator()->time_surf_det_J( tLocalIntegPoint );
                    real tWStar = mSet->get_integration_weights()( iGP )
-                               * mSet->get_IG_geometry_interpolator()->time_surf_det_J( tLocalIntegPoint );
+                               * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
 
                    // compute jacobian at evaluation point
                    moris::Cell< Matrix< DDRMat > > tJacobians;

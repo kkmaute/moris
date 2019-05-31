@@ -79,6 +79,15 @@ namespace moris
                     // compute jacobian at evaluation point
                     moris::Cell< Matrix< DDRMat > > tJacobians;
                     tTreatedIWG->compute_jacobian( tJacobians, tIWGInterpolators );
+//                    print(tJacobians(0),"tJacobians");
+//
+//                    // check with finite difference
+//                    real tPerturbation = 1E-6;
+//                    Cell< Matrix< DDRMat > > tJacobiansFD;
+//                    tTreatedIWG->compute_jacobian_FD( tJacobiansFD,
+//                                                      tIWGInterpolators,
+//                                                      tPerturbation );
+//                    print(tJacobiansFD(0),"tJacobiansFD");
 
                     // get location of computed jacobian in global element residual rows
                     uint startIDof = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );

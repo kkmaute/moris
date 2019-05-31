@@ -50,6 +50,9 @@ namespace moris
         // create a dof type list for field interpolators
         this->create_dof_type_lists();
 
+        // create a unique property type list for field interpolators
+        this->create_unique_property_type_list();
+
         // init the equation object list
         mEquationObjList.resize( mMeshCellClusterList.size(), nullptr);
 
@@ -99,6 +102,9 @@ namespace moris
 
         // create a dof type list for field interpolators
         this->create_dof_type_lists();
+
+        // create a unique property type list for field interpolators
+        this->create_unique_property_type_list();
 
         // init the equation object list
         mEquationObjList.resize( mMeshSideClusterList.size(), nullptr);
@@ -150,6 +156,9 @@ namespace moris
 
             // create a dof type list for field interpolators
             this->create_dof_type_lists();
+
+            // create a unique property type list for field interpolators
+            this->create_unique_property_type_list();
 
             // init the equation object list
             mEquationObjList.resize( mMeshDoubleSideClusterList.size(), nullptr);
@@ -476,27 +485,26 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Set::create_unique_mp_type_list()
+    void Set::create_unique_property_type_list()
        {
            // set the size of the active mp type list
            uint tCounter = 0;
            for ( IWG * tIWG : mIWGs )
            {
-               tCounter = tCounter + tIWG->get_active_mp_types().size();
+               tCounter = tCounter + tIWG->get_active_property_types().size();
            }
-           mMpTypeList.reserve( tCounter );
+           mPropertyTypeList.reserve( tCounter );
 
            // loop over the IWGs
            tCounter = 0;
            for ( IWG * tIWG : mIWGs )
            {
-               mMpTypeList.append( tIWG->get_active_mp_types() );
+               mPropertyTypeList.append( tIWG->get_active_property_types() );
            }
 
-           auto last = std::unique( ( mMpTypeList.data() ).data(), ( mMpTypeList.data() ).data() + mMpTypeList.size() );
-           auto pos  = std::distance( ( mMpTypeList.data() ).data(), last );
-           mMpTypeList.resize( pos );
-
+           auto last = std::unique( ( mPropertyTypeList.data() ).data(), ( mPropertyTypeList.data() ).data() + mPropertyTypeList.size() );
+           auto pos  = std::distance( ( mPropertyTypeList.data() ).data(), last );
+           mPropertyTypeList.resize( pos );
        }
 
 //------------------------------------------------------------------------------
@@ -688,13 +696,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void Set::create_field_interpolators(MSI::Model_Solver_Interface * aModelSolverInterface )
+    void Set::create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // cell of field interpolators
-        mFieldInterpolators.resize( mNumOfInterp, nullptr );
+        mFieldInterpolators.resize( mInterpDofTypeList.size() + mPropertyTypeList.size(), nullptr );
 
-        // loop on the dof type groups and create a field interpolator for each
-        for( uint i = 0; i < mNumOfInterp; i++ )
+        // create a field interpolator for each dof type
+        for( uint i = 0; i < mInterpDofTypeList.size(); i++ )
         {
             // get the ith dof type group
             Cell< MSI::Dof_Type > tDofTypeGroup = mInterpDofTypeList( i );
@@ -716,6 +724,31 @@ namespace moris
             mFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
                                                                tFieldInterpolationRule,
                                                                mIPGeometryInterpolator );
+        }
+
+        // create a field interpolator for each property type
+        for( uint i = 0; i < mPropertyTypeList.size(); i++ )
+        {
+            // get the ith property type
+            // fem::Property_Type tPropertyType = mPropertyTypeList( i );
+
+            //moris::uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( tPropertyType );
+
+            // create the field interpolation rule for the ith dof type group
+            Interpolation_Rule tFieldInterpolationRule( mIPGeometryType,
+                                                        Interpolation_Type::LAGRANGE,
+                                                        mIPSpaceInterpolationOrder,
+                                                        this->get_auto_time_interpolation_type( 2 ), // fixme
+                                                        // If interpolation type CONSTANT, iInterpolation order is not used
+                                                        this->get_auto_interpolation_order( 2, mtk::Geometry_Type::LINE ) ); //fixme
+
+            // get number of field interpolated by the ith field interpolator
+            uint tNumOfFields = 1; // fixme
+
+            // create an interpolator for the ith dof type group
+            mFieldInterpolators( mInterpDofTypeList.size() + i ) = new Field_Interpolator( tNumOfFields,
+                                                                                           tFieldInterpolationRule,
+                                                                                           mIPGeometryInterpolator );
         }
     }
 

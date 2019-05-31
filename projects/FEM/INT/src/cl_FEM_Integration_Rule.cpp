@@ -1,6 +1,7 @@
 
 #include "cl_FEM_Integration_Rule.hpp"            //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs.hpp"          //FEM/INT/src
+#include "cl_FEM_Integration_Coeffs_Point.hpp"    //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_1.hpp"    //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_2.hpp"    //FEM/INT/src
 #include "cl_FEM_Integration_Coeffs_Bar_3.hpp"    //FEM/INT/src
@@ -39,11 +40,24 @@ namespace moris
                                           : mGeometryType( aGeometryType ),
                                             mSpaceIntegrationType( aSpaceIntegrationType ),
                                             mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
+                                            mTimeGeometryType( mtk::Geometry_Type::LINE ),
                                             mTimeIntegrationType( aTimeIntegrationType ),
                                             mTimeIntegrationOrder( aTimeIntegrationOrder )
-        {
+        {}
 
-        }
+        Integration_Rule::Integration_Rule( const mtk::Geometry_Type & aGeometryType,
+                                            const Integration_Type   & aSpaceIntegrationType,
+                                            const Integration_Order  & aSpaceIntegrationOrder,
+                                            const mtk::Geometry_Type & aTimeGeometryType,
+                                            const Integration_Type   & aTimeIntegrationType,
+                                            const Integration_Order  & aTimeIntegrationOrder )
+                                          : mGeometryType( aGeometryType ),
+                                            mSpaceIntegrationType( aSpaceIntegrationType ),
+                                            mSpaceIntegrationOrder( aSpaceIntegrationOrder ),
+                                            mTimeGeometryType( aTimeGeometryType ),
+                                            mTimeIntegrationType( aTimeIntegrationType ),
+                                            mTimeIntegrationOrder( aTimeIntegrationOrder )
+        {}
 
 //------------------------------------------------------------------------------
 
@@ -58,7 +72,7 @@ namespace moris
 
         Integration_Coeffs_Base * Integration_Rule::create_time_coeffs() const
         {
-            return this->create_coeffs( mtk::Geometry_Type::LINE,
+            return this->create_coeffs( mTimeGeometryType,
                                         mTimeIntegrationType,
                                         mTimeIntegrationOrder );
         }

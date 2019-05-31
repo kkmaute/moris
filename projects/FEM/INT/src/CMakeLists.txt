@@ -81,6 +81,7 @@ set(HEADERS
     cl_FEM_Interpolation_Function_Lagrange_Tet10.hpp
     cl_FEM_Interpolation_Function_Lagrange_Tet20.hpp
     cl_FEM_Interpolation_Function_Constant_Bar2.hpp
+    cl_FEM_Interpolation_Function_Constant_Point.hpp
     cl_FEM_Interpolation_Rule.hpp
     cl_FEM_Node_Base.hpp
     cl_FEM_Node.hpp

@@ -41,9 +41,9 @@ namespace moris
                 mSet->get_right_IP_geometry_interpolator()->set_space_coeff( mRightInterpolationCell->get_vertex_coords() );
                 mSet->get_right_IP_geometry_interpolator()->set_time_coeff( this->mTime );
 
-                // set the IP geometry interpolator param space and time coefficients for the right interpolation cell
-                // fixme param coeff from cluster
-                mSet->get_right_IP_geometry_interpolator()->set_param_coeff();
+//                // set the IP geometry interpolator param space and time coefficients for the right interpolation cell
+//                // default implementation
+//                mSet->get_right_IP_geometry_interpolator()->set_param_coeff();
 
                 //Fixme do this only once
                 this->get_my_pdof_values();
@@ -68,9 +68,9 @@ namespace moris
                 mSet->get_IP_geometry_interpolator()->set_space_coeff( mInterpolationCell->get_vertex_coords() );
                 mSet->get_IP_geometry_interpolator()->set_time_coeff( this->mTime );
 
-                // set the IP geometry interpolator param space and time coefficients
-                // fixme param coeff from cluster
-                mSet->get_IP_geometry_interpolator()->set_param_coeff();
+//                // set the IP geometry interpolator param space and time coefficients
+//                // default implementation
+//                mSet->get_IP_geometry_interpolator()->set_param_coeff();
 
                 //Fixme do this only once
                 this->get_my_pdof_values();
@@ -109,14 +109,14 @@ namespace moris
                 mSet->get_right_IP_geometry_interpolator()->set_space_coeff( mRightInterpolationCell->get_vertex_coords() );
                 mSet->get_right_IP_geometry_interpolator()->set_time_coeff( this->mTime );
 
-                // set the IP geometry interpolator param space and time coefficients for the right interpolation cell
-                // fixme param coeff from cluster
-                mSet->get_right_IP_geometry_interpolator()->set_param_coeff();
+//                // set the IP geometry interpolator param space and time coefficients for the right interpolation cell
+//                // fixme param coeff from cluster
+//                mSet->get_right_IP_geometry_interpolator()->set_param_coeff();
 
                 //Fixme do this only once
                 this->get_my_pdof_values();
 
-                // init the residual //fixme still ok?
+                // init the residual
                 mSet->initialize_mResidual();
 
                 // set the field interpolators coefficients
@@ -136,9 +136,9 @@ namespace moris
                 mSet->get_IP_geometry_interpolator()->set_space_coeff( mInterpolationCell->get_vertex_coords() );
                 mSet->get_IP_geometry_interpolator()->set_time_coeff( this->mTime );
 
-                // set the IP geometry interpolator param space and time coefficients
-                // fixme param coeff from cluster
-                mSet->get_IP_geometry_interpolator()->set_param_coeff();
+//                // set the IP geometry interpolator param space and time coefficients
+//                // default implementation
+//                mSet->get_IP_geometry_interpolator()->set_param_coeff();
 
                 // fixme do this only once
                 this->get_my_pdof_values();
