@@ -73,6 +73,7 @@ public:
     // ----------------------------------------------------------------------------
     /*
      * Get number of blocks
+     * Sometimes num side set * 2. Ask Keenan
      */
     moris::uint
     get_num_side_set() const

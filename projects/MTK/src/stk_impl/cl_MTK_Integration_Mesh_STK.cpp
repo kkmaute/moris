@@ -381,6 +381,10 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // copy strings labels
     mSideSetLabels.append(aSideSetNames);
 
+    std::cout<<"---print labels ---"<<std::endl;
+    print(mSideSetLabels,"mSideSetLabels");
+    std::cout<<"---end print labels ---"<<std::endl;
+
     // add to map
     for(moris::uint i = 0; i <aSideSetNames.size(); i++)
     {
