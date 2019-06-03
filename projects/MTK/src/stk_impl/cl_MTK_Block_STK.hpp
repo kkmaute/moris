@@ -36,8 +36,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block_STK( moris::Cell<moris::moris_index>    aBlockSetClusterInd,
-                       moris::Cell<Cell_Cluster const *>  aBlaockSetClusters ) : Block(aBlockSetClusterInd,aBlaockSetClusters)
+            Block_STK( moris::Cell<Cell_Cluster const *>  aBlaockSetClusters ) : Block(aBlaockSetClusters)
             {
             };
 
@@ -46,7 +45,6 @@ namespace moris
             /**
              * virtual destructor
              */
-            virtual
             ~Block_STK(){};
 
 //------------------------------------------------------------------------------
