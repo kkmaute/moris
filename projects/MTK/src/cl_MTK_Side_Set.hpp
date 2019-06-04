@@ -1,12 +1,12 @@
 /*
- * cl_MTK_Element_Block.hpp
+ * cl_MTK_Side_Set.hpp
  *
  *  Created on: Jul 24, 2018
  *      Author: messe
  */
 
-#ifndef SRC_MESH_CL_MTK_BLOCK_HPP_
-#define SRC_MESH_CL_MTK_BLOCK_HPP_
+#ifndef SRC_MESH_CL_MTK_SIDE_SET_HPP_
+#define SRC_MESH_CL_MTK_SIDE_SET_HPP_
 
 #include <string>
 
@@ -25,60 +25,67 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        class Block : public Set
+        class Side_Set : public Set
         {
         private :
-            uint                              mNumVerticesOnBlock;
-            moris::Matrix< DDSMat >           mVerticesOnBlock;
+            uint                              mNumVerticesOnSet;
+            moris::Matrix< DDSMat >           mVerticesOnSet;
 
 //------------------------------------------------------------------------------
 
-            void calculate_vertices_on_blocks()
+            void calculate_vertices_on_set()
             {
                 uint tMaxNumVert = 0;
 
-                for( uint Ik = 0; Ik < mBlockSetClusters.size(); Ik++)
+                for( uint Ik = 0; Ik < mSideSetClusters.size(); Ik++)
                 {
-                    for( uint Ij = 0; Ij < mBlockSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
+                    Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
+                                                              ->get_cell_side_ordinals();
+
+                    print(tSideOrdinal,"tSideOrdinal");
+
+                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_cells_in_side_cluster().size(); Ij++)
                     {
-                        tMaxNumVert = tMaxNumVert + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                           ->get_vertex_inds().numel();
+                        tMaxNumVert = tMaxNumVert + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                                                          ->get_vertices_ind_on_side_ordinal( tSideOrdinal(Ij) ).numel();
                     }
                 }
 
-                moris::Matrix< DDSMat > tVerticesOnBlock(1, tMaxNumVert, -1 );
+                moris::Matrix< DDSMat > tVerticesOnSet(1, tMaxNumVert, -1 );
 
                 uint tCounter = 0;
 
-                for( uint Ik = 0; Ik < mBlockSetClusters.size(); Ik++)
+                for( uint Ik = 0; Ik < mSideSetClusters.size(); Ik++)
                 {
-                    for( uint Ij = 0; Ij < mBlockSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
+                    Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
+                                                              ->get_cell_side_ordinals();
+
+                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_cells_in_side_cluster().size(); Ij++)
                     {
                         //FIXME rewrite for more readability
-                        tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                                        ->get_vertex_inds().numel() - 1 }) =
-                                mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                       ->get_vertex_inds().matrix_data();
+                        tVerticesOnSet( { 0, 0 },{ tCounter, tCounter + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                                          ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel() - 1 }) =
+                                                   mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                                   ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).matrix_data();
 
-                        tCounter =tCounter + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                    ->get_vertex_inds().numel();
+                        tCounter =tCounter + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                          ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel();
                     }
                 }
 
-                MORIS_ASSERT( tVerticesOnBlock.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
+//                MORIS_ASSERT( tVerticesOnSet.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
 
-                unique( tVerticesOnBlock, mVerticesOnBlock);
+                unique( tVerticesOnSet, mVerticesOnSet);
 
-//                print(mVerticesOnBlock,"mNumVerticesOnBlock");
+//                print(mVerticesOnSet,"mVerticesOnSet");
 
-                mNumVerticesOnBlock = mVerticesOnBlock.numel();
+                mNumVerticesOnSet = mVerticesOnSet.numel();
             };
 
 //------------------------------------------------------------------------------
 
         protected :
-            moris::Matrix< DDUMat >           mMyBlockSetClusterInds;
-            moris::Cell<Cell_Cluster const *> mBlockSetClusters;
+            moris::Cell<Side_Cluster const *> mSideSetClusters;
 
 
 //------------------------------------------------------------------------------
@@ -88,16 +95,9 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( moris::Cell<Cell_Cluster const *>  aBlockSetClusters ) : mBlockSetClusters(aBlockSetClusters)
+            Side_Set( moris::Cell<Side_Cluster const *>  aSideSetClusters ) : mSideSetClusters(aSideSetClusters)
             {
-//                mMyBlockSetClusterInds.set_size( aBlockSetClusters.size(), 1 );
-//
-//                for( uint Ik = 0; Ik < aBlockSetClusters.size(); Ik++)
-//                {
-//                    mMyBlockSetClusterInds( Ik, 0 ) = aBlockSetClusterInd( Ik );
-//                }
-
-                this->calculate_vertices_on_blocks();
+                 this->calculate_vertices_on_set();
             };
 
 //------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ namespace moris
             /**
              * virtual destructor
              */
-            ~Block(){};
+            ~Side_Set(){};
 
 //------------------------------------------------------------------------------
 
@@ -120,10 +120,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              const Cell_Cluster  *
-              get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
+              const Side_Cluster  *
+              get_side_clusters_by_index( moris_index aCellClusterIndex ) const
               {
-                  return mBlockSetClusters( aCellClusterIndex );
+                  return mSideSetClusters( aCellClusterIndex );
               }
 
 //------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ namespace moris
               const uint
               get_num_vertieces_on_set() const
               {
-                  return mNumVerticesOnBlock;
+                  return mNumVerticesOnSet;
               }
 
 //------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ namespace moris
               moris::Matrix< DDSMat >
               get_vertieces_inds_on_block() const
               {
-                  return mVerticesOnBlock;
+                  return mVerticesOnSet;
               }
 
 //------------------------------------------------------------------------------
@@ -246,4 +246,4 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 //------------------------------------------------------------------------------
-#endif /* SRC_MESH_CL_MTK_BLOCK_HPP_ */
+#endif /* SRC_MESH_CL_MTK_SIDE_SET_HPP_ */
