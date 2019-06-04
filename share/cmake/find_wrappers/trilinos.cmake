@@ -11,7 +11,6 @@
 # Your "do-configure" script that invokes CMake should set
 # TRILINOS_PATH to the path to your Trilinos install.
 # You do _not_ need to edit this line.
-#> what? ^
 
 if(NOT TRILINOS_FOUND_ONCE) 
 # - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - -
@@ -32,7 +31,9 @@ if(NOT TRILINOS_FOUND_ONCE)
         HINTS
         ${TRILINOS_ENV_VARS}
         PATHS
-        /usr/lib/trilinos/gcc-openmpi )
+        /usr/lib/trilinos/gcc-openmpi
+        PATH_SUFFIXES
+        gcc-openmpi )
 
     if(NOT TRILINOS_DIR)
         message(FATAL_ERROR 
@@ -53,7 +54,9 @@ if(NOT TRILINOS_FOUND_ONCE)
         HINTS
         ${TRILINOS_DEBUG_ENV_VARS}
         PATHS
-        /usr/lib/trilinos-dbg/gcc-openmpi )
+        /usr/lib/trilinos-dbg/gcc-openmpi
+        PATH_SUFFIXES
+        gcc-openmpi )
 
     if ( NOT MORIS_HAVE_DEBUG )
         set(TRILINOS_PATH ${TRILINOS_DIR})
@@ -62,7 +65,7 @@ if(NOT TRILINOS_FOUND_ONCE)
             set(TRILINOS_PATH "${TRILINOS_DEBUG_DIR}")
         else()
             message(WARNING 
-                "\nMORIS will use the release version of Trilinos unless the Trilinos_DEBUG_DIR environment variable is set.\n" )
+                "\nmoris will use the release version of Trilinos unless the Trilinos_DEBUG_DIR environment variable is set.\n" )
             set(TRILINOS_PATH "${TRILINOS_DIR}")
         endif()
     endif()
