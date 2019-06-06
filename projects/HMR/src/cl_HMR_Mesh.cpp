@@ -43,7 +43,7 @@ namespace moris
 
             if(mMesh !=nullptr)
             {
-            setup_glb_to_local_maps();
+            //setup_glb_to_local_maps();
             }
 
 //             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );

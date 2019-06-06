@@ -29,9 +29,9 @@ public:
                          Interpolation_Mesh_HMR & aInterpolationMesh  ):
         Mesh( aDatabase, aLagrangeOrder, aLagrangePattern )
     {
-        this->setup_cell_clusters(aInterpolationMesh);
-        this->setup_blockset_with_cell_clusters();
-        this->setup_side_set_clusters(aInterpolationMesh);
+        //this->setup_cell_clusters(aInterpolationMesh);
+        //this->setup_blockset_with_cell_clusters();
+        //this->setup_side_set_clusters(aInterpolationMesh);
     }
 
 
