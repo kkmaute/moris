@@ -915,6 +915,7 @@ namespace moris
                  MORIS_ERROR( false, "get_active_index() not available for selected basis type." );
                  return gNoEntityID;
              }
+
 //------------------------------------------------------------------------------
 
              virtual mtk::Vertex_Interpolation * get_interpolation( const uint aOrder )
@@ -925,7 +926,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual const mtk::Vertex_Interpolation * get_interpolation( const uint aOrder ) const
+             virtual bool
+             has_interpolation( const uint aOrder )
+             {
+                 MORIS_ERROR( false, "has_interpolation() not available for for selected basis type.");
+                 return false;
+             }
+
+//------------------------------------------------------------------------------
+
+             virtual const mtk::Vertex_Interpolation *
+             get_interpolation(  const uint aOrder ) const
              {
                  MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type.");
                  return nullptr;

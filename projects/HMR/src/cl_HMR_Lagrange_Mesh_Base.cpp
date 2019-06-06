@@ -3601,7 +3601,7 @@ namespace moris
         {
             MORIS_ERROR( par_size() <= 1, "Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc(), this function is intended to work only in serial");
 
-            moris::uint tCounter = 0;
+            moris::uint tCounter  = 0;
             moris::uint tCounter2 = 0;
 
             Matrix< DDSMat > tReverseIndexMap( mAllBasisOnProc.size()+1, 1, -1 );
@@ -3609,14 +3609,15 @@ namespace moris
 
             moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
 
-//            BSpline_Mesh_Base * tBslpinemesh = this->get_bspline_mesh( 1 );
-
             this->calculate_t_matrices( false );
 
             uint tNumberOfNodes = this->get_number_of_nodes_on_proc();
+
             for( uint Ik = 0; Ik<tNumberOfNodes; Ik ++ )
             {
                 Basis * tBasis = this->get_node_by_index( Ik );
+
+                MORIS_ERROR( tBasis->has_interpolation (1), "Lagrange_Mesh_Base:: node has no first order basis");
 
                 mtk::Vertex_Interpolation * tInterp = tBasis->get_interpolation( 1 );
 
@@ -3643,7 +3644,6 @@ namespace moris
 
             for( Basis * tBasis : tNonBSplineBasis )
             {
-
                 tReverseIndexMap( tCounter ) = tBasis->get_index();
                 tReverseIDMap( tCounter )    = tBasis->get_hmr_index();
 
