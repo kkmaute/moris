@@ -3651,13 +3651,8 @@ namespace moris
                 tBasis->set_domain_index( tCounter++  );
             }
 
-            std::string aFilePath = "Reverse_Map.hdf5";
-
-            //print(tReverseIndexMap,"tReverseIndexMap");
-            // add order to path
-            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                        + "_" + std::to_string( this->get_index() ) // rank of this processor
-                                        +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+            // write reverse map for linear mesh
+            std::string tFilePath = "Reverse_Map_1.hdf5";
 
             // make path parallel
             tFilePath = parallelize_path( tFilePath );
