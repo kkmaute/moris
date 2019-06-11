@@ -3623,21 +3623,39 @@ namespace moris
 
                 Matrix< IdMat > tLocalIDs = tInterp->get_ids();
 
-                if (tLocalIDs.numel()==1)
+                const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
+
+                print(tLocalWeights,"tLocalWeights");
+
+                if (tLocalIDs.numel()==1 || tLocalWeights.max() == 1 )
                 {
+                    uint tIndex1 = 0;
+
+                    // value 1 should be always on the first entry in the vector
+                    for( uint Ia = 0; Ia<tLocalWeights.numel(); Ia ++ )
+                    {
+                        if( tLocalWeights(Ia) == 1 )
+                        {
+                            tIndex1 = Ia;
+                            break;
+                        }
+                    }
+
+
                     // check whether the same basis is used twice for being the only basis interpolating at a node
-                    MORIS_ASSERT( tReverseIDMap( tLocalIDs( 0, 0 )-1 ) == -1, "Node Id %-5i appears twice", tLocalIDs( 0, 0 )-1 );
+                    MORIS_ASSERT( tReverseIDMap( tLocalIDs( tIndex1, 0 )-1 ) == -1, "Node Id %-5i appears twice", tLocalIDs( tIndex1, 0 )-1 );
 
                     // check whether the same basis is used twice for being the only basis interpolating at a node
 //                    auto index = std::find(tReverseIndexMap.data(),tReverseIndexMap.data()+tReverseIndexMap.numel(),tBasis->get_index());
 //
 //                    MORIS_ERROR( index == tReverseIndexMap.data()+tReverseIndexMap.numel(), "Lagrange_Mesh_Base:: same single basis used twice");
 
-                    tReverseIndexMap( tLocalIDs( 0, 0 ) ) = tBasis->get_index();
-                    tReverseIDMap( tLocalIDs( 0, 0 )-1 )  = tBasis->get_hmr_index();
 
-                    tBasis->set_local_index( tLocalIDs( 0, 0 ) );
-                    tBasis->set_domain_index( tLocalIDs( 0, 0 ) - 1 );
+                    tReverseIndexMap( tLocalIDs( tIndex1, 0 ) ) = tBasis->get_index();
+                    tReverseIDMap( tLocalIDs( tIndex1, 0 )-1 )  = tBasis->get_hmr_index();
+
+                    tBasis->set_local_index( tLocalIDs( tIndex1, 0 ) );
+                    tBasis->set_domain_index( tLocalIDs( tIndex1, 0 ) - 1 );
 
                     tCounter++;
                 }
@@ -3652,16 +3670,18 @@ namespace moris
 
             uint tMaxID = tReverseIDMap.max();
 
+            tReverseIndexMap.resize( tMaxID + tNonBSplineBasis.size()+1, 1 );
             tReverseIDMap.resize( tMaxID + tNonBSplineBasis.size()+1, 1 );
 
             for( Basis * tBasis : tNonBSplineBasis )
             {
-                tReverseIndexMap( tCounter ) = tBasis->get_index();
-                tReverseIDMap( tMaxID+1 )    = tBasis->get_hmr_index();
+                tReverseIndexMap( tMaxID ) = tBasis->get_index();
+                tReverseIDMap( tMaxID )    = tBasis->get_hmr_index();
 
-                tBasis->set_local_index( tCounter++ );
-                tBasis->set_domain_index( tMaxID+1  );
+                tBasis->set_local_index( tMaxID );
+                tBasis->set_domain_index( tMaxID );
 
+                tCounter++;
                 tMaxID++;
             }
 

@@ -275,6 +275,7 @@ namespace moris
             Basis*
             get_node_by_index( const uint & aIndex )
             {
+                MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
                 return mNodes( aIndex );
             }
 
@@ -286,6 +287,7 @@ namespace moris
             const Basis*
             get_node_by_index( const uint & aIndex ) const
             {
+                MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
                 return mNodes( aIndex );
             }
 
