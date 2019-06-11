@@ -3625,7 +3625,14 @@ namespace moris
 
                 if (tLocalIDs.numel()==1)
                 {
+                    // check whether the same basis is used twice for being the only basis interpolating at a node
                     MORIS_ASSERT( tReverseIDMap( tLocalIDs( 0, 0 )-1 ) == -1, "Node Id %-5i appears twice", tLocalIDs( 0, 0 )-1 );
+
+                    // check whether the same basis is used twice for being the only basis interpolating at a node
+//                    auto index = std::find(tReverseIndexMap.data(),tReverseIndexMap.data()+tReverseIndexMap.numel(),tBasis->get_index());
+//
+//                    MORIS_ERROR( index == tReverseIndexMap.data()+tReverseIndexMap.numel(), "Lagrange_Mesh_Base:: same single basis used twice");
+
                     tReverseIndexMap( tLocalIDs( 0, 0 ) ) = tBasis->get_index();
                     tReverseIDMap( tLocalIDs( 0, 0 )-1 )  = tBasis->get_hmr_index();
 
@@ -3658,15 +3665,8 @@ namespace moris
                 tMaxID++;
             }
 
-//            print(tReverseIDMap, "tReverseIDMap");
-
-            std::string aFilePath = "Reverse_Map.hdf5";
-
-            //print(tReverseIndexMap,"tReverseIndexMap");
-            // add order to path
-            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                        + "_" + std::to_string( this->get_index() ) // rank of this processor
-                                        +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+            // write reverse map for linear mesh
+            std::string tFilePath = "Reverse_Map_1.hdf5";
 
             // make path parallel
             tFilePath = parallelize_path( tFilePath );
