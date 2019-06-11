@@ -3626,9 +3626,9 @@ namespace moris
                 if (tLocalIDs.numel()==1)
                 {
                     // check whether the same basis is used twice for being the only basis interpolating at a node
-                    auto index = std::find(tReverseIndexMap.matrix_data(),tReverseIndexMap.matrix_data()+tReverseIndexMap.numel(),tBasis->get_index());
+                    auto index = std::find(tReverseIndexMap.data(),tReverseIndexMap.data()+tReverseIndexMap.numel(),tBasis->get_index());
 
-                    MORIS_ERROR( index == tReverseIndexMap.matrix_data()+tReverseIndexMap.numel(), "Lagrange_Mesh_Base:: same single basis used twice");
+                    MORIS_ERROR( index == tReverseIndexMap.data()+tReverseIndexMap.numel(), "Lagrange_Mesh_Base:: same single basis used twice");
 
                     tReverseIndexMap( tLocalIDs( 0, 0 ) ) = tBasis->get_index();
                     tReverseIDMap( tLocalIDs( 0, 0 )-1 )  = tBasis->get_hmr_index();
