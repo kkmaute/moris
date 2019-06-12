@@ -13,8 +13,9 @@ set(HEADERS
 
 # List header dependencies
 set(MOD_INCLUDES
-    ${ALG}
-    ${LINALG})
+    #${ALG}
+    #${LINALG}
+    )
 
 # Include depedency directories
 foreach(MOD_INCLUDE ${MOD_INCLUDES})
@@ -44,8 +45,22 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${MOD}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${MOD}-lib ${LIB_DEPENDENCIES})
+target_link_libraries(${MOD}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MOD}-lib PROPERTIES OUTPUT_NAME ${MOD})
+
+# Link third party libraries
+foreach(TPL ${MOD_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${MOD}-lib 
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${MOD}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${MOD}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Model Executable

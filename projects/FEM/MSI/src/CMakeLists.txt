@@ -21,24 +21,24 @@ set(HEADERS
 
 # List header dependencies
 set(MSI_INCLUDES
-      ${LINALG}
-      ${COM}
+      #${LINALG}
+      #${COM}
 #     ${SOL}/${DLA}
-      ${HMR}
-      ${FEM}/${INT}
+      #${HMR}
+      #${FEM}/${INT}
     )
 
 foreach(MSI_INLCUDE ${MSI_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${MSI_INCLUDE}/src)
 endforeach()
 
-include_directories(${MORIS_PACKAGE_DIR}/LINALG/src)
-include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
-include_directories(${MORIS_PACKAGE_DIR}/SOL/DLA/src)
-include_directories(${MORIS_PACKAGE_DIR}/COM/src)
-include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
-include_directories(${MORIS_PACKAGE_DIR}/HMR/src)
-include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
+#include_directories(${MORIS_PACKAGE_DIR}/LINALG/src)
+#include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
+#include_directories(${MORIS_PACKAGE_DIR}/SOL/DLA/src)
+#include_directories(${MORIS_PACKAGE_DIR}/COM/src)
+#include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
+#include_directories(${MORIS_PACKAGE_DIR}/HMR/src)
+#include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Model Solver Interface Library
@@ -53,13 +53,16 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-#     ${COM}-lib
-      ${DLA}-lib
-      ${HMR}-lib
+	${LINALG}-lib
+    ${COM}-lib
+    ${CON}-lib
+    ${INT}-lib
+    ${DLA}-lib
+    ${HMR}-lib
 #     ${MSI}-lib
 #     ${MORIS_BASE_LIBS}
 #     ${MORIS_PETSC_LIBS}
-      ${MORIS_T_LIBS}
+#      ${MORIS_T_LIBS}
    )
 
 # Remove duplicate dependencies
@@ -74,8 +77,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${MSI}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${MSI}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${MSI}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${MSI}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MSI}-lib PROPERTIES OUTPUT_NAME ${MSI})
+
+foreach(TPL ${MSI_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${MSI}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${MSI}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${MSI}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Model Solver Interface Config Files

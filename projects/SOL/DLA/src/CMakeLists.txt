@@ -33,12 +33,12 @@ set(HEADERS
 
 # List header dependencies
 set(DLA_INCLUDES
-    ${LINALG}
-    ${SOL}/${SOL_CORE}
-    ${IOS}
-    ${COM}
-    ${MTK}
-    ${HMR}
+    #${LINALG}
+    #${SOL}/${SOL_CORE}
+    #${IOS}
+    #${COM}
+    #${MTK}
+    #${HMR}
 #    ${FEM}/${MSI}
 #    ${FEM}/${INT}
 )
@@ -75,20 +75,17 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    #${MTK}-lib
+	${LINALG}-lib
+	${COM}-lib
+    ${MTK}-lib
     ${HMR}-lib
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_PETSC_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_PETSC_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
-    ${MORIS_ARPACK_LIBS} )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE LIB_DEPENDENCIES)
-list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
-list(REVERSE LIB_DEPENDENCIES)
+    #${MORIS_ARPACK_LIBS}
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -102,8 +99,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${DLA}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${DLA}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${DLA}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${DLA}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${DLA}-lib PROPERTIES OUTPUT_NAME ${DLA})
+
+foreach(TPL ${DLA_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${DLA}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${DLA}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${DLA}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Executable

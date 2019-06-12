@@ -26,9 +26,9 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+	${CON}-lib
     ${COM}-lib
-    ${MORIS_BASE_LIBS}
-    ${MORIS_BOOST_LIBS})
+    ${MORIS_BASE_LIBS})
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -44,7 +44,7 @@ set(CON_TEST ${CON}-test)
 
 # Create executable
 add_executable(${CON_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${CON_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
+target_link_libraries(${CON_TEST}${EXE_EXT} PUBLIC ${TEST_DEPENDENCIES})
 
 # Mark as test
 add_test(NAME ${CON_TEST}

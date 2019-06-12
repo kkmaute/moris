@@ -11,12 +11,13 @@ set(HEADERS
     
 # List header dependencies
 set(SOL_CORE_INCLUDES
-    ${LINALG}
-    ${SOL}/${DLA}
-    ${IOS}
-    ${COM}
-    ${SOL}/${NLA}
-    ${FEM}/${MSI} )
+    #${LINALG}
+    #${SOL}/${DLA}
+    #${IOS}
+    #${COM}
+    #${SOL}/${NLA}
+    #${FEM}/${MSI}
+    )
 
 # Include depedency directories
 foreach(SOL_CORE_INCLUDE ${SOL_CORE_INCLUDES})
@@ -34,14 +35,15 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${DLA}-lib
-    ${COM}-lib
+    #${COM}-lib
     ${MSI}-lib
-    ${NLA}-lib
-    ${MORIS_PETSC_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
+    #${NLA}-lib
+    #${MORIS_PETSC_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
-    ${MORIS_ARPACK_LIBS} )
+    #${MORIS_ARPACK_LIBS}
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -55,8 +57,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${SOL_CORE}-lib STATIC ${LIB_SOURCES})
+target_include_directories(${SOL_CORE}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
 target_link_libraries(${SOL_CORE}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${SOL_CORE}-lib PROPERTIES OUTPUT_NAME ${SOL_CORE})
+
+foreach(TPL ${SOL_CORE_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${SOL_CORE}-lib
+    	INTERFACE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${SOL_CORE}-lib
+    	INTERFACE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${SOL_CORE}-lib
+    	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sol Core Executable

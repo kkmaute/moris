@@ -191,7 +191,7 @@ if(NOT TRILINOS_FOUND_ONCE)
             "${MORIS_T_LIBS}" )
     endif()
 
-    set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS} ${PARDISO_LIBS}
+    set(MORIS_TRILINOS_LIBRARIES ${MORIS_T_LIBS} ${PARDISO_LIBS}
         CACHE INTERNAL "Trilinos Libraries.")
     
     message(STATUS "TRILINOS_PATH: ${TRILINOS_PATH}")

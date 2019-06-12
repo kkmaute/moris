@@ -10,7 +10,7 @@
 
 #include "dlfcn.h"
 
-#include "../projects/GEN/src/cl_GE_Core.hpp"
+#include "cl_GE_Core.hpp"
 #include "typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"

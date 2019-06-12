@@ -27,7 +27,7 @@ find_library(SNOPT_LIBRARIES
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SNOPT DEFAULT_MSG 
-    SNOPT_LIBRARY DIRS
+    SNOPT_LIBRARY_DIRS
     SNOPT_LIBRARIES )
 
 mark_as_advanced(SNOPT_LIBRARY_DIRS SNOPT_LIBRARIES)

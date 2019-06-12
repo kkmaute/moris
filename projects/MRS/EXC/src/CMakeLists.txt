@@ -9,6 +9,11 @@ set(HEADERS
     cl_tic_toc_error.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Exceptions Target
+add_library(${EXC}-target INTERFACE)
+target_include_directories(${EXC}-target INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Exceptions Library
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -502,7 +502,7 @@ endif()
 # ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${MORIS_TPL_DIR}/arpack.cmake)
+#include(${MORIS_TPL_DIR}/arpack.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -661,11 +661,11 @@ endif()
 ##### Include LINALG Implementation
 
 if(MORIS_USE_ARMA)
-	include(${MORIS_TPL_DIR}/armadillo.cmake)
+	#include(${MORIS_TPL_DIR}/armadillo_new.cmake)
 endif()
 
 if(MORIS_USE_EIGEN)
-	include(${MORIS_TPL_DIR}/eigen.cmake)
+	#include(${MORIS_TPL_DIR}/eigen.cmake)
 endif()
 
 # # -------------------------------------------------------------------------

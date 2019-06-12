@@ -176,49 +176,72 @@ foreach(LINALG_INCLUDE ${LINALG_INCLUDES})
     include_directories(../../${LINALG_INCLUDE}/src)
 endforeach()
 
-
-
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Library
+add_library(${LINALG}-lib INTERFACE)
+target_include_directories(${LINALG}-lib INTERFACE
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> 
+	$<BUILD_INTERFACE:${LINALG_IMPLEMENTATION_INCLUDES}>)
+
+foreach(TPL ${LINALG_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${LINALG}-lib
+    	INTERFACE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${LINALG}-lib
+    	INTERFACE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${LINALG}-lib
+    	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Executable
 
-# LINALG Executable
-# List source files
-set(EXE_SOURCES
-        main.cpp)
-
-# List library dependencies
-set(EXE_DEPENDENCIES 
-	${MORIS_ARMADILLO_EIGEN_LIBS} 
-	${MORIS_BASE_LIBS}
-	${COM}-lib
-	${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_SUPERLU_LIBS})
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE EXE_DEPENDENCIES)
-list(REMOVE_DUPLICATES EXE_DEPENDENCIES)
-list(REVERSE EXE_DEPENDENCIES)
+if(BUILD_LINALG)
+	# LINALG Executable
+	# List source files
+	set(EXE_SOURCES
+	        main.cpp)
 	
-# Set the output path for library
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
-
-# Create library
-add_executable(${LINALG} ${EXE_SOURCES})
-target_link_libraries(${LINALG} ${EXE_DEPENDENCIES})
-
-
-
-
-include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
-
+	# List library dependencies
+	set(EXE_DEPENDENCIES 
+		${LINALG}-lib
+		#${MORIS_ARMADILLO_EIGEN_LIBS} 
+		${MORIS_BASE_LIBS}
+		${COM}-lib
+		#${MORIS_ACML_LAPACK_MKL_LIBS}
+	    #${MORIS_SUPERLU_LIBS}
+	    )
+	
+	# Remove duplicate dependencies
+	# REVERSE is required to maintain proper linking order
+	list(REVERSE EXE_DEPENDENCIES)
+	list(REMOVE_DUPLICATES EXE_DEPENDENCIES)
+	list(REVERSE EXE_DEPENDENCIES)
+		
+	# Set the output path for library
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
+	
+	# Create library
+	add_executable(${LINALG} ${EXE_SOURCES})
+	target_link_libraries(${LINALG} PRIVATE ${EXE_DEPENDENCIES})
+	target_include_directories(${LINALG} PRIVATE ${MORIS_PACKAGE_DIR}/XTK/include)
+	
+	foreach(TPL ${LINALG_EXE_TPL_DEPENDENCIES})
+		string(TOLOWER ${TPL} tpl)
+	    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+	    
+	    string(TOUPPER ${TPL} TPL)
+	    target_include_directories(${LINALG} 
+	    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+	    target_link_libraries(${LINALG}
+	    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+	    target_compile_definitions(${LINALG}
+	    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+	endforeach()
+endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Config Files
@@ -229,3 +252,12 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 # Install header files
 install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${LINALG} )
+
+install(TARGETS ${LINALG}-lib
+	EXPORT ${LINALG}Targets
+	ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${LINALG}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${LINALG}
+    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${LINALG} )
+
+install(EXPORT ${LINALG}Targets 
+	DESTINATION ${CONFIG_INSTALL_DIR}/${LINALG} )

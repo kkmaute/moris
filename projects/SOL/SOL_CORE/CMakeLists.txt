@@ -2,10 +2,10 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-list(REMOVE_DUPLICATES SOL_CORE_TPL_DEPENDENCIES)
-foreach(SOL_CORE_TPL ${SOL_CORE_TPL_DEPENDENCIES})
-    include(${MORIS_TPL_DIR}/${SOL_CORE_TPL}.cmake)
-endforeach()
+#list(REMOVE_DUPLICATES SOL_CORE_TPL_DEPENDENCIES)
+#foreach(SOL_CORE_TPL ${SOL_CORE_TPL_DEPENDENCIES})
+#    include(${MORIS_TPL_DIR}/${SOL_CORE_TPL}.cmake)
+#endforeach()
 
 # Add source directory
 add_subdirectory(src)
@@ -14,5 +14,3 @@ add_subdirectory(src)
 #if(MORIS_USE_TESTS AND BUILD_SOL_CORE)
 #    add_subdirectory(test)
 #endif()
-
-# Not sure yet what else should be here

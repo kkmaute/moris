@@ -14,7 +14,8 @@ set(HEADERS
 
 # List header dependencies
 set(ALG_INCLUDES
-    ${LINALG})
+    #${LINALG}
+    )
 
 # Include depedency directories
 foreach(ALG_INCLUDE ${ALG_INCLUDES})
@@ -41,10 +42,26 @@ list(REVERSE LIB_DEPENDENCIES)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
-# Create library
+# Create library and set properties
 add_library(${ALG}-lib STATIC ${LIB_SOURCES})
+target_include_directories(${ALG}-lib 
+	PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(${ALG}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${ALG}-lib PROPERTIES OUTPUT_NAME ${ALG})
+
+# Link third party libraries
+foreach(TPL ${ALG_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${ALG}-lib 
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${ALG}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${ALG}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Algorithms Executable

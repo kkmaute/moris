@@ -89,13 +89,14 @@ set(HEADERS
 
 # List header dependencies
 set(INT_INCLUDES
-    ${SOL}/${DLA}
-    ${SOL}/${NLA}
-    ${LINALG}
-    ${MTK}
-    ${COM}
-    ${FEM}/${MSI}
-    ${FEM}/${MDL} )
+    #${SOL}/${DLA}
+    #${SOL}/${NLA}
+    #${LINALG}
+    #${MTK}
+    #${COM}
+    #${FEM}/${MSI}
+    #${FEM}/${MDL}
+    )
 
 # Include depedency directories
 foreach(INT_INCLUDE ${INT_INCLUDES})
@@ -141,13 +142,17 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
+	${LINALG}-lib
+	${MTK}-lib
+	${MSI}-lib
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_BASE_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MSI}-lib
-    ${MDL}-lib)
+    #${MORIS_ARPACK_LIBS}
+    #${MSI}-lib
+    #${MDL}-lib
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -161,8 +166,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${INT}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${INT}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${INT}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${INT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${INT}-lib PROPERTIES OUTPUT_NAME ${INT})
+
+foreach(TPL ${INT_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${INT}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${INT}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${INT}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fem/int Executable
