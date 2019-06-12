@@ -18,7 +18,7 @@
 #include "HDF5_Tools.hpp"
 
 #include "fn_save_matrix_to_binary_file.hpp"
-
+#include "fn_equal_to.hpp"
 
 namespace moris
 {
@@ -3625,16 +3625,15 @@ namespace moris
 
                 const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
 
-                print(tLocalWeights,"tLocalWeights");
-
-                if (tLocalIDs.numel()==1 || tLocalWeights.max() == 1 )
+                if (tLocalIDs.numel()==1 || equal_to(tLocalWeights.max(),1.0) )
                 {
                     uint tIndex1 = 0;
 
                     // value 1 should be always on the first entry in the vector
+                    // FIXME: should be replace by proper moris::mat function
                     for( uint Ia = 0; Ia<tLocalWeights.numel(); Ia ++ )
                     {
-                        if( tLocalWeights(Ia) == 1 )
+                        if( equal_to(tLocalWeights(Ia),1.0) )
                         {
                             tIndex1 = Ia;
                             break;
@@ -3644,12 +3643,6 @@ namespace moris
 
                     // check whether the same basis is used twice for being the only basis interpolating at a node
                     MORIS_ASSERT( tReverseIDMap( tLocalIDs( tIndex1, 0 )-1 ) == -1, "Node Id %-5i appears twice", tLocalIDs( tIndex1, 0 )-1 );
-
-                    // check whether the same basis is used twice for being the only basis interpolating at a node
-//                    auto index = std::find(tReverseIndexMap.data(),tReverseIndexMap.data()+tReverseIndexMap.numel(),tBasis->get_index());
-//
-//                    MORIS_ERROR( index == tReverseIndexMap.data()+tReverseIndexMap.numel(), "Lagrange_Mesh_Base:: same single basis used twice");
-
 
                     tReverseIndexMap( tLocalIDs( tIndex1, 0 ) ) = tBasis->get_index();
                     tReverseIDMap( tLocalIDs( tIndex1, 0 )-1 )  = tBasis->get_hmr_index();
