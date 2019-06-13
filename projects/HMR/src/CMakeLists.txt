@@ -81,7 +81,7 @@ set(HMR_INCLUDES
     ${LINALG}
     ${MTK}
     ${MTK}/${MAP}
-#    ${ALG} #MTK
+    ${ALG} #MTK
 #    ${TOL} #MTK
     ${XTK} #MTK
 #    ${STK} #MTK
@@ -169,7 +169,7 @@ set(EXE_DEPENDENCIES
     ${INT}-lib # for L2
     ${MSI}-lib # for L2
     ${NLA}-lib # for L2
-#    ${ALG}-lib #MTK
+    ${ALG}-lib #MTK
 #    ${TOL}-lib #MTK
     ${SDF}-lib # for SDF
 #    ${XTK}-lib #MTK

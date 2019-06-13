@@ -56,9 +56,9 @@ namespace moris
             /**
              * mesh constructor, to be called from HMR
              */
-            Mesh( std::shared_ptr< Database > aDatabase,
-                    const uint & aLagrangeOrder,
-                    const uint & aLagrangePattern );
+            Mesh(       std::shared_ptr< Database >   aDatabase,
+                  const uint                        & aLagrangeOrder,
+                  const uint                        & aLagrangePattern );
 
 //-------------------------------------------------------------------------------
 
@@ -72,8 +72,7 @@ namespace moris
             /**
              * return the type of this mesh
              */
-            MeshType
-            get_mesh_type() const
+            MeshType get_mesh_type() const
             {
                 return MeshType::HMR;
             }
@@ -84,24 +83,22 @@ namespace moris
              * provides a moris::Matrix< DDUMat > containing the IDs this mesh has
              * to communicate with
              */
-            Matrix< IdMat >
-            get_communication_table() const ;
+            Matrix< IdMat > get_communication_table() const ;
 
 //-------------------------------------------------------------------------------
 
             /**
              * creates a new field pointer that is linked to this mesh
              */
-            std::shared_ptr< Field >
-            create_field( const std::string & aLabel, const uint & aBSplineOrder );
+            std::shared_ptr< Field > create_field( const std::string & aLabel,
+                                                   const uint        & aBSplineOrder );
 
 //-------------------------------------------------------------------------------
 
             /**
              * returns a pointer to the underlying lagrange mesh
              */
-            Lagrange_Mesh_Base *
-            get_lagrange_mesh()
+            Lagrange_Mesh_Base * get_lagrange_mesh()
             {
                 return mMesh;
             }
@@ -111,8 +108,7 @@ namespace moris
             /**
              * return a pointer to the database
              */
-            std::shared_ptr< Database >
-            get_database()
+            std::shared_ptr< Database > get_database()
             {
                 return mDatabase;
             }
@@ -124,8 +120,7 @@ namespace moris
             /**
              * returns the number of dimensions of this mesh
              */
-            uint
-            get_spatial_dim() const;
+            uint get_spatial_dim() const;
 
 //-------------------------------------------------------------------------------
 
@@ -133,101 +128,82 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_num_nodes() const;
+            uint get_num_nodes() const;
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_num_edges() const;
+            uint get_num_edges() const;
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_num_faces() const;
+            uint get_num_faces() const;
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_num_elems() const;
+            uint get_num_elems() const;
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_num_coeffs( const uint aOrder ) const;
+            uint get_num_coeffs( const uint aOrder ) const;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_bspline_inds_of_node_loc_ind(
-                    const moris_index aNodeIndex,
-                    const enum EntityRank  aBSplineRank );
+            Matrix< IndexMat > get_bspline_inds_of_node_loc_ind( const moris_index      aNodeIndex,
+                                                                 const enum EntityRank  aBSplineRank );
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_entity_connected_to_entity_loc_inds(
+            Matrix< IndexMat > get_entity_connected_to_entity_loc_inds(
                                        moris_index     aEntityIndex,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank) const;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_entity_connected_to_entity_glob_ids(
+            Matrix< IndexMat > get_entity_connected_to_entity_glob_ids(
                                        moris_index     aEntityIndex,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank) const;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_nodes_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_edge_loc_inds( moris_index aEdgeIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_nodes_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+            Matrix< IndexMat > get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix < IndexMat >
-            get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+            Matrix < IndexMat > get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_edges_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+            Matrix< IndexMat > get_edges_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix < IndexMat >
-            get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
+            Matrix < IndexMat > get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_faces_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
+            Matrix< IndexMat > get_faces_connected_to_element_loc_inds( moris_index aElementIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
-            Matrix < IndexMat >
-            get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const;
+            Matrix < IndexMat > get_elements_connected_to_node_loc_inds( moris_index aNodeIndex ) const;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
+            Matrix< IndexMat > get_elements_connected_to_face_loc_inds( moris_index aFaceIndex ) const ;
 
 //-------------------------------------------------------------------------------
 
@@ -240,137 +216,116 @@ namespace moris
              * @param[out] Element to element connectivity and face ordinal shared
              *                   (where elements are all by index)
              */
-            Matrix< IndexMat >
-            get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
+            Matrix< IndexMat > get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
 
 //-------------------------------------------------------------------------------
 //          Global ID Functions
 //-------------------------------------------------------------------------------
 
-            moris_id
-            get_glb_entity_id_from_entity_loc_index(
+            moris_id get_glb_entity_id_from_entity_loc_index(
                     moris_index     aEntityIndex,
                     enum EntityRank aEntityRank) const ;
 
 //-------------------------------------------------------------------------------
-            moris_index
-            get_loc_entity_ind_from_entity_glb_id(
+            moris_index get_loc_entity_ind_from_entity_glb_id(
                     moris_id        aEntityId,
                     enum EntityRank aEntityRank) const;
 
 //-------------------------------------------------------------------------------
 
-            moris_id
-            get_max_entity_id( enum EntityRank aEntityRank ) const ;
+            moris_id get_max_entity_id( enum EntityRank aEntityRank ) const ;
 
 //-------------------------------------------------------------------------------
 //          Coordinate Field Functions
 //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat >
-            get_node_coordinate( moris_index aNodeIndex ) const;
+            Matrix< DDRMat > get_node_coordinate( moris_index aNodeIndex ) const;
 
 //-------------------------------------------------------------------------------
 //           Entity Ownership Functions
 //-------------------------------------------------------------------------------
 
-            moris_id
-            get_entity_owner(  moris_index     aEntityIndex,
+            moris_id get_entity_owner(  moris_index     aEntityIndex,
                     enum EntityRank aEntityRank ) const;
 
 //-------------------------------------------------------------------------------
 //           Set Functions
 //-------------------------------------------------------------------------------
 
-            void
-            get_sideset_elems_loc_inds_and_ords(
+            void get_sideset_elems_loc_inds_and_ords(
                     const  std::string     & aSetName,
                     Matrix< IndexMat >     & aElemIndices,
                     Matrix< IndexMat >     & aSidesetOrdinals ) const;
 
 //-------------------------------------------------------------------------------
 
-            moris::Cell<std::string>
-            get_set_names(enum EntityRank aSetEntityRank) const;
+            moris::Cell<std::string> get_set_names(enum EntityRank aSetEntityRank) const;
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
-                                     std::string     aSetName) const;
+            Matrix< IndexMat > get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
+                                                        std::string     aSetName ) const;
 
 //-------------------------------------------------------------------------------
 //           Pointer Functions for FEM
 //-------------------------------------------------------------------------------
 
-            mtk::Vertex &
-            get_mtk_vertex( moris_index aVertexIndex )
+            mtk::Vertex & get_mtk_vertex( moris_index aVertexIndex )
             {
                 return *mMesh->get_node_by_index( aVertexIndex );
             }
 
 //-------------------------------------------------------------------------------
 
-            mtk::Cell  &
-            get_mtk_cell( moris_index aElementIndex )
+            mtk::Cell & get_mtk_cell( moris_index aElementIndex )
             {
                 return *mMesh->get_element( aElementIndex );
             }
 
 //-------------------------------------------------------------------------------
 
-            mtk::Cell const &
-            get_mtk_cell( moris_index aElementIndex ) const
+            mtk::Cell const & get_mtk_cell( moris_index aElementIndex ) const
             {
                 return *mMesh->get_element( aElementIndex );
             }
 //-------------------------------------------------------------------------------
 
-            void
-            get_adof_map(
-                    const uint aOrder,
-                    map< moris_id, moris_index > & aAdofMap ) const;
+            void get_adof_map( const uint aOrder,
+                                     map< moris_id, moris_index > & aAdofMap ) const;
 
 //-------------------------------------------------------------------------------
 
-            moris_index
-            get_field_ind(
-                    const std::string     & aFieldLabel,
-                    const enum EntityRank   aEntityRank  ) const;
+            moris_index get_field_ind( const std::string     & aFieldLabel,
+                                       const enum EntityRank   aEntityRank  ) const;
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_num_fields( const enum EntityRank aEntityRank ) const;
+            uint get_num_fields( const enum EntityRank aEntityRank ) const;
 
 //-------------------------------------------------------------------------------
 
-            real &
-            get_value_of_scalar_field(
+            real & get_value_of_scalar_field(
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
                     const uint              aEntityIndex );
 
 //-------------------------------------------------------------------------------
 
-            const real &
-            get_value_of_scalar_field(
+            const real & get_value_of_scalar_field(
                     const      moris_index  aFieldIndex,
                     const enum EntityRank   aEntityRank,
                     const uint              aEntityIndex ) const;
 
 //-------------------------------------------------------------------------------
 
-            Matrix<DDRMat> &
-            get_field( const moris_index     aFieldIndex,
-                       const enum EntityRank aEntityRank );
+            Matrix<DDRMat> & get_field( const moris_index     aFieldIndex,
+                                        const enum EntityRank aEntityRank );
 
 //-------------------------------------------------------------------------------
             private:
 //-------------------------------------------------------------------------------
 
-            void
-            get_element_indices_from_memory_indices(
+            void get_element_indices_from_memory_indices(
                     const Matrix< DDLUMat>      & aMemoryIndices,
                           Matrix< IndexMat >    & aIndices ) const;
 
@@ -378,8 +333,7 @@ namespace moris
             /**
              * subroutine for get_elements_connected_to_element_loc_inds(
              */
-            void
-            collect_memory_indices_of_active_element_neighbors(
+            void collect_memory_indices_of_active_element_neighbors(
                     const moris_index  aElementIndex,
                     Matrix< DDLUMat> & aMemoryIndices,
                     luint            & aCounter ) const;
@@ -389,15 +343,13 @@ namespace moris
             /**
              * subroutine for get_elements_connected_to_node_loc_inds
              */
-            void
-            collect_memory_indices_of_active_elements_connected_to_node(
+            void collect_memory_indices_of_active_elements_connected_to_node(
                     const moris_index  aNodeIndex,
                     Matrix< DDLUMat> & aMemoryIndices ) const;
 
 //-------------------------------------------------------------------------------
 public:
-            const Matrix< DDRMat > &
-            get_t_matrix_of_node_loc_ind(
+            const Matrix< DDRMat > & get_t_matrix_of_node_loc_ind(
                     const moris_index aNodeIndex,
                     const enum EntityRank  aBSplineRank )
             {
@@ -410,30 +362,26 @@ private:
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_level_of_entity_loc_ind(
+            uint get_level_of_entity_loc_ind(
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex );
 
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_max_level_of_entity( const enum EntityRank aEntityRank );
+            uint get_max_level_of_entity( const enum EntityRank aEntityRank );
 
 //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_inds_of_active_elements_connected_to_basis(
-                    const Basis * aBasis ) const;
+            Matrix< IndexMat > get_inds_of_active_elements_connected_to_basis( const Basis * aBasis ) const;
 
+//-------------------------------------------------------------------------------
 
-            void
-            setup_glb_to_local_maps();
+            void setup_glb_to_local_maps();
 
-            void
-            setup_entity_global_to_local_map(enum EntityRank aEntityRank);
+//-------------------------------------------------------------------------------
 
+            void setup_entity_global_to_local_map(enum EntityRank aEntityRank);
 
 
 //-------------------------------------------------------------------------------

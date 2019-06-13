@@ -23,7 +23,8 @@ namespace mtk
 class Integration_Mesh : public virtual Mesh
 {
 protected:
-    moris::Cell< moris::mtk::Block * >             mListofBlocks;
+    moris::Cell< moris::mtk::Set * >             mListofBlocks;
+    moris::Cell< moris::mtk::Set * >             mListofSideSets;
 public:
     Integration_Mesh(){};
     // Functions only valid for integration meshes
@@ -63,10 +64,31 @@ public:
     /*
      * Get block by index
      */
-    moris::mtk::Block *
+    moris::mtk::Set *
     get_block_by_index( moris::uint aBlockIndex) const
     {
         return mListofBlocks(aBlockIndex);
+    };
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get number of blocks
+     * Sometimes num side set * 2. Ask Keenan
+     */
+    moris::uint
+    get_num_side_set() const
+    {
+        return mListofSideSets.size();
+    };
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by index
+     */
+    moris::mtk::Set *
+    get_side_set_by_index( moris::uint aSideSetIndex) const
+    {
+        return mListofSideSets(aSideSetIndex);
     };
 
     // ----------------------------------------------------------------------------

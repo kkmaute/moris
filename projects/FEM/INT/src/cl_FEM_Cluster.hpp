@@ -299,6 +299,7 @@ namespace moris
             // check we are working with a side cluster
             MORIS_ASSERT( mSideCluster != NULL, "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - not a side cluster.");
 
+
             // if trivial cluster IP cell = IG cell
             if( mSideCluster->is_trivial() )
             {

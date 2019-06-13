@@ -71,7 +71,7 @@ void state_initialize_mesh( const Arguments & aArguments )
         if ( tHMR->get_parameters()->get_max_polynomial() > 2 )
         {
             // activate extra pattern for exodus
-            tHMR->get_database()->add_extra_refinement_step_for_exodus();
+//            tHMR->get_database()->add_extra_refinement_step_for_exodus();
         }
     }
     else

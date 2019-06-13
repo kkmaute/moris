@@ -169,6 +169,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            /*!
+             * get vertices on side ordinal.
+             * This functions is needed for side clustering
+             */
+            moris::Matrix< IndexMat >
+            get_vertices_ind_on_side_ordinal(moris::moris_index aSideOrdinal) const
+            {
+                moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_on_side_ordinal(aSideOrdinal);
+
+                uint tNumVertices = tVertices.size();
+
+                Matrix< IndexMat > tVertexInd( 1, tNumVertices );
+
+                for(uint i = 0; i < tNumVertices; i++ )
+                {
+                    tVertexInd( 0, i ) = tVertices( i )->get_index();
+                }
+                return  tVertexInd;
+            }
+
+//------------------------------------------------------------------------------
+
             /**
              * returns an enum that defines the geometry type of the element
              */

@@ -1,22 +1,23 @@
 /*
- * cl_MTK_Element_Block_STK.hpp
+ * cl_MTK_Side_Set.hpp
  *
  *  Created on: Jul 24, 2018
  *      Author: messe
  */
 
-#ifndef SRC_MESH_CL_MTK_BLOCK_STK_HPP_
-#define SRC_MESH_CL_MTK_BLOCK_STK_HPP_
+#ifndef SRC_MESH_CL_MTK_SIDE_SET_HPP_
+#define SRC_MESH_CL_MTK_SIDE_SET_HPP_
 
 #include <string>
 
 #include "typedefs.hpp" //MRS/COR/src
+#include "fn_unique.hpp" //MRS/COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 
 #include "cl_MTK_Cell_Cluster.hpp" //MTK/src
-#include "cl_MTK_Block.hpp" //MTK/src
+#include "cl_MTK_Set.hpp" //MTK/src
 
 namespace moris
 {
@@ -24,11 +25,69 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        class Block_STK : public Block
+        class Side_Set : public Set
         {
-//        private :
-//            moris::Matrix< DDUMat > mMyBlockSetClusterInds;
-//            moris::Cell<Cell_Cluster const *> mBlockSetClusters;
+        private :
+            uint                              mNumVerticesOnSet;
+            moris::Matrix< DDSMat >           mVerticesOnSet;
+
+//------------------------------------------------------------------------------
+
+            void calculate_vertices_on_set()
+            {
+                uint tMaxNumVert = 0;
+
+                for( uint Ik = 0; Ik < mSideSetClusters.size(); Ik++)
+                {
+                    Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
+                                                              ->get_cell_side_ordinals();
+
+                    print(tSideOrdinal,"tSideOrdinal");
+
+                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_cells_in_side_cluster().size(); Ij++)
+                    {
+                        tMaxNumVert = tMaxNumVert + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                                                          ->get_vertices_ind_on_side_ordinal( tSideOrdinal(Ij) ).numel();
+                    }
+                }
+
+                moris::Matrix< DDSMat > tVerticesOnSet(1, tMaxNumVert, -1 );
+
+                uint tCounter = 0;
+
+                for( uint Ik = 0; Ik < mSideSetClusters.size(); Ik++)
+                {
+                    Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
+                                                              ->get_cell_side_ordinals();
+
+                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_cells_in_side_cluster().size(); Ij++)
+                    {
+                        //FIXME rewrite for more readability
+                        tVerticesOnSet( { 0, 0 },{ tCounter, tCounter + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                                          ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel() - 1 }) =
+                                                   mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                                   ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).matrix_data();
+
+                        tCounter =tCounter + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                          ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel();
+                    }
+                }
+
+//                MORIS_ASSERT( tVerticesOnSet.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
+
+                unique( tVerticesOnSet, mVerticesOnSet);
+
+//                print(mVerticesOnSet,"mVerticesOnSet");
+
+                mNumVerticesOnSet = mVerticesOnSet.numel();
+            };
+
+//------------------------------------------------------------------------------
+
+        protected :
+            moris::Cell<Side_Cluster const *> mSideSetClusters;
+
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -36,8 +95,9 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block_STK( moris::Cell<Cell_Cluster const *>  aBlaockSetClusters ) : Block(aBlaockSetClusters)
+            Side_Set( moris::Cell<Side_Cluster const *>  aSideSetClusters ) : mSideSetClusters(aSideSetClusters)
             {
+                 this->calculate_vertices_on_set();
             };
 
 //------------------------------------------------------------------------------
@@ -45,7 +105,7 @@ namespace moris
             /**
              * virtual destructor
              */
-            ~Block_STK(){};
+            ~Side_Set(){};
 
 //------------------------------------------------------------------------------
 
@@ -60,10 +120,34 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-//              const Cell_Cluster  *
-//              get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
+              const Side_Cluster  *
+              get_side_clusters_by_index( moris_index aCellClusterIndex ) const
+              {
+                  return mSideSetClusters( aCellClusterIndex );
+              }
+
+//------------------------------------------------------------------------------
+
+              const uint
+              get_num_vertieces_on_set() const
+              {
+                  return mNumVerticesOnSet;
+              }
+
+//------------------------------------------------------------------------------
+
+              moris::Matrix< DDSMat >
+              get_vertieces_inds_on_block() const
+              {
+                  return mVerticesOnSet;
+              }
+
+//------------------------------------------------------------------------------
+
+//              moris::Matrix< DDSMat >
+//              get_vertieces_on_block() const
 //              {
-//                  return mBlockSetClusters( aCellClusterIndex );
+//                  return mVerticesOnBlock;
 //              }
 
 //------------------------------------------------------------------------------
@@ -162,4 +246,4 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 //------------------------------------------------------------------------------
-#endif /* SRC_MESH_CL_MTK_BLOCK_HPP_STK_ */
+#endif /* SRC_MESH_CL_MTK_SIDE_SET_HPP_ */

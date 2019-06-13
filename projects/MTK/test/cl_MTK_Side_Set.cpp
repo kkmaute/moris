@@ -39,7 +39,7 @@ namespace moris
 {
 namespace mtk
 {
-TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
+TEST_CASE("MTK Side","[MTK],[MTK_Side]")
 {
     if(par_size() ==1)
     {
@@ -70,31 +70,32 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair( tInterpMesh, tIntegMesh );
 
-        REQUIRE(tIntegMesh->get_num_blocks() == 2);
+        REQUIRE(tIntegMesh->get_num_side_sets() == 14);
 
-        mtk::Set * tBlock1 = tIntegMesh->get_block_by_index( 0 );
-        mtk::Set * tBlock2 = tIntegMesh->get_block_by_index( 1 );
+        mtk::Set * tSideSet1 = tIntegMesh->get_side_set_by_index( 0 );
+        mtk::Set * tSideSet2 = tIntegMesh->get_side_set_by_index( 1 );
 
-//        REQUIRE(tBlock1->get_list_of_block_cell_clusters()(0,0) == 0);
-//        REQUIRE(tBlock2->get_list_of_block_cell_clusters()(0,0) == 1);
+        Matrix< IndexMat > tSideOrdinal1= tSideSet1->get_side_clusters_by_index( 0 )
+                                                   ->get_cell_side_ordinals();
 
+        Matrix< IndexMat > tVertex1= tSideSet1->get_side_clusters_by_index( 0 )
+                                              ->get_cells_in_side_cluster()(0)
+                                              ->get_vertices_ind_on_side_ordinal(tSideOrdinal1(0,0));
 
-        Matrix< IndexMat > tVertexId1= tBlock1->get_cell_clusters_by_index( 0 )
-                                              ->get_primary_cells_in_cluster()(0)
-                                              ->get_vertex_ids();
+        Matrix< IndexMat > tSideOrdinal2= tSideSet2->get_side_clusters_by_index( 1 )
+                                                   ->get_cell_side_ordinals();
 
-        Matrix< IndexMat > tVertexId2= tBlock2->get_cell_clusters_by_index( 0 )
-                                               ->get_primary_cells_in_cluster()(0)
-                                               ->get_vertex_ids();
+        Matrix< IndexMat > tVertex2= tSideSet2->get_side_clusters_by_index( 1 )
+                                              ->get_cells_in_side_cluster()(0)
+                                              ->get_vertices_ind_on_side_ordinal(tSideOrdinal1(0,0));
 
-        REQUIRE(tVertexId1(0,0) == 4);                   REQUIRE(tVertexId2(0,0) == 5);
-        REQUIRE(tVertexId1(0,1) == 7);                   REQUIRE(tVertexId2(0,1) == 11);
-        REQUIRE(tVertexId1(0,2) == 8);                   REQUIRE(tVertexId2(0,2) == 12);
-        REQUIRE(tVertexId1(0,3) == 3);                   REQUIRE(tVertexId2(0,3) == 8);
-        REQUIRE(tVertexId1(0,4) == 1);                   REQUIRE(tVertexId2(0,4) == 2);
-        REQUIRE(tVertexId1(0,5) == 6);                   REQUIRE(tVertexId2(0,5) == 9);
-        REQUIRE(tVertexId1(0,6) == 5);                   REQUIRE(tVertexId2(0,6) == 10);
-        REQUIRE(tVertexId1(0,7) == 2);                   REQUIRE(tVertexId2(0,7) == 3);
+//        print(tVertex1,"tVertex1");
+//        print(tVertex2,"tVertex2");
+
+        REQUIRE(tVertex1(0,0) == 10);                   REQUIRE(tVertex2(0,0) == 0);
+        REQUIRE(tVertex1(0,1) == 11);                   REQUIRE(tVertex2(0,1) == 8);
+        REQUIRE(tVertex1(0,2) == 8);                    REQUIRE(tVertex2(0,2) == 9);
+        REQUIRE(tVertex1(0,3) == 9);                    REQUIRE(tVertex2(0,3) == 1);
 
         delete tInterpMesh;
         delete tIntegMesh;

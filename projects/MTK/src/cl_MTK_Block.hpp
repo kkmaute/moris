@@ -11,11 +11,13 @@
 #include <string>
 
 #include "typedefs.hpp" //MRS/COR/src
+#include "fn_unique.hpp" //MRS/COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 
 #include "cl_MTK_Cell_Cluster.hpp" //MTK/src
+#include "cl_MTK_Set.hpp" //MTK/src
 
 namespace moris
 {
@@ -23,11 +25,62 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        class Block
+        class Block : public Set
         {
+        private :
+            uint                              mNumVerticesOnBlock;
+            moris::Matrix< DDSMat >           mVerticesOnBlock;
+
+//------------------------------------------------------------------------------
+
+            void calculate_vertices_on_blocks()
+            {
+                uint tMaxNumVert = 0;
+
+                for( uint Ik = 0; Ik < mBlockSetClusters.size(); Ik++)
+                {
+                    for( uint Ij = 0; Ij < mBlockSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
+                    {
+                        tMaxNumVert = tMaxNumVert + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                                           ->get_vertex_inds().numel();
+                    }
+                }
+
+                moris::Matrix< DDSMat > tVerticesOnBlock(1, tMaxNumVert, -1 );
+
+                uint tCounter = 0;
+
+                for( uint Ik = 0; Ik < mBlockSetClusters.size(); Ik++)
+                {
+                    for( uint Ij = 0; Ij < mBlockSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
+                    {
+                        //FIXME rewrite for more readability
+                        tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                                                        ->get_vertex_inds().numel() - 1 }) =
+                                mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                       ->get_vertex_inds().matrix_data();
+
+                        tCounter =tCounter + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                                    ->get_vertex_inds().numel();
+                    }
+                }
+
+                MORIS_ASSERT( tVerticesOnBlock.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
+
+                unique( tVerticesOnBlock, mVerticesOnBlock);
+
+//                print(mVerticesOnBlock,"mNumVerticesOnBlock");
+
+                mNumVerticesOnBlock = mVerticesOnBlock.numel();
+            };
+
+//------------------------------------------------------------------------------
+
         protected :
             moris::Matrix< DDUMat >           mMyBlockSetClusterInds;
             moris::Cell<Cell_Cluster const *> mBlockSetClusters;
+
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -35,15 +88,16 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( moris::Cell<moris::moris_index>    aBlockSetClusterInd,
-                   moris::Cell<Cell_Cluster const *>  aBlaockSetClusters ) : mBlockSetClusters(aBlaockSetClusters)
+            Block( moris::Cell<Cell_Cluster const *>  aBlockSetClusters ) : mBlockSetClusters(aBlockSetClusters)
             {
-                mMyBlockSetClusterInds.set_size( aBlockSetClusterInd.size(), 1 );
+//                mMyBlockSetClusterInds.set_size( aBlockSetClusters.size(), 1 );
+//
+//                for( uint Ik = 0; Ik < aBlockSetClusters.size(); Ik++)
+//                {
+//                    mMyBlockSetClusterInds( Ik, 0 ) = aBlockSetClusterInd( Ik );
+//                }
 
-                for( uint Ik = 0; Ik < aBlockSetClusterInd.size(); Ik++)
-                {
-                    mMyBlockSetClusterInds( Ik, 0 ) = aBlockSetClusterInd( Ik );
-                }
+                this->calculate_vertices_on_blocks();
             };
 
 //------------------------------------------------------------------------------
@@ -51,7 +105,6 @@ namespace moris
             /**
              * virtual destructor
              */
-            virtual
             ~Block(){};
 
 //------------------------------------------------------------------------------
@@ -59,11 +112,11 @@ namespace moris
             /**
              * return a label that describes the block
              */
-              const moris::Matrix< DDUMat > &
-              get_list_of_block_cell_clusters() const
-              {
-                  return mMyBlockSetClusterInds;
-              }
+//              const moris::Matrix< DDUMat > &
+//              get_list_of_block_cell_clusters() const
+//              {
+//                  return mMyBlockSetClusterInds;
+//              }
 
 //------------------------------------------------------------------------------
 
@@ -72,6 +125,30 @@ namespace moris
               {
                   return mBlockSetClusters( aCellClusterIndex );
               }
+
+//------------------------------------------------------------------------------
+
+              const uint
+              get_num_vertieces_on_set() const
+              {
+                  return mNumVerticesOnBlock;
+              }
+
+//------------------------------------------------------------------------------
+
+              moris::Matrix< DDSMat >
+              get_vertieces_inds_on_block() const
+              {
+                  return mVerticesOnBlock;
+              }
+
+//------------------------------------------------------------------------------
+
+//              moris::Matrix< DDSMat >
+//              get_vertieces_on_block() const
+//              {
+//                  return mVerticesOnBlock;
+//              }
 
 //------------------------------------------------------------------------------
             /**

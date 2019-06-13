@@ -105,6 +105,14 @@ namespace moris
                     delete [] mInterpolations;
                 }
             }
+
+// ----------------------------------------------------------------------------
+
+            bool has_interpolation ( const uint aOrder )
+            {
+               return mHaveInterpolation.test( aOrder - 1);
+            }
+
 // ----------------------------------------------------------------------------
 
 //            void delete_interpolations()
@@ -247,6 +255,8 @@ namespace moris
              mtk::Vertex_Interpolation *
              get_interpolation( const uint aOrder )
              {
+                 MORIS_ASSERT( mHaveInterpolation.test( aOrder - 1), "tried to access an interpolation object that does not exist" );
+
                  return mInterpolations[ aOrder-1 ];
              }
 
@@ -258,9 +268,10 @@ namespace moris
              const mtk::Vertex_Interpolation *
              get_interpolation( const uint aOrder ) const
              {
+                 MORIS_ASSERT( mHaveInterpolation.test( aOrder - 1), "tried to access an interpolation object that does not exist" );
+
                  return mInterpolations[ aOrder-1 ];
              }
-
 
 // ----------------------------------------------------------------------------
 
