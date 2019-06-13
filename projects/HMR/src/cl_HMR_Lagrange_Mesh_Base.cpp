@@ -3537,10 +3537,8 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
         {
-            MORIS_ASSERT(
-                    mBSplineMeshes( aBSplineOrder  ) != NULL,
+            MORIS_ASSERT( mBSplineMeshes( aBSplineOrder  ) != NULL,
                     "B-Spline Mesh does not exist" );
-
 
             // create matrix object if it does not exist
             if( mTMatrix( aBSplineOrder ) == NULL )
@@ -3549,8 +3547,8 @@ namespace moris
                 BSpline_Mesh_Base * tMesh = mBSplineMeshes( aBSplineOrder  );
 
                 mTMatrix( aBSplineOrder ) = new T_Matrix( mParameters,
-                        tMesh,
-                        this );
+                                                          tMesh,
+                                                          this );
             }
 
             std::cout << "Evaluate T-Matrix" << std::endl;
@@ -3604,12 +3602,7 @@ namespace moris
             moris::uint tCounter  = 0;
             moris::uint tCounter2 = 0;
 
-            Matrix< DDSMat > tReverseIndexMap( mAllBasisOnProc.size()+1, 1, -1 );
-            Matrix< DDSMat > tReverseIDMap( mAllBasisOnProc.size()+1, 1, -1 );
-
-            moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
-
-            this->calculate_t_matrices( false );
+            moris::sint tMaxID = 0;
 
             uint tNumberOfNodes = this->get_number_of_nodes_on_proc();
 
@@ -3623,9 +3616,27 @@ namespace moris
 
                 Matrix< IdMat > tLocalIDs = tInterp->get_ids();
 
-                const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
+                tMaxID= std::max( tMaxID, tLocalIDs.max() );
+            }
 
-                print(tLocalWeights,"tLocalWeights");
+            Matrix< DDSMat > tReverseIndexMap( tMaxID+1, 1, -1 );
+            Matrix< DDSMat > tReverseIDMap( tMaxID+1, 1, -1 );
+
+            moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+
+            this->calculate_t_matrices( false );
+
+            for( uint Ik = 0; Ik<tNumberOfNodes; Ik ++ )
+            {
+                Basis * tBasis = this->get_node_by_index( Ik );
+
+                MORIS_ERROR( tBasis->has_interpolation (1), "Lagrange_Mesh_Base:: node has no first order basis");
+
+                mtk::Vertex_Interpolation * tInterp = tBasis->get_interpolation( 1 );
+
+                Matrix< IdMat > tLocalIDs = tInterp->get_ids();
+
+                const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
 
                 if (tLocalIDs.numel()==1 || tLocalWeights.max() == 1 )
                 {
@@ -3668,7 +3679,7 @@ namespace moris
             }
             tNonBSplineBasis.resize( tCounter2 );
 
-            uint tMaxID = tReverseIDMap.max();
+//            uint tMaxID = tReverseIDMap.max();
 
             tReverseIndexMap.resize( tMaxID + tNonBSplineBasis.size()+1, 1 );
             tReverseIDMap.resize( tMaxID + tNonBSplineBasis.size()+1, 1 );
