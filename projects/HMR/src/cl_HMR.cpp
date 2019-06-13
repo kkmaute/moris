@@ -1300,7 +1300,7 @@ namespace moris
             uint tNumberOfNodes = tHmrMesh->get_num_nodes();
 
             // make sure that mesh is correct
-            MORIS_ERROR( tNumberOfExodusNodes >= tNumberOfNodes,
+            MORIS_ERROR( tNumberOfExodusNodes == tNumberOfNodes,
                             "Number of Nodes does not match. Did you specify the correct mesh?" );
 
             // create array of indices for MTK interface
@@ -1320,68 +1320,56 @@ namespace moris
                                                                  aLabel,
                                                                  EntityRank::NODE );
 
-            // having the values, we must now rearrange them in the order of the HMR mesh.
-            // Therefore, we create a map
-            map< moris_id, real > tValueMap;
-            for( uint k=0; k<tNumberOfExodusNodes; ++k )
-            {
-                // get ID of this node and map it with value
-                tValueMap[ tMesh->get_glb_entity_id_from_entity_loc_index( k,
-                                                                           EntityRank::NODE ) ] = tValues( k );
-            }
-
-            // make sure that field is a row matrix
-            tValues.set_size( tNumberOfNodes, 1 );
-
-            // now, we rearrange the values according to the ID of the Lagrange Mesh
-            for( uint k=0; k<tNumberOfNodes; ++k )
-            {
-                tValues( k ) = tValueMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
-            }
-
-            //-----------------------------------------------------------------------------
+            // read reverse map in case of renumbering
+            Matrix< DDSMat > tReverseMap;
             if(  mParameters->get_renumber_lagrange_nodes() )
             {
-                Matrix< DDRMat > tTempValues = tValues;
-                Matrix< DDSMat > tReverseMap;
 
                 // load values into field
                 herr_t tStatus = 0;
                 hid_t tHDF5File = open_hdf5_file( "Reverse_Map_1.hdf5" );
                 load_matrix_from_hdf5_file( tHDF5File, "Id", tReverseMap, tStatus );
                 close_hdf5_file( tHDF5File );
+            }
 
-                // check that the map has the correct size
-                MORIS_ERROR( tNumberOfNodes == (uint)tReverseMap.size(0) - 1,
-                        "Number of Nodes does not match between Reverse_Map_1.hdf5 field mesh: %-5i versus %-5i.", tNumberOfNodes, tReverseMap.size(0));
+            // having the values, we must now rearrange them in the order of the HMR mesh.
+            // Therefore, we create a map
+            map< moris_id, real > tValueMap;
+            for( uint k=0; k<tNumberOfExodusNodes; ++k )
+            {
+                // get ID of this node in exodus mesh
+                uint tExodusNodeId = tMesh->get_glb_entity_id_from_entity_loc_index( k,EntityRank::NODE );
 
-                // check that the entries in the map are such that they do not exceed the size of the target vector
-                MORIS_ERROR( (uint)tReverseMap.max() <= tNumberOfNodes,
-                         "Maximum entry in reverse map (%i) is larger than size of field array (%i).", tNumberOfNodes, tReverseMap.size(0) );
+                MORIS_ERROR( tExodusNodeId > 0,
+                       "Exodus node ID for index %-5i is negative.",k);
 
-                // initialize target vector with real_max such that we can check later that all entries in the target vector received values from the source
-                tValues.fill(MORIS_REAL_MAX);
-
-                // loop over all nodes in mesh
-                for( uint k=0; k<tNumberOfNodes; ++k )
+                // use map between current exodus IDs and original output mesh id
+                if(  mParameters->get_renumber_lagrange_nodes() )
                 {
-                    // check that map is valid
-                    if ( tReverseMap( k ) >= 0 )
-                    {
-                        tValues( tReverseMap( k ) ) = tTempValues( k );
-                    }
-                    else
-                    {
-                        MORIS_ERROR( false, "Reverse map (%i) points to negative index.", k );
-                    }
+                    MORIS_ERROR( tExodusNodeId - 1 < (uint)tReverseMap.size(0),
+                            "Node ID in Exodus mesh exceeds size of Reverse_Map_1.hdf5 field mesh: Node ID %-5i versus %-5i.", tExodusNodeId, tReverseMap.size(0));
+
+                    MORIS_ERROR( tReverseMap( tExodusNodeId - 1 ) >= 0,
+                            "Reverse map (%i) points to negative index.", tExodusNodeId);
+
+                    tExodusNodeId = tReverseMap( tExodusNodeId - 1 ) + 1;
                 }
 
-                // check that all entries in target vector received values from source vector
-                for( uint k=0; k<tNumberOfNodes; ++k )
-                {
-                    MORIS_ERROR( tValues( k ) < MORIS_REAL_MAX,
-                            "Map did not cover component %i of vecto tValues: %e", k, tValues( k ));
-                }
+                // construct map < exodus node Id, field value>
+                tValueMap[ tExodusNodeId ] = tValues( k );
+            }
+
+            // make sure that field is a row matrix
+            tValues.set_size( tNumberOfNodes, 1 );
+            tValues.fill(MORIS_REAL_MAX);
+
+            // now, we rearrange the values according to the ID of the Lagrange Mesh
+            for( uint k=0; k<tNumberOfNodes; ++k )
+            {
+                tValues( k ) = tValueMap.find( tHmrMesh->get_mtk_vertex( k ).get_id() );
+
+                MORIS_ERROR( tValues( k ) < MORIS_REAL_MAX,
+                        "Map did not cover component %i of vecto tValues: %e", k, tValues( k ));
             }
 
             //------------------------------------------------------------------------------
