@@ -56,15 +56,13 @@ namespace moris
         HMR::HMR ( Parameters * aParameters ) :
                 mParameters( aParameters )
         {
-            mDatabase   = std::make_shared< Database >( aParameters );
+            mDatabase = std::make_shared< Database >( aParameters );
 
             this->create_input_and_output_meshes();
 
-
             mDatabase->calculate_t_matrices_for_input();
 
-            mDatabase->set_activation_pattern(
-                    mParameters->get_lagrange_input_pattern() );
+            mDatabase->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -124,7 +122,7 @@ namespace moris
 
             if( mParameters->get_max_polynomial() > 2 )
             {
-                mDatabase->add_extra_refinement_step_for_exodus();
+//                mDatabase->add_extra_refinement_step_for_exodus();
             }
 
             // update database
@@ -1484,12 +1482,12 @@ namespace moris
                 this->get_database()->copy_pattern(
                         mParameters->get_lagrange_output_pattern(),
                         mParameters->get_union_pattern() );
-                    
-		 // test if max polynomial is 3
+
+                 // test if max polynomial is 3
                 if ( mParameters->get_max_polynomial() > 2 )
                 {    
                     // activate extra pattern for exodus
-                    mDatabase->add_extra_refinement_step_for_exodus();
+//                    mDatabase->add_extra_refinement_step_for_exodus();
                 }    
 
                 // update database

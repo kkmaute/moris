@@ -71,7 +71,6 @@ namespace moris
                        const uint                 & aActivationPattern ) :
                        Lagrange_Mesh_Base( aParameters, aBackgroundMesh, aBSplineMeshes, P, aActivationPattern )
         {
-
             // ask background mesh for number of elements per ijk-direction
             this->get_number_of_elements_per_dimension();
 

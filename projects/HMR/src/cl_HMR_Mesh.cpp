@@ -17,9 +17,9 @@ namespace moris
     {
 //-----------------------------------------------------------------------------
 
-        Mesh::Mesh( std::shared_ptr< Database > aDatabase,
-                const uint & aLagrangeOrder,
-                const uint & aLagrangePattern )
+        Mesh::Mesh(       std::shared_ptr< Database >   aDatabase,
+                    const uint                        & aLagrangeOrder,
+                    const uint                        & aLagrangePattern )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -37,13 +37,14 @@ namespace moris
                      tMesh->get_order() == aLagrangeOrder )
                 {
                     mMesh = tMesh;
+
                     break;
                 }
             }
 
             if(mMesh !=nullptr)
             {
-            //setup_glb_to_local_maps();
+            setup_glb_to_local_maps();
             }
 
 //             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
@@ -1125,7 +1126,7 @@ namespace moris
                            Matrix< IndexMat >     & aElemIndices,
                            Matrix< IndexMat >     & aSideOrdinals ) const
         {
-            if( mMesh->get_activation_pattern()
+             if( mMesh->get_activation_pattern()
                     == mMesh->get_parameters()->get_lagrange_output_pattern() )
             {
                 // get ref to set
@@ -1169,16 +1170,24 @@ namespace moris
             }
             else if ( aSetEntityRank == EntityRank::FACE )
             {
-                moris::uint tNumSideSets = mDatabase->get_side_sets().size();
-
-                moris::Cell<std::string> tSetNames( tNumSideSets );
-
-                for ( uint iEntity = 0; iEntity < tNumSideSets; ++iEntity )
+                if( mMesh->get_activation_pattern()
+                        == mMesh->get_parameters()->get_lagrange_output_pattern() )
                 {
-                    tSetNames( iEntity ) = mDatabase->get_side_sets()( iEntity ).mInfo.mSideSetName;
-                }
+                    moris::uint tNumSideSets = mDatabase->get_side_sets().size();
 
-                return tSetNames;
+                    moris::Cell<std::string> tSetNames( tNumSideSets );
+
+                    for ( uint iEntity = 0; iEntity < tNumSideSets; ++iEntity )
+                    {
+                        tSetNames( iEntity ) = mDatabase->get_side_sets()( iEntity ).mInfo.mSideSetName;
+                    }
+
+                    return tSetNames;
+                }
+                else
+                {
+                    return Cell<std::string>(0);
+                }
             }
             else
             {

@@ -125,8 +125,7 @@ namespace moris
              * after the Lagrange mesh is generated, and the background mesh is
              * refined.
              */
-            void
-            update_mesh();
+            void update_mesh();
 
 // ----------------------------------------------------------------------------
 
