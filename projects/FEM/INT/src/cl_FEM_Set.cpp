@@ -25,25 +25,6 @@ namespace moris
                                                                      mIWGs( aIWGs ),
                                                                      mElementType( aElementType )
     {
-        // set the integration geometry type
-        mIPGeometryType = mMeshCellClusterList( 0 )->get_interpolation_cell().get_geometry_type();
-
-        // set the integration geometry type
-        mIGGeometryType = mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
-
-        // space interpolation order for IP cells fixme
-        mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
-                                                                         mIPGeometryType );
-        // space interpolation order for IG cells fixme
-        mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_number_of_vertices(),
-                                                                         mIGGeometryType );
-
-        // time interpolation order for IP cells fixme not linear
-        mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
-        // time interpolation order for IG cells fixme not linear
-        mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
         // create a unique dof type list
         this->create_unique_dof_type_lists();
 
@@ -77,26 +58,6 @@ namespace moris
                                                                      mIWGs( aIWGs ),
                                                                      mElementType( aElementType )
     {
-        // set the integration geometry type
-        mIPGeometryType = mMeshSideClusterList( 0 )->get_interpolation_cell().get_geometry_type();
-
-        // set the integration geometry type
-        mIGGeometryType = get_auto_side_geometry_type( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
-
-        // interpolation order for IP cells fixme
-        mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
-                                                                         mIPGeometryType );
-
-        // interpolation order for IG cells fixme
-        mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_number_of_vertices(),
-                                                                         mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
-
-        // time interpolation order for IP cells fixme not linear
-        mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
-        // time interpolation order for IG cells fixme not linear
-        mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
         // create a unique dof type list
         this->create_unique_dof_type_lists();
 
@@ -131,26 +92,6 @@ namespace moris
                                                                           mIWGs( aIWGs ),
                                                                           mElementType( aElementType )
         {
-            // set the integration geometry type
-            mIPGeometryType = mMeshDoubleSideClusterList( 0 ).get_left_interpolation_cell().get_geometry_type();
-
-            // set the integration geometry type
-            mIGGeometryType = get_auto_side_geometry_type( mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_geometry_type() );
-
-            // interpolation order for IP cells fixme
-            mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshDoubleSideClusterList( 0 ).get_left_interpolation_cell().get_number_of_vertices(),
-                                                                             mIPGeometryType );
-
-            // interpolation order for IG cells fixme
-            mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_number_of_vertices(),
-                                                                             mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_geometry_type() );
-
-            // time interpolation order for IP cells fixme not linear
-            mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
-            // time interpolation order for IG cells fixme not linear
-            mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
             // create a unique dof type list
             this->create_unique_dof_type_lists();
 
@@ -236,10 +177,28 @@ namespace moris
     {
         this->delete_pointers();
 
-        switch ( mElementType )
+        // if block-set
+        if( mMeshCellClusterList.size() > 0 )
         {
-            case( fem::Element_Type::BULK ):
-            {
+                // set the integration geometry type
+                mIPGeometryType = mMeshCellClusterList( 0 )->get_interpolation_cell().get_geometry_type();
+
+                // set the integration geometry type
+                mIGGeometryType = mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
+
+                // space interpolation order for IP cells fixme
+                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
+                                                                                 mIPGeometryType );
+                // space interpolation order for IG cells fixme
+                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_number_of_vertices(),
+                                                                                 mIGGeometryType );
+
+                // time interpolation order for IP cells fixme not linear
+                mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+                // time interpolation order for IG cells fixme not linear
+                mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
                 // geometry interpolation rule for interpolation cells
                 Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
                                                                  Interpolation_Type::LAGRANGE,
@@ -284,12 +243,31 @@ namespace moris
 
                 // get integration weights
                 mIntegWeights = tIntegrator.get_weights();
-
-                break;
             }
 
-            case( fem::Element_Type::SIDESET ):
+            // if side-set
+            else if( mMeshSideClusterList.size() > 0 )
             {
+                // set the integration geometry type
+                mIPGeometryType = mMeshSideClusterList( 0 )->get_interpolation_cell().get_geometry_type();
+
+                // set the integration geometry type
+                mIGGeometryType = get_auto_side_geometry_type( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
+
+                // interpolation order for IP cells fixme
+                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
+                                                                                 mIPGeometryType );
+
+                // interpolation order for IG cells fixme
+                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_number_of_vertices(),
+                                                                                 mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
+
+                // time interpolation order for IP cells fixme not linear
+                mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+                // time interpolation order for IG cells fixme not linear
+                mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
                 // geometry interpolation rule for interpolation cells
                 Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
                                                                  Interpolation_Type::LAGRANGE,
@@ -334,12 +312,31 @@ namespace moris
 
                 // get integration weights
                 mIntegWeights = tIntegrator.get_weights();
-
-                break;
             }
 
-            case( fem::Element_Type::DOUBLE_SIDESET ):
+            // if double side-set
+            else if( mMeshDoubleSideClusterList.size() > 0 )
             {
+                // set the integration geometry type
+                mIPGeometryType = mMeshDoubleSideClusterList( 0 ).get_left_interpolation_cell().get_geometry_type();
+
+                // set the integration geometry type
+                mIGGeometryType = get_auto_side_geometry_type( mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_geometry_type() );
+
+                // interpolation order for IP cells fixme
+                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshDoubleSideClusterList( 0 ).get_left_interpolation_cell().get_number_of_vertices(),
+                                                                                 mIPGeometryType );
+
+                // interpolation order for IG cells fixme
+                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_number_of_vertices(),
+                                                                                 mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_geometry_type() );
+
+                // time interpolation order for IP cells fixme not linear
+                mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+                // time interpolation order for IG cells fixme not linear
+                mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
                 // geometry interpolation rule for interpolation cells
                 Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
                                                                  Interpolation_Type::LAGRANGE,
@@ -386,16 +383,7 @@ namespace moris
 
                 // get integration weights
                 mIntegWeights = tIntegrator.get_weights();
-
-                break;
             }
-
-            default:
-            {
-                MORIS_ASSERT( false, " Set::finalize - unknown element type.");
-                break;
-            }
-        }
     }
 
 //------------------------------------------------------------------------------

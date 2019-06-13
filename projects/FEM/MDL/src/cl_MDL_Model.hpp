@@ -107,10 +107,10 @@ namespace moris
             Model(       mtk::Mesh_Manager*                          aMesh,
                    const uint                                        aBSplineOrder,
                          moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
-                         moris::Cell< moris_index >                  aBlocksetList,
-                         moris::Cell< moris_index >                  aSidesetList,
-                         moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
-                         moris::Cell< moris_index >                  aDoubleSidesetList,
+                   const moris::Cell< moris_index >                  & aBlocksetList,
+                   const moris::Cell< moris_index >                  aSidesetList,
+                   const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
+                   const moris::Cell< moris_index >                  aDoubleSidesetList,
                    const moris_index                                 aMeshPairIndex = 0 );
 
 //------------------------------------------------------------------------------

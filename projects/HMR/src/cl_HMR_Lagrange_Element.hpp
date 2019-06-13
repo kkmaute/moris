@@ -382,6 +382,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+           /*!
+            * Returns the vertices on a given side ordinal
+            */
+           moris::Cell<moris::mtk::Vertex const *>
+           get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+
+//------------------------------------------------------------------------------
+
+           /*!
+            * Returns the outward normal on a side ordinal
+            */
+           moris::Matrix<moris::DDRMat>
+           compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
+
+//------------------------------------------------------------------------------
+
            /**
             * returns the interpolation order of this element
             */
@@ -560,6 +576,21 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        template< uint N, uint D >
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< N, D >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
+            return moris::Cell<moris::mtk::Vertex const *>(0);
+        }
+
+        template< uint N, uint D >
+        moris::Matrix<moris::DDRMat>
+        Lagrange_Element< N, D >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+		{
+        	MORIS_ERROR( false, "compute_outward_side_normal() not available for this element.");
+        	return moris::Matrix<moris::DDRMat>(0,0);
+		}
 
     } /* namespace hmr */
 } /* namespace moris */

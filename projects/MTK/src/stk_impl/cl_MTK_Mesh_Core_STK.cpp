@@ -2231,8 +2231,6 @@ namespace mtk
     void
     Mesh_Core_STK::setup_entity_global_to_local_map(enum EntityRank aEntityRank)
     {
-
-
         moris::Matrix<IdMat> const & tEntityIds = mSTKMeshData->mEntityLocaltoGlobalMap((uint)aEntityRank);
 
         uint tNumEntities = tEntityIds.numel();
@@ -2243,16 +2241,12 @@ namespace mtk
             {
                 mSTKMeshData->mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityIds(i)] = tCount;
                 tCount++;
-
             }
             else
             {
                 MORIS_ERROR(0,"Node Id already in map, does your LocaltoGlobalNodeMap have the same id twice?");
             }
-
         }
-
-
     }
 
 // ----------------------------------------------------------------------------

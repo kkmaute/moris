@@ -1,12 +1,12 @@
 /*
- * cl_MTK_Element_Block.hpp
+ * cl_MTK_Element_Block_STK.hpp
  *
  *  Created on: Jul 24, 2018
  *      Author: messe
  */
 
-#ifndef SRC_MESH_CL_MTK_BLOCK_HPP_
-#define SRC_MESH_CL_MTK_BLOCK_HPP_
+#ifndef SRC_MESH_CL_MTK_BLOCK_STK_HPP_
+#define SRC_MESH_CL_MTK_BLOCK_STK_HPP_
 
 #include <string>
 
@@ -16,6 +16,7 @@
 #include "cl_MTK_Cell.hpp" //MTK/src
 
 #include "cl_MTK_Cell_Cluster.hpp" //MTK/src
+#include "cl_MTK_Block.hpp" //MTK/src
 
 namespace moris
 {
@@ -23,11 +24,11 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-        class Block
+        class Block_STK : public Block
         {
-        protected :
-            moris::Matrix< DDUMat >           mMyBlockSetClusterInds;
-            moris::Cell<Cell_Cluster const *> mBlockSetClusters;
+//        private :
+//            moris::Matrix< DDUMat > mMyBlockSetClusterInds;
+//            moris::Cell<Cell_Cluster const *> mBlockSetClusters;
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -35,15 +36,9 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( moris::Cell<moris::moris_index>    aBlockSetClusterInd,
-                   moris::Cell<Cell_Cluster const *>  aBlaockSetClusters ) : mBlockSetClusters(aBlaockSetClusters)
+            Block_STK( moris::Cell<moris::moris_index>    aBlockSetClusterInd,
+                       moris::Cell<Cell_Cluster const *>  aBlaockSetClusters ) : Block(aBlockSetClusterInd,aBlaockSetClusters)
             {
-                mMyBlockSetClusterInds.set_size( aBlockSetClusterInd.size(), 1 );
-
-                for( uint Ik = 0; Ik < aBlockSetClusterInd.size(); Ik++)
-                {
-                    mMyBlockSetClusterInds( Ik, 0 ) = aBlockSetClusterInd( Ik );
-                }
             };
 
 //------------------------------------------------------------------------------
@@ -52,26 +47,26 @@ namespace moris
              * virtual destructor
              */
             virtual
-            ~Block(){};
+            ~Block_STK(){};
 
 //------------------------------------------------------------------------------
 
             /**
              * return a label that describes the block
              */
-              const moris::Matrix< DDUMat > &
-              get_list_of_block_cell_clusters() const
-              {
-                  return mMyBlockSetClusterInds;
-              }
+//              const moris::Matrix< DDUMat > &
+//              get_list_of_block_cell_clusters() const
+//              {
+//                  return mMyBlockSetClusterInds;
+//              }
 
 //------------------------------------------------------------------------------
 
-              const Cell_Cluster  *
-              get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
-              {
-                  return mBlockSetClusters( aCellClusterIndex );
-              }
+//              const Cell_Cluster  *
+//              get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
+//              {
+//                  return mBlockSetClusters( aCellClusterIndex );
+//              }
 
 //------------------------------------------------------------------------------
             /**
@@ -169,4 +164,4 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 //------------------------------------------------------------------------------
-#endif /* SRC_MESH_CL_MTK_BLOCK_HPP_ */
+#endif /* SRC_MESH_CL_MTK_BLOCK_HPP_STK_ */

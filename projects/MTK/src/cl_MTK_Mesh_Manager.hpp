@@ -48,7 +48,6 @@ namespace moris
           return mInterpolationMesh(aMeshIndex);
       }
 
-
       Integration_Mesh*
       get_integration_mesh(moris::moris_index aMeshIndex)
       {

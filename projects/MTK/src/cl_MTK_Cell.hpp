@@ -15,6 +15,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
+#include "cl_MTK_Hex8_Connectivity.hpp"
 
 //------------------------------------------------------------------------------
 namespace moris

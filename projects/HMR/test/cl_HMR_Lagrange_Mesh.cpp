@@ -462,6 +462,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
         tHMR.finalize();
 
+        std::cout<<"create mesh"<<std::endl;
         auto tMesh = tHMR.create_mesh( tLagrangeOrder );
         uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
 

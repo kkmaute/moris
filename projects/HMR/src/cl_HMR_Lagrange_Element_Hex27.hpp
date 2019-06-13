@@ -9,6 +9,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_
 
 #include "cl_HMR_Lagrange_Element.hpp"
+#include "cl_MTK_Hex27_Connectivity.hpp"
 
 namespace moris
 {
@@ -200,6 +201,63 @@ namespace moris
            aBasis( 25 ) =  mNodes[ 22 ]->get_memory_index();
            aBasis( 26 ) =  mNodes[ 20 ]->get_memory_index();
         }
+
+// ----------------------------------------------------------------------------
+
+        template<>
+        moris::Cell<moris::mtk::Vertex const *>
+        Lagrange_Element< 3, 27 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ASSERT(aSideOrdinal<6,"Side ordinal out of bounds for cell type hex");
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Hex27::get_node_to_face_map(aSideOrdinal);
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(9);
+            tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
+            tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
+            tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+            tVerticesOnSide(3) = tVertices(tNodeOrdsOnSide(3));
+            tVerticesOnSide(4) = tVertices(tNodeOrdsOnSide(4));
+            tVerticesOnSide(5) = tVertices(tNodeOrdsOnSide(5));
+            tVerticesOnSide(6) = tVertices(tNodeOrdsOnSide(6));
+            tVerticesOnSide(7) = tVertices(tNodeOrdsOnSide(7));
+            tVerticesOnSide(8) = tVertices(tNodeOrdsOnSide(8));
+            return tVerticesOnSide;
+        }
+
+// ----------------------------------------------------------------------------
+
+        template<>
+        moris::Matrix<moris::DDRMat>
+        Lagrange_Element< 3, 27 >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+		{
+        MORIS_ERROR(aSideOrdinal<6,"Side ordinal out of bounds.");
+
+#ifdef DEBUG
+        if(this->get_vertex_pointers().size() > 8)
+        {
+         MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
+        }
+#endif
+
+        // get the vertex coordinates
+        moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
+
+        // Get the nodes which need to be used to compute normal
+        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Hex8::get_node_map_outward_normal(aSideOrdinal);
+
+        // Get vector along these edges
+        moris::Matrix<moris::DDRMat> tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+        moris::Matrix<moris::DDRMat> tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
+
+        // Take the cross product to get the normal
+        Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
+
+        // Normalize
+        Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
+
+        return tUnitOutwardNormal;
+		}
+
 // ----------------------------------------------------------------------------
 
         /**
