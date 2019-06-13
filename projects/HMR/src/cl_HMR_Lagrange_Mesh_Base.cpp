@@ -3625,7 +3625,7 @@ namespace moris
 
                 const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
 
-                if (tLocalIDs.numel()==1 || equal_to(tLocalWeights.max(),1.0) )
+                if ( tLocalIDs.numel()==1 || equal_to(tLocalWeights.max(),1.0) )
                 {
                     uint tIndex1 = 0;
 
@@ -3639,7 +3639,6 @@ namespace moris
                             break;
                         }
                     }
-
 
                     // check whether the same basis is used twice for being the only basis interpolating at a node
                     MORIS_ASSERT( tReverseIDMap( tLocalIDs( tIndex1, 0 )-1 ) == -1, "Node Id %-5i appears twice", tLocalIDs( tIndex1, 0 )-1 );
@@ -3704,7 +3703,6 @@ namespace moris
                                       "Id",
                                       tReverseIDMap,
                                       tStatus );
-
         }
 
     } /* namespace hmr */
