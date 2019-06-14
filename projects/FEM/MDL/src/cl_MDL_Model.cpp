@@ -60,6 +60,8 @@ namespace moris
             tic tTimer1;
 
             mDofOrder = aBSplineOrder;
+
+
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: initialize
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,6 +70,8 @@ namespace moris
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh = nullptr;
             mMeshManager->get_mesh_pair( tMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+
+//            MORIS_ERROR( !(mDofOrder == 0 && tInterpolationMesh->get_mesh_type() == MeshType::HMR), " HMR B-Spline order can't be 0");
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create nodes

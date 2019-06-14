@@ -86,6 +86,28 @@ namespace moris
               get_vertieces_inds_on_block() const = 0;
 
 //------------------------------------------------------------------------------
+
+              virtual const moris::uint
+              get_num_clusters_on_set() const = 0;
+
+//------------------------------------------------------------------------------
+
+              virtual moris::Cell<Cell_Cluster const *>
+              get_cell_clusters_on_set() const
+              {
+                  MORIS_ASSERT(false, "get_cell_clusters_on_set() virtual base class used");
+                  return moris::Cell<Cell_Cluster const *>(0);
+              }
+
+              virtual moris::Cell<Side_Cluster const *>
+              get_side_clusters_on_set() const
+              {
+                  MORIS_ASSERT(false, "get_side_clusters_on_set() virtual base class used");
+                  return moris::Cell<Side_Cluster const *>(0);
+              }
+
+
+//------------------------------------------------------------------------------
     };
 
 //------------------------------------------------------------------------------

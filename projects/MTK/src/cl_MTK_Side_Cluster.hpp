@@ -15,13 +15,15 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Cell.hpp"
 
+#include "cl_MTK_Cluster.hpp"
+
 
 namespace moris
 {
 namespace mtk
 {
 
-class Side_Cluster
+class Side_Cluster : public Cluster
 {
 public:
     /*
@@ -54,6 +56,12 @@ public:
     virtual
     moris::Cell<mtk::Cell const *> const &
     get_cells_in_side_cluster() const = 0;
+
+    moris::Cell<mtk::Cell const *> const &
+    get_primary_cells_in_cluster() const
+    {
+        return this->get_cells_in_side_cluster();
+    }
 
     /*!
      * Return all integration cell side ordinals in cluster
@@ -141,6 +149,12 @@ public:
         return tCellIndices;
     }
 
+    moris::Matrix<moris::IndexMat>
+    get_primary_cell_indices_in_cluster() const
+    {
+        return this->get_cell_indices_in_cluster();
+    }
+
     // ---------------------------------------------
 
     virtual
@@ -199,6 +213,12 @@ public:
         return tCellIds;
     }
 
+    moris::Matrix<moris::IdMat>
+    get_primary_cell_ids_in_cluster() const
+    {
+        return this->get_cell_ids_in_cluster();
+    };
+
     virtual
     moris::Matrix<moris::IndexMat>
     get_vertex_ids_in_cluster() const
@@ -256,6 +276,13 @@ public:
         return tVertexParamCoords;
     }
 
+    virtual
+    moris::Matrix<moris::DDRMat>
+    get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex) const
+    {
+        return this ->get_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellClusterIndex );
+    };
+
     //##############################################
     // Size Access
     //##############################################
@@ -264,6 +291,12 @@ public:
     get_num_sides_in_cluster() const
     {
         return this->get_cells_in_side_cluster().size();
+    }
+
+    moris::uint
+    get_num_primary_cells() const
+    {
+        return this->get_num_sides_in_cluster();
     }
 
     virtual

@@ -2148,7 +2148,7 @@ namespace mtk
             }
             else
             {
-                MORIS_ERROR(0,"Node Id already in map, does your LocaltoGlobalNodeMap have the same id twice?");
+                MORIS_ERROR(0,"Node Id %-5i already in map, does your LocaltoGlobalNodeMap have the same id twice?", tNodeId);
             }
         }
 

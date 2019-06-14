@@ -236,6 +236,13 @@ namespace moris
             tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
             tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
 
+//            tLinearSolverAlgorithm->set_param("AZ_keep_info") = 1;
+            //tLinearSolverAlgorithm->set_param("AZ_pre_calc") = AZ_reuse;
+//            tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 5;
+
+//            tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+            //tLinearSolverAlgorithm->set_param("ML_reuse") = true;
+
             dla::Linear_Solver tLinSolver;
 
             tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );

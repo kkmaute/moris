@@ -42,8 +42,6 @@ namespace moris
                     Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
                                                               ->get_cell_side_ordinals();
 
-                    print(tSideOrdinal,"tSideOrdinal");
-
                     for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_cells_in_side_cluster().size(); Ij++)
                     {
                         tMaxNumVert = tMaxNumVert + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
@@ -144,11 +142,19 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-//              moris::Matrix< DDSMat >
-//              get_vertieces_on_block() const
-//              {
-//                  return mVerticesOnBlock;
-//              }
+              const moris::uint
+              get_num_clusters_on_set() const
+              {
+                  return mSideSetClusters.size();
+              }
+
+//------------------------------------------------------------------------------
+
+              moris::Cell<Side_Cluster const *>
+              get_side_clusters_on_set() const
+              {
+                  return mSideSetClusters;
+              }
 
 //------------------------------------------------------------------------------
             /**

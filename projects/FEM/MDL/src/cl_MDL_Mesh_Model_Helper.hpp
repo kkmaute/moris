@@ -28,6 +28,14 @@ namespace moris
         class Node_Base;
     }
 
+    namespace MSI
+    {
+        class Model_Solver_Interface;
+        class MSI_Solver_Interface;
+        class Equation_Set;
+        class Equation_Object;
+    }
+
     namespace mdl
     {
 //------------------------------------------------------------------------------
@@ -38,25 +46,83 @@ namespace moris
 
             mtk::Mesh_Manager * mMesh = nullptr;
 
+            moris::Cell< moris::Matrix< DDUMat > > mColorListBlock;
+            moris::Cell< moris::Matrix< DDUMat > > mColorListSideSet;
+
+            mtk::Interpolation_Mesh* mInterpolationMesh = nullptr;
+            mtk::Integration_Mesh*   mIntegrationMesh = nullptr;
+
+            Cell< fem::Node_Base* >           mNodes;
+
+            moris::Cell< Matrix< DDSMat > > VertexIndOnColor;
+
+            Matrix< DDSMat >  mVerticesOnBlock;
+            Matrix< DDSMat >  mVerticesOnSideSet;
+
+            Matrix< DDSMat >  mNodeToVertexIndMap;
+            moris::Cell< Matrix< DDSMat > >  mVertexColorToNodeIndMap;
+
+            Cell< MSI::Equation_Object* >     mElements;
+            Cell< MSI::Equation_Set * >      mElementBlocks;
+
+            Cell< Cell < fem::Node_Base* > > mNodeSets;
+
+            // color to physics map
+
             //color and vertexID
+
+            void compute_max_num_vertices_on_color( Matrix< DDSMat > & aNumMaxVertPerColor );
+
+            void compute_unique_vertex_list_on_color( const Matrix< DDSMat > & aNumMaxVertPerColor );
 
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
 
-            Mesh_Model_Helper( mtk::Mesh_Manager * aMesh );
+            Mesh_Model_Helper(       mtk::Mesh_Manager * aMesh,
+                               const moris_index         aMeshPairIndex);
 
 //------------------------------------------------------------------------------
 
             ~Mesh_Model_Helper();
 
+            void set_block_by_color( const uint             tColor,
+                                     const Matrix< DDUMat > tBlockIndex );
+
 //------------------------------------------------------------------------------
 
-            void compute_unique_vertex_lists();
+            void set_side_set_by_color( const uint             tColor,
+                                        const Matrix< DDUMat > tSideSetIndex );
 
 //------------------------------------------------------------------------------
 
-            void create_nodes();
+            void compute_unique_node_lists();
+
+//------------------------------------------------------------------------------
+
+            void assign_node_ids();
+
+//------------------------------------------------------------------------------
+
+            void create_node_set( const moris::uint               aColor,
+                                  const Matrix< moris::IndexMat > aNodeSetIndex);
+
+//------------------------------------------------------------------------------
+
+           void create_elements();
+
+//------------------------------------------------------------------------------
+
+
+
+//------------------------------------------------------------------------------
+
+//            void create_nodes();
+
+            Cell< fem::Node_Base* > & get_nodes()
+            {
+                return mNodes;
+            }
 
 //------------------------------------------------------------------------------
         };

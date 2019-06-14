@@ -144,11 +144,19 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-//              moris::Matrix< DDSMat >
-//              get_vertieces_on_block() const
-//              {
-//                  return mVerticesOnBlock;
-//              }
+              const moris::uint
+              get_num_clusters_on_set() const
+              {
+                  return mBlockSetClusters.size();
+              }
+
+//------------------------------------------------------------------------------
+
+              moris::Cell<Cell_Cluster const *>
+              get_cell_clusters_on_set() const
+              {
+                  return mBlockSetClusters;
+              }
 
 //------------------------------------------------------------------------------
             /**

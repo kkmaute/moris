@@ -11,11 +11,13 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 
+#include "cl_MTK_Cluster.hpp"
+
 namespace moris
 {
 namespace mtk
 {
-class Double_Side_Cluster
+class Double_Side_Cluster : public Cluster
 {
     /*
      * An assumption here is made that the first side appearing in the left side cluster is paired
@@ -62,6 +64,23 @@ public:
      * on the left
      *
      */
+
+    virtual bool is_trivial( const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().is_trivial();
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().is_trivial();
+        }
+        else
+        {
+            MORIS_ERROR(false, "is_trivial(): can only be 1 and 2");
+            return false;
+        }
+    }
 
     bool
     is_left_trivial() const

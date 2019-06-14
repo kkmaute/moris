@@ -10,11 +10,14 @@
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
+
+#include "cl_MTK_Cluster.hpp"
+
 namespace moris
 {
 namespace mtk
 {
-class Cell_Cluster
+class Cell_Cluster : public Cluster
 {
 public:
     Cell_Cluster(){};

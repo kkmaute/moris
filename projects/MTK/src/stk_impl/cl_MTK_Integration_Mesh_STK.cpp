@@ -94,7 +94,7 @@ Integration_Mesh_STK::get_cell_cluster(Cell const & aInterpCell) const
 
 // ----------------------------------------------------------------------------
 
-Cell_Cluster const &
+Cell_Cluster const &                    // FIXME
 Integration_Mesh_STK::get_cell_cluster(moris_index aInterpCellIndex) const
 {
    MORIS_ASSERT(aInterpCellIndex<(moris_index)mCellClusters.size(),"Interpolation Cell index out of bounds");

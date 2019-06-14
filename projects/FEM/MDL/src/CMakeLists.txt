@@ -37,6 +37,7 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_MDL_Model.cpp
+    cl_MDL_Mesh_Model_Helper.cpp
     )
 
 # List library dependencies
