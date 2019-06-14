@@ -35,7 +35,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 
             // do this for first, second and third order
             //fixme: Needs to do order 3 but there are issue in hmr
-            for( moris::uint tOrder=1; tOrder<=2; tOrder++ )
+            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
             {
 
 //------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 if ( tParameters.get_max_polynomial() > 2 )
                 {
                     // activate extra pattern for exodus
-                    tDatabase->add_extra_refinement_step_for_exodus();
+//                    tDatabase->add_extra_refinement_step_for_exodus();
                 }
 
                 //tHMR.mBackgroundMesh->save_to_vtk("Background.vtk");
@@ -286,7 +286,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         if ( tParameters.get_max_polynomial() > 2 )
         {
             // activate extra pattern for exodus
-            tDatabase->add_extra_refinement_step_for_exodus();
+//            tDatabase->add_extra_refinement_step_for_exodus();
         }
 
         tDatabase->update_bspline_meshes();

@@ -169,7 +169,6 @@ namespace moris
                 {
                     // get the kth integration point
                     Matrix< DDRMat > tIntegPointI = mElementBlock->get_integration_points().get_column( iGP );
-                    print(tIntegPointI,"tIntegPointI");
 
                     // set evaluation point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
