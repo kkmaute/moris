@@ -42,12 +42,13 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+	${INT}-lib
 	${MTK}-lib
     ${NLA}-lib
     #${SOL_CORE}-lib
     ${TSA}-lib
     #${MSI}-lib
-    ${INT}-lib
+    
     #${MORIS_ARMADILLO_EIGEN_LIBS}
     #${MORIS_SUPERLU_LIBS}
     #${MORIS_ACML_LAPACK_MKL_LIBS}

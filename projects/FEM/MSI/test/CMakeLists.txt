@@ -43,6 +43,7 @@ set(TEST_DEPENDENCIES
 	${COM}-lib
 	${NLA}-lib
 	${MSI}-lib
+	${MDL}-lib
     #${HMR}-lib
     #${MAP}-lib
     #${MTK}-lib
