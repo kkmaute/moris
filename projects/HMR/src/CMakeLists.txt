@@ -130,6 +130,7 @@ set(LIB_SOURCES
 set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${CON}-lib
+	${ALG}-lib
 	${MTK}-lib
 	${GEN}-lib
 	${MDL}-lib
