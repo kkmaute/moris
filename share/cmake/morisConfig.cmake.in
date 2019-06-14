@@ -1,0 +1,58 @@
+# -------------------------------------------------------------
+# @MORIS@ configuration file
+# -------------------------------------------------------------
+
+# Users execute find_package(moris [COMPONENTS COMP_LIST])
+# in their CMake files and find this package. The subpackages
+# are specified in COMP_LIST and included from here. If no
+# subpackages are specified, all moris packages that were built
+# will be included.
+
+# CMake Automated Configuration
+###############################################################
+@PACKAGE_INIT@
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Variables used in build; repeated for user debugging
+
+set(@MORIS@_C_COMPILER "@MORIS_C_COMPILER@")
+set(@MORIS@_C_FLAGS "@MORIS_C_FLAGS@")
+set(@MORIS@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@MORIS@_CXX_FLAGS "@MORIS_CXX_FLAGS@")
+set(@MORIS@_DEFINITIONS "@MORIS_DEFINITIONS@")
+set(@MORIS@_TPLS "@MORIS_BASE_LIBS@")
+set(@MORIS@_VERSION "@MORIS_VERSION@")
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Find requested subpackages
+
+# if no subpackages were specified, find all built subpackages
+if(NOT @MORIS@_FIND_COMPONENTS)
+	set(@MORIS@_FIND_COMPONENTS "@MORIS_SOURCE_DIRS@")
+	
+	# if @MORIS@ is required, so are all built subpackages
+	if(@MORIS@_FIND_REQUIRED)
+		foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
+			set(@MORIS@_FIND_REQUIRED_${COMPONENT} TRUE)
+		endforeach()
+	endif()
+endif()
+
+set(@MORIS@_FOUND TRUE)
+foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
+	set_and_check(COMP_INCLUDE @PACKAGE_CONFIG_INSTALL_DIR@/${COMPONENT}/${COMPONENT}Config.cmake)
+	
+	set(@MORIS@_${COMPONENT}_FOUND TRUE)
+	
+	include(COMP_INCLUDE)
+	
+	list(APPEND @MORIS@_INCLUDE_DIRS ${${COMPONENT}_INCLUDE_DIRS})
+	list(APPEND @MORIS@_LIBRARY_DIRS ${${COMPONENT}_LIBRARY_DIRS})
+	list(APPEND @MORIS@_LIBRARIES ${${COMPONENT}_LIBRARIES})
+	list(APPEND @MORIS@_TPL_INCLUDE##################################################>
+
+
+# Check that all subpackages were found
+check_required_components(@MORIS@)
+
+

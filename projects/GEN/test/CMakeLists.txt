@@ -19,19 +19,19 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${MTK}
-    ${MTK}/${MAP}
-    ${XTK} #MTK
-    ${COM}
-    ${ALG}
-    ${GEN}
-    ${GEN}/${SDF}
-    ${FEM}/${INT}
-    ${FEM}/${MSI}
-    ${FEM}/${MDL}
-    ${HMR}
-    ${MTK}
-    ${LINALG}
+    #${MTK}
+    #${MTK}/${MAP}
+    #${XTK} #MTK
+    #${COM}
+    #${ALG}
+    #${GEN}
+    #${GEN}/${SDF}
+    #${FEM}/${INT}
+    #${FEM}/${MSI}
+    #${FEM}/${MDL}
+    #${HMR}
+    #${MTK}
+    #${LINALG}
 )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
@@ -39,33 +39,36 @@ foreach(TEST_INCLUDE ${TEST_INCLUDES})
 endforeach()
 
 # List snippet includes
-set(SNIPPET_INCLUDES
-    )
+#set(SNIPPET_INCLUDES
+#    )
 
-foreach(SNIPPET_INCLUDE ${SNIPPET_INCLUDES})
-    include_directories(${MORIS_DIR}/snippets/${SNIPPET_INCLUDE})
-endforeach()
+#foreach(SNIPPET_INCLUDE ${SNIPPET_INCLUDES})
+#    include_directories(${MORIS_DIR}/snippets/${SNIPPET_INCLUDE})
+#endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${GEN}-lib
-    ${HMR}-lib
-    ${MAP}-lib
-    ${MTK}-lib
-	${SDF}-lib
-	${ALG}-lib
-    ${MTK}-lib
     ${COM}-lib
-    ${MDL}-lib # for L2
-    ${INT}-lib # for L2
-    ${MSI}-lib # for L2
-    ${NLA}-lib # for L2
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MORIS_BOOST_LIBS}
+    ${GEN}-lib
+    ${INT}-lib
+    ${ALG}-lib
+    #${HMR}-lib
+    #${MAP}-lib
+    #${MTK}-lib
+	#${SDF}-lib
+	#${ALG}-lib
+    #${MTK}-lib
+    #${COM}-lib
+    #${MDL}-lib # for L2
+    #${INT}-lib # for L2
+    #${MSI}-lib # for L2
+    #${NLA}-lib # for L2
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_ARPACK_LIBS}
+    #${MORIS_BOOST_LIBS}
     ${MORIS_BASE_LIBS}
     )
 
@@ -82,12 +85,26 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(GEN_TEST ${GEN}-test)
 
 # Create executable
-add_executable(${GEN_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${GEN_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${GEN_TEST} ${TEST_SOURCES})
+target_link_libraries(${GEN_TEST} ${TEST_DEPENDENCIES})
+set_target_properties(${GEN_TEST} PROPERTIES OUTPUT_NAME ${GEN_TEST}${EXE_EXT})
+
+foreach(TPL ${GEN_TEST_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${GEN_TEST}
+    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${GEN_TEST}
+    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${GEN_TEST}
+    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # Mark as test
 add_test(NAME ${GEN_TEST}
-    COMMAND ${GEN_TEST}${EXE_EXT} )
+    COMMAND $<TARGET_FILE:${GEN_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -95,7 +112,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${GEN_TEST_PROCS})
 		set(GEN_PARALLEL_TEST ${GEN_TEST}-${PROCS}-procs)
 		add_test(NAME ${GEN_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${GEN_TEST}${EXE_EXT}>)
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${GEN_TEST}>)
 	endforeach()
 endif()
 

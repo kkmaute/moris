@@ -502,7 +502,7 @@ endif()
 # ARPACK ------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-include(${MORIS_TPL_DIR}/arpack.cmake)
+#include(${MORIS_TPL_DIR}/arpack.cmake)
 
 
 # -------------------------------------------------------------------------
@@ -527,7 +527,7 @@ set(CMAKE_CXX_FLAGS ${MORIS_CXX_FLAGS})
 # endif()
 
 # Linker directories.
-link_directories(${MORIS_LDFLAGS})
+#link_directories(${MORIS_LDFLAGS})
 
 # Preprocessor definitions.
 add_definitions(${MORIS_DEFINITIONS})
@@ -541,7 +541,7 @@ set(EXECUTABLE "${MORIS}.exe")
 message(STATUS "MORIS recognized the C++ flags MORIS_CXX_FLAGS=${MORIS_CXX_FLAGS}.")
 message(STATUS "MORIS recognized the C++ linker libraries MORIS_BASE_LIBS=${MORIS_BASE_LIBS}.")
 message(STATUS "MORIS recognized the C++ definitions MORIS_DEFINITIONS=${MORIS_DEFINITIONS}.")
-message(STATUS "MORIS recognized the C++ linker directories MORIS_LDFLAGS=${MORIS_LDFLAGS}.")
+#message(STATUS "MORIS recognized the C++ linker directories MORIS_LDFLAGS=${MORIS_LDFLAGS}.")
 message(STATUS "MORIS recognized the C++ include directories MORIS_INCDIRS=${MORIS_INCDIRS}.")
 
 # Enable verbose output from Makefile builds.
@@ -661,11 +661,11 @@ endif()
 ##### Include LINALG Implementation
 
 if(MORIS_USE_ARMA)
-	include(${MORIS_TPL_DIR}/armadillo.cmake)
+	#include(${MORIS_TPL_DIR}/armadillo_new.cmake)
 endif()
 
 if(MORIS_USE_EIGEN)
-	include(${MORIS_TPL_DIR}/eigen.cmake)
+	#include(${MORIS_TPL_DIR}/eigen.cmake)
 endif()
 
 # # -------------------------------------------------------------------------

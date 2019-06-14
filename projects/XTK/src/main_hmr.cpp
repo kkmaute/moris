@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 // moris core includes
-#include "../../GEN/src/cl_GE_Core.hpp"
+#include "cl_GE_Core.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"

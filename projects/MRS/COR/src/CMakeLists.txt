@@ -10,6 +10,8 @@ set(HEADERS
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Core Library
+add_library(${COR}-lib INTERFACE)
+target_include_directories(${COR}-lib INTERFACE .)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Core Executable

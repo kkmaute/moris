@@ -19,13 +19,14 @@ cl_NLA_Nonlinear_Solver.hpp
     
 # List header dependencies
 set(NLA_INCLUDES
-    ${LINALG}
-    ${SOL}/${DLA}
-    ${SOL}/${SOL_CORE}
-    ${NLA}
-    ${IOS}
-    ${COM}
-    ${FEM}/${MSI} )
+    #${LINALG}
+    #${SOL}/${DLA}
+    #${SOL}/${SOL_CORE}
+    #${NLA}
+    #${IOS}
+    #${COM}
+    #${FEM}/${MSI}
+    )
 
 # Include depedency directories
 foreach(NLA_INCLUDE ${NLA_INCLUDES})
@@ -48,14 +49,17 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+    ${LINALG}-lib
     ${DLA}-lib
     ${COM}-lib
     ${MSI}-lib
-    ${MORIS_PETSC_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
+    ${SOL_CORE}-lib
+    #${MORIS_PETSC_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
-    ${MORIS_ARPACK_LIBS} )
+    #${MORIS_ARPACK_LIBS}
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -69,8 +73,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${NLA}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${NLA}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${NLA}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${NLA}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${NLA}-lib PROPERTIES OUTPUT_NAME ${NLA})
+
+foreach(TPL ${NLA_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${NLA}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${NLA}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${NLA}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # NonLinear Executable

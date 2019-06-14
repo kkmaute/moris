@@ -1,11 +1,11 @@
 # List test includes
 set(MTK_TUTORIAL_INCLUDES
-    ${LINALG}
-    ${COM}
-    ${ALG}
+    #${LINALG}
+    #${COM}
+    #${ALG}
     ${SOL}/${DLA}
-    ${MTK}
-    ${TOL}
+    #${MTK}
+    #${TOL}
     )
     
     
@@ -18,9 +18,9 @@ set(TUTORIAL_DEPENDENCIES
     ${COM}-lib
     ${MTK}-lib
     ${MORIS_BASE_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
     )    
     
 # Create Tutorial 1

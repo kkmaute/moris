@@ -2,11 +2,10 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-
-list(REMOVE_DUPLICATES MDL_TPL_DEPENDENCIES)
-foreach(MDL_TPL ${MDL_TPL_DEPENDENCIES})
-    include(${MORIS_TPL_DIR}/${MDL_TPL}.cmake)
-endforeach()
+#list(REMOVE_DUPLICATES MDL_TPL_DEPENDENCIES)
+#foreach(MDL_TPL ${MDL_TPL_DEPENDENCIES})
+#    include(${MORIS_TPL_DIR}/${MDL_TPL}.cmake)
+#endforeach()
 
 # Add source directory
 add_subdirectory(src)

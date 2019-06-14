@@ -3,10 +3,10 @@
 
 # Third party library dependencies
 #include(${MORIS_TPL_DIR}/viennacl.cmake)
-list(REMOVE_DUPLICATES ALG_TPL_DEPENDENCIES)
-foreach(ALG_TPL ${ALG_TPL_DEPENDENCIES})
-    include(${MORIS_TPL_DIR}/${ALG_TPL}.cmake)
-endforeach()
+#list(REMOVE_DUPLICATES ALG_TPL_DEPENDENCIES)
+#foreach(ALG_TPL ${ALG_TPL_DEPENDENCIES})
+#    include(${MORIS_TPL_DIR}/${ALG_TPL}.cmake)
+#endforeach()
 
 # Add source directory
 add_subdirectory(src)

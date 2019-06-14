@@ -3,10 +3,10 @@
 
 # Third party library dependencies
 #set(MSI_TPL_DEPENDENCIES     "armadillo"     "viennacl"     "PETSc"    #"trilinos"    ${ACML_LAPACK_MKL}    "mpi"    ${ARMADILLO_EIGEN})
-list(REMOVE_DUPLICATES MSI_TPL_DEPENDENCIES)
-foreach(MSI_TPL ${MSI_TPL_DEPENDENCIES})
-    include(${MORIS_TPL_DIR}/${MSI_TPL}.cmake)
-endforeach()
+#list(REMOVE_DUPLICATES MSI_TPL_DEPENDENCIES)
+#foreach(MSI_TPL ${MSI_TPL_DEPENDENCIES})
+#    include(${MORIS_TPL_DIR}/${MSI_TPL}.cmake)
+#endforeach()
 
 #include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
