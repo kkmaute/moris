@@ -41,9 +41,10 @@ namespace moris
          * @param[ in ]     cell of pointer to fem nodes
          * @param[ in ]     Pointer to element block
          */
-        Element_Time_Sideset( mtk::Cell            const * aCell,
-                              Set      * aElementBlock,
-                              Cluster            * aCluster);
+        Element_Time_Sideset( mtk::Cell const  * aCell,
+                              Set              * aSet,
+                              Cluster          * aCluster,
+                              moris::moris_index aCellIndexInCluster );
 //------------------------------------------------------------------------------
         /**
          * destructor

@@ -1,12 +1,12 @@
 /*
- * cl_MSI_Node.hpp
+ * cl_FEM_Node.hpp
  *
  *  Created on: Aug 22, 2018
  *      Author: messe
  */
 
-#ifndef PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_HPP_
-#define PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_HPP_
+#ifndef PROJECTS_FEM_SRC_CL_FEM_NODE_HPP_
+#define PROJECTS_FEM_SRC_CL_FEM_NODE_HPP_
 
 #include "typedefs.hpp"           //MRS/COR/src
 #include "cl_MTK_Vertex.hpp"      //MTK/src
@@ -144,4 +144,4 @@ namespace moris
 
 
 
-#endif /* PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_HPP_ */
+#endif /* PROJECTS_FEM_SRC_CL_NODE_HPP_ */

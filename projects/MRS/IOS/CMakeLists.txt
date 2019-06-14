@@ -2,10 +2,10 @@
 # -------------------------------------------------------------------------
 
 # Third party library dependencies
-list(REMOVE_DUPLICATES IOS_TPL_DEPENDENCIES)
-foreach(IOS_TPL ${IOS_TPL_DEPENDENCIES})
-    include(${MORIS_TPL_DIR}/${IOS_TPL}.cmake)
-endforeach()
+#list(REMOVE_DUPLICATES IOS_TPL_DEPENDENCIES)
+#foreach(IOS_TPL ${IOS_TPL_DEPENDENCIES})
+#    include(${MORIS_TPL_DIR}/${IOS_TPL}.cmake)
+#endforeach()
 
 # Add source directory
 add_subdirectory(src)

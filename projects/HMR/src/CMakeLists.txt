@@ -77,17 +77,18 @@ set(HEADERS
 
 # List header dependencies
 set(HMR_INCLUDES
-    ${COM}
-    ${LINALG}
-    ${MTK}
-    ${MTK}/${MAP}
-    ${ALG} #MTK
+<<<<<<< HEAD
+    #${COM}
+    #${LINALG}
+    #${MTK}
+    #${MTK}/${MAP}
+#    ${ALG} #MTK
 #    ${TOL} #MTK
-    ${XTK} #MTK
+    #${XTK} #MTK
 #    ${STK} #MTK
-    ${FEM}/${INT} # for L2
-    ${FEM}/${MSI} # for L2
-    ${FEM}/${MDL} # for L2
+    #${FEM}/${INT} # for L2
+    #${FEM}/${MSI} # for L2
+    #${FEM}/${MDL} # for L2
     )
 
 # Include depedency directories
@@ -127,12 +128,18 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
+	${LINALG}-lib
+	${CON}-lib
+	${ALG}-lib
+	${MTK}-lib
+	${GEN}-lib
+	${MDL}-lib
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MORIS_BOOST_LIBS}
+    #${MORIS_ARPACK_LIBS}
+    #${MORIS_BOOST_LIBS}
     )
 
 # Remove duplicate dependencies
@@ -147,8 +154,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${HMR}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${HMR}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${HMR}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${HMR}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
+
+foreach(TPL ${HMR_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${HMR}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${HMR}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${HMR}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Executable
@@ -162,26 +184,30 @@ set(EXE_SOURCES
 
 # List executable dependencies
 set(EXE_DEPENDENCIES
+	${LINALG}-lib
+	${CON}-lib
+	${IOS}-lib
     ${HMR}-lib
     ${MAP}-lib
     ${MTK}-lib
-    ${MDL}-lib # for L2
-    ${INT}-lib # for L2
-    ${MSI}-lib # for L2
-    ${NLA}-lib # for L2
-    ${ALG}-lib #MTK
-#    ${TOL}-lib #MTK
-    ${SDF}-lib # for SDF
-#    ${XTK}-lib #MTK
-#    ${STK}-lib #MTKz
-    ${COM}-lib
-    ${MORIS_BASE_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MORIS_BOOST_LIBS}
+#    ${MDL}-lib # for L2
+#    ${INT}-lib # for L2
+#    ${MSI}-lib # for L2
+#    ${NLA}-lib # for L2
+##    ${ALG}-lib #MTK
+##    ${TOL}-lib #MTK
+#    ${SDF}-lib # for SDF
+##    ${XTK}-lib #MTK
+##    ${STK}-lib #MTKz
+#    ${COM}-lib
+#    ${MORIS_BASE_LIBS}
+#    ${MORIS_ACML_LAPACK_MKL_LIBS}
+#    ${MORIS_ARMADILLO_EIGEN_LIBS}
+#    ${MORIS_SUPERLU_LIBS}
+#    ${MORIS_TRILINOS_LIBS}
+#    ${MORIS_ARPACK_LIBS}
+#    ${MORIS_BOOST_LIBS}
+	${DLA}-lib
     )
 
 # Remove duplicate dependencies
@@ -196,8 +222,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 # Create executable
 if(BUILD_HMR)
 	add_executable(${HMR}-exe ${EXE_SOURCES})
-	target_link_libraries(${HMR}-exe ${EXE_DEPENDENCIES})
+	target_link_libraries(${HMR}-exe PRIVATE ${EXE_DEPENDENCIES})
 	set_target_properties(${HMR}-exe PROPERTIES OUTPUT_NAME hmr )
+	
+	foreach(TPL ${HMR_EXE_TPL_DEPENDENCIES})
+		string(TOLOWER ${TPL} tpl)
+	    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+	    
+	    string(TOUPPER ${TPL} TPL)
+	    target_include_directories(${HMR}-exe
+	    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+	    target_link_libraries(${HMR}-exe
+	    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+	    target_compile_definitions(${HMR}-exe
+	    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+	endforeach()
 endif()
 
 

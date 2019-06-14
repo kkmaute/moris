@@ -22,7 +22,6 @@
 #include "op_minus.hpp"  //LINALG/src
 #include "fn_trans.hpp"  //LINALG/src
 #include "fn_det.hpp"    //LINALG/src
-#include "fn_inv.hpp"    //LINALG/src
 
 namespace moris
 {
@@ -50,36 +49,27 @@ namespace moris
         uint mNumTimeDim;
 
         // matrix of space coefficients xHat
+        // and matrix of time coefficients tHat
         Matrix < DDRMat > mXHat;
-
-        // matrix of time coefficients tHat
         Matrix < DDRMat > mTHat;
 
-        // matrix of element parametric coordinates
-        Matrix< DDRMat > mParamCoords;
-
-        // matrix of element physical coordinates
-        Matrix< DDRMat > mPhysCoords;
+        // matrix of space param coefficients xiHat in the interpolation param space
+        // and matrix of time param coefficients tauHat in the interpolation param space
+        Matrix < DDRMat > mXiHat;
+        Matrix < DDRMat > mTauHat;
 
         // element geometry type
         mtk::Geometry_Type mGeometryType;
+        mtk::Geometry_Type mTimeGeometryType;
 
         // boolean true if side interpolation
         bool mSpaceSideset = false;
 
-        // side geometry type
-        mtk::Geometry_Type mSideGeometryType;
+        // boolean true if time side interpolation
+        bool mTimeSideset = false;
 
-        // pointer to side space interpolation function object
-        Interpolation_Function_Base * mSideSpaceInterpolation = nullptr;
-
-        // number of space bases, number of physical and parametric dimensions for the side
-        uint mSideNumSpaceBases;
-        uint mSideNumSpaceDim;
-        uint mSideNumSpaceParamDim;
-
-        // Vertices ordinals for each face of the parent element
-        moris::Cell< moris::Cell< moris::moris_index > > mVerticesOrdinalsPerFace;
+//        // Vertices ordinals for each face of the parent element
+//        moris::Cell< moris::Cell< moris::moris_index > > mVerticesPerFace;
 
         // pointer to function for second derivative
         void ( * mSecondDerivativeMatricesSpace )( const Matrix< DDRMat > & aJt,
@@ -92,8 +82,8 @@ namespace moris
         void ( * mThirdDerivativeMatricesSpace )(  const Matrix< DDRMat > & aJt,
                                                    const Matrix< DDRMat > & aJ2bt,
                                                          Matrix< DDRMat > & aJ3at,
-														 Matrix< DDRMat > & aJ3bt,
-														 Matrix< DDRMat > & aJ3ct,
+                                                         Matrix< DDRMat > & aJ3bt,
+                                                         Matrix< DDRMat > & aJ3ct,
                                                    const Matrix< DDRMat > & ad3NdXi3,
                                                    const Matrix< DDRMat > & aXHat );
 
@@ -112,8 +102,15 @@ namespace moris
          * @param[ in ] interpolation rule for geometry
          * @param[ in ] flag true if side interpolation
          */
+
+        Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule );
+
         Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
-                               const bool                 aSpaceSideset = false );
+                               const bool                 aSpaceSideset );
+
+        Geometry_Interpolator( const Interpolation_Rule & aInterpolationRule,
+                               const bool                 aSpaceSideset,
+                               const bool                 aTimeSideset );
 
 //------------------------------------------------------------------------------
         /**
@@ -194,15 +191,6 @@ namespace moris
            }
 
 //------------------------------------------------------------------------------
-          /**
-           * returns the side geometry type
-           */
-           mtk::Geometry_Type get_side_geometry_type() const
-           {
-               return mSideGeometryType;
-           }
-
-//------------------------------------------------------------------------------
         /**
          * set the space and time coefficients of the geometry field xHat, tHat
          * @param[ in ] space coefficients
@@ -231,6 +219,9 @@ namespace moris
           */
           Matrix< DDRMat > get_space_coeff() const
           {
+              // check that mXHat is set
+              MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::get_space_coeff - mXHat is not set." );
+
               return mXHat;
           }
 
@@ -240,47 +231,81 @@ namespace moris
            */
            Matrix< DDRMat > get_time_coeff() const
            {
+               // check that mTHat is set
+               MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::get_time_coeff - mTHat is not set." );
+
                return mTHat;
            }
 
 //------------------------------------------------------------------------------
         /**
-         * get the space time parametric coordinates
+         * set the space param coefficients of the geometry field xiHat
+         * @param[ in ] space coefficients
          */
-        void get_space_time_param_coords();
+        // default implementation
+        void set_param_coeff();
+
+        // set implementation
+        void set_param_coeff( const Matrix< DDRMat > & aXiHat,
+                              const Matrix< DDRMat > & aTauHat );
 
 //------------------------------------------------------------------------------
         /**
-         * get the space time physical coordinates
+         * set the space param coefficients of the geometry field xiHat
+         * @param[ in ] space coefficients
          */
-        void get_space_time_phys_coords();
+        void set_space_param_coeff( const Matrix< DDRMat > & aXiHat );
+
+//------------------------------------------------------------------------------
+        /**
+         * set the time param coefficients of the geometry field tHat
+         * @param[ in ] time coefficients
+         */
+        void set_time_param_coeff( const Matrix< DDRMat > & aTauHat );
+
+//------------------------------------------------------------------------------
+        /**
+         * get the space parametric coefficients of the geometry field xiHat
+         */
+        Matrix< DDRMat > get_space_param_coeff() const
+        {
+            // check that mXiHat is set
+            MORIS_ASSERT( mXiHat.numel()>0, "Geometry_Interpolator::get_space_param_coeff - mXiHat is not set." );
+
+            return mXiHat;
+        }
+
+//------------------------------------------------------------------------------
+          /**
+           * get the time parametric coefficients of the geometry field tauHat
+           */
+           Matrix< DDRMat > get_time_param_coeff() const
+           {
+               // check that mTauHat is set
+               MORIS_ASSERT( mTauHat.numel()>0, "Geometry_Interpolator::get_time_param_coeff - mTauHat is not set." );
+
+               return mTauHat;
+           }
 
 //------------------------------------------------------------------------------
         /**
          * get the vertices ordinals of each face of the parent element
          */
-        void get_face_vertices_ordinals();
+        moris::Cell< moris::Cell< moris_index > > get_face_vertices_ordinals( uint aNumSpaceBases );
 
 //------------------------------------------------------------------------------
         /**
          * get the parametric coordinates of a space side
          * @param[ in ] a space face ordinal
          */
-        Matrix< DDRMat > get_space_side_param_coords( const moris_index aSpaceOrdinal );
+        Matrix< DDRMat > extract_space_side_space_param_coeff( moris_index              aSpaceOrdinal,
+                                                               mtk::Interpolation_Order aInterpolationOrder );
 
 //------------------------------------------------------------------------------
         /**
-         * get the parametric coordinates of a space side
-         * @param[ in ] a space face ordinal
+         * get the parametric coordinates in space
          */
-        Matrix< DDRMat > get_space_side_phys_coords( const moris_index aSpaceOrdinal );
-
-//------------------------------------------------------------------------------
-        /**
-         * get the parametric coordinates of a time side
-         * @param[ in ] a time face ordinal
-         */
-        Matrix< DDRMat > get_time_side_param_coords( const moris_index aTimeOrdinal );
+        Matrix< DDRMat > extract_space_param_coeff( mtk::Interpolation_Order aInterpolationOrder );
 
 //------------------------------------------------------------------------------
         /**
@@ -399,70 +424,13 @@ namespace moris
         real det_J( const Matrix< DDRMat > & aParamPoint );
 
 //------------------------------------------------------------------------------
-        /**
-         * evaluates the determinant of the Jacobian mapping
-         * in the case of a time side interpolation
-         * at given space and time evaluation point
-         * @param[ in ]  aSideParamPoint evaluation point on the side
-         * @param[ in ]  aTimeOrdinal    a time face ordinal
-         */
-         real time_surf_det_J( const Matrix< DDRMat > & aSideParamPoint,
-                               const moris_index      & aTimeOrdinal );
-
-//------------------------------------------------------------------------------
-         /**
-          * get the parametric coordinates of a point
-          * in the side parametric space
-          * in the parent parametric space
-          */
-         Matrix< DDRMat > surf_val( const Matrix< DDRMat > & aSideParamPoint,
-                                    const moris_index      & aSideOrdinal );
-
-//------------------------------------------------------------------------------
-         /**
-          * get the parametric coordinates of a point
-          * in the side parametric space
-          * in the parent parametric space
-          */
-         Matrix < DDRMat > time_surf_val( const Matrix< DDRMat > & aSideParamPoint,
-                                          const moris_index      & aTimeOrdinal );
-
-//------------------------------------------------------------------------------
-         /**
-          * evaluates the determinant of the Jacobian mapping
-          * in the case of a space side interpolation
-          * at given space and time evaluation point
-          * @param[ out ] aTimeSurfDetJ   determinant of the Jacobian
-          * @param[ out ] aNormal         normal to the face
-          * @param[ in ]  aSideParamPoint evaluation point on the face
-          * @param[ in ]  aSpaceOrdinal   a space face ordinal
-          */
-         void surf_det_J(       real             & aSurfDetJ,
-                                Matrix< DDRMat > & aNormal,
-                          const Matrix< DDRMat > & aSideParamPoint,
-                          const moris_index      & aSpaceOrdinal );
-
-//------------------------------------------------------------------------------
-         /**
-          * evaluates the determinant of the Jacobian mapping
-          * in the case of a space side interpolation
-          * at given space and time evaluation point
-          * @param[ in ]  aSideParamPoint evaluation point on the face
-          * @param[ in ]  aSpaceOrdinal   a space face ordinal
-          */
-         real surf_det_J_new( const Matrix< DDRMat > & aSideParamPoint,
-                              const moris_index      & aSpaceOrdinal );
-
-//------------------------------------------------------------------------------
          /**
           * evaluates the normal to the side
           * in the case of a space side interpolation
           * at given space and time evaluation point
           * @param[ in ]  aSideParamPoint evaluation point on the face
-          * @param[ in ]  aSpaceOrdinal   a space face ordinal
           */
-         Matrix< DDRMat > surf_normal( const Matrix< DDRMat > & aSideParamPoint,
-                                       const moris_index      & aSpaceOrdinal );
+         Matrix< DDRMat > get_normal( const Matrix< DDRMat > & aSideParamPoint );
 
 //------------------------------------------------------------------------------
         /**
@@ -518,11 +486,11 @@ namespace moris
         void space_jacobian_and_matrices_for_third_derivatives(       Matrix< DDRMat > & aJt,
                                                                       Matrix< DDRMat > & aJ2bt,
                                                                       Matrix< DDRMat > & aJ3at,
-				                                                      Matrix< DDRMat > & aJ3bt,
-				                                                      Matrix< DDRMat > & aJ3ct,
+                                                                      Matrix< DDRMat > & aJ3bt,
+                                                                      Matrix< DDRMat > & aJ3ct,
                                                                 const Matrix< DDRMat > & adNdXi,
                                                                 const Matrix< DDRMat > & ad2NdXi2,
-			                                                    const Matrix< DDRMat > & ad3NdXi3) const;
+                                                                const Matrix< DDRMat > & ad3NdXi3 ) const;
 
 //------------------------------------------------------------------------------
         /**
@@ -539,6 +507,14 @@ namespace moris
          * @param[ in ]  aTau evaluation point in time
          */
         Matrix< DDRMat > valt( const Matrix< DDRMat > & aTau );
+
+//------------------------------------------------------------------------------
+        /**
+         * map an integration point from local param coords to global param coords
+         * @param[ out ] aLocalParamPoint param coords in local parametric space
+         * @param[ in ]  aParamPoint      param coords in global parametric space
+         */
+        Matrix< DDRMat > map_integration_point( const Matrix< DDRMat > & aLocalParamPoint );
 
 //------------------------------------------------------------------------------
     private:
@@ -635,12 +611,12 @@ namespace moris
          *
          */
          static void eval_matrices_for_third_derivative_1d( const Matrix< DDRMat > & aJt,
-                                                           const Matrix< DDRMat > & aJ2bt,
-                                                                 Matrix< DDRMat > & aJ3at,
-				                                                 Matrix< DDRMat > & aJ3bt,
-                                                                 Matrix< DDRMat > & aJ3ct,
-                                                           const Matrix< DDRMat > & ad3NdXi3,
-                                                           const Matrix< DDRMat > & aXHat );
+                                                            const Matrix< DDRMat > & aJ2bt,
+                                                                  Matrix< DDRMat > & aJ3at,
+                                                                  Matrix< DDRMat > & aJ3bt,
+                                                                  Matrix< DDRMat > & aJ3ct,
+                                                            const Matrix< DDRMat > & ad3NdXi3,
+                                                            const Matrix< DDRMat > & aXHat );
 
 //------------------------------------------------------------------------------
         /**
@@ -657,12 +633,12 @@ namespace moris
          *
          */
          static void eval_matrices_for_third_derivative_2d( const Matrix< DDRMat > & aJt,
-                                                           const Matrix< DDRMat > & aJ2bt,
-                                                                 Matrix< DDRMat > & aJ3at,
-				                                                 Matrix< DDRMat > & aJ3bt,
-                                                                 Matrix< DDRMat > & aJ3ct,
-                                                           const Matrix< DDRMat > & ad3NdXi3,
-                                                           const Matrix< DDRMat > & aXHat );
+                                                            const Matrix< DDRMat > & aJ2bt,
+                                                                  Matrix< DDRMat > & aJ3at,
+                                                                  Matrix< DDRMat > & aJ3bt,
+                                                                  Matrix< DDRMat > & aJ3ct,
+                                                            const Matrix< DDRMat > & ad3NdXi3,
+                                                            const Matrix< DDRMat > & aXHat );
 
 //------------------------------------------------------------------------------
         /**
@@ -679,18 +655,12 @@ namespace moris
          *
          */
          static void eval_matrices_for_third_derivative_3d( const Matrix< DDRMat > & aJt,
-                                                           const Matrix< DDRMat > & aJ2bt,
-                                                                 Matrix< DDRMat > & aJ3at,
-				                                                 Matrix< DDRMat > & aJ3bt,
-                                                                 Matrix< DDRMat > & aJ3ct,
-                                                           const Matrix< DDRMat > & ad3NdXi3,
-                                                           const Matrix< DDRMat > & aXHat );
-
-//------------------------------------------------------------------------------
-        /**
-         * get the geometry type of a side
-         */
-        void get_auto_side_geometry_type();
+                                                            const Matrix< DDRMat > & aJ2bt,
+                                                                  Matrix< DDRMat > & aJ3at,
+                                                                  Matrix< DDRMat > & aJ3bt,
+                                                                  Matrix< DDRMat > & aJ3ct,
+                                                            const Matrix< DDRMat > & ad3NdXi3,
+                                                            const Matrix< DDRMat > & aXHat );
 
 //------------------------------------------------------------------------------
 

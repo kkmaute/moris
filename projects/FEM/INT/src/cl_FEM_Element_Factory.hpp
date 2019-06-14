@@ -17,7 +17,9 @@
 #include "cl_FEM_IWG.hpp"             //FEM/INT/src
 #include "cl_FEM_Node.hpp"            //FEM/INT/src
 #include "cl_MTK_Cell.hpp" //MTK
-
+#include "cl_MTK_Cell_Cluster.hpp" //MTK
+#include "cl_MTK_Side_Cluster.hpp" //MTK
+#include "cl_MTK_Double_Side_Cluster.hpp" //MTK
 
 namespace moris
 {
@@ -58,17 +60,44 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         /**
+         * create a cell cluster
+         */
+        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
+                                               mtk::Cell_Cluster const   * aCellCluster,
+                                               moris::Cell< Node_Base* > & aNodes,
+                                               Set                       * aSet );
+        /**
+         * create a side cluster
+         */
+        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
+                                               mtk::Side_Cluster const   * aSideCluster,
+                                               moris::Cell< Node_Base* > & aNodes,
+                                               Set                       * aSet );
+
+        /**
+         * create a side cluster
+         */
+        MSI::Equation_Object * create_cluster( Element_Type                     aElementType,
+                                               mtk::Double_Side_Cluster const & aDoubleSideCluster,
+                                               moris::Cell< Node_Base* >      & aNodes,
+                                               Set                            * aSet );
+//------------------------------------------------------------------------------
+
+        /**
          * create element
          */
-        MSI::Equation_Object * create_cluster( Element_Type         aElementType,
-                                               mtk::Cell    const * aCell,
-                                               Cell< Node_Base* > & aNodes,
-                                               Set                * aElementBlock );
-
         fem::Element * create_element( Element_Type         aElementType,
                                        mtk::Cell    const * aCell,
-                                       Set                * aElementBlock,
-                                       Cluster            * aCluster);
+                                       Set                * aSet,
+                                       Cluster            * aCluster,
+                                       moris::moris_index   aCellIndexInCluster );
+
+        fem::Element * create_element( Element_Type         aElementType,
+                                       mtk::Cell    const * aLeftCell,
+                                       mtk::Cell    const * aRightCell,
+                                       Set                * aSet,
+                                       Cluster            * aCluster,
+                                       moris::moris_index   aCellIndexInCluster );
 
     };
 

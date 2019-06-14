@@ -13,11 +13,12 @@ set(HEADERS
 
 # List header dependencies
 set(SDF_INCLUDES
-    ${LINALG}
-    ${TOL}
-    ${IOS}
-    ${MTK}
-    ${COM})
+    #${LINALG}
+    #${TOL}
+    #${IOS}
+    #${MTK}
+    #${COM}
+    )
 
 # Include depedency directories
 foreach(SDF_INCLUDE ${SDF_INCLUDES})
@@ -46,10 +47,14 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_BOOST_LIBS}
+	${LINALG}-lib
+	${COM}-lib
+	${CON}-lib
+	${MTK}-lib
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_BOOST_LIBS}
     ${MORIS_BASE_LIBS})
 
 # Remove duplicate dependencies
@@ -64,8 +69,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${SDF}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${SDF}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${SDF}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${SDF}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${SDF}-lib PROPERTIES OUTPUT_NAME ${SDF})
+
+foreach(TPL ${SDF_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${SDF}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${SDF}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${SDF}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fem/mdl Config Files
@@ -106,7 +126,7 @@ install(TARGETS ${SDF}-lib
 install(EXPORT ${SDF}Targets
     DESTINATION ${CONFIG_INSTALL_DIR}/${SDF} )
     
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Executable
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,18 +138,19 @@ set(EXE_SOURCES
 
 # List executable dependencies
 set(EXE_DEPENDENCIES
+	${CHR}-lib
 #    ${GEN}-lib
     ${SDF}-lib
     ${MTK}-lib
 #    ${TOL}-lib why?
     ${COM}-lib
     ${MORIS_BASE_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MORIS_BOOST_LIBS}
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_ARPACK_LIBS}
+    #${MORIS_BOOST_LIBS}
     )
 
 # Remove duplicate dependencies
@@ -143,5 +164,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Create executable
 add_executable(${SDF}-exe ${EXE_SOURCES})
-target_link_libraries(${SDF}-exe ${EXE_DEPENDENCIES})
+target_link_libraries(${SDF}-exe PRIVATE ${EXE_DEPENDENCIES})
 set_target_properties(${SDF}-exe PROPERTIES OUTPUT_NAME sdf )
+
+foreach(TPL ${SDF_EXE_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${SDF}-exe
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${SDF}-exe
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${SDF}-exe
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()

@@ -701,6 +701,7 @@ namespace mtk
         enum EntityRank tFacetRank = this->get_facet_rank();
 
         // Get facets in side set
+        std::cout<<"aSetName = "<<aSetName<<std::endl;
         Matrix<IndexMat> tSidesInSideSetInds = this->get_set_entity_loc_inds(tFacetRank,aSetName);
 
         // allocate space in inputs
@@ -739,6 +740,8 @@ namespace mtk
         Matrix<IndexMat> tCellInds;
 
         this->get_sideset_elems_loc_inds_and_ords(aSetName, tCellInds,aSidesetOrdinals);
+
+        //moris::print(tCellInds,"tCellInds");
 
         aCells.resize(tCellInds.numel());
 
@@ -2857,6 +2860,8 @@ namespace mtk
             // Get side set and size of node set
             MtkSideSetInfo* tSideSet = aMeshData.SetsInfo->get_side_set(iSet);
             uint tNumSidesInSet = tSideSet->mElemIdsAndSideOrds->n_rows();
+
+            //moris::print((*tSideSet->mElemIdsAndSideOrds),"(*tSideSet->mElemIdsAndSideOrds)(");
 
             for ( uint iEntity = 0; iEntity < tNumSidesInSet; ++iEntity )
             {

@@ -12,7 +12,8 @@ set(HEADERS
 
 # List header dependencies
 set(COM_INCLUDES
-    ${LINALG} )
+    #${LINALG}
+    "" )
 
 foreach(COM_INCLUDE ${COM_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${COM_INCLUDE}/src)
@@ -28,7 +29,7 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    "" )
+    ${LINALG}-lib )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -42,8 +43,24 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${COM}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${COM}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${COM}-lib 
+	PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_link_libraries(${COM}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${COM}-lib PROPERTIES OUTPUT_NAME ${COM})
+
+# Link third party libraries
+foreach(TPL ${COM_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${COM}-lib 
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${COM}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${COM}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Communications Executable

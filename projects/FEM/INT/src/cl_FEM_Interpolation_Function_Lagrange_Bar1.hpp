@@ -54,11 +54,9 @@ namespace moris
                 const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                    "LINE1 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE1 - eval_N: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > tN(1,1);
-            tN( 0 ) = 1.0;
+            Matrix< DDRMat > tN( 1, 1, 1.0 );
             return tN;
         }
 
@@ -69,11 +67,9 @@ namespace moris
         Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE1 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE1 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > tdNdXi(1,1);
-            tdNdXi( 0 ) = 0.0;
+            Matrix< DDRMat > tdNdXi( 1, 1, 0.0 );
             return tdNdXi;
         }
 
@@ -87,8 +83,7 @@ namespace moris
             MORIS_ASSERT( aXi.length() >= 1,
                           "LINE1 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > td2NdXi2(1,1);
-            td2NdXi2( 0 ) =  0.0;
+            Matrix< DDRMat > td2NdXi2( 1, 1, 0.0 );
             return td2NdXi2;
         }
 
@@ -99,11 +94,9 @@ namespace moris
         Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1  >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE1 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE1 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > td3NdXi3(1,1);
-            td3NdXi3( 0 ) =  0.0;
+            Matrix< DDRMat > td3NdXi3( 1, 1, 0.0 );
             return td3NdXi3;
         }
 

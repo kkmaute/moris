@@ -27,6 +27,7 @@ namespace moris
     {
         class IWG;
         class Node_Base;
+        class Cell;
         enum class IWG_Type;
         enum class BC_Type;
     }
@@ -64,16 +65,18 @@ namespace moris
         class Model
         {
             // pointer to reference mesh
-            mtk::Mesh_Manager*                mMeshManager;
-
+            mtk::Mesh_Manager*             mMeshManager;
             moris_index mMeshPairIndex;
-            Cell< fem::Node_Base* >           mNodes;
-            Cell< MSI::Equation_Object* >     mElements;
-            Cell< Cell< fem::IWG* > >         mIWGs;
 
-            Cell< MSI::Equation_Set * >      mElementBlocks;
+            moris::Cell< fem::Node_Base* > mIPNodes;
+            moris::Cell< fem::Cell* >      mIPCells;
+            moris::Cell< fem::Cell* >      mIGCells;
 
-            Cell< fem::IWG* >         mIWGs1;
+            moris::Cell< MSI::Equation_Set * >      mFemSets;
+            moris::Cell< MSI::Equation_Object* >    mFemClusters;
+            moris::Cell< moris::Cell< fem::IWG* > > mIWGs;
+
+            moris::Cell< fem::IWG* >         mIWGs1;
 
             // by default, this value is set to the order of the
             // Lagrange modes
@@ -101,28 +104,25 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-//            Model(       mtk::Mesh   * aMesh,
-//                   const uint          aBSplineOrder,
-//                   Cell< Cell< fem::IWG_Type > >aIWGTypeList );
+            Model(       mtk::Mesh_Manager*                          aMesh,
+                   const uint                                        aBSplineOrder,
+                         moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
+                   const moris::Cell< moris_index >                  & aBlocksetList,
+                   const moris::Cell< moris_index >                  aSidesetList,
+                   const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
+                   const moris::Cell< moris_index >                  aDoubleSidesetList,
+                   const moris_index                                 aMeshPairIndex = 0 );
 
-            Model(       mtk::Mesh_Manager*             aMesh,
-                   const uint                          aBSplineOrder,
-                         Cell< Cell< fem::IWG_Type > > aIWGTypeList,
-                         Cell< moris_index >           aSidesetList,
-                         Cell< fem::BC_Type >          aSidesetBCTypeList,
-                   const moris_index                   aMeshPairIndex = 0);
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat> &
-            get_mSolHMR( )
+            Matrix< DDRMat> & get_mSolHMR( )
             {
                 return mSolHMR;
             };
 
 //------------------------------------------------------------------------------
 
-            void
-            set_dof_order( const uint aOrder );
+            void set_dof_order( const uint aOrder );
 
 //------------------------------------------------------------------------------
 

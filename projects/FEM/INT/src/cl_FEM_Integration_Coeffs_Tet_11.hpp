@@ -13,6 +13,7 @@
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp" //LNA/src
 #include "cl_FEM_Enums.hpp" //FEM/INT/src
+#include "op_times.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -79,8 +80,7 @@ namespace moris
                     0.0248888888888889, 0.0248888888888889, 0.0248888888888889, 0.0248888888888889,
                     0.0248888888888889, 0.0248888888888889, -0.013155555555555 }
                 };
-
-                return aWeights;
+                return aWeights * 6.0;
             }
 
 //------------------------------------------------------------------------------

@@ -29,9 +29,12 @@ public:
                          Interpolation_Mesh_HMR & aInterpolationMesh  ):
         Mesh( aDatabase, aLagrangeOrder, aLagrangePattern )
     {
-        this->setup_cell_clusters(aInterpolationMesh);
-        this->setup_blockset_with_cell_clusters();
-        this->setup_side_set_clusters(aInterpolationMesh);
+        if( aLagrangePattern == mMesh->get_parameters()->get_lagrange_output_pattern() || aLagrangePattern== mMesh->get_parameters()->get_union_pattern())
+        {
+            this->setup_cell_clusters(aInterpolationMesh);
+            this->setup_blockset_with_cell_clusters();
+            this->setup_side_set_clusters(aInterpolationMesh);
+        }
     }
 
 
@@ -70,7 +73,7 @@ public:
     moris::Cell<mtk::Cell_Cluster const *>
     get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const
     {
-        MORIS_ASSERT(aBlockSetOrdinal<(moris_index)mPrimaryBlockSetNames.size(),"Requested block set ordinal out of bounds.");
+        MORIS_ASSERT(aBlockSetOrdinal < (moris_index)mPrimaryBlockSetNames.size(),"Requested block set ordinal out of bounds.");
 
         moris::Cell<moris::moris_index> const & tClusterIndsInSet = mPrimaryBlockSetClusters(aBlockSetOrdinal);
 
@@ -206,6 +209,8 @@ private:
         // number of interpolation cells
         moris::uint tNumInterpCells = aInterpolationMesh.get_num_entities(tCellRank);
 
+        std::cout<<tNumInterpCells<<" tNumInterpCells"<<std::endl;
+
 
         // size member data
         mCellClusters.resize(tNumInterpCells);
@@ -214,14 +219,20 @@ private:
         {
                 moris_id tCellId = aInterpolationMesh.get_glb_entity_id_from_entity_loc_index((moris_index)i,tCellRank);
 
+                std::cout<<tCellId<<" tCellId"<<std::endl;
+
                 // interpolation cell
                 mtk::Cell const * tInterpCell = &aInterpolationMesh.get_mtk_cell((moris_index) i);
                 mCellClusters(i).set_interpolation_cell( tInterpCell );
 
+                std::cout<<tInterpCell->get_index()<<" tInterpCell"<<std::endl;
+
                 // integration cell (only primary cells here)
-                moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,tCellRank);
-                mtk::Cell const * tPrimaryCell = &this->get_mtk_cell(tIntegCellIndex);
+//                moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,tCellRank);
+                mtk::Cell const * tPrimaryCell = &this->get_mtk_cell(i);
                 mCellClusters(i).add_primary_integration_cell(tPrimaryCell);
+
+                std::cout<<tPrimaryCell->get_index()<<" PrimaryCellIndex"<<std::endl;
         }
     }
 
@@ -237,10 +248,13 @@ private:
             Cell_Cluster_HMR const & tCellCluster = mCellClusters(i);
             moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCellCluster.get_primary_cells_in_cluster();
 
+            std::cout<<tCellCluster.get_num_primary_cells()<< " Num Primary Cells"<<std::endl;
             // iterate through primary cells
             for(moris::uint j = 0; j <tCellCluster.get_num_primary_cells(); j++)
             {
                 moris::moris_index tCellIndex = tPrimaryCells(j)->get_index();
+
+                std::cout<<tCellIndex<<" CellIndex"<<std::endl;
 
                 MORIS_ASSERT(tPrimaryIntegrationCellToClusterIndex(tCellIndex) == MORIS_INDEX_MAX,"Integration cell can only appear as a primary cell in one cell cluster");
                 tPrimaryIntegrationCellToClusterIndex(tCellIndex) = (moris_index) i;
@@ -353,7 +367,7 @@ private:
         }
         else if(this->get_spatial_dim() == 2)
         {
-            return EntityRank::FACE;
+            return EntityRank::ELEMENT;
         }
         else if (this->get_spatial_dim() == 3)
         {

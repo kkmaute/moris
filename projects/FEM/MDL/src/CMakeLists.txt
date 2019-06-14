@@ -12,19 +12,20 @@ set(HEADERS
 
 # List header dependencies
 set(MDL_INCLUDES
-    ${SOL}/${DLA}
-    ${SOL}/${NLA}
-    ${SOL}/${TSA}
-    ${SOL}/${SOL_CORE}
-    ${LINALG}
-    ${IOS}
-    ${MTK}
-    ${COM}
-    ${HMR}  # for executable
-    ${ALG}
-    ${TOL}
-    ${FEM}/${INT}
-    ${FEM}/${MSI} )
+    #${SOL}/${DLA}
+    #${SOL}/${NLA}
+    #${SOL}/${TSA}
+    #${SOL}/${SOL_CORE}
+    #${LINALG}
+    #${IOS}
+    #${MTK}
+    #${COM}
+    #${HMR}  # for executable
+    #${ALG}
+    #${TOL}
+    #${FEM}/${INT}
+    #${FEM}/${MSI} 
+    )
 
 # Include depedency directories
 foreach(MDL_INCLUDE ${MDL_INCLUDES})
@@ -42,14 +43,16 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+	${INT}-lib
+	${MTK}-lib
     ${NLA}-lib
-    ${SOL_CORE}-lib
+    #${SOL_CORE}-lib
     ${TSA}-lib
-    ${MSI}-lib
-    ${INT}-lib
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MSI}-lib
+    
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
     ${MORIS_BASE_LIBS})
 
 # Remove duplicate dependencies
@@ -64,8 +67,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${MDL}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${MDL}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${MDL}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${MDL}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MDL}-lib PROPERTIES OUTPUT_NAME ${MDL})
+
+foreach(TPL ${MDL_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${MDL}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${MDL}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${MDL}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fem/mdl Config Files
