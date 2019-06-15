@@ -5,17 +5,19 @@
  *      Author: schmidt
  */
 
-#ifndef SRC_FEM_CL_FEM_ELEMENT_BLOCK_HPP_
-#define SRC_FEM_CL_FEM_ELEMENT_BLOCK_HPP_
+#ifndef SRC_FEM_CL_FEM_SET_HPP_
+#define SRC_FEM_CL_FEM_SET_HPP_
 
 #include "assert.h"
-#include "cl_MSI_Equation_Set.hpp"               //FEM/INT/src
-#include "cl_FEM_Enums.hpp"               //FEM/INT/src
-#include "cl_MTK_Enums.hpp"               //FEM/INT/src
-#include "cl_FEM_Node_Base.hpp"               //FEM/INT/src
+#include "cl_MTK_Enums.hpp"            //MTK
+#include "cl_MSI_Equation_Set.hpp"     //FEM/MSI/src
+#include "cl_FEM_Enums.hpp"            //FEM/INT/src
+#include "cl_FEM_Node_Base.hpp"        //FEM/INT/src
+#include "cl_Communication_Tools.hpp"
 
-#include "cl_Communication_Tools.hpp"               //FEM/INT/src
-
+#include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_MTK_Side_Cluster.hpp"
+#include "cl_MTK_Double_Side_Cluster.hpp"
 
 namespace moris
 {
@@ -40,13 +42,54 @@ namespace MSI
     class Set : public MSI::Equation_Set
     {
     private:
-        moris::Cell< mtk::Cell const* >     mMeshElementPointer;
+        // if block-set
+        moris::Cell< mtk::Cell_Cluster const* > mMeshCellClusterList;
+        // if side-set
+        moris::Cell< mtk::Side_Cluster const* > mMeshSideClusterList;
+        // if double side-set
+        moris::Cell< mtk::Double_Side_Cluster > const mMeshDoubleSideClusterList;
 
+        // interpolation mesh geometry type
+        mtk::Geometry_Type mIPGeometryType;
+
+        // integration mesh geometry type
+        mtk::Geometry_Type mIGGeometryType;
+
+        // space interpolation order for IP cells
+        mtk::Interpolation_Order mIPSpaceInterpolationOrder;
+
+        // space interpolation order for IG cells
+        mtk::Interpolation_Order mIGSpaceInterpolationOrder;
+
+        // time interpolation order for IP cells
+        mtk::Interpolation_Order mIPTimeInterpolationOrder;
+
+        // space interpolation order for IG cells
+        mtk::Interpolation_Order mIGTimeInterpolationOrder;
+
+        // List of fem node pointers
         moris::Cell< Node_Base* >           mNodes;
 
-        Geometry_Interpolator             * mGeometryInterpolator = nullptr;
+        // geometry interpolator pointer for the interpolation cells
+        Geometry_Interpolator             * mIPGeometryInterpolator = nullptr;
 
+        // geometry interpolator pointer for the integration cells
+        Geometry_Interpolator             * mIGGeometryInterpolator = nullptr;
+
+        // list of field interpolator pointers
         moris::Cell< Field_Interpolator* >  mFieldInterpolators;
+
+        // list of field interpolator pointers for double side-set
+        moris::Cell< Field_Interpolator* >  mLeftFieldInterpolators;
+        moris::Cell< Field_Interpolator* >  mRightFieldInterpolators;
+
+        // geometry interpolator pointer for the interpolation cells for double side-set
+        Geometry_Interpolator             * mLeftIPGeometryInterpolator = nullptr;
+        Geometry_Interpolator             * mRightIPGeometryInterpolator = nullptr;
+
+        // geometry interpolator pointer for the integration cells
+        Geometry_Interpolator             * mLeftIGGeometryInterpolator = nullptr;
+        Geometry_Interpolator             * mRightIGGeometryInterpolator = nullptr;
 
         // cell of pointers to IWG objects
         moris::Cell< IWG* > mIWGs;
@@ -55,16 +98,19 @@ namespace MSI
 
         // map of the element active dof types
         moris::Matrix< DDSMat >                   mInterpDofTypeMap;
-        moris::Cell< Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > mInterpDofTypeList;
         moris::Matrix< DDSMat >                   mInterpDofAssemblyMap;
         uint                                      mTotalDof;
         uint                                      mNumOfInterp;
+
+        // list of model parameter type for the set
+        moris::Cell< fem::Property_Type > mPropertyTypeList;
 
         // number of integration points
         uint mNumOfIntegPoints;
 
         // integration points
-        Matrix< DDRMat > mSurfRefIntegPoints;
+        Matrix< DDRMat > mIntegPoints;
 
         // integration weights
         Matrix< DDRMat > mIntegWeights;
@@ -72,6 +118,7 @@ namespace MSI
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
         friend class Element_Sideset;
+        friend class Element_Double_Sideset;
         friend class Element_Time_Sideset;
         friend class Element;
 
@@ -79,20 +126,35 @@ namespace MSI
     public:
 //------------------------------------------------------------------------------
         /**
-         * constructor
-         *
-         * @param[ in ]     List of mtk::Cell pointer
+         * constructor for block-set
+         * @param[ in ]     List of mtk::Cell_Cluster
          */
-        Set( moris::Cell< mtk::Cell const * > & aCell,
-                       Element_Type                aElementType,
-                       Cell< IWG* >              & aIWGs,
-                       Cell< Node_Base* >        & aNodes);
+        Set( moris::Cell< mtk::Cell_Cluster const * > & aMeshClusterList,
+             Element_Type                               aElementType,
+             moris::Cell< IWG* >                      & aIWGs,
+             moris::Cell< Node_Base* >                & aIPNodes);
 
+        /**
+         * constructor for side-set
+         * @param[ in ]     List of mtk::Side_Cluster
+         */
+        Set( moris::Cell< mtk::Side_Cluster const * > & aMeshClusterList,
+             Element_Type                               aElementType,
+             moris::Cell< IWG* >                      & aIWGs,
+             moris::Cell< Node_Base* >                & aIPNodes);
+
+        /**
+         * constructor for double side-set
+         * @param[ in ]     List of mtk::Double_Side_Cluster
+         */
+        Set( moris::Cell< mtk::Double_Side_Cluster > const & aMeshClusterList,
+             Element_Type                                    aElementType,
+             moris::Cell< IWG* >                           & aIWGs,
+             moris::Cell< Node_Base* >                     & aIPNodes);
         /**
          * trivial constructor
          */
-        Set()
-        {};
+        Set(){};
 
 //------------------------------------------------------------------------------
 
@@ -119,7 +181,13 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        void create_unique_property_type_list();
+
+//------------------------------------------------------------------------------
+
         void create_dof_assembly_map();
+
+        void create_dof_assembly_map_double();
 
 //------------------------------------------------------------------------------
 
@@ -130,25 +198,67 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        Cell< MSI::Equation_Object * > & get_equation_object_list()
+        moris::Cell< MSI::Equation_Object * > & get_equation_object_list()
         {
             return mEquationObjList;
         };
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< Field_Interpolator* > & get_block_field_interpolator()
+        moris::Cell< Field_Interpolator* > & get_field_interpolator()
         {
             return mFieldInterpolators;
         }
 
+        moris::Cell< Field_Interpolator* > & get_left_field_interpolator()
+        {
+            return mLeftFieldInterpolators;
+        }
+        moris::Cell< Field_Interpolator* > & get_right_field_interpolator()
+        {
+            return mRightFieldInterpolators;
+        }
 //------------------------------------------------------------------------------
 
-        Geometry_Interpolator * get_block_geometry_interpolator()
+        Geometry_Interpolator * get_IP_geometry_interpolator()
         {
-            return mGeometryInterpolator;
+            return mIPGeometryInterpolator;
         }
 
+        Geometry_Interpolator * get_IG_geometry_interpolator()
+        {
+            return mIGGeometryInterpolator;
+        }
+
+        Geometry_Interpolator * get_left_IP_geometry_interpolator()
+        {
+            return mLeftIPGeometryInterpolator;
+        }
+        Geometry_Interpolator * get_right_IP_geometry_interpolator()
+        {
+            return mRightIPGeometryInterpolator;
+        }
+        Geometry_Interpolator * get_left_IG_geometry_interpolator()
+        {
+            return mLeftIGGeometryInterpolator;
+        }
+        Geometry_Interpolator * get_right_IG_geometry_interpolator()
+        {
+            return mRightIGGeometryInterpolator;
+        }
+
+//------------------------------------------------------------------------------
+
+        mtk::Geometry_Type get_IG_geometry_type()
+        {
+            return mIGGeometryType;
+        }
+
+//------------------------------------------------------------------------------
+        mtk::Interpolation_Order get_IG_space_interpolation_order()
+        {
+            return mIGSpaceInterpolationOrder;
+        }
 //------------------------------------------------------------------------------
 
         uint get_num_IWG()
@@ -179,7 +289,7 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< Cell< enum MSI::Dof_Type > > & get_interpolator_dof_type_list()
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > & get_interpolator_dof_type_list()
         {
             return mInterpDofTypeList;
         }
@@ -215,7 +325,7 @@ namespace MSI
 
         const Matrix< DDRMat > & get_integration_points()
         {
-            return mSurfRefIntegPoints;
+            return mIntegPoints;
         }
 
 //------------------------------------------------------------------------------
@@ -248,7 +358,13 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        mtk::Geometry_Type get_auto_side_geometry_type( const mtk::Geometry_Type aGeometryType );
+
+//------------------------------------------------------------------------------
+
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+        void create_field_interpolators_double( MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------
 
@@ -259,11 +375,11 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        void initialize_mJacobianElement();
+        void initialize_mJacobian();
 
 //------------------------------------------------------------------------------
 
-        void initialize_mResidualElement();
+        void initialize_mResidual();
 
 //------------------------------------------------------------------------------
 
@@ -272,4 +388,4 @@ namespace MSI
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_ELEMENT_BLOCK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SET_HPP_ */

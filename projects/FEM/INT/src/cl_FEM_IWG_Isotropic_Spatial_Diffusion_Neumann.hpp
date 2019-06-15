@@ -48,8 +48,8 @@ namespace moris
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
             void
-            compute_residual( Matrix< DDRMat >            & aResidual,
-                              Cell< Field_Interpolator* > & aFieldInterpolators );
+            compute_residual( Matrix< DDRMat >                   & aResidual,
+                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
@@ -60,8 +60,8 @@ namespace moris
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
             void
-            compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                               Cell< Field_Interpolator* > & aFieldInterpolators );
+            compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
             /**
@@ -72,9 +72,9 @@ namespace moris
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
             void
-            compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                           Matrix< DDRMat >            & aResidual,
-                                           Cell< Field_Interpolator* > & aFieldInterpolators );
+            compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                           Matrix< DDRMat >                   & aResidual,
+                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators );
 
 //------------------------------------------------------------------------------
         };

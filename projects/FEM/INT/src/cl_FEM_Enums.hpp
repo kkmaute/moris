@@ -74,6 +74,7 @@ namespace moris
             UNDEFINED,
             BULK,
             SIDESET,
+            DOUBLE_SIDESET,
             TIME_SIDESET,
             END_ELEMENT_TYPE
         };
@@ -90,13 +91,20 @@ namespace moris
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK,      // spatial diffusion bulk
-            SPATIALDIFF_SIDESET,   // spatial diffusion sideset
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
-			SPATIALDIFF_GHOST_LEFT, // spatial diffusion Ghost one left element
-			SPATIALDIFF_GHOST_RIGHT,// spatial diffusion Ghost one right element
-			SPATIALDIFF_GHOST,      // spatial diffusion Ghost double sided sideset
-			END_IWG_TYPE
+            SPATIALDIFF_GHOST,     // spatial diffusion ghost
+            END_IWG_TYPE
+        };
+
+//------------------------------------------------------------------------------
+
+        enum class Property_Type
+        {
+            UNDEFINED,
+            TEMP_DIRICHLET,
+            TEMP_NEUMANN,
+            END_PROPERTY_TYPE
         };
 
 //------------------------------------------------------------------------------

@@ -100,32 +100,25 @@ namespace moris
             /**
              * method to assemble "normal matrix" from normal vector needed for
              * 2nd and 3rd order Ghost formulations
-             *
-             * @param[ in ] aOrderGhost        Order of derivatives and ghost formulation
+             * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
              */
 
-            Matrix<DDRMat>
-			get_normal_matrix (uint aOrderGhost);
+            Matrix<DDRMat> get_normal_matrix ( uint aOrderGhost );
 
 
 //------------------------------------------------------------------------------
             /**
              * method to feed order of interpolation functions to the Ghost element
-             *
-             * @param[ in ] aOrder          Order of interpolation functions used on Ghost element
+             * @param[ in ] aOrder Order of interpolation functions used on Ghost element
              */
-            void
-            set_interpolation_order ( uint aOrder );
+            void set_interpolation_order ( uint aOrder );
 
 //------------------------------------------------------------------------------
             /**
              * method to set the penalty factor of the Ghost element
-             *
-             * @param[ in ] aGamma          penalty factor
+             * @param[ in ] aGamma penalty factor
              */
-            void
-			set_penalty_factor ( real aGamma );
-
+            void set_penalty_factor ( real aGamma );
 
 //------------------------------------------------------------------------------
         };

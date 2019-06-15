@@ -20,10 +20,13 @@ set(TEST_SOURCES
     cl_FEM_Element_L2.cpp
     cl_FEM_Element_Diffusion_Test.cpp
     cl_FEM_Side_Geometry_Interpolation_Test.cpp
-    
+    cl_FEM_Time_Side_Geometry_Interpolation_Test.cpp
     cl_FEM_Integration_Mesh_Test.cpp
+    cl_FEM_Integration_Mesh_Test2.cpp
+    cl_FEM_Double_Sided_Sideset_Test.cpp
     cl_FEM_Element_HJ_Test.cpp
     cl_FEM_Element_Block_Test.cpp
+    cl_FEM_Model_Param_Interpolator_Test.cpp
     )
 
 # List test includes

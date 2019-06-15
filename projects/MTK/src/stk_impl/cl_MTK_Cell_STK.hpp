@@ -250,79 +250,79 @@ public:
     }
 
     moris::Matrix<moris::DDRMat>
-    compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-    {
+     compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+     {
 
-        enum Geometry_Type tGeomType = this->get_geometry_type();
+         enum Geometry_Type tGeomType = this->get_geometry_type();
 
-        // Get vector along these edges
-        moris::Matrix<moris::DDRMat> tEdge0Vector(3,1);
-        moris::Matrix<moris::DDRMat> tEdge1Vector(3,1);
-
-
-        switch(tGeomType)
-        {
-            case(Geometry_Type::HEX):
-            {
-                MORIS_ERROR(aSideOrdinal<6,"Side ordinal out of bounds.");
-
-#ifdef DEBUG
-                if(this->get_vertex_pointers().size() > 8)
-                {
-                 MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
-                }
-#endif
-
-                // get the vertex coordinates
-                moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
-
-                // Get the nodes which need to be used to compute normal
-                moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Hex8::get_node_map_outward_normal(aSideOrdinal);
-
-                // Get vector along these edges
-                tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-                tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
-                break;
-            }
-            case(Geometry_Type::TET):
-            {
-                MORIS_ERROR(aSideOrdinal<4,"Side ordinal out of bounds.");
-
-#ifdef DEBUG
-                if(this->get_vertex_pointers().size() > 4)
-                {
-                 MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
-                }
-#endif
-
-                // get the vertex coordinates
-                moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
-
-                // Get the nodes which need to be used to compute normal
-                moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Tetra4_Connectivity::get_node_map_outward_normal(aSideOrdinal);
-
-                // Get vector along these edges
-                tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-                tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
-
-                break;
-            }
-
-            default:
-                MORIS_ERROR(0,"Only implemented for hex8 compute_outward_side_normal");
-                break;
-        }
-
-        // Take the cross product to get the normal
-        Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
-
-        // Normalize
-        Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
+         // Get vector along these edges
+         moris::Matrix<moris::DDRMat> tEdge0Vector(3,1);
+         moris::Matrix<moris::DDRMat> tEdge1Vector(3,1);
 
 
-        return tUnitOutwardNormal;
+         switch(tGeomType)
+         {
+             case(Geometry_Type::HEX):
+             {
+                 MORIS_ERROR(aSideOrdinal<6,"Side ordinal out of bounds.");
 
-    }
+ #ifdef DEBUG
+                 if(this->get_vertex_pointers().size() > 8)
+                 {
+                  MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
+                 }
+ #endif
+
+                 // get the vertex coordinates
+                 moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
+
+                 // Get the nodes which need to be used to compute normal
+                 moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Hex8::get_node_map_outward_normal(aSideOrdinal);
+
+                 // Get vector along these edges
+                 tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+                 tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
+                 break;
+             }
+             case(Geometry_Type::TET):
+             {
+                 MORIS_ERROR(aSideOrdinal<4,"Side ordinal out of bounds.");
+
+ #ifdef DEBUG
+                 if(this->get_vertex_pointers().size() > 4)
+                 {
+                  MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
+                 }
+ #endif
+
+                 // get the vertex coordinates
+                 moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
+
+                 // Get the nodes which need to be used to compute normal
+                 moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Tetra4_Connectivity::get_node_map_outward_normal(aSideOrdinal);
+
+                 // Get vector along these edges
+                 tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+                 tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
+
+                 break;
+             }
+
+             default:
+                 MORIS_ERROR(0,"Only implemented for hex8 compute_outward_side_normal");
+                 break;
+         }
+
+         // Take the cross product to get the normal
+         Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
+
+         // Normalize
+         Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
+
+
+         return tUnitOutwardNormal;
+
+     }
 
     //------------------------------------------------------------------------------
 
@@ -339,48 +339,48 @@ public:
         switch ( mSTKMeshData->get_spatial_dim() )
         {
             case ( 1 ) :
-                                return Geometry_Type::LINE;
-            break;
+                return Geometry_Type::LINE;
+                break;
 
             case ( 2 ) :
-                        {
+            {
                 uint tNumEdges = mSTKMeshData->get_edges_connected_to_element_loc_inds( this->get_index() ).numel();
                 switch ( tNumEdges )
                 {
                     case ( 3 ):
-                                        return Geometry_Type::TRI;
-                    break;
+                        return Geometry_Type::TRI;
+                        break;
 
                     case ( 4 ):
-                                        return Geometry_Type::QUAD;
-                    break;
+                        return Geometry_Type::QUAD;
+                        break;
 
                     default:
                         return Geometry_Type::UNDEFINED;
                         break;
                 }
                 break;
-                        }
+            }
 
             case ( 3 ) :
-                        {
+            {
                 uint tNumFaces = mSTKMeshData->get_faces_connected_to_element_loc_inds( this->get_index() ).numel();
                 switch ( tNumFaces )
                 {
                     case ( 4 ):
-                                       return Geometry_Type::TET;
-                    break;
+                        return Geometry_Type::TET;
+                        break;
 
                     case ( 6 ):
-                                       return Geometry_Type::HEX;
-                    break;
+                        return Geometry_Type::HEX;
+                        break;
 
                     default:
                         return Geometry_Type::UNDEFINED;
                         break;
                 }
                 break;
-                        }
+            }
 
             default :
                 return Geometry_Type::UNDEFINED;

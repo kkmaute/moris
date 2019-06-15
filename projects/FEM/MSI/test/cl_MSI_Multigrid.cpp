@@ -79,7 +79,9 @@ namespace moris
             //tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_1.hdf5" );
 
              // grab pointer to output field
-             std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
+             //std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
+             std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpolationMesh =  tHMR.create_interpolation_mesh( tOrder, tHMR.get_parameters()->get_lagrange_output_pattern() );
+             std::shared_ptr< hmr::Integration_Mesh_HMR >   tIntegrationMesh =  tHMR.create_integration_mesh( tOrder, tHMR.get_parameters()->get_lagrange_output_pattern(), *tInterpolationMesh );
 
 //             std::cout << std::endl;
 //             // List of B-Spline Meshes
@@ -116,7 +118,7 @@ namespace moris
               tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_matlab.hdf5" );
 
              moris::map< moris::moris_id, moris::moris_index > tMap;
-             tMesh->get_adof_map( tOrder, tMap );
+             tInterpolationMesh->get_adof_map( tOrder, tMap );
              //tMap.print("Adof Map");
 
              //-------------------------------------------------------------------------------------------
@@ -130,51 +132,73 @@ namespace moris
              Cell< MSI::Equation_Object* >  tElements;
 
              // get map from mesh
-             tMesh->get_adof_map( tOrder, tCoefficientsMap );
+             tInterpolationMesh->get_adof_map( tOrder, tCoefficientsMap );
 
              // ask mesh about number of nodes on proc
-             luint tNumberOfNodes = tMesh->get_num_nodes();
+             luint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
 
              // create node objects
              tNodes.resize( tNumberOfNodes, nullptr );
 
              for( luint k = 0; k < tNumberOfNodes; ++k )
              {
-                 tNodes( k ) = new fem::Node( &tMesh->get_mtk_vertex( k ) );
+                 tNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
              }
 
              // ask mesh about number of elements on proc
-             luint tNumberOfElements = tMesh->get_num_elems();
+             luint tNumberOfElements = tInterpolationMesh->get_num_elems();
 
              // create equation objects
 //             tElements.reserve( tNumberOfElements );
 
              Cell< MSI::Equation_Set * >      tElementBlocks(1,nullptr);
 
-             // ask mesh about number of elements on proc
-             moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+             // init the fem set counter
+             moris::uint tFemSetCounter = 0;
 
-             moris::Cell<mtk::Cell const*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
-
-             for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
+             // loop over the used mesh block-set
+             for( luint Ik = 0; Ik < 1; ++Ik )
              {
-                 Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+                 // create a list of cell clusters (this needs to stay in scope somehow)
+                 moris::Cell<mtk::Cell_Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( 0 );
 
-                 for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
-                 {
-                     tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
-                 }
+                 // create new fem set
+                 tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSetClusterList,
+                                                                  fem::Element_Type::BULK,
+                                                                  tIWGs, tNodes );
 
+                 // collect equation objects associated with the block-set
+                 tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );
+
+                 // update fem set counter
+                 tFemSetCounter++;
              }
-             tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
+
+
+//             // ask mesh about number of elements on proc
+//             moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+//
+//             moris::Cell<mtk::Cell const*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+//
+//             for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
+//             {
+//                 Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+//
+//                 for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
+//                 {
+//                     tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
+//                 }
+//
+//             }
+//             tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
 
 //             tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
              MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
-                                                                                          tMesh->get_communication_table(),
+                                                                                          tInterpolationMesh->get_communication_table(),
                                                                                           tCoefficientsMap,
-                                                                                          tMesh->get_num_coeffs( tOrder ),
-                                                                                          tMesh.get() );
+                                                                                          tInterpolationMesh->get_num_coeffs( tOrder ),
+                                                                                          tInterpolationMesh.get() );
 
              tMSI->set_param("L2")= 1;
 
