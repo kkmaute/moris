@@ -25,7 +25,9 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib )
+	test-libs
+    ${COM}-lib
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order

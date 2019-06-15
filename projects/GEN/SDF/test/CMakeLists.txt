@@ -29,8 +29,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	${LINALG}-lib
-	${COM}-lib
+	test-libs
     ${SDF}-lib
     ${MTK}-lib
     #${COM}-lib

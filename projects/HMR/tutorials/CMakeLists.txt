@@ -25,6 +25,7 @@ set(EXE_DEPENDENCIES
     ${HMR}-lib
     ${MTK}-lib
     ${MAP}-lib
+    ${SDF}-lib
     #${MDL}-lib # for L2
     #${INT}-lib # for L2
     #${MSI}-lib # for L2

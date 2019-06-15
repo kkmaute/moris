@@ -54,6 +54,7 @@ include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 
 # added for tutorials
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
 
 # Include third party libraries indirectly needed by HMR
 #list(APPEND HMR_TPL_DEPENDENCIES

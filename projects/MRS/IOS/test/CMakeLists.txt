@@ -21,7 +21,8 @@ include_directories(${MORIS_DIR}/snippets/ios)
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib)
+    test-libs
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order

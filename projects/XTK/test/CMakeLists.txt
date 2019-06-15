@@ -100,8 +100,7 @@ endforeach()
 
 
 set(TEST_DEPENDENCIES
-	${LINALG}-lib
-	${COM}-lib
+	test-libs
 	${ALG}-lib
 	${MTK}-lib
 	${XTK}-lib

@@ -48,7 +48,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
+    test-libs
     ${GEN}-lib
     ${INT}-lib
     ${ALG}-lib

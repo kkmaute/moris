@@ -21,7 +21,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
+    test-libs
     ${OPT}-lib
     ${MORIS_BASE_LIBS}
     #${MORIS_ACML_LAPACK_MKL_LIBS}
