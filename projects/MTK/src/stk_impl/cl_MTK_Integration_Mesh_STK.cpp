@@ -109,14 +109,14 @@ Integration_Mesh_STK::get_block_set_names() const
 
 // ----------------------------------------------------------------------------
 
-moris::Cell<Cell_Cluster const *>
+moris::Cell<Cluster const *>
 Integration_Mesh_STK::get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const
 {
     MORIS_ASSERT(aBlockSetOrdinal<(moris_index)mPrimaryBlockSetNames.size(),"Requested block set ordinal out of bounds.");
 
     moris::Cell<moris::moris_index> const & tClusterIndsInSet = mPrimaryBlockSetClusters(aBlockSetOrdinal);
 
-    moris::Cell<Cell_Cluster const *> tClusterInSet(tClusterIndsInSet.size());
+    moris::Cell<Cluster const *> tClusterInSet(tClusterIndsInSet.size());
 
     for(moris::uint i = 0; i <tClusterIndsInSet.size(); i++)
     {
@@ -129,14 +129,14 @@ Integration_Mesh_STK::get_cell_clusters_in_set(moris_index aBlockSetOrdinal) con
 
 // ----------------------------------------------------------------------------
 
-moris::Cell<Side_Cluster const *>
+moris::Cell<Cluster const *>
 Integration_Mesh_STK::get_side_set_cluster(moris_index aSideSetOrdinal) const
 {
     MORIS_ASSERT(aSideSetOrdinal < (moris_index)mSideSets.size(), "Side set ordinal out of bounds");
 
     moris::uint tNumSideClustersInSet = mSideSets(aSideSetOrdinal).size();
 
-    moris::Cell<Side_Cluster const *> tSideClustersInSet(tNumSideClustersInSet);
+    moris::Cell<Cluster const *> tSideClustersInSet(tNumSideClustersInSet);
 
     for(moris::uint i = 0; i <tNumSideClustersInSet; i++)
     {
@@ -206,7 +206,7 @@ Integration_Mesh_STK::get_double_sided_set_index(std::string aDoubleSideSetLabel
 
 // ----------------------------------------------------------------------------
 
-moris::Cell<Double_Side_Cluster> const &
+moris::Cell<Cluster const*>
 Integration_Mesh_STK::get_double_side_set_cluster(moris_index aSideSetOrdinal) const
 {
     MORIS_ASSERT(aSideSetOrdinal<(moris_index)mDoubleSideSetLabels.size(),"Double side set ordinal out of bounds");
@@ -631,7 +631,7 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
 
 
             // construct the double side cluster
-            mDoubleSideSets(i).push_back(Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex),tVertexLeftToRightPair));
+            mDoubleSideSets(i).push_back( new Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex),tVertexLeftToRightPair));
 
         }
     }

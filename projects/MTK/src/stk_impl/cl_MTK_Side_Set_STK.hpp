@@ -36,7 +36,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Side_Set_STK( moris::Cell<Side_Cluster const *>  aBlockSetClusters ) : Side_Set(aBlockSetClusters)
+            Side_Set_STK( moris::Cell<Cluster const *>  aBlockSetClusters ) : Side_Set(aBlockSetClusters)
             {
             };
 

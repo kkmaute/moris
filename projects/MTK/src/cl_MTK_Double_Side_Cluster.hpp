@@ -31,6 +31,11 @@ class Double_Side_Cluster : public Cluster
      */
     moris::Cell<moris::mtk::Vertex const *> mLeftToRightVertexPairs;
 
+    moris::Cell<moris::mtk::Cell const *>   mDummCellCell;
+    moris::mtk::Cell*                       mDummyCell;
+    moris::Cell<moris::mtk::Vertex const *> mDummyVertexCell;
+    moris::Matrix<moris::DDRMat>            mDummyDDRMat;
+
 
 public:
     Double_Side_Cluster():
@@ -51,7 +56,6 @@ public:
         }
 
         mLeftToRightVertexPairs.append(aLeftToRightVertexPair);
-
     };
 
     //##############################################
@@ -77,7 +81,7 @@ public:
         }
         else
         {
-            MORIS_ERROR(false, "is_trivial(): can only be 1 and 2");
+            MORIS_ERROR(false, "is_trivial(): can only be 0 and 1");
             return false;
         }
     }
@@ -94,7 +98,6 @@ public:
      * on the right
      *
      */
-
     bool
     is_right_trivial() const
     {
@@ -109,7 +112,6 @@ public:
     /*!
      * Returns the left side cluster
      */
-
     moris::mtk::Side_Cluster const &
     get_left_side_cluster() const
     {
@@ -121,7 +123,6 @@ public:
     /*!
      * Returns the left side cluster in this double sided side cluster
      */
-
     moris::mtk::Side_Cluster const &
     get_right_side_cluster() const
     {
@@ -151,11 +152,47 @@ public:
     // Cell Side Ordinals/Vertex Access
     //##############################################
 
+    moris_index
+    get_vertex_cluster_index( const Vertex * aVertex,
+                              const moris::uint aSide = 0 ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_vertex_cluster_index( aVertex );
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_vertex_cluster_index( aVertex );
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_vertex_cluster_index(): can only be 0 and 1");
+            return 0;
+        }
+    }
+
+    moris::mtk::Cell const &
+    get_interpolation_cell( const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_interpolation_cell();
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_interpolation_cell();
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_interpolation_cell(): can only be 0 and 1");
+            return *mDummyCell;
+        }
+    }
+
     /*!
      * Get left interpolation cell interpolating into the left side of the double
      * sided side set
      */
-
     moris::mtk::Cell const &
     get_left_interpolation_cell() const
     {
@@ -164,12 +201,10 @@ public:
 
     //----------------------------------------------------------------
 
-
     /*!
      * Get right interpolation cell interpolating into the right side of the double
      * sided side set
      */
-
     moris::mtk::Cell const &
     get_right_interpolation_cell() const
     {
@@ -178,11 +213,28 @@ public:
 
     //----------------------------------------------------------------
 
+    moris::Cell<mtk::Cell const *> const &
+    get_primary_cells_in_cluster( const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_cells_in_side_cluster();
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_cells_in_side_cluster();
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be 0 and 1");
+            return mDummCellCell;
+        }
+    }
+
     /*!
      * Get all integration cells on the left side of the side set
      * in this double sided cluster
      */
-
     moris::Cell<mtk::Cell const *> const &
     get_left_integration_cells() const
     {
@@ -195,7 +247,6 @@ public:
      * Get all integration cells on the right side of the side set
      * in this double sided cluster
      */
-
     moris::Cell<mtk::Cell const *> const &
     get_right_integration_cells() const
     {
@@ -204,11 +255,47 @@ public:
 
     //----------------------------------------------------------------
 
+    moris::Matrix<moris::IndexMat>
+    get_cell_side_ordinals( const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_cell_side_ordinals();
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_cell_side_ordinals();
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_cell_side_ordinals(): can only be 0 and 1");
+            return moris::Matrix<moris::IndexMat>(0,0);
+        }
+    }
+
+    moris_index
+    get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
+                          const moris::uint aSide) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_cell_side_ordinal(): can only be 0 and 1");
+            return 0;
+        }
+    }
+
     /*!
      * Return all integration cell side ordinals on left side of the
      * double sided side cluster
      */
-
     moris::Matrix<moris::IndexMat>
     get_left_integration_cell_side_ordinals() const
     {
@@ -220,7 +307,6 @@ public:
     /*!
      * Single side ordinal version of above
      */
-
     moris_index
     get_left_cell_side_ordinal(moris::moris_index aLeftCellIndexInCluster) const
     {
@@ -258,6 +344,24 @@ public:
      */
 
     moris::Cell<moris::mtk::Vertex const *> const &
+    get_vertices_in_cluster( const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_vertices_in_cluster();
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_vertices_in_cluster();
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_vertices_in_cluster(): can only be 0 and 1");
+            return mDummyVertexCell;
+        }
+    }
+
+    moris::Cell<moris::mtk::Vertex const *> const &
     get_left_vertices_in_cluster() const
     {
         return this->get_left_side_cluster().get_vertices_in_cluster();
@@ -284,6 +388,24 @@ public:
      */
 
     moris::Matrix<moris::DDRMat> const &
+    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): can only be 0 and 1");
+            return mDummyDDRMat;
+        }
+    }
+
+    moris::Matrix<moris::DDRMat> const &
     get_left_vertices_local_coordinates_wrt_interp_cell() const
     {
         return this->get_left_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
@@ -294,7 +416,6 @@ public:
     /*
      * Access the full array of local coordinates on the right
      */
-
     moris::Matrix<moris::DDRMat> const &
     get_right_vertices_local_coordinates_wrt_interp_cell() const
     {
@@ -303,10 +424,28 @@ public:
 
     //----------------------------------------------------------------
 
+    moris::Matrix<moris::DDRMat>
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
+                                                 const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_vertex_local_coordinate_wrt_interp_cell(): can only be 0 and 1");
+            return moris::Matrix<moris::DDRMat>(0,0);
+        }
+    }
+
     /*
      * Access a single local coordinate of a vertex on the left
      */
-
     moris::Matrix<moris::DDRMat>
     get_left_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
     {
@@ -318,11 +457,31 @@ public:
     /*
      * Access a single local coordinate of a vertex on the right
      */
-
     moris::Matrix<moris::DDRMat>
     get_right_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
     {
         return this->get_right_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
+    }
+
+    //----------------------------------------------------------------
+
+    moris::Matrix<moris::DDRMat>
+    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
+                                                  const moris::uint aSide ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): can only be 0 and 1");
+            return moris::Matrix<moris::DDRMat>(0,0);
+        }
     }
 
     /*!
@@ -334,6 +493,8 @@ public:
     {
         return this->get_left_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aLeftClusterLocalIndex);
     }
+
+    //----------------------------------------------------------------
 
     /*!
      * Access an integration cells parametric coordinates on a side right side
@@ -354,6 +515,24 @@ public:
     /*!
      * Size of the xsi vector of left
      */
+    moris_index
+    get_dim_of_param_coord( const moris::uint aSide = 0 ) const
+    {
+        if ( aSide == 0 )
+        {
+            return this->get_left_side_cluster().get_dim_of_param_coord();
+        }
+        else if( aSide == 1 )
+        {
+            return this->get_right_side_cluster().get_dim_of_param_coord();
+        }
+        else
+        {
+            MORIS_ERROR(false, "get_dim_of_param_coord(): can only be 0 and 1");
+            return 0;
+        }
+    }
+
     moris_index
     get_left_dim_of_param_coord() const
     {

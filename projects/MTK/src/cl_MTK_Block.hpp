@@ -78,7 +78,7 @@ namespace moris
 
         protected :
             moris::Matrix< DDUMat >           mMyBlockSetClusterInds;
-            moris::Cell<Cell_Cluster const *> mBlockSetClusters;
+            moris::Cell<Cluster const *> mBlockSetClusters;
 
 
 //------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( moris::Cell<Cell_Cluster const *>  aBlockSetClusters ) : mBlockSetClusters(aBlockSetClusters)
+            Block( moris::Cell<Cluster const *>  aBlockSetClusters ) : mBlockSetClusters(aBlockSetClusters)
             {
 //                mMyBlockSetClusterInds.set_size( aBlockSetClusters.size(), 1 );
 //
@@ -120,7 +120,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              const Cell_Cluster  *
+              const Cluster  *
               get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
               {
                   return mBlockSetClusters( aCellClusterIndex );
@@ -152,7 +152,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              moris::Cell<Cell_Cluster const *>
+              moris::Cell<Cluster const *>
               get_cell_clusters_on_set() const
               {
                   return mBlockSetClusters;

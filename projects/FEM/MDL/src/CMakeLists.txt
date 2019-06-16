@@ -49,6 +49,7 @@ set(LIB_DEPENDENCIES
     #${SOL_CORE}-lib
     ${TSA}-lib
     #${MSI}-lib
+    ${SDF}-lib
     
     #${MORIS_ARMADILLO_EIGEN_LIBS}
     #${MORIS_SUPERLU_LIBS}

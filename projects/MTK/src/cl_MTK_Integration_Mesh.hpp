@@ -97,7 +97,7 @@ public:
      * Get cell clusters within a block set
      */
     virtual
-    moris::Cell<Cell_Cluster const *>
+    moris::Cell<Cluster const *>
     get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const = 0;
 
     //##############################################
@@ -107,7 +107,7 @@ public:
      * Get side clusters within a side set
      */
     virtual
-    moris::Cell<Side_Cluster const *>
+    moris::Cell<Cluster const *>
     get_side_set_cluster(moris_index aSideSetOrdinal) const = 0;
 
     // ----------------------------------------------------------------------------
@@ -174,7 +174,7 @@ public:
      * Returns the double side clusters in the side set
      */
     virtual
-    moris::Cell<Double_Side_Cluster> const &
+    moris::Cell<Cluster const*>
     get_double_side_set_cluster(moris_index aSideSetOrdinal) const  = 0;
 
     // ----------------------------------------------------------------------------

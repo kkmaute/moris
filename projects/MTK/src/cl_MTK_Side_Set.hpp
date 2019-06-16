@@ -42,9 +42,9 @@ namespace moris
                     Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
                                                               ->get_cell_side_ordinals();
 
-                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_cells_in_side_cluster().size(); Ij++)
+                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
                     {
-                        tMaxNumVert = tMaxNumVert + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                        tMaxNumVert = tMaxNumVert + mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                                                           ->get_vertices_ind_on_side_ordinal( tSideOrdinal(Ij) ).numel();
                     }
                 }
@@ -58,15 +58,15 @@ namespace moris
                     Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
                                                               ->get_cell_side_ordinals();
 
-                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_cells_in_side_cluster().size(); Ij++)
+                    for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
                     {
                         //FIXME rewrite for more readability
-                        tVerticesOnSet( { 0, 0 },{ tCounter, tCounter + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                        tVerticesOnSet( { 0, 0 },{ tCounter, tCounter + mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                                           ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel() - 1 }) =
-                                                   mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                                                   mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                                    ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).matrix_data();
 
-                        tCounter =tCounter + mSideSetClusters( Ik )->get_cells_in_side_cluster()( Ij )
+                        tCounter =tCounter + mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                           ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel();
                     }
                 }
@@ -83,7 +83,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         protected :
-            moris::Cell<Side_Cluster const *> mSideSetClusters;
+            moris::Cell<Cluster const *> mSideSetClusters;
 
 
 //------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Side_Set( moris::Cell<Side_Cluster const *>  aSideSetClusters ) : mSideSetClusters(aSideSetClusters)
+            Side_Set( moris::Cell<Cluster const *>  aSideSetClusters ) : mSideSetClusters(aSideSetClusters)
             {
                  this->calculate_vertices_on_set();
             };
@@ -118,7 +118,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              const Side_Cluster  *
+              const Cluster  *
               get_side_clusters_by_index( moris_index aCellClusterIndex ) const
               {
                   return mSideSetClusters( aCellClusterIndex );
@@ -150,7 +150,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              moris::Cell<Side_Cluster const *>
+              moris::Cell<Cluster const *>
               get_side_clusters_on_set() const
               {
                   return mSideSetClusters;

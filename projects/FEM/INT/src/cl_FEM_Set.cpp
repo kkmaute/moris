@@ -16,81 +16,13 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
-    Set::Set( moris::Cell< mtk::Cell_Cluster const * > & aMeshClusterList,
-              enum fem::Element_Type                     aElementType,
-              moris::Cell< IWG* >                      & aIWGs,
-              moris::Cell< Node_Base* >                & aIPNodes) : mMeshCellClusterList( aMeshClusterList ),
-                                                                     mNodes(aIPNodes),
-                                                                     mIWGs( aIWGs ),
-                                                                     mElementType( aElementType )
-    {
-        // create a unique dof type list
-        this->create_unique_dof_type_lists();
-
-        // create a dof type list for field interpolators
-        this->create_dof_type_lists();
-
-        // create a unique property type list for field interpolators
-        this->create_unique_property_type_list();
-
-        // init the equation object list
-        mEquationObjList.resize( mMeshCellClusterList.size(), nullptr);
-
-        // create a factory to create fem cluster
-        fem::Element_Factory tClusterFactory;
-
-        for( luint k = 0; k < mMeshCellClusterList.size(); ++k )
-        {
-            // create a cluster
-            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
-                                                                    mMeshCellClusterList( k ),
-                                                                    mNodes,
-                                                                    this );
-        }
-    }
-
-    Set::Set( moris::Cell< mtk::Side_Cluster const * > & aMeshClusterList,
-              enum fem::Element_Type                     aElementType,
-              moris::Cell< IWG* >                      & aIWGs,
-              moris::Cell< Node_Base* >                & aIPNodes) : mMeshSideClusterList( aMeshClusterList ),
-                                                                     mNodes(aIPNodes),
-                                                                     mIWGs( aIWGs ),
-                                                                     mElementType( aElementType )
-    {
-        // create a unique dof type list
-        this->create_unique_dof_type_lists();
-
-        // create a dof type list for field interpolators
-        this->create_dof_type_lists();
-
-        // create a unique property type list for field interpolators
-        this->create_unique_property_type_list();
-
-        // init the equation object list
-        mEquationObjList.resize( mMeshSideClusterList.size(), nullptr);
-
-        // create a factory to create fem cluster
-        fem::Element_Factory tClusterFactory;
-
-        for( luint k = 0; k < mMeshSideClusterList.size(); ++k )
-        {
-            // create a side cluster
-            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
-                                                                    mMeshSideClusterList( k ),
-                                                                    mNodes,
-                                                                    this );
-        }
-    }
-
-
-    Set::Set( moris::Cell< mtk::Double_Side_Cluster > const & aMeshClusterList,
-              enum fem::Element_Type                          aElementType,
-              moris::Cell< IWG* >                           & aIWGs,
-              moris::Cell< Node_Base* >                     & aIPNodes) : mMeshDoubleSideClusterList( aMeshClusterList ),
-                                                                          mNodes(aIPNodes),
-                                                                          mIWGs( aIWGs ),
-                                                                          mElementType( aElementType )
+        Set::Set( moris::Cell< mtk::Cluster const * >      & aMeshClusterList,
+                  enum fem::Element_Type                     aElementType,
+                  moris::Cell< IWG* >                      & aIWGs,
+                  moris::Cell< Node_Base* >                & aIPNodes) : mMeshClusterList( aMeshClusterList ),
+                                                                         mNodes(aIPNodes),
+                                                                         mIWGs( aIWGs ),
+                                                                         mElementType( aElementType )
         {
             // create a unique dof type list
             this->create_unique_dof_type_lists();
@@ -102,20 +34,119 @@ namespace moris
             this->create_unique_property_type_list();
 
             // init the equation object list
-            mEquationObjList.resize( mMeshDoubleSideClusterList.size(), nullptr);
+            mEquationObjList.resize( mMeshClusterList.size(), nullptr);
 
             // create a factory to create fem cluster
             fem::Element_Factory tClusterFactory;
 
-            for( luint k = 0; k < mMeshDoubleSideClusterList.size(); ++k )
+            for( luint k = 0; k < mMeshClusterList.size(); ++k )
             {
-                // create a side cluster
+                // create a cluster
                 mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
-                                                                        mMeshDoubleSideClusterList( k ),
+                                                                        mMeshClusterList( k ),
                                                                         mNodes,
                                                                         this );
             }
         }
+//    Set::Set( moris::Cell< mtk::Cell_Cluster const * > & aMeshClusterList,
+//              enum fem::Element_Type                     aElementType,
+//              moris::Cell< IWG* >                      & aIWGs,
+//              moris::Cell< Node_Base* >                & aIPNodes) : mMeshCellClusterList( aMeshClusterList ),
+//                                                                     mNodes(aIPNodes),
+//                                                                     mIWGs( aIWGs ),
+//                                                                     mElementType( aElementType )
+//    {
+//        // create a unique dof type list
+//        this->create_unique_dof_type_lists();
+//
+//        // create a dof type list for field interpolators
+//        this->create_dof_type_lists();
+//
+//        // create a unique property type list for field interpolators
+//        this->create_unique_property_type_list();
+//
+//        // init the equation object list
+//        mEquationObjList.resize( mMeshCellClusterList.size(), nullptr);
+//
+//        // create a factory to create fem cluster
+//        fem::Element_Factory tClusterFactory;
+//
+//        for( luint k = 0; k < mMeshCellClusterList.size(); ++k )
+//        {
+//            // create a cluster
+//            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
+//                                                                    mMeshCellClusterList( k ),
+//                                                                    mNodes,
+//                                                                    this );
+//        }
+//    }
+//
+//    Set::Set( moris::Cell< mtk::Side_Cluster const * > & aMeshClusterList,
+//              enum fem::Element_Type                     aElementType,
+//              moris::Cell< IWG* >                      & aIWGs,
+//              moris::Cell< Node_Base* >                & aIPNodes) : mMeshSideClusterList( aMeshClusterList ),
+//                                                                     mNodes(aIPNodes),
+//                                                                     mIWGs( aIWGs ),
+//                                                                     mElementType( aElementType )
+//    {
+//        // create a unique dof type list
+//        this->create_unique_dof_type_lists();
+//
+//        // create a dof type list for field interpolators
+//        this->create_dof_type_lists();
+//
+//        // create a unique property type list for field interpolators
+//        this->create_unique_property_type_list();
+//
+//        // init the equation object list
+//        mEquationObjList.resize( mMeshSideClusterList.size(), nullptr);
+//
+//        // create a factory to create fem cluster
+//        fem::Element_Factory tClusterFactory;
+//
+//        for( luint k = 0; k < mMeshSideClusterList.size(); ++k )
+//        {
+//            // create a side cluster
+//            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
+//                                                                    mMeshSideClusterList( k ),
+//                                                                    mNodes,
+//                                                                    this );
+//        }
+//    }
+//
+//
+//    Set::Set( moris::Cell< mtk::Double_Side_Cluster > const & aMeshClusterList,
+//              enum fem::Element_Type                          aElementType,
+//              moris::Cell< IWG* >                           & aIWGs,
+//              moris::Cell< Node_Base* >                     & aIPNodes) : mMeshDoubleSideClusterList( aMeshClusterList ),
+//                                                                          mNodes(aIPNodes),
+//                                                                          mIWGs( aIWGs ),
+//                                                                          mElementType( aElementType )
+//        {
+//            // create a unique dof type list
+//            this->create_unique_dof_type_lists();
+//
+//            // create a dof type list for field interpolators
+//            this->create_dof_type_lists();
+//
+//            // create a unique property type list for field interpolators
+//            this->create_unique_property_type_list();
+//
+//            // init the equation object list
+//            mEquationObjList.resize( mMeshDoubleSideClusterList.size(), nullptr);
+//
+//            // create a factory to create fem cluster
+//            fem::Element_Factory tClusterFactory;
+//
+//            for( luint k = 0; k < mMeshDoubleSideClusterList.size(); ++k )
+//            {
+//                // create a side cluster
+//                mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
+//                                                                        mMeshDoubleSideClusterList( k ),
+//                                                                        mNodes,
+//                                                                        this );
+//            }
+//        }
 
 //------------------------------------------------------------------------------
 
@@ -178,19 +209,19 @@ namespace moris
         this->delete_pointers();
 
         // if block-set
-        if( mMeshCellClusterList.size() > 0 )
+        if( mMeshClusterList.size() > 0 && mElementType == fem::Element_Type::BULK )
         {
                 // set the integration geometry type
-                mIPGeometryType = mMeshCellClusterList( 0 )->get_interpolation_cell().get_geometry_type();
+                mIPGeometryType = mMeshClusterList( 0 )->get_interpolation_cell().get_geometry_type();
 
                 // set the integration geometry type
-                mIGGeometryType = mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
+                mIGGeometryType = mMeshClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
 
                 // space interpolation order for IP cells fixme
-                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
+                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
                                                                                  mIPGeometryType );
                 // space interpolation order for IG cells fixme
-                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshCellClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_number_of_vertices(),
+                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_number_of_vertices(),
                                                                                  mIGGeometryType );
 
                 // time interpolation order for IP cells fixme not linear
@@ -246,21 +277,21 @@ namespace moris
             }
 
             // if side-set
-            else if( mMeshSideClusterList.size() > 0 )
+            else if( mMeshClusterList.size() > 0 && mElementType == fem::Element_Type::SIDESET )
             {
                 // set the integration geometry type
-                mIPGeometryType = mMeshSideClusterList( 0 )->get_interpolation_cell().get_geometry_type();
+                mIPGeometryType = mMeshClusterList( 0 )->get_interpolation_cell().get_geometry_type();
 
                 // set the integration geometry type
-                mIGGeometryType = get_auto_side_geometry_type( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
+                mIGGeometryType = get_auto_side_geometry_type( mMeshClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type() );
 
                 // interpolation order for IP cells fixme
-                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
+                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
                                                                                  mIPGeometryType );
 
                 // interpolation order for IG cells fixme
-                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_number_of_vertices(),
-                                                                                 mMeshSideClusterList( 0 )->get_cells_in_side_cluster()( 0 )->get_geometry_type() );
+                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_number_of_vertices(),
+                        mMeshClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type() );
 
                 // time interpolation order for IP cells fixme not linear
                 mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
@@ -315,21 +346,21 @@ namespace moris
             }
 
             // if double side-set
-            else if( mMeshDoubleSideClusterList.size() > 0 )
+           if( mMeshClusterList.size() > 0 && mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
                 // set the integration geometry type
-                mIPGeometryType = mMeshDoubleSideClusterList( 0 ).get_left_interpolation_cell().get_geometry_type();
+                mIPGeometryType = mMeshClusterList( 0 )->get_interpolation_cell( 0 ).get_geometry_type();
 
                 // set the integration geometry type
-                mIGGeometryType = get_auto_side_geometry_type( mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_geometry_type() );
+                mIGGeometryType = get_auto_side_geometry_type( mMeshClusterList( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_geometry_type() );
 
                 // interpolation order for IP cells fixme
-                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshDoubleSideClusterList( 0 ).get_left_interpolation_cell().get_number_of_vertices(),
+                mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_interpolation_cell( 0 ).get_number_of_vertices(),
                                                                                  mIPGeometryType );
 
                 // interpolation order for IG cells fixme
-                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_number_of_vertices(),
-                                                                                 mMeshDoubleSideClusterList( 0 ).get_left_integration_cells()( 0 )->get_geometry_type() );
+                mIGSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_number_of_vertices(),
+                        mMeshClusterList( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_geometry_type() );
 
                 // time interpolation order for IP cells fixme not linear
                 mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;

@@ -163,7 +163,7 @@ namespace moris
             for( luint Ik = 0; Ik < aBlocksetList.size(); ++Ik )
             {
                 // create a list of cell clusters (this needs to stay in scope somehow)
-                moris::Cell<mtk::Cell_Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( aBlocksetList( Ik ) );
+                moris::Cell<mtk::Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( aBlocksetList( Ik ) );
 
                 // create new fem set
                 mFemSets( tFemSetCounter ) = new fem::Set( tBlockSetClusterList,
@@ -187,7 +187,7 @@ namespace moris
             for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
                 // create a list of side clusters
-                moris::Cell< mtk::Side_Cluster const * > tSideSetClusterList = tIntegrationMesh->get_side_set_cluster( aSidesetList( Ik ) );
+                moris::Cell< mtk::Cluster const * > tSideSetClusterList = tIntegrationMesh->get_side_set_cluster( aSidesetList( Ik ) );
 
                 // create a new fem set
                 mFemSets( tFemSetCounter ) = new fem::Set( tSideSetClusterList,
@@ -210,7 +210,7 @@ namespace moris
             for( luint Ik = 0; Ik < aDoubleSidesetList.size(); ++Ik )
             {
                 // create a list of double side clusters
-                moris::Cell< mtk::Double_Side_Cluster> const & tDoubleSideSetClusterList
+                moris::Cell< mtk::Cluster const *> tDoubleSideSetClusterList
                     = tIntegrationMesh->get_double_side_set_cluster( aDoubleSidesetList( Ik ) );
 
                 // create a new fem set
@@ -313,7 +313,7 @@ namespace moris
                 moris_index tSideSetOrd = tIntegrationMesh->get_side_set_index( tTreatedSidesetName );
 
                 // get the side-sets clusters
-                moris::Cell<moris::mtk::Side_Cluster const *> tClustersInSideSet = tIntegrationMesh->get_side_set_cluster(tSideSetOrd);
+                moris::Cell<moris::mtk::Cluster const *> tClustersInSideSet = tIntegrationMesh->get_side_set_cluster(tSideSetOrd);
 
                 for( luint k = 0; k < tClustersInSideSet.size(); ++k )
                 {

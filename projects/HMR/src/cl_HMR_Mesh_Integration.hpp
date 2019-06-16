@@ -70,14 +70,14 @@ public:
     /*
      * Get cell clusters within a block set
      */
-    moris::Cell<mtk::Cell_Cluster const *>
+    moris::Cell<mtk::Cluster const *>
     get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const
     {
         MORIS_ASSERT(aBlockSetOrdinal < (moris_index)mPrimaryBlockSetNames.size(),"Requested block set ordinal out of bounds.");
 
         moris::Cell<moris::moris_index> const & tClusterIndsInSet = mPrimaryBlockSetClusters(aBlockSetOrdinal);
 
-        moris::Cell<mtk::Cell_Cluster const *> tClusterInSet(tClusterIndsInSet.size());
+        moris::Cell<mtk::Cluster const *> tClusterInSet(tClusterIndsInSet.size());
 
         for(moris::uint i = 0; i <tClusterIndsInSet.size(); i++)
         {
@@ -96,14 +96,14 @@ public:
         return mSideSets.size();
     }
 
-    moris::Cell<mtk::Side_Cluster const *>
+    moris::Cell<mtk::Cluster const *>
     get_side_set_cluster(moris_index aSideSetOrdinal) const
     {
         MORIS_ASSERT(aSideSetOrdinal < (moris_index)mSideSets.size(), "Side set ordinal out of bounds");
 
         moris::uint tNumSideClustersInSet = mSideSets(aSideSetOrdinal).size();
 
-        moris::Cell<mtk::Side_Cluster const *> tSideClustersInSet(tNumSideClustersInSet);
+        moris::Cell<mtk::Cluster const *> tSideClustersInSet(tNumSideClustersInSet);
 
         for(moris::uint i = 0; i <tNumSideClustersInSet; i++)
         {
@@ -169,16 +169,15 @@ public:
      * Returns the double side clusters in the side set
      */
 
-    moris::Cell<moris::mtk::Double_Side_Cluster> const &
+    moris::Cell<moris::mtk::Cluster const *>
     get_double_side_set_cluster(moris_index aSideSetOrdinal) const
     {
         MORIS_ERROR(0,"get_double_side_set_cluster not implemented in HMR Integration mesh");
-        return mDummyDoubleSide;
+        return moris::Cell<moris::mtk::Cluster const *>(0);
     }
 
 private:
     mtk::Cell_Cluster * mDummyCluster     = nullptr;
-    moris::Cell<moris::mtk::Double_Side_Cluster> mDummyDoubleSide;
 
     // cell clusters
     moris::Cell<Cell_Cluster_HMR> mCellClusters;

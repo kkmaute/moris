@@ -58,29 +58,35 @@ namespace MSI
         ~Element_Factory();
 
 //------------------------------------------------------------------------------
-
         /**
          * create a cell cluster
          */
         MSI::Equation_Object * create_cluster( Element_Type                aElementType,
-                                               mtk::Cell_Cluster const   * aCellCluster,
+                                               mtk::Cluster const        * aMeshCluster,
                                                moris::Cell< Node_Base* > & aNodes,
                                                Set                       * aSet );
-        /**
-         * create a side cluster
-         */
-        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
-                                               mtk::Side_Cluster const   * aSideCluster,
-                                               moris::Cell< Node_Base* > & aNodes,
-                                               Set                       * aSet );
-
-        /**
-         * create a side cluster
-         */
-        MSI::Equation_Object * create_cluster( Element_Type                     aElementType,
-                                               mtk::Double_Side_Cluster const & aDoubleSideCluster,
-                                               moris::Cell< Node_Base* >      & aNodes,
-                                               Set                            * aSet );
+//        /**
+//         * create a cell cluster
+//         */
+//        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
+//                                               mtk::Cell_Cluster const   * aCellCluster,
+//                                               moris::Cell< Node_Base* > & aNodes,
+//                                               Set                       * aSet );
+//        /**
+//         * create a side cluster
+//         */
+//        MSI::Equation_Object * create_cluster( Element_Type                aElementType,
+//                                               mtk::Side_Cluster const   * aSideCluster,
+//                                               moris::Cell< Node_Base* > & aNodes,
+//                                               Set                       * aSet );
+//
+//        /**
+//         * create a side cluster
+//         */
+//        MSI::Equation_Object * create_cluster( Element_Type                     aElementType,
+//                                               mtk::Double_Side_Cluster const & aDoubleSideCluster,
+//                                               moris::Cell< Node_Base* >      & aNodes,
+//                                               Set                            * aSet );
 //------------------------------------------------------------------------------
 
         /**

@@ -28,7 +28,7 @@ public:
     // Characteristic functions
     //##############################################
 
-    virtual bool is_trivial( const moris::uint aSide = 0) const
+    virtual bool is_trivial( const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(false, "is_trivial(): not implemented for this cluster type");
         return false;
@@ -36,12 +36,20 @@ public:
 
     //##############################################
     // Cell/Vertex Access
-    // (Pure Virtual)
     //##############################################
 
     virtual
+    moris_index
+    get_vertex_cluster_index( const Vertex * aVertex,
+                              const moris::uint aSide = 0 ) const
+    {
+        MORIS_ERROR(false, "get_vertex_cluster_index(): not implemented for this cluster type");
+        return 0;
+    }
+
+    virtual
     moris::Cell<moris::mtk::Cell const *> const &
-    get_primary_cells_in_cluster() const
+    get_primary_cells_in_cluster( const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(false, "get_primary_cells_in_cluster(): not implemented for this cluster type");
         return mDummCellCell;
@@ -57,7 +65,7 @@ public:
 
     virtual
     moris::mtk::Cell const &
-    get_interpolation_cell() const
+    get_interpolation_cell( const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(false, "get_interpolation_cell(): not implemented for this cluster type");
         return *mDummyCell;
@@ -65,7 +73,7 @@ public:
 
     virtual
     moris::Matrix<moris::IndexMat>
-    get_cell_side_ordinals() const
+    get_cell_side_ordinals( const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(false, "get_interpolation_cell(): not implemented for this cluster type");
         return moris::Matrix<moris::IndexMat>(0,0);
@@ -73,7 +81,8 @@ public:
 
     virtual
     moris_index
-    get_cell_side_ordinal(moris::moris_index aCellIndexInCluster) const
+    get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
+                          const moris::uint aSide = 0) const
     {
         MORIS_ERROR(false, "get_cell_side_ordinal(): not implemented for this cluster type");
         return 0;
@@ -81,11 +90,18 @@ public:
 
     virtual
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster() const
+    get_vertices_in_cluster( const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(false, "get_vertices_in_cluster(): not implemented for this cluster type");
         return mDummyVertexCell;
     };
+
+    moris::mtk::Vertex const *
+    get_left_vertex_pair(moris::mtk::Vertex const * aLeftVertex) const
+    {
+        MORIS_ERROR(false, "get_left_vertex_pair(): not implemented for this cluster type");
+        return nullptr;
+    }
 
     //##############################################
     // Local Coordinate Access
@@ -93,7 +109,7 @@ public:
     //##############################################
     virtual
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell() const
+    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): not implemented for this cluster type");
         return mDummyDDRMat;
@@ -104,11 +120,20 @@ public:
      */
     virtual
     moris::Matrix<moris::DDRMat>
-    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
+                                                 const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(false, "get_vertex_local_coordinate_wrt_interp_cell(): not implemented for this cluster type");
         return moris::Matrix<moris::DDRMat>(0,0);
     };
+
+    moris::Matrix<moris::DDRMat>
+    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aLeftClusterLocalIndex,
+                                                  const moris::uint aSide = 0 ) const
+    {
+        MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): not implemented for this cluster type");
+        return moris::Matrix<moris::DDRMat>(0,0);
+    }
 
     //##############################################
     // Size Access
@@ -119,7 +144,7 @@ public:
      */
     virtual
     moris_index
-    get_dim_of_param_coord() const
+    get_dim_of_param_coord( const moris::uint aSide = 0) const
     {
         MORIS_ERROR(false, "get_dim_of_param_coord(): not implemented for this cluster type");
         return 0;
