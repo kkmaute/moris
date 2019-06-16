@@ -77,7 +77,6 @@ set(HEADERS
 
 # List header dependencies
 set(HMR_INCLUDES
-<<<<<<< HEAD
     #${COM}
     #${LINALG}
     #${MTK}

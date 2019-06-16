@@ -27,6 +27,9 @@ set(MTK_TEST_TPL_DEPENDENCIES
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 
+# for test
+include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
+
 #set(MTK_PROJ ${MORIS_PACKAGE_DIR}/${MTK}/src/stk_impl)
 
 

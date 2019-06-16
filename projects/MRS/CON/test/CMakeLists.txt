@@ -14,9 +14,9 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LINALG}
-    ${COM}
-    ${ALG})
+    test-libs
+    ${ALG}
+    )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)

@@ -36,8 +36,7 @@ include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
-    ${LINALG}-lib
+    test-libs
     
     ${ALG}-lib
     ${MORIS_BASE_LIBS}

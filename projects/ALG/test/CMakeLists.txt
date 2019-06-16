@@ -28,8 +28,9 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
+	test-libs
 	${ALG}-lib
-    ${COM}-lib )
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order

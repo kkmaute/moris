@@ -56,8 +56,7 @@ endforeach()
 #    )
 
 set(TEST_DEPENDENCIES
-	${LINALG}-lib
-	${COM}-lib
+	test-libs
     ${HMR}-lib
     ${ALG}-lib
     #${MAP}-lib

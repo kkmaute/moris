@@ -23,7 +23,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
+	test-libs
     ${TOL}-lib
     #${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
