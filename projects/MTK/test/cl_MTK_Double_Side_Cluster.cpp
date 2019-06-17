@@ -233,33 +233,32 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
         CHECK(tIntegMesh1->get_double_sided_set_label(0).compare(tGhost.mSideSetName) == 0);
 
         // access the double sided cluster
-        moris::Cell<Double_Side_Cluster> const & tGhostDoubleSide = tIntegMesh1->get_double_side_set_cluster(0);
+        moris::Cell<Cluster const *>  tGhostDoubleSide = tIntegMesh1->get_double_side_set_cluster(0);
 
         CHECK(tGhostDoubleSide.size() == 1);
 
-        Side_Cluster const & tLeftCluster = tGhostDoubleSide(0).get_left_side_cluster();
+//        Side_Cluster const & tLeftCluster = tGhostDoubleSide(0).get_left_side_cluster();
 
-        CHECK(tLeftCluster.is_trivial());
-        CHECK(tLeftCluster.get_interpolation_cell().get_id() == tLeftInterpCell->get_id());
+        CHECK(tGhostDoubleSide(0)->is_trivial( 0 ));
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( 0 ).get_id() == tLeftInterpCell->get_id());
 
-        moris::Matrix<moris::IndexMat> tLeftCellSideOrds = tLeftCluster.get_cell_side_ordinals();
+        moris::Matrix<moris::IndexMat> tLeftCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( 0 );
         CHECK(tLeftCellSideOrds.numel() == 1);
         CHECK(tLeftCellSideOrds(0) == 5);
 
+//        Side_Cluster const & tRightCluster = tGhostDoubleSide(0).get_right_side_cluster();
+        CHECK(tGhostDoubleSide(0)->is_trivial( 1 ));
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( 1 ).get_id() == tRightInterpCell->get_id());
 
-        Side_Cluster const & tRightCluster = tGhostDoubleSide(0).get_right_side_cluster();
-        CHECK(tRightCluster.is_trivial());
-        CHECK(tRightCluster.get_interpolation_cell().get_id() == tRightInterpCell->get_id());
-
-        moris::Matrix<moris::IndexMat> tRightCellSideOrds = tRightCluster.get_cell_side_ordinals();
+        moris::Matrix<moris::IndexMat> tRightCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( 1 );
         CHECK(tRightCellSideOrds.numel() == 1);
         CHECK(tRightCellSideOrds(0) == 4);
 
         // iterate through pairs and chekc ids of vertices (should be the same in this case)
-        moris::Cell<moris::mtk::Vertex const *> tLeftVerts = tLeftCluster.get_vertices_in_cluster();
+        moris::Cell<moris::mtk::Vertex const *> tLeftVerts = tGhostDoubleSide(0)->get_vertices_in_cluster( 0 );
         for(moris::uint  i = 0; i < tLeftVerts.size(); i++)
         {
-            moris::mtk::Vertex const * tRightVertex = tGhostDoubleSide(0).get_left_vertex_pair(tLeftVerts(i));
+            moris::mtk::Vertex const * tRightVertex = tGhostDoubleSide(0)->get_left_vertex_pair(tLeftVerts(i));
 
             CHECK(tRightVertex->get_id() == tLeftVerts(i)->get_id());
         }

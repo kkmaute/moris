@@ -168,7 +168,8 @@ namespace moris
                 // create new fem set
                 mFemSets( tFemSetCounter ) = new fem::Set( tBlockSetClusterList,
                                                            fem::Element_Type::BULK,
-                                                           mIWGs( 0 ), mIPNodes );
+                                                           mIWGs( 0 ),
+                                                           mIPNodes );
 
                 // collect equation objects associated with the block-set
                 mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );

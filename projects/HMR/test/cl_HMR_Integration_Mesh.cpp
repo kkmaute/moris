@@ -66,7 +66,7 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
 
     moris::Cell<std::string> tBlockNames = tOutputIntegMesh->get_block_set_names();
 
-    moris::Cell<moris::mtk::Cell_Cluster const *> tCellClustersInBlock = tOutputIntegMesh->get_cell_clusters_in_set(0);
+    moris::Cell<moris::mtk::Cluster const *> tCellClustersInBlock = tOutputIntegMesh->get_cell_clusters_in_set(0);
 
     CHECK(tBlockNames.size() == 1);
     CHECK(tBlockNames(0).compare("HMR_dummy")  == 0);

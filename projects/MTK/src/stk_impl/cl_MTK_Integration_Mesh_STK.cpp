@@ -381,10 +381,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // copy strings labels
     mSideSetLabels.append(aSideSetNames);
 
-    std::cout<<"---print labels ---"<<std::endl;
-    print(mSideSetLabels,"mSideSetLabels");
-    std::cout<<"---end print labels ---"<<std::endl;
-
     // add to map
     for(moris::uint i = 0; i <aSideSetNames.size(); i++)
     {
@@ -396,8 +392,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // iterate through block sets
     for(moris::uint i = 0;  i < aSideSetNames.size(); i++)
     {
-        std::cout<<"aSideSetNames = "<<aSideSetNames(i)<<std::endl;
-
         // get the cells and side ordinals from the mesh for this side set
         moris::Cell< mtk::Cell const * > tCellsInSet(0);
         moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);
@@ -495,7 +489,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
         // all trivial case
         else
         {
-            std::cout<<"all trivial"<<std::endl;
                 // loop over cells in the side set and make sure they have all been included
                 for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
                 {

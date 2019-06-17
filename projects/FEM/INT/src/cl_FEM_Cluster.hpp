@@ -103,7 +103,8 @@ namespace moris
                  const mtk::Cluster              * aMeshCluster,
                        moris::Cell< Node_Base* > & aNodes,
                        Set                       * aSet ) : MSI::Equation_Object( aSet ),
-                                                            mSet( aSet )
+                                                            mSet( aSet ),
+                                                            mElementType( aElementType )
         {
             // fill the cell cluster pointer
             mMeshCluster = aMeshCluster;
@@ -115,9 +116,6 @@ namespace moris
 
                 // fill the integration cells
                 mIntegrationCells = aMeshCluster->get_primary_cells_in_cluster();
-
-                // fill the element type
-                mElementType = aElementType;
 
                 // select the element nodes from aNodes and fill mNodeObj
                 // get vertices from cell
@@ -166,9 +164,6 @@ namespace moris
 
                 // set the side ordinals for the IG cells in the cluster
                 mListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals();
-
-                // fill the element type
-                mElementType = aElementType;
 
                 // select the element nodes from aNodes and fill mNodeObj
                 // get vertices from cell
@@ -222,9 +217,6 @@ namespace moris
                 mLeftListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( 0 );
                 mRightListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( 1 );
 
-                // fill the element type
-                mElementType = aElementType;
-
                 // select the element nodes from aIPNodes and fill mNodeObj
                 // get vertices from cell
                 moris::Cell< mtk::Vertex* > tLeftVertices  = mLeftInterpolationCell->get_vertex_pointers();
@@ -272,193 +264,6 @@ namespace moris
                 }
             }
         };
-
-//        Cluster( const Element_Type                aElementType,
-//                 const mtk::Cell_Cluster         * aCellCluster,
-//                       moris::Cell< Node_Base* > & aNodes,
-//                       Set                       * aSet ) : MSI::Equation_Object( aSet ),
-//                                                            mSet( aSet )
-//        {
-//            // fill the cell cluster pointer
-//            mCellCluster = aCellCluster;
-//
-//            // fill the interpolation cell
-//            mInterpolationCell = & aCellCluster->get_interpolation_cell();
-//
-//            // fill the integration cells
-//            mIntegrationCells = aCellCluster->get_primary_cells_in_cluster();
-//
-//            // fill the element type
-//            mElementType = aElementType;
-//
-//            // select the element nodes from aNodes and fill mNodeObj
-//            // get vertices from cell
-//            moris::Cell< mtk::Vertex* > tVertices = mInterpolationCell->get_vertex_pointers();
-//
-//            // get number of nodes from cell
-//            uint tNumOfNodes = tVertices.size();
-//
-//            // assign node object
-//            mNodeObj.resize( tNumOfNodes, nullptr );
-//
-//            // fill node objects
-//            for( uint i = 0; i < tNumOfNodes; i++)
-//            {
-//                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
-//            }
-//
-//            // set size of Weak BCs
-//            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
-//
-//            // get the number of IWGs
-//            mNumOfIWGs = mSet->get_num_IWG(); //FIXME
-//
-//            // element factory
-//            fem::Element_Factory tElementFactory;
-//
-//            mElements.resize( mIntegrationCells.size(), nullptr );
-//
-//            for( moris::uint Ik = 0; Ik < mIntegrationCells.size(); Ik++)
-//            {
-//                // create an element
-//                mElements( Ik ) = tElementFactory.create_element( mElementType,
-//                                                                  mIntegrationCells( Ik ),
-//                                                                  mSet,
-//                                                                  this,
-//                                                                  Ik);
-//            }
-//        };
-//
-//        Cluster( const Element_Type                aElementType,
-//                 const mtk::Side_Cluster         * aSideCluster,
-//                       moris::Cell< Node_Base* > & aNodes,
-//                       Set                       * aSet ) : MSI::Equation_Object( aSet ),
-//                                                            mSet( aSet )
-//        {
-//            // fill the side cluster pointer
-//            mSideCluster = aSideCluster;
-//
-//            // fill the interpolation cell
-//            mInterpolationCell = & aSideCluster->get_interpolation_cell();
-//
-//            // fill the integration cells
-//            mIntegrationCells = aSideCluster->get_cells_in_side_cluster();
-//
-//            // set the side ordinals for the IG cells in the cluster
-//            mListOfSideOrdinals = aSideCluster->get_cell_side_ordinals();
-//
-//            // fill the element type
-//            mElementType = aElementType;
-//
-//            // select the element nodes from aNodes and fill mNodeObj
-//            // get vertices from cell
-//            moris::Cell< mtk::Vertex* > tVertices = mInterpolationCell->get_vertex_pointers();
-//
-//            // get number of nodes from cell
-//            uint tNumOfNodes = tVertices.size();
-//
-//            // assign node object
-//            mNodeObj.resize( tNumOfNodes, nullptr );
-//
-//            // fill node objects
-//            for( uint i = 0; i < tNumOfNodes; i++)
-//            {
-//                mNodeObj( i ) = aNodes( tVertices( i )->get_index() );
-//            }
-//
-//            // set size of Weak BCs
-//            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
-//
-//            // get the number of IWGs
-//            mNumOfIWGs = mSet->get_num_IWG(); //FIXME
-//
-//            // element factory
-//            fem::Element_Factory tElementFactory;
-//
-//            mElements.resize( mIntegrationCells.size(), nullptr );
-//
-//            for( moris::uint Ik = 0; Ik < mIntegrationCells.size(); Ik++)
-//            {
-//                // create an element
-//                mElements( Ik ) = tElementFactory.create_element( mElementType,
-//                                                                  mIntegrationCells( Ik ),
-//                                                                  mSet,
-//                                                                  this,
-//                                                                  Ik );
-//
-//            }
-//        };
-//
-//        Cluster( const Element_Type               aElementType,
-//                 const mtk::Double_Side_Cluster   aDoubleSideCluster,
-//                 moris::Cell< Node_Base* >      & aIPNodes,
-//                 Set                            * aSet ) : MSI::Equation_Object( aSet ),
-//                                                           mSet( aSet )
-//        {
-//            // fill the side cluster pointer
-//            mDoubleSideCluster = aDoubleSideCluster;
-//
-//            // fill the left and right interpolation cell
-//            mLeftInterpolationCell  = & aDoubleSideCluster.get_left_interpolation_cell();
-//            mRightInterpolationCell = & aDoubleSideCluster.get_right_interpolation_cell();
-//
-//            // fill the left and right integration cells
-//            mLeftIntegrationCells  = aDoubleSideCluster.get_left_integration_cells();
-//            mRightIntegrationCells = aDoubleSideCluster.get_right_integration_cells();
-//
-//            // set the side ordinals for the left and right IG cells
-//            mLeftListOfSideOrdinals  = aDoubleSideCluster.get_left_integration_cell_side_ordinals();
-//            mRightListOfSideOrdinals = aDoubleSideCluster.get_right_integration_cell_side_ordinals();
-//
-//            // fill the element type
-//            mElementType = aElementType;
-//
-//            // select the element nodes from aIPNodes and fill mNodeObj
-//            // get vertices from cell
-//            moris::Cell< mtk::Vertex* > tLeftVertices  = mLeftInterpolationCell->get_vertex_pointers();
-//            moris::Cell< mtk::Vertex* > tRightVertices = mRightInterpolationCell->get_vertex_pointers();
-//
-//            // get number of nodes from cell
-//            uint tNumOfNodes = tLeftVertices.size() + tRightVertices.size();
-//
-//            // assign node object
-//            mNodeObj.resize( tNumOfNodes, nullptr );
-//
-//            // fill node objects
-//            uint tNodeCounter = 0;
-//            for( uint i = 0; i < tLeftVertices.size(); i++)
-//            {
-//                mNodeObj( tNodeCounter ) = aIPNodes( tLeftVertices( i )->get_index() );
-//                tNodeCounter++;
-//            }
-//            for( uint i = 0; i < tRightVertices.size(); i++)
-//            {
-//                mNodeObj( tNodeCounter ) = aIPNodes( tRightVertices( i )->get_index() );
-//                tNodeCounter++;
-//            }
-//
-//            // set size of Weak BCs
-//            mNodalWeakBCs.set_size( tNumOfNodes, 1 );
-//
-//            // get the number of IWGs
-//            mNumOfIWGs = mSet->get_num_IWG(); //FIXME
-//
-//            // element factory
-//            fem::Element_Factory tElementFactory;
-//
-//            mElements.resize( mLeftIntegrationCells.size(), nullptr );
-//
-//            for( moris::uint Ik = 0; Ik < mLeftIntegrationCells.size(); Ik++)
-//            {
-//                // create an element
-//                mElements( Ik ) = tElementFactory.create_element( mElementType,
-//                                                                  mLeftIntegrationCells( Ik ),
-//                                                                  mRightIntegrationCells( Ik ),
-//                                                                  mSet,
-//                                                                  this,
-//                                                                  Ik );
-//            }
-//        };
 
 //------------------------------------------------------------------------------
         /**

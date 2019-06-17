@@ -79,14 +79,14 @@ TEST_CASE("MTK Side","[MTK],[MTK_Side]")
                                                    ->get_cell_side_ordinals();
 
         Matrix< IndexMat > tVertex1= tSideSet1->get_side_clusters_by_index( 0 )
-                                              ->get_cells_in_side_cluster()(0)
+                                              ->get_primary_cells_in_cluster()(0)
                                               ->get_vertices_ind_on_side_ordinal(tSideOrdinal1(0,0));
 
         Matrix< IndexMat > tSideOrdinal2= tSideSet2->get_side_clusters_by_index( 1 )
                                                    ->get_cell_side_ordinals();
 
         Matrix< IndexMat > tVertex2= tSideSet2->get_side_clusters_by_index( 1 )
-                                              ->get_cells_in_side_cluster()(0)
+                                              ->get_primary_cells_in_cluster()(0)
                                               ->get_vertices_ind_on_side_ordinal(tSideOrdinal1(0,0));
 
 //        print(tVertex1,"tVertex1");

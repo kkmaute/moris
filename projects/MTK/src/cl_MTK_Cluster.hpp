@@ -96,6 +96,7 @@ public:
         return mDummyVertexCell;
     };
 
+    virtual
     moris::mtk::Vertex const *
     get_left_vertex_pair(moris::mtk::Vertex const * aLeftVertex) const
     {
@@ -127,6 +128,7 @@ public:
         return moris::Matrix<moris::DDRMat>(0,0);
     };
 
+    virtual
     moris::Matrix<moris::DDRMat>
     get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aLeftClusterLocalIndex,
                                                   const moris::uint aSide = 0 ) const

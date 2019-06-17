@@ -253,7 +253,8 @@ public:
      */
     virtual
     moris::Matrix<moris::DDRMat>
-    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex) const
+    get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
+                                                  const moris::uint aSide = 0) const
     {
         MORIS_ASSERT(aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),"Integration Cell Cluster index out of bounds");
 
@@ -280,7 +281,8 @@ public:
 
     virtual
     moris::Matrix<moris::DDRMat>
-    get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex) const
+    get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex,
+                                                          const moris::uint aSide = 0 ) const
     {
         return this ->get_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellClusterIndex );
     };

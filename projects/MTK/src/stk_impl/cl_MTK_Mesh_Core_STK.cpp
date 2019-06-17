@@ -701,7 +701,6 @@ namespace mtk
         enum EntityRank tFacetRank = this->get_facet_rank();
 
         // Get facets in side set
-        std::cout<<"aSetName = "<<aSetName<<std::endl;
         Matrix<IndexMat> tSidesInSideSetInds = this->get_set_entity_loc_inds(tFacetRank,aSetName);
 
         // allocate space in inputs

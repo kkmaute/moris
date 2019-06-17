@@ -48,105 +48,6 @@ namespace moris
                                                                         this );
             }
         }
-//    Set::Set( moris::Cell< mtk::Cell_Cluster const * > & aMeshClusterList,
-//              enum fem::Element_Type                     aElementType,
-//              moris::Cell< IWG* >                      & aIWGs,
-//              moris::Cell< Node_Base* >                & aIPNodes) : mMeshCellClusterList( aMeshClusterList ),
-//                                                                     mNodes(aIPNodes),
-//                                                                     mIWGs( aIWGs ),
-//                                                                     mElementType( aElementType )
-//    {
-//        // create a unique dof type list
-//        this->create_unique_dof_type_lists();
-//
-//        // create a dof type list for field interpolators
-//        this->create_dof_type_lists();
-//
-//        // create a unique property type list for field interpolators
-//        this->create_unique_property_type_list();
-//
-//        // init the equation object list
-//        mEquationObjList.resize( mMeshCellClusterList.size(), nullptr);
-//
-//        // create a factory to create fem cluster
-//        fem::Element_Factory tClusterFactory;
-//
-//        for( luint k = 0; k < mMeshCellClusterList.size(); ++k )
-//        {
-//            // create a cluster
-//            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
-//                                                                    mMeshCellClusterList( k ),
-//                                                                    mNodes,
-//                                                                    this );
-//        }
-//    }
-//
-//    Set::Set( moris::Cell< mtk::Side_Cluster const * > & aMeshClusterList,
-//              enum fem::Element_Type                     aElementType,
-//              moris::Cell< IWG* >                      & aIWGs,
-//              moris::Cell< Node_Base* >                & aIPNodes) : mMeshSideClusterList( aMeshClusterList ),
-//                                                                     mNodes(aIPNodes),
-//                                                                     mIWGs( aIWGs ),
-//                                                                     mElementType( aElementType )
-//    {
-//        // create a unique dof type list
-//        this->create_unique_dof_type_lists();
-//
-//        // create a dof type list for field interpolators
-//        this->create_dof_type_lists();
-//
-//        // create a unique property type list for field interpolators
-//        this->create_unique_property_type_list();
-//
-//        // init the equation object list
-//        mEquationObjList.resize( mMeshSideClusterList.size(), nullptr);
-//
-//        // create a factory to create fem cluster
-//        fem::Element_Factory tClusterFactory;
-//
-//        for( luint k = 0; k < mMeshSideClusterList.size(); ++k )
-//        {
-//            // create a side cluster
-//            mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
-//                                                                    mMeshSideClusterList( k ),
-//                                                                    mNodes,
-//                                                                    this );
-//        }
-//    }
-//
-//
-//    Set::Set( moris::Cell< mtk::Double_Side_Cluster > const & aMeshClusterList,
-//              enum fem::Element_Type                          aElementType,
-//              moris::Cell< IWG* >                           & aIWGs,
-//              moris::Cell< Node_Base* >                     & aIPNodes) : mMeshDoubleSideClusterList( aMeshClusterList ),
-//                                                                          mNodes(aIPNodes),
-//                                                                          mIWGs( aIWGs ),
-//                                                                          mElementType( aElementType )
-//        {
-//            // create a unique dof type list
-//            this->create_unique_dof_type_lists();
-//
-//            // create a dof type list for field interpolators
-//            this->create_dof_type_lists();
-//
-//            // create a unique property type list for field interpolators
-//            this->create_unique_property_type_list();
-//
-//            // init the equation object list
-//            mEquationObjList.resize( mMeshDoubleSideClusterList.size(), nullptr);
-//
-//            // create a factory to create fem cluster
-//            fem::Element_Factory tClusterFactory;
-//
-//            for( luint k = 0; k < mMeshDoubleSideClusterList.size(); ++k )
-//            {
-//                // create a side cluster
-//                mEquationObjList( k ) = tClusterFactory.create_cluster( mElementType,
-//                                                                        mMeshDoubleSideClusterList( k ),
-//                                                                        mNodes,
-//                                                                        this );
-//            }
-//        }
 
 //------------------------------------------------------------------------------
 
@@ -198,8 +99,6 @@ namespace moris
         mFieldInterpolators.clear();
         mLeftFieldInterpolators.clear();
         mRightFieldInterpolators.clear();
-
-//        mEquationObjList.clear();        // FIXME memory leak
     }
 
 //------------------------------------------------------------------------------

@@ -160,7 +160,7 @@ namespace moris
              for( luint Ik = 0; Ik < 1; ++Ik )
              {
                  // create a list of cell clusters (this needs to stay in scope somehow)
-                 moris::Cell<mtk::Cell_Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( 0 );
+                 moris::Cell<mtk::Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( 0 );
 
                  // create new fem set
                  tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSetClusterList,

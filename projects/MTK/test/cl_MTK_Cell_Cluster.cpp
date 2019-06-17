@@ -528,9 +528,9 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(tBlockSetNames(1).compare("Omega_0_hex")==0);
         CHECK(tBlockSetNames(2).compare("Ghost_Cells_0")==0);
 
-        moris::Cell<Cell_Cluster const *> tClustersInBlock0 = tIntegMesh1->get_cell_clusters_in_set(0);
-        moris::Cell<Cell_Cluster const *> tClustersInBlock1 = tIntegMesh1->get_cell_clusters_in_set(1);
-        moris::Cell<Cell_Cluster const *> tClustersInBlock2 = tIntegMesh1->get_cell_clusters_in_set(2);
+        moris::Cell<Cluster const *> tClustersInBlock0 = tIntegMesh1->get_cell_clusters_in_set(0);
+        moris::Cell<Cluster const *> tClustersInBlock1 = tIntegMesh1->get_cell_clusters_in_set(1);
+        moris::Cell<Cluster const *> tClustersInBlock2 = tIntegMesh1->get_cell_clusters_in_set(2);
 
         CHECK(tClustersInBlock0.size() == 1);
         CHECK(all_true(tClustersInBlock0(0)->get_primary_cell_ids_in_cluster() == tCellIdsCluster1Material));
