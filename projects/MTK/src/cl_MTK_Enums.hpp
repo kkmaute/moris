@@ -42,6 +42,13 @@ namespace moris
             UNDEFINED
         };
 
+        enum class Master_Slave
+        {
+            MASTER,
+            SLAVE,
+            UNDEFINED
+        };
+
 //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */

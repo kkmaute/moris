@@ -66,7 +66,13 @@ namespace moris
                     }
                 }
 
-                MORIS_ASSERT( tVerticesOnBlock.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
+                //FIXME: Maybe add this to linalg. Armadillo throws if min is called on an empty matrix
+#ifdef DEBUG
+                if(tVerticesOnBlock.numel()!=0)
+                {
+                    MORIS_ASSERT( tVerticesOnBlock.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
+                }
+#endif
 
                 unique( tVerticesOnBlock, mVerticesOnBlock);
 
@@ -93,7 +99,7 @@ namespace moris
 
                 mIGGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIGGeometryType);
 
-                MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
+//                MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
             };
 
 //------------------------------------------------------------------------------

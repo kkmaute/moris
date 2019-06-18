@@ -358,14 +358,18 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
      // remove block sets which had not primary clusters
      for(moris::uint i = tSetsToRemove.size(); i>0; i--)
      {
-         mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
-         mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
+//         mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
+//         mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
      }
 
      mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
+     moris::Cell<std::string> tBSNames = this->get_block_set_names();
+
      for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
      {
+         std::cout<<" get_block_set_label = "<< tBSNames(Ik) <<" on "<<par_rank()<<std::endl;
+
          mListofBlocks( Ik ) = new moris::mtk::Block( this->get_cell_clusters_in_set( Ik ));
      }
 
@@ -509,6 +513,8 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
+        std::cout<<" get_side_set_label = "<< this->get_side_set_label(Ik) <<" on "<<par_rank()<<std::endl;
+
         mListofSideSets( Ik ) = new moris::mtk::Side_Set( this->get_side_set_cluster( Ik ));
     }
 

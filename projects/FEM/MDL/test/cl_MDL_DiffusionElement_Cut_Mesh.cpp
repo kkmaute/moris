@@ -545,7 +545,7 @@ namespace moris
             tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_GHOST );
 
             // create a list of active block-sets
-            moris::Cell< moris_index >  tBlocksetList = { 0, 1 };
+            moris::Cell< moris_index >  tBlocksetList = { 3, 4 };
 
             // create a list of active side-sets
             moris::Cell< moris_index >  tSidesetList = { 1, 0 };
