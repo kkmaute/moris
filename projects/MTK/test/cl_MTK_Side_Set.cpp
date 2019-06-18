@@ -75,17 +75,17 @@ TEST_CASE("MTK Side","[MTK],[MTK_Side]")
         mtk::Set * tSideSet1 = tIntegMesh->get_side_set_by_index( 0 );
         mtk::Set * tSideSet2 = tIntegMesh->get_side_set_by_index( 1 );
 
-        Matrix< IndexMat > tSideOrdinal1= tSideSet1->get_side_clusters_by_index( 0 )
+        Matrix< IndexMat > tSideOrdinal1= tSideSet1->get_clusters_by_index( 0 )
                                                    ->get_cell_side_ordinals();
 
-        Matrix< IndexMat > tVertex1= tSideSet1->get_side_clusters_by_index( 0 )
+        Matrix< IndexMat > tVertex1= tSideSet1->get_clusters_by_index( 0 )
                                               ->get_primary_cells_in_cluster()(0)
                                               ->get_vertices_ind_on_side_ordinal(tSideOrdinal1(0,0));
 
-        Matrix< IndexMat > tSideOrdinal2= tSideSet2->get_side_clusters_by_index( 1 )
+        Matrix< IndexMat > tSideOrdinal2= tSideSet2->get_clusters_by_index( 1 )
                                                    ->get_cell_side_ordinals();
 
-        Matrix< IndexMat > tVertex2= tSideSet2->get_side_clusters_by_index( 1 )
+        Matrix< IndexMat > tVertex2= tSideSet2->get_clusters_by_index( 1 )
                                               ->get_primary_cells_in_cluster()(0)
                                               ->get_vertices_ind_on_side_ordinal(tSideOrdinal1(0,0));
 

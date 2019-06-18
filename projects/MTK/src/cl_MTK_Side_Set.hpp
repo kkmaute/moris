@@ -138,9 +138,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
               const Cluster  *
-              get_side_clusters_by_index( moris_index aCellClusterIndex ) const
+              get_clusters_by_index( moris_index aClusterIndex ) const
               {
-                  return mSetClusters( aCellClusterIndex );
+                  return mSetClusters( aClusterIndex );
               }
 
 //------------------------------------------------------------------------------

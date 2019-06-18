@@ -39,6 +39,12 @@ namespace moris
             // space interpolation order for IG cells
             mtk::Interpolation_Order mIGSpaceInterpolationOrder;
 
+            bool mIsTrivialMaster = false;
+            bool mIsTrivialSlave = false;
+
+            bool mMasterLock = false;
+            bool mSlaveLock = false;
+
 //------------------------------------------------------------------------------
 
         protected :
@@ -104,6 +110,28 @@ namespace moris
 //                MORIS_ASSERT( mIGSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ig interpolation order on this processor");
             }
 
+            // FIXME should be userdefined in FEM
+            void communicate_is_trivial_flag( mtk::Master_Slave aIsMaster )
+            {
+//                bool tIsTrivial = false;
+                sint tIsTrivial = 1;
+
+                if( mSetClusters.size() > 0 )
+                {
+                    // set the integration geometry type
+                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial(); //FIXME change for double sided set
+                }
+
+                sint tIsTrivialMAX = (sint) false;
+
+                max_all( tIsTrivial, tIsTrivialMAX );
+
+                if( tIsTrivialMAX == 1)
+                {
+                    mIsTrivialMaster = true;
+                }
+            };
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -137,6 +165,38 @@ namespace moris
 //              virtual const moris::Matrix< DDUMat > &
 //              get_list_of_block_cell_clusters() const = 0;
 
+            bool is_trivial( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                if ( !mMasterLock && aIsMaster == mtk::Master_Slave::MASTER )
+                {
+                    this->communicate_is_trivial_flag( aIsMaster );
+
+                    mMasterLock = true;
+                }
+                else if ( !mSlaveLock && aIsMaster == mtk::Master_Slave::SLAVE )
+                {
+                    this->communicate_is_trivial_flag( aIsMaster );
+
+                    mSlaveLock = true;
+                }
+
+                if ( aIsMaster == mtk::Master_Slave::MASTER )
+                {
+                    return mIsTrivialMaster;
+                }
+                else if ( aIsMaster == mtk::Master_Slave::SLAVE )
+                {
+                    return mIsTrivialSlave;
+                }
+                else
+                {
+                    MORIS_ASSERT( false, " is_trivial(); undefined type. has to be master or slave");
+
+                    return false;
+                }
+
+            };
+
             mtk::Geometry_Type get_interpolation_cell_geometry_type()
             {
                 return mIPGeometryType;
@@ -166,16 +226,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
               virtual const Cluster  *
-              get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
+              get_clusters_by_index( moris_index aCellClusterIndex ) const
               {
-                  MORIS_ASSERT(false, "get_cell_clusters_by_index() virtual base class used");
-                  return nullptr;
-              };
-
-              virtual const Cluster  *
-              get_side_clusters_by_index( moris_index aCellClusterIndex ) const
-              {
-                  MORIS_ASSERT(false, "get_side_clusters_by_index() virtual base class used");
+                  MORIS_ASSERT(false, "get_clusters_by_index() virtual base class used");
                   return nullptr;
               };
 
@@ -200,15 +253,6 @@ namespace moris
               get_clusters_on_set() const
               {
                   MORIS_ASSERT(false, "get_cell_clusters_on_set() virtual base class used");
-                  return moris::Cell<Cluster const *>(0);
-              }
-
-//------------------------------------------------------------------------------
-
-              virtual moris::Cell<Cluster const *>
-              get_side_clusters_on_set() const
-              {
-                  MORIS_ASSERT(false, "get_side_clusters_on_set() virtual base class used");
                   return moris::Cell<Cluster const *>(0);
               }
 
