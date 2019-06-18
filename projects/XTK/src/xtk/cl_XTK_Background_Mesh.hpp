@@ -5,8 +5,8 @@
  *      Author: ktdoble
  */
 
-#ifndef SRC_XTK_CL_XTK_MESH_HPP_
-#define SRC_XTK_CL_XTK_MESH_HPP_
+#ifndef SRC_XTK_CL_XTK_BACKGROUND_MESH_HPP_
+#define SRC_XTK_CL_XTK_BACKGROUND_MESH_HPP_
 
 #include <unordered_map>
 #include <utility>
@@ -65,6 +65,25 @@ public:
     get_num_entities_background(enum EntityRank aEntityRank) const;
 
     /*!
+     * get the owning proc of a vertex
+     */
+    moris::moris_index
+    get_vertex_owner(moris::moris_index aVertexIndex) const;
+
+    /*!
+     * Get the vertex ownership of both background and XTK created nodes
+     */
+    moris::Matrix<moris::IndexMat>
+    get_vertices_owner(moris::Matrix<moris::IndexMat> const & aVertexIndices) const;
+
+
+    moris::Matrix<moris::IdMat>
+    get_vertex_sharing(moris::moris_index aVertexIndex) const;
+
+    moris::Matrix<moris::IdMat>
+    get_vertices_sharing(moris::Matrix<moris::IndexMat> const & aVertexIndices) const;
+
+    /*!
      * Get an mtk vertex
      */
     moris::mtk::Vertex &
@@ -116,18 +135,15 @@ public:
     update_first_available_index(moris::size_t         aNewFirstAvailableIndex,
                                  enum EntityRank aEntityRank);
 
-    /*!
-     * Create a batch of new nodes
-     */
-    void
-    batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & aPendingNodes);
 
     /*!
      * Create a batch of new nodes
      */
     void
-    batch_create_new_nodes(Cell<moris_index> const & aNewNodeIds,
-                           Cell<moris_index> const & aNewNodeIndices,
+    batch_create_new_nodes(Cell<moris_index>                    const & aNewNodeIds,
+                           Cell<moris_index>                    const & aNewNodeIndices,
+                           Cell<moris_index>                    const & aNewNodeOwningProc,
+                           Cell<moris::Matrix< moris::IdMat  >> const & aNewNodeProcSharing,
                            Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates);
 
     /*!
@@ -316,12 +332,15 @@ public:
     moris::Matrix< moris::IdMat >
     get_interface_nodes_glob_ids(moris::moris_index aGeometryIndex) const;
 
+    //
+    moris::Matrix< moris::IndexMat >
+    restrict_vertex_list_to_owned_by_this_proc_loc_inds(moris::Matrix< moris::IndexMat > const & aNodeIndexList) const;
+
     /*!
      * get the interface nodes with respect to a given geometry index
      */
     Cell<moris::Matrix< moris::IdMat >>
     get_interface_nodes_glob_ids();
-
 
     void
     print_interface_node_flags();
@@ -368,8 +387,11 @@ public:
     void
     add_child_element_to_mtk_cells(moris::moris_index aElementIndex,
                                    moris::moris_index aElementId,
+                                   moris::moris_index aElementOwner,
                                    moris::moris_index aCMElementIndex,
                                    Child_Mesh*        aChildMeshPtr);
+
+
     /*!
      * return a pointer to a cell
      */

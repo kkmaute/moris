@@ -33,6 +33,7 @@ struct MtkSideSetInfo
 {
     Matrix< IdMat > * mElemIdsAndSideOrds;
     std::string       mSideSetName;
+    bool              mParallelConsistencyReq = true;
 
     MtkSideSetInfo():
         mElemIdsAndSideOrds(),
@@ -44,6 +45,14 @@ struct MtkSideSetInfo
         return !mSideSetName.empty();
     }
 };
+
+std::ostream &
+operator<<(std::ostream & os, mtk::MtkSideSetInfo const * const & dt)
+{
+    os<<"Side Set Name: "<< dt->mSideSetName << " | Number of Sides: "<<dt->mElemIdsAndSideOrds->n_rows() <<"  | Parallel Consistent: "<<dt->mParallelConsistencyReq<<std::endl;
+
+    return os;
+}
 }
 }
 

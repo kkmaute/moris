@@ -15,6 +15,8 @@
 
 #include "topology/cl_XTK_Hexahedron_8_Basis_Function.hpp"
 
+#include "cl_MTK_Visualization_STK.hpp"
+
 #include "cl_Sphere.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
@@ -170,7 +172,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
     MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
 
-    if(tProcSize<=4)
+    if(tProcSize<=2)
     {
             // Geometry Engine Setup ---------------------------------------------------------
             // Using a Levelset Sphere as the Geometry
@@ -216,6 +218,8 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             std::string tMeshOutputFile = tPrefix + "/xtk_test_output_conformal.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
 
+
+            std::cout<<"success"<<std::endl;
 
             // Access the Cut Mesh-------------------------------------------------------------
             Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
@@ -476,7 +480,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
      * Mesh
      */
 
-    real tRadius = 5.1;
+    real tRadius = 5.1111;
     real tXCenter = 0.0;
     real tYCenter = 0.0;
     real tZCenter = 0.0;
@@ -502,7 +506,23 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
     moris::Cell<std::string> tFieldNames;
 
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+
+    // add parallel fields to the mesh
+    moris::mtk::Visualization_STK tVizTool;
+    moris::mtk::MtkFieldsInfo* tFieldsInfo = tVizTool.setup_parallel_cell_fields_for_declaration();
+
+    // Declare some supplementary fields
+    moris::mtk::MtkMeshData tMeshDataInput;
+    tMeshDataInput.FieldsInfo = tFieldsInfo;
+
+    // fill in the parallel fields
+    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName,  &tMeshDataInput  );
+
+    tVizTool.populate_parallel_cell_fields_on_mesh(tMeshData);
+
+    std::string tBackgroundfile = "./xtk_exo/xtk_ut_set_propogation_bm.e";
+    tMeshData->create_output_mesh(tBackgroundfile);
+
 
     /*
      * Setup XTK Model and tell it how to cut
@@ -517,7 +537,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
      */
     tXTKModel.decompose(tDecompositionMethods);
 
-    tXTKModel.unzip_interface();
+//    tXTKModel.unzip_interface();
 
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
     moris::real tMySurfaceArea = compute_interface_surface_area(tNodeCoords,tXTKModel);
@@ -547,22 +567,15 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     // Set the sensitivity field names
     tOutputOptions.mPackageDxDpSparsely = true;
 
-
-    // Specify there are 2 possible phases
-    size_t tNumPhases = 2;
-
-    // Say I only want to output phase 1
-    Cell<size_t> tPhasesToOutput = {0,1};
-    tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
-
     // Add field for enrichment
     tOutputOptions.mIntElementExternalFieldNames = {"owner"};
     tOutputOptions.mInternalUseFlag = true;
 
+    tOutputOptions.mAddParallelFields = true;
+
     moris::mtk::Mesh* tOutputMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
-   tPrefix = std::getenv("MORISOUTPUT");
-   std::string tMeshOutputFile = tPrefix + "/xtk_ut_set_propogation.e";
+   std::string tMeshOutputFile = "./xtk_exo/xtk_ut_set_propogation.e";
    tOutputMeshData->create_output_mesh(tMeshOutputFile);
 
    delete tMeshData;

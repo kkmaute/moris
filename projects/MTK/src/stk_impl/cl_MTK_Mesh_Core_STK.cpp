@@ -24,6 +24,8 @@
 #include "fn_assert.hpp"
 #include "fn_isempty.hpp"
 #include "fn_find.hpp"
+#include "fn_sort.hpp"
+#include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -150,12 +152,19 @@ namespace mtk
         create_communication_lists_and_local_to_global_map( EntityRank::EDGE );
         create_communication_lists_and_local_to_global_map( EntityRank::FACE );
         create_communication_lists_and_local_to_global_map( EntityRank::ELEMENT );
+
         // Initialize global to local map
         mSTKMeshData->mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(4);
         setup_entity_global_to_local_map(EntityRank::NODE);
         setup_entity_global_to_local_map(EntityRank::EDGE);
         setup_entity_global_to_local_map(EntityRank::FACE);
         setup_entity_global_to_local_map(EntityRank::ELEMENT);
+
+        // setup vertex pairing
+        setup_parallel_vertex_pairing();
+
+        // setup cell sharing
+        setup_parallel_cell_sharing();
 
         setup_vertices_and_cell();
 
@@ -190,6 +199,8 @@ namespace mtk
 
         // Call the function that handles the communication between stk and moris
         this->build_mesh( aMeshData );
+
+
 
         if(mVerbose)
         {
@@ -378,6 +389,41 @@ namespace mtk
         return tElemsConnectedToElem;
     }
 
+
+
+    moris::Cell<moris::mtk::Vertex const *>
+    Mesh_Core_STK::get_all_vertices_no_aura() const
+    {
+        enum EntityRank tEntityRank = EntityRank::NODE;
+
+        // Get pointer to field defined by input name
+        // set and set selector
+        stk::mesh::Part & tUniversal = mSTKMeshData->mMtkMeshMetaData->universal_part();
+        stk::mesh::Selector tUniversalSelector( tUniversal );
+
+        // aura and aura selector
+//        stk::mesh::Part & tAura = mSTKMeshData->mMtkMeshMetaData->aura_part();
+//        stk::mesh::Selector tAuraSelector( tAura );
+
+        // difference of the set with the auraz
+//        stk::mesh::Selector tDifference = tUniversalSelector -= tAuraSelector;
+
+        stk::mesh::EntityVector aEntities;
+        stk::mesh::get_selected_entities( tUniversalSelector, mSTKMeshData->mMtkMeshBulkData->buckets( stk::topology::NODE_RANK ), aEntities );
+
+        // Get entity Ids
+        uint tNumEntities = aEntities.size();
+
+        moris::Cell<moris::mtk::Vertex const *>  tOutputVertices ( tNumEntities );
+        for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
+        {
+            moris::moris_index tVertexIndex = this->get_loc_entity_ind_from_entity_glb_id(( moris_id ) mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[iEntity] ),tEntityRank);
+
+            tOutputVertices( iEntity ) = &this->get_mtk_vertex(tVertexIndex);
+        }
+
+        return tOutputVertices;
+    }
     // ----------------------------------------------------------------------------
 
 //##############################################
@@ -751,6 +797,39 @@ namespace mtk
     }
 
     // ----------------------------------------------------------------------------
+    moris::Cell<moris::mtk::Vertex const *>
+    Mesh_Core_STK::get_vertices_in_vertex_set_no_aura(std::string aSetName) const
+    {
+        enum EntityRank tEntityRank = EntityRank::NODE;
+
+        // Get pointer to field defined by input name
+        // set and set selector
+        stk::mesh::Part* const tSetPart = mSTKMeshData->mMtkMeshMetaData->get_part( aSetName );
+        MORIS_ASSERT( tSetPart != nullptr, "Set not found. Double check name provided." );
+        stk::mesh::Selector tSetSelector( *tSetPart );
+
+        // aura and aura selector
+        stk::mesh::Part & tAura = mSTKMeshData->mMtkMeshMetaData->aura_part();
+        stk::mesh::Selector tAuraSelector( tAura );
+
+        // difference of the set with the auraz
+        stk::mesh::Selector tDifference = tSetSelector -= tAuraSelector;
+
+        stk::mesh::EntityVector aEntities;
+        stk::mesh::get_selected_entities( tDifference, mSTKMeshData->mMtkMeshBulkData->buckets( stk::topology::NODE_RANK ), aEntities );
+
+        // Get entity Ids
+        uint tNumEntities = aEntities.size();
+        moris::Cell<moris::mtk::Vertex const *>  tOutputEntityIds ( tNumEntities );
+        for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
+        {
+            moris::moris_index tVertexIndex = this->get_loc_entity_ind_from_entity_glb_id(( moris_id ) mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[iEntity] ),tEntityRank);
+
+            tOutputEntityIds( iEntity ) = &this->get_mtk_vertex(tVertexIndex);
+        }
+
+        return tOutputEntityIds;
+    }
 
     uint
     Mesh_Core_STK::get_num_fields(  const enum EntityRank aEntityRank ) const
@@ -1064,8 +1143,6 @@ namespace mtk
                                                                 tSideOrdinalsOnBoundaries,
                                                                 tSideSharedProc);
 
-
-//            MORIS_ASSERT(err !=-1,"fatal: unable to output elemental communication map, (ex_put_elem_cmap failed)");
     }
 
 //##############################################
@@ -1142,7 +1219,7 @@ namespace mtk
                             {
                                 uint tSharedProcRank = sharedProcs[p];
                                 uint tSendCount = tSendProcCounter(tSharedProcRank);
-                                mSTKMeshData->mEntitySendList((uint)aEntityRank)(tSharedProcRank)(0,tSendCount) = tCurrentIndex;
+                                mSTKMeshData->mEntitySendList((uint)aEntityRank)(tSharedProcRank)(0,tSendCount) = tEntityId;
                                 tSendProcCounter(tSharedProcRank)++;
                             }
                         }
@@ -1156,7 +1233,7 @@ namespace mtk
                             {
                                 uint tSharedProc = sharedProcs[p];
                                 uint tRecvCount = tRecvProcCounter(tSharedProc);
-                                mSTKMeshData->mEntityReceiveList((uint)aEntityRank)(tSharedProc)(0,tRecvCount) = tCurrentIndex;
+                                mSTKMeshData->mEntityReceiveList((uint)aEntityRank)(tSharedProc)(0,tRecvCount) = tEntityId;
                                 tRecvProcCounter(tSharedProc)++;
                             }
                         }
@@ -1176,11 +1253,345 @@ namespace mtk
         }
     }
 
+    // ----------------------------------------------------------------------------
+
+    void
+    Mesh_Core_STK::setup_parallel_vertex_pairing()
+    {
+        int tParSize = par_size();
+
+        if(tParSize > 1)
+        {
+            moris::Cell<moris::Matrix<IdMat>> tUniqueNodeSharedIds(tParSize);
+            moris::Cell<moris::Matrix<IdMat>> tReceivedNodeSharedIds(tParSize);
+
+            // iterate through procs and gather shared nodes between them
+            for(int pr = 0; pr<tParSize;pr++)
+            {
+                // Sizes
+                moris::uint tNumSendToProc  = mSTKMeshData->mEntitySendList(0)(pr).numel();
+                moris::uint tNumRecFromProc = mSTKMeshData->mEntityReceiveList(0)(pr).numel();
+
+                // compile a list of all ids
+                Matrix<IdMat> tNodesSharedWithProc(tNumSendToProc+tNumRecFromProc,1);
+
+                // count
+                moris::uint tCount = 0;
+
+                for(moris::uint i = 0; i < tNumSendToProc; i++)
+                {
+                    tNodesSharedWithProc(tCount) = mSTKMeshData->mEntitySendList(0)(pr)(i);
+                    tCount++;
+                }
+
+                for(moris::uint i = 0; i < tNumRecFromProc; i++)
+                {
+                    tNodesSharedWithProc(tCount) = mSTKMeshData->mEntityReceiveList(0)(pr)(i);
+                    tCount++;
+                }
+
+                // use unique here to just to be safe, although I do not foresee there is a case
+                // where a vertex shows up in both send and receive.
+                moris::unique( tNodesSharedWithProc, tUniqueNodeSharedIds(pr) );
+
+                // at this point, we have a unique node list which should be in ascending order (unique sorts the matrix)
+
+                // allocate buffer for received communication
+                tReceivedNodeSharedIds(pr).resize(tUniqueNodeSharedIds(pr).n_rows(),2);
+            }
+
+            // add the processor local index to the communication, also remove unused procs
+            mSTKMeshData->mProcsWithSharedVertex.resize(tParSize,1);
+            moris::uint tCount = 0;
+            for(int pr = 0; pr<tParSize;pr++)
+            {
+                moris::uint tNumShared = tUniqueNodeSharedIds(pr).numel();
+
+                if(tNumShared>0)
+                {
+                    mSTKMeshData->mProcsWithSharedVertex(tCount) = (moris_id)pr;
+                    mSTKMeshData->mVertexSharingProcsMap[pr] = tCount;
+                    tCount++;
+                    tUniqueNodeSharedIds(pr).resize(tNumShared,2);
+
+                    // iterate through and get local index
+                    for(moris::uint i = 0; i < tNumShared; i++)
+                    {
+                        tUniqueNodeSharedIds(pr)(i,1) = this->get_loc_entity_ind_from_entity_glb_id(tUniqueNodeSharedIds(pr)(i,0),EntityRank::NODE);
+                    }
+                }
+            }
+
+            mSTKMeshData->mProcsWithSharedVertex.resize(tCount,1);
+
+            // remove the empty comms
+            tUniqueNodeSharedIds.data().erase(std::remove_if(tUniqueNodeSharedIds.begin(), tUniqueNodeSharedIds.end(),
+                                                             [](const Matrix<IdMat> & o) { return o.numel() == 0; }),tUniqueNodeSharedIds.end());
+
+            moris::communicate_mats( mSTKMeshData->mProcsWithSharedVertex,tUniqueNodeSharedIds,mSTKMeshData->mVertexSharingData );
+        }
+    }
+
+    void
+    Mesh_Core_STK::setup_parallel_cell_sharing()
+    {
+        // construct sharing information as seen in STK
+        setup_parallel_cell_sharing_without_aura_resolved();
+
+        // get the aura cell sharing that need special considerations (cells that show up in multiple process aura require extra care to work
+        // with XTK and cell clustering concept
+        moris::Cell<Matrix<IdMat>> tAuraCellSharing = resolve_aura_cell_sharing();
+
+        setup_parallel_cell_sharing_with_resolved_aura(tAuraCellSharing);
+
+    }
+
+    moris::Cell<Matrix<IdMat>>
+    Mesh_Core_STK::resolve_aura_cell_sharing()
+    {
+        moris_index tParSize = par_size();
+        moris_index tParRank = par_rank();
+
+        // received cell sharing information
+        moris::Cell<Matrix<IdMat>> tReceivedCellSharing;
+
+        if(tParSize > 1)
+        {
+            // number of cells in the mesh
+            uint tNumCells = this->get_num_entities(EntityRank::ELEMENT);
+
+            // allocate space in member data
+            mSTKMeshData->mCellSharingData.resize(tNumCells);
+
+            // locally owned  and local own selector
+            stk::mesh::Part & tLocalOwnedCells = mSTKMeshData->mMtkMeshMetaData->locally_owned_part();
+            stk::mesh::Selector tLocalOwnedSelector( tLocalOwnedCells );
+
+            // get cells in the local own part
+            stk::mesh::EntityVector aEntities;
+            stk::mesh::get_selected_entities( tLocalOwnedSelector, mSTKMeshData->mMtkMeshBulkData->buckets( stk::topology::ELEMENT_RANK ), aEntities );
+
+            // cells to communicate additionally sharing
+            moris::Cell<moris::Cell<Matrix<IdMat>>> tCellsWithAdditionalSharing(tParSize);
+
+            // keep track of the maximum so we can convert the above cell to a
+           moris::Cell<uint> tMaxSizeWithProc(tParSize,0);
+
+           // procs to communicate with
+           moris::Cell<moris_index> tProcsWithCommunication;
+
+            // iterate through cells in aura
+            for(moris_index iCell = 0; iCell <(moris_index)aEntities.size(); iCell++)
+            {
+                // cell id
+                moris_id tCellId = ( moris_id ) mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[iCell] );
+
+                // Cell index
+                moris_index tCellIndex = this->get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+
+                // get process rank that owns cell
+                uint tCellOwnerRank = this->get_entity_owner(tCellIndex,EntityRank::ELEMENT);
+
+                // sharing processors
+                Matrix<IdMat> tSharingProcs;
+                this->get_processors_whom_share_entity(tCellIndex,EntityRank::ELEMENT,tSharingProcs);
+
+                // check for the case where this cell I own that shows up in a few processors aura
+                if(tParRank == (moris_index)tCellOwnerRank && tSharingProcs.numel() > 0)
+                {
+                    Matrix<IdMat> tSharingInfo(1,tSharingProcs.numel()+1);
+
+                    // add cell id to first spot
+                    tSharingInfo(0) = tCellId;
+                    tSharingInfo({0,0},{1,tSharingProcs.numel()}) = tSharingProcs.get_row(0);
+
+                    // iterate through the shared processors
+                    for(moris_index iProc = 0; iProc<(moris_index)tSharingProcs.numel(); iProc++)
+                    {
+                        // sharing processor rank
+                        moris_index tShareProcRank = tSharingProcs(iProc);
+
+                        // keep track of largest number
+                        if(tSharingProcs.numel() > tMaxSizeWithProc(tShareProcRank))
+                        {
+                            // add cell sharing information
+                           tCellsWithAdditionalSharing(tShareProcRank).push_back(tSharingInfo);
+
+                            // if this is the first time we encountered this proc add it to the list of processors to communicate with
+                            if(tMaxSizeWithProc(tShareProcRank) == 0)
+                            {
+                                tProcsWithCommunication.push_back(tShareProcRank);
+                            }
+
+                            // change max size
+                            tMaxSizeWithProc(tShareProcRank) = tSharingProcs.numel();
+                        }
+                    }
+                }
+            }
+
+            // create a cell of matrix rather than a cell of cells for communication purposes
+            moris::Cell<Matrix<IdMat>> tCellsMatsWithAdditionalSharing(tProcsWithCommunication.size());
+
+            Matrix<IdMat> tProcsWithCommunicationMat(1,tProcsWithCommunication.size());
+
+            for(moris_index iProc = 0; iProc<(moris_index)tProcsWithCommunication.size(); iProc++)
+            {
+                // processor rank
+                moris_index tShareProcRank = tProcsWithCommunication(iProc);
+
+                // add to matrix of processor ranks
+                tProcsWithCommunicationMat(iProc) = tShareProcRank;
+
+                // number of columns
+                uint tNumCol = tMaxSizeWithProc(tShareProcRank) + 1;
+
+                // number of rows
+                uint tNumCellsWithAddShare = tCellsWithAdditionalSharing(tShareProcRank).size();
+
+                // initialize matrix with a dummy value
+                tCellsMatsWithAdditionalSharing(iProc) = Matrix<IdMat>(tNumCellsWithAddShare,tNumCol);
+                tCellsMatsWithAdditionalSharing(iProc).fill(MORIS_INDEX_MAX);
+
+                // iterate through and add data to matrix
+                for(uint iCell = 0; iCell < tNumCellsWithAddShare; iCell++)
+                {
+                    // number of sharing (size of matrix)
+                    uint tSizeOfMat = tCellsWithAdditionalSharing(tShareProcRank)(iCell).numel();
+
+                    tCellsMatsWithAdditionalSharing(iProc)({iCell,iCell},{0,tSizeOfMat-1}) = tCellsWithAdditionalSharing(tShareProcRank)(iCell).get_row(0);
+                }
+            }
+
+            // at this point we have collected the sharing information needed
+            // so time to communicate
+            moris::communicate_mats( tProcsWithCommunicationMat,tCellsMatsWithAdditionalSharing, tReceivedCellSharing);
+        }
+
+        return tReceivedCellSharing;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    void
+    Mesh_Core_STK::setup_parallel_cell_sharing_without_aura_resolved()
+    {
+
+        enum EntityRank tEntityRank = EntityRank::ELEMENT;
+
+        // number of cells in mesh
+        uint tNumCells = this->get_num_entities(tEntityRank);
+
+        // allocate member data
+        mSTKMeshData->mCellSharingData = moris::Cell<moris::Matrix<moris::IdMat>>(tNumCells);
+
+
+        // iterate through cells and add sharing information
+        for(moris::uint  i = 0; i<tNumCells; i++)
+        {
+
+            // Convert index to ID
+            stk::mesh::EntityId tEntityId = { (stk::mesh::EntityId)this->get_glb_entity_id_from_entity_loc_index((moris_index)i, tEntityRank) };
+
+            //Get entity
+            stk::mesh::Entity tEntity = mSTKMeshData->mMtkMeshBulkData->get_entity(get_stk_entity_rank(tEntityRank), tEntityId);
+
+            // Intialize shared procs
+            std::vector<int> tSharedProcs;
+
+            // get shared processor IDs
+            mSTKMeshData->mMtkMeshBulkData->comm_procs(mSTKMeshData->mMtkMeshBulkData->entity_key(tEntity), tSharedProcs);
+
+            if (tSharedProcs.size() > 0)
+            {
+                // Initialize output
+                Matrix<IdMat> tSharingProcs(1, tSharedProcs.size());
+
+                // Cell to vector conversion
+                for (uint i = 0; i < tSharedProcs.size(); i++)
+                {
+                    tSharingProcs(0, i) = tSharedProcs[i];
+                }
+
+                mSTKMeshData->mCellSharingData(i) = tSharingProcs.copy();
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
+    void
+    Mesh_Core_STK::setup_parallel_cell_sharing_with_resolved_aura( moris::Cell<Matrix<IdMat>> const & aAuraCellSharing)
+    {
+        // my processor rank
+        moris_id tMyProcRank = par_rank();
+
+        // iterate through cell of matrices where each cell if from a different processor
+        for(moris::uint iProc= 0; iProc<aAuraCellSharing.size(); iProc++)
+        {
+            // All cell sharing to resolve for this processor (note: which processor it came from does not matter)
+            Matrix<IdMat> const & tCellSharingMat = aAuraCellSharing(iProc);
+
+            // number of cols
+            uint tNumCols = tCellSharingMat.n_cols();
+
+            // iterate through the received information and update the cell sharing information
+            for(moris::uint iCell = 0; iCell<tCellSharingMat.n_rows(); iCell++)
+            {
+                // cell id
+                moris_id tCellId = tCellSharingMat(iCell,0);
+
+                // cell index
+                moris_index tCellIndex = this->get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+
+                // owning processor
+                moris_id tOwner = this->get_entity_owner(tCellIndex,EntityRank::ELEMENT);
+
+                // construct sharing matrix
+                Matrix<IdMat> tCellSharing(1,tNumCols);
+
+                // add owner in first spot
+                tCellSharing(0,0) = tOwner;
+
+                MORIS_ASSERT(tOwner != tMyProcRank,"Current processor should not be informed about aura, it should be the one telling other processors about sharing ");
+
+                // iterate through and construct
+                uint tCount = 1;
+
+                for(moris::uint iShare = 0; iShare < tNumCols-1; iShare++)
+                {
+                    // Process cell is shared with
+                    moris_id tCellSharedWith = tCellSharingMat(iCell,iShare+1);
+
+                    if(tCellSharedWith == MORIS_ID_MAX)
+                    {
+                        break;
+                    }
+
+                    else if(tCellSharedWith != tMyProcRank)
+                    {
+                        tCellSharing(0,tCount) = tCellSharedWith;
+                        tCount++;
+                    }
+                }
+
+                // size out extra space
+                tCellSharing.resize(1,tCount);
+
+                // update cell sharing table
+                mSTKMeshData->mCellSharingData(tCellIndex) = tCellSharing.copy();
+
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
     void
     Mesh_Core_STK::setup_vertices_and_cell()
     {
         // Get information about the mesh
-        uint tNumNodes        = this->get_num_entities(EntityRank::NODE);
+        uint tNumNodes = this->get_num_entities(EntityRank::NODE);
 
         // Setup vertices
         mSTKMeshData->mMtkVertices = moris::Cell<Vertex_Core_STK>(tNumNodes);
@@ -1205,6 +1616,7 @@ namespace mtk
 
         // Setup Cells
         uint tNumElems = this->get_num_entities(EntityRank::ELEMENT);
+
         // allocate member data
         mSTKMeshData->mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
         Matrix< IndexMat > tElementToNode;
@@ -1390,33 +1802,41 @@ namespace mtk
 
     void
     Mesh_Core_STK::get_processors_whom_share_entity(moris_index       aEntityIndex,
-                                               enum EntityRank   aEntityRank,
-                                               Matrix< IdMat > & aProcsWhomShareEntity) const
+                                                    enum EntityRank   aEntityRank,
+                                                    Matrix< IdMat > & aProcsWhomShareEntity) const
     {
-        // Convert index to ID
-        stk::mesh::EntityId tEntityId = { (stk::mesh::EntityId)this->get_glb_entity_id_from_entity_loc_index(aEntityIndex, aEntityRank) };
-
-        //Get entity
-        stk::mesh::Entity tEntity = mSTKMeshData->mMtkMeshBulkData->get_entity(get_stk_entity_rank(aEntityRank), tEntityId);
-
-        // Intialize shared procs
-        std::vector<int> tSharedProcs;
-
-        // get shared processor IDs
-        mSTKMeshData->mMtkMeshBulkData->comm_procs(mSTKMeshData->mMtkMeshBulkData->entity_key(tEntity), tSharedProcs);
-
-        if (tSharedProcs.size() == 0)
+        if(aEntityRank != EntityRank::ELEMENT)
         {
-            tSharedProcs.push_back(mSTKMeshData->mMtkMeshBulkData->parallel_owner_rank(tEntity));
+
+            // Convert index to ID
+            stk::mesh::EntityId tEntityId = { (stk::mesh::EntityId)this->get_glb_entity_id_from_entity_loc_index(aEntityIndex, aEntityRank) };
+
+            //Get entity
+            stk::mesh::Entity tEntity = mSTKMeshData->mMtkMeshBulkData->get_entity(get_stk_entity_rank(aEntityRank), tEntityId);
+
+            // Intialize shared procs
+            std::vector<int> tSharedProcs;
+
+            // get shared processor IDs
+            mSTKMeshData->mMtkMeshBulkData->comm_procs(mSTKMeshData->mMtkMeshBulkData->entity_key(tEntity), tSharedProcs);
+
+            if (tSharedProcs.size() == 0)
+            {
+                tSharedProcs.push_back(mSTKMeshData->mMtkMeshBulkData->parallel_owner_rank(tEntity));
+            }
+
+            // Initialize output
+            aProcsWhomShareEntity.resize(1, tSharedProcs.size());
+
+            // Cell to vector conversion
+            for (uint i = 0; i < tSharedProcs.size(); i++)
+            {
+                aProcsWhomShareEntity(0, i) = tSharedProcs[i];
+            }
         }
-
-        // Initialize output
-        aProcsWhomShareEntity.resize(1, tSharedProcs.size());
-
-        // Cell to vector conversion
-        for (uint i = 0; i < tSharedProcs.size(); i++)
+        else
         {
-            aProcsWhomShareEntity(0, i) = tSharedProcs[i];
+            aProcsWhomShareEntity =  mSTKMeshData->mCellSharingData(aEntityIndex).copy();
         }
     }
 
@@ -1771,6 +2191,20 @@ namespace mtk
 
         // Generate additional local to global maps (only for meshes generated from data).
         // Elemental and nodal information has been taken care of already in this case.
+        // setup maps which include the aura
+        mSTKMeshData->mEntityLocaltoGlobalMap = moris::Cell<moris::Matrix< IdMat >>((uint) EntityRank::END_ENUM, moris::Matrix< IndexMat >(1, 1, 0));
+        mSTKMeshData->mEntitySendList         = moris::Cell<moris::Cell<moris::Matrix< IndexMat >>>((uint) EntityRank::END_ENUM, moris::Cell<moris::Matrix< IndexMat >>(par_size(),moris::Matrix< IdMat >(1,1)));
+        mSTKMeshData->mEntityReceiveList      = moris::Cell<moris::Cell<moris::Matrix< IndexMat >>>((uint) EntityRank::END_ENUM, moris::Cell<moris::Matrix< IndexMat >>(par_size(),moris::Matrix< IdMat >(1,1)));
+        create_communication_lists_and_local_to_global_map( EntityRank::NODE );
+        create_communication_lists_and_local_to_global_map( EntityRank::EDGE );
+        create_communication_lists_and_local_to_global_map( EntityRank::FACE );
+        create_communication_lists_and_local_to_global_map( EntityRank::ELEMENT );
+
+        // Initialize global to local map
+        mSTKMeshData->mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(4);
+        setup_entity_global_to_local_map(EntityRank::NODE);
+        setup_entity_global_to_local_map(EntityRank::ELEMENT);
+
         if (aMeshData.CreateAllEdgesAndFaces )
         {
             this->create_additional_communication_lists_from_data();
@@ -1779,6 +2213,13 @@ namespace mtk
         }
 
         setup_vertices_and_cell();
+
+        // setup vertex pairing
+        setup_parallel_vertex_pairing();
+
+        // setup the parallel cell pairs (including aura)
+        setup_parallel_cell_sharing();
+
 
         // set timestamp
         mTimeStamp = aMeshData.TimeStamp;
@@ -1837,8 +2278,13 @@ namespace mtk
 
                 MtkBlockSetInfo* tBlockSet = aMeshData.SetsInfo->get_block_set(iSet);
                 // Declare part and add it to the IOBroker (needed for output).
+
                 stk::mesh::Part& aSetPart = mSTKMeshData->mMtkMeshMetaData->declare_part_with_topology( tBlockSet->mBlockSetName,
-                                                                                          get_stk_topo(tBlockSet->mBlockSetTopo) );
+                                                                                          get_stk_topo(tBlockSet->mBlockSetTopo),true );
+
+                // mark as parallel consistent or not (needed for XTK aura to allow for inconsistent aura declaration)
+                aSetPart.entity_membership_is_parallel_consistent(tBlockSet->mParallelConsistencyReq);
+
                 // Add Part to the IOBroker (needed for output)
                 stk::io::put_io_part_attribute( aSetPart );
             }
@@ -1852,8 +2298,15 @@ namespace mtk
 
                 for ( uint iSet = 0; iSet < tNumSideSets; ++iSet )
                 {
+                    // get side set
+                    moris::mtk::MtkSideSetInfo* tSideSet = aMeshData.SetsInfo->SideSetsInfo(iSet);
+
                     // Declare part and add it to the IOBroker (needed for output).
-                    stk::mesh::Part& aSetPart = mSTKMeshData->mMtkMeshMetaData->declare_part( mSTKMeshData->mSetNames[1][iSet], mSTKMeshData->mMtkMeshMetaData->side_rank() );
+                    stk::mesh::Part& aSetPart = mSTKMeshData->mMtkMeshMetaData->declare_part( mSTKMeshData->mSetNames[1][iSet], mSTKMeshData->mMtkMeshMetaData->side_rank(), true);
+
+                    // mark as parallel consistent or not (needed for XTK aura to allow for inconsistent aura declaration)
+                    aSetPart.entity_membership_is_parallel_consistent(tSideSet->mParallelConsistencyReq);
+
                     // Add Part to the IOBroker (needed for output).
                     stk::io::put_io_part_attribute( aSetPart );
                 }
@@ -1869,7 +2322,8 @@ namespace mtk
                 for ( uint iSet = 0; iSet < tNumNodeSets; ++iSet )
                 {
                     // Declare part and add it to the IOBroker (needed for output).
-                    stk::mesh::Part& aSetPart = mSTKMeshData->mMtkMeshMetaData->declare_part( mSTKMeshData->mSetNames[0][iSet], stk::topology::NODE_RANK );
+                    stk::mesh::Part& aSetPart = mSTKMeshData->mMtkMeshMetaData->declare_part( mSTKMeshData->mSetNames[0][iSet], stk::topology::NODE_RANK,true );
+
                     // Add Part to the IOBroker (needed for output).
                     stk::io::put_io_part_attribute( aSetPart );
                 }
@@ -2126,8 +2580,13 @@ namespace mtk
         // Setup global to local node map
         setup_vertex_global_to_local_map(aMeshData);
 
+        // setup nodes
+//        this->process_nodes(aMeshData);
+
         // Generate basic mesh information
         this->process_block_sets( aMeshData );
+
+        // declare nodes
 
         // Declare node sets to mesh if they exist
         if ( mSTKMeshData->mSetRankFlags[0] )
@@ -2244,6 +2703,21 @@ namespace mtk
                 MORIS_ERROR(0,"Node Id already in map, does your LocaltoGlobalNodeMap have the same id twice?");
             }
         }
+    }
+
+    void
+    Mesh_Core_STK::process_nodes(MtkMeshData &  aMeshData)
+    {
+        // number of nodes
+        moris::uint tNumNodes = aMeshData.get_num_nodes();
+
+        for(moris::uint iNode =0; iNode < tNumNodes; iNode++)
+        {
+            moris_id tNodeGlobalId = (*aMeshData.LocaltoGlobalNodeMap)(iNode);
+            stk::mesh::Entity tNode = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, tNodeGlobalId );
+            tNode = mSTKMeshData->mMtkMeshBulkData->declare_entity(stk::topology::NODE_RANK, tNodeGlobalId, mSTKMeshData->mMtkMeshMetaData->universal_part());
+        }
+
     }
 
 // ----------------------------------------------------------------------------
@@ -2412,23 +2886,26 @@ namespace mtk
  //           moris_id tParRank = par_rank();
             uint tNumNodes = aMeshData.get_num_nodes();
             uint tMaxNumProcsShared = aMeshData.NodeProcsShared->n_cols();
+            moris_index tMyRank = par_rank();
 
             for(uint iNode = 0; iNode<tNumNodes; iNode++ )
             {
                 stk::mesh::Entity aNode = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, (*aMeshData.LocaltoGlobalNodeMap)(iNode) );
 
-                for(uint iShare = 0; iShare<tMaxNumProcsShared; iShare++)
+                if ( mSTKMeshData->mMtkMeshBulkData->is_valid( aNode ) )
                 {
-                    moris_id tShareProcRank = (*aMeshData.NodeProcsShared)( iNode,iShare );
 
-
-//                    MORIS_ERROR(tParRank != tShareProcRank,"Cannot share a node with self. This causes an issue in STK");
-
-                    if(tShareProcRank != MORIS_ID_MAX )
+                    for(uint iShare = 0; iShare<tMaxNumProcsShared; iShare++)
                     {
-                        mSTKMeshData->mMtkMeshBulkData->add_node_sharing( aNode, tShareProcRank );
-                    }
+                        moris_id tShareProcRank = (*aMeshData.NodeProcsShared)( iNode,iShare );
 
+                        if(tShareProcRank != MORIS_ID_MAX && tShareProcRank != tMyRank)
+                        {
+
+                            mSTKMeshData->mMtkMeshBulkData->add_node_sharing( aNode, tShareProcRank );
+                        }
+
+                    }
                 }
             }
         }
@@ -2681,8 +3158,6 @@ namespace mtk
     Mesh_Core_STK::create_additional_communication_lists_from_data()
     {
         this->create_facets_communication_lists();
-        this->create_owners_communication_lists();
-        this->create_shared_communication_lists();
     }
 // ----------------------------------------------------------------------------
     // Function to create edges and faces communication lists in parallel
@@ -2732,12 +3207,6 @@ namespace mtk
 // ----------------------------------------------------------------------------
     // Function to create edges and faces communication lists in parallel
     void
-    Mesh_Core_STK::create_owners_communication_lists()
-    {
-    }
-// ----------------------------------------------------------------------------
-    // Function to create edges and faces communication lists in parallel
-    void
     Mesh_Core_STK::create_shared_communication_lists()
     {
         // Get basic mesh information
@@ -2777,19 +3246,19 @@ namespace mtk
 
         // Generate nodes shared per processor list
         // ----------------------------------------
-        mSTKMeshData->mNodeMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::NODE );
-
-        // Generate elements shared per processor list (because of aura)
-        // -------------------------------------------
-        mSTKMeshData->mElemMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::ELEMENT );
-
-        // Generate edges shared per processor list
-        // ----------------------------------------
-        mSTKMeshData->mEdgeMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::EDGE );
-
-        // Generate faces shared per processor list
-        // ----------------------------------------
-        mSTKMeshData->mFaceMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::FACE );
+//        mSTKMeshData->mNodeMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::NODE );
+//
+//        // Generate elements shared per processor list (because of aura)
+//        // -------------------------------------------
+//        mSTKMeshData->mElemMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::ELEMENT );
+//
+//        // Generate edges shared per processor list
+//        // ----------------------------------------
+//        mSTKMeshData->mEdgeMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::EDGE );
+//
+//        // Generate faces shared per processor list
+//        // ----------------------------------------
+//        mSTKMeshData->mFaceMapToSharingProcs = this->get_shared_info_by_entity( aNumActiveSharedProcs, EntityRank::FACE );
     }
 // ----------------------------------------------------------------------------
     // Add all node sets information to database
@@ -2822,7 +3291,7 @@ namespace mtk
 
                 if ( !mSTKMeshData->mMtkMeshBulkData->is_valid( aEntity ) )
                 {
-                    aEntity = mSTKMeshData->mMtkMeshBulkData->declare_entity( aStkSetRank, aGlobalId, aAddPart );
+//                    aEntity = mSTKMeshData->mMtkMeshBulkData->declare_entity( aStkSetRank, aGlobalId, aAddPart );
                 }
                 else
                 {
@@ -2865,33 +3334,11 @@ namespace mtk
                 aElemEntity       = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::ELEMENT_RANK, aGlobalElemId );
                 tRequestedSideOrd = (*tSideSet->mElemIdsAndSideOrds)( iEntity, 1 );
 
-//                if ( !aMeshData.CreateAllEdgesAndFaces )
-//                {
-                    if(mSTKMeshData->mMtkMeshBulkData->is_valid( aElemEntity ))
-                    {
+                if(mSTKMeshData->mMtkMeshBulkData->is_valid( aElemEntity ))
+                {
                     // Create side entity
                     mSTKMeshData->mMtkMeshBulkData->declare_element_side( aElemEntity, tRequestedSideOrd, aAddPart );
-                    }
-//                }
-//                else
-//                {
-//                    // all faces and edges where created already. Only need to move entities to a
-//                    // different (previously declared) part assuming no new entities need to be created.
-//                    const stk::mesh::Entity * tSides                   = mSTKMeshData->mMtkMeshBulkData->begin( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
-//                    const stk::mesh::ConnectivityOrdinal* tSideOrdinal = mSTKMeshData->mMtkMeshBulkData->begin_ordinals( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
-//                    size_t tNumSides                                   = mSTKMeshData->mMtkMeshBulkData->num_connectivity( aElemEntity, mSTKMeshData->mMtkMeshMetaData->side_rank() );
-//
-//                    for ( size_t sideI = 0 ; sideI < tNumSides ; ++sideI )
-//                    {
-//                        uint tCurrentSideOrd = static_cast<stk::mesh::ConnectivityOrdinal>( tSideOrdinal[sideI] );
-//                        if ( tRequestedSideOrd == tCurrentSideOrd )
-//                        {
-//                            // Move elements to side set part
-//                            mSTKMeshData->mMtkMeshBulkData->change_entity_parts( tSides[sideI], aAddPart );
-//                            break;
-//                        }
-//                    }
-//                }
+                }
             }// end of side sets declarations
         }
 
@@ -2929,139 +3376,6 @@ namespace mtk
                 aElemGlobalId = (*aMeshData.LocaltoGlobalElemMap(aElementTypeInd))( iElem );
                 stk::mesh::declare_element( *mSTKMeshData->mMtkMeshBulkData, aElemParts[aOwnerPartInds( iElem )], aElemGlobalId, aCurrElemConn );
             }
-    }
-// ----------------------------------------------------------------------------
-    // Parallel specific implementation for blocks in database
-    void
-    Mesh_Core_STK::populate_mesh_database_parallel(
-            MtkMeshData                          aMeshData,
-            std::vector< stk::mesh::PartVector > aPartBlocks,
-            Matrix< IdMat >                     aOwnerPartInds )
-    {
-        for(uint iET = 0; iET<aMeshData.ElemConn.size(); iET++)
-        {
-            // Mesh variables
-            uint tNumNodes        = aMeshData.NodeCoords[0].n_rows(  );
-            uint tNumElems        = aMeshData.ElemConn(iET)->n_rows(  );
-            uint aNumNodesPerElem = aMeshData.ElemConn(iET)->n_cols(  );
-
-            // Declare MPI communicator
-            stk::ParallelMachine tPM = MPI_COMM_WORLD;
-            uint tProcRank     = stk::parallel_machine_rank( tPM );
-
-            // Check if the list provided is for nodes or elements shared.
-            bool tNodesProcOwnerList = false;
-
-            if ( aMeshData.NodeProcOwner[0].n_rows() == tNumNodes )
-            {
-                tNodesProcOwnerList = true;
-            }
-
-            // Declare variables to access connectivity
-            Matrix< IdMat >  tDummyMat( 1, aNumNodesPerElem );
-            std::set<stk::mesh::EntityId> tNodesIDeclared;
-            stk::mesh::EntityIdVector aCurrElemConn( aNumNodesPerElem );
-            stk::mesh::EntityId aElemGlobalId;
-            stk::mesh::Entity aNode;
-
-            /////////////////////////////////
-            // Using nodes proc owner list //
-            /////////////////////////////////
-
-            if ( tNodesProcOwnerList )
-            {
-                // Populate mesh with all elements since only locally owned were provided
-                for ( uint iElem = 0; iElem < tNumElems; ++iElem )
-                {
-                    // Get row of nodes connected in moris variable and assign to STK variable
-                    tDummyMat.get_row( 0 ) = aMeshData.ElemConn(iET)->get_row( iElem );
-                    aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
-                    aElemGlobalId = (*aMeshData.LocaltoGlobalElemMap(iET))( iElem );
-
-                    // declare element in function that also declares element-node relations internally
-                    stk::mesh::declare_element( *mSTKMeshData->mMtkMeshBulkData, aPartBlocks[aOwnerPartInds( iElem )], aElemGlobalId, aCurrElemConn );
-                }
-
-                // Add directly nodes shared from shared list.
-                for ( uint iNode = 0; iNode < tNumNodes; ++iNode )
-                {
-                    //Declare hanging/floating nodes, which do not relate to any element
-                    aNode   = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
-                    if ( !mSTKMeshData->mMtkMeshBulkData->is_valid( aNode ) )
-                    {
-                        aNode = mSTKMeshData->mMtkMeshBulkData->declare_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ), mSTKMeshData->mMtkMeshMetaData->universal_part() );
-                    }
-                    if ( aMeshData.NodeProcOwner[0]( iNode ) != (moris_id)tProcRank )
-                    {
-                        // Add node if it has not been assign to the mesh yet.
-                        stk::mesh::Entity aNode = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aMeshData.LocaltoGlobalNodeMap[0]( iNode, 0 ) );
-                        mSTKMeshData->mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.NodeProcOwner[0]( iNode ) );
-                    }
-                }
-            }
-
-            /////////////////////////////////
-            // Using elems proc owner list //
-            /////////////////////////////////
-
-            else
-            {
-                stk::mesh::EntityId aNodeGlobalId;
-                // Loop over the number of elements
-                for ( uint iElem = 0; iElem < tNumElems; ++iElem )
-                {
-                    // Add element to mesh in the corresponding part
-                    if ( aMeshData.NodeProcOwner[0]( iElem ) == (moris_id)tProcRank )
-                    {
-                        // Get row of nodes connected in moris variable and assign to STK variable
-                        tDummyMat.get_row( 0 ) = aMeshData.ElemConn(iET)->get_row( iElem );
-                        aCurrElemConn.assign( tDummyMat.data(), tDummyMat.data() + aNumNodesPerElem );
-
-                        // Loop over the number of nodes in each element
-                        for ( uint iNode = 0; iNode < aNumNodesPerElem; ++iNode )
-                        {
-                            // Get global Id of current node and create "node entity" for stk mesh
-                            aNodeGlobalId = (*aMeshData.ElemConn(iET))( iElem, iNode );
-                            aNode = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aNodeGlobalId );
-
-                            // Add node if it has not been assign to the mesh yet.
-                            if ( !mSTKMeshData->mMtkMeshBulkData->is_valid( aNode ) )
-                            {
-                                tNodesIDeclared.insert( aNodeGlobalId );
-                            }
-                        }
-
-                        // declare element in function that also declares element-node relations internally
-                        aElemGlobalId = (*aMeshData.LocaltoGlobalElemMap(iET))( iElem );
-                        stk::mesh::declare_element( *mSTKMeshData->mMtkMeshBulkData, aPartBlocks[aOwnerPartInds( iElem )], aElemGlobalId, aCurrElemConn );
-                    }
-                }
-
-                // NOTE: This implementation requires the incorporation of the elements located at the boundaries of the processors
-                // (i.e., aura elements) to the connectivity table and the elements processor owner list.
-
-                // Loop over the number of elements
-                for ( uint iElem = 0; iElem < tNumElems; ++iElem )
-                {
-                    // Check if the element is not own by this processor
-                    if ( aMeshData.NodeProcOwner[0]( iElem )!= (moris_id)tProcRank )
-                    {
-                        // Loop over the number of nodes in each element
-                        for ( uint iNode = 0; iNode < aNumNodesPerElem; ++iNode )
-                        {
-                            aNodeGlobalId = (*aMeshData.ElemConn(iET))( iElem, iNode );
-
-                            if ( tNodesIDeclared.find( aNodeGlobalId ) != tNodesIDeclared.end() )
-                            {
-                                // Add node if it has not been assign to the mesh yet.
-                                aNode = mSTKMeshData->mMtkMeshBulkData->get_entity( stk::topology::NODE_RANK, aNodeGlobalId );
-                                mSTKMeshData->mMtkMeshBulkData->add_node_sharing( aNode, aMeshData.NodeProcOwner[0]( iElem ) );
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 // ----------------------------------------------------------------------------
     // Access set entity ids

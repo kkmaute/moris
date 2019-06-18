@@ -37,8 +37,6 @@
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_XTK_Decomposition_Data.hpp"
 
-
-#include "cl_XTK_Request_Handler.hpp"
 #include "cl_XTK_Output_Options.hpp"
 #include "cl_XTK_Active_Process_Manager.hpp"
 
@@ -72,9 +70,8 @@ namespace xtk
 class Model
 {
 public:
-    // Public member functions
+    // Public member functions/data
     bool mVerbose = false;
-
 
     // Forward declare the maximum value of moris::size_t and moris::real
     moris::real REAL_MAX          = MORIS_REAL_MAX;
@@ -752,6 +749,45 @@ private:
      */
     Cell<Matrix<IdMat>>
     pack_ghost_as_side_set();
+
+
+    // Internal Aura Construction ------------------------------------------------------
+    /*!
+     * Package up the elements in the aura
+     */
+    void
+    package_aura_block(Output_Options              const & aOutputOptions,
+                       Cell<std::string>                 & aAuraChildrenBlockNames,
+                       Cell<moris::Matrix<moris::IdMat>> & aAuraChildrenCellIdsByPhase,
+                       Cell<std::string>                 & aAuraNoChildrenBlockNames,
+                       Cell<moris::Matrix<moris::IdMat>> & aAuraNoChildrenCellIdsByPhase);
+
+    /*
+     * setup the block names
+     */
+    void
+    setup_aura_block_names(Output_Options              const & aOutputOptions,
+                           Cell<std::string>                 & aAuraChildrenBlockNames,
+                           Cell<std::string>                 & aAuraNoChildrenBlockNames);
+
+    /*
+     * place cells into aura blocks
+     */
+    void
+    setup_aura_cells_into_blocks(Output_Options              const & aOutputOptions,
+                                 Cell<std::string>                 & aAuraChildrenBlockNames,
+                                 Cell<moris::Matrix<moris::IdMat>> & aAuraChildrenCellIdsByPhase,
+                                 Cell<std::string>                 & aAuraNoChildrenBlockNames,
+                                 Cell<moris::Matrix<moris::IdMat>> & aAuraNoChildrenCellIdsByPhase);
+
+    moris_index
+    get_aura_block_index(Output_Options const & aOutputOptions,
+                         moris_index            aBulkPhase,
+                         moris_index            aProcessorRank,
+                         moris_index            aNumBulkPhases);
+
+
+
 
     /*
      * Returns the number of phases to output given the output options

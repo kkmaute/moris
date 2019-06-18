@@ -76,7 +76,6 @@ set(HEADERS
     xtk/cl_XTK_Paramfile.hpp
     xtk/cl_XTK_Pending_Node.hpp
     xtk/cl_XTK_Phase_Table.hpp
-    xtk/cl_XTK_Request_Handler.hpp
     xtk/cl_XTK_Sensitivity.hpp
     xtk/cl_XTK_Tetra4_Connectivity.hpp
     xtk/fn_assemble_boundary_subphase_constraint.hpp

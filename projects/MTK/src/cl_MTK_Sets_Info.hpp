@@ -119,6 +119,14 @@ struct MtkSetsInfo
         return BlockSetsInfo(aBlockSetIndex);
     }
 
+    void
+    print()
+    {
+        moris::print(NodeSetsInfo, "Vertex set information");
+        moris::print(SideSetsInfo, "Side set information");
+        moris::print(BlockSetsInfo,"Block set Information");
+    }
+
 
 
 };

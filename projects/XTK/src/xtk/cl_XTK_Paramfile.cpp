@@ -55,6 +55,9 @@ Paramfile::load_xtk_problems()
 
         // parse output file
         this->parse_xtk_problem_output(m);
+
+        // parse stl
+        this->parse_xtk_problem_obj(m);
     }
 
 }
@@ -249,8 +252,45 @@ Paramfile::parse_xtk_problem_operators(moris::uint aProblemIndex)
         MORIS_ERROR(0,"Parsing error: output parameter not recognized: %s",tKey.c_str());
       }
     }
+  }
 
+  void
+  Paramfile::parse_xtk_problem_obj(moris::uint aProblemIndex)
+  {
+      // first stores the keys, second stores the vals
+      Cell< std::string > tFirst;
+      Cell< std::string > tSecond;
 
+      // here I need to be only looking at the first xtk_problem
+      mParser->get_keys_from_subtree( "moris.xtk_problem", "obj", 0, tFirst, tSecond );
+
+      // iterate through keys related to the geometry
+      for( uint k = 0; k < tFirst.size(); k++)
+      {
+          std::string & tKey = tFirst( k );
+
+          std::cout<<"key = "<<tKey<<std::endl;
+
+          if(tKey == "dump_obj")
+          {
+              mXTKProblems(aProblemIndex).mWriteobj = mParser->to_bool(tSecond(k));
+          }
+          else if(tKey == "phase")
+          {
+              mXTKProblems(aProblemIndex).mPhaseForobj = 0;
+          }
+
+          else if(tKey == "obj_file")
+          {
+              std::cout<<"here"<<std::endl;
+              mXTKProblems(aProblemIndex).mobjOutputFile = tSecond(k);
+          }
+
+          else
+          {
+              MORIS_ERROR(0,"Parsing error: obj parameter not recognized: %s",tKey.c_str());
+          }
+      }
   }
 
 }

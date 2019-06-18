@@ -72,15 +72,15 @@ TEST_CASE("Phase Table","[Phase_Table]")
 
         CHECK(tIndex == iR);
     }
-
-#ifdef DEBUG
-    (tRow)(0,0) = 2;
-    CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
-    (tRow)(0,0) = 0;
-    (tRow)(0,1) = 2;
-
-    CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
-#endif
+//
+//#ifdef DEBUG
+//    (tRow)(0,0) = 2;
+//    CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
+//    (tRow)(0,0) = 0;
+//    (tRow)(0,1) = 2;
+//
+//    CHECK_THROWS(tPhaseTable.get_phase_index(tRow));
+//#endif
 
 
     // Check a 3 phase problem

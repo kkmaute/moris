@@ -47,6 +47,7 @@ public:
     Interface_Element():
         mElementId(MORIS_ID_MAX),
         mElementIndex(MORIS_INDEX_MAX),
+        mElementOwner(MORIS_INDEX_MAX),
         mElementPairs(0),
         mElementSideOrdinals(0,0)
     {
@@ -89,6 +90,13 @@ public:
         mElementIndex = aElementIndex;
     }
 
+    void
+    set_element_owner(moris::moris_index aElementOwner)
+    {
+        MORIS_ASSERT(mElementOwner == MORIS_INDEX_MAX,"Owner already set");
+        mElementOwner = aElementOwner;
+    }
+
     moris::moris_id
     get_element_id()
     {
@@ -99,6 +107,12 @@ public:
     get_element_index()
     {
         return mElementIndex;
+    }
+
+    moris::moris_index
+    get_element_owner()
+    {
+        return mElementOwner;
     }
 
     /*
@@ -202,6 +216,7 @@ public:
 private:
     moris::moris_id                      mElementId;
     moris::moris_index                   mElementIndex;
+    moris::moris_index                   mElementOwner;
     moris::Cell<const moris::mtk::Cell*> mElementPairs;
     moris::Matrix<moris::IndexMat>       mElementSideOrdinals;
 

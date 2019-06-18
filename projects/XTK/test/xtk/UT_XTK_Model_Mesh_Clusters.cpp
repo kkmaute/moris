@@ -51,18 +51,11 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             tOutputOptions.mAddNodeSets = true;
             tOutputOptions.mAddSideSets = false;
             tOutputOptions.mAddClusters = true;
-
-//            // Specify there are 2 possible phases
-//            size_t tNumPhases = 2;
-//
-//            // Say I only want to output phase 0 (inside the cylinder)
-//            Cell<size_t> tPhasesToOutput = {0};
-//            // Give this information to the output options
-//            tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
+            tOutputOptions.mAddParallelFields = true;
 
             moris::mtk::Integration_Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
-            std::string tMeshOutputFile = "./xtk_cluster_output.e";
+            std::string tMeshOutputFile = "./xtk_exo/xtk_cluster_output.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
 
             delete tCutMeshData;

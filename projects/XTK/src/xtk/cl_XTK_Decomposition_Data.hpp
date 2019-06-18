@@ -23,6 +23,7 @@ namespace xtk
             tCMNewNodeLoc(0,0),
             tNewNodeIndex(0,0),
             tNewNodeId(0,0),
+            tNewNodeOwner(0,0),
             tNewNodeParentIndex(0,0),
             tNewNodeParentRank(0,EntityRank::INVALID),
             tNewNodeCoordinate(0,Matrix<DDRMat>(0,0)),
@@ -179,6 +180,8 @@ namespace xtk
 
         moris_index
         register_new_request(moris_index             aParentEntityIndex,
+                             moris_index             aParentEntityOwner,
+                             moris::Matrix<IdMat>    aParentEntitySharing,
                              enum EntityRank         aParentEntityRank,
                              Matrix<DDRMat>  const & aNewNodeCoord,
                              Topology *              aParentTopology,
@@ -193,6 +196,8 @@ namespace xtk
             // maximum value here because it is not known
             tNewNodeIndex.push_back(MORIS_INDEX_MAX);
             tNewNodeId.push_back(MORIS_INDEX_MAX);
+            tNewNodeOwner.push_back(aParentEntityOwner);
+            tNewNodeSharing.push_back(aParentEntitySharing);
 
             // add node parent information
             tNewNodeParentIndex.push_back(aParentEntityIndex);
@@ -245,6 +250,8 @@ namespace xtk
         moris_index
         register_new_request(moris_index             aParentEntityIndex,
                              moris_index             aSecondaryIdentifier,
+                             moris_index             aParentEntityOwner,
+                             moris::Matrix<IdMat>    aParentEntitySharing,
                              enum EntityRank         aParentEntityRank,
                              Matrix<DDRMat>  const & aNewNodeCoord,
                              Topology *              aParentTopology,
@@ -258,6 +265,9 @@ namespace xtk
             // maximum value here because it is not known
             tNewNodeIndex.push_back(MORIS_INDEX_MAX);
             tNewNodeId.push_back(MORIS_INDEX_MAX);
+
+            tNewNodeOwner.push_back(aParentEntityOwner);
+            tNewNodeSharing.push_back(aParentEntitySharing);
 
             // add node parent information
             tNewNodeParentIndex.push_back(aParentEntityIndex);
@@ -366,6 +376,14 @@ namespace xtk
 
         // new node ids
         Cell<moris_index>    tNewNodeId;
+
+        // new node owner
+        Cell<moris_index>    tNewNodeOwner;
+        Cell<Matrix<IdMat>>  tNewNodeSharing;
+
+        // hanging nodes between procs
+        Cell<moris_index> tNewNodeHangingFlag;
+        Cell<moris_index> tNewNodeHangingWRTProcRank;
 
         // New node parent topology
         Cell<Topology*>             tNewNodeParentTopology;

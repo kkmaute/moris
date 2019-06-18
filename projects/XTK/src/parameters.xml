@@ -14,6 +14,10 @@
 			<subdivision_method>Hex8 Regular Subdivision</subdivision_method>
 			<subdivision_method>Tet4 Node Hierarchy</subdivision_method>
 		</refine>
+		<stl>
+			<dump_stl>true</dump_stl>
+			<stl_file>./stl_xml.stl</stl_file>
+		</stl>
 		<operators>
 			<compute_sens>false</compute_sens>
 			<unzip>false</unzip>

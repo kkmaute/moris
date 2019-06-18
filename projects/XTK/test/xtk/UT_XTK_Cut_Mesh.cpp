@@ -39,24 +39,6 @@
 
 namespace xtk
 {
-size_t find_edge_in_base_mesh(moris::Matrix< moris::DDSTMat > const & aBaseEdges,
-                              moris::Matrix< moris::DDSTMat > const & aEdgeToFind)
-{
-    size_t tNumEdges = aBaseEdges.n_rows();
-    for(size_t i = 0; i<tNumEdges; i++)
-    {
-        if(aBaseEdges(i,0) == aEdgeToFind(0,0) || aBaseEdges(i,0) == aEdgeToFind(0,1))
-        {
-            if(aBaseEdges(i,1) == aEdgeToFind(0,0) || aBaseEdges(i,1) == aEdgeToFind(0,1))
-            {
-                return i;
-            }
-        }
-    }
-
-    return 10000;
-
-}
 
 TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
     // Functionality tested in this case
@@ -178,19 +160,23 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
     moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
-
+    std::string tBackgroundMeshOutput = "./xtk_exo/volume_check_rs_bm.e";
+    tMeshData->create_output_mesh(tBackgroundMeshOutput);
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    tXTKModel.mVerbose = true;
 
     // Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
     tXTKModel.decompose(tDecompositionMethods);
     moris::real tGoldVolume = 4;
-    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-    std::string tPrefix = std::getenv("MORISOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/volume_check_rs.e";
+
+    xtk::Output_Options tOutputOptions;
+    tOutputOptions.mAddParallelFields = true;
+    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
+    std::string tMeshOutputFile = "./xtk_exo/volume_check_rs.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
 
@@ -227,10 +213,10 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
 TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
 {
    // Geometry Engine Setup -----------------------
-    moris::real tRadius  = 0.5;
+    moris::real tRadius  = 3.1;
     moris::real tXCenter = 1.0;
     moris::real tYCenter = 1.0;
-    moris::real tZCenter = 2.0;
+    moris::real tZCenter = 6.0;
     Sphere tSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
     Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
@@ -243,14 +229,14 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
+    tXTKModel.mVerbose = true;
 
     // Specify your decomposition methods and start cutting
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
     tXTKModel.decompose(tDecompositionMethods);
     moris::real tGoldVolume = 4;
     moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-    std::string tPrefix = std::getenv("MORISOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/volume_check_nh.e";
+    std::string tMeshOutputFile = "./xtk_exo/volume_check_nh.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
     verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),

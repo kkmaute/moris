@@ -22,7 +22,7 @@ namespace moris
 {
 namespace hmr
 {
-    class Database;
+class Database;
 }
 
 namespace mtk
@@ -147,7 +147,6 @@ public:
      *             second row is the shared face ordinal corresponding to the neighbor
      */
 
-    //FIXME: change to pure virtual
     virtual
     Matrix< IndexMat >
     get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const
@@ -168,6 +167,20 @@ public:
     virtual
     Matrix< IndexMat >
     get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const = 0;
+
+
+    /*
+     *  Returns all the vertices, not including the ones in the aura
+     */
+    virtual
+    moris::Cell<moris::mtk::Vertex const *>
+    get_all_vertices_no_aura() const
+    {
+        MORIS_ERROR(0,"No default implementation of get_all_vertices_no_aura");
+
+        return moris::Cell<moris::mtk::Vertex const *>(0,nullptr);
+    }
+
 
     //------------------------------------------------------------------------------
     // end of pure virtual functions in section 2.1
@@ -469,47 +482,6 @@ public:
     }
 
     //------------------------------------------------------------------------------
-    //##############################################
-    // Entity Ownership Functions
-    //##############################################
-
-    /*
-     * Get the entity owner
-     */
-    virtual
-    moris_id
-    get_entity_owner(  moris_index     aEntityIndex,
-                       enum EntityRank aEntityRank ) const
-    {
-        MORIS_ERROR(0," get entity owner has no base implementation");
-        return 0;
-    }
-
-    /*
-     * Processors whom share a given entity
-     * @param[in]  - Entity Index
-     * @param[in]  - Entity Rank
-     * @param[out] - Processors whom share an entity vector
-     */
-    virtual
-    void
-    get_processors_whom_share_entity(moris_index       aEntityIndex,
-                                     enum EntityRank   aEntityRank,
-                                     Matrix< IdMat > & aProcsWhomShareEntity) const
-    {
-        MORIS_ERROR(0," get_processors_whom_share_entity has no base implementation");
-    }
-
-    virtual
-    uint
-    get_num_of_entities_shared_with_processor(moris_id        aProcessorRank,
-                                              enum EntityRank aEntityRank,
-                                              bool aSendFlag) const
-    {
-        MORIS_ERROR(0," get_num_of_entities_shared_with_processor has no base implementation");
-        return 0;
-    }
-
 
     //##############################################
     // Field Access
@@ -644,6 +616,52 @@ public:
 
     //------------------------------------------------------------------------------
 
+    //##############################################
+    // Entity Ownership Functions
+    //##############################################
+
+    /*
+     * Get the entity owner
+     */
+    virtual
+    moris_id
+    get_entity_owner(  moris_index     aEntityIndex,
+                       enum EntityRank aEntityRank ) const
+    {
+        MORIS_ERROR(0," get entity owner has no base implementation");
+        return 0;
+    }
+
+    /*
+     * Processors whom share a given entity
+     * @param[in]  - Entity Index
+     * @param[in]  - Entity Rank
+     * @param[out] - Processors whom share an entity vector
+     */
+    virtual
+    void
+    get_processors_whom_share_entity(moris_index       aEntityIndex,
+                                     enum EntityRank   aEntityRank,
+                                     Matrix< IdMat > & aProcsWhomShareEntity) const
+    {
+        MORIS_ERROR(0," get_processors_whom_share_entity has no base implementation");
+    }
+
+    virtual
+    uint
+    get_num_of_entities_shared_with_processor(moris_id        aProcessorRank,
+                                              enum EntityRank aEntityRank,
+                                              bool aSendFlag) const
+    {
+        MORIS_ERROR(0," get_num_of_entities_shared_with_processor has no base implementation");
+        return 0;
+    }
+
+    //------------------------------------------------------------------------------
+
+    //##############################################
+    // Communication Tables
+    //##############################################
 
     //FIXME: THIS FUNCTION DESCRIPTION NEEDS TO BE IMPROVED
     //FIXME: Also, a unit test (not clear what needs to be provided)
@@ -654,6 +672,22 @@ public:
      */
     virtual Matrix< IdMat >
     get_communication_table() const = 0;
+
+    virtual
+    Matrix< IdMat >
+    get_communication_proc_ranks() const
+    {
+        MORIS_ERROR(0,"get_communication_proc_ranks not implemented");
+        return Matrix< IdMat >(0,0);
+    }
+
+    virtual
+    moris::Cell<Matrix< IdMat >>
+    get_communication_vertex_pairing() const
+    {
+        MORIS_ERROR(0,"get_communication_vertex_pairing not implemented");
+        return moris::Cell<Matrix< IdMat >>(0);
+    }
 
     //------------------------------------------------------------------------------
 
@@ -869,7 +903,7 @@ public:
     {
         MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
         return mDatabase;
-        }
+    }
 
 
     //FIXME: MOVE THESE FUNCTIONS TO INTERPOLATION MESH BASE CLASS
@@ -936,9 +970,9 @@ public:
     virtual
     get_adof_map( const uint aOrder,
                   map< moris_id, moris_index > & aAdofMap ) const
-    {
+                  {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-    }
+                  }
 
     /**
      * return the interpolation order of this field
@@ -952,9 +986,11 @@ public:
         return 0;
     }
 
-//    Matrix< DDRMat > mDummyMatrix;
-
     // fixme: move these functions to integration base class
+
+    /*
+     * Returns all the set names ordered by set index for a provided entity rank
+     */
     virtual
     moris::Cell<std::string>
     get_set_names(enum EntityRank aSetEntityRank) const
@@ -963,6 +999,9 @@ public:
         return moris::Cell<std::string>(0);
     }
 
+    /*
+     * Returns the local indices of the entities in a set. This includes aura entities
+     */
     virtual
     Matrix< IndexMat >
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
@@ -972,6 +1011,9 @@ public:
         return Matrix< IndexMat >(0,0);
                              }
 
+    /*
+     * Returns the mtk cells in a block set. Contains the aura entities
+     */
     virtual
     moris::Cell<mtk::Cell const *>
     get_block_set_cells( std::string     aSetName) const
@@ -988,6 +1030,10 @@ public:
         return tBlockSetCells;
     }
 
+
+    /*
+     * Returns the cell index and side ordinals in a provided side set name
+     */
     virtual
     void
     get_sideset_elems_loc_inds_and_ords(
@@ -998,7 +1044,9 @@ public:
         MORIS_ERROR(0," get_sideset_elems_loc_inds_and_ords has no base implementation");
     }
 
-
+    /*
+     * Returns the mtk cell and side ordinals in a provided side set name
+     */
     virtual
     void
     get_sideset_cells_and_ords(
@@ -1009,7 +1057,7 @@ public:
         moris::Matrix<moris::IndexMat> tElemIndices;
         this->get_sideset_elems_loc_inds_and_ords(aSetName,tElemIndices,aSidesetOrdinals);
 
-       // convert element indices to cell pointers
+        // convert element indices to cell pointers
         moris::uint tNumCellsInSet = tElemIndices.numel();
         aCells = moris::Cell< mtk::Cell const * >(tNumCellsInSet);
 
@@ -1020,6 +1068,9 @@ public:
     }
 
 
+    /*
+     * returns the number of faces in a side set.
+     */
     uint get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const
     {
         moris::uint tNumSideSetFaces = 0;
@@ -1039,6 +1090,17 @@ public:
         }
 
         return tNumSideSetFaces;
+    }
+
+    /*
+     * Returns the vertices in a node set. Does not include the aura.
+     */
+    virtual
+    moris::Cell<moris::mtk::Vertex const *>
+    get_vertices_in_vertex_set_no_aura(std::string aSetName) const
+    {
+        MORIS_ERROR(0,"No default implementation of get_vertices_in_vertex_set");
+        return moris::Cell<moris::mtk::Vertex const *> (0);
     }
 
 

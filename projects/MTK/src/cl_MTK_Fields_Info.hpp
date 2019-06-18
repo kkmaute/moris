@@ -72,6 +72,15 @@ struct MtkFieldsInfo
         mSintMatrixFields.clear();
     }
 
+    void
+    combine_fields_info( MtkFieldsInfo & aOtherFields)
+    {
+        mRealScalarFields.append(aOtherFields.mRealScalarFields);
+        mRealMatrixFields.append(aOtherFields.mRealMatrixFields);
+        mSintScalarFields.append(aOtherFields.mSintScalarFields);
+        mSintMatrixFields.append(aOtherFields.mSintMatrixFields);
+    }
+
 
     moris::Cell<Scalar_Field_Info<DDRMat>*> mRealScalarFields;
     moris::Cell<Matrix_Field_Info<DDRMat>*> mRealMatrixFields;

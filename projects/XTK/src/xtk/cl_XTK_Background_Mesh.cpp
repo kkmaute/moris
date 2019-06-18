@@ -64,6 +64,77 @@ Background_Mesh::get_num_entities_background(enum EntityRank aEntityRank) const
 
 // ----------------------------------------------------------------------------------
 
+moris::moris_index
+Background_Mesh::get_vertex_owner(moris::moris_index aVertexIndex) const
+
+{
+    if(mExternalMeshData.is_external_entity(aVertexIndex,EntityRank::NODE))
+    {
+        return mExternalMeshData.get_external_vertex_owner(aVertexIndex);
+    }
+    else
+    {
+        return mMeshData->get_entity_owner(aVertexIndex,EntityRank::NODE);
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+moris::Matrix<moris::IndexMat>
+Background_Mesh::get_vertices_owner(moris::Matrix<moris::IndexMat> const & aVertexIndices) const
+{
+    moris::uint tNumVerts = aVertexIndices.numel();
+    moris::Matrix<moris::IndexMat> tVertexOwners(1,tNumVerts);
+    for(moris::uint i = 0; i < tNumVerts; i++)
+    {
+        tVertexOwners(i) = this->get_vertex_owner(aVertexIndices(i));
+    }
+
+    return tVertexOwners;
+}
+
+moris::Matrix<moris::IdMat>
+Background_Mesh::get_vertex_sharing(moris::moris_index aVertexIndex) const
+
+{
+
+    if(mExternalMeshData.is_external_entity(aVertexIndex,EntityRank::NODE))
+    {
+        return mExternalMeshData.get_external_vertex_sharing(aVertexIndex);
+    }
+    else
+    {
+        moris::Matrix<moris::IndexMat> tSharedProcs;
+        mMeshData->get_processors_whom_share_entity(aVertexIndex,EntityRank::NODE,tSharedProcs);
+
+        return tSharedProcs;
+    }
+}
+
+moris::Matrix<moris::IdMat>
+Background_Mesh::get_vertices_sharing(moris::Matrix<moris::IndexMat> const & aVertexIndices) const
+{
+    moris::uint tNumVerts = aVertexIndices.numel();
+    moris::Matrix<moris::IdMat> tVerticesSharing(tNumVerts,par_size());
+    tVerticesSharing.fill(MORIS_ID_MAX);
+
+    // iterate through vertices
+    for(moris::uint  i = 0; i <tNumVerts; i++)
+    {
+        moris::Matrix<moris::IdMat> tVertexSharing = this->get_vertex_sharing(aVertexIndices(i));
+
+        if(tVertexSharing.numel() >0)
+        {
+            tVerticesSharing({i,i},{0,tVertexSharing.numel()-1}) = tVertexSharing.matrix_data();
+        }
+    }
+
+    return tVerticesSharing;
+
+}
+
+// ----------------------------------------------------------------------------------
+
 moris::mtk::Vertex &
 Background_Mesh::get_mtk_vertex(moris::moris_index aVertexIndex)
 {
@@ -148,36 +219,15 @@ Background_Mesh::update_first_available_index(moris::size_t         aNewFirstAva
 
 // ----------------------------------------------------------------------------------
 
-//TODO: REMOVE THIS PENDING NODE STUFF WHEN FINISHED WITH DECOMP REFACTOR
 void
-Background_Mesh::batch_create_new_nodes(moris::Cell<xtk::Pending_Node> const & aPendingNodes)
-{
-    mExternalMeshData.batch_create_new_nodes_external_data(aPendingNodes);
-
-    moris::uint tNumNewNodes = aPendingNodes.size();
-
-    // Allocate space in the vertex interpolations
-    mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
-
-    for(moris::uint i = 0; i <tNumNewNodes; i++)
-    {
-        mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aPendingNodes(i).get_node_id(),
-                                                          aPendingNodes(i).get_node_index(),
-                                                          this));
-
-        // add to map
-        MORIS_ASSERT(mVertexGlbToLocalMap.find(aPendingNodes(i).get_node_id()) == mVertexGlbToLocalMap.end(),"Vertex already in map");
-        mVertexGlbToLocalMap[aPendingNodes(i).get_node_id()] = aPendingNodes(i).get_node_index();
-    }
-}
-
-void
-Background_Mesh::batch_create_new_nodes(Cell<moris_index> const & aNewNodeIds,
-                                        Cell<moris_index> const & aNewNodeIndices,
+Background_Mesh::batch_create_new_nodes(Cell<moris_index>                    const & aNewNodeIds,
+                                        Cell<moris_index>                    const & aNewNodeIndices,
+                                        Cell<moris_index>                    const & aNewNodeOwningProc,
+                                        Cell<moris::Matrix< moris::IdMat  >> const & aNewNodeProcSharing,
                                         Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
 {
     // Batch create the new copied nodes in the mesh external data
-    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,aNewNodeCoordinates);
+    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,aNewNodeOwningProc,aNewNodeProcSharing,aNewNodeCoordinates);
 
     moris::uint tNumNewNodes = aNewNodeIds.size();
 
@@ -205,8 +255,19 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
     // Collect node coordinates of nodes being copied
     moris::Matrix< moris::DDRMat > tNewNodeCoords = this->get_selected_node_coordinates_loc_inds(aExistingNodeIndices);
 
+    // get owners of existing nodes
+    moris::Matrix<moris::IndexMat> tOwningProcs(aExistingNodeIndices.numel(),1);
+
+    moris::Cell<moris::Matrix<moris::IdMat>> tProcSharing(aExistingNodeIndices.numel());
+
+    for(moris::uint i = 0; i < aExistingNodeIndices.numel(); i++)
+    {
+        tOwningProcs(i) = this->get_vertex_owner(aExistingNodeIndices(i));
+        tProcSharing(i) = this->get_vertex_sharing(aExistingNodeIndices(i));
+    }
+
     // Batch create the new copied nodes in the mesh external data
-    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,tNewNodeCoords);
+    mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,tOwningProcs,tProcSharing,tNewNodeCoords);
 
     moris::uint tNumNewNodes = aNewNodeIds.numel();
 
@@ -427,20 +488,22 @@ moris::Matrix< moris::IdMat >
 Background_Mesh::get_local_to_global_map(enum EntityRank aEntityRank) const
 {
     MORIS_ERROR(aEntityRank==EntityRank::NODE," This function is only implemented for node maps");
-    size_t tNumNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
+
+    moris::Cell<moris::mtk::Vertex const *> tBackgroundVerts = mMeshData->get_all_vertices_no_aura();
+
+    moris::uint tNumNodes = tBackgroundVerts.size();
 
     moris::Matrix<moris::IndexMat> tLocalToGlobalBM(1,tNumNodes);
 
     for(size_t i = 0; i<tNumNodes; i++)
     {
-        tLocalToGlobalBM(i) = (moris::size_t)mMeshData->get_glb_entity_id_from_entity_loc_index((moris_index)i,moris::EntityRank::NODE);
+        tLocalToGlobalBM(i) = tBackgroundVerts(i)->get_id();
     }
 
     moris::Matrix<moris::IndexMat> const & tLocalToGlobalExt = mExternalMeshData.get_local_to_global_node_map();
 
-
-    tNumNodes = this->get_num_entities(EntityRank::NODE);
-    size_t tFirstExtNodeInd = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
+    tNumNodes = tLocalToGlobalBM.numel() + tLocalToGlobalExt.numel();
+    size_t tFirstExtNodeInd = tLocalToGlobalBM.numel();
     MORIS_ERROR(tNumNodes = tLocalToGlobalBM.numel() + tLocalToGlobalExt.numel(),"Number of nodes returned does not match the number in the map");
 
     // combine the two maps
@@ -507,8 +570,8 @@ Background_Mesh::get_full_non_intersected_node_to_element_glob_ids() const
 Cell<moris::Matrix<moris::IdMat>>
 Background_Mesh::get_non_intersected_element_to_node_by_phase(moris::uint aNumPhases)
 {
-    moris::size_t tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
-    enum CellTopology tElemTopo = get_XTK_mesh_element_topology();
+    moris::size_t tNumElementsBG  = this->get_num_entities(EntityRank::ELEMENT);
+    enum CellTopology tElemTopo   = this->get_XTK_mesh_element_topology();
 
     moris::size_t tNumNodesPerElem = 0;
     if(tElemTopo == CellTopology::TET4)
@@ -787,7 +850,7 @@ Background_Mesh::get_interface_nodes_glob_ids(moris::moris_index aGeometryIndex)
 
     for(moris::size_t i = 0; i<tNumNodes; i++)
     {
-        if(is_interface_node(i,aGeometryIndex))
+        if(is_interface_node(i,aGeometryIndex) )
         {
             tInterfaceNodes(0,tCount) = get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
             tCount++;
@@ -796,6 +859,34 @@ Background_Mesh::get_interface_nodes_glob_ids(moris::moris_index aGeometryIndex)
 
     tInterfaceNodes.resize(1,tCount);
     return tInterfaceNodes;
+}
+
+// ----------------------------------------------------------------------------------
+
+moris::Matrix< moris::IndexMat >
+Background_Mesh::restrict_vertex_list_to_owned_by_this_proc_loc_inds(moris::Matrix< moris::IndexMat > const & aNodeIndexList) const
+{
+    // proc rank
+    moris_index tMyProcRank = par_rank();
+
+    //  initialize list of owned nodes
+    moris::Matrix< moris::IndexMat > tOwnedNodeList(aNodeIndexList.numel(),1);
+
+    // keep track of owned nodes
+    moris::uint tCount = 0;
+
+    for(moris::uint i = 0; i <aNodeIndexList.numel(); i++)
+    {
+        if(this->get_vertex_owner(i) == tMyProcRank)
+        {
+            tOwnedNodeList(tCount) = aNodeIndexList(i);
+        }
+    }
+
+    // size out extra space
+    tOwnedNodeList.resize(tCount,1);
+
+    return tOwnedNodeList;
 }
 
 // ----------------------------------------------------------------------------------
@@ -892,11 +983,13 @@ Background_Mesh::get_loc_entity_ind_from_entity_glb_id(moris_id        aEntityId
 void
 Background_Mesh::add_child_element_to_mtk_cells(moris::moris_index aElementIndex,
                                                 moris::moris_index aElementId,
+                                                moris::moris_index aElementOwner,
                                                 moris::moris_index aCMElementIndex,
                                                 Child_Mesh*        aChildMeshPtr)
 {
     mChildMtkCells.push_back(moris::mtk::Cell_XTK(aElementId,
                                                   aElementIndex,
+                                                  aElementOwner,
                                                   aCMElementIndex,
                                                   aChildMeshPtr,
                                                   this));

@@ -391,8 +391,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // iterate through block sets
     for(moris::uint i = 0;  i < aSideSetNames.size(); i++)
     {
-        std::cout<<"aSideSetNames = "<<aSideSetNames(i)<<std::endl;
-
         // get the cells and side ordinals from the mesh for this side set
         moris::Cell< mtk::Cell const * > tCellsInSet(0);
         moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);

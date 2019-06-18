@@ -193,6 +193,10 @@ public:
     Matrix< IndexMat >
     get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
 
+    moris::Cell<moris::mtk::Vertex const *>
+    get_all_vertices_no_aura() const;
+
+
     Matrix< IndexMat >
     get_elements_in_support_of_basis(moris_index aBasisIndex)
     {
@@ -309,6 +313,10 @@ public:
             Matrix< IndexMat > &       aSidesetOrdinals ) const;
 
 
+    moris::Cell<moris::mtk::Vertex const *>
+    get_vertices_in_vertex_set_no_aura(std::string aSetName) const;
+
+
 
     //##############################################
     // Field Access
@@ -404,6 +412,19 @@ public:
         return mSTKMeshData->mEntityLocaltoGlobalMap(0);
     }
 
+    Matrix< IdMat >
+    get_communication_proc_ranks() const
+    {
+        return mSTKMeshData->mProcsWithSharedVertex;
+    }
+
+    moris::Cell<Matrix< IdMat >>
+    get_communication_vertex_pairing() const
+    {
+        return mSTKMeshData->mVertexSharingData;
+    }
+
+
     //##############################################
     //  Output Mesh To a File
     //##############################################
@@ -446,6 +467,32 @@ public:
      */
     void
     create_communication_lists_and_local_to_global_map(enum EntityRank aEntityRank);
+
+    /*
+     * Constructs vertex pairs across processors
+     */
+    void
+    setup_parallel_vertex_pairing();
+
+    /*
+     * Constructs cell sharing across processors
+     */
+    void
+    setup_parallel_cell_sharing();
+
+    /*
+     * Resolves issues with sharing of aura entities
+     */
+    moris::Cell<Matrix<IdMat>>
+    resolve_aura_cell_sharing();
+
+    void
+    setup_parallel_cell_sharing_without_aura_resolved();
+
+    void
+    setup_parallel_cell_sharing_with_resolved_aura( moris::Cell<Matrix<IdMat>> const & aAuraCellSharing);
+
+
     //------------------------------------------------------------------------------
 
     /*
@@ -680,6 +727,9 @@ public:
 
     //------------------------------------------------------------------------------
 
+    void
+    process_nodes(MtkMeshData &  aMeshData);
+
     /*
      * Returns
      * @param[in]  aMeshData
@@ -761,18 +811,6 @@ public:
     void
     populate_mesh_database_serial(
             moris::uint  aElementTypeInd,
-            MtkMeshData                            aMeshData,
-            std::vector< stk::mesh::PartVector >   aElemParts,
-            Matrix< IdMat >                       aOwnerPartInds);
-    //------------------------------------------------------------------------------
-    /*
-     * Returns
-     * @param[in]  aStkElemConn
-     * @param[in]  aElemParts
-     * @param[in]  aMeshData
-     */
-    void
-    populate_mesh_database_parallel(
             MtkMeshData                            aMeshData,
             std::vector< stk::mesh::PartVector >   aElemParts,
             Matrix< IdMat >                       aOwnerPartInds);

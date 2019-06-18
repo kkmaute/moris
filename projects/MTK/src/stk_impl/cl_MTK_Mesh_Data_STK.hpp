@@ -129,17 +129,18 @@ public:
     // TODO: ADD edge sets (not sure why these were neglected in previous implementation
     std::vector < std::vector < std::string > > mSetNames;  // User-defined names for node [0], side [1], and block [2] sets.
 
-    // Entity processor shared. Note: Elements are owned by current processor
-    moris::Cell < moris::Cell < uint > > mElemMapToSharingProcs;   // node map to sharing procs
-    moris::Cell < moris::Cell < uint > > mNodeMapToSharingProcs;   // node map to sharing procs
-    moris::Cell < moris::Cell < uint > > mEdgeMapToSharingProcs;   // edge map to sharing procs
-    moris::Cell < moris::Cell < uint > > mFaceMapToSharingProcs;   // face map to sharing procs
-
     std::map < uint, uint > mProcsSharedToIndex;
 
     // Fields to Declare on Output (note this is needed for supplementary fields
     // provided when mesh is loaded from a file only
     moris::Cell<Field1CompReal*> mRealNodeScalarFieldsToAddToOutput;
+
+    // Shared Vertex Information
+    std::unordered_map<moris_index,moris_index> mVertexSharingProcsMap; // maps between processor rank and location in cell of mVertexSharingData
+    moris::Matrix<moris::IdMat> mProcsWithSharedVertex;
+    moris::Cell<moris::Matrix<moris::IdMat>> mVertexSharingData; // for a processor (single cell in vector) , Vertex Ids and the vertex index on the other processor. Sorted by vertex ids ascending order
+    moris::Cell<moris::Matrix<moris::IdMat>> mCellSharingData;
+
 
 };
 }

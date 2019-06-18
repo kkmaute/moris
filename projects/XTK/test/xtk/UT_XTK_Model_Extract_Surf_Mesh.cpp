@@ -25,7 +25,7 @@ TEST_CASE("Extract a surface mesh from XTK","[Extract_Surf]")
             Geometry_Engine tGeometryEngine(tGyroid,tPhaseTable);
 
             // Create Mesh --------------------------------------------------------------------
-            std::string tMeshFileName = "generated:20x20x20|sideset:xXyYzZ";
+            std::string tMeshFileName = "generated:4x4x4|sideset:xXyYzZ";
             moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
 
             // Setup XTK Model ----------------------------------------------------------------

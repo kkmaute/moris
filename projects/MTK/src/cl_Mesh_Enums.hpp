@@ -35,6 +35,26 @@ enum class CellTopology
     END_ENUM
 };
 
+inline
+const std::string get_enum_str(enum CellTopology aCellTopoEnum)
+{
+    switch (aCellTopoEnum)
+    {
+
+        case CellTopology::TRI3: return "TRI3";
+        case CellTopology::QUAD4: return "QUAD4";
+        case CellTopology::TET4:  return "TET4";
+        case CellTopology::TET10: return "TET10";
+        case CellTopology::HEX8: return "HEX8";
+        case CellTopology::PRISM6: return "PRISM6";
+        case CellTopology::INVALID: return "INVALID";
+        case CellTopology::END_ENUM: return "END_ENUM";
+       default: return "invalid cell topology enum provided";
+    }
+}
+
+
+
 namespace moris
 {
     enum class EntityRank

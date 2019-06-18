@@ -1355,9 +1355,17 @@ namespace moris
 
             if(tSpatialDim == 2)
             {
+                std::cout<<"Spatial dim =     "<<this->get_spatial_dim()<<std::endl;
+                std::cout<<"Number of nodes = "<<this->get_num_entities(EntityRank::NODE)<<std::endl;
+                std::cout<<"Number of edges = "<<this->get_num_entities(EntityRank::EDGE)<<std::endl;
+                std::cout<<"Number of faces = "<<this->get_num_entities(EntityRank::FACE)<<std::endl;
+                std::cout<<"Number of elems = "<<this->get_num_entities(EntityRank::ELEMENT)<<std::endl;
+
                 setup_entity_global_to_local_map(EntityRank::NODE);
                 setup_entity_global_to_local_map(EntityRank::EDGE);
                 setup_entity_global_to_local_map(EntityRank::FACE);
+                setup_entity_global_to_local_map(EntityRank::ELEMENT);
+
             }
 
             else if(tSpatialDim == 3)
@@ -1375,10 +1383,11 @@ namespace moris
         {
             uint tNumEntities = this->get_num_entities(aEntityRank);
             moris_id tCount = 0;
+
             for(uint i = 0; i<tNumEntities; i++)
             {
                 moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
-
+//                std::cout<<"tEntityId = "<< tEntityId<<" i = "<<i<<"  Rank = "<<(uint)aEntityRank <<std::endl;
                 MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");
 
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;

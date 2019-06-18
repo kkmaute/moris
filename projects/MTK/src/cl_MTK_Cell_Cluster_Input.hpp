@@ -12,6 +12,8 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include <unordered_map>
+#include <iomanip>      // std::setw
+
 namespace moris
 {
 
@@ -107,6 +109,42 @@ struct Cell_Cluster_Input
         return mLocalCoordsRelativeToInterpCell(aClusterIndex);
     }
 
+    void
+    print()
+    {
+        std::cout<<std::left<<std::setw(10)<<"Interpolation Cells with Cluster Information\n";
+        for(moris::uint i = 0; i < mInterpolationCells.size(); i++)
+        {
+            std::cout<<std::left<<"Interpolation Cell Id: "<<std::setw(6)<< mInterpolationCells(i)->get_id()<<std::endl;
+
+            // print primary information
+            std::cout<<std::left<<"     Primary Integration Cell Ids: ";
+            for(moris::uint j = 0; j < mPrimaryCellIds(i)->numel(); j++)
+            {
+                std::cout<<std::right<<std::setw(6)<<(*mPrimaryCellIds(i))(j)<< " ";
+            }
+
+            // print void information
+            std::cout<<std::left<<"\n     Void Integration Cell Ids:    ";
+            for(moris::uint j = 0; j < mVoidCellsIds(i)->numel(); j++)
+            {
+                std::cout<<std::right<<std::setw(6)<<(*mVoidCellsIds(i))(j)<< " ";
+            }
+
+            std::cout<<"\n      Vertex Parametric Coordinates:"<< std::endl;
+            for(moris::uint k = 0; k < mLocalCoordsRelativeToInterpCell(i)->n_rows(); k++)
+            {
+                std::cout<<"            Vert Id: "<<std::right<<std::setw(5)<<(*mVerticesIdsInCluster(i))(k)<<" | ";
+                for(moris::uint j = 0; j < mLocalCoordsRelativeToInterpCell(i)->n_cols(); j++)
+                {
+                    std::cout<<std::scientific<<std::right<<std::setw(14)<<(*mLocalCoordsRelativeToInterpCell(i))(k,j)<< "   ";
+                }
+                std::cout<<std::endl;
+            }
+        }
+
+    }
+
 
 private:
     moris::Cell<mtk::Cell*>               mInterpolationCells;
@@ -116,6 +154,7 @@ private:
     moris::Cell<moris::Matrix<DDRMat> const *>   mLocalCoordsRelativeToInterpCell;
 
     std::unordered_map<moris_index, moris_index> mInterpCellIndexToIndex;
+
 
 
 };

@@ -13,6 +13,7 @@
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Tools.hpp"
 
 #include "cl_Communication_Tools.hpp" // COM/src
 
@@ -289,10 +290,12 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
         REQUIRE(moris::equal_to(tBlockIndices1(0,0),0));
         REQUIRE(moris::equal_to(tBlockIndices2(0,0),1));
 
-        REQUIRE(moris::equal_to(tNodeSetIndices1(0,0),0));
-        REQUIRE(moris::equal_to(tNodeSetIndices1(1,0),2));
-        REQUIRE(moris::equal_to(tNodeSetIndices1(2,0),4));
-        REQUIRE(moris::equal_to(tNodeSetIndices1(3,0),5));
+
+        Matrix< IdMat > tNodeSetIds1 = moris::mtk::convert_entity_indices_to_ids(tNodeSetIndices1,EntityRank::NODE,tMesh);
+        REQUIRE(moris::equal_to(tNodeSetIds1(0),tNodeIdsNS1(0)));
+        REQUIRE(moris::equal_to(tNodeSetIds1(1),tNodeIdsNS1(1)));
+        REQUIRE(moris::equal_to(tNodeSetIds1(2),tNodeIdsNS1(2)));
+        REQUIRE(moris::equal_to(tNodeSetIds1(3),tNodeIdsNS1(3)));
 //
 //        REQUIRE(moris::equal_to(tNodesInNodeSet1(0,0),1));
 //        REQUIRE(moris::equal_to(tNodesInNodeSet1(1,0),3));

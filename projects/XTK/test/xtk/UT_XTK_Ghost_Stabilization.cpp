@@ -35,7 +35,7 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
     Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
     // Create Mesh ---------------------------------
-    std::string tMeshFileName = "generated:1x2x4|sideset:z";
+    std::string tMeshFileName = "generated:1x1x8|sideset:z";
     moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
 
     std::string tPrefix = std::getenv("MORISOUTPUT");

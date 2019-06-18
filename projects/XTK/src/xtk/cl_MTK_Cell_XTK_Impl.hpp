@@ -48,6 +48,7 @@ namespace moris
 
             Cell_XTK(moris::moris_id       aElementId,
                      moris::moris_index    aElementIndex,
+                     moris::moris_index    aElementOwner,
                      moris::moris_index    aCMElementIndex,
                      xtk::Child_Mesh*      aChildMeshPtr,
                      xtk::Background_Mesh* aBackgroundMeshPtr);
@@ -104,8 +105,7 @@ namespace moris
             moris_id
             get_owner() const
             {
-                MORIS_ERROR(0, "get_owner not implemented in XTK Cell");
-                return 0;
+                return mElementOwner;
             }
 
 //------------------------------------------------------------------------------
@@ -193,7 +193,9 @@ namespace moris
         private:
             moris::moris_id       mElementId;
             moris::moris_index    mElementIndex;
+            moris::moris_index    mElementOwner;
             moris::moris_index    mCMElementIndex;    /* Needed to access connectivity (verts) */
+
             xtk::Child_Mesh*      mChildMeshPtr;      /* Needed to access connectivity (verts) */
             xtk::Background_Mesh* mBackgroundMeshPtr; /* Needed to access coordinates */
 

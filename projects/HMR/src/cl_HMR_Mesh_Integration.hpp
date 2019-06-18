@@ -353,7 +353,7 @@ private:
         }
         else if(this->get_spatial_dim() == 2)
         {
-            return EntityRank::FACE;
+            return EntityRank::ELEMENT;
         }
         else if (this->get_spatial_dim() == 3)
         {

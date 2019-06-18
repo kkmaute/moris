@@ -136,10 +136,10 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
      */
     tXTKModel.decompose(tDecompositionMethods);
 
-    tXTKModel.unzip_interface();
+//    tXTKModel.unzip_interface();
 
     // Perform the enrichment
-    tXTKModel.perform_basis_enrichment();
+//    tXTKModel.perform_basis_enrichment();
 
     moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 

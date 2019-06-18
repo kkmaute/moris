@@ -22,6 +22,7 @@
 
 // XTKL: Mesh includes
 #include "cl_Mesh_Enums.hpp" // For entity rank
+#include "cl_MTK_Mesh.hpp"
 
 // XTKL: Xtk includes
 #include "cl_XTK_Child_Mesh.hpp"
@@ -285,10 +286,21 @@ public:
     {
         moris::Matrix<moris::IdMat> tInterfaceElementIds(1,mInterfaceElements.size());
 
+        moris::moris_index tMyProcRank = par_rank();
+
+        moris::uint tCount = 0;
+
         for(moris::uint i = 0; i <mInterfaceElements.size(); i++)
         {
-            tInterfaceElementIds(i) = mInterfaceElements(i).get_element_id();
+            if(mInterfaceElements(i).get_element_owner() == tMyProcRank)
+            {
+                tInterfaceElementIds(i) = mInterfaceElements(i).get_element_id();
+                tCount++;
+            }
         }
+
+        tInterfaceElementIds.resize(1,tCount);
+
 
         return tInterfaceElementIds;
     }
@@ -307,11 +319,21 @@ public:
 
         moris::Matrix<moris::IndexMat> tInterfaceElemToNode(tNumInterfaceElements,tNumNodesPerElement);
 
+        moris::moris_index tMyProcRank = par_rank();
+
+        moris::uint tCount = 0;
+
         for(moris::uint iInt =0; iInt < tNumInterfaceElements; iInt++)
         {
-            tInterfaceElemToNode.get_row(iInt) = mInterfaceElements(iInt).extract_as_standard_element_loc_inds().get_row(0);
+
+            if(mInterfaceElements(iInt).get_element_owner() == tMyProcRank)
+            {
+                tInterfaceElemToNode.get_row(iInt) = mInterfaceElements(iInt).extract_as_standard_element_loc_inds().get_row(0);
+                tCount++;
+            }
         }
 
+        tInterfaceElemToNode.resize(tCount,tNumNodesPerElement);
 
         return tInterfaceElemToNode;
 
@@ -429,7 +451,8 @@ public:
      * Get element Ids in the cut mesh of a given id
      */
     Cell<moris::Matrix< moris::IdMat >>
-    get_child_elements_by_phase(uint aNumPhases)
+    get_child_elements_by_phase(uint aNumPhases,
+                                moris::mtk::Mesh const & aBackgroundMeshData)
     {
         moris::size_t tNumElems = this->get_num_entities(EntityRank::ELEMENT);
 
@@ -444,6 +467,7 @@ public:
         for(moris::size_t iCM = 0; iCM<this->get_num_child_meshes(); iCM++)
         {
             Child_Mesh const & tCM = get_child_mesh(iCM);
+
             moris::Matrix< moris::IdMat >    const & tCMIds     = tCM.get_element_ids();
             moris::Matrix< moris::IndexMat > const & tElemPhase = tCM.get_element_phase_indices();
             for(moris::size_t iE = 0; iE<tCMIds.numel(); iE++)
@@ -660,10 +684,12 @@ public:
      * Get full element to node glob ids by phase
      */
     moris::Cell<moris::Matrix<moris::IdMat>>
-    get_full_element_to_node_by_phase_glob_ids(moris::uint aNumPhases)
+    get_full_element_to_node_by_phase_glob_ids(moris::uint aNumPhases,
+                                               moris::mtk::Mesh & aBackgroundMeshData)
     {
         enum CellTopology tChildElementTopo = this->get_child_element_topology();
         moris::size_t     tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+
         moris::size_t tNumNodesPerElem = 0;
         if(tChildElementTopo == CellTopology::TET4)
         {
@@ -679,14 +705,13 @@ public:
 
         for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
         {
-           moris::Matrix< moris::IdMat >  tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
-           moris::Matrix<moris::IndexMat> tElementPhase       = mChildrenMeshes(i).get_element_phase_indices();
-           for(moris::size_t j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
-           {
-               tElementToNodeIdsByPhase(tElementPhase(j)).set_row(tCount(tElementPhase(j)), tElementToNodeIdsCM.get_row(j));
-               tCount(tElementPhase(j))++;
-           }
-
+            moris::Matrix< moris::IdMat >  tElementToNodeIdsCM = mChildrenMeshes(i).get_element_to_node_global();
+            moris::Matrix<moris::IndexMat> tElementPhase       = mChildrenMeshes(i).get_element_phase_indices();
+            for(moris::size_t j = 0; j<tElementToNodeIdsCM.n_rows(); j++)
+            {
+                tElementToNodeIdsByPhase(tElementPhase(j)).set_row(tCount(tElementPhase(j)), tElementToNodeIdsCM.get_row(j));
+                tCount(tElementPhase(j))++;
+            }
         }
 
         // size out extra space
