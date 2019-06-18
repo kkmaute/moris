@@ -57,9 +57,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void IWG_L2::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                      Matrix< DDRMat >      & aResidual,
-                                                Cell< Field_Interpolator* > & aFieldInterpolators )
+    void IWG_L2::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                Matrix< DDRMat >                   & aResidual,
+                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators )
     {
         // call the right mComputeFunction for residual and jacobian evaluations
         ( this->*mComputeFunction )( aJacobians,
@@ -69,9 +69,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_and_residual_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                  Matrix< DDRMat >            & aResidual,
-                                                                  Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian_and_residual_without_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                  Matrix< DDRMat >                   & aResidual,
+                                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
@@ -90,9 +90,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_and_residual_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                               Matrix< DDRMat >            & aResidual,
-                                                               Cell< Field_Interpolator* > & aFieldInterpolators)
+        void IWG_L2::compute_jacobian_and_residual_with_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                               Matrix< DDRMat >                   & aResidual,
+                                                               moris::Cell< Field_Interpolator* > & aFieldInterpolators)
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
@@ -141,8 +141,8 @@ namespace moris
 //        }
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                       Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                       moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // call the right mComputeJacFunction for jacobian evaluation
             ( this->*mComputeJacFunction )( aJacobians,
@@ -151,8 +151,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_without_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                     Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian_without_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
@@ -166,8 +166,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_with_alpha( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                  Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian_with_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
@@ -181,8 +181,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_residual( Matrix< DDRMat >            & aResidual,
-                                       Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_residual( Matrix< DDRMat >                   & aResidual,
+                                       moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // call the right mComputeResFunction for residual evaluation
             ( this->*mComputeResFunction )( aResidual,
@@ -191,8 +191,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_residual_without_alpha( Matrix< DDRMat >            & aResidual,
-                                                     Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_residual_without_alpha( Matrix< DDRMat >                   & aResidual,
+                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );
@@ -205,8 +205,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_residual_with_alpha( Matrix< DDRMat >            & aResidual,
-                                                  Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_residual_with_alpha( Matrix< DDRMat >                   & aResidual,
+                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tFI = aFieldInterpolators( 0 );

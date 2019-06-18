@@ -10,11 +10,14 @@
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
+
+#include "cl_MTK_Cluster.hpp"
+
 namespace moris
 {
 namespace mtk
 {
-class Cell_Cluster
+class Cell_Cluster : public Cluster
 {
 public:
     Cell_Cluster(){};
@@ -24,7 +27,7 @@ public:
     //##############################################
     virtual
     bool
-    is_trivial() const = 0;
+    is_trivial( const moris::uint aSide = 0 ) const = 0;
 
 
 
@@ -35,7 +38,7 @@ public:
 
     virtual
     moris::Cell<moris::mtk::Cell const *> const &
-    get_primary_cells_in_cluster() const = 0;
+    get_primary_cells_in_cluster( const moris::uint aSide = 0 ) const = 0;
 
     virtual
     moris::Cell<moris::mtk::Cell const *> const &
@@ -43,11 +46,11 @@ public:
 
     virtual
     moris::mtk::Cell const &
-    get_interpolation_cell() const = 0;
+    get_interpolation_cell( const moris::uint aSide = 0 ) const = 0;
 
     virtual
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster() const = 0;
+    get_vertices_in_cluster( const moris::uint aSide = 0) const = 0;
 
     //##############################################
     // Local Coordinate Access
@@ -55,14 +58,15 @@ public:
     //##############################################
     virtual
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell() const = 0;
+    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide = 0 ) const = 0;
 
     /*
      * Access a single local coordinate of a vertex
      */
     virtual
     moris::Matrix<moris::DDRMat>
-    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const  = 0;
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
+                                                 const moris::uint aSide = 0) const  = 0;
 
     //##############################################
     // Size Access
@@ -73,7 +77,7 @@ public:
      */
     virtual
     moris_index
-    get_dim_of_param_coord() const  = 0;
+    get_dim_of_param_coord( const moris::uint aSide = 0 ) const  = 0;
 
     // ---------------------------------------------
     // EVERYTHING BELOW THIS LINE HAS A DEFAULT
@@ -139,7 +143,7 @@ public:
 
     virtual
     moris::Matrix<moris::IndexMat>
-    get_vertex_indices_in_cluster() const
+    get_vertex_indices_in_cluster( const moris::uint aSide = 0 ) const
     {
         MORIS_ERROR(!this->is_trivial(),"get_vertex_indices_in_cluster on trivial cluster is not allowed");
 

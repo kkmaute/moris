@@ -46,7 +46,7 @@ public:
 
     //----------------------------------------------------------------
     bool
-    is_trivial() const;
+    is_trivial( const moris::uint aSide = 0) const;
 
     //##############################################
     // Add and setup of cluster
@@ -90,7 +90,7 @@ public:
     //##############################################
 
     moris::Cell<moris::mtk::Cell const *> const &
-    get_primary_cells_in_cluster() const;
+    get_primary_cells_in_cluster( const moris::uint aSide = 0) const;
 
     //----------------------------------------------------------------
 
@@ -100,27 +100,28 @@ public:
     //----------------------------------------------------------------
 
     moris::mtk::Cell const &
-    get_interpolation_cell() const;
+    get_interpolation_cell( const moris::uint aSide = 0) const;
 
     //----------------------------------------------------------------
 
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster() const;
+    get_vertices_in_cluster( const moris::uint aSide = 0) const;
 
     //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell() const;
+    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide = 0) const;
 
     //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat>
-    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
+                                                 const moris::uint aSide = 0) const;
 
     //----------------------------------------------------------------
 
     moris_index
-    get_dim_of_param_coord() const;
+    get_dim_of_param_coord( const moris::uint aSide = 0) const;
 
     //----------------------------------------------------------------
     //##############################################

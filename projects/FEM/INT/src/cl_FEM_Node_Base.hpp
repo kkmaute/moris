@@ -5,8 +5,8 @@
  *      Author: schmidt
  */
 
-#ifndef PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_BASE_HPP_
-#define PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_BASE_HPP_
+#ifndef PROJECTS_FEM_SRC_CL_FEM_NODE_BASE_HPP_
+#define PROJECTS_FEM_SRC_CL_FEM_NODE_BASE_HPP_
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -18,6 +18,12 @@ namespace moris
     {
         class Node_Base
         {
+        private:
+            moris_index mNodeIndex;
+            moris_index mNodeId;
+
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
         public:
@@ -38,7 +44,7 @@ namespace moris
             virtual const Matrix< DDRMat > *
             get_t_matrix(  const uint aOrder ) const
             {
-                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_t_matrix()" );
+                MORIS_ERROR( false, "Entered virtual function Node_Base::get_t_matrix()" );
                 return nullptr;
             }
 
@@ -47,7 +53,7 @@ namespace moris
             virtual Matrix< IdMat >
             get_adof_ids( const uint aOrder ) const
             {
-                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_adof_ids()" );
+                MORIS_ERROR( false, "Entered virtual function Node_Base::get_adof_ids()" );
                 return  Matrix< IdMat >(0,0);
             }
 
@@ -56,7 +62,7 @@ namespace moris
             virtual Matrix< IndexMat >
             get_adof_indices(  const uint aOrder ) const
             {
-                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_adof_indices()" );
+                MORIS_ERROR( false, "Entered virtual function Node_Base::get_adof_indices()" );
                 return  Matrix< IndexMat >(0,0);
             }
 
@@ -69,7 +75,7 @@ namespace moris
             virtual Matrix< IdMat >
             get_adof_owners(  const uint aOrder ) const
             {
-                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_adof_owners()" );
+                MORIS_ERROR( false, "Entered virtual function Node_Base::get_adof_owners()" );
                 return  Matrix< IdMat >(0,0);
             }
 
@@ -78,13 +84,12 @@ namespace moris
             /**
              * get the ID of this node
              *
-             * @param[ in ] aID  id for this node
              */
 
             virtual moris_id
             get_id() const
             {
-                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_id()" );
+                MORIS_ERROR( false, "Entered virtual function Node_Base::get_id()" );
                 return gNoID;
             }
 
@@ -93,14 +98,56 @@ namespace moris
             /**
              * get the ID of this node
              *
-             * @param[ in ] aID  id for this node
              */
 
             virtual moris_index
             get_index() const
             {
-                MORIS_ERROR( false, "Enterd virtual function Node_Base::get_index()" );
+                MORIS_ERROR( false, "Entered virtual function Node_Base::get_index()" );
                 return gNoIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set the ID of this node
+             *
+             * @param[ in ] aID  id for this node
+             */
+
+            void
+            set_id( const moris_id aId )
+            {
+                mNodeId = aId;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set the index of this node
+             *
+             * @param[ in ] aIndex  id for this node
+             */
+
+            void
+            set_index( const moris_id aIndex )
+            {
+                mNodeIndex = aIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set the index of this node
+             *
+             * @param[ in ] aIndex  id for this node
+             */
+
+            virtual bool
+            id_owned(  )
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::id_owned()" );
+                return false;
             }
 
 //------------------------------------------------------------------------------
@@ -111,4 +158,4 @@ namespace moris
 
 
 
-#endif /* PROJECTS_FEM_MSI_SRC_CL_MSI_NODE_BASE_HPP_ */
+#endif /* PROJECTS_FEM_SRC_CL_FEM_NODE_BASE_HPP_ */

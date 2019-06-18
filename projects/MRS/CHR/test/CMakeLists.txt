@@ -19,9 +19,10 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
+	test-libs
+	${CHR}-lib
     ${MORIS_BASE_LIBS}
-    ${MORIS_BOOST_LIBS})
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order

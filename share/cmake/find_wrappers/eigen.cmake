@@ -21,11 +21,17 @@ if(NOT EIGEN_FOUND_ONCE)
     
     set(MORIS_EIGEN_INCLUDE_DIRS "${EIGEN3_ROOT_DIR}/include"
         CACHE PATH "Eigen include directories." )
-    set(MORIS_EIGEN_TARGETS "${EIGEN3_ROOT_DIR}/share/Eigen3Targets.cmake"
-        CACHE PATH "Eigen targets file.")
+    set(MORIS_EIGEN_TARGETS "Eigen3::Eigen"
+    	CACHE INTERNAL "Eigen library.")
+    set(MORIS_EIGEN_TARGET_FILE "${EIGEN3_ROOT_DIR}/share/Eigen3Targets.cmake"
+        CACHE FILEPATH "Eigen targets file.")
+    set(MORIS_EIGEN_DEFINITIONS "-DMORIS_USE_EIGEN"
+    	CACHE INTERNAL "Moris preprocessor definitions for Eigen.")
     
     mark_as_advanced(MORIS_EIGEN_INCLUDE_DIRS
-        MORIS_EIGEN_TARGETS
+    	MORIS_EIGEN_TARGETS
+    	MORIS_EIGEN_TARGET_FILE
+    	MORIS_EIGEN_DEFINITIONS
         Eigen_DIR
         )
     
@@ -35,7 +41,7 @@ if(NOT EIGEN_FOUND_ONCE)
     
     message(STATUS "EIGEN3_ROOT_DIR: ${EIGEN3_ROOT_DIR}")
 else()
-    include(${MORIS_EIGEN_TARGETS})
+    include(${MORIS_EIGEN_TARGET_FILE})
 endif()
 
 add_definitions("-DMORIS_USE_EIGEN")

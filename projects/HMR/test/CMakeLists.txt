@@ -18,16 +18,16 @@ set(TEST_SOURCES
   
 # List test includes
 set(TEST_INCLUDES
-    ${LINALG}
-    ${COM}
-    ${FEM}
-    ${FEM}/${INT}
-    ${HMR}
-    ${MTK}
-    ${MTK}/${MAP}
-    ${ALG} #MTK
-    ${TOL} #MTK
-    ${XTK} #MTK
+    #${LINALG}
+    #${COM}
+    #${FEM}
+    #${FEM}/${INT}
+    #${HMR}
+    #${MTK}
+    #${MTK}/${MAP}
+    #${ALG} #MTK
+    #${TOL} #MTK
+    #${XTK} #MTK
     )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
@@ -56,22 +56,24 @@ endforeach()
 #    )
 
 set(TEST_DEPENDENCIES
+	test-libs
     ${HMR}-lib
-    ${MAP}-lib
-    ${MTK}-lib
-    ${MDL}-lib # for L2
-    ${INT}-lib # for L2
-    ${MSI}-lib # for L2
-    ${NLA}-lib # for L2
-    ${SDF}-lib # for SDF
-    ${COM}-lib
+    ${ALG}-lib
+    #${MAP}-lib
+    #${MTK}-lib
+    #${MDL}-lib # for L2
+    #${INT}-lib # for L2
+    #${MSI}-lib # for L2
+    #${NLA}-lib # for L2
+    #${SDF}-lib # for SDF
     ${MORIS_BASE_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MORIS_BOOST_LIBS}
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_ARPACK_LIBS}
+    #${MORIS_BOOST_LIBS}
+    ${DLA}-lib #> reeeeeee
     )
 
 # Remove duplicate dependencies
@@ -87,12 +89,26 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(HMR_TEST ${HMR}-test)
 
 # Create executable
-add_executable(${HMR_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${HMR_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${HMR_TEST} ${TEST_SOURCES})
+target_link_libraries(${HMR_TEST} PRIVATE ${TEST_DEPENDENCIES})
+set_target_properties(${HMR_TEST} PROPERTIES OUTPUT_NAME ${HMR_TEST}${EXE_EXT})
+
+foreach(TPL ${HMR_TEST_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${HMR_TEST}
+    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${HMR_TEST}
+    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${HMR_TEST}
+    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # Mark as test
 add_test(NAME ${HMR_TEST}
-    COMMAND ${HMR_TEST}${EXE_EXT} )
+    COMMAND $<TARGET_FILE:${HMR_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -100,7 +116,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${HMR_TEST_PROCS})
 		set(HMR_PARALLEL_TEST ${HMR_TEST}-${PROCS}-procs)
 		add_test(NAME ${HMR_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${HMR_TEST}${EXE_EXT}>)
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${HMR_TEST}>)
 	endforeach()
 endif()
 

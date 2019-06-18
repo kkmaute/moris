@@ -500,10 +500,9 @@ namespace moris
         {
             tic tTimer;
 
-            mBackgroundMesh->unite_patterns(
-                    aSourceA,
-                    aSourceB,
-                    aTarget );
+            mBackgroundMesh->unite_patterns( aSourceA,
+                                             aSourceB,
+                                             aTarget );
 
             // create output messahe
             if ( mParameters->is_verbose() )
@@ -700,9 +699,8 @@ namespace moris
                 case( RefinementMode::SIMPLE ) :
                 {
                     // copy Lagrange output to B-Spline output
-                    mBackgroundMesh->copy_pattern(
-                            mParameters->get_lagrange_output_pattern(),
-                            mParameters->get_bspline_output_pattern() );
+                    mBackgroundMesh->copy_pattern( mParameters->get_lagrange_output_pattern(),
+                                                   mParameters->get_bspline_output_pattern() );
 
                     // union is created from both B-Spline patterns
                     this->create_union_pattern();
@@ -711,7 +709,7 @@ namespace moris
                     if ( mParameters->get_max_polynomial() > 2 )
                     {
                         // activate extra pattern for exodus
-                        this->add_extra_refinement_step_for_exodus();
+//                        this->add_extra_refinement_step_for_exodus();
                     }
 
                     // create new B-Spline Meshes
@@ -743,7 +741,7 @@ namespace moris
                     if ( mParameters->get_max_polynomial() > 2 )
                     {
                         // activate extra pattern for exodus
-                        this->add_extra_refinement_step_for_exodus();
+//                        this->add_extra_refinement_step_for_exodus();
                     }
 
                     // create new B-Spline Meshes
@@ -786,7 +784,7 @@ namespace moris
                     if ( mParameters->get_max_polynomial() > 2 )
                     {
                         // activate extra pattern for exodus
-                        this->add_extra_refinement_step_for_exodus();
+//                        this->add_extra_refinement_step_for_exodus();
                     }
 
                     // create new B-Spline Meshes

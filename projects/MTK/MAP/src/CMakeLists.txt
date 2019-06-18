@@ -10,18 +10,18 @@ set(HEADERS
 
 # List header dependencies
 set(MAP_INCLUDES
-    ${LINALG}
-    ${COM}
-    ${SOL}/${DLA}
-    ${SOL}/${NLA}
-    ${SOL}/${TSA}
-    ${SOL}/${SOL_CORE}
-    ${MTK}
-    ${HMR}
-    ${MTK}/${MAP}
-    ${FEM}/${INT}
-    ${FEM}/${MDL}
-    ${FEM}/${MSI}
+    #${LINALG}
+    #${COM}
+    #${SOL}/${DLA}
+    #${SOL}/${NLA}
+    #${SOL}/${TSA}
+    #${SOL}/${SOL_CORE}
+    #${MTK}
+    #${HMR}
+    #${MTK}/${MAP}
+    #${FEM}/${INT}
+    #${FEM}/${MDL}
+    #${FEM}/${MSI}
     )
     
 # Include depedency directories
@@ -39,11 +39,13 @@ set( LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
+	${LINALG}-lib
+	${CON}-lib
     ${MTK}-lib
-    ${COM}-lib
+    ${NLA}-lib
+    ${INT}-lib
     ${TSA}-lib
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_BOOST_LIBS}
+    ${MDL}-lib
     )
 
 # Remove duplicate dependencies
@@ -58,9 +60,23 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${MAP}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${MAP}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${MAP}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${MAP}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MAP}-lib PROPERTIES OUTPUT_NAME ${MAP})
 
+foreach(TPL ${MAP_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${MAP}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${MAP}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${MAP}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # map Config Files
@@ -77,5 +93,24 @@ set_target_properties(${MAP}-lib PROPERTIES OUTPUT_NAME ${MAP})
 #write_basic_package_version_file(
 #    ${${MAP}_CONFIG_BUILD_DIR}/${MAP}ConfigVersion.cmake
 #    COMPATIBILITY AnyNewerVersion )
-    
-    
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Map Installation
+
+# Install *Config and *ConfigVersion files
+#install(FILES ${${GEN}_CONFIG_BUILD_DIR}/${GEN}Config.cmake 
+#    ${${GEN}_CONFIG_BUILD_DIR}/${GEN}ConfigVersion.cmake
+#    DESTINATION ${CONFIG_INSTALL_DIR}/${GEN} )
+
+# Install header files
+install(FILES ${HEADERS}
+    DESTINATION ${HEADER_INSTALL_DIR}/${MTK}/${MAP} )
+
+# Install library and executable
+install(TARGETS ${MAP}-lib
+    EXPORT ${MAP}Targets
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${MTK}/${MAP})
+
+# Export library in to *Targets file
+install(EXPORT ${MAP}Targets
+    DESTINATION ${CONFIG_INSTALL_DIR}/${MTK}/${MAP} )

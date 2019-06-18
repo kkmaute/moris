@@ -118,15 +118,15 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 
 # List header dependencies
 set(XTK_INCLUDES
-    ${LINALG}
-    ${ALG}
-    ${FEM}          # necessary, added by Noah 
-    ${FEM}/${INT}   # necessary, added by Noah
-    ${MTK}
-    ${MTK}/stk_impl
-    ${MTK}/${MAP}
-    ${COM}
-    ${HMR}
+    #${LINALG}
+    #${ALG}
+    #${FEM}          # necessary, added by Noah 
+    #${FEM}/${INT}   # necessary, added by Noah
+    #${MTK}
+    #${MTK}/stk_impl
+    #${MTK}/${MAP}
+    #${COM}
+    #${HMR}
     )
 
 
@@ -153,14 +153,16 @@ xtk/cl_XTK_Paramfile.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
-	${COM}-lib
+	${LINALG}-lib
+	#${COM}-lib
 	${MTK}-lib
 	${ALG}-lib
-	${HMR}-lib
+	#${HMR}-lib
     ${MORIS_BASE_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS})
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -174,8 +176,24 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${XTK}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${XTK}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${XTK}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${XTK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
+
+# Link third party libraries
+foreach(TPL ${XTK_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${XTK}-lib 
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${XTK}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${XTK}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #############################################################################
@@ -193,41 +211,32 @@ set(PLATO_EXE_DEPENDENCIES
     ${COM}-lib
     ${ALG}-lib
 	${MORIS_BASE_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}	
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_ARPACK_LIBS}	
     )    
  
 # Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 
 add_executable(XTK_PLATO ${PLATO_EXE_SOURCES})
-target_link_libraries(XTK_PLATO ${PLATO_EXE_DEPENDENCIES})
+target_link_libraries(XTK_PLATO PRIVATE ${PLATO_EXE_DEPENDENCIES})
 set_target_properties(XTK_PLATO PROPERTIES OUTPUT_NAME XTK_Plato.exe )
 
+foreach(TPL ${XTK_EXE_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(XTK_PLATO
+    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(XTK_PLATO
+    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(XTK_PLATO
+    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
-# Hole seeding executable
-# XTK Executable
-# List source files
-set(HOLE_SEED_EXE_SOURCES
-        main_hole_seed.cpp)
-
-# List executable dependencies
-set(HOLE_EXE_DEPENDENCIES
-    ${XTK}-lib
-    ${MTK}-lib
-    ${COM}-lib
-    ${ALG}-lib
-	${MORIS_BASE_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}	
-    )    
- 
-# Set the output path for executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 
 #############################################################################
 # Create executable for XFEM
@@ -240,20 +249,32 @@ set(XTK_EXE_DEPENDENCIES
     ${XTK}-lib
     ${MTK}-lib
     ${COM}-lib
+    ${IOS}-lib
     ${ALG}-lib
-    ${HMR}-lib
+    #${HMR}-lib
 	${MORIS_BASE_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}	
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_ARPACK_LIBS}	
     )    
 
 add_executable(XTK_EXE ${XTK_EXE_SOURCES})
-target_link_libraries(XTK_EXE ${XTK_EXE_DEPENDENCIES})
+target_link_libraries(XTK_EXE PRIVATE ${XTK_EXE_DEPENDENCIES})
 set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK )
 
-
+foreach(TPL ${XTK_EXE_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(XTK_EXE
+    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(XTK_EXE
+    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(XTK_EXE
+    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 #############################################################################
 # Create executable for hole seeding
@@ -268,53 +289,65 @@ set(HOLE_EXE_DEPENDENCIES
     ${COM}-lib
     ${ALG}-lib
 	${MORIS_BASE_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}	
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_TRILINOS_LIBS}
+    #${MORIS_ARPACK_LIBS}	
     )    
  
 # Set the output path for executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 add_executable(XTK_HOLE_SEED ${HOLE_SEED_EXE_SOURCES})
-target_link_libraries(XTK_HOLE_SEED ${HOLE_EXE_DEPENDENCIES})
+target_link_libraries(XTK_HOLE_SEED PRIVATE ${HOLE_EXE_DEPENDENCIES})
 set_target_properties(XTK_HOLE_SEED PROPERTIES OUTPUT_NAME XTK_Hole_Seed.exe )
 
-
+foreach(TPL ${XTK_EXE_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(XTK_HOLE_SEED
+    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(XTK_HOLE_SEED
+    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(XTK_HOLE_SEED
+    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 if(BUILD_HMR)
-set(HMR_EXE_SOURCES
-        main_hmr.cpp)
-
-# List executable dependencies
-set(HMR_EXE_DEPENDENCIES
-	${XTK}-lib
-    ${HMR}-lib
-    ${MAP}-lib
-    ${MTK}-lib
-    ${MDL}-lib # for L2
-    ${INT}-lib # for L2
-    ${MSI}-lib # for L2
-    ${NLA}-lib # for L2
-    ${SDF}-lib # for SDF
-    ${COM}-lib
-    ${MORIS_BASE_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_TRILINOS_LIBS}
-    ${MORIS_ARPACK_LIBS}
-    ${MORIS_BOOST_LIBS}  
-    )    
- 
-# Set the output path for executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
-
-# Create executable
-add_executable(XTK_HMR ${HMR_EXE_SOURCES})
-target_link_libraries(XTK_HMR ${HMR_EXE_DEPENDENCIES})
-set_target_properties(XTK_HMR PROPERTIES OUTPUT_NAME XTK_HMR.exe )
-
+	set(HMR_EXE_SOURCES
+	        main_hmr.cpp)
+	
+	# List executable dependencies
+	set(HMR_EXE_DEPENDENCIES
+	    ${XTK}-lib
+	    #${HMR}-lib
+	    ${MAP}-lib
+	    #${MTK}-lib
+	    ${MDL}-lib # for L2
+	    #${INT}-lib # for L2
+	    ${MSI}-lib # for L2
+	    ${NLA}-lib # for L2
+	    #${SDF}-lib # for SDF
+	    #${COM}-lib
+	    ${GEN}-lib
+	    ${ALG}-lib
+	    ${MORIS_BASE_LIBS}
+	    #${MORIS_ACML_LAPACK_MKL_LIBS}
+	    #${MORIS_ARMADILLO_EIGEN_LIBS}
+	    #${MORIS_SUPERLU_LIBS}
+	    #${MORIS_TRILINOS_LIBS}
+	    #${MORIS_ARPACK_LIBS}
+	    #${MORIS_BOOST_LIBS}  
+	    )    
+	 
+	# Set the output path for executable
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
+	
+	# Create executable
+	add_executable(XTK_HMR ${HMR_EXE_SOURCES})
+	target_link_libraries(XTK_HMR ${HMR_EXE_DEPENDENCIES})
+	set_target_properties(XTK_HMR PROPERTIES OUTPUT_NAME XTK_HMR.exe )
 endif()
 
 

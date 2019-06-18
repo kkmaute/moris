@@ -18,7 +18,8 @@ set(HEADERS
 
 # List header dependencies
 set(OPT_INCLUDES
-    ${LINALG})
+    #${LINALG}
+    )
 
 # Include depedency directories
 foreach(OPT_INCLUDE ${OPT_INCLUDES})
@@ -41,7 +42,10 @@ set(LIB_SOURCES
     Opt_Input.cpp )
 
 # List library dependencies
-set(LIB_DEPENDENCIES "")
+set(LIB_DEPENDENCIES
+	${CON}-lib
+	${LINALG}-lib
+	)
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -55,8 +59,24 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${OPT}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${OPT}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${OPT}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+target_link_libraries(${OPT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${OPT}-lib PROPERTIES OUTPUT_NAME ${OPT})
+
+# Link third party libraries
+foreach(TPL ${OPT_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${OPT}-lib 
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${OPT}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${OPT}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Optimization Executable

@@ -70,9 +70,9 @@ if(NOT BOOST_FOUND_ONCE)
 	    
 	    set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
 	        CACHE INTERNAL "Boost include directories." )
-	    set(MORIS_BOOST_FLAGS ${Boost_LIBRARY_DIRS}
+	    set(MORIS_BOOST_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}
 	        CACHE INTERNAL "Boost link directories." )
-	    set(MORIS_BOOST_LIBS ${Boost_LIBRARIES} ${MORIS_BOOST_LDLIBS}
+	    set(MORIS_BOOST_LIBRARIES ${Boost_LIBRARIES} ${MORIS_BOOST_LDLIBS}
 	        CACHE INTERNAL "Boost libraries." )
 	    
 	    set(BOOST_FOUND_ONCE TRUE CACHE INTERNAL "Boost was found.")
@@ -83,6 +83,6 @@ if(NOT BOOST_FOUND_ONCE)
 	message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
 endif()
 
-link_directories(${MORIS_BOOST_FLAGS})
+link_directories(${MORIS_BOOST_LIBRARY_DIRS})
 add_definitions(${MORIS_BOOST_DEFINITIONS})
 include_directories(${MORIS_BOOST_INCLUDE_DIRS})

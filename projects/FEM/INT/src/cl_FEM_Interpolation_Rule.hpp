@@ -35,6 +35,7 @@ namespace moris
             const mtk::Geometry_Type       mGeometryType;
             const Interpolation_Type       mSpaceInterpolationType;
             const mtk::Interpolation_Order mSpaceInterpolationOrder;
+            const mtk::Geometry_Type       mTimeGeometryType;
             const Interpolation_Type       mTimeInterpolationType;
             const mtk::Interpolation_Order mTimeInterpolationOrder;
 
@@ -55,6 +56,23 @@ namespace moris
         Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
                             const Interpolation_Type       & aSpaceInterpolationType,
                             const mtk::Interpolation_Order & aSpaceInterpolationOrder,
+                            const Interpolation_Type       & aTimeInterpolationType,
+                            const mtk::Interpolation_Order & aTimeInterpolationOrder);
+
+        /**
+         * constructs an interpolation rule
+         **
+         * @param[ in ] aGeometryType             eg. QUAD, HEX ...
+         * @param[ in ] aSpaceInterpolationType   eg. Constant, Lagrange, Bezier ...
+         * @param[ in ] aSpaceInterpolationOrder  eg. LINEAR, SERENDIPITY, QUADRATIC
+         * @param[ in ] aTimeInterpolationType    eg. Constant, Lagrange, Bezier ...
+         * @param[ in ] aTimeInterpolationOrder   eg. CONSTANT, LINEAR, SERENDIPITY, QUADRATIC
+         *
+         */
+        Interpolation_Rule( const mtk::Geometry_Type       & aGeometryType,
+                            const Interpolation_Type       & aSpaceInterpolationType,
+                            const mtk::Interpolation_Order & aSpaceInterpolationOrder,
+                            const mtk::Geometry_Type       & aTimeGeometryType,
                             const Interpolation_Type       & aTimeInterpolationType,
                             const mtk::Interpolation_Order & aTimeInterpolationOrder);
 
@@ -87,6 +105,16 @@ namespace moris
         mtk::Geometry_Type get_geometry_type() const
         {
             return mGeometryType;
+        }
+
+//------------------------------------------------------------------------------
+
+        /**
+         * returns the interpolation primitive
+         */
+        mtk::Geometry_Type get_time_geometry_type() const
+        {
+            return mTimeGeometryType;
         }
 
 //------------------------------------------------------------------------------

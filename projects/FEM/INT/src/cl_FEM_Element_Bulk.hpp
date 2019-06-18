@@ -36,7 +36,8 @@ namespace moris
          */
         Element_Bulk( mtk::Cell    const *        aCell,
                       Set                * aElementBlock,
-                      Cluster            * aCluster );
+                      Cluster            * aCluster,
+                      moris::moris_index   aCellIndexInCluster );
 //------------------------------------------------------------------------------
         /**
          * trivial destructor

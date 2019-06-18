@@ -9,10 +9,11 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LINALG}
-    ${COM}
-    ${ALG}
-    ${TOL})
+    #${LINALG}
+    #${COM}
+    #${ALG}
+    #${TOL}
+    )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -22,14 +23,15 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib
+	test-libs
     ${TOL}-lib
-    ${MORIS_TRILINOS_LIBS}
+    #${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
-    ${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
-    ${MORIS_SUPERLU_LIBS}
-    ${MORIS_ARPACK_LIBS} )
+    #${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
+    #${MORIS_SUPERLU_LIBS}
+    #${MORIS_ARPACK_LIBS}
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order
@@ -44,12 +46,26 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(TOL_TEST ${TOL}-test)
 
 # Create executable
-add_executable(${TOL_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${TOL_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${TOL_TEST} ${TEST_SOURCES})
+target_link_libraries(${TOL_TEST} PRIVATE ${TEST_DEPENDENCIES})
+set_target_properties(${TOL_TEST} PROPERTIES OUTPUT_NAME ${TOL}-test${EXE_EXT})
+
+foreach(TPL ${TOL_TEST_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${TOL_TEST}
+    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${TOL_TEST}
+    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${TOL_TEST}
+        PRIVATE ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # Mark as test
 add_test(NAME ${TOL_TEST}
-    COMMAND ${TOL_TEST}${EXE_EXT} )
+    COMMAND $<TARGET_FILE:${TOL_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -57,6 +73,6 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${TOL_TEST_PROCS})
 		set(TOL_PARALLEL_TEST ${TOL_TEST}-${PROCS}-procs)
 		add_test(NAME ${TOL_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${TOL_TEST}${EXE_EXT}>)
+			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${TOL_TEST}>)
 	endforeach()
 endif()

@@ -18,7 +18,7 @@
 #include "HDF5_Tools.hpp"
 
 #include "fn_save_matrix_to_binary_file.hpp"
-
+#include "fn_equal_to.hpp"
 
 namespace moris
 {
@@ -3537,10 +3537,8 @@ namespace moris
         void
         Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
         {
-            MORIS_ASSERT(
-                    mBSplineMeshes( aBSplineOrder  ) != NULL,
+            MORIS_ASSERT( mBSplineMeshes( aBSplineOrder  ) != NULL,
                     "B-Spline Mesh does not exist" );
-
 
             // create matrix object if it does not exist
             if( mTMatrix( aBSplineOrder ) == NULL )
@@ -3549,8 +3547,8 @@ namespace moris
                 BSpline_Mesh_Base * tMesh = mBSplineMeshes( aBSplineOrder  );
 
                 mTMatrix( aBSplineOrder ) = new T_Matrix( mParameters,
-                        tMesh,
-                        this );
+                                                          tMesh,
+                                                          this );
             }
 
             std::cout << "Evaluate T-Matrix" << std::endl;
@@ -3601,34 +3599,68 @@ namespace moris
         {
             MORIS_ERROR( par_size() <= 1, "Lagrange_Mesh_Base::nodes_renumbering_hack_for_femdoc(), this function is intended to work only in serial");
 
-            moris::uint tCounter = 0;
+            moris::uint tCounter  = 0;
             moris::uint tCounter2 = 0;
 
-            Matrix< DDSMat > tReverseIndexMap( mAllBasisOnProc.size()+1, 1, -1 );
-            Matrix< DDSMat > tReverseIDMap( mAllBasisOnProc.size()+1, 1, -1 );
-
-            moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
-
-//            BSpline_Mesh_Base * tBslpinemesh = this->get_bspline_mesh( 1 );
-
-            this->calculate_t_matrices( false );
+            moris::sint tMaxID = 0;
 
             uint tNumberOfNodes = this->get_number_of_nodes_on_proc();
+
             for( uint Ik = 0; Ik<tNumberOfNodes; Ik ++ )
             {
                 Basis * tBasis = this->get_node_by_index( Ik );
+
+                MORIS_ERROR( tBasis->has_interpolation (1), "Lagrange_Mesh_Base:: node has no first order basis");
 
                 mtk::Vertex_Interpolation * tInterp = tBasis->get_interpolation( 1 );
 
                 Matrix< IdMat > tLocalIDs = tInterp->get_ids();
 
-                if (tLocalIDs.numel()==1)
-                {
-                    tReverseIndexMap( tLocalIDs( 0, 0 ) ) = tBasis->get_index();
-                    tReverseIDMap( tLocalIDs( 0, 0 )-1 )  = tBasis->get_hmr_index();
+                tMaxID= std::max( tMaxID, tLocalIDs.max() );
+            }
 
-                    tBasis->set_local_index( tLocalIDs( 0, 0 ) );
-                    tBasis->set_domain_index( tLocalIDs( 0, 0 ) - 1 );
+            Matrix< DDSMat > tReverseIndexMap( tMaxID+1, 1, -1 );
+            Matrix< DDSMat > tReverseIDMap( tMaxID+1, 1, -1 );
+
+            moris::Cell< Basis * >tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+
+            this->calculate_t_matrices( false );
+
+            for( uint Ik = 0; Ik<tNumberOfNodes; Ik ++ )
+            {
+                Basis * tBasis = this->get_node_by_index( Ik );
+
+                MORIS_ERROR( tBasis->has_interpolation (1), "Lagrange_Mesh_Base:: node has no first order basis");
+
+                mtk::Vertex_Interpolation * tInterp = tBasis->get_interpolation( 1 );
+
+                Matrix< IdMat > tLocalIDs = tInterp->get_ids();
+
+                const Matrix< DDRMat > & tLocalWeights = *tInterp->get_weights();
+
+                if ( tLocalIDs.numel()==1 || equal_to(tLocalWeights.max(),1.0) )
+                {
+                    uint tIndex1 = 0;
+
+                    // value 1 should be always on the first entry in the vector
+                    // FIXME: should be replace by proper moris::mat function
+                    for( uint Ia = 0; Ia<tLocalWeights.numel(); Ia ++ )
+                    {
+                        if( equal_to(tLocalWeights(Ia),1.0) )
+                        {
+                            tIndex1 = Ia;
+                            break;
+                        }
+                    }
+
+                    // check whether the same basis is used twice for being the only basis interpolating at a node
+                    MORIS_ASSERT( tReverseIDMap( tLocalIDs( tIndex1, 0 )-1 ) == -1, "Node Id %-5i appears twice", tLocalIDs( tIndex1, 0 )-1 );
+
+                    tReverseIndexMap( tLocalIDs( tIndex1, 0 ) ) = tBasis->get_index();
+                    tReverseIDMap( tLocalIDs( tIndex1, 0 )-1 )  = tBasis->get_hmr_index();
+
+                    tBasis->set_local_index( tLocalIDs( tIndex1, 0 ) );
+                    tBasis->set_domain_index( tLocalIDs( tIndex1, 0 ) - 1 );
 
                     tCounter++;
                 }
@@ -3641,23 +3673,25 @@ namespace moris
             }
             tNonBSplineBasis.resize( tCounter2 );
 
+//            uint tMaxID = tReverseIDMap.max();
+
+            tReverseIndexMap.resize( tMaxID + tNonBSplineBasis.size()+1, 1 );
+            tReverseIDMap.resize( tMaxID + tNonBSplineBasis.size()+1, 1 );
+
             for( Basis * tBasis : tNonBSplineBasis )
             {
+                tReverseIndexMap( tMaxID ) = tBasis->get_index();
+                tReverseIDMap( tMaxID )    = tBasis->get_hmr_index();
 
-                tReverseIndexMap( tCounter ) = tBasis->get_index();
-                tReverseIDMap( tCounter )    = tBasis->get_hmr_index();
+                tBasis->set_local_index( tMaxID );
+                tBasis->set_domain_index( tMaxID );
 
-                tBasis->set_local_index( tCounter );
-                tBasis->set_domain_index( tCounter++  );
+                tCounter++;
+                tMaxID++;
             }
 
-            std::string aFilePath = "Reverse_Map.hdf5";
-
-            //print(tReverseIndexMap,"tReverseIndexMap");
-            // add order to path
-            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-                                        + "_" + std::to_string( this->get_index() ) // rank of this processor
-                                        +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+            // write reverse map for linear mesh
+            std::string tFilePath = "Reverse_Map_1.hdf5";
 
             // make path parallel
             tFilePath = parallelize_path( tFilePath );
@@ -3682,116 +3716,6 @@ namespace moris
                                       "Id",
                                       tReverseIDMap,
                                       tStatus );
-
-
-            //=================================================================================================
-
-//            for( Basis * tBasis : mAllBasisOnProc )
-//            {
-//                bool tBasisFound = false;
-//
-//                for( uint Ik = 0; Ik< tNumBSplineBasis; Ik++ )
-//                {
-//                    bool tIsActive = tBslpinemesh->get_basis_by_index( Ik )->is_active();
-//
-//                    if ( tIsActive )
-//                    {
-//                        if( std::abs( tBasis->get_xyz()[0] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[0] ) <= 1E-10 )
-//                        {
-//                            if( std::abs( tBasis->get_xyz()[1] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[1] ) <= 1E-10 )
-//                            {
-//                                if ( mParameters->get_number_of_dimensions() == 3 )
-//                                {
-//                                    if( std::abs( tBasis->get_xyz()[2] - tBslpinemesh->get_basis_by_index( Ik )->get_xyz()[2] ) <= 1E-10 )
-//                                    {
-//                                        moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
-//                                        moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
-//
-//                                        MORIS_ASSERT( tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
-//
-//                                        tReverseIndexMap( tIndex ) = tBasis->get_index();
-//                                        tReverseIDMap( tID ) = tBasis->get_hmr_index();
-//
-//                                        tBasis->set_local_index( tIndex );
-//                                        tBasis->set_domain_index( tID );
-//
-//                                        tBasisFound = true;
-//
-//                                        tCounter++;
-//                                        break;
-//                                    }
-//                                }
-//                                else
-//                                {
-//                                    moris_index tIndex = tBslpinemesh->get_basis_by_index( Ik )->get_index();
-//                                    moris_index tID = tBslpinemesh->get_basis_by_index( Ik )->get_hmr_index();
-//
-//                                    MORIS_ASSERT(tReverseIndexMap( tIndex ) == -1, "tReverseIndexMap: Basis was set earlier");
-//
-//                                    tReverseIndexMap( tIndex ) = tBasis->get_index();
-//                                    tReverseIDMap( tID ) = tBasis->get_hmr_index();
-//
-//                                    tBasis->set_local_index( tIndex );
-//                                    tBasis->set_domain_index( tID );
-//
-//                                    tBasisFound = true;
-//
-//                                    tCounter++;
-//                                    break;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                if (tBasisFound == false)
-//                {
-//                    tNonBSplineBasis( tCounter2++ ) = tBasis;
-//                }
-//            }
-//
-//            tNonBSplineBasis.resize( tCounter2 );
-//
-//            for( Basis * tBasis : tNonBSplineBasis )
-//            {
-//                tReverseIndexMap( tCounter ) = tBasis->get_index();
-//                tReverseIDMap( tCounter ) = tBasis->get_hmr_index();
-//
-//                tBasis->set_local_index( tCounter );
-//                tBasis->set_domain_index( tCounter++ );
-//            }
-//
-//            std::string aFilePath = "Reverse_Map.hdf5";
-//
-//            //print(tReverseIndexMap,"tReverseIndexMap");
-//            // add order to path
-//            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-//                                        + "_" + std::to_string( this->get_index() ) // rank of this processor
-//                                        +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
-//
-//            // make path parallel
-//            tFilePath = parallelize_path( tFilePath );
-//
-//            // Create a new file using default properties
-//            herr_t tFileID = H5Fcreate( tFilePath.c_str(),
-//                                        H5F_ACC_TRUNC,
-//                                        H5P_DEFAULT,
-//                                        H5P_DEFAULT);
-//
-//            // error handler
-//            herr_t tStatus;
-//
-//            // save reverse indices to file
-//            save_matrix_to_hdf5_file( tFileID,
-//                                      "Index",
-//                                      tReverseIndexMap,
-//                                      tStatus );
-//
-//            // save reverse ids to file
-//            save_matrix_to_hdf5_file( tFileID,
-//                                      "Id",
-//                                      tReverseIDMap,
-//                                      tStatus );
         }
 
     } /* namespace hmr */

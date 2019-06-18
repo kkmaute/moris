@@ -9,9 +9,10 @@ set(TEST_SOURCES
 
 # List test includes
 set(TEST_INCLUDES
-    ${LINALG}
-    ${COM}
-    ${ALG} )
+    #${LINALG}
+    #${COM}
+    #${ALG}
+    )
 
 foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
@@ -27,7 +28,9 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-    ${COM}-lib )
+	test-libs
+	${ALG}-lib
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order

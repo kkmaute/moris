@@ -11,6 +11,7 @@
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Cell.hpp" //MRS/CON/src
 #include "cl_Matrix.hpp"
+#include "fn_isrow.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
@@ -130,6 +131,62 @@ namespace moris
             {
                 MORIS_ERROR(0,"get_vertices_on_side_ordinal has no default implementation");
                 return  moris::Cell<moris::mtk::Vertex const *>(0);
+            }
+
+            /*!
+             * Get vertex coordinates on side ordinal
+             */
+
+            virtual
+		    moris::Matrix<moris::DDRMat>
+		    get_cell_physical_coords_on_side_ordinal(moris::moris_index aSideOrdinal) const
+		    {
+
+            	// FIXME: Add assert to check side ordinal
+
+		        // get the vertex pointers on the side
+		        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = this->get_vertices_on_side_ordinal(aSideOrdinal);
+
+		        // allocate output coords (note we do not know the spatial dimension at this time)
+		        moris::Matrix<moris::DDRMat> tVertexPhysCoords(0,0);
+
+		        // iterate through vertices and collect local coordinates
+		        for(moris::uint i = 0; i < tVerticesOnSide.size(); i++)
+		        {
+		        	moris::Matrix<moris::DDRMat> tVertexCoord = tVerticesOnSide(i)->get_coords();
+
+		        	if( i == 0 )
+		        	{
+		        		MORIS_ASSERT(isrow(tVertexCoord),"Default implementation assumes row based coordinates");
+		        		tVertexPhysCoords.resize(tVerticesOnSide.size(), tVertexCoord.numel());
+		        	}
+
+		        	tVertexPhysCoords.get_row(i) = tVertexCoord.get_row(0);
+		        }
+
+		        return tVertexPhysCoords;
+		    }
+
+//------------------------------------------------------------------------------
+
+            /*!
+             * get vertices on side ordinal.
+             * This functions is needed for side clustering
+             */
+            moris::Matrix< IndexMat >
+            get_vertices_ind_on_side_ordinal(moris::moris_index aSideOrdinal) const
+            {
+                moris::Cell<moris::mtk::Vertex const *> tVertices = this->get_vertices_on_side_ordinal(aSideOrdinal);
+
+                uint tNumVertices = tVertices.size();
+
+                Matrix< IndexMat > tVertexInd( 1, tNumVertices );
+
+                for(uint i = 0; i < tNumVertices; i++ )
+                {
+                    tVertexInd( 0, i ) = tVertices( i )->get_index();
+                }
+                return  tVertexInd;
             }
 
 //------------------------------------------------------------------------------

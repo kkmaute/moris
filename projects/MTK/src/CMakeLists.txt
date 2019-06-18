@@ -10,7 +10,11 @@ cl_Mesh_Enums.hpp
 cl_Mesh_Factory.hpp
 cl_MTK_Block_Sets_Info.hpp
 cl_MTK_Block.hpp
+cl_MTK_Side_Set.hpp
+cl_MTK_Double_Side_Set.hpp
+cl_MTK_Set.hpp
 cl_MTK_Cell.hpp
+cl_MTK_Cluster.hpp
 cl_MTK_Edge.hpp
 cl_MTK_Enums.hpp
 cl_MTK_Exodus_IO_Helper.hpp
@@ -34,7 +38,6 @@ cl_MTK_Topology.hpp
 cl_MTK_Vertex_Interpolation.hpp
 cl_MTK_Vertex.hpp
 MTK_Tools.hpp
-stk_impl/cl_MTK_Block_STK.hpp
 stk_impl/cl_MTK_Cell_STK.hpp
 stk_impl/cl_MTK_Integration_Mesh_STK.hpp
 stk_impl/cl_MTK_Interpolation_Mesh_STK.hpp
@@ -46,10 +49,10 @@ stk_impl/cl_MTK_Vertex_STK.hpp )
 
 # List header dependencies
 set(MTK_INCLUDES
-    ${LINALG}
-    ${COM}
-    ${TOL}
-    ${ALG}
+    #${LINALG}
+    #${COM}
+    #${TOL}
+    #${ALG}
     )
 
 # Include depedency directories
@@ -58,8 +61,8 @@ foreach(MTK_INCLUDE ${MTK_INCLUDES})
 endforeach()
 
 # additional includes
-include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
-include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
+#include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
+#include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -78,9 +81,10 @@ cl_MTK_Block.cpp)
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${COM}-lib
-	${MORIS_TRILINOS_LIBS}
-	${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_ARMADILLO_EIGEN_LIBS}
+	${LINALG}-lib
+	#${MORIS_TRILINOS_LIBS}
+	#${MORIS_ACML_LAPACK_MKL_LIBS}
+    #${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
 # Remove duplicate dependencies
@@ -95,8 +99,24 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
 add_library(${MTK}-lib STATIC ${LIB_SOURCES})
-target_link_libraries(${MTK}-lib ${LIB_DEPENDENCIES})
+target_include_directories(${MTK}-lib PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/stk_impl> )
+target_link_libraries(${MTK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
+
+foreach(TPL ${MTK_LIB_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    
+    string(TOUPPER ${TPL} TPL)
+    target_include_directories(${MTK}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    target_link_libraries(${MTK}-lib
+    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    target_compile_definitions(${MTK}-lib
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Executable

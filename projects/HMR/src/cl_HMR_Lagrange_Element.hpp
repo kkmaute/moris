@@ -164,7 +164,7 @@ namespace moris
             Matrix< IndexMat >
             get_vertex_inds() const
             {
-                Matrix< IndexMat > aIndices( D, 1 );
+                Matrix< IndexMat > aIndices( 1, D );  // FIXME was originally a column vector
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct
@@ -390,6 +390,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+           /*!
+            * Returns the outward normal on a side ordinal
+            */
+           moris::Matrix<moris::DDRMat>
+           compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
+
+//------------------------------------------------------------------------------
+
            /**
             * returns the interpolation order of this element
             */
@@ -572,10 +580,17 @@ namespace moris
         moris::Cell<moris::mtk::Vertex const *>
         Lagrange_Element< N, D >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
-            std::cout<<"Num Vertices = "<<this->get_number_of_vertices()<<std::endl;
             MORIS_ERROR( false, "get_vertices_on_side_ordinal() not available for this element.");
             return moris::Cell<moris::mtk::Vertex const *>(0);
         }
+
+        template< uint N, uint D >
+        moris::Matrix<moris::DDRMat>
+        Lagrange_Element< N, D >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+		{
+        	MORIS_ERROR( false, "compute_outward_side_normal() not available for this element.");
+        	return moris::Matrix<moris::DDRMat>(0,0);
+		}
 
     } /* namespace hmr */
 } /* namespace moris */

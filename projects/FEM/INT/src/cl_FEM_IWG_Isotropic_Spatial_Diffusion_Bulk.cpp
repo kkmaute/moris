@@ -28,8 +28,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( Matrix< DDRMat >            & aResidual,
-                                                                Cell< Field_Interpolator* > & aFieldInterpolators )
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual,
+                                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
@@ -45,8 +45,8 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                Cell< Field_Interpolator* > & aFieldInterpolators )
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
@@ -61,9 +61,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                             Matrix< DDRMat >            & aResidual,
-                                                                             Cell< Field_Interpolator* > & aFieldInterpolators )
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
+                                                                             Matrix< DDRMat >                   & aResidual,
+                                                                             moris::Cell< Field_Interpolator* > & aFieldInterpolators )
         {
             // set field interpolator
             Field_Interpolator* tTemp = aFieldInterpolators( 0 );

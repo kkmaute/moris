@@ -1426,7 +1426,7 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
     // create an integration rule - space only lagrange linear triangle TRI3
     Integration_Rule tIntegrationRule( mtk::Geometry_Type::TET,
                                        Integration_Type::GAUSS,
-                                       Integration_Order::TET_5,
+                                       Integration_Order::TET_15,
                                        Integration_Type::GAUSS,
                                        Integration_Order:: BAR_1 );
 

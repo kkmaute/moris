@@ -786,6 +786,8 @@ namespace mtk
 
         this->get_sideset_elems_loc_inds_and_ords(aSetName, tCellInds,aSidesetOrdinals);
 
+        //moris::print(tCellInds,"tCellInds");
+
         aCells.resize(tCellInds.numel());
 
         // iterate through cell inds and get cell ptrs
@@ -3326,6 +3328,8 @@ namespace mtk
             // Get side set and size of node set
             MtkSideSetInfo* tSideSet = aMeshData.SetsInfo->get_side_set(iSet);
             uint tNumSidesInSet = tSideSet->mElemIdsAndSideOrds->n_rows();
+
+            //moris::print((*tSideSet->mElemIdsAndSideOrds),"(*tSideSet->mElemIdsAndSideOrds)(");
 
             for ( uint iEntity = 0; iEntity < tNumSidesInSet; ++iEntity )
             {
