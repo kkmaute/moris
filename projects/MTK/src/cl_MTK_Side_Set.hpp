@@ -100,7 +100,7 @@ namespace moris
 
                 mIGGeometryType = get_auto_side_geometry_type( mIGGeometryType );
 
-                MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
+//                MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
             };
 
 //------------------------------------------------------------------------------
@@ -138,9 +138,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
               const Cluster  *
-              get_side_clusters_by_index( moris_index aCellClusterIndex ) const
+              get_clusters_by_index( moris_index aClusterIndex ) const
               {
-                  return mSetClusters( aCellClusterIndex );
+                  return mSetClusters( aClusterIndex );
               }
 
 //------------------------------------------------------------------------------

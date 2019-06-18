@@ -45,14 +45,8 @@ namespace MSI
     private:
         moris::mtk::Set                          * mSet = nullptr;
 
-        // if block-set
+        //! Mesh cluster
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
-//        // if block-set
-//        moris::Cell< mtk::Cell_Cluster const* > mMeshCellClusterList;
-//        // if side-set
-//        moris::Cell< mtk::Side_Cluster const* > mMeshSideClusterList;
-//        // if double side-set
-//        moris::Cell< mtk::Double_Side_Cluster > const mMeshDoubleSideClusterList;
 
         // interpolation mesh geometry type
         mtk::Geometry_Type mIPGeometryType;
@@ -343,10 +337,6 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         fem::Interpolation_Type get_auto_time_interpolation_type( const moris::uint aNumVertices );
-
-//------------------------------------------------------------------------------
-
-        mtk::Geometry_Type get_auto_side_geometry_type( const mtk::Geometry_Type aGeometryType );
 
 //------------------------------------------------------------------------------
 

@@ -33,6 +33,18 @@ namespace moris
             // interpolation mesh geometry type
             mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+            // space interpolation order for IP cells
+            mtk::Interpolation_Order mIPSpaceInterpolationOrder;
+
+            // space interpolation order for IG cells
+            mtk::Interpolation_Order mIGSpaceInterpolationOrder;
+
+            bool mIsTrivialMaster = false;
+            bool mIsTrivialSlave = false;
+
+            bool mMasterLock = false;
+            bool mSlaveLock = false;
+
 //------------------------------------------------------------------------------
 
         protected :
@@ -60,7 +72,64 @@ namespace moris
 
                 mIPGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIPGeometryType);
 
-                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
+//                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
+            };
+
+//------------------------------------------------------------------------------
+
+            // FIXME should be userdefined in FEM
+            void communicate_interpolation_order()
+            {
+//                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED,
+//                        " communicate_interpolation_order(); undefined geometry type on this processor. Try calling communicate_ip_geometry_type() first.");
+
+                mtk::Interpolation_Order tIPInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
+                mtk::Interpolation_Order tIGInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
+
+                if( mSetClusters.size() > 0 )
+                {
+                    // interpolation order for IP cells fixme
+                    tIPInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_interpolation_cell( 0 ).get_number_of_vertices(),
+                                                                                mIPGeometryType );
+
+                    // interpolation order for IG cells fixme
+                    tIGInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_number_of_vertices(),
+                                                                                mSetClusters( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_geometry_type() );
+                }
+
+                uint tRecIPInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
+                uint tRecIGInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
+
+                min_all( (uint)tIPInterpolationOrder, tRecIPInterpolationOrder );
+                min_all( (uint)tIGInterpolationOrder, tRecIGInterpolationOrder );
+
+                mIPSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIPInterpolationOrder);
+                mIGSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIGInterpolationOrder);
+
+//                MORIS_ASSERT( mIPSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ip interpolation order on this processor");
+//                MORIS_ASSERT( mIGSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ig interpolation order on this processor");
+            }
+
+            // FIXME should be userdefined in FEM
+            void communicate_is_trivial_flag( mtk::Master_Slave aIsMaster )
+            {
+//                bool tIsTrivial = false;
+                sint tIsTrivial = 1;
+
+                if( mSetClusters.size() > 0 )
+                {
+                    // set the integration geometry type
+                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial(); //FIXME change for double sided set
+                }
+
+                sint tIsTrivialMAX = (sint) false;
+
+                max_all( tIsTrivial, tIsTrivialMAX );
+
+                if( tIsTrivialMAX == 1)
+                {
+                    mIsTrivialMaster = true;
+                }
             };
 
 //------------------------------------------------------------------------------
@@ -76,6 +145,8 @@ namespace moris
             Set(moris::Cell<Cluster const *>  aBlockSetClusters) : mSetClusters( aBlockSetClusters )
             {
                 this->communicate_ip_geometry_type();
+
+                this->communicate_interpolation_order();
             };
 
 //------------------------------------------------------------------------------
@@ -94,6 +165,38 @@ namespace moris
 //              virtual const moris::Matrix< DDUMat > &
 //              get_list_of_block_cell_clusters() const = 0;
 
+            bool is_trivial( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                if ( !mMasterLock && aIsMaster == mtk::Master_Slave::MASTER )
+                {
+                    this->communicate_is_trivial_flag( aIsMaster );
+
+                    mMasterLock = true;
+                }
+                else if ( !mSlaveLock && aIsMaster == mtk::Master_Slave::SLAVE )
+                {
+                    this->communicate_is_trivial_flag( aIsMaster );
+
+                    mSlaveLock = true;
+                }
+
+                if ( aIsMaster == mtk::Master_Slave::MASTER )
+                {
+                    return mIsTrivialMaster;
+                }
+                else if ( aIsMaster == mtk::Master_Slave::SLAVE )
+                {
+                    return mIsTrivialSlave;
+                }
+                else
+                {
+                    MORIS_ASSERT( false, " is_trivial(); undefined type. has to be master or slave");
+
+                    return false;
+                }
+
+            };
+
             mtk::Geometry_Type get_interpolation_cell_geometry_type()
             {
                 return mIPGeometryType;
@@ -108,17 +211,24 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              virtual const Cluster  *
-              get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
-              {
-                  MORIS_ASSERT(false, "get_cell_clusters_by_index() virtual base class used");
-                  return nullptr;
-              };
+            mtk::Interpolation_Order get_interpolation_cell_interpolation_order()
+            {
+                return mIPSpaceInterpolationOrder;
+            }
+
+//------------------------------------------------------------------------------
+
+            mtk::Interpolation_Order get_integration_cell_interpolation_order()
+            {
+                return mIGSpaceInterpolationOrder;
+            }
+
+//------------------------------------------------------------------------------
 
               virtual const Cluster  *
-              get_side_clusters_by_index( moris_index aCellClusterIndex ) const
+              get_clusters_by_index( moris_index aCellClusterIndex ) const
               {
-                  MORIS_ASSERT(false, "get_side_clusters_by_index() virtual base class used");
+                  MORIS_ASSERT(false, "get_clusters_by_index() virtual base class used");
                   return nullptr;
               };
 
@@ -143,15 +253,6 @@ namespace moris
               get_clusters_on_set() const
               {
                   MORIS_ASSERT(false, "get_cell_clusters_on_set() virtual base class used");
-                  return moris::Cell<Cluster const *>(0);
-              }
-
-//------------------------------------------------------------------------------
-
-              virtual moris::Cell<Cluster const *>
-              get_side_clusters_on_set() const
-              {
-                  MORIS_ASSERT(false, "get_side_clusters_on_set() virtual base class used");
                   return moris::Cell<Cluster const *>(0);
               }
 
@@ -196,6 +297,112 @@ namespace moris
                       }
                   }
                   return tSideGeometryType;
+              }
+
+//------------------------------------------------------------------------------
+
+              mtk::Interpolation_Order get_auto_interpolation_order( const moris::uint        aNumVertices,
+                                                                          const mtk::Geometry_Type aGeometryType )
+              {
+                  switch( aGeometryType )
+                  {
+                      case( mtk::Geometry_Type::LINE ) :
+                          switch( aNumVertices )
+                          {
+                             case( 1 ) :
+                                 return mtk::Interpolation_Order::UNDEFINED;
+                                 break;
+                             case( 2 ) :
+                                 return mtk::Interpolation_Order::LINEAR;
+                                 break;
+
+                             case( 3 ) :
+                                 return mtk::Interpolation_Order::QUADRATIC;
+                                 break;
+
+                             default :
+                                 MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for LINE and number of vertices. ");
+                                 return mtk::Interpolation_Order::UNDEFINED;
+                                 break;
+                          }
+
+                      case( mtk::Geometry_Type::QUAD ) :
+                          switch( aNumVertices )
+                          {
+                              case( 4 ) :
+                                  return mtk::Interpolation_Order::LINEAR;
+                                  break;
+
+                              case( 8 ) :
+                                  return mtk::Interpolation_Order::SERENDIPITY;
+                                  break;
+
+                              case( 9 ) :
+                                  return mtk::Interpolation_Order::QUADRATIC;
+                                  break;
+
+                              case( 16 ) :
+                                  return mtk::Interpolation_Order::CUBIC;
+                                  break;
+
+                              default :
+                                  MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for QUAD and number of vertices. ");
+                                  return mtk::Interpolation_Order::UNDEFINED;
+                                  break;
+                          }
+
+                      case( mtk::Geometry_Type::HEX ) :
+                          switch( aNumVertices )
+                          {
+                              case( 8 ) :
+                                  return mtk::Interpolation_Order::LINEAR;
+                                  break;
+
+                              case( 20 ) :
+                                  return mtk::Interpolation_Order::SERENDIPITY;
+                                  break;
+
+                              case( 27 ) :
+                                  return mtk::Interpolation_Order::QUADRATIC;
+                                  break;
+
+                              case( 64 ) :
+                                  return mtk::Interpolation_Order::CUBIC;
+                                  break;
+
+                              default :
+                                  MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for HEX and number of vertices. ");
+                                  return mtk::Interpolation_Order::UNDEFINED;
+                                  break;
+                          }
+
+                          case( mtk::Geometry_Type::TET ) :
+                          switch( aNumVertices )
+                          {
+                              case( 4 ) :
+                                  return mtk::Interpolation_Order::LINEAR;
+                                  break;
+
+                              case( 10 ) :
+                                  return mtk::Interpolation_Order::QUADRATIC;
+                                  break;
+
+                              case( 20 ) :
+                                  return mtk::Interpolation_Order::CUBIC;
+                                  break;
+
+                              default :
+                                  MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for TET and number of vertices. ");
+                                  return mtk::Interpolation_Order::UNDEFINED;
+                                  break;
+                          }
+
+
+                      default :
+                          MORIS_ERROR( false, " Element::get_auto_interpolation_order - not defined for this geometry type. ");
+                          return mtk::Interpolation_Order::UNDEFINED;
+                          break;
+                  }
               }
 
 

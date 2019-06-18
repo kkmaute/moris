@@ -75,7 +75,6 @@ public:
     Integration_Mesh_STK(Interpolation_Mesh & aInterpMesh,
                          Cell_Cluster_Input * aCellClusterInput);
 
-
     //##############################################
     // Cell Cluster Access
     //##############################################
@@ -191,7 +190,7 @@ private:
     // double side sets
     std::unordered_map<std::string, moris_index>  mDoubleSideSetLabelToOrd;
     moris::Cell<std::string>                      mDoubleSideSetLabels;
-    moris::Cell<moris::Cell<Cluster const*>> mDoubleSideSets;
+    moris::Cell<moris::Cell<Cluster const*> >     mDoubleSideSets;
     moris::Cell<Side_Cluster_STK>                 mDoubleSideSetSideClusters;
 
     /*!
