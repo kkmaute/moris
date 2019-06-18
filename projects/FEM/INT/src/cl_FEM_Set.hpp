@@ -24,6 +24,7 @@ namespace moris
 namespace mtk
 {
    class Cell;
+   class Set;
 }
 namespace MSI
 {
@@ -42,6 +43,8 @@ namespace MSI
     class Set : public MSI::Equation_Set
     {
     private:
+        moris::mtk::Set                          * mSet = nullptr;
+
         // if block-set
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
 //        // if block-set
@@ -131,36 +134,11 @@ namespace MSI
                  * constructor for block-set
                  * @param[ in ]     List of mtk::Cell_Cluster
                  */
-          Set( moris::Cell< mtk::Cluster const * > & aMeshClusterList,
-               Element_Type                               aElementType,
-               moris::Cell< IWG* >                      & aIWGs,
-               moris::Cell< Node_Base* >                & aIPNodes);
-//        /**
-//         * constructor for block-set
-//         * @param[ in ]     List of mtk::Cell_Cluster
-//         */
-//        Set( moris::Cell< mtk::Cell_Cluster const * > & aMeshClusterList,
-//             Element_Type                               aElementType,
-//             moris::Cell< IWG* >                      & aIWGs,
-//             moris::Cell< Node_Base* >                & aIPNodes);
-//
-//        /**
-//         * constructor for side-set
-//         * @param[ in ]     List of mtk::Side_Cluster
-//         */
-//        Set( moris::Cell< mtk::Side_Cluster const * > & aMeshClusterList,
-//             Element_Type                               aElementType,
-//             moris::Cell< IWG* >                      & aIWGs,
-//             moris::Cell< Node_Base* >                & aIPNodes);
-//
-//        /**
-//         * constructor for double side-set
-//         * @param[ in ]     List of mtk::Double_Side_Cluster
-//         */
-//        Set( moris::Cell< mtk::Double_Side_Cluster > const & aMeshClusterList,
-//             Element_Type                                    aElementType,
-//             moris::Cell< IWG* >                           & aIWGs,
-//             moris::Cell< Node_Base* >                     & aIPNodes);
+          Set( moris::mtk::Set           * aSet,
+               Element_Type                aElementType,
+               moris::Cell< IWG* >       & aIWGs,
+               moris::Cell< Node_Base* > & aIPNodes);
+
         /**
          * trivial constructor
          */

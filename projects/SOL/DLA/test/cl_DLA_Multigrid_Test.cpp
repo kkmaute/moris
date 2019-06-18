@@ -150,12 +150,13 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         for( luint Ik = 0; Ik < 1; ++Ik )
         {
             // create a list of cell clusters (this needs to stay in scope somehow)
-            moris::Cell<mtk::Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( 0 );
+            moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( 0 );
 
             // create new fem set
-            tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSetClusterList,
+            tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                              fem::Element_Type::BULK,
-                                                             tIWGs, tNodes );
+                                                             tIWGs,
+                                                             tNodes );
 
             // collect equation objects associated with the block-set
             tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );

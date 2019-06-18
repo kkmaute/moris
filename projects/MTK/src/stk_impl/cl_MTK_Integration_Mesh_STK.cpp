@@ -14,8 +14,9 @@
 #include "cl_MTK_Side_Cluster_Input.hpp"
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 
-#include "cl_MTK_Block_STK.hpp"
-#include "cl_MTK_Side_Set_STK.hpp"
+#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Side_Set.hpp"
+#include "cl_MTK_Double_Side_Set.hpp"
 namespace moris
 {
 namespace mtk
@@ -365,7 +366,7 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
 
      for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
      {
-         mListofBlocks( Ik ) = new moris::mtk::Block_STK( this->get_cell_clusters_in_set( Ik ));
+         mListofBlocks( Ik ) = new moris::mtk::Block( this->get_cell_clusters_in_set( Ik ));
      }
 
 }
@@ -508,7 +509,7 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set_STK( this->get_side_set_cluster( Ik ));
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set( this->get_side_set_cluster( Ik ));
     }
 
 }
@@ -625,8 +626,13 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
 
             // construct the double side cluster
             mDoubleSideSets(i).push_back( new Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex),tVertexLeftToRightPair));
-
         }
+    }
+    mListofDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
+
+    for(moris::uint Ik = 0; Ik<mListofDoubleSideSets.size(); Ik++)
+    {
+        mListofDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set( this->get_double_side_set_cluster( Ik ));
     }
 
 }

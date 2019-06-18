@@ -164,7 +164,7 @@ namespace moris
             Matrix< IndexMat >
             get_vertex_inds() const
             {
-                Matrix< IndexMat > aIndices( D, 1 );
+                Matrix< IndexMat > aIndices( 1, D );  // FIXME was originally a column vector
                 for( uint k = 0; k<D; ++k )
                 {
                     // the following line is correct

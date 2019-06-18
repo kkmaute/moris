@@ -11,19 +11,22 @@
 #include "cl_FEM_Element_Factory.hpp"        //FEM/INT/src
 #include "cl_FEM_Integrator.hpp"             //FEM/INT/src
 
+#include "cl_MTK_Set.hpp"             //FEM/INT/src
+
 namespace moris
 {
     namespace fem
     {
 //------------------------------------------------------------------------------
-        Set::Set( moris::Cell< mtk::Cluster const * >      & aMeshClusterList,
+        Set::Set( moris::mtk::Set                          * aSet,
                   enum fem::Element_Type                     aElementType,
                   moris::Cell< IWG* >                      & aIWGs,
-                  moris::Cell< Node_Base* >                & aIPNodes) : mMeshClusterList( aMeshClusterList ),
+                  moris::Cell< Node_Base* >                & aIPNodes) : mSet(aSet),
                                                                          mNodes(aIPNodes),
                                                                          mIWGs( aIWGs ),
                                                                          mElementType( aElementType )
         {
+            mMeshClusterList = aSet->get_clusters_on_set();
             // create a unique dof type list
             this->create_unique_dof_type_lists();
 
@@ -107,15 +110,13 @@ namespace moris
     {
         this->delete_pointers();
 
+        mIPGeometryType = mSet->get_interpolation_cell_geometry_type();
+
+        mIGGeometryType = mSet->get_integration_cell_geometry_type();
+
         // if block-set
         if( mMeshClusterList.size() > 0 && mElementType == fem::Element_Type::BULK )
         {
-                // set the integration geometry type
-                mIPGeometryType = mMeshClusterList( 0 )->get_interpolation_cell().get_geometry_type();
-
-                // set the integration geometry type
-                mIGGeometryType = mMeshClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
-
                 // space interpolation order for IP cells fixme
                 mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
                                                                                  mIPGeometryType );
@@ -178,12 +179,6 @@ namespace moris
             // if side-set
             else if( mMeshClusterList.size() > 0 && mElementType == fem::Element_Type::SIDESET )
             {
-                // set the integration geometry type
-                mIPGeometryType = mMeshClusterList( 0 )->get_interpolation_cell().get_geometry_type();
-
-                // set the integration geometry type
-                mIGGeometryType = get_auto_side_geometry_type( mMeshClusterList( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type() );
-
                 // interpolation order for IP cells fixme
                 mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_interpolation_cell().get_number_of_vertices(),
                                                                                  mIPGeometryType );
@@ -247,12 +242,6 @@ namespace moris
             // if double side-set
            if( mMeshClusterList.size() > 0 && mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
-                // set the integration geometry type
-                mIPGeometryType = mMeshClusterList( 0 )->get_interpolation_cell( 0 ).get_geometry_type();
-
-                // set the integration geometry type
-                mIGGeometryType = get_auto_side_geometry_type( mMeshClusterList( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_geometry_type() );
-
                 // interpolation order for IP cells fixme
                 mIPSpaceInterpolationOrder = this->get_auto_interpolation_order( mMeshClusterList( 0 )->get_interpolation_cell( 0 ).get_number_of_vertices(),
                                                                                  mIPGeometryType );

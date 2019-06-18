@@ -1,8 +1,8 @@
 /*
  * cl_MTK_Element_Block.hpp
  *
- *  Created on: Jul 24, 2018
- *      Author: messe
+ *  Created on: Jul 24, 2019
+ *      Author: Achmidt
  */
 
 #ifndef SRC_MESH_CL_MTK_BLOCK_HPP_
@@ -18,6 +18,7 @@
 
 #include "cl_MTK_Cell_Cluster.hpp" //MTK/src
 #include "cl_MTK_Set.hpp" //MTK/src
+
 
 namespace moris
 {
@@ -37,11 +38,11 @@ namespace moris
             {
                 uint tMaxNumVert = 0;
 
-                for( uint Ik = 0; Ik < mBlockSetClusters.size(); Ik++)
+                for( uint Ik = 0; Ik < mSetClusters.size(); Ik++)
                 {
-                    for( uint Ij = 0; Ij < mBlockSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
+                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
                     {
-                        tMaxNumVert = tMaxNumVert + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                        tMaxNumVert = tMaxNumVert + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                                                            ->get_vertex_inds().numel();
                     }
                 }
@@ -50,17 +51,17 @@ namespace moris
 
                 uint tCounter = 0;
 
-                for( uint Ik = 0; Ik < mBlockSetClusters.size(); Ik++)
+                for( uint Ik = 0; Ik < mSetClusters.size(); Ik++)
                 {
-                    for( uint Ij = 0; Ij < mBlockSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
+                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
                     {
                         //FIXME rewrite for more readability
-                        tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                        tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                                                                         ->get_vertex_inds().numel() - 1 }) =
-                                mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                                                                mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                                        ->get_vertex_inds().matrix_data();
 
-                        tCounter =tCounter + mBlockSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                        tCounter =tCounter + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
                                                                     ->get_vertex_inds().numel();
                     }
                 }
@@ -76,10 +77,24 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        protected :
-            moris::Matrix< DDUMat >           mMyBlockSetClusterInds;
-            moris::Cell<Cluster const *> mBlockSetClusters;
+            void communicate_ig_geometry_type()
+            {
+                mtk::Geometry_Type tIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
+                if( mSetClusters.size() > 0 )
+                {
+                    // set the integration geometry type
+                    tIGGeometryType = mSetClusters( 0 )->get_primary_cells_in_cluster( )( 0 )->get_geometry_type();
+                }
+
+                uint tRecIGGeometryType = (uint) mtk::Geometry_Type::UNDEFINED;
+
+                min_all( (uint)tIGGeometryType, tRecIGGeometryType );
+
+                mIGGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIGGeometryType);
+
+                MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
+            };
 
 //------------------------------------------------------------------------------
         public:
@@ -88,7 +103,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( moris::Cell<Cluster const *>  aBlockSetClusters ) : mBlockSetClusters(aBlockSetClusters)
+            Block( moris::Cell<Cluster const *>  aBlockSetClusters ) : Set( aBlockSetClusters )
             {
 //                mMyBlockSetClusterInds.set_size( aBlockSetClusters.size(), 1 );
 //
@@ -98,6 +113,8 @@ namespace moris
 //                }
 
                 this->calculate_vertices_on_blocks();
+
+                this->communicate_ig_geometry_type();
             };
 
 //------------------------------------------------------------------------------
@@ -118,12 +135,13 @@ namespace moris
 //                  return mMyBlockSetClusterInds;
 //              }
 
+
 //------------------------------------------------------------------------------
 
               const Cluster  *
               get_cell_clusters_by_index( moris_index aCellClusterIndex ) const
               {
-                  return mBlockSetClusters( aCellClusterIndex );
+                  return mSetClusters( aCellClusterIndex );
               }
 
 //------------------------------------------------------------------------------
@@ -147,15 +165,15 @@ namespace moris
               const moris::uint
               get_num_clusters_on_set() const
               {
-                  return mBlockSetClusters.size();
+                  return mSetClusters.size();
               }
 
 //------------------------------------------------------------------------------
 
               moris::Cell<Cluster const *>
-              get_cell_clusters_on_set() const
+              get_clusters_on_set() const
               {
-                  return mBlockSetClusters;
+                  return mSetClusters;
               }
 
 //------------------------------------------------------------------------------

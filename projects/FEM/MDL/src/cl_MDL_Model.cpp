@@ -156,17 +156,16 @@ namespace moris
             // init the fem set counter
             moris::uint tFemSetCounter = 0;
 
-            //moris::Cell<std::string> tBlockSetNames = tIntegrationMesh->get_block_set_names();
-            //print( tBlockSetNames, "tBlockSetNames" );
-
             // loop over the used mesh block-set
             for( luint Ik = 0; Ik < aBlocksetList.size(); ++Ik )
             {
                 // create a list of cell clusters (this needs to stay in scope somehow)
-                moris::Cell<mtk::Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( aBlocksetList( Ik ) );
+                moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( aBlocksetList( Ik ) );
+//                moris::Cell<mtk::Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_block_by_index( aBlocksetList( Ik ) )
+//                                                                                        ->get_clusters_on_set();
 
                 // create new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tBlockSetClusterList,
+                mFemSets( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                            fem::Element_Type::BULK,
                                                            mIWGs( 0 ),
                                                            mIPNodes );
@@ -188,10 +187,12 @@ namespace moris
             for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
             {
                 // create a list of side clusters
-                moris::Cell< mtk::Cluster const * > tSideSetClusterList = tIntegrationMesh->get_side_set_cluster( aSidesetList( Ik ) );
+                moris::mtk::Set * tSideSet = tIntegrationMesh->get_side_set_by_index( aSidesetList( Ik ) );
+//                moris::Cell<mtk::Cluster const*> tSideSetClusterList = tIntegrationMesh->get_side_set_by_index( aSidesetList( Ik ) )
+//                                                                                        ->get_clusters_on_set();
 
                 // create a new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tSideSetClusterList,
+                mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
                                                            fem::Element_Type::SIDESET,
                                                            mIWGs( Ik + 1 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
                                                            mIPNodes );
@@ -211,11 +212,12 @@ namespace moris
             for( luint Ik = 0; Ik < aDoubleSidesetList.size(); ++Ik )
             {
                 // create a list of double side clusters
-                moris::Cell< mtk::Cluster const *> tDoubleSideSetClusterList
-                    = tIntegrationMesh->get_double_side_set_cluster( aDoubleSidesetList( Ik ) );
+                moris::mtk::Set * tDoubleSideSet = tIntegrationMesh->get_double_side_set_by_index( aDoubleSidesetList( Ik ) );
+//                moris::Cell<mtk::Cluster const*> tDoubleSideSetClusterList = tIntegrationMesh->get_double_side_set_by_index( aDoubleSidesetList( Ik ) )
+//                                                                                        ->get_clusters_on_set();
 
                 // create a new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tDoubleSideSetClusterList,
+                mFemSets( tFemSetCounter ) = new fem::Set( tDoubleSideSet,
                                                            fem::Element_Type::DOUBLE_SIDESET,
                                                            mIWGs( 3 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
                                                            mIPNodes );
