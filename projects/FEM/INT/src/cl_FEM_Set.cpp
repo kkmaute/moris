@@ -110,6 +110,8 @@ namespace moris
     {
         this->delete_pointers();
 
+        mIsTrivialMaster = mSet->is_trivial( mtk::Master_Slave::MASTER );
+
         mIPGeometryType = mSet->get_interpolation_cell_geometry_type();
 
         mIGGeometryType = mSet->get_integration_cell_geometry_type();
@@ -173,6 +175,8 @@ namespace moris
         // if double side-set
         else if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
         {
+            mIsTrivialSlave = mSet->is_trivial( mtk::Master_Slave::SLAVE );
+
             // create an interpolation geometry intepolator
             mLeftIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
             mRightIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );

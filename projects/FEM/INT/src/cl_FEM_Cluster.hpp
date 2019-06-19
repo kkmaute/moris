@@ -206,12 +206,12 @@ namespace moris
             else if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
                 // fill the left and right interpolation cell
-                mLeftInterpolationCell  = & aMeshCluster->get_interpolation_cell( 0 );
-                mRightInterpolationCell = & aMeshCluster->get_interpolation_cell( 1 );
+                mLeftInterpolationCell  = & aMeshCluster->get_interpolation_cell( mtk::Master_Slave::MASTER );
+                mRightInterpolationCell = & aMeshCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE );
 
                 // fill the left and right integration cells
-                mLeftIntegrationCells  = aMeshCluster->get_primary_cells_in_cluster( 0 );
-                mRightIntegrationCells = aMeshCluster->get_primary_cells_in_cluster( 1 );
+                mLeftIntegrationCells  = aMeshCluster->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER );
+                mRightIntegrationCells = aMeshCluster->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE );
 
                 // set the side ordinals for the left and right IG cells
                 mLeftListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( 0 );
@@ -281,7 +281,7 @@ namespace moris
 
 
             // if trivial cluster IP cell = IG cell
-            if( mMeshCluster->is_trivial() )
+            if( mSet->mIsTrivialMaster )
             {
                 // get the side param coords from the IG geometry interpolator
                 return mSet->get_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal,
@@ -304,7 +304,7 @@ namespace moris
             MORIS_ASSERT( mMeshCluster != NULL, "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a cell cluster.");
 
             // if trivial cluster IP cell = IG cell
-            if( mMeshCluster->is_trivial() )
+            if( mSet->mIsTrivialMaster )
             {
                 // get the side param coords from the IG geometry interpolator
                 return mSet->get_IP_geometry_interpolator()->extract_space_param_coeff( mSet->get_IG_space_interpolation_order() );
@@ -327,7 +327,7 @@ namespace moris
                           "Cluster::get_left_cell_local_coords_on_side_wrt_interp_cell - not a double side cluster.");
 
             // if trivial cluster IP cell = IG cell
-            if( mMeshCluster->is_trivial( 0 ) )
+            if( mSet->mIsTrivialMaster )
             {
                 // get the side param coords from the IG geometry interpolator
                 return mSet->get_left_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal,
@@ -349,7 +349,7 @@ namespace moris
                            "Cluster::get_right_cell_local_coords_on_side_wrt_interp_cell - not a double side cluster.");
 
              // if trivial cluster IP cell = IG cell
-             if( mMeshCluster->is_trivial( 1 ) )
+             if( mSet->mIsTrivialSlave )
              {
                  // get the side param coords from the IG geometry interpolator
                  return mSet->get_right_IP_geometry_interpolator()->extract_space_side_space_param_coeff( aSideOrdinal,

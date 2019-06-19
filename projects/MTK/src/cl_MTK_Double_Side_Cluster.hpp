@@ -69,19 +69,19 @@ public:
      *
      */
 
-    virtual bool is_trivial( const moris::uint aSide ) const
+    virtual bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().is_trivial();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().is_trivial();
         }
         else
         {
-            MORIS_ERROR(false, "is_trivial(): can only be 0 and 1");
+            MORIS_ERROR(false, "is_trivial(): can only be MASTER or SLAVE");
             return false;
         }
     }
@@ -172,13 +172,13 @@ public:
     }
 
     moris::mtk::Cell const &
-    get_interpolation_cell( const moris::uint aSide ) const
+    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_interpolation_cell();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_interpolation_cell();
         }
@@ -214,19 +214,19 @@ public:
     //----------------------------------------------------------------
 
     moris::Cell<mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const moris::uint aSide ) const
+    get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_cells_in_side_cluster();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster ==  mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_cells_in_side_cluster();
         }
         else
         {
-            MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be MASTER and SLAVE");
             return mDummCellCell;
         }
     }

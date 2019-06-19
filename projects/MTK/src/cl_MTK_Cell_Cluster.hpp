@@ -27,7 +27,7 @@ public:
     //##############################################
     virtual
     bool
-    is_trivial( const moris::uint aSide = 0 ) const = 0;
+    is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
 
 
@@ -38,7 +38,7 @@ public:
 
     virtual
     moris::Cell<moris::mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const moris::uint aSide = 0 ) const = 0;
+    get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     virtual
     moris::Cell<moris::mtk::Cell const *> const &
@@ -46,7 +46,7 @@ public:
 
     virtual
     moris::mtk::Cell const &
-    get_interpolation_cell( const moris::uint aSide = 0 ) const = 0;
+    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     virtual
     moris::Cell<moris::mtk::Vertex const *> const &

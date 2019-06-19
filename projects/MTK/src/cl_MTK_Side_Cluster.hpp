@@ -41,14 +41,14 @@ public:
      */
     virtual
     bool
-    is_trivial( const moris::uint aSide = 0 ) const  = 0;
+    is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const  = 0;
 
     /*!
      * Get interpolation cell interpolating into this side cluster
      */
     virtual
     moris::mtk::Cell const &
-    get_interpolation_cell( const moris::uint aSide = 0 ) const = 0;
+    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     /*!
      * Get all integration cells in this side cluster
@@ -58,7 +58,7 @@ public:
     get_cells_in_side_cluster() const = 0;
 
     moris::Cell<mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const moris::uint aSide = 0 ) const
+    get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         return this->get_cells_in_side_cluster();
     }

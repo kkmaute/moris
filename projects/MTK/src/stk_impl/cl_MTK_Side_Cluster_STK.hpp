@@ -61,12 +61,12 @@ public:
     //----------------------------------------------------------------
 
     bool
-    is_trivial( const moris::uint aSide = 0 ) const;
+    is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //----------------------------------------------------------------
 
     moris::mtk::Cell const &
-    get_interpolation_cell( const moris::uint aSide =0) const;
+    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
 
     //----------------------------------------------------------------
 

@@ -239,16 +239,16 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
 
 //        Side_Cluster const & tLeftCluster = tGhostDoubleSide(0).get_left_side_cluster();
 
-        CHECK(tGhostDoubleSide(0)->is_trivial( 0 ));
-        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( 0 ).get_id() == tLeftInterpCell->get_id());
+        CHECK(tGhostDoubleSide(0)->is_trivial( mtk::Master_Slave::MASTER ));
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id() == tLeftInterpCell->get_id());
 
         moris::Matrix<moris::IndexMat> tLeftCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( 0 );
         CHECK(tLeftCellSideOrds.numel() == 1);
         CHECK(tLeftCellSideOrds(0) == 5);
 
 //        Side_Cluster const & tRightCluster = tGhostDoubleSide(0).get_right_side_cluster();
-        CHECK(tGhostDoubleSide(0)->is_trivial( 1 ));
-        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( 1 ).get_id() == tRightInterpCell->get_id());
+        CHECK(tGhostDoubleSide(0)->is_trivial( mtk::Master_Slave::SLAVE ));
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id() == tRightInterpCell->get_id());
 
         moris::Matrix<moris::IndexMat> tRightCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( 1 );
         CHECK(tRightCellSideOrds.numel() == 1);

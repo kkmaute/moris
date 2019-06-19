@@ -43,7 +43,7 @@ public:
 
     //----------------------------------------------------------------
     bool
-    is_trivial( const moris::uint aSide = 0 ) const;
+    is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //##############################################
     // Add and setup of cluster
@@ -88,7 +88,7 @@ public:
     //##############################################
 
     moris::Cell<moris::mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const moris::uint aSide = 0 ) const;
+    get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
 
     //----------------------------------------------------------------
 
@@ -98,7 +98,7 @@ public:
     //----------------------------------------------------------------
 
     moris::mtk::Cell const &
-    get_interpolation_cell( const moris::uint aSide = 0 ) const;
+    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //----------------------------------------------------------------
 

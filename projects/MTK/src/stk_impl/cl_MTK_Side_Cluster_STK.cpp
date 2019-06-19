@@ -71,7 +71,7 @@ Side_Cluster_STK::Side_Cluster_STK(
 //----------------------------------------------------------------
 
 bool
-Side_Cluster_STK::is_trivial( const moris::uint aSide ) const
+Side_Cluster_STK::is_trivial( const mtk::Master_Slave aIsMaster ) const
 {
     return mTrivial;
 }
@@ -79,7 +79,7 @@ Side_Cluster_STK::is_trivial( const moris::uint aSide ) const
 //----------------------------------------------------------------
 
 moris::mtk::Cell const &
-Side_Cluster_STK::get_interpolation_cell(const moris::uint aSide ) const
+Side_Cluster_STK::get_interpolation_cell(const mtk::Master_Slave aIsMaster ) const
 {
     return *mInterpolationCell;
 }
