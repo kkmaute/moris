@@ -76,23 +76,23 @@ public:
     //----------------------------------------------------------------
 
     moris::Matrix<moris::IndexMat>
-    get_cell_side_ordinals( const moris::uint aSide = 0 ) const;
+    get_cell_side_ordinals( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //----------------------------------------------------------------
 
     moris_index
     get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-                         const moris::uint aSide = 0) const;
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //----------------------------------------------------------------
 
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster(const moris::uint aSide = 0) const;
+    get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //----------------------------------------------------------------
 
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell(const moris::uint aSide = 0) const;
+    get_vertices_local_coordinates_wrt_interp_cell(const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
 
     //----------------------------------------------------------------
 
@@ -103,12 +103,12 @@ public:
 
     moris::Matrix<moris::DDRMat>
     get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                                                  const moris::uint aSide = 0) const;
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
 
     //----------------------------------------------------------------
 
     moris_index
-    get_dim_of_param_coord(const moris::uint aSide = 0) const;
+    get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //----------------------------------------------------------------
 

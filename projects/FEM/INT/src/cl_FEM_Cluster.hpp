@@ -214,8 +214,8 @@ namespace moris
                 mRightIntegrationCells = aMeshCluster->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE );
 
                 // set the side ordinals for the left and right IG cells
-                mLeftListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( 0 );
-                mRightListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( 1 );
+                mLeftListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
+                mRightListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
 
                 // select the element nodes from aIPNodes and fill mNodeObj
                 // get vertices from cell
@@ -337,7 +337,7 @@ namespace moris
             else
             {
                 // get the side param coords from the side cluster
-                return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, 0 );
+                return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, mtk::Master_Slave::MASTER );
             }
         }
 
@@ -359,7 +359,7 @@ namespace moris
              else
              {
                  // get the side param coords from the side cluster
-                 return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, 1 );
+                 return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, mtk::Master_Slave::SLAVE );
              }
          }
 
@@ -409,7 +409,7 @@ namespace moris
             moris::mtk::Vertex const * tRightVertex = mMeshCluster->get_left_vertex_pair( aLeftVertex );
 
             // return the index of the paired vertex on the right
-            return mMeshCluster->get_vertex_cluster_index( tRightVertex, 1 );
+            return mMeshCluster->get_vertex_cluster_index( tRightVertex, mtk::Master_Slave::SLAVE );
 
         }
 

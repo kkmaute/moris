@@ -35,7 +35,7 @@ public:
     virtual
     moris_index
     get_vertex_cluster_index( const Vertex * aVertex,
-                              const moris::uint aSide = 0 ) const
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         MORIS_ERROR(false, "get_vertex_cluster_index(): not implemented for this cluster type");
         return 0;
@@ -59,7 +59,7 @@ public:
 
     virtual
     moris::Matrix<moris::IndexMat>
-    get_cell_side_ordinals( const moris::uint aSide = 0 ) const
+    get_cell_side_ordinals( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         MORIS_ERROR(false, "get_interpolation_cell(): not implemented for this cluster type");
         return moris::Matrix<moris::IndexMat>(0,0);
@@ -68,7 +68,7 @@ public:
     virtual
     moris_index
     get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-                          const moris::uint aSide = 0) const
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const
     {
         MORIS_ERROR(false, "get_cell_side_ordinal(): not implemented for this cluster type");
         return 0;
@@ -76,7 +76,7 @@ public:
 
     virtual
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster( const moris::uint aSide = 0 ) const = 0;
+    get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     virtual
     moris::mtk::Vertex const *
@@ -92,7 +92,7 @@ public:
     //##############################################
     virtual
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide = 0 ) const = 0;
+    get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     /*
      * Access a single local coordinate of a vertex
@@ -100,12 +100,12 @@ public:
     virtual
     moris::Matrix<moris::DDRMat>
     get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                                                 const moris::uint aSide = 0 ) const = 0;
+                                                 const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     virtual
     moris::Matrix<moris::DDRMat>
     get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aLeftClusterLocalIndex,
-                                                  const moris::uint aSide = 0 ) const
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): not implemented for this cluster type");
         return moris::Matrix<moris::DDRMat>(0,0);
@@ -120,7 +120,7 @@ public:
      */
     virtual
     moris_index
-    get_dim_of_param_coord( const moris::uint aSide = 0) const = 0;
+    get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     // ---------------------------------------------
     // EVERYTHING BELOW THIS LINE HAS A DEFAULT

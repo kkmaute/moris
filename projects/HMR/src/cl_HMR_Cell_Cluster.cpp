@@ -119,7 +119,7 @@ Cell_Cluster_HMR::get_interpolation_cell( const mtk::Master_Slave aIsMaster ) co
 //----------------------------------------------------------------
 
 moris::Cell<moris::mtk::Vertex const *> const &
-Cell_Cluster_HMR::get_vertices_in_cluster(const moris::uint aSide ) const
+Cell_Cluster_HMR::get_vertices_in_cluster(const mtk::Master_Slave aIsMaster ) const
 {
     return mVerticesInCluster;
 }
@@ -128,7 +128,7 @@ Cell_Cluster_HMR::get_vertices_in_cluster(const moris::uint aSide ) const
 //----------------------------------------------------------------
 
 moris::Matrix<moris::DDRMat> const &
-Cell_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell(const moris::uint aSide ) const
+Cell_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
 {
     return mVertexParamCoords;
 }
@@ -137,7 +137,7 @@ Cell_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell(const moris::ui
 
 moris::Matrix<moris::DDRMat>
 Cell_Cluster_HMR::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                                                               const moris::uint aSide ) const
+                                                               const mtk::Master_Slave aIsMaster ) const
 {
     MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
 
@@ -151,7 +151,7 @@ Cell_Cluster_HMR::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Verte
 //----------------------------------------------------------------
 
 moris_index
-Cell_Cluster_HMR::get_dim_of_param_coord(const moris::uint aSide ) const
+Cell_Cluster_HMR::get_dim_of_param_coord(const mtk::Master_Slave aIsMaster ) const
 {
     MORIS_ERROR(!mTrivial,"Accessing size of local coordinates on a trivial cell cluster is not allowed");
     return mVertexParamCoords.n_cols();

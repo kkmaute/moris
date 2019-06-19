@@ -95,7 +95,7 @@ Side_Cluster_HMR::get_cells_in_side_cluster() const
 //----------------------------------------------------------------
 
 moris::Matrix<moris::IndexMat>
-Side_Cluster_HMR::get_cell_side_ordinals( const moris::uint aSide) const
+Side_Cluster_HMR::get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const
 {
     return mIntegrationCellSideOrdinals;
 }
@@ -104,7 +104,7 @@ Side_Cluster_HMR::get_cell_side_ordinals( const moris::uint aSide) const
 
 moris_index
 Side_Cluster_HMR::get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-        const moris::uint aSide ) const
+        const mtk::Master_Slave aIsMaster ) const
 {
     MORIS_ASSERT(aCellIndexInCluster<(moris_index)mIntegrationCellSideOrdinals.numel(),"Cell index in cluster out of bounds");
 
@@ -114,7 +114,7 @@ Side_Cluster_HMR::get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
 //----------------------------------------------------------------
 
 moris::Cell<moris::mtk::Vertex const *> const &
-Side_Cluster_HMR::get_vertices_in_cluster( const moris::uint aSide ) const
+Side_Cluster_HMR::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
 {
     return mVerticesInCluster;
 }
@@ -122,7 +122,7 @@ Side_Cluster_HMR::get_vertices_in_cluster( const moris::uint aSide ) const
 //----------------------------------------------------------------
 
 moris::Matrix<moris::DDRMat> const &
-Side_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide ) const
+Side_Cluster_HMR::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
 {
     MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");
 
@@ -142,7 +142,7 @@ Side_Cluster_HMR::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex )
 
 moris::Matrix<moris::DDRMat>
 Side_Cluster_HMR::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-        const moris::uint aSide ) const
+        const mtk::Master_Slave aIsMaster ) const
 {
     MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial side cluster is not allowed");
 
@@ -156,7 +156,7 @@ Side_Cluster_HMR::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Verte
 //----------------------------------------------------------------
 
 moris_index
-Side_Cluster_HMR::get_dim_of_param_coord( const moris::uint aSide ) const
+Side_Cluster_HMR::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster ) const
 {
     MORIS_ERROR(!mTrivial,"Accessing size of local coordinates on a trivial side cluster is not allowed");
     return mVertexParamCoords.n_cols();

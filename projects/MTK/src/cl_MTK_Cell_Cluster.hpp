@@ -50,7 +50,7 @@ public:
 
     virtual
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster( const moris::uint aSide = 0) const = 0;
+    get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const = 0;
 
     //##############################################
     // Local Coordinate Access
@@ -58,7 +58,7 @@ public:
     //##############################################
     virtual
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide = 0 ) const = 0;
+    get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     /*
      * Access a single local coordinate of a vertex
@@ -66,7 +66,7 @@ public:
     virtual
     moris::Matrix<moris::DDRMat>
     get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                                                 const moris::uint aSide = 0) const  = 0;
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const  = 0;
 
     //##############################################
     // Size Access
@@ -77,7 +77,7 @@ public:
      */
     virtual
     moris_index
-    get_dim_of_param_coord( const moris::uint aSide = 0 ) const  = 0;
+    get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const  = 0;
 
     // ---------------------------------------------
     // EVERYTHING BELOW THIS LINE HAS A DEFAULT
