@@ -13,15 +13,16 @@ list(APPEND MORIS_SOURCE_DIRS ${TOL})
 
 # Third party libraries directly used in TOL-lib
 set(TOL_LIB_TPL_DEPENDENCIES
-	""
+	#${ACML_LAPACK_MKL}
+	#"arpack" # for linking order
 	)
 
 # Third party libraries directly used in TOL-test
 set(TOL_TEST_TPL_DEPENDENCIES
-    ${ACML_LAPACK_MKL} #> tests
-    "superlu" #> tests
-    "arpack" #> tests
-    "trilinos" #> tests
+    #${ACML_LAPACK_MKL} #> tests
+    #"superlu" #> tests
+    #"arpack" #> tests
+    #"trilinos" #> tests
     )
 
 # Make sure needed moris libraries are built

@@ -65,12 +65,12 @@ set_target_properties(${SOL_CORE}-lib PROPERTIES OUTPUT_NAME ${SOL_CORE})
 foreach(TPL ${SOL_CORE_LIB_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    target_link_libraries(${SOL_CORE}-lib
+    	PUBLIC ${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${SOL_CORE}-lib
     	INTERFACE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${SOL_CORE}-lib
-    	INTERFACE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
     target_compile_definitions(${SOL_CORE}-lib
     	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
 endforeach()

@@ -244,6 +244,9 @@ option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
+# -------------------------------------------------------------------------
+# Macros
+include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 
 # -------------------------------------------------------------------------
 # Compiler ----------------------------------------------------------------

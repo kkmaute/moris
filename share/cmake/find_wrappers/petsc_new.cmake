@@ -43,6 +43,22 @@ if(NOT PETSC_FOUND_ONCE)
 	message(STATUS "PETSC_LIBRARY_RELEASE: ${PETSC_LIBRARY_RELEASE}")
 endif()
 
+if(NOT TARGET petsc)
+	set(MORIS_PETSC_TPLS
+		superlu
+		trilinos
+		)
+
+	foreach(TPL ${MORIS_PETSC_TPLS})
+		include(${MORIS_TPL_DIR}/${TPL}_new.cmake)
+	endforeach()
+	
+	add_library(petsc STATIC IMPORTED GLOBAL)
+	set_target_properties(petsc PROPERTIES 
+		IMPORTED_LOCATION ${MORIS_PETSC_LIBRARIES} )
+	target_link_libraries(petsc INTERFACE ${MORIS_PETSC_TPLS})
+endif()
+
 #add_definitions("-DMORIS_HAVE_PETSC")
 #include_directories(${PETSC_INCLUDE_DIR} ${PETSC_ARCH_INCLUDE_DIR})
 #set(MORIS_PETSC_LIBS ${PETSC_LIBRARY_RELEASE})

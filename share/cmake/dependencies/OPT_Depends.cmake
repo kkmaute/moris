@@ -13,7 +13,7 @@ list(APPEND MORIS_SOURCE_DIRS ${OPT})
 
 # Include libraries needed by OPT
 set(OPT_LIB_TPL_DEPENDENCIES
-    ${ACML_LAPACK_MKL}
+    #${ACML_LAPACK_MKL}
     "gcmma"
     "snopt"
     )

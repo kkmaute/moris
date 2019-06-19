@@ -85,12 +85,12 @@ set_target_properties(${MSI}-lib PROPERTIES OUTPUT_NAME ${MSI})
 foreach(TPL ${MSI_LIB_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    target_link_libraries(${MSI}-lib
+    	PUBLIC ${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${MSI}-lib
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${MSI}-lib
-    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
     target_compile_definitions(${MSI}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()

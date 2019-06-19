@@ -20,6 +20,11 @@ if(NOT ACML_FOUND_ONCE)
     message(STATUS "ACML_LIBRARIES: ${ACML_LIBRARIES}")
 endif()
 
+if(NOT TARGET acml)
+	add_library(acml INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(acml INTERFACE ${MORIS_ACML_LIBRARIES})
+endif()
+
 #add_definitions("-DMORIS_HAVE_ACML")
 #set(MORIS_ACML_LIBS ${LAPACK_LIBRARIES})
 #set(MORIS_ACML_LAPACK_MKL_LIBS ${ACML_LIBRARIES})

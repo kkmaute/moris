@@ -19,5 +19,11 @@ if(NOT SNOPT_FOUND_ONCE)
     message(STATUS "SNOPT_LIBRARIES: ${SNOPT_LIBRARIES}")
 endif()
 
+if(NOT TARGET snopt)
+	add_library(snopt STATIC IMPORTED GLOBAL)
+	set_target_properties(snopt PROPERTIES
+		IMPORTED_LOCATION ${MORIS_SNOPT_LIBRARIES} )
+endif()
+
 #link_directories(${SNOPT_LIBRARY_DIRS})
 #set(MORIS_SNOPT_LIBS ${SNOPT_LIBRARIES})

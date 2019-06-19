@@ -13,17 +13,17 @@ list(APPEND MORIS_SOURCE_DIRS ${SOL}/${DLA})
 
 # Include libraries needed by DLA
 set(DLA_LIB_TPL_DEPENDENCIES
-    "PETSc"
+	"PETSc"
     #"trilinos" #
     #${ACML_LAPACK_MKL} #
     "mpi"
     #${ARMADILLO_EIGEN} #
-    "superlu"
+    #"superlu"
     )
 
 # Additional third party libraries for tests
 set(DLA_TEST_TPL_DEPENDENCIES
-	${ARMADILLO_EIGEN}
+	#${ARMADILLO_EIGEN}
 	)
 
 # Make sure needed moris libraries are built

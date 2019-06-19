@@ -40,9 +40,9 @@ endif()
 # needs some tpls
 set(XTK_LIB_TPL_DEPENDENCIES
     #${ARMADILLO_EIGEN}
-    "superlu" # needed for exe linking order
+    #"superlu" # needed for exe linking order
     #"trilinos"
-    "arpack" # needed for exe linking order
+    #"arpack" # needed for exe linking order
     )
 
 set(XTK_EXE_TPL_DEPENDENCIES

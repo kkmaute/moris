@@ -39,6 +39,22 @@ if(NOT ARMADILLO_FOUND_ONCE)
 	message(STATUS "ARMADILLO_LIBRARIES: ${ARMADILLO_LIBRARIES}")
 endif()
 
+if(NOT TARGET armadillo)
+	set(MORIS_ARMADILLO_TPLS
+		${ACML_LAPACK_MKL}
+		"arpack"
+		)
+	
+	foreach(TPL ${MORIS_ARMADILLO_TPLS})
+		include(${MORIS_TPL_DIR}/${TPL}_new.cmake)
+	endforeach()
+
+	add_library(armadillo STATIC IMPORTED GLOBAL)
+	set_target_properties(armadillo PROPERTIES
+		IMPORTED_LOCATION ${MORIS_ARMADILLO_LIBRARIES})
+	target_link_libraries(armadillo INTERFACE ${MORIS_ARMADILLO_TPLS})
+endif()
+
 #add_definitions("-DMORIS_USE_ARMA")
 #include_directories(${MORIS_ARMADILLO_INCLUDE_DIRS})
 #link_directories(${MORIS_ARMADILLO_LIBRARY_DIRS})

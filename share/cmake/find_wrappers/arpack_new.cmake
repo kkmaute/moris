@@ -17,4 +17,10 @@ if(NOT ARPACK_FOUND_ONCE)
     message(STATUS "ARPACK_LIBRARIES: ${ARPACK_LIBRARIES}")
 endif()
 
+if(NOT TARGET arpack)
+	add_library(arpack STATIC IMPORTED GLOBAL)
+	set_target_properties(arpack PROPERTIES
+		IMPORTED_LOCATION ${MORIS_ARPACK_LIBRARIES} )
+endif()
+
 #set(MORIS_ARPACK_LIBS ${ARPACK_LIBRARIES})

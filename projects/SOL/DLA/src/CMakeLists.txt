@@ -73,6 +73,27 @@ set(LIB_SOURCES
     cl_VectorPETSc.cpp
     cl_DLA_Solver_Interface.cpp )
 
+#include(${MORIS_TPL_DIR}/petsc_new.cmake)
+#
+#if(TARGET petsc)
+#	message("yee")
+#endif()
+#
+#add_library(superlu STATIC IMPORTED GLOBAL)
+#set_target_properties(superlu 
+#    PROPERTIES IMPORTED_LOCATION ${MORIS_SUPERLU_LIBRARIES} )
+#
+#add_library(superlu_dist STATIC IMPORTED GLOBAL)
+#set_target_properties(superlu_dist
+#	PROPERTIES IMPORTED_LOCATION ${MORIS_SUPERLU_DIST_LIBRARIES} )
+#
+#add_library(petsc STATIC IMPORTED GLOBAL)
+#set_target_properties(petsc PROPERTIES
+#	IMPORTED_LOCATION ${MORIS_PETSC_LIBRARIES}
+#	INTERFACE_INCLUDE_DIRECTORIES "${MORIS_PETSC_INCLUDE_DIRS}"
+#	)
+#target_link_libraries(petsc INTERFACE superlu superlu_dist)
+
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${LINALG}-lib
@@ -111,8 +132,10 @@ foreach(TPL ${DLA_LIB_TPL_DEPENDENCIES})
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${DLA}-lib
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    #target_link_libraries(${DLA}-lib
+    #	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS} petsc)
     target_link_libraries(${DLA}-lib
-    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
+    	PUBLIC ${tpl})
     target_compile_definitions(${DLA}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()

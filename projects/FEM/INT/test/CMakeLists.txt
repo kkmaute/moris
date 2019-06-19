@@ -51,7 +51,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	test-libs
+	#test-libs
     ${INT}-lib
     ${ALG}-lib
     #${MSI}-lib

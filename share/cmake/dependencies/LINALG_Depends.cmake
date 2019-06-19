@@ -17,19 +17,23 @@ list(APPEND MORIS_SOURCE_DIRS ${LINALG})
 # Third party libraries directly needed by LINALG
 set(LINALG_LIB_TPL_DEPENDENCIES
 	${ARMADILLO_EIGEN}
+	${ACML_LAPACK_MKL}
+	"superlu"
+	"arpack"
 	)
 
 # Additional third party libraries needed by LINALG executables
 set(LINALG_EXE_TPL_DEPENDENCIES
-	${ARMADILLO_EIGEN}
-	${ACML_LAPACK_MKL}
-    "superlu"
-    "arpack"
+	#${ARMADILLO_EIGEN}
+	#${ACML_LAPACK_MKL}
+    #"superlu"
+    #"arpack"
+    ""
     )
 
 if(${ARMADILLO_EIGEN} STREQUAL "armadillo")
     list(APPEND LINALG_EXE_TPL_DEPENDENCIES
-        "viennacl"
+        #"viennacl"
         )
 elseif(${ARMADILLO_EIGEN} STREQUAL "eigen")
     list(APPEND LINALG_EXE_TPL_DEPENDENCIES

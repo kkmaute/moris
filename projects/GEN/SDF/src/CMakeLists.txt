@@ -77,12 +77,12 @@ set_target_properties(${SDF}-lib PROPERTIES OUTPUT_NAME ${SDF})
 foreach(TPL ${SDF_LIB_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    target_link_libraries(${SDF}-lib
+    	PUBLIC ${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${SDF}-lib
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${SDF}-lib
-    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
     target_compile_definitions(${SDF}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
