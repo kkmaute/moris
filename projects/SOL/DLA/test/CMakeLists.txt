@@ -42,6 +42,7 @@ set(TEST_DEPENDENCIES
 	test-libs
 	${ALG}-lib
     ${DLA}-lib
+    ${COM}-lib
     #${HMR}-lib
     #${MAP}-lib
     ${MTK}-lib

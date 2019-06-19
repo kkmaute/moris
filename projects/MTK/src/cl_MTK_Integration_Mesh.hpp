@@ -23,8 +23,12 @@ namespace mtk
 class Integration_Mesh : public virtual Mesh
 {
 protected:
-    moris::Cell< moris::mtk::Set * >             mListofBlocks;
-    moris::Cell< moris::mtk::Set * >             mListofSideSets;
+    moris::Cell< moris::mtk::Set * > mListofBlocks;
+    moris::Cell< moris::mtk::Set * > mListofSideSets;
+    moris::Cell< moris::mtk::Set * > mListofDoubleSideSets;
+
+
+
 public:
     Integration_Mesh(){};
     // Functions only valid for integration meshes
@@ -92,12 +96,33 @@ public:
     };
 
     // ----------------------------------------------------------------------------
+    /*
+     * Get number of blocks
+     * Sometimes num side set * 2. Ask Keenan
+     */
+    moris::uint
+    get_num_double_side_set() const
+    {
+        return mListofDoubleSideSets.size();
+    };
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by index
+     */
+    moris::mtk::Set *
+    get_double_side_set_by_index( moris::uint aSideSetIndex) const
+    {
+        return mListofDoubleSideSets(aSideSetIndex);
+    };
+
+    // ----------------------------------------------------------------------------
 
     /*
      * Get cell clusters within a block set
      */
     virtual
-    moris::Cell<Cell_Cluster const *>
+    moris::Cell<Cluster const *>
     get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const = 0;
 
     //##############################################
@@ -107,7 +132,7 @@ public:
      * Get side clusters within a side set
      */
     virtual
-    moris::Cell<Side_Cluster const *>
+    moris::Cell<Cluster const *>
     get_side_set_cluster(moris_index aSideSetOrdinal) const = 0;
 
     // ----------------------------------------------------------------------------
@@ -174,7 +199,7 @@ public:
      * Returns the double side clusters in the side set
      */
     virtual
-    moris::Cell<Double_Side_Cluster> const &
+    moris::Cell<Cluster const*>
     get_double_side_set_cluster(moris_index aSideSetOrdinal) const  = 0;
 
     // ----------------------------------------------------------------------------

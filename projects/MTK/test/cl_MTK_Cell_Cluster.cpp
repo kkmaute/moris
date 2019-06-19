@@ -523,14 +523,14 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         moris::Cell<std::string> tBlockSetNames = tIntegMesh1->get_block_set_names();
 
         // the sets that have no primary integration cells do not show up here
-        CHECK(tBlockSetNames.size() == 3);
-        CHECK(tBlockSetNames(0).compare("Omega_0_tets")==0);
-        CHECK(tBlockSetNames(1).compare("Omega_0_hex")==0);
-        CHECK(tBlockSetNames(2).compare("Ghost_Cells_0")==0);
+        CHECK(tBlockSetNames.size() == 7);
+        CHECK(tBlockSetNames(3).compare("Omega_0_tets")==0);
+        CHECK(tBlockSetNames(4).compare("Omega_0_hex")==0);
+        CHECK(tBlockSetNames(6).compare("Ghost_Cells_0")==0);
 
-        moris::Cell<Cell_Cluster const *> tClustersInBlock0 = tIntegMesh1->get_cell_clusters_in_set(0);
-        moris::Cell<Cell_Cluster const *> tClustersInBlock1 = tIntegMesh1->get_cell_clusters_in_set(1);
-        moris::Cell<Cell_Cluster const *> tClustersInBlock2 = tIntegMesh1->get_cell_clusters_in_set(2);
+        moris::Cell<Cluster const *> tClustersInBlock0 = tIntegMesh1->get_cell_clusters_in_set(3);
+        moris::Cell<Cluster const *> tClustersInBlock1 = tIntegMesh1->get_cell_clusters_in_set(4);
+        moris::Cell<Cluster const *> tClustersInBlock2 = tIntegMesh1->get_cell_clusters_in_set(6);
 
         CHECK(tClustersInBlock0.size() == 1);
         CHECK(all_true(tClustersInBlock0(0)->get_primary_cell_ids_in_cluster() == tCellIdsCluster1Material));

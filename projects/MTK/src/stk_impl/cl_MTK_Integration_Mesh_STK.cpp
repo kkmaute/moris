@@ -14,8 +14,9 @@
 #include "cl_MTK_Side_Cluster_Input.hpp"
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 
-#include "cl_MTK_Block_STK.hpp"
-#include "cl_MTK_Side_Set_STK.hpp"
+#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Side_Set.hpp"
+#include "cl_MTK_Double_Side_Set.hpp"
 namespace moris
 {
 namespace mtk
@@ -94,7 +95,7 @@ Integration_Mesh_STK::get_cell_cluster(Cell const & aInterpCell) const
 
 // ----------------------------------------------------------------------------
 
-Cell_Cluster const &
+Cell_Cluster const &                    // FIXME
 Integration_Mesh_STK::get_cell_cluster(moris_index aInterpCellIndex) const
 {
    MORIS_ASSERT(aInterpCellIndex<(moris_index)mCellClusters.size(),"Interpolation Cell index out of bounds");
@@ -109,14 +110,14 @@ Integration_Mesh_STK::get_block_set_names() const
 
 // ----------------------------------------------------------------------------
 
-moris::Cell<Cell_Cluster const *>
+moris::Cell<Cluster const *>
 Integration_Mesh_STK::get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const
 {
     MORIS_ASSERT(aBlockSetOrdinal<(moris_index)mPrimaryBlockSetNames.size(),"Requested block set ordinal out of bounds.");
 
     moris::Cell<moris::moris_index> const & tClusterIndsInSet = mPrimaryBlockSetClusters(aBlockSetOrdinal);
 
-    moris::Cell<Cell_Cluster const *> tClusterInSet(tClusterIndsInSet.size());
+    moris::Cell<Cluster const *> tClusterInSet(tClusterIndsInSet.size());
 
     for(moris::uint i = 0; i <tClusterIndsInSet.size(); i++)
     {
@@ -129,14 +130,14 @@ Integration_Mesh_STK::get_cell_clusters_in_set(moris_index aBlockSetOrdinal) con
 
 // ----------------------------------------------------------------------------
 
-moris::Cell<Side_Cluster const *>
+moris::Cell<Cluster const *>
 Integration_Mesh_STK::get_side_set_cluster(moris_index aSideSetOrdinal) const
 {
     MORIS_ASSERT(aSideSetOrdinal < (moris_index)mSideSets.size(), "Side set ordinal out of bounds");
 
     moris::uint tNumSideClustersInSet = mSideSets(aSideSetOrdinal).size();
 
-    moris::Cell<Side_Cluster const *> tSideClustersInSet(tNumSideClustersInSet);
+    moris::Cell<Cluster const *> tSideClustersInSet(tNumSideClustersInSet);
 
     for(moris::uint i = 0; i <tNumSideClustersInSet; i++)
     {
@@ -206,7 +207,7 @@ Integration_Mesh_STK::get_double_sided_set_index(std::string aDoubleSideSetLabel
 
 // ----------------------------------------------------------------------------
 
-moris::Cell<Double_Side_Cluster> const &
+moris::Cell<Cluster const*>
 Integration_Mesh_STK::get_double_side_set_cluster(moris_index aSideSetOrdinal) const
 {
     MORIS_ASSERT(aSideSetOrdinal<(moris_index)mDoubleSideSetLabels.size(),"Double side set ordinal out of bounds");
@@ -357,15 +358,19 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
      // remove block sets which had not primary clusters
      for(moris::uint i = tSetsToRemove.size(); i>0; i--)
      {
-         mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
-         mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
+//         mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
+//         mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
      }
 
      mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
+     moris::Cell<std::string> tBSNames = this->get_block_set_names();
+
      for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
      {
-         mListofBlocks( Ik ) = new moris::mtk::Block_STK( this->get_cell_clusters_in_set( Ik ));
+         std::cout<<" get_block_set_label = "<< tBSNames(Ik) <<" on "<<par_rank()<<std::endl;
+
+         mListofBlocks( Ik ) = new moris::mtk::Block( this->get_cell_clusters_in_set( Ik ));
      }
 
 }
@@ -381,10 +386,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // copy strings labels
     mSideSetLabels.append(aSideSetNames);
 
-    std::cout<<"---print labels ---"<<std::endl;
-    print(mSideSetLabels,"mSideSetLabels");
-    std::cout<<"---end print labels ---"<<std::endl;
-
     // add to map
     for(moris::uint i = 0; i <aSideSetNames.size(); i++)
     {
@@ -396,8 +397,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // iterate through block sets
     for(moris::uint i = 0;  i < aSideSetNames.size(); i++)
     {
-        std::cout<<"aSideSetNames = "<<aSideSetNames(i)<<std::endl;
-
         // get the cells and side ordinals from the mesh for this side set
         moris::Cell< mtk::Cell const * > tCellsInSet(0);
         moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);
@@ -495,7 +494,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
         // all trivial case
         else
         {
-            std::cout<<"all trivial"<<std::endl;
                 // loop over cells in the side set and make sure they have all been included
                 for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
                 {
@@ -515,7 +513,9 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set_STK( this->get_side_set_cluster( Ik ));
+        std::cout<<" get_side_set_label = "<< this->get_side_set_label(Ik) <<" on "<<par_rank()<<std::endl;
+
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set( this->get_side_set_cluster( Ik ));
     }
 
 }
@@ -631,9 +631,14 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
 
 
             // construct the double side cluster
-            mDoubleSideSets(i).push_back(Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex),tVertexLeftToRightPair));
-
+            mDoubleSideSets(i).push_back( new Double_Side_Cluster(&mDoubleSideSetSideClusters(tLeftIndex),&mDoubleSideSetSideClusters(tRightIndex),tVertexLeftToRightPair));
         }
+    }
+    mListofDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
+
+    for(moris::uint Ik = 0; Ik<mListofDoubleSideSets.size(); Ik++)
+    {
+        mListofDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set( this->get_double_side_set_cluster( Ik ));
     }
 
 }

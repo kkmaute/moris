@@ -12,6 +12,9 @@
 #include "cl_MTK_Vertex.hpp"      //MTK/src
 #include "cl_FEM_Node_Base.hpp"   //MTK/src
 
+#include "cl_Communication_Tools.hpp"
+#include "cl_Communication_Manager.hpp"
+
 namespace moris
 {
     namespace fem
@@ -20,7 +23,10 @@ namespace moris
 
         class Node : public Node_Base
         {
+        private:
             const mtk::Vertex * mVertex;
+
+
 
 //------------------------------------------------------------------------------
         public:
@@ -31,6 +37,7 @@ namespace moris
              */
             Node( const mtk::Vertex * aVertex ) : mVertex( aVertex )
             {
+//                mOwner = mVertex->get_owner();
             }
 
 //------------------------------------------------------------------------------
@@ -112,6 +119,20 @@ namespace moris
             moris_index get_index() const
             {
                 return mVertex->get_index();
+            }
+
+//------------------------------------------------------------------------------
+
+            bool id_owned( )
+            {
+                bool tOwned = true;
+
+                if( mVertex->get_owner() != par_rank() )
+                {
+                    tOwned = false;
+                }
+
+                return tOwned;
             }
 
 //------------------------------------------------------------------------------

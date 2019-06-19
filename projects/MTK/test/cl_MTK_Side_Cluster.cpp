@@ -196,7 +196,7 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 
         // get the interface side set
         moris_index tSideSetOrd = 0;
-        moris::Cell<Side_Cluster const *> tInterfaceSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
+        moris::Cell<Cluster const *> tInterfaceSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
         CHECK(tInterfaceSideClusters(0)->is_trivial() == false);
         CHECK(tInterfaceSideClusters.size() == 1);
 
@@ -204,7 +204,7 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         CHECK(tInterpCell->get_id() == tInterfaceInterpCell.get_id());
 
         // verify integration cells
-        moris::Matrix<moris::IdMat> tInterfaceCellIds     = tInterfaceSideClusters(0)->get_cell_ids_in_cluster();
+        moris::Matrix<moris::IdMat> tInterfaceCellIds     = tInterfaceSideClusters(0)->get_primary_cell_ids_in_cluster();
         moris::Matrix<moris::IdMat> tGoldInterfaceCellIds = trans(tInterfaceElemIdandSideOrd.get_column(0));
         CHECK(all_true(tInterfaceCellIds == tGoldInterfaceCellIds));
 
@@ -233,7 +233,7 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 
         // iterate through integration cells
 
-        moris::Cell<moris::mtk::Cell const *> tCellsInCluster = tInterfaceSideClusters(0)->get_cells_in_side_cluster();
+        moris::Cell<moris::mtk::Cell const *> tCellsInCluster = tInterfaceSideClusters(0)->get_primary_cells_in_cluster();
 
         for(moris::uint  i = 0; i <tCellsInCluster.size(); i++)
         {
@@ -253,7 +253,7 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 
         // get the fixed boundary condition
         tSideSetOrd = 1;
-        moris::Cell<Side_Cluster const *> tFixedSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
+        moris::Cell<Cluster const *> tFixedSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
         CHECK(tFixedSideClusters.size() == 1);
         CHECK(tFixedSideClusters(0)->is_trivial() == true);
 

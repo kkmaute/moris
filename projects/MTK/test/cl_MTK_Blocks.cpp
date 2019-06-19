@@ -79,11 +79,11 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
 //        REQUIRE(tBlock2->get_list_of_block_cell_clusters()(0,0) == 1);
 
 
-        Matrix< IndexMat > tVertexId1= tBlock1->get_cell_clusters_by_index( 0 )
+        Matrix< IndexMat > tVertexId1= tBlock1->get_clusters_by_index( 0 )
                                               ->get_primary_cells_in_cluster()(0)
                                               ->get_vertex_ids();
 
-        Matrix< IndexMat > tVertexId2= tBlock2->get_cell_clusters_by_index( 0 )
+        Matrix< IndexMat > tVertexId2= tBlock2->get_clusters_by_index( 0 )
                                                ->get_primary_cells_in_cluster()(0)
                                                ->get_vertex_ids();
 
@@ -95,6 +95,12 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
         REQUIRE(tVertexId1(0,5) == 6);                   REQUIRE(tVertexId2(0,5) == 9);
         REQUIRE(tVertexId1(0,6) == 5);                   REQUIRE(tVertexId2(0,6) == 10);
         REQUIRE(tVertexId1(0,7) == 2);                   REQUIRE(tVertexId2(0,7) == 3);
+
+        REQUIRE(tBlock1->get_interpolation_cell_geometry_type()       == mtk::Geometry_Type::HEX);
+        REQUIRE(tBlock1->get_integration_cell_geometry_type()         == mtk::Geometry_Type::HEX);
+        REQUIRE(tBlock1->get_interpolation_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR );
+        REQUIRE(tBlock1->get_integration_cell_interpolation_order()   == mtk::Interpolation_Order::LINEAR);
+
 
         delete tInterpMesh;
         delete tIntegMesh;

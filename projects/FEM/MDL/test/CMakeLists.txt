@@ -46,8 +46,9 @@ set(TEST_DEPENDENCIES
     ${INT}-lib
     #${MTK}-lib
     #${TOL}-lib
-    #${HMR}-lib
-    #${MAP}-lib
+    ${HMR}-lib
+    ${SDF}-lib
+    ${MAP}-lib
     #${DLA}-lib
     #${NLA}-lib
     #${TSA}-lib

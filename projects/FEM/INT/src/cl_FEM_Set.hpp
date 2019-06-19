@@ -24,6 +24,7 @@ namespace moris
 namespace mtk
 {
    class Cell;
+   class Set;
 }
 namespace MSI
 {
@@ -42,12 +43,10 @@ namespace MSI
     class Set : public MSI::Equation_Set
     {
     private:
-        // if block-set
-        moris::Cell< mtk::Cell_Cluster const* > mMeshCellClusterList;
-        // if side-set
-        moris::Cell< mtk::Side_Cluster const* > mMeshSideClusterList;
-        // if double side-set
-        moris::Cell< mtk::Double_Side_Cluster > const mMeshDoubleSideClusterList;
+        moris::mtk::Set                          * mSet = nullptr;
+
+        //! Mesh cluster
+        moris::Cell< mtk::Cluster const* > mMeshClusterList;
 
         // interpolation mesh geometry type
         mtk::Geometry_Type mIPGeometryType;
@@ -115,7 +114,11 @@ namespace MSI
         // integration weights
         Matrix< DDRMat > mIntegWeights;
 
+        bool mIsTrivialMaster = false;
+        bool mIsTrivialSlave = false;
+
         friend class MSI::Equation_Object;
+        friend class Cluster;
         friend class Element_Bulk;
         friend class Element_Sideset;
         friend class Element_Double_Sideset;
@@ -125,32 +128,15 @@ namespace MSI
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
-        /**
-         * constructor for block-set
-         * @param[ in ]     List of mtk::Cell_Cluster
-         */
-        Set( moris::Cell< mtk::Cell_Cluster const * > & aMeshClusterList,
-             Element_Type                               aElementType,
-             moris::Cell< IWG* >                      & aIWGs,
-             moris::Cell< Node_Base* >                & aIPNodes);
+                /**
+                 * constructor for block-set
+                 * @param[ in ]     List of mtk::Cell_Cluster
+                 */
+          Set( moris::mtk::Set           * aSet,
+               Element_Type                aElementType,
+               moris::Cell< IWG* >       & aIWGs,
+               moris::Cell< Node_Base* > & aIPNodes);
 
-        /**
-         * constructor for side-set
-         * @param[ in ]     List of mtk::Side_Cluster
-         */
-        Set( moris::Cell< mtk::Side_Cluster const * > & aMeshClusterList,
-             Element_Type                               aElementType,
-             moris::Cell< IWG* >                      & aIWGs,
-             moris::Cell< Node_Base* >                & aIPNodes);
-
-        /**
-         * constructor for double side-set
-         * @param[ in ]     List of mtk::Double_Side_Cluster
-         */
-        Set( moris::Cell< mtk::Double_Side_Cluster > const & aMeshClusterList,
-             Element_Type                                    aElementType,
-             moris::Cell< IWG* >                           & aIWGs,
-             moris::Cell< Node_Base* >                     & aIPNodes);
         /**
          * trivial constructor
          */
@@ -355,10 +341,6 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         fem::Interpolation_Type get_auto_time_interpolation_type( const moris::uint aNumVertices );
-
-//------------------------------------------------------------------------------
-
-        mtk::Geometry_Type get_auto_side_geometry_type( const mtk::Geometry_Type aGeometryType );
 
 //------------------------------------------------------------------------------
 

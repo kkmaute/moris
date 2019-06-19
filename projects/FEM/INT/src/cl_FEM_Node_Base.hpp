@@ -18,6 +18,12 @@ namespace moris
     {
         class Node_Base
         {
+        private:
+            moris_index mNodeIndex;
+            moris_index mNodeId;
+
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
         public:
@@ -78,7 +84,6 @@ namespace moris
             /**
              * get the ID of this node
              *
-             * @param[ in ] aID  id for this node
              */
 
             virtual moris_id
@@ -93,7 +98,6 @@ namespace moris
             /**
              * get the ID of this node
              *
-             * @param[ in ] aID  id for this node
              */
 
             virtual moris_index
@@ -101,6 +105,49 @@ namespace moris
             {
                 MORIS_ERROR( false, "Entered virtual function Node_Base::get_index()" );
                 return gNoIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set the ID of this node
+             *
+             * @param[ in ] aID  id for this node
+             */
+
+            void
+            set_id( const moris_id aId )
+            {
+                mNodeId = aId;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set the index of this node
+             *
+             * @param[ in ] aIndex  id for this node
+             */
+
+            void
+            set_index( const moris_id aIndex )
+            {
+                mNodeIndex = aIndex;
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set the index of this node
+             *
+             * @param[ in ] aIndex  id for this node
+             */
+
+            virtual bool
+            id_owned(  )
+            {
+                MORIS_ERROR( false, "Enterd virtual function Node_Base::id_owned()" );
+                return false;
             }
 
 //------------------------------------------------------------------------------

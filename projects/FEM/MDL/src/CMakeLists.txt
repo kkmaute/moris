@@ -38,6 +38,7 @@ endforeach()
 # List library source files
 set(LIB_SOURCES
     cl_MDL_Model.cpp
+    cl_MDL_Mesh_Model_Helper.cpp
     )
 
 # List library dependencies
@@ -48,11 +49,14 @@ set(LIB_DEPENDENCIES
     #${SOL_CORE}-lib
     ${TSA}-lib
     #${MSI}-lib
+    ${SDF}-lib
     
     #${MORIS_ARMADILLO_EIGEN_LIBS}
     #${MORIS_SUPERLU_LIBS}
     #${MORIS_ACML_LAPACK_MKL_LIBS}
-    ${MORIS_BASE_LIBS})
+    ${MORIS_BASE_LIBS}
+    ${DLA}-lib
+    )
 
 # Remove duplicate dependencies
 # REVERSE is required to maintain proper linking order

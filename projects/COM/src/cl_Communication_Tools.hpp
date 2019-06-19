@@ -328,6 +328,25 @@ namespace moris
         MPI_Allreduce(&aLocalInput,&aGlobalMax,1,get_comm_datatype(aLocalInput),MPI_MAX,MPI_COMM_WORLD);
     }
 
+
+    //------------------------------------------------------------------------------
+
+    /*
+     * @brief Determines maximal value of all local values
+     *
+     * @param[in] aLocalInput     local value
+     * @param[in] aGlobalMax      reference to maximal global value
+     */
+    template <typename Data>
+    void
+    min_all(
+            const Data & aLocalInput,
+            Data & aGlobalMin)
+    {
+        MORIS_ASSERT(&aGlobalMin != &aLocalInput,"Passing the same location in for aLocalInput and aGlobalMax is not allowed according to MPI standard (buffer aliasing)");
+        MPI_Allreduce(&aLocalInput,&aGlobalMin,1,get_comm_datatype(aLocalInput),MPI_MIN,MPI_COMM_WORLD);
+    }
+
 //------------------------------------------------------------------------------
     /**
      *
