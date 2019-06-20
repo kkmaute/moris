@@ -34,7 +34,7 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
             // Create Mesh --------------------------------------------------------------------
-            std::string tMeshFileName = "generated:1x1x4";
+            std::string tMeshFileName = "generated:1x1x4|sideset:Z";
             moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
 
             // Setup XTK Model ----------------------------------------------------------------

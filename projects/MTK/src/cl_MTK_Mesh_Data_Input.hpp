@@ -270,6 +270,19 @@ namespace mtk
             }
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
 
+
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
+            if(SideClusterInput != nullptr)
+            {
+                SideClusterInput->print();
+            }
+            else
+            {
+                std::cout<<"No Side Cluster Information Provided"<<std::endl;
+            }
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
         }
 
     };

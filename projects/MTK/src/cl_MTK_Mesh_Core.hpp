@@ -1011,6 +1011,30 @@ public:
         return Matrix< IndexMat >(0,0);
                              }
 
+
+    /*
+     * Topology of cells in block set
+     */
+    virtual
+    enum CellTopology
+    get_blockset_topology(const  std::string & aSetName)
+    {
+        MORIS_ERROR(0," get_blockset_topology has no base implementation");
+        return CellTopology::INVALID;
+    }
+
+    /*
+     * Topology of sides in side set
+     */
+    virtual
+    enum CellTopology
+    get_sideset_topology(const  std::string & aSetName)
+    {
+        MORIS_ERROR(0," get_sideset_topology has no base implementation");
+        return CellTopology::INVALID;
+    }
+
+
     /*
      * Returns the mtk cells in a block set. Contains the aura entities
      */

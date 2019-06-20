@@ -11,6 +11,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 namespace moris
 {
@@ -34,10 +36,12 @@ struct MtkSideSetInfo
     Matrix< IdMat > * mElemIdsAndSideOrds;
     std::string       mSideSetName;
     bool              mParallelConsistencyReq = true;
+    enum CellTopology mSideTopology;
 
     MtkSideSetInfo():
         mElemIdsAndSideOrds(),
-        mSideSetName(){}
+        mSideSetName(),
+        mSideTopology(CellTopology::INVALID){}
 
     bool
     sideset_has_name()
@@ -49,7 +53,7 @@ struct MtkSideSetInfo
 std::ostream &
 operator<<(std::ostream & os, mtk::MtkSideSetInfo const * const & dt)
 {
-    os<<"Side Set Name: "<< dt->mSideSetName << " | Number of Sides: "<<dt->mElemIdsAndSideOrds->n_rows() <<"  | Parallel Consistent: "<<dt->mParallelConsistencyReq<<std::endl;
+    os<<"Side Set Name: "<< dt->mSideSetName << " | Number of Sides: "<<dt->mElemIdsAndSideOrds->n_rows()<<" | Side Topology: "<< get_enum_str(dt->mSideTopology) <<"  | Parallel Consistent: "<<dt->mParallelConsistencyReq;
 
     return os;
 }

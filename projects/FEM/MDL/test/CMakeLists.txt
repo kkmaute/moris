@@ -7,6 +7,7 @@ set(TEST_SOURCES
     cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     cl_MDL_DiffusionElement_Cut_Mesh.cpp
     UT_MDL_Mesh_Model_Helper.cpp
+    UT_MDL_XTK_DiffusionElement.cpp
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp
@@ -49,6 +50,7 @@ set(TEST_DEPENDENCIES
     ${HMR}-lib
     ${SDF}-lib
     ${MAP}-lib
+    ${XTK}-lib
     #${DLA}-lib
     #${NLA}-lib
     #${TSA}-lib

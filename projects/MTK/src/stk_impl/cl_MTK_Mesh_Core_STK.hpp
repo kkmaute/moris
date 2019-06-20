@@ -300,6 +300,18 @@ public:
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const;
 
+    /*
+     * Topology of cells in block set
+     */
+    enum CellTopology
+    get_blockset_topology(const  std::string & aSetName);
+
+    /*
+     * Topology of sides in side set
+     */
+    enum CellTopology
+    get_sideset_topology(const  std::string & aSetName);
+
     void
     get_sideset_elems_loc_inds_and_ords(
             const  std::string & aSetName,
@@ -512,6 +524,15 @@ public:
      */
     stk::mesh::EntityRank
     get_stk_entity_rank(enum EntityRank aMRSEntityRank) const;
+
+    //------------------------------------------------------------------------------
+
+    /*
+     * Returns the moris cell topology given a stk topo
+     */
+    enum CellTopology
+    stk_topo_to_moris_topo(stk::topology::topology_t aSTKTopo) const;
+
     //------------------------------------------------------------------------------
 
     /*

@@ -125,6 +125,7 @@ class Side_Cluster_Input
 
     std::unordered_map<std::string, moris_index> mSideSetLabelToOrd;
 
+    moris::Cell<std::string> mSideSetLabels;
 public:
     Side_Cluster_Input(){};
 
@@ -140,6 +141,8 @@ public:
         mSideSetLabelToOrd[aSideLabel] = tIndex;
 
         mSideClusters.resize(tIndex+1);
+
+        mSideSetLabels.push_back(aSideLabel);
 
         return tIndex;
     }
@@ -185,6 +188,19 @@ public:
         MORIS_ASSERT(aSideSetOrd < mSideSetLabelToOrd.size(),"Side set ordinal out of bounds.");
 
         return mSideClusters(aSideSetOrd);
+    }
+
+    void
+    print()
+    {
+        std::cout<<std::left<<std::setw(10)<<"Number of Side Sets with Side Cluster Information:"<<mSideClusters.size()<<"\n";
+
+        for(moris::uint i = 0; i < mSideClusters.size(); i++)
+        {
+            std::cout<<"Vertex Set Name:"<< mSideSetLabels(i) << " | Number of Interp Cells: "<<mSideClusters(i).get_num_cell_clusters()<<std::endl;
+
+        }
+
     }
 
 

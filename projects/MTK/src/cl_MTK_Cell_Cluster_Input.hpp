@@ -113,6 +113,10 @@ struct Cell_Cluster_Input
     print()
     {
         std::cout<<std::left<<std::setw(10)<<"Interpolation Cells with Cluster Information\n";
+
+        std::cout<<"Num Interp Cells W Clusters: " << mInterpolationCells.size()<<std::endl;
+        std::cout<<"Num Primary Integ Cells:     " << mPrimaryCellIds.size()<<std::endl;
+        std::cout<<"Num Void Integ Cells:        " << mVoidCellsIds.size()<<std::endl;
         for(moris::uint i = 0; i < mInterpolationCells.size(); i++)
         {
             std::cout<<std::left<<"Interpolation Cell Id: "<<std::setw(6)<< mInterpolationCells(i)->get_id()<<std::endl;

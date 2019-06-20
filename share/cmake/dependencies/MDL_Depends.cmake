@@ -41,6 +41,7 @@ include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 
 #list(APPEND MDL_TPL_DEPENDENCIES
 #     ${LINALG_TPL_DEPENDENCIES}

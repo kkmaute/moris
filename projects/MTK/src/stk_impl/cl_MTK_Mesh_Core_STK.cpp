@@ -738,6 +738,35 @@ namespace mtk
         return tOutputEntityInds;
     }
 
+    // ----------------------------------------------------------------------------
+
+    enum CellTopology
+    Mesh_Core_STK::get_blockset_topology(const  std::string & aSetName)
+    {
+        // Get pointer to field defined by input name
+        stk::mesh::Part* const tSetPart = mSTKMeshData->mMtkMeshMetaData->get_part( aSetName );
+
+        // get part topology
+        stk::topology::topology_t tTopology  = tSetPart->topology();
+
+        return stk_topo_to_moris_topo(tTopology);
+    }
+
+    // ----------------------------------------------------------------------------
+
+    enum CellTopology
+    Mesh_Core_STK::get_sideset_topology(const  std::string & aSetName)
+    {
+        // Get pointer to field defined by input name
+        stk::mesh::Part* const tSetPart = mSTKMeshData->mMtkMeshMetaData->get_part( aSetName );
+
+        // get part topology
+        stk::topology::topology_t tTopology  = tSetPart->topology();
+
+        return stk_topo_to_moris_topo(tTopology);
+    }
+
+
     void
     Mesh_Core_STK::get_sideset_elems_loc_inds_and_ords(const  std::string & aSetName,
                                                   Matrix< IndexMat > & aElemIndices,
@@ -1674,6 +1703,25 @@ namespace mtk
     }
 
     // ----------------------------------------------------------------------------
+
+    enum CellTopology
+    Mesh_Core_STK::stk_topo_to_moris_topo(stk::topology::topology_t aSTKTopo) const
+    {
+        switch(aSTKTopo)
+        {
+            case (stk::topology::TRI_3)   : return CellTopology::TRI3;   break;
+            case (stk::topology::QUAD_4)  : return CellTopology::QUAD4;  break;
+            case (stk::topology::TET_4)   : return CellTopology::TET4;   break;
+            case (stk::topology::TET_10)  : return CellTopology::TET10;  break;
+            case (stk::topology::HEX_8)   : return CellTopology::HEX8;   break;
+            case (stk::topology::WEDGE_6) : return CellTopology::PRISM6; break;
+            default: MORIS_ERROR(0,"Unhandled stk topology passed in, only ones currently used in MORIS have been added"); return CellTopology::INVALID; break;
+
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
     Matrix< IdMat >
     Mesh_Core_STK::get_entities_owned_and_shared_by_current_proc(
             EntityRank   aEntityRank ) const
@@ -2379,8 +2427,7 @@ namespace mtk
                     tFieldPart = *mSTKMeshData->mMtkMeshMetaData->get_part( tRealScalarField->get_part_name() );
                 }
 
-                stk::mesh::Field<real> &   tSTKRealScalarField  =
-                        mSTKMeshData->mMtkMeshMetaData->declare_field<stk::mesh::Field<real> >(this->get_stk_entity_rank(tFieldEntityRank),tFieldName , 1);
+                stk::mesh::Field<real> &   tSTKRealScalarField  = mSTKMeshData->mMtkMeshMetaData->declare_field<stk::mesh::Field<real> >(this->get_stk_entity_rank(tFieldEntityRank),tFieldName , 1);
 
                 stk::mesh::put_field_on_mesh( tSTKRealScalarField, tFieldPart,(stk::mesh::FieldTraits<stk::mesh::Field<real>>::data_type*) nullptr );
 
