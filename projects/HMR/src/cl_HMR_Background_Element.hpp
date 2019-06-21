@@ -694,8 +694,7 @@ namespace moris
             /**
              * returns an edge of the background element ( 3D only )
              */
-            Background_Edge *
-            get_edge( const uint & aIndex );
+            Background_Edge * get_edge( const uint & aIndex );
 
 //--------------------------------------------------------------------------------
 
@@ -3593,8 +3592,7 @@ namespace moris
          * returns an edge of the background element ( 3D only )
          */
         template < uint N, uint C, uint B, uint F , uint E >
-        Background_Edge *
-        Background_Element< N, C, B, F, E >::get_edge( const uint & aIndex )
+        Background_Edge * Background_Element< N, C, B, F, E >::get_edge( const uint & aIndex )
         {
             MORIS_ERROR( false, "get_edge() is only available for the 3D element" );
             return nullptr;
@@ -3603,8 +3601,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template<>
-        Background_Edge *
-        Background_Element< 3, 8, 26, 6, 12 >::get_edge( const uint & aIndex )
+        Background_Edge * Background_Element< 3, 8, 26, 6, 12 >::get_edge( const uint & aIndex )
         {
             return mEdges[ aIndex ];
         }
