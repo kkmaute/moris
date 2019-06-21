@@ -93,19 +93,20 @@ namespace moris
             /**
              * Default constuctor for element base class
              */
-            Background_Element_Base(
-                    Background_Element_Base * aParent,
-                    const  uint             & aActivePattern,
-                    const luint             & aID,
-                    const  uint             & aLevel,
-                    const  uint             & aOwner ) :
-                        mParent     ( aParent ),
-                        mDomainID   ( aID ),
-                        mLevel      ( aLevel ),
-                        mOwner      ( aOwner )
+            Background_Element_Base(       Background_Element_Base * aParent,
+                                     const uint                    & aActivePattern,
+                                     const luint                   & aID,
+                                     const uint                    & aLevel,
+                                     const uint                    & aOwner ) : mParent   ( aParent ),
+                                                                                mDomainID ( aID ),
+                                                                                mLevel    ( aLevel ),
+                                                                                mOwner    ( aOwner )
             {
+                // Set this element to active on pattern 0
                 mActiveFlags.set( aActivePattern );
-                mRefinedFlags.reset( aActivePattern);
+
+                // reset the refined flag for this element on pattern 0
+                mRefinedFlags.reset( aActivePattern );
             }
 
 //--------------------------------------------------------------------------------
@@ -217,8 +218,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_padding_flag()
+            void set_padding_flag()
             {
                 // padding elements are never active
                 mActiveFlags.reset();
@@ -245,8 +245,7 @@ namespace moris
              *
              * @return uint  ID of proc owing this element
              */
-            auto
-            get_owner() const -> decltype ( mOwner )
+            auto get_owner() const -> decltype ( mOwner )
             {
                 return mOwner;
             }
@@ -546,8 +545,7 @@ namespace moris
              *                                *< number of children >
              * @return void
              */
-            virtual void
-            get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const = 0 ;
+            virtual void get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const = 0 ;
 
 //--------------------------------------------------------------------------------
             /**
@@ -560,8 +558,7 @@ namespace moris
              *
              * @return void
              */
-            virtual void
-            get_number_of_active_descendants( const uint & aPattern, luint & aCount ) const = 0 ;
+            virtual void get_number_of_active_descendants( const uint & aPattern, luint & aCount ) const = 0 ;
 
 //--------------------------------------------------------------------------------
 
@@ -608,17 +605,13 @@ namespace moris
              * @return void
              *
              */
-            virtual void
-            collect_active_descendants(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+            virtual void collect_active_descendants( const uint                             & aPattern,
+                                                           Cell< Background_Element_Base* > & aElementList,
+                                                           luint                            & aElementCount ) = 0;
 
-            virtual void
-            collect_active_descendants(
-                    const uint                             & aPattern,
-                    Cell< const Background_Element_Base* > & aElementList,
-                    luint                                  & aElementCount ) const = 0;
+            virtual void collect_active_descendants( const uint                                   & aPattern,
+                                                           Cell< const Background_Element_Base* > & aElementList,
+                                                           luint                                  & aElementCount ) const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -634,8 +627,7 @@ namespace moris
              * @return void
              *
              */
-            virtual void
-            collect_active_descendants_by_memory_index(
+            virtual void collect_active_descendants_by_memory_index(
                     const uint                       & aPattern,
                     Matrix< DDLUMat >                & aElementList,
                     luint                            & aElementCount,
@@ -646,8 +638,7 @@ namespace moris
             /**
              * tells how many active descendants live on side 1
              */
-            virtual void
-            get_number_of_active_descendants_on_side_1(
+            virtual void get_number_of_active_descendants_on_side_1(
                     const  uint & aPattern,
                           luint & aCount ) = 0;
 
@@ -656,8 +647,7 @@ namespace moris
             /**
              * tells how many active descendants live on side 2
              */
-            virtual void
-            get_number_of_active_descendants_on_side_2(
+            virtual void get_number_of_active_descendants_on_side_2(
                     const  uint & aPattern,
                           luint & aCount ) = 0;
 //--------------------------------------------------------------------------------
@@ -665,8 +655,7 @@ namespace moris
             /**
              * tells how many active descendants live on side 3
              */
-            virtual void
-            get_number_of_active_descendants_on_side_3(
+            virtual void get_number_of_active_descendants_on_side_3(
                     const  uint & aPattern,
                           luint & aCount ) = 0;
 

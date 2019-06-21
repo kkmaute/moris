@@ -132,12 +132,10 @@ namespace moris
     }
 
     //-----------------------------------------------------
-    void
-    create_proc_cart(
-            const uint        & aNumberOfDimensions,
-            Matrix < DDUMat >       & aProcDims,
-            Matrix < DDUMat >       & aProcCoords,
-            Matrix < IdMat >        & aProcNeighbors )
+    void create_proc_cart( const uint              & aNumberOfDimensions,
+                                 Matrix < DDUMat > & aProcDims,
+                                 Matrix < DDUMat > & aProcCoords,
+                                 Matrix < IdMat >  & aProcNeighbors )
     {
 
         /* Table for aProcNeighbors
@@ -189,10 +187,9 @@ namespace moris
         int tDims[3] = { 0, 0, 0 };
 
         // Creates a grid of processors
-        MPI_Dims_create(
-                par_size(),
-                aNumberOfDimensions,
-                tDims );
+        MPI_Dims_create( par_size(),
+                         aNumberOfDimensions,
+                         tDims );
 
         // No periodic boundary conditions are needed
         int tPeriods[3]  = { 0, 0, 0 };
@@ -206,20 +203,18 @@ namespace moris
         // New communicator for cart and coordinates
         MPI_Comm tNewComm;
 
-        MPI_Cart_create(
-                gMorisComm.get_global_comm(),
-                aNumberOfDimensions,
-                tDims,
-                tPeriods,
-                tReorder,
-                &tNewComm );
+        MPI_Cart_create( gMorisComm.get_global_comm(),
+                         aNumberOfDimensions,
+                         tDims,
+                         tPeriods,
+                         tReorder,
+                         &tNewComm );
 
         //Define coordinates for the current processor
-        MPI_Cart_coords(
-                tNewComm,
-                tMyRank,
-                3, // must be equal to length of coords
-                tCoords );
+        MPI_Cart_coords( tNewComm,
+                         tMyRank,
+                         3, // must be equal to length of coords
+                         tCoords );
 
         int tNeighborCoords[ 3 ] = { 0, 0, 0 };
 
@@ -256,14 +251,12 @@ namespace moris
                 // error from MPI
                 int tError = 1;
 
-                if (       tNeighborCoords[ 0 ] >= 0
-                        && tNeighborCoords[ 0 ] < tDims[0] )
+                if ( tNeighborCoords[ 0 ] >= 0 && tNeighborCoords[ 0 ] < tDims[0] )
                 {
                     // get rank of neighbor proc
-                    tError = MPI_Cart_rank(
-                            tNewComm,
-                            tNeighborCoords,
-                            &tRank );
+                    tError = MPI_Cart_rank( tNewComm,
+                                            tNeighborCoords,
+                                            &tRank );
                 }
                 // if getting the rank was successful
                 if ( tError == 0 )
@@ -302,10 +295,9 @@ namespace moris
                             && tNeighborCoords[ 1 ] < tDims[1] )
                     {
                         // get rank of neighbor proc
-                        tError = MPI_Cart_rank(
-                                tNewComm,
-                                tNeighborCoords,
-                                &tRank );
+                        tError = MPI_Cart_rank( tNewComm,
+                                                tNeighborCoords,
+                                                &tRank );
                     }
 
                     // if getting the rank was successful
@@ -351,10 +343,9 @@ namespace moris
                                 && tNeighborCoords[ 2 ] < tDims[2] )
                         {
                             // get rank of neighbor proc
-                            tError = MPI_Cart_rank(
-                                    tNewComm,
-                                    tNeighborCoords,
-                                    &tRank );
+                            tError = MPI_Cart_rank( tNewComm,
+                                                    tNeighborCoords,
+                                                    &tRank );
                         }
 
                         // if getting the rank was successful
@@ -372,9 +363,7 @@ namespace moris
         }
         else
         {
-            MORIS_ASSERT(
-                    false ,
-                    "create_proc_cart: invalid number of dimensions ");
+            MORIS_ERROR( false, "create_proc_cart: invalid number of dimensions" );
         }
     }
 

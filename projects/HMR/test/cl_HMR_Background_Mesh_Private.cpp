@@ -16,7 +16,7 @@
 #undef protected
 #undef private
 
-TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
+TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_private]")
 {
 
 //-------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             }
 
             // get first active element on proc
-            moris::hmr::Background_Element_Base* tElement = tBackgroundMesh->get_element( 0 );
+            moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element( 0 );
 
             // refine element up to max possible level
             for( moris::uint l=0; l<moris::hmr::gMaxNumberOfLevels-1; ++l )
@@ -207,9 +207,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             moris::hmr::Factory tFactory;
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
-
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
 
             // update element table
             tBackgroundMesh->collect_active_elements();
@@ -220,15 +218,13 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             // refine the whole mesh two times
             for( moris::uint l=0; l<tLevel; ++l  )
             {
-                auto tNumberOfElements
-                    =  tBackgroundMesh->get_number_of_active_elements_on_proc();
+                auto tNumberOfElements =  tBackgroundMesh->get_number_of_active_elements_on_proc();
 
                 // refine all 16 elements
                 for( moris::luint k=0; k<tNumberOfElements; ++k )
                 {
                     // get element
-                    moris::hmr::Background_Element_Base* tElement
-                    = tBackgroundMesh->get_element( k );
+                    moris::hmr::Background_Element_Base* tElement = tBackgroundMesh->get_element( k );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();
@@ -241,8 +237,9 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             tBackgroundMesh->collect_neighbors();
 
             // get number of active elements
-            auto tNumberOfActiveElements
-                = tBackgroundMesh->get_number_of_active_elements_on_proc();
+            auto tNumberOfActiveElements = tBackgroundMesh->get_number_of_active_elements_on_proc();
+
+            tBackgroundMesh->save_to_vtk( "BackgorundMesh_6x4.vtk");
 
             // create element map so that we can access elements over global ID
             moris::map<moris::luint, moris::luint> tElementMap;
@@ -251,8 +248,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr]")
             for( moris::luint k=0; k<tNumberOfActiveElements; ++k )
             {
                 // pick element
-                moris::hmr::Background_Element_Base* tElement
-                = tBackgroundMesh->get_element( k );
+                moris::hmr::Background_Element_Base* tElement = tBackgroundMesh->get_element( k );
 
                 // write ID into map
                 tElementMap[ tElement->get_hmr_id() ] = k;

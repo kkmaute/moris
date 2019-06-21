@@ -723,19 +723,17 @@ namespace moris
                 case( RefinementMode::BSPLINE_INIT ) :
                 {
                     // copy B-Spline to Lagrange
-                    this->copy_pattern(
-                            mParameters->get_bspline_output_pattern(),
-                            mParameters->get_lagrange_output_pattern() );
+                    this->copy_pattern( mParameters->get_bspline_output_pattern(),
+                                        mParameters->get_lagrange_output_pattern() );
 
                     break;
                 }
                 case( RefinementMode::LAGRANGE_INIT ) :
                 {
                     // for mapping
-                    this->unite_patterns(
-                            mParameters->get_lagrange_input_pattern(),
-                            mParameters->get_lagrange_output_pattern(),
-                            mParameters->get_union_pattern() );
+                    this->unite_patterns( mParameters->get_lagrange_input_pattern(),
+                                          mParameters->get_lagrange_output_pattern(),
+                                          mParameters->get_union_pattern() );
 
                     // test if max polynomial is 3
                     if ( mParameters->get_max_polynomial() > 2 )
@@ -758,9 +756,8 @@ namespace moris
                     if ( ! tFlag )
                     {
                         // copy lagrange input to output
-                        mBackgroundMesh->copy_pattern(
-                                mParameters->get_lagrange_input_pattern(),
-                                mParameters->get_lagrange_output_pattern() );
+                        mBackgroundMesh->copy_pattern( mParameters->get_lagrange_input_pattern(),
+                                                       mParameters->get_lagrange_output_pattern() );
 
                         // update background mesh
                         mBackgroundMesh->update_database();
@@ -775,10 +772,9 @@ namespace moris
                 case( RefinementMode::BSPLINE_REFINE ) :
                 {
                     // for mapping
-                    this->unite_patterns(
-                            mParameters->get_lagrange_input_pattern(),
-                            mParameters->get_lagrange_output_pattern(),
-                            mParameters->get_union_pattern() );
+                    this->unite_patterns( mParameters->get_lagrange_input_pattern(),
+                                          mParameters->get_lagrange_output_pattern(),
+                                          mParameters->get_union_pattern() );
 
                     // test if max polynomial is 3
                     if ( mParameters->get_max_polynomial() > 2 )

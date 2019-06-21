@@ -42,7 +42,7 @@ namespace moris
                   //! If the element has no children, it contains null pointers
                   Background_Element_Base* mChildren[ C ] = { nullptr };
 
-                  //! bitset defining the child index
+                  //! bitset defining the child index // FIXME why is this an bitset and not an uint.
                   Bitset< N >              mChildBitset;
 
                   //! Fixed size array containing neighbors on same level
@@ -84,22 +84,18 @@ namespace moris
               *                           owner is determined later. For all higher
               *                           levels, pass owner of parent.
               */
-            Background_Element(
-                    Background_Element_Base * aParent,
-                    const  uint        & aActivePattern,
-                    const luint        * aIJK,
-                    const luint        & aID,
-                    const uint         & aLevel,
-                    const uint         & aChildIndex,
-                    const uint         & aOwner ) :
-                        Background_Element_Base(
-                             aParent,
-                             aActivePattern,
-                             aID,
-                             aLevel,
-                             aOwner )
+            Background_Element(       Background_Element_Base * aParent,
+                                const uint                    & aActivePattern,
+                                const luint                   * aIJK,
+                                const luint                   & aID,
+                                const uint                    & aLevel,
+                                const uint                    & aChildIndex,
+                                const uint                    & aOwner ) : Background_Element_Base( aParent,
+                                                                                                    aActivePattern,
+                                                                                                    aID,
+                                                                                                    aLevel,
+                                                                                                    aOwner )
             {
-
                 // write child index into bitset
                 this->set_child_index( aChildIndex );
 
@@ -113,6 +109,7 @@ namespace moris
                 // reset owner flags
                 mFacetOwnFlags.reset();
 
+                // Creates an size 12 Background_edge pointer array in 3D. Does nothing in 2D
                 this->init_edge_container();
 
                 // this only applies for elements of level 1 and above
@@ -177,8 +174,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            insert_child(  Background_Element_Base* aChild )
+            void insert_child(  Background_Element_Base* aChild )
             {
                 mChildrenFlag = true;
                 mChildren[ aChild->get_child_index() ] = aChild;
@@ -195,8 +191,7 @@ namespace moris
              *                                *< number of children >
              * @return void
              */
-            void
-            get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const;
+            void get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const;
 
 //--------------------------------------------------------------------------------
 
@@ -256,17 +251,13 @@ namespace moris
              * @return void
              *
              */
-            void
-            collect_active_descendants(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base *> & aElementList,
-                    luint                            & aElementCount );
+            void collect_active_descendants( const uint                             & aPattern,
+                                                   Cell< Background_Element_Base *> & aElementList,
+                                                   luint                            & aElementCount );
 
-            void
-            collect_active_descendants(
-                    const uint                       & aPattern,
-                    Cell< const Background_Element_Base *> & aElementList,
-                    luint                            & aElementCount ) const ;
+            void collect_active_descendants( const uint                                   & aPattern,
+                                                   Cell< const Background_Element_Base *> & aElementList,
+                                                   luint                                  & aElementCount ) const ;
 //--------------------------------------------------------------------------------
 
             /**
@@ -281,8 +272,7 @@ namespace moris
              * @return void
              *
              */
-            void
-            collect_active_descendants_by_memory_index(
+            void collect_active_descendants_by_memory_index(
                     const uint                       & aPattern,
                     Matrix< DDLUMat >                & aElementList,
                     luint                            & aElementCount,
@@ -297,8 +287,7 @@ namespace moris
              * @param[in] aIndex      Index of requested child (2D: 0-3, 3D: 0-7)
              * @return Background_Element_Base*  pointer to selected child
              */
-            Background_Element_Base*
-            get_child( const uint& aIndex )
+            Background_Element_Base * get_child( const uint& aIndex )
             {
                 return mChildren[ aIndex ];
             }
@@ -314,8 +303,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            insert_neighbor(
+            void insert_neighbor(
                     const uint              & aIndex,
                     Background_Element_Base * aNeighbor )
             {
@@ -330,8 +318,7 @@ namespace moris
              * @param[ in ] aNeighborIndex       index of requested neighbor
              * @return Background_Element_Base*  pointer to requested neighbor
              */
-            Background_Element_Base*
-            get_neighbor( const uint & aIndex )
+            Background_Element_Base * get_neighbor( const uint & aIndex )
             {
                 return mNeighbors[ aIndex ];
             }
@@ -344,8 +331,7 @@ namespace moris
              * @param[ in ] aNeighborIndex       index of requested neighbor
              * @return Background_Element_Base*  pointer to requested neighbor
              */
-            const Background_Element_Base*
-            get_neighbor( const uint & aIndex ) const
+            const Background_Element_Base* get_neighbor( const uint & aIndex ) const
             {
                 return mNeighbors[ aIndex ];
             }
@@ -359,8 +345,7 @@ namespace moris
              * @param[in]     aLevel    level to be considered
              * @param[inout]  aElementCount    counter for elements
              */
-            void
-            count_elements_on_level( const uint& aLevel, luint& aElementCount );
+            void count_elements_on_level( const uint& aLevel, luint& aElementCount );
 //--------------------------------------------------------------------------------
 
             /**
@@ -371,28 +356,24 @@ namespace moris
              * @param[inout]  aElementList    cell to which the pointers are added
              * @param[inout]  aElementCount   counter for elements
              */
-            void
-            collect_elements_on_level(
+            void collect_elements_on_level(
                     const uint                       & aLevel,
                     Cell< Background_Element_Base* > & aElementList,
                     luint                            & aElementCount );
 //--------------------------------------------------------------------------------
 
-            void
-            collect_neighbors( const uint & aPattern );
+            void collect_neighbors( const uint & aPattern );
 
 //--------------------------------------------------------------------------------
 
-            uint
-            get_number_of_facets() const
+            uint get_number_of_facets() const
             {
                 return F;
             }
 
 //--------------------------------------------------------------------------------
 
-            uint
-            get_number_of_edges() const
+            uint get_number_of_edges() const
             {
                 return E;
             }
@@ -406,8 +387,7 @@ namespace moris
              * @return void
              *
              */
-            void
-            print_neighbors( const uint & aPattern )
+            void print_neighbors( const uint & aPattern )
             {
                 // print header
                 std::fprintf( stdout, "\n Neighbors of Element %lu ( ID: %lu, mem:  %lu, child: %u ): \n\n",
@@ -449,8 +429,7 @@ namespace moris
              *
              * @return uint    index between 0 and 3 (2D) or 0 and 7 (3D)
              */
-            uint
-            get_child_index() const
+            uint get_child_index() const
             {
                 return mChildBitset.to_ulong();
             }
@@ -464,8 +443,7 @@ namespace moris
              *
              * @return bool
              */
-            bool
-            test_child_index_bit( const uint & aBit ) const
+            bool test_child_index_bit( const uint & aBit ) const
             {
                 return mChildBitset.test( aBit );
             }
@@ -482,7 +460,6 @@ namespace moris
                     Matrix< DDUMat >  & aPedigreeList,
                     luint        & aCounter )
             {
-
                 // create bitset
                 Bitset< gBitsetSize > tBitset;
 
@@ -856,7 +833,7 @@ namespace moris
         Background_Element< 3, 8, 26, 6, 12 >::init_edge_container()
         {
             // assign memory for edge container and fill with null pointers
-            mEdges = new Background_Edge* [ 12 ]{};
+            mEdges = new Background_Edge * [ 12 ]{};
 
             // reset owner flags
             mEdgeOwnFlags.reset();
@@ -1019,9 +996,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template < uint N, uint C, uint B, uint F , uint E >
-        void
-        Background_Element< N, C, B, F, E >::get_ijk_of_children(
-                Matrix< DDLUMat > & aIJK ) const
+        void Background_Element< N, C, B, F, E >::get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const
         {
             MORIS_ERROR( false, "Don't know how to calculate ijk of children.");
         }
@@ -1045,9 +1020,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        void
-        Background_Element< 2, 4, 8, 4, 0 >::get_ijk_of_children(
-                Matrix< DDLUMat > & aIJK ) const
+        void Background_Element< 2, 4, 8, 4, 0 >::get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
             aIJK.set_size( 2, 4 );
@@ -1072,9 +1045,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        void
-        Background_Element< 3, 8, 26, 6, 12 >::get_ijk_of_children(
-                Matrix< DDLUMat > & aIJK ) const
+        void Background_Element< 3, 8, 26, 6, 12 >::get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const
         {
             // set size of IJK output
             aIJK.set_size( 3, 8 );
@@ -1361,8 +1332,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template < uint N, uint C, uint B, uint F , uint E >
-        void
-        Background_Element< N, C, B, F, E >::collect_active_descendants(
+        void Background_Element< N, C, B, F, E >::collect_active_descendants(
                 const uint                       & aPattern,
                 Cell< Background_Element_Base* > & aElementList,
                 luint                            & aElementCount )
@@ -1373,20 +1343,18 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template < uint N, uint C, uint B, uint F , uint E >
-        void
-        Background_Element< N, C, B, F, E >::collect_active_descendants(
+        void Background_Element< N, C, B, F, E >::collect_active_descendants(
                 const uint                       & aPattern,
                 Cell< const Background_Element_Base* > & aElementList,
                 luint                            & aElementCount ) const
-                {
+        {
             MORIS_ERROR( false, "Don't know how to collect active descendants ( const ).");
-                }
+        }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
        template <>
-       void
-       Background_Element< 1, 2, 2, 2, 0 >::collect_active_descendants(
+       void Background_Element< 1, 2, 2, 2, 0 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1408,8 +1376,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
        template <>
-       void
-       Background_Element< 1, 2, 2, 2, 0 >::collect_active_descendants(
+       void Background_Element< 1, 2, 2, 2, 0 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< const Background_Element_Base* > & aElementList,
                luint                            & aElementCount ) const
@@ -1431,8 +1398,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
        template <>
-       void
-       Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants(
+       void Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
@@ -1456,8 +1422,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
        template <>
-       void
-       Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants(
+       void Background_Element< 2, 4, 8, 4, 0 >::collect_active_descendants(
                const uint                             & aPattern,
                Cell< const Background_Element_Base* > & aElementList,
                luint                                  & aElementCount ) const
@@ -1481,8 +1446,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
        template <>
-       void
-       Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants(
+       void Background_Element< 3, 8, 26, 6, 12 >::collect_active_descendants(
                const uint                       & aPattern,
                Cell< Background_Element_Base* > & aElementList,
                luint                            & aElementCount )
