@@ -83,6 +83,11 @@ if(NOT BOOST_FOUND_ONCE)
 	message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
 endif()
 
+if(NOT TARGET boost)
+	add_library(boost INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(boost INTERFACE ${MORIS_BOOST_LIBRARIES})
+endif()
+
 #link_directories(${MORIS_BOOST_FLAGS})
 #add_definitions(${MORIS_BOOST_DEFINITIONS})
 #include_directories(${MORIS_BOOST_INCLUDE_DIRS})

@@ -53,4 +53,9 @@ if(${MORIS_HAVE_PARALLEL})
     endif()
 endif()
 
+if(NOT TARGET mpi)
+	add_library(mpi INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(mpi INTERFACE ${MORIS_MPI_LIBRARIES})
+endif()
+
 #mark_as_advanced(MPI_LIBRARY MPI_EXTRA_LIBRARY)

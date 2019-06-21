@@ -22,7 +22,7 @@ set(HMR_LIB_TPL_DEPENDENCIES
 
 # Additonal third party libraries needed by HMR executables
 set(HMR_EXE_TPL_DEPENDENCIES
-	${ARMADILLO_EIGEN} #> eliminate once possible
+	#${ARMADILLO_EIGEN} #> eliminate once possible
 	#${ACML_LAPACK_MKL}
 	#"superlu"
     #"arpack"
@@ -31,7 +31,7 @@ set(HMR_EXE_TPL_DEPENDENCIES
 	)
 
 set(HMR_TEST_TPL_DEPENDENCIES
-	${ARMADILLO_EIGEN} #> eliminate once possible
+	#${ARMADILLO_EIGEN} #> eliminate once possible
 	#${ACML_LAPACK_MKL}
 	#"superlu"
     #"arpack"

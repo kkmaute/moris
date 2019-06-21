@@ -14,8 +14,7 @@ list(APPEND MORIS_SOURCE_DIRS ${MTK})
 # Third party libraries needed by MTK-lib
 set(MTK_LIB_TPL_DEPENDENCIES
     "trilinos"
-    "superlu" # needed for test linking order
-    "arpack" # needed for test linking order
+    #"arpack" # needed for linking order
     )
 
 # Additional third party libraraies needed by MTK-test

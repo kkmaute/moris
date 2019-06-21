@@ -24,8 +24,7 @@ set(MDL_LIB_TPL_DEPENDENCIES
 
 # Additional third party libraries needed by test
 set(MDL_TEST_TPL_DEPENDENCIES
-	${ARMADILLO_EIGEN}
-	"petsc"
+	#${ARMADILLO_EIGEN}
 	)
 
 #include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)

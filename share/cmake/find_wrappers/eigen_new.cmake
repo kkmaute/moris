@@ -44,6 +44,11 @@ else()
     include(${MORIS_EIGEN_TARGET_FILE})
 endif()
 
+if(NOT TARGET eigen)
+	add_library(eigen INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(eigen INTERFACE ${MORIS_EIGEN_TARGETS} )
+endif()
+
 #add_definitions("-DMORIS_USE_EIGEN")
 #include_directories("${MORIS_EIGEN_INCLUDE_DIRS}")
 #list(APPEND MORIS_ARMADILLO_EIGEN_LIBS "Eigen3::Eigen")

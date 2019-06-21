@@ -26,12 +26,12 @@ target_include_directories(${CON}-lib INTERFACE
 foreach(TPL ${CON_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    target_link_libraries(${CON}-lib
+    	INTERFACE ${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${CON}-lib 
     	INTERFACE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${CON}-lib
-    	INTERFACE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
     target_compile_definitions(${CON}-lib
     	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
 endforeach()

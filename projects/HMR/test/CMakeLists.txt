@@ -73,7 +73,7 @@ set(TEST_DEPENDENCIES
     #${MORIS_TRILINOS_LIBS}
     #${MORIS_ARPACK_LIBS}
     #${MORIS_BOOST_LIBS}
-    ${DLA}-lib #> reeeeeee
+    #${DLA}-lib #> reeeeeee
     )
 
 # Remove duplicate dependencies

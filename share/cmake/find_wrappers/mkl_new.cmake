@@ -21,6 +21,11 @@ if(NOT MKL_FOUND_ONCE)
     message(STATUS "MKL_LIBRARIES: ${MKL_LIBRARIES}")
 endif()
 
+if(NOT TARGET mkl)
+	add_library(mkl INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(mkl INTERFACE ${MORIS_MKL_LIBRARIES})
+endif()
+
 #if(MORIS_USE_MKL)
 #    add_definitions("-DMORIS_HAVE_MKL")
 #endif()

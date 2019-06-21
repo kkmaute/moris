@@ -190,14 +190,35 @@ if(NOT TRILINOS_FOUND_ONCE)
             MORIS_T_LIBS
             "${MORIS_T_LIBS}" )
     endif()
+    
+    set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS} ${PARDISO_LIBS})
+    list(REVERSE MORIS_TRILINOS_LIBS)
+    list(REMOVE_DUPLICATES MORIS_TRILINOS_LIBS)
+    list(REVERSE MORIS_TRILINOS_LIBS)
 
-    set(MORIS_TRILINOS_LIBRARIES ${MORIS_T_LIBS} ${PARDISO_LIBS}
+    set(MORIS_TRILINOS_LIBRARIES ${MORIS_TRILINOS_LIBS}
         CACHE INTERNAL "Trilinos Libraries.")
     
     message(STATUS "TRILINOS_PATH: ${TRILINOS_PATH}")
     
     mark_as_advanced(MORIS_TRILINOS_LIBRARIES)
 endif()
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+if(NOT TARGET trilinos)
+	set(MORIS_TRILINOS_TPLS
+		arpack
+		)
+	
+	foreach(TPL ${MORIS_TRILINOS_TPLS})
+		include(${MORIS_TPL_DIR}/${TPL}_new.cmake)
+	endforeach()
+
+	_import_libraries(TRILINOS_LIBRARY_TARGETS "${MORIS_TRILINOS_LIBRARIES}")
+	
+	_link_each_target("${TRILINOS_LIBRARY_TARGETS}" "${MORIS_TRILINOS_TPLS}")
+
+	add_library(trilinos INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(trilinos INTERFACE ${TRILINOS_LIBRARY_TARGETS})
+endif()
 
 #include_directories(${MORIS_TRILINOS_INCLUDE_DIRS})

@@ -53,12 +53,19 @@ set_target_properties(${ALG}-lib PROPERTIES OUTPUT_NAME ${ALG})
 foreach(TPL ${ALG_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    target_link_libraries(${ALG}-lib
+    	PUBLIC ${tpl})
     
+    # Later versions of CMake (3.11+) allow include directories and
+    # compile definitions to be included in an imported library. If this
+    # system ever gets updated to a newer version of CMake, shifting both
+    # to the imported library would be good practice. Imported library
+    # targets were added to add inter-tpl dependencies where needed
+    # (PETSc needs SuperLU, for example).
+    # 	-- Matthew Ryan, June 18, 2019
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${ALG}-lib 
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${ALG}-lib
-    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
     target_compile_definitions(${ALG}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()

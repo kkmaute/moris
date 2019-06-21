@@ -15,8 +15,8 @@ list(APPEND MORIS_SOURCE_DIRS ${GEN}/${SDF})
 # PETSc and Trilinos; add later
 # include(${MORIS_TPL_DIR}/PETSc.cmake)
 set(SDF_LIB_TPL_DEPENDENCIES
-    "superlu" # needed for test linking order
-    "arpack" # needed for test linking order
+    #"superlu" # needed for test linking order
+    #"arpack" # needed for test linking order
     )
 
 # Additional third party libraries needed by SDF executables

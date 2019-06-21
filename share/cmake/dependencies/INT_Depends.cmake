@@ -20,7 +20,7 @@ set(INT_LIB_TPL_DEPENDENCIES
 
 # Additional third party libraries needed for test
 set(INT_TEST_TPL_DEPENDENCIES
-	${ARMADILLO_EIGEN} #> remove when possible... i think
+	#${ARMADILLO_EIGEN} #> remove when possible... i think
 	)
 
 # Make sure needed moris libraries are built
