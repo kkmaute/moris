@@ -12,13 +12,7 @@ set(MOD_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${MOD})
 
 # Include libraries needed by MOD
-set(MOD_LIB_TPL_DEPENDENCIES
-    #${ARMADILLO_EIGEN}
+set(MOD_TPL_DEPENDENCIES
+    ""
     )
 
-# Make sure needed moris libraries are built
-
-
-# Include third party libraries indirectly needed by MOD
-#list(APPEND MOD_TPL_DEPENDENCIES
-#    )

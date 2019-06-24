@@ -58,19 +58,6 @@ add_executable(${SDF_TEST} ${TEST_SOURCES})
 target_link_libraries(${SDF_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${SDF_TEST} PROPERTIES OUTPUT_NAME ${SDF_TEST}${EXE_EXT})
 
-foreach(TPL ${SDF_TEST_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(${SDF_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${SDF_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(${SDF_TEST}
-    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
 # Mark as test
 add_test(NAME ${SDF_TEST}
     COMMAND $<TARGET_FILE:${SDF_TEST}> )

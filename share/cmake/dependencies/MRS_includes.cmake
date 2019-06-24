@@ -13,10 +13,6 @@ include_directories(
 # Add MRS to the header directory list
 list(APPEND MORIS_SOURCE_DIRS ${MRS})
 
-#chronos and containers need some tpls for their tests
-#include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
-#include_directories(${LINALG_IMPLEMENTATION_INCLUDES})
-
 set(ASR_TPL_DEPENDENCIES
     "" )
 
@@ -29,7 +25,7 @@ set(CON_TPL_DEPENDENCIES
 set(EXC_TPL_DEPENDENCIES
     "" )
     
-set(IOS_LIB_TPL_DEPENDENCIES
+set(IOS_TPL_DEPENDENCIES
     "hdf5"
     "boost" )
 

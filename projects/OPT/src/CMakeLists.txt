@@ -65,7 +65,7 @@ target_link_libraries(${OPT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${OPT}-lib PROPERTIES OUTPUT_NAME ${OPT})
 
 # Link third party libraries
-foreach(TPL ${OPT_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${OPT_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${OPT}-lib

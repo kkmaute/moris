@@ -183,7 +183,7 @@ target_include_directories(${LINALG}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> 
 	$<BUILD_INTERFACE:${LINALG_IMPLEMENTATION_INCLUDES}>)
 
-foreach(TPL ${LINALG_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${LINALG_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${LINALG}-lib
@@ -228,19 +228,6 @@ if(BUILD_LINALG)
 	add_executable(${LINALG} ${EXE_SOURCES})
 	target_link_libraries(${LINALG} PRIVATE ${EXE_DEPENDENCIES})
 	target_include_directories(${LINALG} PRIVATE ${MORIS_PACKAGE_DIR}/XTK/include)
-	
-	foreach(TPL ${LINALG_EXE_TPL_DEPENDENCIES})
-		string(TOLOWER ${TPL} tpl)
-	    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-	    
-	    string(TOUPPER ${TPL} TPL)
-	    target_include_directories(${LINALG} 
-	    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-	    target_link_libraries(${LINALG}
-	    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-	    target_compile_definitions(${LINALG}
-	    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-	endforeach()
 endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

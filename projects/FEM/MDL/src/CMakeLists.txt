@@ -75,7 +75,7 @@ target_include_directories(${MDL}-lib PUBLIC
 target_link_libraries(${MDL}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MDL}-lib PROPERTIES OUTPUT_NAME ${MDL})
 
-foreach(TPL ${MDL_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${MDL_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${MDL}-lib

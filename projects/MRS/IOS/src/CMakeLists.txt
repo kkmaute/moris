@@ -14,7 +14,7 @@ set(HEADERS
 add_library(${IOS}-lib INTERFACE)
 target_include_directories(${IOS}-lib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-foreach(TPL ${IOS_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${IOS_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${IOS}-lib

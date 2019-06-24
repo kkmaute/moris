@@ -158,7 +158,7 @@ target_include_directories(${HMR}-lib PUBLIC
 target_link_libraries(${HMR}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
 
-foreach(TPL ${HMR_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${HMR_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${HMR}-lib
@@ -223,23 +223,7 @@ if(BUILD_HMR)
 	add_executable(${HMR}-exe ${EXE_SOURCES})
 	target_link_libraries(${HMR}-exe PRIVATE ${EXE_DEPENDENCIES})
 	set_target_properties(${HMR}-exe PROPERTIES OUTPUT_NAME hmr )
-	
-	foreach(TPL ${HMR_EXE_TPL_DEPENDENCIES})
-		string(TOLOWER ${TPL} tpl)
-	    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-	    
-	    string(TOUPPER ${TPL} TPL)
-	    target_include_directories(${HMR}-exe
-	    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-	    target_link_libraries(${HMR}-exe
-	    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-	    target_compile_definitions(${HMR}-exe
-	    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-	endforeach()
 endif()
-
-
-
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Config Files
