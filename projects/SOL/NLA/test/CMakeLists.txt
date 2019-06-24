@@ -54,19 +54,6 @@ add_executable(${NLA_TEST} ${TEST_SOURCES})
 target_link_libraries(${NLA_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${NLA_TEST} PROPERTIES OUTPUT_NAME ${NLA_TEST}${EXE_EXT})
 
-foreach(TPL ${NLA_TEST_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(${NLA_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${NLA_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(${NLA_TEST}
-    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
 # Mark as test
 add_test(NAME ${NLA_TEST}
     COMMAND $<TARGET_FILE:${NLA_TEST}> )

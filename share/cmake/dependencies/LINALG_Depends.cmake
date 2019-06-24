@@ -15,29 +15,20 @@ set(LINALG_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${LINALG})
 
 # Third party libraries directly needed by LINALG
-set(LINALG_LIB_TPL_DEPENDENCIES
+set(LINALG_TPL_DEPENDENCIES
 	${ARMADILLO_EIGEN}
 	${ACML_LAPACK_MKL}
 	"superlu"
 	"arpack"
 	)
 
-# Additional third party libraries needed by LINALG executables
-set(LINALG_EXE_TPL_DEPENDENCIES
-	#${ARMADILLO_EIGEN}
-	#${ACML_LAPACK_MKL}
-    #"superlu"
-    #"arpack"
-    ""
-    )
-
 if(${ARMADILLO_EIGEN} STREQUAL "armadillo")
-    list(APPEND LINALG_EXE_TPL_DEPENDENCIES
+    list(APPEND LINALG_TPL_DEPENDENCIES
         #"viennacl"
         )
 elseif(${ARMADILLO_EIGEN} STREQUAL "eigen")
-    list(APPEND LINALG_EXE_TPL_DEPENDENCIES
-        "suitesparse"
+    list(APPEND LINALG_TPL_DEPENDENCIES
+        #"suitesparse"
         )
 endif()
 
@@ -52,10 +43,10 @@ foreach(MORIS_DEPENDENCY ${LINALG_MORIS_DEPENDENCIES})
     include(${MORIS_DEPENDS_DIR}/${MORIS_DEPENDENCY}_Depends.cmake)
 
     # Include third party libraries indirectly needed by LINALG
-    #list(APPEND LINALG_EXE_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
+    #list(APPEND LINALG_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
 endforeach()
 
-list(REMOVE_DUPLICATES LINALG_EXE_TPL_DEPENDENCIES)
+list(REMOVE_DUPLICATES LINALG_TPL_DEPENDENCIES)
 
 # Linear Algebra implementations
 if(MORIS_USE_EIGEN)

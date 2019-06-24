@@ -143,19 +143,6 @@ add_executable(${XTK_TEST} ${TEST_SOURCES})
 target_link_libraries(${XTK_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${XTK_TEST} PROPERTIES OUTPUT_NAME ${XTK_TEST}${EXE_EXT})
 
-foreach(TPL ${XTK_TEST_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(${XTK_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${XTK_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(${XTK_TEST}
-    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
 # Mark as test
 add_test(NAME ${XTK_TEST}
     COMMAND $<TARGET_FILE:${XTK_TEST}> )

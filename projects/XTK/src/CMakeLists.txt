@@ -183,7 +183,7 @@ target_link_libraries(${XTK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 
 # Link third party libraries
-foreach(TPL ${XTK_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${XTK_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${XTK}-lib
@@ -225,19 +225,6 @@ add_executable(XTK_PLATO ${PLATO_EXE_SOURCES})
 target_link_libraries(XTK_PLATO PRIVATE ${PLATO_EXE_DEPENDENCIES})
 set_target_properties(XTK_PLATO PROPERTIES OUTPUT_NAME XTK_Plato.exe )
 
-foreach(TPL ${XTK_EXE_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(XTK_PLATO
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(XTK_PLATO
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(XTK_PLATO
-    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
 
 #############################################################################
 # Create executable for XFEM
@@ -264,19 +251,6 @@ add_executable(XTK_EXE ${XTK_EXE_SOURCES})
 target_link_libraries(XTK_EXE PRIVATE ${XTK_EXE_DEPENDENCIES})
 set_target_properties(XTK_EXE PROPERTIES OUTPUT_NAME XTK )
 
-foreach(TPL ${XTK_EXE_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(XTK_EXE
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(XTK_EXE
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(XTK_EXE
-    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
 #############################################################################
 # Create executable for hole seeding
 #############################################################################
@@ -301,19 +275,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
 add_executable(XTK_HOLE_SEED ${HOLE_SEED_EXE_SOURCES})
 target_link_libraries(XTK_HOLE_SEED PRIVATE ${HOLE_EXE_DEPENDENCIES})
 set_target_properties(XTK_HOLE_SEED PROPERTIES OUTPUT_NAME XTK_Hole_Seed.exe )
-
-foreach(TPL ${XTK_EXE_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(XTK_HOLE_SEED
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(XTK_HOLE_SEED
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(XTK_HOLE_SEED
-    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
 
 if(BUILD_HMR)
 	set(HMR_EXE_SOURCES

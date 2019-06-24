@@ -174,7 +174,7 @@ target_include_directories(${INT}-lib PUBLIC
 target_link_libraries(${INT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${INT}-lib PROPERTIES OUTPUT_NAME ${INT})
 
-foreach(TPL ${INT_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${INT_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${INT}-lib

@@ -12,26 +12,14 @@ set(MAP_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${MTK}/${MAP})
 
 # Third party libraries directly used by MAP library
-set(MAP_LIB_TPL_DEPENDENCIES
-    #"superlu"
-    #"boost"
-    #"PETSc"
-    #"trilinos"
+set(MAP_TPL_DEPENDENCIES
+    ""
     )
     
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
-#include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
-#include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TSA_Depends.cmake)
-#include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
-#include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
-
-# Include third party libraries indirectly needed by MAP
-#list(APPEND MAP_TPL_DEPENDENCIES
-#    ${HMR_TPL_DEPENDENCIES}
-#    )

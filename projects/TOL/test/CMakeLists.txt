@@ -50,19 +50,6 @@ add_executable(${TOL_TEST} ${TEST_SOURCES})
 target_link_libraries(${TOL_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${TOL_TEST} PROPERTIES OUTPUT_NAME ${TOL}-test${EXE_EXT})
 
-foreach(TPL ${TOL_TEST_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(${TOL_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${TOL_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(${TOL_TEST}
-        PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
 # Mark as test
 add_test(NAME ${TOL_TEST}
     COMMAND $<TARGET_FILE:${TOL_TEST}> )
