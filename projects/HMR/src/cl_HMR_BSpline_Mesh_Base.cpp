@@ -439,8 +439,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::create_basis_on_level_zero()
+        void BSpline_Mesh_Base::create_basis_on_level_zero()
         {
             // ask mesh for relevant ijk positions
             Matrix< DDLUMat > tIJK = mBackgroundMesh ->get_number_of_elements_per_direction_on_proc();
@@ -528,8 +527,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
+        void BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
                        const uint & aLevel,
                 Cell< Element * > & aElements )
         {
@@ -569,20 +567,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::process_level( const uint& aLevel )
+        void BSpline_Mesh_Base::process_level( const uint& aLevel )
         {
 
             Cell< Element* > tElementsOnThisLevel;
-            this->collect_active_and_refined_elements_from_level(
-                    aLevel, tElementsOnThisLevel );
+            this->collect_active_and_refined_elements_from_level( aLevel, tElementsOnThisLevel );
 
             Cell< Basis* > tBasisOnThisLevel;
 
             // collect basis from given level
-            this->preprocess_basis_from_level(
-                    tElementsOnThisLevel,
-                    tBasisOnThisLevel );
+            this->preprocess_basis_from_level( tElementsOnThisLevel,
+                                               tBasisOnThisLevel );
 
             // determine state of each basis
             this->determine_basis_state( tBasisOnThisLevel );
@@ -596,8 +591,7 @@ namespace moris
                 for( auto tElement : tElementsOnThisLevel )
                 {
                     // test if backgroud element has children and is refined on pattern
-                    if ( tElement->get_background_element()->has_children()
-                            && tElement->is_refined() )
+                    if ( tElement->get_background_element()->has_children() && tElement->is_refined() )
                     {
                         // refine B-Spline element
                         mAllElementsOnProc( tElement->get_memory_index() )->refine( mAllElementsOnProc, tCount );
@@ -1092,8 +1086,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::link_basis_to_elements_on_level_zero()
+        void BSpline_Mesh_Base::link_basis_to_elements_on_level_zero()
         {
             if ( mNumberOfDimensions == 2 )
             {
@@ -1148,8 +1141,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::collect_basis()
+        void BSpline_Mesh_Base::collect_basis()
         {
             // loop over all coarsest basis
             for( auto tBasis : mAllCoarsestBasisOnProc )
@@ -1199,8 +1191,7 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::link_basis_to_parents()
+        void BSpline_Mesh_Base::link_basis_to_parents()
         {
             // ask background mesh for max number of levels
             uint tMaxLevel = mBackgroundMesh->get_max_level();

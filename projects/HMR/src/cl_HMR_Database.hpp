@@ -200,6 +200,18 @@ namespace moris
                 return mBackgroundMesh->get_number_of_active_elements_on_proc();
             }
 
+            // -----------------------------------------------------------------------------
+
+            /**
+             * returns the number of ( active ) elements on this proc
+             */
+            auto get_number_of_padding_elements_on_proc()
+                -> decltype( mBackgroundMesh->get_number_of_padding_elements_on_proc() )
+            {
+                return mBackgroundMesh->get_number_of_padding_elements_on_proc();
+            }
+
+
 // -----------------------------------------------------------------------------
 
             /**

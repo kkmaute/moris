@@ -371,7 +371,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 
                     // test if domain ID is correct
                     REQUIRE( tDomainID == tNeighbor->get_hmr_id() );
-
                 }
             }
 
@@ -445,11 +444,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 
                 // ask background mesh for number of elements on proc
                 auto tNumberOfElementsOnProc
-                    =  tBackgroundMesh->get_number_of_active_elements_on_proc_including_aura();
+                    = tBackgroundMesh->get_number_of_active_elements_on_proc_including_aura();
 
                 // pointer to element that is to be tested
                 moris::hmr::Background_Element_Base* tElement
-					= tBackgroundMesh->get_element_from_proc_domain_including_aura( 0 );
+                    = tBackgroundMesh->get_element_from_proc_domain_including_aura( 0 );
 
                 // find element 40271 ( this is a bit brute force, but for the test, it is fast enough )
                 // in parallel, this element has neighbors in the aura.
@@ -463,7 +462,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                         break;
                     }
                 }
-
 
                 // calculate neighbor stencil
                 const moris::luint* tElIJK = tElement->get_ijk();

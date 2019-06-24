@@ -647,7 +647,7 @@ namespace moris
              * This function loops over all elements on the coarsest level,
              * identifies padding elements and calculates element ownership. It
              * also identifies the elements on the coarsest level that belong to
-             * theaura. In fact, there are two auras. The normal aura around the
+             * the aura. In fact, there are two auras. The normal aura around the
              * proc domain, which contains the elements that belong to the neighbor
              * proc and are shared with the current proc, and the inverse aura,
              * which contains the elements that belong to the current proc,
@@ -675,7 +675,7 @@ namespace moris
              * This function is only needed once.
              * Therefore, template specialization is not required.
              *
-             * @return   Matrix< DDLUMat > of dumension < number of dimensions>
+             * @return   Matrix< DDLUMat > of dimension < number of dimensions>
              *                       containing number of elements per direction
              *                       on coarsest proc, including aura
              */

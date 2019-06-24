@@ -319,8 +319,7 @@ namespace moris
              * collects all active elements (including aura) and saves their
              * pointers in mActiveElementsIncludingAura
              */
-            void
-            collect_active_elements_including_aura();
+            void collect_active_elements_including_aura();
 
 //--------------------------------------------------------------------------------
 
@@ -329,8 +328,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            print_active_elements();
+            void print_active_elements();
 
 //--------------------------------------------------------------------------------
             /**
@@ -338,8 +336,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            print_active_elements_including_aura();
+            void print_active_elements_including_aura();
 
 //--------------------------------------------------------------------------------
 
@@ -362,9 +359,7 @@ namespace moris
              *                             of top level elements
              *
              */
-            Matrix< DDLUMat >
-            get_subdomain_ids_of_coarsest_aura( const uint & aNeighborProc )
-            const
+            Matrix< DDLUMat > get_subdomain_ids_of_coarsest_aura( const uint & aNeighborProc ) const
             {
                 return mCoarsestAura( aNeighborProc );
             }
@@ -380,9 +375,7 @@ namespace moris
              * @return        Matrix< DDLUMat > containing local IDs
              *
              */
-            Matrix< DDLUMat >
-            get_subdomain_ids_of_coarsest_inverse_aura( const uint & aNeighborProc )
-            const
+            Matrix< DDLUMat > get_subdomain_ids_of_coarsest_inverse_aura( const uint & aNeighborProc ) const
             {
                 return mCoarsestInverseAura( aNeighborProc );
             }
@@ -398,8 +391,7 @@ namespace moris
              *
              * @return       void
              */
-            void
-            get_active_elements_on_proc( Matrix< DDLUMat > & aElementIDs );
+            void get_active_elements_on_proc( Matrix< DDLUMat > & aElementIDs );
 
 //--------------------------------------------------------------------------------
 
@@ -414,8 +406,7 @@ namespace moris
              * @return         void
              *
              */
-            void
-            get_active_elements_on_proc_including_aura(
+            void get_active_elements_on_proc_including_aura(
                     Matrix< DDLUMat > & aElementIDs );
 
 //--------------------------------------------------------------------------------
@@ -424,8 +415,7 @@ namespace moris
              *
              * return @luint
              */
-            luint
-            get_number_of_coarsest_elements_on_proc_including_aura()
+            luint get_number_of_coarsest_elements_on_proc_including_aura()
             {
                 return mCoarsestElementsIncludingAura.size();
             }
@@ -464,8 +454,7 @@ namespace moris
              *
              * @return         bool telling if at least one element has been refined
              */
-            bool
-            perform_refinement();
+            bool perform_refinement();
 
 //--------------------------------------------------------------------------------
 
@@ -476,8 +465,7 @@ namespace moris
              * @return         Matrix< DDLUMat > number of elements per direction on
              *                              proc, including aura
              */
-            virtual Matrix< DDLUMat >
-            get_number_of_elements_per_direction_on_proc() const = 0;
+            virtual Matrix< DDLUMat > get_number_of_elements_per_direction_on_proc() const = 0;
 
 
 //--------------------------------------------------------------------------------
@@ -489,8 +477,7 @@ namespace moris
              * @return         Matrix< DDLUMat > number of elements per direction
              *                              within whole mesh, including aura
              */
-            virtual Matrix< DDLUMat >
-            get_number_of_elements_per_direction() const = 0;
+            virtual Matrix< DDLUMat > get_number_of_elements_per_direction() const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -512,8 +499,7 @@ namespace moris
              * @return  luint  size of cell mActiveElements
              *
              */
-            luint
-            get_number_of_active_elements_on_proc()
+            luint get_number_of_active_elements_on_proc()
             {
                 MORIS_ASSERT( mActiveElements.size() > 0, "No active elements found on mesh" );
                 return mActiveElements.size();
@@ -528,10 +514,37 @@ namespace moris
              *
              * @return  luint  size of cell mActiveElementsIncludingAura
              */
-            luint
-            get_number_of_active_elements_on_proc_including_aura()
+            luint get_number_of_active_elements_on_proc_including_aura()
             {
                 return mActiveElementsIncludingAura.size();
+            }
+
+            //--------------------------------------------------------------------------------
+
+            /**
+             * Returns the number of padding elements.
+             * Needs to be called after collect_active_elements()
+             *
+             * @return  luint  size of cell mActiveElements
+             *
+             */
+            luint get_number_of_padding_elements_on_proc()
+            {
+                MORIS_ASSERT( mCoarsestPaddingElements.size() > 0, "No padding elements found on mesh" );
+
+                luint tNumberOfCoarsestPaddingElements = mCoarsestPaddingElements.size();
+
+                // initialize padding counter
+                luint tPaddingCount = 0;
+
+                // loop over all coarsest padding elements
+                for( luint k = 0; k < tNumberOfCoarsestPaddingElements; ++k )
+                {
+                    // count descendants
+                    mCoarsestPaddingElements( k )->get_number_of_descendants( tPaddingCount );
+                }
+
+                return tPaddingCount;
             }
 
 //--------------------------------------------------------------------------------
@@ -544,8 +557,7 @@ namespace moris
              * @return Matrix< DDLUMat > of dimension  < number of dimensions >
              *                                  * <max number of levels>
              */
-            virtual Matrix< DDLUMat >
-            get_subdomain_offset_of_proc() = 0;
+            virtual Matrix< DDLUMat > get_subdomain_offset_of_proc() = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -554,8 +566,7 @@ namespace moris
              *
              * @return Matrix< DDUMat >
              */
-            const Matrix< DDUMat > &
-            get_proc_coords() const
+            const Matrix< DDUMat > & get_proc_coords() const
             {
 
                 return mMyProcCoords;
@@ -567,8 +578,7 @@ namespace moris
              *
              * @return Matrix< DDUMat >
              */
-            const Matrix< DDUMat > &
-            get_proc_dims() const
+            const Matrix< DDUMat > & get_proc_dims() const
             {
                 return mProcDims;
             }
@@ -581,8 +591,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            collect_neighbors();
+            void collect_neighbors();
 
 //--------------------------------------------------------------------------------
 
@@ -590,8 +599,7 @@ namespace moris
              * calculates a consecutive index for all elements on domain.
              * Must be called after collect_active_elements.
              */
-            void
-            update_element_indices();
+            void update_element_indices();
 
 //--------------------------------------------------------------------------------
 
@@ -601,8 +609,7 @@ namespace moris
              *
              * @return uint   max level of mesh on local proc
              */
-            auto
-            get_max_level() const -> decltype( mMaxLevel )
+            auto get_max_level() const -> decltype( mMaxLevel )
             {
                 return mMaxLevel;
             }
@@ -618,8 +625,7 @@ namespace moris
              *
              * @return       void
              */
-            void
-            collect_elements_on_level_including_aura(
+            void collect_elements_on_level_including_aura(
                     const uint                       & aLevel,
                     Cell< Background_Element_Base* > & aElementList );
 //--------------------------------------------------------------------------------
@@ -633,8 +639,7 @@ namespace moris
              *
              * @return       void
              */
-            void
-            collect_elements_on_level_within_proc_domain(
+            void collect_elements_on_level_within_proc_domain(
                     const uint                        & aLevel,
                     Cell< Background_Element_Base* >  & aElementList );
 
@@ -652,8 +657,7 @@ namespace moris
              *  @param[out]  aElementList     cell with element pointers on aura
 
              */
-            void
-            collect_active_elements_from_aura(
+            void collect_active_elements_from_aura(
                     const uint                       & aProcNeighbor,
                     const uint                       & aMode,
                     Cell< Background_Element_Base* > & aElementList
@@ -666,8 +670,7 @@ namespace moris
              *
              * return uint
              */
-            uint
-            get_number_of_proc_neighbors() const
+            uint get_number_of_proc_neighbors() const
             {
                 return mMyProcNeighbors.length();
             }
@@ -679,8 +682,7 @@ namespace moris
              *
              * @return Matrix< DDUMat >
              */
-            const Matrix< IdMat >  &
-            get_proc_neigbors() const
+            const Matrix< IdMat > & get_proc_neigbors() const
             {
                 return mMyProcNeighbors;
             }
@@ -694,8 +696,7 @@ namespace moris
              * @param[out]  aNodeCoords Matrix containing the node coordinates
              *                          ( 3 x 2^n )
              */
-            virtual void
-            calc_corner_nodes_of_element(
+            virtual void calc_corner_nodes_of_element(
                     const Background_Element_Base * aElement,
                     Matrix< DDRMat >                     & aNodeCoords ) = 0;
 
@@ -708,8 +709,7 @@ namespace moris
              * @param[out]  aNodeCoords Matrix containing the node coordinates
              *                          ( 3 x 1 )
              */
-            virtual void
-            calc_center_of_element(
+            virtual void calc_center_of_element(
                     const Background_Element_Base * aElement,
                     Matrix< DDRMat >                     & aNodeCoords ) = 0;
 
@@ -720,8 +720,7 @@ namespace moris
              *
              * @return uint
              */
-            auto
-            get_number_of_neighbors_per_element() const
+            auto get_number_of_neighbors_per_element() const
                 -> decltype( mNumberOfNeighborsPerElement )
             {
                 return mNumberOfNeighborsPerElement;
@@ -734,8 +733,7 @@ namespace moris
                     const luint       & aAncestorID
                     const Matrix< DDUMat > & aPedigreeList,
                     luint             & aCounter ); */
-            Background_Element_Base *
-            decode_pedigree_path(
+            Background_Element_Base * decode_pedigree_path(
                     const luint       & aAncestorID,
                     const Matrix< DDUMat > & aPedigreeList,
                     luint             & aCounter
@@ -745,8 +743,7 @@ namespace moris
             /**
              * creates a VTKfile of the mesh on the proc for debugging
              */
-            void
-            save_to_vtk( const std::string & aFilePath );
+            void save_to_vtk( const std::string & aFilePath );
 
 //--------------------------------------------------------------------------------
 
@@ -755,8 +752,7 @@ namespace moris
              *
              * @return Matrix< DDRMat >
              */
-            virtual Matrix< DDRMat >
-            get_domain_offset() = 0;
+            virtual Matrix< DDRMat > get_domain_offset() = 0;
 
 
 //--------------------------------------------------------------------------------
@@ -765,16 +761,14 @@ namespace moris
              * tell the other procs that we need an element, and therefore
              * its DOFs
              */
-            void
-            synchronize_t_matrix_flags();
+            void synchronize_t_matrix_flags();
 
 // ----------------------------------------------------------------------------
 
             /**
              * sets the active pattern to another value
              */
-            void
-            set_activation_pattern( const uint & aPattern )
+            void set_activation_pattern( const uint & aPattern )
             {
                 if( mActivePattern != aPattern )
                 {
@@ -797,8 +791,7 @@ namespace moris
             /**
              * returns the active refinement pattern of the background mesh
              */
-            uint
-            get_activation_pattern() const
+            uint get_activation_pattern() const
             {
                 return mActivePattern;
             }
@@ -809,16 +802,14 @@ namespace moris
              * clones one pattern into another. Unlike copy pattern,
              * this pattern can extend the buffer if desired.
              */
-            void
-            clone_pattern( const uint & aSource, const uint & aTarget );
+            void clone_pattern( const uint & aSource, const uint & aTarget );
 
 // -----------------------------------------------------------------------------
 
             /**
              * creates a union of two patterns
              */
-            void
-            unite_patterns(
+            void unite_patterns(
                     const uint & aSourceA,
                     const uint & aSourceB,
                     const uint & aTarget );
@@ -829,8 +820,7 @@ namespace moris
             /**
              * copies a pattern to another slot
              */
-            void
-            copy_pattern(
+            void copy_pattern(
                     const uint & aSource,
                     const uint & aTarget );
 
@@ -839,16 +829,14 @@ namespace moris
             /**
              * resets the activation pattern
              */
-            void
-            reset_pattern( const uint & aPattern );
+            void reset_pattern( const uint & aPattern );
 
 // -----------------------------------------------------------------------------
 
             /**
              * DELETE ME
              */
-            void
-            print_all_elements()
+            void print_all_elements()
             {
                 Cell< Background_Element_Base* > tAllElements;
                 this->collect_all_elements( tAllElements );
@@ -875,8 +863,7 @@ namespace moris
              *
              * @return       void
              */
-            void
-            collect_elements_on_level(
+            void collect_elements_on_level(
                     const uint                       & aLevel,
                     Cell< Background_Element_Base* > & aElementList );
 
@@ -890,32 +877,28 @@ namespace moris
              *
              * @return       luint         number of elements on this level
              */
-            luint
-            count_elements_on_level( const uint& aLevel );
+            luint count_elements_on_level( const uint& aLevel );
 
 // -----------------------------------------------------------------------------
 
             /**
              * updates the database according to selected pattern
              */
-            void
-            update_database();
+            void update_database();
 
 //------------------------------------------------------------------------------
 
             /**
              * creates the faces of the background elements ( for 2D )
              */
-            void
-            create_facets();
+            void create_facets();
 
 //------------------------------------------------------------------------------
 
             /**
              * creates the faces and edges of the background elements ( for 3D )
              */
-            void
-            create_faces_and_edges();
+            void create_faces_and_edges();
 
 //------------------------------------------------------------------------------
 
@@ -923,8 +906,7 @@ namespace moris
              * Returns the maximum number of elements on the whole mesh
              * Padding elements do not count.
              */
-            moris_id
-            get_max_element_domain_index() const
+            moris_id get_max_element_domain_index() const
             {
                 return mMaxElementDomainIndex;
             }
@@ -941,16 +923,14 @@ namespace moris
              *        One check can be saved if the refinement step is performed
              *        within this function.
              */
-            bool
-            collect_refinement_queue();
+            bool collect_refinement_queue();
 
 //------------------------------------------------------------------------------
 
             /**
              * exposes the refinement queue
              */
-            Cell< Background_Element_Base *  > &
-            get_refinement_queue()
+            Cell< Background_Element_Base *  > & get_refinement_queue()
             {
                 return mRefinementQueue;
             }
@@ -961,8 +941,7 @@ namespace moris
              * Collect background elements on side set.
              * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
              */
-            void
-            collect_side_set_elements(
+            void collect_side_set_elements(
                     const uint                         & aPattern,
                     const uint                         & aSideOrdinal,
                     Cell< Background_Element_Base *  > & aElements );
@@ -971,8 +950,7 @@ namespace moris
             /**
              * returns the number of children per element
              */
-            uint
-            get_number_of_children_per_element() const
+            uint get_number_of_children_per_element() const
             {
                 return mNumberOfChildrenPerElement;
             }
@@ -982,8 +960,7 @@ namespace moris
             /**
              * reset the minumum refinement levels of all elements
              */
-            void
-            reset_min_refinement_levels();
+            void reset_min_refinement_levels();
 
 //------------------------------------------------------------------------------
         protected:

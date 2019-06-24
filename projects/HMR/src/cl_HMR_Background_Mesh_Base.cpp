@@ -538,8 +538,8 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
-        bool
-        Background_Mesh_Base::collect_refinement_queue()
+
+        bool Background_Mesh_Base::collect_refinement_queue()
         {
             // synchronize with other procs ( this must be called twice )
             this->synchronize_refinement_queue();

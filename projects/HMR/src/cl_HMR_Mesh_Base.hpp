@@ -87,11 +87,10 @@ namespace moris
          * @param[in] aBackgroundMesh   pointer to background mesh
          * @param[in] aOrder            polynomial degree of mesh
          */
-        Mesh_Base (
-             const Parameters     * aParameters,
-             Background_Mesh_Base * aBackgroundMesh,
-             const uint           & aOrder,
-             const uint           & aActivationPattern );
+        Mesh_Base ( const Parameters           * aParameters,
+                          Background_Mesh_Base * aBackgroundMesh,
+                    const uint                 & aOrder,
+                    const uint                 & aActivationPattern );
 
 // ----------------------------------------------------------------------------
 
@@ -102,16 +101,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        uint
-        get_index() const
+        uint get_index() const
         {
             return mMeshIndex;
         }
 
 // ----------------------------------------------------------------------------
 
-        void
-        set_index( const uint & aIndex )
+        void set_index( const uint & aIndex )
         {
             mMeshIndex = aIndex;
         }
@@ -121,8 +118,7 @@ namespace moris
         /**
          * returns a pointer to the parameters object
          */
-        const Parameters *
-        get_parameters() const
+        const Parameters * get_parameters() const
         {
             return mParameters;
         }
@@ -135,8 +131,7 @@ namespace moris
          * @param[in]    aBasisIndex           number of node in memory
          * @return const Basis*  pointer to node
          */
-        Basis*
-        get_basis_by_memory_index( const luint & aBasisIndex )
+        Basis * get_basis_by_memory_index( const luint & aBasisIndex )
         {
             return mAllBasisOnProc( aBasisIndex );
         }
@@ -146,8 +141,7 @@ namespace moris
         /**
          * returns the size of mAllBasisOnProc
          */
-        luint
-        get_number_of_all_basis_on_proc() const
+        luint get_number_of_all_basis_on_proc() const
         {
             return mAllBasisOnProc.size();
         }
@@ -160,8 +154,7 @@ namespace moris
          *
          * @return luint
          */
-        luint
-        get_number_of_elements() const
+        luint get_number_of_elements() const
         {
             //return mNumberOfElements;
             return mBackgroundMesh->get_number_of_active_elements_on_proc();
@@ -176,12 +169,10 @@ namespace moris
          *
          * @return const Element*   pointer to node
          */
-        Element*
-        get_element( const luint aElementIndex )
+        Element * get_element( const luint aElementIndex )
         {
-            return mAllElementsOnProc(
-                    mBackgroundMesh->get_element( aElementIndex )
-                    ->get_memory_index() );
+            return mAllElementsOnProc( mBackgroundMesh->get_element( aElementIndex )
+                                                      ->get_memory_index() );
         }
 // ----------------------------------------------------------------------------
 
@@ -192,12 +183,10 @@ namespace moris
          *
          * @return const Element*   pointer to node
          */
-        const Element*
-        get_element( const luint & aElementIndex ) const
+        const Element * get_element( const luint & aElementIndex ) const
         {
-            return mAllElementsOnProc(
-                    mBackgroundMesh->get_element( aElementIndex )
-                    ->get_memory_index() );
+            return mAllElementsOnProc( mBackgroundMesh->get_element( aElementIndex )
+                                                      ->get_memory_index() );
         }
 
 // ----------------------------------------------------------------------------
@@ -225,8 +214,7 @@ namespace moris
          *
          * @return const Element*   pointer to node
          */
-        const Element*
-        get_element_by_memory_index( const luint & aMemoryIndex ) const
+        const Element * get_element_by_memory_index( const luint & aMemoryIndex ) const
         {
             return mAllElementsOnProc( aMemoryIndex );
         }
@@ -286,11 +274,9 @@ namespace moris
         {
             if ( aElement->get_level() > 0 )
             {
-                return mAllElementsOnProc(
-                        aElement
-                            ->get_background_element()
-                            ->get_parent()
-                            ->get_memory_index() );
+                return mAllElementsOnProc( aElement->get_background_element()
+                                                   ->get_parent()
+                                                   ->get_memory_index() );
             }
             else
             {

@@ -1523,7 +1523,6 @@ namespace moris
                         Cell< std::shared_ptr< Field > > & aFields,
                         ParameterList              & aParameters )
         {
-
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
 
@@ -1579,10 +1578,9 @@ namespace moris
                 }
 
                 // check flag from user defined function
-                int tFlag = aFunction(
-                        tElement,
-                        tFields,
-                        aParameters );
+                int tFlag = aFunction( tElement,
+                                       tFields,
+                                       aParameters );
 
                 // chop flag if element is at max defined level
                 if( tElement->get_level() > tMaxLevel )
@@ -1622,7 +1620,6 @@ namespace moris
                     mDatabase->create_extra_refinement_buffer_for_level( tLevel );
                 }
             }
-
 
             // reset activation pattern of database
             if( tActivePattern != tInputPattern )

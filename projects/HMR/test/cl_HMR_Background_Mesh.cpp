@@ -11,6 +11,9 @@
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
 
+#include "cl_HMR.hpp" //HMR/src
+#include "cl_HMR_Database.hpp" //HMR/src
+
 
 TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
 {
@@ -609,3 +612,41 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
         }
     }
 }
+
+TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_refine]")
+{
+    if( moris::par_size() == 1 )
+    {
+        // create parameter object
+        moris::hmr::Parameters tParameters;
+        tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+        tParameters.set_verbose( true );
+        tParameters.set_multigrid( false );
+        tParameters.set_bspline_truncation( true );
+        tParameters.set_mesh_orders_simple( 3 );
+
+        // create HMR object
+        moris::hmr::HMR tHMR( tParameters );
+
+        for( moris::uint Ii = 0; Ii<8; Ii++)
+        {
+            moris::luint tNumActiveElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
+
+            for( moris::luint Ik = 0; Ik<tNumActiveElements; Ik++)
+            {
+                // flag first element for refinement
+                tHMR.flag_element( Ik );
+            }
+            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.update_refinement_pattern();
+        }
+
+        tHMR.finalize();
+
+        tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine.vtk");
+
+        std::cout<<"Active Elements "<<tHMR.get_database()->get_number_of_elements_on_proc()<<std::endl;
+        std::cout<<"Padding Elements "<<tHMR.get_database()->get_number_of_padding_elements_on_proc()<<std::endl;
+    }
+}
+

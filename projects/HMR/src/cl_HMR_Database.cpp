@@ -584,8 +584,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::perform_refinement(
+        void Database::perform_refinement(
                 const enum RefinementMode aRefinementMode,
                 const bool aResetPattern )
         {
