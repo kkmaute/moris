@@ -19,8 +19,10 @@ if(NOT LAPACK_FOUND_ONCE)
 endif()
 
 if(NOT TARGET lapack)
+	_import_libraries(LAPACK_LIBRARY_TARGETS "${MORIS_LAPACK_LIBRARIES}")
+
 	add_library(lapack INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(lapack INTERFACE ${MORIS_LAPACK_LIBRARIES})
+	target_link_libraries(lapack INTERFACE ${LAPACK_LIBRARY_TARGETS})
 endif()
 
 #add_definitions("-DMORIS_HAVE_LAPACK")
