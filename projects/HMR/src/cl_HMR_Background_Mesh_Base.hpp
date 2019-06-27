@@ -131,8 +131,7 @@ namespace moris
             /**
              * virtual destructor of base mesh class. Does nothing.
              */
-           virtual
-           ~Background_Mesh_Base()
+           virtual ~Background_Mesh_Base()
            {
 
            }
@@ -142,8 +141,7 @@ namespace moris
            /**
             * return a pointer to the parameter object
             */
-           const Parameters *
-           get_parameters() const
+           const Parameters * get_parameters() const
            {
                return mParameters;
            }
@@ -278,10 +276,9 @@ namespace moris
               * @return pointer to element on top level
               *
               */
-             virtual Background_Element_Base * get_coarsest_element_by_ijk(
-                     const luint & aI,
-                     const luint & aJ,
-                     const luint & aK ) = 0;
+             virtual Background_Element_Base * get_coarsest_element_by_ijk( const luint & aI,
+                                                                            const luint & aJ,
+                                                                            const luint & aK ) = 0;
 
 //--------------------------------------------------------------------------------
              /**
@@ -406,8 +403,7 @@ namespace moris
              * @return         void
              *
              */
-            void get_active_elements_on_proc_including_aura(
-                    Matrix< DDLUMat > & aElementIDs );
+            void get_active_elements_on_proc_including_aura( Matrix< DDLUMat > & aElementIDs );
 
 //--------------------------------------------------------------------------------
             /**
@@ -467,7 +463,6 @@ namespace moris
              */
             virtual Matrix< DDLUMat > get_number_of_elements_per_direction_on_proc() const = 0;
 
-
 //--------------------------------------------------------------------------------
 
             /**
@@ -487,8 +482,7 @@ namespace moris
              *
              * @return Matrix< DDLUMat >
              */
-            virtual Matrix< DDLUMat >
-            get_subdomain_ijk() const = 0;
+            virtual Matrix< DDLUMat > get_subdomain_ijk() const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -625,9 +619,9 @@ namespace moris
              *
              * @return       void
              */
-            void collect_elements_on_level_including_aura(
-                    const uint                       & aLevel,
-                    Cell< Background_Element_Base* > & aElementList );
+            void collect_elements_on_level_including_aura( const uint                             & aLevel,
+                                                                 Cell< Background_Element_Base* > & aElementList );
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -639,9 +633,8 @@ namespace moris
              *
              * @return       void
              */
-            void collect_elements_on_level_within_proc_domain(
-                    const uint                        & aLevel,
-                    Cell< Background_Element_Base* >  & aElementList );
+            void collect_elements_on_level_within_proc_domain( const uint                             & aLevel,
+                                                                     Cell< Background_Element_Base* > & aElementList );
 
 //--------------------------------------------------------------------------------
 
@@ -655,13 +648,10 @@ namespace moris
              *                          2:  collect aura and inverse aura
              *
              *  @param[out]  aElementList     cell with element pointers on aura
-
              */
-            void collect_active_elements_from_aura(
-                    const uint                       & aProcNeighbor,
-                    const uint                       & aMode,
-                    Cell< Background_Element_Base* > & aElementList
-                    );
+            void collect_active_elements_from_aura( const uint                             & aProcNeighbor,
+                                                    const uint                             & aMode,
+                                                          Cell< Background_Element_Base* > & aElementList );
 
 //--------------------------------------------------------------------------------
 
@@ -696,9 +686,8 @@ namespace moris
              * @param[out]  aNodeCoords Matrix containing the node coordinates
              *                          ( 3 x 2^n )
              */
-            virtual void calc_corner_nodes_of_element(
-                    const Background_Element_Base * aElement,
-                    Matrix< DDRMat >                     & aNodeCoords ) = 0;
+            virtual void calc_corner_nodes_of_element( const Background_Element_Base * aElement,
+                                                             Matrix< DDRMat >        & aNodeCoords ) = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -709,9 +698,8 @@ namespace moris
              * @param[out]  aNodeCoords Matrix containing the node coordinates
              *                          ( 3 x 1 )
              */
-            virtual void calc_center_of_element(
-                    const Background_Element_Base * aElement,
-                    Matrix< DDRMat >                     & aNodeCoords ) = 0;
+            virtual void calc_center_of_element( const Background_Element_Base * aElement,
+                                                       Matrix< DDRMat >        & aNodeCoords ) = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -733,11 +721,10 @@ namespace moris
                     const luint       & aAncestorID
                     const Matrix< DDUMat > & aPedigreeList,
                     luint             & aCounter ); */
-            Background_Element_Base * decode_pedigree_path(
-                    const luint       & aAncestorID,
-                    const Matrix< DDUMat > & aPedigreeList,
-                    luint             & aCounter
-                    );
+            Background_Element_Base * decode_pedigree_path( const luint            & aAncestorID,
+                                                            const Matrix< DDUMat > & aPedigreeList,
+                                                                  luint            & aCounter );
+
 //--------------------------------------------------------------------------------
 
             /**
@@ -809,10 +796,9 @@ namespace moris
             /**
              * creates a union of two patterns
              */
-            void unite_patterns(
-                    const uint & aSourceA,
-                    const uint & aSourceB,
-                    const uint & aTarget );
+            void unite_patterns( const uint & aSourceA,
+                                 const uint & aSourceB,
+                                 const uint & aTarget );
 
 
 // -----------------------------------------------------------------------------
@@ -820,9 +806,8 @@ namespace moris
             /**
              * copies a pattern to another slot
              */
-            void copy_pattern(
-                    const uint & aSource,
-                    const uint & aTarget );
+            void copy_pattern( const uint & aSource,
+                               const uint & aTarget );
 
 // -----------------------------------------------------------------------------
 
@@ -863,9 +848,8 @@ namespace moris
              *
              * @return       void
              */
-            void collect_elements_on_level(
-                    const uint                       & aLevel,
-                    Cell< Background_Element_Base* > & aElementList );
+            void collect_elements_on_level( const uint                             & aLevel,
+                                                  Cell< Background_Element_Base* > & aElementList );
 
 //--------------------------------------------------------------------------------
 
@@ -914,8 +898,8 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
-             * creates a cell of all elements that are
-             * to be refined
+             * creates a cell of all elements which have to be refined.
+             * Means the refinement queue flag of this elements is set to true.
              *
              * @return true if elements are flagged
              *
@@ -941,10 +925,9 @@ namespace moris
              * Collect background elements on side set.
              * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
              */
-            void collect_side_set_elements(
-                    const uint                         & aPattern,
-                    const uint                         & aSideOrdinal,
-                    Cell< Background_Element_Base *  > & aElements );
+            void collect_side_set_elements(  const uint                               & aPattern,
+                                             const uint                               & aSideOrdinal,
+                                                   Cell< Background_Element_Base *  > & aElements );
 //------------------------------------------------------------------------------
 
             /**
@@ -975,9 +958,8 @@ namespace moris
              *
              * @return       luint    local ID on submesh of proc
              */
-            virtual luint calc_subdomain_id_from_global_id(
-                    const uint         & aLevel,
-                    const luint        & aID) const = 0;
+            virtual luint calc_subdomain_id_from_global_id( const uint  & aLevel,
+                                                            const luint & aID) const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -1033,7 +1015,7 @@ namespace moris
              * @return       uint          level of this ID
              *
              */
-            uint calc_level_of_pedigree_id( const luint         & aPedigreeID );
+            uint calc_level_of_pedigree_id( const luint & aPedigreeID );
 
 //--------------------------------------------------------------------------------
 
@@ -1151,14 +1133,12 @@ namespace moris
              *
              * @param[in] aLevel level of element
              * @param[in] aI     i-index of element
-             * @param[in] aJ     j-index of element
              *
              * @return luint global ID of element
              *
              */
-            virtual luint calc_domain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI ) const = 0;
+            virtual luint calc_domain_id_of_element( const uint  & aLevel,
+                                                     const luint & aI ) const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -1172,28 +1152,27 @@ namespace moris
              * @return luint global ID of element
              *
              */
-            virtual luint calc_domain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ ) const = 0;
+            virtual luint calc_domain_id_of_element( const uint  & aLevel,
+                                                     const luint & aI,
+                                                     const luint & aJ ) const = 0;
 
 //--------------------------------------------------------------------------------
 
             /**
-             * calculate global ID from level and from ij-position ( 3D case )
+             * calculate global ID from level and from ijk-position ( 3D case )
              *
              * @param[in] aLevel level of element
              * @param[in] aI     i-index of element
              * @param[in] aJ     j-index of element
+             * @param[in] aK     k-index of element
              *
              * @return luint global ID of element
              *
              */
-            virtual luint calc_domain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ,
-                    const luint & aK) const = 0;
+            virtual luint calc_domain_id_of_element( const uint  & aLevel,
+                                                     const luint & aI,
+                                                     const luint & aJ,
+                                                     const luint & aK) const = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -1212,7 +1191,7 @@ namespace moris
              * Private function that checks if any active element in the
              * aura and the inverse aura is flagged for refinement.
              * Flagged elements are communicated with the neighbor so that the
-             * refinemeny queue will be synchronized when created
+             * refinement queue will be synchronized when created
              *
              * @return void
              */
@@ -1220,8 +1199,13 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-            virtual void check_queued_element_for_padding(
-                    Background_Element_Base * aElement ) = 0;
+            /**
+             * Checks if element is a padding element. If element is padding get its neighbors.
+             * If neighbors are padding add them to refinement queue
+             *
+             * @return void
+             */
+            virtual void check_queued_element_for_padding( Background_Element_Base * aElement ) = 0;
 
 //--------------------------------------------------------------------------------
 
@@ -1235,13 +1219,24 @@ namespace moris
 
             /**
              * calculates a staircase buffer
+             *
              */
             void create_staircase_buffer();
 
-            void create_staircase_buffer_for_element(
-                            Background_Element_Base * aElement,
-                            luint                   & aElementCounter,
-                            const uint              & aHalfBuffer );
+            /**
+             * calculates a staircase buffer for element.
+             * Collects the neighbors of the parent element. Checks the IJK distance of the parent element and these neighbors.
+             * If the distance is smaller than the aHalfBuffer size, put this neighbor element on the refinement queue.
+             * I this neighbor element is put on refinement queue, apply this function to the neighbor element.
+             *
+             * @param[in] aElement            A background element
+             * @param[in] aElementCounter     A Counter
+             * @param[in] aHalfBuffer         The buffer size. We input only haf the buffer size, because we only have to check these neighbors
+             *
+             */
+            void create_staircase_buffer_for_element(       Background_Element_Base * aElement,
+                                                            luint                   & aElementCounter,
+                                                      const uint                    & aHalfBuffer );
 //------------------------------------------------------------------------------
         };
     } /* namespace hmr */

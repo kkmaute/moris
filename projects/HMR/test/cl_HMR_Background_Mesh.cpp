@@ -623,12 +623,12 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
         tParameters.set_verbose( true );
         tParameters.set_multigrid( false );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( 3 );
+        tParameters.set_mesh_orders_simple( 1 );
 
         // create HMR object
         moris::hmr::HMR tHMR( tParameters );
 
-        for( moris::uint Ii = 0; Ii<8; Ii++)
+        for( moris::uint Ii = 0; Ii<2; Ii++)
         {
             moris::luint tNumActiveElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
 

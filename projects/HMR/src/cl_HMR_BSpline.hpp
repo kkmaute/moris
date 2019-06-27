@@ -30,8 +30,10 @@ namespace moris
             //! local ijk position on proc
             luint   mIJK[ N ];
 
+#ifdef DEBUG
             //! global coordinates
             real    mXYZ[ N ] = { 0 };
+#endif
 
             //! flag telling if the basis is active
             bool    mActiveFlag = false;
@@ -128,7 +130,7 @@ namespace moris
 
                 if( mConnectedFlag )
                 {
-                	delete [] mConnectedBasis;
+                    delete [] mConnectedBasis;
                 }
             };
 
@@ -139,8 +141,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_active_flag()
+            void set_active_flag()
             {
                 // set active flag on
                 mActiveFlag  = true;
@@ -156,8 +157,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_refined_flag()
+            void set_refined_flag()
             {
                 // a refined element is not active
                 mActiveFlag  = false;
@@ -173,8 +173,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_deactive_flag()
+            void set_deactive_flag()
             {
                 // a refined element is not active
                 mActiveFlag  = false;
@@ -190,8 +189,7 @@ namespace moris
              *
              * @return bool   true if active
              */
-            bool
-            is_active()
+            bool is_active()
             {
                 return mActiveFlag;
             }
@@ -203,8 +201,7 @@ namespace moris
              *
              * @return bool   true if refined
              */
-            bool
-            is_refined()
+            bool is_refined()
             {
                 return mRefinedFlag;
             }
@@ -218,8 +215,7 @@ namespace moris
              * @return luint pointer to array containing ijk-position
              *               careful: node must not go out of scope.
              */
-            const luint *
-            get_ijk( ) const
+            const luint * get_ijk( ) const
             {
                 return mIJK;
             }
@@ -233,14 +229,15 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_xyz( const real * aXYZ )
+            void set_xyz( const real * aXYZ )
             {
+#ifdef DEBUG
                 // save ijk position in memory.
                 for( uint k=0; k<N; ++k )
                 {
                     mXYZ[ k ] = aXYZ[ k ];
                 }
+#endif
             }
 
 // -----------------------------------------------------------------------------
@@ -252,10 +249,14 @@ namespace moris
              * @return double pointer to array containing xyz-position
              *               careful: node must not go out of scope.
              */
-            const real *
-            get_xyz() const
+            const real * get_xyz() const
             {
+#ifdef DEBUG
                 return mXYZ;
+#elif
+                MORIS_ERROR(false, "get_xyz() If you wish this function to work for B-Splines and non DEBUG, delete the #ifdef DEBUG around mXYZ in the class BSplin")
+                return nullptr;
+#endif
             }
 
 // -----------------------------------------------------------------------------
@@ -265,8 +266,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            init_neighbor_container()
+            void init_neighbor_container()
             {
                 if( ! mNeighborsFlag )
                 {
@@ -286,8 +286,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void
-            delete_neighbor_container()
+            void delete_neighbor_container()
             {
                 if( mNeighborsFlag )
                 {
@@ -298,31 +297,29 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void
-			init_connection_container()
+            void init_connection_container()
             {
-            	if( ! mConnectedFlag )
-            	{
-            		mConnectedBasis = new Basis*[ mNumberOfConnectedBasis ];
+                if( ! mConnectedFlag )
+                {
+                    mConnectedBasis = new Basis*[ mNumberOfConnectedBasis ];
 
-            		// reset array
-            		for( uint k=0; k<mNumberOfConnectedBasis; ++k )
-            		{
-            			mConnectedBasis[ k ] = nullptr;
-            		}
+                    // reset array
+                    for( uint k=0; k<mNumberOfConnectedBasis; ++k )
+                    {
+                    	mConnectedBasis[ k ] = nullptr;
+                    }
 
-            		// reset the counter
-            		mNumberOfConnectedBasis = 0;
+                    // reset the counter
+                    mNumberOfConnectedBasis = 0;
 
-            		// set the flag
-            		mConnectedFlag = true;
-            	}
+                    // set the flag
+                    mConnectedFlag = true;
+                }
             }
 
 // -----------------------------------------------------------------------------
 
-            void
-			delete_connection_container()
+            void delete_connection_container()
             {
             	if( mConnectedFlag )
             	{
@@ -333,39 +330,34 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            void
-			increment_connection_counter()
+            void increment_connection_counter()
             {
             	++mNumberOfConnectedBasis;
             }
 // -----------------------------------------------------------------------------
 
-            void
-			insert_connected_basis( Basis * aBasis )
+            void insert_connected_basis( Basis * aBasis )
             {
             	mConnectedBasis[ mNumberOfConnectedBasis++ ] = aBasis;
             }
 
 // -----------------------------------------------------------------------------
 
-            Basis*
-			get_connected_basis( const uint & aBasisNumber )
+            Basis * get_connected_basis( const uint & aBasisNumber )
             {
             	return mConnectedBasis[ aBasisNumber ];
             }
 
 // -----------------------------------------------------------------------------
 
-            const Basis*
-			get_connected_basis( const uint & aBasisNumber ) const
+            const Basis * get_connected_basis( const uint & aBasisNumber ) const
             {
             	return mConnectedBasis[ aBasisNumber ];
             }
 
 // -----------------------------------------------------------------------------
 
-            uint
-			get_number_of_connected_basis() const
+            uint get_number_of_connected_basis() const
             {
             	return mNumberOfConnectedBasis;
             }
@@ -375,8 +367,7 @@ namespace moris
             /**
              * Tells if children of this basis have been processed already
              */
-            bool
-            has_children()
+            bool has_children()
             {
                 return mChildrenFlag;
             }
@@ -384,12 +375,12 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * reserves the memory for the  neighbor container
+             * reserves the memory and initializes it with nullptr for the  neighbor container.
+             * The children flag is set to true
              *
              * @return void
              */
-            void
-            init_children_container()
+            void init_children_container()
             {
                 // reserve array
                 mChildren = new Basis*[ C ];
@@ -414,10 +405,8 @@ namespace moris
              *
              * @return void
              */
-            void
-            insert_child(
-                    const uint & aChildNumber,
-                    Basis      * aChild )
+            void insert_child( const uint  & aChildNumber,
+                                     Basis * aChild )
             {
                 mChildren[ aChildNumber ] = aChild;
             }
@@ -431,8 +420,7 @@ namespace moris
              *
              * @return Basis*               pointer to child
              */
-            Basis*
-            get_child( const uint & aChildNumber )
+            Basis * get_child( const uint & aChildNumber )
             {
                 if( mChildrenFlag )
                 {
@@ -455,8 +443,7 @@ namespace moris
              *
              * @return Basis*
              */
-            Basis*
-            get_neighbor( const uint &  aNeighborNumber )
+            Basis * get_neighbor( const uint &  aNeighborNumber )
             {
                 if( mNeighborsFlag )
                 {
@@ -470,8 +457,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void
-            insert_neighbor( const uint  & aNeighborNumber,
+            void insert_neighbor( const uint  & aNeighborNumber,
                                    Basis * aNeighbor )
             {
                 MORIS_ASSERT( mNeighborsFlag, "Can't insert neighbor if container is not set");
@@ -480,8 +466,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void
-            flag_descendants()
+            void flag_descendants()
             {
                 if ( mFlag == false )
                 {
@@ -506,8 +491,7 @@ namespace moris
             }
 // -----------------------------------------------------------------------------
 
-            void
-            unflag_descendants()
+            void unflag_descendants()
             {
                 if ( mFlag == true )
                 {
@@ -534,8 +518,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             // counts fagged basis
-            void
-            count_descendants( luint & aBasisCount )
+            void count_descendants( luint & aBasisCount )
             {
                 // test if self has been flagged
                 if ( mFlag )
@@ -565,9 +548,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             // counts inflagged basis
-            void
-            collect_descendants( Cell< Basis* > & aBasisList,
-                                 luint          & aBasisCount )
+            void collect_descendants( Cell< Basis* > & aBasisList,
+                                      luint          & aBasisCount )
             {
                 // test if self has been flagged
                 if ( ! mFlag )
@@ -599,15 +581,13 @@ namespace moris
             /**
              * Increments the parent counter. Needed for parent identification.
              */
-            void
-            increment_parent_counter()
+            void increment_parent_counter()
             {
                 ++mNumberOfParents;
             }
 // -----------------------------------------------------------------------------
 
-            void
-            insert_parent( Basis * aParent )
+            void insert_parent( Basis * aParent )
             {
                 if ( mParentCounter == 0 )
                 {
@@ -625,16 +605,14 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            Basis*
-            get_parent( const uint & aParentNumber )
+            Basis * get_parent( const uint & aParentNumber )
             {
                 return mParents[ aParentNumber ];
             }
 
 // -----------------------------------------------------------------------------
 
-            uint
-            get_number_of_parents()
+            uint get_number_of_parents()
             {
                 return mNumberOfParents;
             }
@@ -655,8 +633,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void
-            get_basis_local_child_inds( Matrix< DDSMat > & aChildren )
+            void get_basis_local_child_inds( Matrix< DDSMat > & aChildren )
             {
                 uint tChildren[ C ];
 
@@ -688,7 +665,6 @@ namespace moris
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
-
 
 
     } /* namespace hmr */

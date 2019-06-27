@@ -36,17 +36,17 @@ namespace moris
                                                                                           aParameters->get_number_of_dimensions() ) ),
                                                                mNumberOfElementsPerBasis( std::pow( aOrder+1,
                                                                                           aParameters->get_number_of_dimensions() ) )
-
         {
             this->calculate_child_stencil();
-            this->calculate_basis_level_offset();
+
+            //FIXME this function is equal to calculate_lookup_tables(). This function is called in the child class
+            //this->calculate_basis_level_offset();
         }
 
 //------------------------------------------------------------------------------
 
 
-        void
-        BSpline_Mesh_Base::update_mesh()
+        void BSpline_Mesh_Base::update_mesh()
         {
             // start timer
             tic tTimer;
@@ -81,7 +81,7 @@ namespace moris
             //this->calculate_basis_indices();
 
             // update element indices ( not needed so far )
-            this->update_element_indices();
+            // this->update_element_indices();
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )
@@ -100,49 +100,46 @@ namespace moris
                         ( long unsigned int ) mNumberOfActiveBasisOnProc,
                         ( double ) tElapsedTime / 1000 );
             }
-
         }
 
 //------------------------------------------------------------------------------
 
-        Basis*
-        BSpline_Mesh_Base::get_coarsest_basis_by_ij(
-                            const luint & aI,
-                            const luint & aJ )
+        Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ij( const luint & aI,
+                                                             const luint & aJ )
         {
-            if ( aI < mNumberOfCoarsestBasisOnProc[ 0 ] &&
-                 aJ < mNumberOfCoarsestBasisOnProc[ 1 ] )
-            {
-                return mAllCoarsestBasisOnProc(
-                        aI + aJ*mNumberOfCoarsestBasisOnProc[ 0 ] );
-            }
-            else
-            {
-                return nullptr;
-            }
+            MORIS_ASSERT( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ],
+                    "get_coarsest_basis_by_ij(), requested basis outside of the domain limits");
+
+//            if ( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ] )
+//            {
+                return mAllCoarsestBasisOnProc( aI + aJ*mNumberOfCoarsestBasisOnProc[ 0 ] );
+//            }
+//            else
+//            {
+//                return nullptr;
+//            }
         }
 
 //------------------------------------------------------------------------------
 
-        Basis*
-        BSpline_Mesh_Base::get_coarsest_basis_by_ijk(
-                const luint & aI,
-                const luint & aJ,
-                const luint & aK )
+        Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ijk( const luint & aI,
+                                                              const luint & aJ,
+                                                              const luint & aK )
         {
-            if (    aI < mNumberOfCoarsestBasisOnProc[ 0 ] &&
-                    aJ < mNumberOfCoarsestBasisOnProc[ 1 ] &&
-                    aK < mNumberOfCoarsestBasisOnProc[ 2 ] )
-            {
-                return mAllCoarsestBasisOnProc(
-                        aI + mNumberOfCoarsestBasisOnProc[ 0 ] *
-                        ( aJ + aK*mNumberOfCoarsestBasisOnProc[ 1 ] ) );
-            }
-            else
-            {
-                return nullptr;
-            }
+            MORIS_ASSERT( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ] && aK < mNumberOfCoarsestBasisOnProc[ 2 ],
+                    "get_coarsest_basis_by_ij(), requested basis outside of the domain limits");
 
+//            if (    aI < mNumberOfCoarsestBasisOnProc[ 0 ] &&
+//                    aJ < mNumberOfCoarsestBasisOnProc[ 1 ] &&
+//                    aK < mNumberOfCoarsestBasisOnProc[ 2 ] )
+//            {
+                return mAllCoarsestBasisOnProc( aI + mNumberOfCoarsestBasisOnProc[ 0 ] *
+                                              ( aJ + aK * mNumberOfCoarsestBasisOnProc[ 1 ] ) );
+//            }
+//            else
+//            {
+//                return nullptr;
+//            }
         }
 
 //------------------------------------------------------------------------------
@@ -167,9 +164,10 @@ namespace moris
          *
          *  This test is not meant to be run during runtime.
          */
-        bool
-        BSpline_Mesh_Base::test_sanity()
+        bool BSpline_Mesh_Base::test_sanity()
         {
+            this->calculate_basis_coordinates();
+
             // start clock
             tic tTimer;
 
@@ -210,8 +208,7 @@ namespace moris
                     if( tBasis->get_level() == 0 )
                     {
                         // on the top level, only active or refined basis are allowed
-                        tTestTopLevelState = tTestTopLevelState
-                                && ( tBasis->is_active() || tBasis->is_refined() );
+                        tTestTopLevelState = tTestTopLevelState && ( tBasis->is_active() || tBasis->is_refined() );
 
                         /* if( par_rank() == 0 )
                         {
@@ -324,10 +321,10 @@ namespace moris
             this->unflag_all_basis();
 
             bool aPassedTest = tTestForStateContratiction &&
-                    tTestTopLevelState &&
-                    tHaveRefinedParent &&
-                    tDeactiveTest &&
-                    tRefinedHasActiveChild ;
+                               tTestTopLevelState &&
+                               tHaveRefinedParent &&
+                               tDeactiveTest &&
+                               tRefinedHasActiveChild ;
 
             // print a debug statement if verbosity is set
             if ( mParameters->is_verbose() )
@@ -365,15 +362,13 @@ namespace moris
 // private:
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::calculate_basis_level_offset()
+        void BSpline_Mesh_Base::calculate_basis_level_offset()
         {
             // first level is zero
             mBasisLevelOffset[ 0 ] = 0;
 
             // get number of elements from Background Mesh
-            Matrix< DDLUMat > tNumberOfElements
-                = mBackgroundMesh->get_number_of_elements_per_direction();
+            Matrix< DDLUMat > tNumberOfElements = mBackgroundMesh->get_number_of_elements_per_direction();
 
             // get basis per direction
             luint tBasisPerDirection[ 3 ];
@@ -392,7 +387,8 @@ namespace moris
                 // loop over all dimensions
                 for (  uint k=0; k<mNumberOfDimensions; ++k )
                 {
-                    tBasisOnLastLevel *= tBasisPerDirection[ k ];
+                    tBasisOnLastLevel       *= tBasisPerDirection[ k ];
+
                     tBasisPerDirection[ k ] *= 2;
                     tBasisPerDirection[ k ] += mOrder;
                 }
@@ -400,15 +396,13 @@ namespace moris
                 // increment delta
 
                 // add offset to table
-                mBasisLevelOffset[ l+1 ] = mBasisLevelOffset[ l ]
-                                           + tBasisOnLastLevel;
+                mBasisLevelOffset[ l+1 ] = mBasisLevelOffset[ l ] + tBasisOnLastLevel;
             }
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::create_basis()
+        void BSpline_Mesh_Base::create_basis()
         {
             // basis on first level are created separately
             this->create_basis_on_level_zero();
@@ -424,6 +418,7 @@ namespace moris
 
             for( uint l = 0; l <= tNumberOfLevels; ++l )
             {
+                // refinement of basis on this level if the corresponding element is refined.
                 this->process_level( l );
             }
 
@@ -455,8 +450,7 @@ namespace moris
                 mNumberOfCoarsestBasisOnProc[ 1 ] = tIJK( 1, 0 ) + mOrder ;
 
                 // initialize array
-                mAllCoarsestBasisOnProc.resize( mNumberOfCoarsestBasisOnProc[ 0 ]
-                                                *mNumberOfCoarsestBasisOnProc[ 1 ],
+                mAllCoarsestBasisOnProc.resize( mNumberOfCoarsestBasisOnProc[ 0 ] * mNumberOfCoarsestBasisOnProc[ 1 ],
                                                 nullptr );
 
                 // container with position to be passed to new basis
@@ -475,7 +469,9 @@ namespace moris
                         tIJ[ 0 ] = i;
 
                         // create new basis
-                        mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJ, 0, gNoProcOwner );
+                        mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJ,
+                                                                                  0,
+                                                                                  gNoProcOwner );
                     }
                 }
 
@@ -483,14 +479,11 @@ namespace moris
             else if( mNumberOfDimensions == 3)
             {
                 // unroll min and max i and j
-                mNumberOfCoarsestBasisOnProc[ 0 ]
-                    = tIJK( 0, 0 ) + mOrder;
+                mNumberOfCoarsestBasisOnProc[ 0 ] = tIJK( 0, 0 ) + mOrder;
 
-                mNumberOfCoarsestBasisOnProc[ 1 ]
-                    = tIJK( 1, 0 ) + mOrder ;
+                mNumberOfCoarsestBasisOnProc[ 1 ] = tIJK( 1, 0 ) + mOrder ;
 
-                mNumberOfCoarsestBasisOnProc[ 2 ]
-                    = tIJK( 2, 0 ) + mOrder ;
+                mNumberOfCoarsestBasisOnProc[ 2 ] = tIJK( 2, 0 ) + mOrder ;
 
                 // initialize array
                 mAllCoarsestBasisOnProc.resize( mNumberOfCoarsestBasisOnProc[ 0 ]
@@ -518,7 +511,9 @@ namespace moris
                             tIJK[ 0 ] = i;
 
                             // create new basis
-                            mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJK, 0,  gNoProcOwner );
+                            mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJK,
+                                                                                      0,
+                                                                                      gNoProcOwner );
                         }
                     }
                 }
@@ -527,16 +522,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
-                       const uint & aLevel,
-                Cell< Element * > & aElements )
+        void BSpline_Mesh_Base::collect_active_and_refined_elements_from_level( const uint              & aLevel,
+                                                                                      Cell< Element * > & aElements )
         {
             // cell containing background elements on this level
             Cell< Background_Element_Base* > tBackgroundElements;
 
             // ask background mesh about elements on this level
             mBackgroundMesh->collect_elements_on_level_including_aura( aLevel,
-                    tBackgroundElements );
+                                                                       tBackgroundElements );
 
             // count Elements
             luint tCount = 0;
@@ -558,18 +552,15 @@ namespace moris
             {
                 if( ! tBackElement->is_deactive( mActivationPattern ) )
                 {
-                    aElements( tCount++ ) = mAllElementsOnProc(
-                            tBackElement->get_memory_index() );
+                    aElements( tCount++ ) = mAllElementsOnProc( tBackElement->get_memory_index() );
                 }
             }
-
         }
 
 //------------------------------------------------------------------------------
 
-        void BSpline_Mesh_Base::process_level( const uint& aLevel )
+        void BSpline_Mesh_Base::process_level( const uint & aLevel )
         {
-
             Cell< Element* > tElementsOnThisLevel;
             this->collect_active_and_refined_elements_from_level( aLevel, tElementsOnThisLevel );
 
@@ -590,7 +581,7 @@ namespace moris
 
                 for( auto tElement : tElementsOnThisLevel )
                 {
-                    // test if backgroud element has children and is refined on pattern
+                    // test if background element has children and is refined on pattern
                     if ( tElement->get_background_element()->has_children() && tElement->is_refined() )
                     {
                         // refine B-Spline element
@@ -604,11 +595,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::preprocess_basis_from_level( Cell< Element* > & aElements,
-                                                        Cell< Basis* >   & aBasis)
+        void BSpline_Mesh_Base::preprocess_basis_from_level( Cell< Element * > & aElements,
+                                                             Cell< Basis * >   & aBasis )
         {
-           // reset flags for basis
+            // reset flags for basis
             for( Element * tElement : aElements )
             {
                 // loop over all basis from this element
@@ -639,13 +629,11 @@ namespace moris
 
            for( Element * tElement : aElements )
            {
-
-
                // loop over all basis from this element
                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                {
                    // get pointer to basis
-                   Basis* tBasis = tElement->get_basis( k );
+                   Basis * tBasis = tElement->get_basis( k );
 
                    if( tBasis != NULL )
                    {
@@ -668,7 +656,7 @@ namespace moris
                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
                    {
                        // get pointer to basis
-                       Basis* tBasis = tElement->get_basis( k );
+                       Basis * tBasis = tElement->get_basis( k );
                        if( tBasis != NULL )
                        {
                            tBasis->use();
@@ -748,7 +736,7 @@ namespace moris
            }
 
            // delete_unused_basis (nice feature, not sure if worth the effort)
-           //this->delete_unused_basis( aLevel, aBackgroundElements, aBasis );
+           //this->delete_unused_basis( aLevel, aBackgroundElements, aBasis );              // FIXME Saves Memory
 
            // link basis with neighbors
            for( Element * tElement : aElements )
@@ -761,7 +749,7 @@ namespace moris
                }
            }
 
-           // rest flag of all basis
+           // reset flag of all basis
            for( auto tBasis : aBasis )
            {
                // initialize element container
@@ -771,11 +759,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::delete_unused_basis(
-                const uint                       & aLevel,
-                Cell< Background_Element_Base* > & aBackgroundElements,
-                Cell< Basis* >                   & aBasis )
+        void BSpline_Mesh_Base::delete_unused_basis( const uint                             & aLevel,
+                                                           Cell< Background_Element_Base* > & aBackgroundElements,
+                                                           Cell< Basis* >                   & aBasis )
         {
             // start timer
             tic tTimer;
@@ -907,30 +893,26 @@ namespace moris
                 aBasis.clear();
                 aBasis = std::move( tBasisOut );
 
+                if ( mParameters->is_verbose() )
+                {
+                    // stop timer
+                    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                std::fprintf( stdout,"%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tDeleteCount,
-                        ( long unsigned int ) tNumberOfAllBasis,
-                        ( unsigned int )      aLevel,
-                        ( double ) tElapsedTime / 1000 );
-            }
-
+                    // print output
+                    std::fprintf( stdout,"%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
+                            proc_string().c_str(),
+                            ( long unsigned int ) tDeleteCount,
+                            ( long unsigned int ) tNumberOfAllBasis,
+                            ( unsigned int )      aLevel,
+                            ( double ) tElapsedTime / 1000 );
+                }
             }
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::collect_basis_from_level(
-                const uint     & aLevel,
-                Cell< Basis* > & aBasis )
+        void BSpline_Mesh_Base::collect_basis_from_level( const uint           & aLevel,
+                                                                Cell< Basis* > & aBasis )
         {
             Cell< Element * > tElements;
 
@@ -1013,13 +995,11 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::determine_basis_state( Cell< Basis* > & aBasis )
+        void BSpline_Mesh_Base::determine_basis_state( Cell< Basis* > & aBasis )
         {
             // loop over all basis
-            for( Basis* tBasis : aBasis )
+            for( Basis * tBasis : aBasis )
             {
-
                 // only process basis that are used by this proc
                 if ( tBasis->is_used() )
                 {
@@ -1034,7 +1014,6 @@ namespace moris
                     }
                     else
                     {
-
                         // check if any connected element is deactive
                         bool tHasDeactiveElement = false;
 
@@ -1060,7 +1039,6 @@ namespace moris
                             {
                                 if ( tBasis->get_element( k )->is_active() )
                                 {
-
                                     tIsActive = true;
 
                                     // break loop
@@ -1101,6 +1079,7 @@ namespace moris
                     {
                         // get IJ position of this basis
                         luint tIJ[ 2 ];
+
                         tElement->get_ijk_of_basis( k, tIJ );
 
                         // insert pointer to basis into element
@@ -1186,8 +1165,12 @@ namespace moris
                 tBasis->set_memory_index( tCount++ );
             }
 
+
+            // This function seems not to be needed, however for debugging purposes the basis can be stored in a vtk file.
+            // In this case the information is needed
             // calculate basis coordinates
-            this->calculate_basis_coordinates();
+//            this->calculate_basis_coordinates();
+
         }
 //------------------------------------------------------------------------------
 
@@ -1249,7 +1232,6 @@ namespace moris
                         }
                     }
                 }
-
             }
         }
 
@@ -1280,8 +1262,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::calculate_basis_ids()
+        void BSpline_Mesh_Base::calculate_basis_ids()
         {
             if ( mNumberOfDimensions == 2 )
             {
@@ -1314,8 +1295,9 @@ namespace moris
             }
         }
 
-        void
-        BSpline_Mesh_Base::calculate_basis_indices( const Matrix< IdMat > & aCommTable )
+//------------------------------------------------------------------------------
+
+        void BSpline_Mesh_Base::calculate_basis_indices( const Matrix< IdMat > & aCommTable )
         {
             // get my rank
             moris_id tMyRank = par_rank();
@@ -1400,7 +1382,6 @@ namespace moris
                     }
                 }
             }
-
 
             if ( tNumberOfProcs == 1 )
             {
@@ -1684,7 +1665,6 @@ namespace moris
                         tProcCount( p ) += mAllElementsOnProc( tSendIndex( p )( k ) )
                                                                ->get_background_element()
                                                                ->get_length_of_pedigree_path();
-
                     }
                 }
 
@@ -1759,8 +1739,8 @@ namespace moris
 
                 // clear memory
                 tReceivePedigree.clear();
-                tReceiveBasis.clear();
-                tReceiveIndex.clear();
+                tReceiveBasis   .clear();
+                tReceiveIndex   .clear();
 
                 // communicate requested indices back to original proc
                 communicate_mats(
@@ -1849,13 +1829,8 @@ namespace moris
                     }
                 }
 
-                if ( tCount != 0 )
-                {
-                    std::fprintf( stdout,"%s ERROR.\n               Could not identify indices of %lu basis.\n               This might happen if a proc uses an active basis that does not belong to\n               itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n",
-                            proc_string().c_str(),
-                            ( long unsigned int ) tCount );
-                    exit( -1 );
-                }
+                MORIS_ERROR( tCount == 0, "%s ERROR.\n               Could not identify indices of %lu basis.\n               This might happen if a proc uses an active basis that does not belong to\n               itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n",
+                                          proc_string().c_str(), ( long unsigned int ) tCount );
             } // end if parallel
 
            // insert parents if we are in multigrid
@@ -1888,8 +1863,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::flag_refined_basis_of_owned_elements()
+        void BSpline_Mesh_Base::flag_refined_basis_of_owned_elements()
         {
             if( mParameters->use_multigrid() )
             {
@@ -1922,8 +1896,7 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::synchronize_flags( const Matrix< IdMat > & aCommTable )
+        void BSpline_Mesh_Base::synchronize_flags( const Matrix< IdMat > & aCommTable )
         {
             // get number of ranks
             uint tNumberOfProcs = par_size();
@@ -1969,18 +1942,17 @@ namespace moris
                     print( tBasisCommCheck, "CommCheck" );
                 }
 
-                MORIS_ERROR( tBasisCommCheck.max() == 0,
-                        "synchronize_flags: error in communication table" );
+                MORIS_ERROR( tBasisCommCheck.max() == 0, "synchronize_flags: error in communication table" );
 
 
                 // dummy matrices for cells to send
                 Matrix< DDLUMat > tEmptyLuint;
-                Matrix< DDUMat > tEmptyUint;
+                Matrix< DDUMat >  tEmptyUint;
 
                 // create cells for basis and element indices to send
-                Cell< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
-                Cell< Matrix< DDUMat > > tSendBasis( tCommLength, tEmptyUint );
-                Cell< Matrix< DDUMat > > tSendPedigree( tCommLength, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tSendIndex   ( tCommLength, tEmptyLuint );
+                Cell< Matrix< DDUMat > >  tSendBasis   ( tCommLength, tEmptyUint  );
+                Cell< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint  );
 
                 // reset counter
                 luint tCount = 0;
@@ -2028,10 +2000,9 @@ namespace moris
                             uint tCount = tProcCount( tIndex );
 
                             // pointer to element
-                            this->get_reference_element_of_basis(
-                                    tBasis,
-                                    tSendIndex( tIndex )( tCount ),
-                                    tSendBasis( tIndex )( tCount ) );
+                            this->get_reference_element_of_basis( tBasis,
+                                                                  tSendIndex( tIndex )( tCount ),
+                                                                  tSendBasis( tIndex )( tCount ) );
 
                             // increment counter
                             ++tProcCount( tIndex );
@@ -2043,10 +2014,9 @@ namespace moris
                 Cell< Matrix< DDUMat > >  tReceiveBasis( tCommLength, tEmptyUint );
 
                 // communicate local basis IDs to request
-                communicate_mats(
-                        aCommTable,
-                        tSendBasis,
-                        tReceiveBasis );
+                communicate_mats( aCommTable,
+                                  tSendBasis,
+                                  tReceiveBasis );
 
                 // free memory
                 tSendBasis.clear();
@@ -2065,10 +2035,9 @@ namespace moris
 
                     for( luint k=0; k<tNumberOfElements; ++k )
                     {
-                        tProcCount( p ) +=
-                                mAllElementsOnProc(  tSendIndex( p )( k ) )
-                                ->get_background_element()->
-                                get_length_of_pedigree_path();
+                        tProcCount( p ) += mAllElementsOnProc(  tSendIndex( p )( k ) )
+                                          ->get_background_element()
+                                          ->get_length_of_pedigree_path();
                     }
                 }
 
@@ -2098,20 +2067,18 @@ namespace moris
                     }
                 }
 
-                Cell< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
-                Cell< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tReceiveIndex   ( tCommLength, tEmptyLuint );
+                Cell< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint  );
 
                 // communicate ancestor IDs
-                communicate_mats(
-                        aCommTable,
-                        tSendIndex,
-                        tReceiveIndex );
+                communicate_mats( aCommTable,
+                                  tSendIndex,
+                                  tReceiveIndex );
 
                 // communicate pedigree paths
-                communicate_mats(
-                        aCommTable,
-                        tSendPedigree,
-                        tReceivePedigree );
+                communicate_mats( aCommTable,
+                                  tSendPedigree,
+                                  tReceivePedigree );
 
                 // clear memory
                 tSendPedigree.clear();
@@ -2146,14 +2113,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::collect_active_and_refined_basis()
+        void BSpline_Mesh_Base::collect_active_and_refined_basis()
         {
             // reset counter
-            mNumberOfActiveBasisOnProc = 0;
+            mNumberOfActiveBasisOnProc  = 0;
             mNumberOfRefinedBasisOnProc = 0;
-            mNumberOfBasis = 0;
-            mMaxLevel = 0;
+            mNumberOfBasis              = 0;
+            mMaxLevel                   = 0;
 
             if( mParameters->use_multigrid() )
             {
@@ -2180,11 +2146,11 @@ namespace moris
                 }
 
                 // reserve memory
-                mActiveBasisOnProc.resize( mNumberOfActiveBasisOnProc, nullptr );
+                mActiveBasisOnProc .resize( mNumberOfActiveBasisOnProc , nullptr );
                 mRefinedBasisOnProc.resize( mNumberOfRefinedBasisOnProc, nullptr );
 
                 // reset counters
-                mNumberOfActiveBasisOnProc = 0;
+                mNumberOfActiveBasisOnProc  = 0;
                 mNumberOfRefinedBasisOnProc = 0;
 
                 // count active basis on proc
@@ -2279,9 +2245,11 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void
-        BSpline_Mesh_Base::save_to_vtk( const std::string & aFilePath )
+
+        void BSpline_Mesh_Base::save_to_vtk( const std::string & aFilePath )
         {
+            this->calculate_basis_coordinates();
+
             // start timer
             tic tTimer;
 
@@ -2546,8 +2514,7 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        void
-        BSpline_Mesh_Base::calculate_child_stencil()
+        void BSpline_Mesh_Base::calculate_child_stencil()
         {
             // number of children in nd
             uint tNumberOfChildren = this->get_number_of_children_per_basis();
@@ -2603,8 +2570,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDSMat >
-        BSpline_Mesh_Base::get_children_ind_for_basis( const moris::sint aParentBasind )
+        Matrix< DDSMat > BSpline_Mesh_Base::get_children_ind_for_basis( const moris::sint aParentBasind )
         {
             // get basis pointer
             Basis * tBasis = this->get_basis_by_index( aParentBasind );
@@ -2628,8 +2594,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        BSpline_Mesh_Base::get_children_weights_for_parent( const moris::sint aParentBasind )
+        Matrix< DDRMat > BSpline_Mesh_Base::get_children_weights_for_parent( const moris::sint aParentBasind )
         {
             // get basis pointer
             Basis * tBasis = this->get_basis_by_index( aParentBasind );
@@ -2653,10 +2618,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        uint
-        BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
+        uint BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
         {
-
             // get basis pointer
             Basis * tBasis = mActiveBasisOnProc( aIndex );
 
@@ -2668,7 +2631,6 @@ namespace moris
             // loop over all elements of this basis
             for( uint e=0; e<tNumberOfElements; ++e )
             {
-
                 // get Cell of connected vertices
                 moris::Cell< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
 
@@ -2699,7 +2661,6 @@ namespace moris
 
                         ++tCount;
                     }
-
                 }
             }
 

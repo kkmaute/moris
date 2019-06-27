@@ -212,18 +212,15 @@ namespace moris
              * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
              *                                     the child is automatically flagged in the next iteration
              */
-            void
-            flag_elements(
-                    Cell< mtk::Cell* > & aElements,
-                    const uint           aMinRefinementLevel = 0 );
+            void flag_elements(       Cell< mtk::Cell* > & aElements,
+                                const uint                 aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * exposes the parameters pointer
              */
-            Parameters *
-            get_parameters()
+            Parameters * get_parameters()
             {
                 return mParameters;
             }
@@ -233,16 +230,14 @@ namespace moris
             /**
              * runs the refinement scheme
              */
-            void
-            perform_refinement( const enum RefinementMode aRefinementMode );
+            void perform_refinement( const enum RefinementMode aRefinementMode );
 
 // -----------------------------------------------------------------------------
 
             /**
              * copy output pattern to input pattern
              */
-            void
-            update_refinement_pattern();
+            void update_refinement_pattern();
 
 // -----------------------------------------------------------------------------
 
@@ -250,8 +245,7 @@ namespace moris
              * Creates an STK interface object.
              * Default: Max Lagrange Order, Outpot pattern
              */
-            std::shared_ptr< Mesh >
-            create_mesh();
+            std::shared_ptr< Mesh > create_mesh();
 
 // -----------------------------------------------------------------------------
 
@@ -259,13 +253,11 @@ namespace moris
              * Creates an STK interface object.
              * Default: Output pattern
              */
-            std::shared_ptr< Mesh >
-            create_mesh( const uint & aLagrangeOrder );
+            std::shared_ptr< Mesh > create_mesh( const uint & aLagrangeOrder );
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Mesh >
-            create_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+            std::shared_ptr< Mesh > create_mesh( const uint & aLagrangeOrder, const uint & aPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -313,8 +305,7 @@ namespace moris
             /**
              * Flag an element for refinement. Needed for Testing.
              */
-            void
-            flag_element( const moris_index aElementIndex )
+            void flag_element( const moris_index aElementIndex )
             {
                 mDatabase->flag_element( aElementIndex );
             }

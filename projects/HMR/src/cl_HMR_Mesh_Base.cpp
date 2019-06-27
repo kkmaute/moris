@@ -13,20 +13,18 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Mesh_Base::Mesh_Base (
-                const Parameters     * aParameters,
-                Background_Mesh_Base * aBackgroundMesh,
-                const uint           & aOrder,
-                const uint           & aActivationPattern ) :
-                        mParameters( aParameters ),
-                        mBackgroundMesh( aBackgroundMesh ),
-                        mOrder( aOrder ),
-                        mNumberOfDimensions( mParameters->get_number_of_dimensions() ),
-                        mNumberOfBasisPerElement( pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
-                        mNumberOfNeighborsPerElement( pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
-                                                      mActivationPattern( aActivationPattern )
+        Mesh_Base::Mesh_Base ( const Parameters           * aParameters,
+                                     Background_Mesh_Base * aBackgroundMesh,
+                               const uint                 & aOrder,
+                               const uint                 & aActivationPattern ) :
+                                             mParameters( aParameters ),
+                                             mBackgroundMesh( aBackgroundMesh ),
+                                             mOrder( aOrder ),
+                                             mNumberOfDimensions( mParameters->get_number_of_dimensions() ),
+                                             mNumberOfBasisPerElement( pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
+                                             mNumberOfNeighborsPerElement( pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
+                                             mActivationPattern( aActivationPattern )
         {
-
         }
 //------------------------------------------------------------------------------
 // protected:
@@ -94,6 +92,7 @@ namespace moris
 
         /**
          * collects all coarsest elements on proc including aura
+         * Memory index of background elements and all B-spline elements is the same.
          *
          * @return void
          */
@@ -159,8 +158,7 @@ namespace moris
          * Writes value in mesh data struct
          * @return void
          */
-        void
-        Mesh_Base::determine_elements_connected_to_basis()
+        void Mesh_Base::determine_elements_connected_to_basis()
         {
             // ask background mesh about active elements in proc
             luint tNumberOfElements = mBackgroundMesh ->get_number_of_active_elements_on_proc_including_aura();
@@ -215,8 +213,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Mesh_Base::guess_basis_ownership()
+        void Mesh_Base::guess_basis_ownership()
         {
             // only need to do something in parallel mode
             if( par_size() > 1 )
@@ -231,7 +228,7 @@ namespace moris
                     for( uint k = 0; k < tNumberOfElements; ++k )
                     {
                         // get pointer to element
-                        Element* tElement = tBasis->get_element( k );
+                        Element * tElement = tBasis->get_element( k );
 
                         // get owner of element
                         auto tElementOwner = tElement->get_owner();
@@ -278,9 +275,9 @@ namespace moris
                 Matrix< DDLUMat > tEmptyLuint;
                 Matrix<  DDUMat > tEmptyUint;
 
-                Cell< Matrix< DDLUMat > > tSendAncestor( tNumberOfProcNeighbors, tEmptyLuint );
-                Cell< Matrix<  DDUMat > > tSendPedigree( tNumberOfProcNeighbors, tEmptyUint );
-                Cell< Matrix<  DDUMat > > tSendBasisIndex(  tNumberOfProcNeighbors, tEmptyUint );
+                Cell< Matrix< DDLUMat > > tSendAncestor  ( tNumberOfProcNeighbors, tEmptyLuint );
+                Cell< Matrix<  DDUMat > > tSendPedigree  ( tNumberOfProcNeighbors, tEmptyUint  );
+                Cell< Matrix<  DDUMat > > tSendBasisIndex( tNumberOfProcNeighbors, tEmptyUint  );
 
                 // get my rank
                 moris_id tMyRank = par_rank();
@@ -365,8 +362,8 @@ namespace moris
                                                                           tMemoryCounter );
 
                         // pick requested basis
-                        Basis* tBasis = mAllElementsOnProc( tElement->get_memory_index() )
-                                                            ->get_basis( tReceiveBasisIndex( p )( k ) );
+                        Basis * tBasis = mAllElementsOnProc( tElement->get_memory_index() )
+                                                             ->get_basis( tReceiveBasisIndex( p )( k ) );
 
                         // write basis owner into send array
                         tSendOwner( p )( k ) = tBasis->get_owner();
@@ -375,8 +372,8 @@ namespace moris
 
                 // free memory
                 tReceiveBasisIndex.clear();
-                tReceiveAncestor.clear();
-                tReceivePedigree.clear();
+                tReceiveAncestor  .clear();
+                tReceivePedigree  .clear();
 
                 // communicate owners
                 Cell< Matrix<  DDUMat > > tReceiveOwner;
@@ -754,7 +751,6 @@ namespace moris
                 // write index into active element
                 this->get_element( e )->set_index( e );
             }
-
         }
 
 // -----------------------------------------------------------------------------

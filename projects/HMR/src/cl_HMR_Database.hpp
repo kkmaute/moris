@@ -100,9 +100,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void load_pattern_from_hdf5_file(
-                    const std::string & aPath,
-                    const bool          aMode  );
+            void load_pattern_from_hdf5_file( const std::string & aPath,
+                                              const bool          aMode  );
 
 // -----------------------------------------------------------------------------
 
@@ -117,19 +116,17 @@ namespace moris
             /**
              * creates a union of two patterns
              */
-            void unite_patterns(
-                    const uint & aSourceA,
-                    const uint & aSourceB,
-                    const uint & aTarget );
+            void unite_patterns( const uint & aSourceA,
+                                 const uint & aSourceB,
+                                 const uint & aTarget );
 
 // -----------------------------------------------------------------------------
 
             /**
              * copies a source pattern to a target pattern
              */
-            void copy_pattern(
-                    const uint & aSource,
-                    const uint & aTarget );
+            void copy_pattern( const uint & aSource,
+                               const uint & aTarget );
 // -----------------------------------------------------------------------------
 
             /**
@@ -137,20 +134,19 @@ namespace moris
              *
              * returns true if at least one element has been refined
              */
-            void perform_refinement(
-                    const enum RefinementMode aRefinementMode,
-                    const bool aResetPattern = true );
+            void perform_refinement( const enum RefinementMode aRefinementMode,
+                                     const bool                aResetPattern = true );
 
 // -----------------------------------------------------------------------------
 
             /**
              * aTarget must be a refined variant of aSource
              */
-            void interpolate_field(
-                    const uint                   & aSourcePattern,
-                    const std::shared_ptr<Field>   aSource,
-                    const uint                   & aTargetPattern,
-                    std::shared_ptr<Field>         aTarget );
+            void interpolate_field( const uint                   & aSourcePattern,
+                                    const std::shared_ptr<Field>   aSource,
+                                    const uint                   & aTargetPattern,
+                                          std::shared_ptr<Field>   aTarget );
+
 // -----------------------------------------------------------------------------
 
             void change_field_order( std::shared_ptr<Field> aSource,
@@ -378,10 +374,9 @@ namespace moris
              */
             void create_union_pattern()
             {
-                this->unite_patterns(
-                        mParameters->get_lagrange_input_pattern(),
-                        mParameters->get_lagrange_output_pattern(),
-                        mParameters->get_union_pattern() );
+                this->unite_patterns( mParameters->get_lagrange_input_pattern(),
+                                      mParameters->get_lagrange_output_pattern(),
+                                      mParameters->get_union_pattern() );
             }
 
 // -----------------------------------------------------------------------------

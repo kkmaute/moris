@@ -28,18 +28,15 @@ namespace moris
 //   public:
 //------------------------------------------------------------------------------
 
-        Lagrange_Mesh_Base::Lagrange_Mesh_Base (
-                const Parameters     * aParameters,
-                Background_Mesh_Base * aBackgroundMesh,
-                Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
-                const uint           & aOrder,
-                const uint           & aActivationPattern ) :
-                        Mesh_Base(
-                                aParameters,
-                                aBackgroundMesh,
-                                aOrder,
-                                aActivationPattern )
-
+        Lagrange_Mesh_Base::Lagrange_Mesh_Base ( const Parameters                   * aParameters,
+                                                       Background_Mesh_Base         * aBackgroundMesh,
+                                                       Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
+                                                 const uint                         & aOrder,
+                                                 const uint                         & aActivationPattern ) :
+                                                                                          Mesh_Base( aParameters,
+                                                                                                     aBackgroundMesh,
+                                                                                                     aOrder,
+                                                                                                     aActivationPattern )
         {
             // reset B-Spline container
             mBSplineMeshes.resize( gMaxBSplineOrder+1, nullptr );
@@ -84,13 +81,11 @@ namespace moris
             mTMatrix.resize( gMaxBSplineOrder+1, nullptr );
 
             this->reset_fields();
-
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::update_mesh()
+        void Lagrange_Mesh_Base::update_mesh()
         {
             // start timer
             tic tTimer;
@@ -139,8 +134,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::save_to_file( const std::string & aFilePath )
+        void Lagrange_Mesh_Base::save_to_file( const std::string & aFilePath )
         {
             // get the file extension
             auto tFileExt = aFilePath.substr(aFilePath.find_last_of(".")+1,
@@ -164,12 +158,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        uint
-        Lagrange_Mesh_Base::create_real_scalar_field_data(
-                const std::string    & aLabel,
-                const enum EntityRank aEntityRank )
+        uint Lagrange_Mesh_Base::create_real_scalar_field_data( const std::string     & aLabel,
+                                                                const enum EntityRank   aEntityRank )
         {
-
             // get index for output
             uint aIndex = mRealScalarFieldData.size();
 
@@ -179,11 +170,11 @@ namespace moris
             // initialize empty matrix. It is populated later
             Matrix< DDRMat > tEmpty;
 
-            mRealScalarFieldLabels.push_back( aLabel );
-            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldLabels       .push_back( aLabel );
+            mRealScalarFieldData         .push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
-            mRealScalarFieldRanks.push_back( aEntityRank );
+            mRealScalarFieldRanks        .push_back( aEntityRank );
 
             return aIndex;
         }
@@ -192,8 +183,7 @@ namespace moris
 //   protected:
 // -----------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::create_nodes_on_higher_levels()
+        void Lagrange_Mesh_Base::create_nodes_on_higher_levels()
         {
             // get max level of mest
             uint tMaxLevel = mBackgroundMesh->get_max_level();
@@ -227,8 +217,7 @@ namespace moris
 //   private:
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::create_nodes()
+        void Lagrange_Mesh_Base::create_nodes()
         {
             // nodes on first level are created separately
             this->create_nodes_on_level_zero();
@@ -265,8 +254,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::delete_nodes_on_padding_elements()
+        void Lagrange_Mesh_Base::delete_nodes_on_padding_elements()
         {
             // get number of elements on coarsest level
             auto tNumberOfElements = mAllCoarsestElementsOnProc.size();
@@ -376,8 +364,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::collect_nodes()
+        void Lagrange_Mesh_Base::collect_nodes()
         {
             // clear node list
             mAllBasisOnProc.clear();
@@ -448,8 +435,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::calculate_node_ids()
+        void Lagrange_Mesh_Base::calculate_node_ids()
         {
             switch ( mParameters->get_number_of_dimensions() )
             {
@@ -501,8 +487,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false,
-                            "Lagrange_Mesh: Invalid number of dimensions");
+                    MORIS_ERROR( false, "Lagrange_Mesh: Invalid number of dimensions");
                     break;
                 }
             }
@@ -512,8 +497,7 @@ namespace moris
         /**
          * calculates system wide unique node indices for MTK
          */
-        void
-        Lagrange_Mesh_Base::calculate_node_indices()
+        void Lagrange_Mesh_Base::calculate_node_indices()
         {
             // reset counters
             mNumberOfUsedAndOwnedNodes = 0;
@@ -743,8 +727,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::calculate_node_sharing()
+        void Lagrange_Mesh_Base::calculate_node_sharing()
         {
             moris_id tNumberOfProcs = par_size();
 //            moris_id tMyProcRank    = par_rank();
@@ -756,7 +739,6 @@ namespace moris
 
             if(tNumberOfProcs > 1)
             {
-
                 // get proc neighbors from background mesh
                 const Matrix<IdMat> & tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
@@ -863,17 +845,14 @@ namespace moris
                         Basis* tBoundBasis = get_basis_by_memory_index( tBoundNodeMemoryIndex );
                         tBoundBasis->add_node_sharing(tNeighborProcRank);
                     }
-
                 }
-
             }
         }
 
 //------------------------------------------------------------------------------
 
-        Element *
-        Lagrange_Mesh_Base::get_child(       Element * aElement,
-                                       const uint    & aChildIndex )
+        Element * Lagrange_Mesh_Base::get_child(       Element * aElement,
+                                                 const uint    & aChildIndex )
         {
             // get pointer to background element
             Background_Element_Base* tBackElement = aElement->get_background_element();
@@ -895,35 +874,34 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::reset_fields()
+        void Lagrange_Mesh_Base::reset_fields()
         {
-            mRealScalarFieldLabels.clear();
-            mRealScalarFieldData.clear();
+            mRealScalarFieldLabels       .clear();
+            mRealScalarFieldData         .clear();
             mRealScalarFieldBSplineCoeffs.clear();
-            mRealScalarFieldRanks.clear();
+            mRealScalarFieldRanks        .clear();
             mRealScalarFieldBSplineOrders.clear();
 
             Matrix< DDRMat > tEmpty;
 
             // first field is element level
-            mRealScalarFieldLabels.push_back( "Element_Level" );
-            mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
-            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldLabels       .push_back( "Element_Level" );
+            mRealScalarFieldRanks        .push_back( EntityRank::ELEMENT );
+            mRealScalarFieldData         .push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
 
             // second field is element owner
-            mRealScalarFieldLabels.push_back( "Element_Owner" );
-            mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
-            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldLabels       .push_back( "Element_Owner" );
+            mRealScalarFieldRanks        .push_back( EntityRank::ELEMENT );
+            mRealScalarFieldData         .push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
 
             // third field is vertex IDs
-            mRealScalarFieldLabels.push_back( "Node_IDs" );
-            mRealScalarFieldRanks.push_back( EntityRank::NODE );
-            mRealScalarFieldData.push_back( tEmpty );
+            mRealScalarFieldLabels       .push_back( "Node_IDs" );
+            mRealScalarFieldRanks        .push_back( EntityRank::NODE );
+            mRealScalarFieldData         .push_back( tEmpty );
             mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
             mRealScalarFieldBSplineOrders.push_back( 0 );
 
@@ -931,8 +909,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        STK *
-        Lagrange_Mesh_Base::create_stk_object( const double aTimeStep )
+        STK * Lagrange_Mesh_Base::create_stk_object( const double aTimeStep )
         {
             MORIS_ERROR( mOrder <= 2 , "Tried to create an STK object for third or higher order. \n This is not supported by Exodus II.");
 
@@ -948,8 +925,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        bool
-        Lagrange_Mesh_Base::test_for_double_nodes()
+        bool Lagrange_Mesh_Base::test_for_double_nodes()
         {
             // strategy: fill a matrix with node IDs. Make them unique.
             // each node must appear only once
@@ -1108,8 +1084,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::save_to_gmsh( const std::string & aFilePath )
+        void Lagrange_Mesh_Base::save_to_gmsh( const std::string & aFilePath )
         {
             // start timer
             tic tTimer;
@@ -1184,7 +1159,6 @@ namespace moris
                         }
                     }
                     break;
-
                }
                default :
                {
@@ -1235,8 +1209,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::link_twins( )
+        void Lagrange_Mesh_Base::link_twins( )
         {
             // get number of elements of interest
             auto tNumberOfElements = this->get_number_of_elements();
@@ -1264,8 +1237,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::save_to_vtk( const std::string & aFilePath )
+        void Lagrange_Mesh_Base::save_to_vtk( const std::string & aFilePath )
         {
             // start timer
             tic tTimer;
@@ -1343,7 +1315,6 @@ namespace moris
             if ( tCellType != 0 )
             {
                 int tNumberOfNodesPerElement = swap_byte_endian( (int) mNumberOfBasisPerElement );
-
 
                 luint tNumberOfAllElementsOnProc = mAllElementsOnProc.size();
 
@@ -1547,17 +1518,14 @@ namespace moris
                         ( long unsigned int ) tNumberOfNodes,
                         ( double ) tElapsedTime / 1000 );
             }
-
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::create_nodes_on_level_zero()
+        void Lagrange_Mesh_Base::create_nodes_on_level_zero()
         {
             // ask background mesh for number of dimensions
-            Matrix< DDLUMat > tNumberOfElements
-            = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
+            Matrix< DDLUMat > tNumberOfElements = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
             if( mNumberOfDimensions == 2 )
             {
@@ -1575,10 +1543,8 @@ namespace moris
                 {
                     for ( luint i=0; i<tImax; ++i )
                     {
-                        mAllCoarsestElementsOnProc( tCount++ )
-                            ->create_basis_on_level_zero(
-                                mAllElementsOnProc,
-                                mNumberOfAllBasis );
+                        mAllCoarsestElementsOnProc( tCount++ )->create_basis_on_level_zero( mAllElementsOnProc,
+                                                                                            mNumberOfAllBasis );
                     }
                 }
             }
@@ -1603,10 +1569,8 @@ namespace moris
                     {
                         for ( luint i=0; i<tImax; ++i )
                         {
-                            mAllCoarsestElementsOnProc( tCount++ )
-                                ->create_basis_on_level_zero(
-                                    mAllElementsOnProc,
-                                    mNumberOfAllBasis );
+                            mAllCoarsestElementsOnProc( tCount++ )->create_basis_on_level_zero( mAllElementsOnProc,
+                                                                                                mNumberOfAllBasis );
                         }
                     }
                 }
@@ -1615,8 +1579,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::update_node_list()
+        void Lagrange_Mesh_Base::update_node_list()
         {
             // tidy up memory
             mNodes.clear();
@@ -1645,8 +1608,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::create_facets()
+        void Lagrange_Mesh_Base::create_facets()
         {
             tic tTimer;
 
@@ -1858,8 +1820,7 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::create_edges()
+        void Lagrange_Mesh_Base::create_edges()
         {
             tic tTimer;
 
@@ -1959,9 +1920,8 @@ namespace moris
                 for( uint e = 0; e<tNumberOfElements; ++e )
                 {
                     // insert edge into element
-                    tEdge->get_element( e )->set_hmr_edge(
-                            tEdge,
-                            tEdge->get_index_on_element( e ) );
+                    tEdge->get_element( e )->set_hmr_edge( tEdge,
+                                                           tEdge->get_index_on_element( e ) );
                 }
             }
 
@@ -1998,7 +1958,6 @@ namespace moris
             {
                 tBasis->delete_edge_container();
             }
-
 
             // count edges
             for( Edge * tEdge : mEdges )
@@ -2054,8 +2013,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::negotiate_edge_ownership()
+        void Lagrange_Mesh_Base::negotiate_edge_ownership()
         {
             moris_id tParSize = par_size();
 
@@ -2134,13 +2092,10 @@ namespace moris
                         = tEdge->get_index_on_master();
 
                     // calculate path o
-                    tEdge->get_hmr_master()
-                                    ->get_background_element()
-                                    ->endcode_pedigree_path(
-                            tAncestorListSend( p )( tElementCount( p )++ ),
-                            tPedigreeListSend( p ),
-                            tMemoryCount( p ) );
-
+                    tEdge->get_hmr_master()->get_background_element()
+                                           ->endcode_pedigree_path( tAncestorListSend( p )( tElementCount( p )++ ),
+                                                                    tPedigreeListSend( p ),
+                                                                    tMemoryCount( p ) );
                 }
 
                 // step 4: communicate matrices
@@ -2148,30 +2103,27 @@ namespace moris
                 // communicate edge Indices to neighbors
 
                 Cell< Matrix< DDUMat > > tEdgeIndexListReceive;
-                communicate_mats(
-                    tProcNeighbors,
-                    tEdgeIndexListSend,
-                    tEdgeIndexListReceive );
+                communicate_mats( tProcNeighbors,
+                                  tEdgeIndexListSend,
+                                  tEdgeIndexListReceive );
 
                 // clear memory
                 tEdgeIndexListSend.clear();
 
                 // communicate ancestors to neighbors
                 Cell< Matrix< DDLUMat > > tAncestorListReceive;
-                communicate_mats(
-                        tProcNeighbors,
-                        tAncestorListSend,
-                        tAncestorListReceive );
+                communicate_mats( tProcNeighbors,
+                                  tAncestorListSend,
+                                  tAncestorListReceive );
 
                 // clear memory
                 tAncestorListSend.clear();
 
                 // communicate path to neighbors
                 Cell< Matrix< DDUMat > > tPedigreeListReceive;
-                communicate_mats(
-                        tProcNeighbors,
-                        tPedigreeListSend,
-                        tPedigreeListReceive );
+                communicate_mats( tProcNeighbors,
+                                  tPedigreeListSend,
+                                  tPedigreeListReceive );
 
                 // clear memory
                 tPedigreeListSend.clear();
@@ -2196,15 +2148,12 @@ namespace moris
                     {
                         // decode path and get pointer to element
                         Background_Element_Base*
-                        tBackElement = mBackgroundMesh->decode_pedigree_path(
-                                tAncestorListReceive( p )( k ),
-                                tPedigreeListReceive( p ),
-                                tMemoryCounter );
+                        tBackElement = mBackgroundMesh->decode_pedigree_path( tAncestorListReceive( p )( k ),
+                                                                              tPedigreeListReceive( p ),
+                                                                              tMemoryCounter );
 
                         // get pointer to master
-                        Element * tMaster =
-                                this->get_element_by_memory_index(
-                                        tBackElement->get_memory_index() );
+                        Element * tMaster = this->get_element_by_memory_index( tBackElement->get_memory_index() );
 
                         // get pointer to facet
                         Edge * tEdge = tMaster->get_hmr_edge( tEdgeIndexListReceive( p )( k ) );
@@ -2215,8 +2164,8 @@ namespace moris
                 }  /* end loop over all procs */
 
                 // reset receive lists
-                tAncestorListReceive.clear();
-                tPedigreeListReceive.clear();
+                tAncestorListReceive .clear();
+                tPedigreeListReceive .clear();
                 tEdgeIndexListReceive.clear();
 
                 Cell< Matrix< DDUMat > > tOwnerListReceive;
@@ -2224,11 +2173,9 @@ namespace moris
                 // communicate mats
                 // note: this is a lot of communication. A more elegant way
                 //       could be to just end the edge owners that have changed
-                communicate_mats(
-                        tProcNeighbors,
-                        tOwnerListSend,
-                        tOwnerListReceive );
-
+                communicate_mats( tProcNeighbors,
+                                  tOwnerListSend,
+                                  tOwnerListReceive );
 
                 // clear memory
                 tOwnerListSend.clear();
@@ -2254,28 +2201,23 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Facet *
-        Lagrange_Mesh_Base::create_facet( Background_Facet * aFacet )
+        Facet * Lagrange_Mesh_Base::create_facet( Background_Facet * aFacet )
         {
-            MORIS_ERROR( false,
-                    "create_facet() must not be called from base class" );
+            MORIS_ERROR( false, "create_facet() must not be called from base class" );
             return nullptr;
         }
 
 //------------------------------------------------------------------------------
 
-        Edge *
-        Lagrange_Mesh_Base::create_edge( Background_Edge * aEdge )
+        Edge * Lagrange_Mesh_Base::create_edge( Background_Edge * aEdge )
         {
-            MORIS_ERROR( false,
-                    "create_edge() must not be called from base class" );
+            MORIS_ERROR( false, "create_edge() must not be called from base class" );
             return nullptr;
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::delete_facets()
+        void Lagrange_Mesh_Base::delete_facets()
         {
             for( auto tFacet : mFacets )
             {
@@ -2287,8 +2229,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::delete_edges()
+        void Lagrange_Mesh_Base::delete_edges()
         {
             for( auto tEdge : mEdges )
             {
@@ -2301,8 +2242,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::synchronize_facet_ids( const uint & aOwnedCount )
+        void Lagrange_Mesh_Base::synchronize_facet_ids( const uint & aOwnedCount )
         {
 
             // get number of procs
@@ -2319,13 +2259,11 @@ namespace moris
             Matrix< DDUMat > tFacetOffset( tNumberOfProcs, 1, 0 );
             for( moris_id p=1; p<tNumberOfProcs; ++p )
             {
-                tFacetOffset( p ) =   tFacetOffset( p-1 )
-                                            + tFacetsOwnedPerProc( p-1 );
+                tFacetOffset( p ) =   tFacetOffset( p-1 ) + tFacetsOwnedPerProc( p-1 );
             }
 
             // remember max index for vtk
-            mMaxFacetDomainIndex = tFacetOffset( tNumberOfProcs -1 ) +
-                    tFacetsOwnedPerProc( tNumberOfProcs-1 );
+            mMaxFacetDomainIndex = tFacetOffset( tNumberOfProcs -1 ) + tFacetsOwnedPerProc( tNumberOfProcs-1 );
 
             moris_id tMyOffset = tFacetOffset( tMyRank );
 
@@ -2344,8 +2282,7 @@ namespace moris
             auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
             // get number of proc neighbors
-            uint tNumberOfNeighbors
-                = mBackgroundMesh->get_number_of_proc_neighbors();
+            uint tNumberOfNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
             // create cell of matrices to send
             Matrix< DDLUMat > tEmptyLuint;
@@ -2382,10 +2319,8 @@ namespace moris
                             ++tElementCounter;
 
                             // get memory needed for pedigree path
-                            tMemoryCounter
-                                += tFacet->get_hmr_master()
-                                    ->get_background_element()
-                                    ->get_length_of_pedigree_path();
+                            tMemoryCounter += tFacet->get_hmr_master()->get_background_element()
+                                                                      ->get_length_of_pedigree_path();
                         }
                     }
 
@@ -2412,17 +2347,13 @@ namespace moris
                             if( tFacet->get_owner() == tNeighbor )
                             {
                                 // save index on master
-                                tFacetIndexListSend( p )( tElementCounter )
-                                                            = tFacet->get_index_on_master();
+                                tFacetIndexListSend( p )( tElementCounter ) = tFacet->get_index_on_master();
 
                                 // calculate path of facet
-                                tFacet->get_hmr_master()
-                                        ->get_background_element()
-                                        ->endcode_pedigree_path(
-                                        tAncestorListSend( p )( tElementCounter++ ),
-                                        tPedigreeListSend( p ),
-                                        tMemoryCounter );
-
+                                tFacet->get_hmr_master()->get_background_element()
+                                                        ->endcode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
+                                                                                 tPedigreeListSend( p ),
+                                                                                 tMemoryCounter );
                             }
                         }
                     }
@@ -2435,28 +2366,25 @@ namespace moris
             Cell< Matrix< DDUMat > >  tFacetIndexListReceive;
 
             // communicate ancestor IDs
-            communicate_mats(
-                    tProcNeighbors,
-                    tAncestorListSend,
-                    tAncestorListReceive );
+            communicate_mats( tProcNeighbors,
+                              tAncestorListSend,
+                              tAncestorListReceive );
 
             // clear memory
             tAncestorListSend.clear();
 
             // communicate pedigree list
-            communicate_mats(
-                    tProcNeighbors,
-                    tPedigreeListSend,
-                    tPedigreeListReceive );
+            communicate_mats( tProcNeighbors,
+                              tPedigreeListSend,
+                              tPedigreeListReceive );
 
             // clear memory
             tPedigreeListSend.clear();
 
             // communicate indices
-            communicate_mats(
-                    tProcNeighbors,
-                    tFacetIndexListSend,
-                    tFacetIndexListReceive );
+            communicate_mats( tProcNeighbors,
+                              tFacetIndexListSend,
+                              tFacetIndexListReceive );
 
             // loop over all received lists
             for ( uint p=0; p<tNumberOfNeighbors; ++p )
@@ -2474,15 +2402,13 @@ namespace moris
                 for ( uint k=0; k<tNumberOfElements; ++k )
                 {
                     // decode path and get pointer to element
-                    Background_Element_Base*
-                    tBackElement = mBackgroundMesh->decode_pedigree_path(
+                    Background_Element_Base * tBackElement = mBackgroundMesh->decode_pedigree_path(
                             tAncestorListReceive( p )( k ),
                             tPedigreeListReceive( p ),
                             tMemoryCounter );
 
                     // get pointer to master
-                    Element * tMaster =
-                            this->get_element_by_memory_index(
+                    Element * tMaster = this->get_element_by_memory_index(
                                     tBackElement->get_memory_index() );
 
                     // get pointer to facet
@@ -2498,10 +2424,9 @@ namespace moris
             tFacetIndexListReceive.clear();
 
             // communicate ids
-            communicate_mats(
-                    tProcNeighbors,
-                    tFacetIndexListSend,
-                    tFacetIndexListReceive );
+            communicate_mats( tProcNeighbors,
+                              tFacetIndexListSend,
+                              tFacetIndexListReceive );
 
             // reset send list
             tFacetIndexListSend.clear();
@@ -2509,8 +2434,6 @@ namespace moris
             // loop over all received lists
             for ( uint p=0; p<tNumberOfNeighbors; ++p )
             {
-
-
                 if( tFacetIndexListReceive( p ).length() > 0 )
                 {
                     // get neighbor id
@@ -2535,10 +2458,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::synchronize_edge_ids( const uint & aOwnedCount )
+        void Lagrange_Mesh_Base::synchronize_edge_ids( const uint & aOwnedCount )
         {
-
             // get number of procs
             moris_id tNumberOfProcs = par_size();
 
@@ -2576,8 +2497,7 @@ namespace moris
             auto tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
 
             // get number of proc neighbors
-            uint tNumberOfNeighbors
-                = mBackgroundMesh->get_number_of_proc_neighbors();
+            uint tNumberOfNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
             // create cell of matrices to send
             Matrix< DDLUMat > tEmptyLuint;
@@ -2615,8 +2535,7 @@ namespace moris
 
                             // get memory needed for pedigree path
 
-                            tMemoryCounter
-                                += tEdge->get_hmr_master()
+                            tMemoryCounter += tEdge->get_hmr_master()
                                     ->get_background_element()
                                     ->get_length_of_pedigree_path();
                         }
@@ -2644,19 +2563,15 @@ namespace moris
                         {
                             if( tEdge->get_owner() == tNeighbor )
                             {
-
                                 // save index on master
-                                tEdgeIndexListSend( p )( tElementCounter )
-                                    = tEdge->get_index_on_master();
+                                tEdgeIndexListSend( p )( tElementCounter ) = tEdge->get_index_on_master();
 
                                 // calculate path of facet
-                                tEdge->get_hmr_master()
-                                                       ->get_background_element()
+                                tEdge->get_hmr_master()->get_background_element()
                                                        ->endcode_pedigree_path(
                                                                tAncestorListSend( p )( tElementCounter++ ),
                                                                tPedigreeListSend( p ),
                                                                tMemoryCounter );
-
                             }
                         }
                     }
@@ -2669,29 +2584,25 @@ namespace moris
             Cell< Matrix< DDUMat > >  tEdgeIndexListReceive;
 
             // communicate ancestor IDs
-            communicate_mats(
-                    tProcNeighbors,
-                    tAncestorListSend,
-                    tAncestorListReceive );
+            communicate_mats( tProcNeighbors,
+                              tAncestorListSend,
+                              tAncestorListReceive );
 
             // clear memory
             tAncestorListSend.clear();
 
             // communicate pedigree list
-            communicate_mats(
-                    tProcNeighbors,
-                    tPedigreeListSend,
-                    tPedigreeListReceive );
+            communicate_mats( tProcNeighbors,
+                              tPedigreeListSend,
+                              tPedigreeListReceive );
 
             // clear memory
             tPedigreeListSend.clear();
 
             // communicate indices
-            communicate_mats(
-                    tProcNeighbors,
-                    tEdgeIndexListSend,
-                    tEdgeIndexListReceive );
-
+            communicate_mats( tProcNeighbors,
+                              tEdgeIndexListSend,
+                              tEdgeIndexListReceive );
 
             // loop over all received lists
             for ( uint p=0; p<tNumberOfNeighbors; ++p )
@@ -2709,20 +2620,17 @@ namespace moris
                 for ( uint k=0; k<tNumberOfElements; ++k )
                 {
                     // decode path and get pointer to element
-                    Background_Element_Base*
-                    tBackElement = mBackgroundMesh->decode_pedigree_path(
+                    Background_Element_Base* tBackElement = mBackgroundMesh->decode_pedigree_path(
                             tAncestorListReceive( p )( k ),
                             tPedigreeListReceive( p ),
                             tMemoryCounter );
 
                     // get pointer to master
-                    Element * tMaster =
-                            this->get_element_by_memory_index(
+                    Element * tMaster = this->get_element_by_memory_index(
                                     tBackElement->get_memory_index() );
 
                     // get pointer to facet
-                    Edge * tEdge = tMaster->get_hmr_edge(
-                            tEdgeIndexListReceive( p )( k ) );
+                    Edge * tEdge = tMaster->get_hmr_edge( tEdgeIndexListReceive( p )( k ) );
 
                     // copy ID into send index
                     tEdgeIndexListSend( p )( k ) = tEdge->get_id();
@@ -2733,10 +2641,9 @@ namespace moris
             tEdgeIndexListReceive.clear();
 
             // communicate ids
-            communicate_mats(
-                    tProcNeighbors,
-                    tEdgeIndexListSend,
-                    tEdgeIndexListReceive );
+            communicate_mats( tProcNeighbors,
+                              tEdgeIndexListSend,
+                              tEdgeIndexListReceive );
 
             // reset send list
             tEdgeIndexListSend.clear();
@@ -2744,8 +2651,6 @@ namespace moris
             // loop over all received lists
             for ( uint p=0; p<tNumberOfNeighbors; ++p )
             {
-
-
                 if( tEdgeIndexListReceive( p ).length() > 0 )
                 {
                     // get neighbor id
@@ -2763,7 +2668,6 @@ namespace moris
                             tEdge->set_id( tEdgeIndexListReceive( p )( tCount++ ) );
                         }
                     }
-
                 }
             } /* end loop over all procs */
         }
@@ -2903,8 +2807,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::save_faces_to_vtk( const std::string & aPath )
+        void Lagrange_Mesh_Base::save_faces_to_vtk( const std::string & aPath )
         {
             if( mFacets.size() > 0 )
             {
@@ -3147,8 +3050,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::save_edges_to_vtk( const std::string & aPath )
+        void Lagrange_Mesh_Base::save_edges_to_vtk( const std::string & aPath )
         {
             if( mEdges.size() > 0 )
             {
@@ -3386,12 +3288,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::save_coeffs_to_binary_file(
+        void Lagrange_Mesh_Base::save_coeffs_to_binary_file(
                 const uint          aOrder,
                 const std::string & aFilePath )
         {
-
             // start timer
             tic tTimer;
 
@@ -3416,7 +3316,6 @@ namespace moris
                 // increment counter for node ID, node index and number of coeffs
                 // + 2*number of coefficients
                 tCount += 3 + 2*tNode->get_interpolation( aOrder )->get_number_of_coefficients();
-
             }
 
             // Step 2: allocate output matrix and populate it with data
@@ -3488,8 +3387,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::init_t_matrices()
+        void Lagrange_Mesh_Base::init_t_matrices()
         {
             for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
             {
@@ -3505,8 +3403,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::calculate_t_matrices( const bool aBool )
+        void Lagrange_Mesh_Base::calculate_t_matrices( const bool aBool )
         {
             tic tTimer;
 
@@ -3534,11 +3431,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
+        void Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
         {
-            MORIS_ASSERT( mBSplineMeshes( aBSplineOrder  ) != NULL,
-                    "B-Spline Mesh does not exist" );
+            MORIS_ASSERT( mBSplineMeshes( aBSplineOrder  ) != NULL, "B-Spline Mesh does not exist" );
 
             // create matrix object if it does not exist
             if( mTMatrix( aBSplineOrder ) == NULL )
@@ -3561,8 +3456,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Lagrange_Mesh_Base::delete_t_matrices()
+        void Lagrange_Mesh_Base::delete_t_matrices()
         {
             for( T_Matrix *  tTMatrix : mTMatrix )
             {

@@ -40,8 +40,7 @@ namespace moris
     /**
      * creates a backgroud mesh depending on the number of dimensions set
      */
-    Background_Mesh_Base*
-    Factory::create_background_mesh( const Parameters * aParameters )
+    Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aParameters )
     {
         // create background mesh object
         Background_Mesh_Base* aMesh;
@@ -88,12 +87,11 @@ namespace moris
     }
 //-------------------------------------------------------------------------------
 
-        Lagrange_Mesh_Base * Factory::create_lagrange_mesh(
-                const Parameters            * aParameters,
-                Background_Mesh_Base        * aBackgroundMesh,
-                Cell< BSpline_Mesh_Base * > & aBSplineMeshes,
-                const  uint                 & aActivationPattern,
-                const luint                 & aPolynomialDegree )
+        Lagrange_Mesh_Base * Factory::create_lagrange_mesh( const Parameters                  * aParameters,
+                                                                  Background_Mesh_Base        * aBackgroundMesh,
+                                                                  Cell< BSpline_Mesh_Base * > & aBSplineMeshes,
+                                                            const uint                        & aActivationPattern,
+                                                            const luint                       & aPolynomialDegree )
         {
             Lagrange_Mesh_Base* aMesh;
 
@@ -108,39 +106,33 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 1 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMeshes,
-                            aActivationPattern );
+                    aMesh = new Lagrange_Mesh< 2, 1 >( aParameters,
+                                                       aBackgroundMesh,
+                                                       aBSplineMeshes,
+                                                       aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 2 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMeshes,
-                            aActivationPattern );
+                    aMesh = new Lagrange_Mesh< 2, 2 >( aParameters,
+                                                       aBackgroundMesh,
+                                                       aBSplineMeshes,
+                                                       aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new Lagrange_Mesh< 2, 3 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMeshes,
-                            aActivationPattern );
+                    aMesh = new Lagrange_Mesh< 2, 3 >( aParameters,
+                                                       aBackgroundMesh,
+                                                       aBSplineMeshes,
+                                                       aActivationPattern );
                     break;
                 }
                 default:
                 {
-                    std::fprintf(
-                            stdout,
-                            "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
-                             ( unsigned int )  aPolynomialDegree,
-                             ( unsigned int )  tNumberOfDimensions );
-                    exit(-1);
+                    MORIS_ERROR( false, "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                            ( unsigned int )  aPolynomialDegree,
+                            ( unsigned int )  tNumberOfDimensions );
                     break;
                 }
                 }
@@ -152,39 +144,33 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 1 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMeshes,
-                            aActivationPattern );
+                    aMesh = new Lagrange_Mesh< 3, 1 >( aParameters,
+                                                       aBackgroundMesh,
+                                                       aBSplineMeshes,
+                                                       aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 2 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMeshes,
-                            aActivationPattern );
+                    aMesh = new Lagrange_Mesh< 3, 2 >( aParameters,
+                                                       aBackgroundMesh,
+                                                       aBSplineMeshes,
+                                                       aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new Lagrange_Mesh< 3, 3 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aBSplineMeshes,
-                            aActivationPattern );
+                    aMesh = new Lagrange_Mesh< 3, 3 >( aParameters,
+                                                       aBackgroundMesh,
+                                                       aBSplineMeshes,
+                                                       aActivationPattern );
                     break;
                 }
                 default:
                 {
-                    std::fprintf(
-                            stdout,
-                            "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                    MORIS_ERROR( false, "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
                             ( unsigned int )  aPolynomialDegree,
                             ( unsigned int )  tNumberOfDimensions );
-                    exit(-1);
                     break;
                 }
                 }
@@ -192,10 +178,8 @@ namespace moris
             }
             default :
             {
-                std::fprintf( stdout,
-                        "create_lagrange_mesh(): unknown number of dimensions %u\n",
+                MORIS_ERROR( false, "create_lagrange_mesh(): unknown number of dimensions %u\n",
                         ( unsigned int )  tNumberOfDimensions );
-                exit(-1);
                 break;
             }
             }
@@ -204,13 +188,12 @@ namespace moris
         }
 //-------------------------------------------------------------------------------
 
-        BSpline_Mesh_Base * Factory::create_bspline_mesh(
-                const Parameters      * aParameters,
-                Background_Mesh_Base  * aBackgroundMesh,
-                const  uint           & aActivationPattern,
-                const luint           & aPolynomialDegree )
+        BSpline_Mesh_Base * Factory::create_bspline_mesh( const Parameters           * aParameters,
+                                                                Background_Mesh_Base * aBackgroundMesh,
+                                                          const uint                 & aActivationPattern,
+                                                          const luint                & aPolynomialDegree )
         {
-            BSpline_Mesh_Base* aMesh;
+            BSpline_Mesh_Base * aMesh;
 
             // get number of dimensions from settings
             auto tNumberOfDimensions =  aParameters->get_number_of_dimensions();
@@ -223,52 +206,44 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 1 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 2, 1 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 2 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 2, 2 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 3 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 2, 3 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 case( 4 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 4 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 2, 4 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 case( 5 ):
                 {
-                    aMesh = new BSpline_Mesh< 2, 5 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 2, 5 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 default:
                 {
-                    std::fprintf(
-                            stdout,
-                            "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                    MORIS_ERROR( false, "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
                             ( unsigned int )  aPolynomialDegree,
                             ( unsigned int )  tNumberOfDimensions );
-                    exit(-1);
                     break;
                 }
             }
@@ -280,52 +255,44 @@ namespace moris
                 {
                 case( 1 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 1 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 3, 1 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 case( 2 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 2 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 3, 2 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 case( 3 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 3 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 3, 3 >( aParameters,
+                                                     aBackgroundMesh,
+                                                     aActivationPattern );
                     break;
                 }
                 case( 4 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 4 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 3, 4 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 case( 5 ):
                 {
-                    aMesh = new BSpline_Mesh< 3, 5 >(
-                            aParameters,
-                            aBackgroundMesh,
-                            aActivationPattern );
+                    aMesh = new BSpline_Mesh< 3, 5 >( aParameters,
+                                                      aBackgroundMesh,
+                                                      aActivationPattern );
                     break;
                 }
                 default:
                 {
-                    std::fprintf(
-                            stdout,
-                            "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                    MORIS_ERROR( false, "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
                             ( unsigned int )  aPolynomialDegree,
                             ( unsigned int )  tNumberOfDimensions );
-                    exit(-1);
                     break;
                 }
            }
@@ -333,15 +300,13 @@ namespace moris
            }
            default :
            {
-               std::fprintf( stdout,
-                        "create_bspline_mesh(): unknown number of dimensions %u\n",
-                        ( unsigned int )  tNumberOfDimensions );
-                exit(-1);
-                break;
-            }
-            }
+               MORIS_ERROR( false, "create_bspline_mesh(): unknown number of dimensions %u\n",
+                       ( unsigned int )  tNumberOfDimensions );
+               break;
+           }
+           }
 
-            return aMesh;
+           return aMesh;
         }
 
 //-------------------------------------------------------------------------------

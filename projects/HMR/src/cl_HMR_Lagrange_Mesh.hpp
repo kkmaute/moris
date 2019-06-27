@@ -68,8 +68,11 @@ namespace moris
         Lagrange_Mesh( const Parameters           * aParameters,
                        Background_Mesh_Base       * aBackgroundMesh,
                        Cell< BSpline_Mesh_Base* > & aBSplineMeshes,
-                       const uint                 & aActivationPattern ) :
-                       Lagrange_Mesh_Base( aParameters, aBackgroundMesh, aBSplineMeshes, P, aActivationPattern )
+                       const uint                 & aActivationPattern ) : Lagrange_Mesh_Base( aParameters,
+                                                                                               aBackgroundMesh,
+                                                                                               aBSplineMeshes,
+                                                                                               P,
+                                                                                               aActivationPattern )
         {
             // ask background mesh for number of elements per ijk-direction
             this->get_number_of_elements_per_dimension();
@@ -256,8 +259,7 @@ namespace moris
          *
          *  @return void
          */
-        void
-        calculate_level_offset()
+        void calculate_level_offset()
         {
             // calculate node level offset
             mNodeLevelOffset[ 0 ] = 0;
@@ -268,13 +270,11 @@ namespace moris
                 luint tNumberOfNodes = 1;
                 for( uint k=0; k<N; ++k )
                 {
-                    tNumberOfNodes *= P*
-                        mNumberOfElementsPerDimensionIncludingAura[ l-1 ][ k ] + 1;
+                    tNumberOfNodes *= P * mNumberOfElementsPerDimensionIncludingAura[ l-1 ][ k ] + 1;
                 }
 
                 // add number of nodes to offset table
-                mNodeLevelOffset[ l ] =
-                        mNodeLevelOffset[ l-1 ] + tNumberOfNodes;
+                mNodeLevelOffset[ l ] = mNodeLevelOffset[ l-1 ] + tNumberOfNodes;
             }
         }
 
@@ -285,17 +285,15 @@ namespace moris
          *
          * @return void
          */
-        void
-        calculate_subdomain_offset()
+        void calculate_subdomain_offset()
         {
-            Matrix< DDLUMat > tIJK
-                = mBackgroundMesh->get_subdomain_offset_of_proc();
+            Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
 
             for( uint l=0; l<gMaxNumberOfLevels; ++l )
             {
                 for( uint k=0; k<N; ++k )
                 {
-                    mMySubdomainOffset[ l ][ k ] = P*tIJK( k, l );
+                    mMySubdomainOffset[ l ][ k ] = P * tIJK( k, l );
                 }
             }
         }
@@ -307,16 +305,13 @@ namespace moris
           *
           * @return void
           */
-         void
-         calculate_node_coordinates()
+         void calculate_node_coordinates()
          {
              // get domain dimensions from settings
-             Matrix< DDRMat > tDomainDimensions
-                 = mParameters->get_domain_dimensions();
+             Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
 
              // get number of elements on coarsest level from settings
-             Matrix< DDLUMat > tNumberOfElements
-                 = mParameters->get_number_of_elements_per_dimension();
+             Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
              // calculate step width
              real tDeltaX[ gMaxNumberOfLevels ][ N ];
@@ -324,8 +319,7 @@ namespace moris
              // calculate width for first level
              for( uint k=0; k<N; ++k )
              {
-                 tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) /
-                         ( ( real ) ( P * tNumberOfElements( k ) ) );
+                 tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) / ( ( real ) ( P * tNumberOfElements( k ) ) );
              }
 
              // loop over all higher levels
@@ -338,8 +332,7 @@ namespace moris
              }
 
              // get domain offset
-             Matrix< DDRMat > tParametersOffset
-                 = mParameters->get_domain_offset();
+             Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
 
              // domain offset
              real tOffset[ N ];
@@ -368,11 +361,9 @@ namespace moris
                  // loop over all dimensions
                  for( uint k=0; k<N; ++k )
                  {
-                     tXYZ[ k ] =
-                             ( ( real ) ( tIJK[ k ]
-                              + mMySubdomainOffset[ tLevel ][ k ] ) )
-                             * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
-
+                     tXYZ[ k ] = ( ( real ) ( tIJK[ k ]
+                                  + mMySubdomainOffset[ tLevel ][ k ] ) )
+                                  * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
                  }
 
                  // write XYZ coordinate into node
