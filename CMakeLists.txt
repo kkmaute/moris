@@ -425,7 +425,7 @@ if (USE_SACADO)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/parameter" )
     #list(APPEND MORIS_BASE_LIBS "-L$.../lib64/" )
 
-endif()
+endif() #> clean this up eventually
 
 # -------------------------------------------------------------------------
 # XTK --------------------------------------------------------------------------
