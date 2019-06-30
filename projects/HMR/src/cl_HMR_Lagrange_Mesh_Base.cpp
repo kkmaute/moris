@@ -199,15 +199,12 @@ namespace moris
                 // loop over all elements on this level
                 for( auto tElement : tElements )
                 {
-                    // test if this element has children and is not padding
-                    // and is refined
-                    if ( tElement->has_children() && ! tElement->is_padding() &&
-                            tElement->is_refined( mActivationPattern ) )
+                    // test if this element has children and is not padding and is refined
+                    if ( tElement->has_children() && ! tElement->is_padding() && tElement->is_refined( mActivationPattern ) )
                     {
                         // calculate nodes of children
-                        mAllElementsOnProc( tElement->get_memory_index() )
-                                            ->create_basis_for_children( mAllElementsOnProc,
-                                                                         mNumberOfAllBasis );
+                        mAllElementsOnProc( tElement->get_memory_index() )->create_basis_for_children( mAllElementsOnProc,
+                                                                                                       mNumberOfAllBasis );
                     }
                 }
             }
@@ -3393,10 +3390,9 @@ namespace moris
             {
                 if( tMesh != NULL )
                 {
-                    mTMatrix( tMesh->get_order() )
-                                   = new T_Matrix( mParameters,
-                                           tMesh,
-                                           this );
+                    mTMatrix( tMesh->get_order() ) = new T_Matrix( mParameters,
+                                                                   tMesh,
+                                                                   this );
                 }
             }
         }

@@ -143,16 +143,13 @@ namespace moris
          * @param[in]  aI        proc local i-position of node
          * @return uint          domain wide unique ID
          */
-        luint
-        calculate_node_id(
-                const uint  & aLevel,
-                const luint & aI )
+        luint calculate_node_id( const uint  & aLevel,
+                                 const luint & aI )
         {
             if( aLevel < gMaxNumberOfLevels && N == 1 )
             {
-                return  aI
-                        + mMySubdomainOffset[ aLevel ][ 0 ]
-                        + mNodeLevelOffset[ aLevel ];
+                return  aI + mMySubdomainOffset[ aLevel ][ 0 ]
+                           + mNodeLevelOffset[ aLevel ];
             }
             else
             {
