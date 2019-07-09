@@ -29,7 +29,7 @@ set(BUILD_LINALG ON CACHE BOOL "Build the linear algebra executable." FORCE)
 
 set(BUILD_MDL ON CACHE BOOL "Build the model executable." FORCE)
 
-set(BUILD_MOD ON CACHE BOOL "Build the model executable." FORCE)
+#set(BUILD_MOD ON CACHE BOOL "Build the model executable." FORCE)
 
 set(BUILD_MSI ON CACHE BOOL "Build the model solver interface executable." FORCE)
 

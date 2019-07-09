@@ -618,9 +618,9 @@ if(BUILD_MDL)
     include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 endif()
 
-if(BUILD_MOD)
-    include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
-endif()
+#if(BUILD_MOD)
+#    include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
+#endif()
 
 if(BUILD_MSI)
     include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)

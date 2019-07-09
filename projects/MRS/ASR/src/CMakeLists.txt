@@ -18,7 +18,7 @@ set(LIB_DEPENDENCIES
 add_library(${ASR}-lib INTERFACE)
 target_include_directories(${ASR}-lib INTERFACE 
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-	$<INSTALL_INTERFACE:${${ASR}_HEADER_INSTALL_DIR}>)
+	$<INSTALL_INTERFACE:${${ASR}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${ASR}-lib INTERFACE ${LIB_DEPENDENCIES})
 	
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
