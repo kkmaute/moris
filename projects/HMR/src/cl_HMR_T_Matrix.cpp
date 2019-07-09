@@ -26,13 +26,11 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        T_Matrix::T_Matrix(
-                const Parameters   * aParameters,
-                BSpline_Mesh_Base  * aBSplineMesh,
-                Lagrange_Mesh_Base * aLagrangeMesh ) :
-                            mParameters ( aParameters ),
-                            mBSplineMesh( aBSplineMesh ),
-                            mLagrangeMesh( aLagrangeMesh )
+        T_Matrix::T_Matrix( const Parameters         * aParameters,
+                                  BSpline_Mesh_Base  * aBSplineMesh,
+                                  Lagrange_Mesh_Base * aLagrangeMesh ) : mParameters ( aParameters ),
+                                                                         mBSplineMesh( aBSplineMesh ),
+                                                                         mLagrangeMesh( aLagrangeMesh )
         {
             this->init_basis_index();
             this->init_unity_matrix();
@@ -344,7 +342,6 @@ namespace moris
                                                     = tTMatrixTruncatedTransposed.matrix_data().col( tCount )
                                                       + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
 #endif
-
                                             break;
                                         }
                                     }
@@ -404,11 +401,10 @@ namespace moris
                 if ( tUseColumn( k ) == 1 )
                 {
                     aTMatrixTransposed.set_column( tCount,
-                            tTMatrixTruncatedTransposed.get_column( k ) );
+                                                   tTMatrixTruncatedTransposed.get_column( k ) );
 
                     // get pointer to basis from background mesh
-                    aDOFs( tCount++ ) =
-                            mBSplineMesh->get_basis_by_memory_index( tDOFs( k ) );
+                    aDOFs( tCount++ ) = mBSplineMesh->get_basis_by_memory_index( tDOFs( k ) );
                 }
             }
         }
@@ -533,9 +529,8 @@ namespace moris
         void T_Matrix::init_unity_matrix()
         {
             // get number of basis per element
-            uint tNumberOfBasis
-                 = std::pow( mBSplineMesh->get_order()+1,
-                    mParameters->get_number_of_dimensions() );
+            uint tNumberOfBasis = std::pow( mBSplineMesh->get_order()+1,
+                                            mParameters->get_number_of_dimensions() );
 
             mEye.set_size( tNumberOfBasis, tNumberOfBasis, 0.0 );
 
@@ -703,8 +698,7 @@ namespace moris
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
             // allocate weights
-            mTruncationWeights.set_size(
-                    std::pow( tNumberOfChildren, tNumberOfDimensions), 1 );
+            mTruncationWeights.set_size( std::pow( tNumberOfChildren, tNumberOfDimensions), 1 );
 
             if ( tNumberOfDimensions == 2 )
             {
@@ -716,8 +710,7 @@ namespace moris
                 {
                     for( uint i=0; i<tNumberOfChildren; ++i )
                     {
-                        mTruncationWeights( tCount++ )
-                                = tWeights( i ) * tWeights( j );
+                        mTruncationWeights( tCount++ ) = tWeights( i ) * tWeights( j );
                     }
                 }
             }
@@ -733,8 +726,7 @@ namespace moris
                     {
                         for( uint i=0; i<tNumberOfChildren; ++i )
                         {
-                            mTruncationWeights( tCount++ )
-                                    = tWeights( i ) * tWeights( j ) * tWeights( k );
+                            mTruncationWeights( tCount++ ) = tWeights( i ) * tWeights( j ) * tWeights( k );
                         }
                     }
                 }
@@ -757,7 +749,7 @@ namespace moris
             mNumberOfNodes = std::pow( tNodesPerDirection, tNumberOfDimensions );
 
             // create a Lagrange element
-            Element *tElement = mLagrangeMesh->create_element( tBackElement );
+            Element * tElement = mLagrangeMesh->create_element( tBackElement );
 
             // assign memory for parameter coordinates
             mLagrangeParam.set_size( tNumberOfDimensions, mNumberOfNodes );
@@ -817,10 +809,9 @@ namespace moris
                     // loop over all dimensions
                     for( uint i=0; i<tNumberOfDimensions; ++i )
                     {
-                        mTMatrixLagrange( k, j ) *= this->b_spline_shape_1d(
-                                tOrder,
-                                mBSplineIJK( i, j ),
-                                mLagrangeParam( i, k ) );
+                        mTMatrixLagrange( k, j ) *= this->b_spline_shape_1d( tOrder,
+                                                                             mBSplineIJK( i, j ),
+                                                                             mLagrangeParam( i, k ) );
                     }
                 }
             }
@@ -831,10 +822,9 @@ namespace moris
         /**
          * 1D shape function
          */
-        real T_Matrix::b_spline_shape_1d(
-                const uint & aOrder,
-                const uint & aK,
-                const real & aXi ) const
+        real T_Matrix::b_spline_shape_1d( const uint & aOrder,
+                                          const uint & aK,
+                                          const real & aXi ) const
         {
             // max number of entries in lookup table
             uint tSteps = 2*(aOrder + 1 );
@@ -882,10 +872,9 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void T_Matrix::b_spline_shape(
-                const real        & aXi,
-                const real        & aEta,
-                Matrix< DDRMat >       & aN ) const
+        void T_Matrix::b_spline_shape( const real             & aXi,
+                                       const real             & aEta,
+                                             Matrix< DDRMat > & aN ) const
         {
             // evaluate contributions for xi and eta
             Matrix< DDRMat >  tNxi( mBSplineOrder+1, 1 );
@@ -893,35 +882,31 @@ namespace moris
 
             for( uint i=0; i<=mBSplineOrder; ++i )
             {
-                tNxi( i ) = this->b_spline_shape_1d(
-                                mBSplineOrder,
-                                i,
-                                aXi );
+                tNxi( i ) = this->b_spline_shape_1d( mBSplineOrder,
+                                                     i,
+                                                     aXi );
             }
             for( uint j=0; j<=mBSplineOrder; ++j )
             {
-                tNeta( j )  = this->b_spline_shape_1d(
-                        mBSplineOrder,
-                        j,
-                        aEta );
+                tNeta( j )  = this->b_spline_shape_1d( mBSplineOrder,
+                                                       j,
+                                                       aEta );
             }
 
             // create shape vector in correct order
             for( uint k=0; k<mNumberOfNodes; ++k )
             {
-                aN( k ) =     tNxi( mBSplineIJK( 0, k ) )
-                           * tNeta( mBSplineIJK( 1, k ) );
+                aN( k ) = tNxi( mBSplineIJK( 0, k ) ) * tNeta( mBSplineIJK( 1, k ) );
             }
 
         }
 
 //-------------------------------------------------------------------------------
 
-        void T_Matrix::b_spline_shape(
-                const real        & aXi,
-                const real        & aEta,
-                const real        & aZeta,
-                Matrix< DDRMat >       & aN ) const
+        void T_Matrix::b_spline_shape( const real             & aXi,
+                                       const real             & aEta,
+                                       const real             & aZeta,
+                                             Matrix< DDRMat > & aN ) const
         {
             // evaluate contributions for xi and eta
             Matrix< DDRMat >  tNxi( mBSplineOrder+1, 1 );
@@ -938,18 +923,16 @@ namespace moris
 
             for( uint j=0; j<=mBSplineOrder; ++j )
             {
-                tNeta( j )  = this->b_spline_shape_1d(
-                        mBSplineOrder,
-                        j,
-                        aEta );
+                tNeta( j )  = this->b_spline_shape_1d( mBSplineOrder,
+                                                       j,
+                                                       aEta );
             }
 
             for( uint k=0; k<=mBSplineOrder; ++k )
             {
-                tNzeta( k )  = this->b_spline_shape_1d(
-                        mBSplineOrder,
-                        k,
-                        aZeta );
+                tNzeta( k )  = this->b_spline_shape_1d( mBSplineOrder,
+                                                        k,
+                                                        aZeta );
             }
 
             // create shape vector in correct order
@@ -996,9 +979,8 @@ namespace moris
             {
                 for( uint i=0; i<tNumberOfNodes; ++i )
                 {
-                    tVandermonde( k, i ) = std::pow(
-                            tXi( k ),
-                            tNumberOfNodes-i-1 );
+                    tVandermonde( k, i ) = std::pow( tXi( k ),
+                                                     tNumberOfNodes-i-1 );
                 }
             }
 
@@ -1020,17 +1002,14 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        real T_Matrix::lagrange_shape_1d(
-                const uint        & aBasisNumber,
-                const real        & aXi ) const
+        real T_Matrix::lagrange_shape_1d( const uint & aBasisNumber,
+                                          const real & aXi ) const
         {
             // use horner scheme to evaluate 1D Lagrange function
             real aResult = 0.0;
             for( uint i=0; i<mLagrangeOrder; ++i )
             {
-                aResult =
-                        ( aResult + mLagrangeCoefficients( i, aBasisNumber ) )
-                        *aXi;
+                aResult = ( aResult + mLagrangeCoefficients( i, aBasisNumber ) ) *aXi;
             }
 
             return aResult + mLagrangeCoefficients( mLagrangeOrder, aBasisNumber );
@@ -1038,9 +1017,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void T_Matrix::lagrange_shape_2d(
-                const Matrix< DDRMat > & aXi,
-                      Matrix< DDRMat > & aN ) const
+        void T_Matrix::lagrange_shape_2d( const Matrix< DDRMat > & aXi,
+                                                Matrix< DDRMat > & aN ) const
         {
             // evaluate contributions for xi and eta
             Matrix< DDRMat >  tNxi( mLagrangeOrder+1, 1 );
@@ -1058,16 +1036,14 @@ namespace moris
             // create shape vector in correct order
             for( uint k=0; k<mNumberOfNodes; ++k )
             {
-                    aN( k ) =    tNxi( mLagrangeIJK( 0, k ) )
-                              * tNeta( mLagrangeIJK( 1, k ) );
+                    aN( k ) = tNxi( mLagrangeIJK( 0, k ) ) * tNeta( mLagrangeIJK( 1, k ) );
             }
         }
 
 //-------------------------------------------------------------------------------
 
-        void T_Matrix::lagrange_shape_3d(
-                const Matrix< DDRMat > & aXi,
-                      Matrix< DDRMat > & aN ) const
+        void T_Matrix::lagrange_shape_3d( const Matrix< DDRMat > & aXi,
+                                                Matrix< DDRMat > & aN ) const
         {
             // evaluate contributions for xi and eta and zeta
             Matrix< DDRMat >   tNxi( mLagrangeOrder+1, 1 );
@@ -1555,9 +1531,8 @@ namespace moris
                     Matrix< DDRMat > tXi = tNGeo * tCorners;
 
                     // evaluate shape function
-                    ( this->*mEvalN )(
-                            tXi,
-                            tN );
+                    ( this->*mEvalN )( tXi,
+                                       tN );
 
                     // copy result into matrix
                     mLagrangeRefinementMatrix( c ).set_row( k , tN.get_row( 0 ) );
@@ -1607,9 +1582,8 @@ namespace moris
                     }
 
                     // evaluate shape function
-                    ( this->*mEvalN )(
-                            tPoint,
-                            tN );
+                    ( this->*mEvalN )( tPoint,
+                                       tN );
 
                     for( uint i=0; i<tNumberOfNodes; ++i )
                     {

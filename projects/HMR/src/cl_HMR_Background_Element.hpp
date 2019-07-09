@@ -119,8 +119,7 @@ namespace moris
                     if( aParent->get_min_refimenent_level() > aLevel )
                     {
                         // set min refinement level
-                        this->set_min_refimenent_level(
-                                aParent->get_min_refimenent_level() );
+                        this->set_min_refimenent_level( aParent->get_min_refimenent_level() );
 
                         // flag this element for refinement
                         this->put_on_refinement_queue();
@@ -1626,9 +1625,8 @@ namespace moris
 //--------------------------------------------------------------------------------
 
        template < uint N, uint C, uint B, uint F , uint E >
-       void Background_Element< N, C, B, F, E >::count_elements_on_level(
-               const  uint & aLevel,
-                     luint & aElementCount )
+       void Background_Element< N, C, B, F, E >::count_elements_on_level( const uint  & aLevel,
+                                                                                luint & aElementCount )
        {
            MORIS_ERROR( false, "Don't know how to count elements on level");
        }
@@ -1637,9 +1635,8 @@ namespace moris
 
        template <>
        inline
-       void Background_Element< 1, 2, 2, 2, 0 >::count_elements_on_level(
-               const  uint & aLevel,
-                     luint & aElementCount )
+       void Background_Element< 1, 2, 2, 2, 0 >::count_elements_on_level( const uint  & aLevel,
+                                                                                luint & aElementCount )
        {
            // test if element is on specified level
            if ( mLevel ==  aLevel )
@@ -1659,9 +1656,8 @@ namespace moris
 
        template <>
        inline
-       void Background_Element< 2, 4, 8, 4, 0 >::count_elements_on_level(
-               const  uint & aLevel,
-                     luint & aElementCount )
+       void Background_Element< 2, 4, 8, 4, 0 >::count_elements_on_level( const uint  & aLevel,
+                                                                                luint & aElementCount )
        {
            // test if element is on specified level
            if ( mLevel ==  aLevel )
@@ -1683,9 +1679,8 @@ namespace moris
 
        template <>
        inline
-       void Background_Element< 3, 8, 26, 6, 12 >::count_elements_on_level(
-               const  uint & aLevel,
-                     luint & aElementCount )
+       void Background_Element< 3, 8, 26, 6, 12 >::count_elements_on_level( const uint  & aLevel,
+                                                                                  luint & aElementCount )
        {
            // test if element is on specified level
            if ( mLevel ==  aLevel )

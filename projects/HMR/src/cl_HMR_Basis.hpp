@@ -91,12 +91,10 @@ namespace moris
              */
 
             Basis( const uint & aLevel,
-                   const uint & aOwner ) :
-                       mLevel( aLevel ),
-                       mOwner( aOwner ),
-                       mSharingProcs(0,0,MORIS_INDEX_MAX)
+                   const uint & aOwner ) : mLevel( aLevel ),
+                                           mOwner( aOwner ),
+                                           mSharingProcs(0,0,MORIS_INDEX_MAX)
             {
-
             }
 
 // -----------------------------------------------------------------------------
@@ -351,7 +349,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * set ID of  global domain
+             * set ID of global domain
              *
              * param[in]  aIndex    new index of basis
              *

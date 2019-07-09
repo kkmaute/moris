@@ -253,7 +253,6 @@ namespace moris
             Matrix< IdMat > tCommTable;
             moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
             moris::uint tMaxNumAdofs;
-            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );
 
             if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
@@ -268,13 +267,11 @@ namespace moris
                 tCommTable   = tInterpolationMesh->get_communication_table();
                 tIdToIndMap  = mCoefficientsMap;
                 tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mDofOrder );
-                tDofTypes1( 0 ) = MSI::Dof_Type::L2;
             }
             else
             {
                 tCommTable.set_size( 1, 1, 0 );
                 tMaxNumAdofs = 1000000;
-                tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
             }
             //--------------------------END FIXME--------------------------------
 

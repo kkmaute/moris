@@ -831,9 +831,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::flag_elements(
-                      Cell< mtk::Cell* > & aElements,
-                const uint                  aMinRefinementLevel )
+        HMR::flag_elements(       Cell< mtk::Cell* > & aElements,
+                            const uint                 aMinRefinementLevel )
         {
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
@@ -852,10 +851,8 @@ namespace moris
             {
                 // get pointer to Background Element
                 // ( the input elements are general mtk::cells, so they might not have any )
-                Background_Element_Base * tElement =
-                        tLagrangeMesh->get_element_by_memory_index(
-                                tCell->get_memory_index_of_background_element() )
-                                ->get_background_element();
+                Background_Element_Base * tElement = tLagrangeMesh->get_element_by_memory_index( tCell->get_memory_index_of_background_element() )
+                                                                                                      ->get_background_element();
 
                 // put this element on the list
                 tElement->set_refined_flag( tWorkingPattern );

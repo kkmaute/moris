@@ -193,7 +193,7 @@ namespace moris
                 // remove element from refinement queue
                 mRefinementQueueFlag = false;
 
-                // refine parents ( this is safe but not necessary )
+                // refine parents ( this is safe but not necessary ) FIXME total overkill but its NEEDED right now
                 if( mLevel > 0 )
                 {
                     if( ! mParent->is_refined( aPattern ) )
@@ -768,9 +768,8 @@ namespace moris
              * @param[ in  ] aOrder       degree of neighborship
              * @param[ out ] aNeighbors   cell containing found neighbors
              */
-            virtual void get_neighbors_from_same_level(
-                    const uint                        & aOrder,
-                    Cell< Background_Element_Base * > & aNeighbors ) = 0;
+            virtual void get_neighbors_from_same_level( const uint                              & aOrder,
+                                                              Cell< Background_Element_Base * > & aNeighbors ) = 0;
 
 //-------------------------------------------------------------------------------
 

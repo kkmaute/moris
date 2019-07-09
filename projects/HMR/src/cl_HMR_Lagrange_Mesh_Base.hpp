@@ -104,12 +104,11 @@ namespace moris
              * @param[in] aBackgroundMesh   pointer to B-Spline mesh
              * @param[in] aOrder            polynomial degree of mesh
              */
-            Lagrange_Mesh_Base (
-                 const Parameters             * aParameters,
-                 Background_Mesh_Base         * aBackgroundMesh,
-                 Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
-                 const uint           & aOrder,
-                 const uint           & aActivationPattern );
+            Lagrange_Mesh_Base ( const Parameters                   * aParameters,
+                                       Background_Mesh_Base         * aBackgroundMesh,
+                                       Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
+                                 const uint                         & aOrder,
+                                 const uint                         & aActivationPattern );
 
 // ----------------------------------------------------------------------------
 
@@ -132,15 +131,13 @@ namespace moris
             /**
              * called by field constructor
              */
-            uint
-            create_real_scalar_field_data(
+            uint create_real_scalar_field_data(
                     const std::string & aLabel,
                     const enum EntityRank aEntityRank = EntityRank::NODE );
 
 // ----------------------------------------------------------------------------
 
-            uint
-            create_sint_scalar_field_data(
+            uint create_sint_scalar_field_data(
                     const std::string & aLabel,
                     const enum EntityRank aEntityRank = EntityRank::NODE );
 
@@ -149,64 +146,56 @@ namespace moris
             /**
              * Returns a pointer to the field Data Array. Needed for MTK output.
              */
-            Cell< Matrix< DDRMat > > &
-            get_real_scalar_field_data()
+            Cell< Matrix< DDRMat > > & get_real_scalar_field_data()
             {
                 return mRealScalarFieldData;
             }
 
 // ----------------------------------------------------------------------------
 
-            Matrix< DDRMat > &
-            get_real_scalar_field_data( const uint & aFieldIndex )
+            Matrix< DDRMat > & get_real_scalar_field_data( const uint & aFieldIndex )
             {
                 return mRealScalarFieldData( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
-            get_real_scalar_field_data( const uint & aFieldIndex ) const
+            const Matrix< DDRMat > & get_real_scalar_field_data( const uint & aFieldIndex ) const
             {
                 return mRealScalarFieldData( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            EntityRank
-            get_real_scalar_field_rank( const uint & aFieldIndex ) const
+            EntityRank get_real_scalar_field_rank( const uint & aFieldIndex ) const
             {
                 return mRealScalarFieldRanks( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            Matrix< DDRMat > &
-            get_real_scalar_field_coeffs( const uint & aFieldIndex )
+            Matrix< DDRMat > & get_real_scalar_field_coeffs( const uint & aFieldIndex )
             {
                 return mRealScalarFieldBSplineCoeffs( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            const Matrix< DDRMat > &
-            get_real_scalar_field_coeffs( const uint & aFieldIndex ) const
+            const Matrix< DDRMat > & get_real_scalar_field_coeffs( const uint & aFieldIndex ) const
             {
                 return mRealScalarFieldBSplineCoeffs( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            const std::string &
-            get_real_scalar_field_label( const uint & aFieldIndex  ) const
+            const std::string & get_real_scalar_field_label( const uint & aFieldIndex  ) const
             {
                 return mRealScalarFieldLabels( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            void
-            set_real_scalar_field_label(
+            void set_real_scalar_field_label(
                     const uint        & aFieldIndex,
                     const std::string & aLabel )
             {
@@ -215,16 +204,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_real_scalar_field_bspline_order( const uint & aFieldIndex ) const
+            uint get_real_scalar_field_bspline_order( const uint & aFieldIndex ) const
             {
                 return mRealScalarFieldBSplineOrders( aFieldIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            void
-            set_real_scalar_field_bspline_order(
+            void set_real_scalar_field_bspline_order(
                     const uint & aFieldIndex,
                     const uint & aOrder )
             {
@@ -233,16 +220,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            void
-            reset_fields();
+            void reset_fields();
 
 // ----------------------------------------------------------------------------
 
            /**
              * returns the number of fields
              */
-            uint
-            get_number_of_real_scalar_fields() const
+            uint get_number_of_real_scalar_fields() const
             {
                 return mRealScalarFieldData.size();
             }
@@ -252,16 +237,14 @@ namespace moris
             /**
              * internal test that makes sure that each node is generated once
              */
-            bool
-            test_for_double_nodes();
+            bool test_for_double_nodes();
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns the number of nodes owned and shared on current proc
              */
-            auto
-            get_number_of_nodes_on_proc() const -> decltype ( mNumberOfUsedNodes )
+            auto get_number_of_nodes_on_proc() const -> decltype ( mNumberOfUsedNodes )
             {
                 return mNumberOfUsedNodes;
             }
@@ -271,8 +254,7 @@ namespace moris
             /**
              * returns a node pointer
              */
-            Basis*
-            get_node_by_index( const uint & aIndex )
+            Basis * get_node_by_index( const uint & aIndex )
             {
                 MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
                 return mNodes( aIndex );
@@ -283,8 +265,7 @@ namespace moris
             /**
              * returns a node pointer ( const version )
              */
-            const Basis*
-            get_node_by_index( const uint & aIndex ) const
+            const Basis * get_node_by_index( const uint & aIndex ) const
             {
                 MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
                 return mNodes( aIndex );
@@ -295,8 +276,7 @@ namespace moris
             /**
              * returns the refinement pattern index of the B-Spline mesh
              */
-            auto
-            get_bspline_pattern( const uint aMeshIndex ) const
+            auto get_bspline_pattern( const uint aMeshIndex ) const
                 -> decltype ( mBSplineMeshes( aMeshIndex )->get_activation_pattern() )
             {
                 return  mBSplineMeshes( aMeshIndex )->get_activation_pattern() ;
@@ -311,24 +291,21 @@ namespace moris
              * Can also write vtk and gmsh files.
              * @param[in]  aFilePath  Path to where the mesh is written to.
              */
-            void
-            save_to_file( const std::string & aFilePath );
+            void save_to_file( const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
 
             /**
              * creates a VTKfile of the mesh on the proc for debugging
              */
-            void
-            save_to_vtk( const std::string & aFilePath );
+            void save_to_vtk( const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
 
             /**
              * creates a VTKfile of the mesh on the proc for debugging
              */
-            void
-            save_to_gmsh( const std::string & aFilePath );
+            void save_to_gmsh( const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
 
@@ -391,66 +368,57 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_number_of_edges() const
+            uint get_number_of_edges() const
             {
                 return mEdges.size();
             }
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_number_of_facets() const
+            uint get_number_of_facets() const
             {
                 return mFacets.size();
             }
 
 // ----------------------------------------------------------------------------
 
-            Facet *
-            get_facet( const uint & aIndex )
+            Facet * get_facet( const uint & aIndex )
             {
                 return mFacets( aIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            const Facet *
-            get_facet( const uint & aIndex ) const
+            const Facet * get_facet( const uint & aIndex ) const
             {
                 return mFacets( aIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            Edge *
-            get_edge( const uint & aIndex )
+            Edge * get_edge( const uint & aIndex )
             {
                 return mEdges( aIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            const Edge *
-            get_edge( const uint & aIndex ) const
+            const Edge * get_edge( const uint & aIndex ) const
             {
                 return mEdges( aIndex );
             }
 
 // ----------------------------------------------------------------------------
 
-            void
-            create_facets();
+            void create_facets();
 
 // ----------------------------------------------------------------------------
 
-            void
-            create_edges();
+            void create_edges();
 
 // ----------------------------------------------------------------------------
 
-            moris_id
-            get_max_element_id() const
+            moris_id get_max_element_id() const
             {
                 // plus 1 is not needed, since this is actually
                 // the number of entities
@@ -459,8 +427,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            moris_id
-            get_max_facet_id() const
+            moris_id get_max_facet_id() const
             {
                 // plus 1 is not needed, since this is actually
                 // the number of entities
@@ -469,8 +436,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            moris_id
-            get_max_edge_id() const
+            moris_id get_max_edge_id() const
             {
                 // plus 1 is not needed, since this is actually
                 // the number of entities
@@ -479,8 +445,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            moris_id
-            get_max_node_id() const
+            moris_id get_max_node_id() const
             {
                 // plus 1 is not needed, since this is actually
                 // the number of entities
@@ -493,8 +458,7 @@ namespace moris
             /**
              * return the number of B-Spline meshes
              */
-            uint
-            get_number_of_bspline_meshes() const
+            uint get_number_of_bspline_meshes() const
             {
                 return mBSplineMeshes.size();
             }
@@ -503,8 +467,7 @@ namespace moris
             /**
              * return the order of the underlying bspline mesh
              */
-            uint
-            get_bspline_order( const uint aMeshIndex )
+            uint get_bspline_order( const uint aMeshIndex )
             {
                 return mBSplineMeshes( aMeshIndex )->get_order();
             }
@@ -513,8 +476,7 @@ namespace moris
             /**
              * return the underlying bspline mesh
              */
-            BSpline_Mesh_Base *
-            get_bspline_mesh( const uint aMeshOrder )
+            BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshOrder )
             {
                 return mBSplineMeshes( aMeshOrder );
             }
@@ -523,8 +485,7 @@ namespace moris
             /**
              * return the underlying bspline mesh ( const version )
              */
-            const BSpline_Mesh_Base *
-            get_bspline_mesh( const uint aMeshOrder ) const
+            const BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshOrder ) const
             {
                 return mBSplineMeshes( aMeshOrder );
             }
@@ -543,16 +504,14 @@ namespace moris
              * < interpolation weihhts >
              *
              */
-            void
-            save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );
+            void save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
 
             /**
              * return a T-Matrix object
              */
-            T_Matrix*
-            get_t_matrix( const uint aOrder )
+            T_Matrix * get_t_matrix( const uint aOrder )
             {
                 return mTMatrix( aOrder );
             }
@@ -561,8 +520,7 @@ namespace moris
             /**
              * return a T-Matrix object ( const version )
              */
-            const T_Matrix*
-            get_t_matrix( const uint aOrder ) const
+            const T_Matrix * get_t_matrix( const uint aOrder ) const
             {
                 return mTMatrix( aOrder );
             }
@@ -572,29 +530,25 @@ namespace moris
             /**
              * called by Database->finalize();
              */
-            void
-            calculate_t_matrices( const bool aBool = true);
+            void calculate_t_matrices( const bool aBool = true);
 
 // -----------------------------------------------------------------------------
 
             /**
              * evaluate one specific T-Matrix
              */
-            void
-            calculate_t_matrix( const uint aBSplineOrder );
+            void calculate_t_matrix( const uint aBSplineOrder );
 
 // ----------------------------------------------------------------------------
 
-            void
-            set_side_sets(  Cell< Side_Set > & aSideSets )
+            void set_side_sets(  Cell< Side_Set > & aSideSets )
             {
                 mSideSets = & aSideSets;
             }
 
 // ----------------------------------------------------------------------------
 
-            mtk::MtkSideSetInfo &
-            get_side_set_info( const uint aIndex )
+            mtk::MtkSideSetInfo & get_side_set_info( const uint aIndex )
             {
                 Cell< Side_Set > & tSets = *mSideSets;
 
@@ -606,8 +560,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_number_of_side_sets() const
+            uint get_number_of_side_sets() const
             {
                 if( mSideSets != NULL )
                 {
@@ -631,16 +584,14 @@ namespace moris
             /**
              * initializes the T-Matrix objects
              */
-            void
-            init_t_matrices();
+            void init_t_matrices();
 
 // -----------------------------------------------------------------------------
 
             /**
              * deletes the T-Matrix objects, called by destructor
              */
-            void
-            delete_t_matrices();
+            void delete_t_matrices();
 
 // -----------------------------------------------------------------------------
             /**
@@ -661,27 +612,22 @@ namespace moris
             /**
              * creates a facet pointer
              */
-            virtual
-            Facet *
-            create_facet( Background_Facet * aFacet );
+            virtual Facet * create_facet( Background_Facet * aFacet );
 
 // ----------------------------------------------------------------------------
 
             /**
              * creates an edge pointer
              */
-            virtual Edge *
-            create_edge( Background_Edge * aEdge );
+            virtual Edge * create_edge( Background_Edge * aEdge );
 
 // ----------------------------------------------------------------------------
 
-            void
-            delete_facets();
+            void delete_facets();
 
 // ----------------------------------------------------------------------------
 
-            void
-            delete_edges();
+            void delete_edges();
 
 
 // ----------------------------------------------------------------------------
@@ -693,8 +639,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            create_nodes_on_level_zero();
+            void create_nodes_on_level_zero();
 
 // ----------------------------------------------------------------------------
 
@@ -703,8 +648,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            create_nodes_on_higher_levels();
+            void create_nodes_on_higher_levels();
 
 // ----------------------------------------------------------------------------
 
@@ -713,8 +657,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            create_nodes();
+            void create_nodes();
 
  // ----------------------------------------------------------------------------
 
@@ -724,8 +667,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            delete_nodes_on_padding_elements();
+            void delete_nodes_on_padding_elements();
 
 // ----------------------------------------------------------------------------
 
@@ -733,8 +675,7 @@ namespace moris
              * loops over all elements and stores nodes in
              * mAllBasisOnProc
              */
-            void
-            collect_nodes();
+            void collect_nodes();
 
 // ----------------------------------------------------------------------------
 
@@ -743,16 +684,14 @@ namespace moris
              *
              * @return void
              */
-            void
-            calculate_node_ids();
+            void calculate_node_ids();
 
 // ----------------------------------------------------------------------------
 
             /**
              * Updates the field mNodes. Called by update
              */
-            void
-            update_node_list();
+            void update_node_list();
 
 // ----------------------------------------------------------------------------
 
@@ -761,8 +700,7 @@ namespace moris
              *
              * @return void
              */
-            virtual void
-            calculate_node_coordinates() = 0;
+            virtual void calculate_node_coordinates() = 0;
 
 // ----------------------------------------------------------------------------
 
@@ -775,10 +713,8 @@ namespace moris
              *
              * @return uint          domain wide unique ID
              */
-            virtual luint
-            calculate_node_id(
-                    const uint  & aLevel,
-                    const luint & aI ) = 0;
+            virtual luint calculate_node_id( const uint  & aLevel,
+                                             const luint & aI ) = 0;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -791,11 +727,9 @@ namespace moris
              * @param[in]  aJ        proc local j-position of node
              * @return uint          domain wide unique ID
              */
-            virtual luint
-            calculate_node_id(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ ) = 0;
+            virtual luint calculate_node_id( const uint  & aLevel,
+                                             const luint & aI,
+                                             const luint & aJ ) = 0;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -809,40 +743,28 @@ namespace moris
              * @param[in]  aK        proc local k-position of node
              * @return uint          domain wide unique ID
              */
-            virtual luint
-            calculate_node_id(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ,
-                    const luint & aK ) = 0;
+            virtual luint calculate_node_id( const uint  & aLevel,
+                                             const luint & aI,
+                                             const luint & aJ,
+                                             const luint & aK ) = 0;
 
 // ----------------------------------------------------------------------------
 
-            void
-            synchronize_facet_ids( const uint & aOwnedCount );
+            void synchronize_facet_ids( const uint & aOwnedCount );
 
 // ----------------------------------------------------------------------------
 
-            void
-            negotiate_edge_ownership();
+            void negotiate_edge_ownership();
 
 // ----------------------------------------------------------------------------
 
-            void
-            synchronize_edge_ids( const uint & aOwnedCount );
+            void synchronize_edge_ids( const uint & aOwnedCount );
 
-            //void
-            //link_facet_children_2d();
+            //void link_facet_children_2d();
 
 // ----------------------------------------------------------------------------
 
-            //void
-            //link_facet_children_3d();
-
-// ----------------------------------------------------------------------------
-
-
-
+            //void link_facet_children_3d();
 
 // ----------------------------------------------------------------------------
         };

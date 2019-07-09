@@ -785,29 +785,28 @@ namespace moris
                     bool tIsPaddingCandidate = false;
 
                     // loop over all dimensions
-                    for( uint k=0; k<N; ++k )
+                    for( uint k = 0; k < N; ++k )
                     {
                         // claculate global coordinate of element
                         luint tI = tIJK[ k ] + mMySubDomain.mAuraIJK[ tLevel ][ k ][ 0 ];
 
                         // test if element is candidate for padding test
-                        tIsPaddingCandidate =
-                                tIsPaddingCandidate ||
-                               ( ( tI < mDomain.mDomainIJK[ tLevel ][ k ][ 0 ] + mPaddingRefinement )
-                            ||   ( tI > mDomain.mDomainIJK[ tLevel ][ k ][ 1 ] - mPaddingRefinement ) );
+                        tIsPaddingCandidate = tIsPaddingCandidate
+                                              || ( ( tI < mDomain.mDomainIJK[ tLevel ][ k ][ 0 ] + mPaddingRefinement )
+                                              ||   ( tI > mDomain.mDomainIJK[ tLevel ][ k ][ 1 ] - mPaddingRefinement ) );
                     }
 
                     if ( tIsPaddingCandidate )
                     {
-                        // get neighbors from samel level
+                        // get neighbors from same level
                         Cell< Background_Element_Base* > tNeighbors;
                         aElement->get_neighbors_from_same_level( mPaddingRefinement,
-                                tNeighbors );
+                                                                 tNeighbors );
 
                         // loop over all neighbors
                         for ( auto tNeighbor : tNeighbors )
                         {
-                            // test if neighbor os padding
+                            // test if neighbor is padding
                             if ( tNeighbor->is_padding() && ! tNeighbor->is_queued_for_refinement() )
                             {
                                 // flag padding element for refinement

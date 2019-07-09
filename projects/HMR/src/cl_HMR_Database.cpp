@@ -16,8 +16,7 @@ namespace moris
     {
 // -----------------------------------------------------------------------------
 
-        Database::Database( Parameters * aParameters )
-            : mParameters( aParameters )
+        Database::Database( Parameters * aParameters ) : mParameters( aParameters )
         {
             // locl parameters ( number of elements per direction etc )
             aParameters->lock();
@@ -40,8 +39,7 @@ namespace moris
                 mBackgroundMesh->reset_pattern( k );
             }
 
-            mBackgroundMesh->set_activation_pattern(
-                    mParameters->get_lagrange_input_pattern() );
+            mBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
 
             // initialize mesh objects
             this->create_meshes();
@@ -49,8 +47,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        Database::Database( const std::string & aPath ) :
-                mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
+        Database::Database( const std::string & aPath ) : mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
         {
             // create factory
             Factory tFactory;
@@ -75,10 +72,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        Database::Database(
-                const std::string & aInputPath,
-                const std::string & aOutputPath ) :
-                mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
+        Database::Database( const std::string & aInputPath,
+                            const std::string & aOutputPath ) : mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
         {
             // create factory
             Factory tFactory;
@@ -91,7 +86,6 @@ namespace moris
             {
                 mBackgroundMesh->reset_pattern( k );
             }
-
 
             this->load_pattern_from_hdf5_file( aInputPath, false );
 
@@ -176,11 +170,10 @@ namespace moris
 
             for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
             {
-                mBSplineMeshes( k ) = tFactory.create_bspline_mesh(
-                        mParameters,
-                        mBackgroundMesh,
-                        mParameters->get_bspline_pattern( k ),
-                        mParameters->get_bspline_order( k ) );
+                mBSplineMeshes( k ) = tFactory.create_bspline_mesh( mParameters,
+                                                                    mBackgroundMesh,
+                                                                    mParameters->get_bspline_pattern( k ),
+                                                                    mParameters->get_bspline_order( k ) );
 
                 mBSplineMeshes( k )->set_index( k );
             }
@@ -193,18 +186,16 @@ namespace moris
 
             for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
             {
-                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
-                        mParameters,
-                        mBackgroundMesh,
-                        mBSplineMeshes,
-                        mParameters->get_lagrange_pattern( k ),
-                        mParameters->get_lagrange_order( k ) );
+                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh( mParameters,
+                                                                      mBackgroundMesh,
+                                                                      mBSplineMeshes,
+                                                                      mParameters->get_lagrange_pattern( k ),
+                                                                      mParameters->get_lagrange_order( k ) );
 
                 mLagrangeMeshes( k )->set_index( k );
 
                 // link to sideset if this is an output mesh
-                if ( mLagrangeMeshes( k )->get_activation_pattern()
-                        == mParameters->get_lagrange_output_pattern() )
+                if ( mLagrangeMeshes( k )->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
                 {
                     mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
                 }
@@ -584,9 +575,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void Database::perform_refinement(
-                const enum RefinementMode aRefinementMode,
-                const bool aResetPattern )
+        void Database::perform_refinement( const enum RefinementMode aRefinementMode,
+                                           const bool                aResetPattern )
         {
             // flag for output
             bool tFlag = mHaveRefinedAtLeastOneElement;
@@ -1323,8 +1313,9 @@ namespace moris
             // therefore, we set the flag
             mHaveRefinedAtLeastOneElement = true;
 
-            // manually put this element on the queue
-            mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
+            // manually put this element on the queue FIXME this function switches the mRefinementQueueFlag to true.
+            // However, in set_refined_flag the mRefinementQueueFlag flag is set to false;
+//            mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
 
             // also remember this element on the working pattern
             mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );

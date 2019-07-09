@@ -422,7 +422,7 @@ namespace moris
         {
             // only perform if element is not refined already
             // and element is below max defined level
-            if ( aElement->get_level() < gMaxNumberOfLevels-1 )
+            if ( aElement->get_level() < gMaxNumberOfLevels-1 )      //FIXME perhaps go rid of this check for speed
             {
                 if ( ! aElement->has_children() )
                 {
