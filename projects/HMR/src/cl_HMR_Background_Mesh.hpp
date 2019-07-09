@@ -62,9 +62,8 @@ namespace moris
              *
              * param[in]  aParameters   pointer to user defined settings container
              */
-            Background_Mesh( const Parameters * aParameters ) :
-                Background_Mesh_Base( aParameters ),
-                mDomain( aParameters->get_domain_ijk(),  mPaddingSize )
+            Background_Mesh( const Parameters * aParameters ) : Background_Mesh_Base( aParameters ),
+                                                                mDomain( aParameters->get_domain_ijk(),  mPaddingSize )
             {
                 // create mesh decomposition
                 this->decompose_mesh();
@@ -75,13 +74,14 @@ namespace moris
                 // calculate coordinate of first node on proc ( is in aura )
                 this->calculate_domain_offset();
 
-                // initialize first layer
+                // initialize first layer of elements
                 this->initialize_coarsest_elements();
 
                 // indices for elements on coarsest level within proc domain
                 this->create_coarsest_frame();
 
-                // set element properties on coarsest level
+                // set element properties on coarsest level // create aura and inverse aura
+                // aura size = padding size
                 this->finalize_coarsest_elements();
 
                 // synchronize with other procs
@@ -128,8 +128,7 @@ namespace moris
              * @return         Matrix< DDLUMat > number of elements per direction on
              *                              proc, including aura
              */
-            Matrix< DDLUMat >
-            get_number_of_elements_per_direction_on_proc() const
+            Matrix< DDLUMat > get_number_of_elements_per_direction_on_proc() const
             {
                 Matrix< DDLUMat > aMat( N, gMaxNumberOfLevels );
 
@@ -152,8 +151,7 @@ namespace moris
              * @return         Matrix< DDLUMat > number of elements per direction
              *                              within whole mesh, including aura
              */
-            Matrix< DDLUMat >
-            get_number_of_elements_per_direction() const
+            Matrix< DDLUMat > get_number_of_elements_per_direction() const
             {
                 Matrix< DDLUMat > aMat( N, gMaxNumberOfLevels );
 
@@ -175,8 +173,7 @@ namespace moris
              *
              * @return Matrix< DDLUMat >
              */
-            Matrix< DDLUMat >
-            get_subdomain_ijk() const
+            Matrix< DDLUMat > get_subdomain_ijk() const
             {
                 Matrix< DDLUMat > aMat( 2, N );
 
@@ -199,8 +196,7 @@ namespace moris
              * @return Matrix< DDLUMat > of dimension  < number of dimensions >
              *                                  * <max number of levels>
              */
-            Matrix< DDLUMat >
-            get_subdomain_offset_of_proc()
+            Matrix< DDLUMat > get_subdomain_offset_of_proc()
             {
                 uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
@@ -224,10 +220,8 @@ namespace moris
              * @param[out]  aNodeCoords Matrix containing the node coordinates
              *                          ( 3 x 2^n )
              */
-            void
-            calc_corner_nodes_of_element(
-                    const Background_Element_Base   * aElement,
-                    Matrix< DDRMat >                       & aNodeCoords );
+            void calc_corner_nodes_of_element( const Background_Element_Base   * aElement,
+                                                     Matrix< DDRMat >          & aNodeCoords );
 
 //--------------------------------------------------------------------------------
 
@@ -238,10 +232,8 @@ namespace moris
              * @param[out]  aNodeCoords Matrix containing the node coordinates
              *                          ( 3 x 1 )
              */
-            void
-            calc_center_of_element(
-                    const Background_Element_Base   * aElement,
-                    Matrix< DDRMat >                       & aNodeCoords );
+            void calc_center_of_element( const Background_Element_Base   * aElement,
+                                               Matrix< DDRMat >          & aNodeCoords );
 
 //--------------------------------------------------------------------------------
 
@@ -254,13 +246,10 @@ namespace moris
              * @return pointer to element on top level
              *
              */
-            Background_Element_Base*
-            get_coarsest_element_by_ij(
-                    const luint & aI,
-                    const luint & aJ )
+            Background_Element_Base * get_coarsest_element_by_ij( const luint & aI,
+                                                                  const luint & aJ )
             {
-                return mCoarsestElementsIncludingAura(
-                        this->calc_subdomain_id_of_element( 0, aI, aJ ) );
+                return mCoarsestElementsIncludingAura( this->calc_subdomain_id_of_element( 0, aI, aJ ) );
             }
 
 //--------------------------------------------------------------------------------
@@ -274,14 +263,11 @@ namespace moris
              * @return pointer to element on top level
              *
              */
-            Background_Element_Base*
-            get_coarsest_element_by_ijk(
-                    const luint & aI,
-                    const luint & aJ,
-                    const luint & aK )
+            Background_Element_Base * get_coarsest_element_by_ijk( const luint & aI,
+                                                                   const luint & aJ,
+                                                                   const luint & aK )
             {
-                return mCoarsestElementsIncludingAura(
-                        this->calc_subdomain_id_of_element( 0, aI, aJ, aK ) );
+                return mCoarsestElementsIncludingAura( this->calc_subdomain_id_of_element( 0, aI, aJ, aK ) );
             }
 
 //--------------------------------------------------------------------------------
@@ -291,8 +277,7 @@ namespace moris
              *
              * @return Matrix< DDRMat >
              */
-            Matrix< DDRMat >
-            get_domain_offset()
+            Matrix< DDRMat > get_domain_offset()
             {
                 Matrix< DDRMat > aMat( N, 1 );
                 for( uint k=0; k<N; ++k )
@@ -315,10 +300,8 @@ namespace moris
              *
              * @return       luint    local ID on submesh of proc
              */
-            luint
-            calc_subdomain_id_from_global_id(
-                    const uint         & aLevel,
-                    const luint        & aID) const;
+            luint calc_subdomain_id_from_global_id( const uint  & aLevel,
+                                                    const luint & aID) const;
 
 //--------------------------------------------------------------------------------
 
@@ -327,11 +310,11 @@ namespace moris
              * initializes children, and removes refinement queue flag
              *
              * param[in]    aElement  element to be refined
+             * param[in]    aKeepState  Indicates
              *
              * @return      vpid
              */
-            void
-            refine_element( Background_Element_Base* aElement, const bool aKeepState );
+            void refine_element( Background_Element_Base* aElement, const bool aKeepState );
 
 //--------------------------------------------------------------------------------
 
@@ -346,8 +329,7 @@ namespace moris
              * @return void
              *
              */
-            void
-            collect_neighbors_on_level_zero( );
+            void collect_neighbors_on_level_zero( );
 
 //--------------------------------------------------------------------------------
 
@@ -360,10 +342,8 @@ namespace moris
              * @return luint global ID of element
              *
              */
-            luint
-            calc_domain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI ) const ;
+            luint calc_domain_id_of_element( const uint  & aLevel,
+                                             const luint & aI ) const ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -377,11 +357,9 @@ namespace moris
              * @return luint global ID of element
              *
              */
-            luint
-            calc_domain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ ) const ;
+            luint calc_domain_id_of_element( const uint  & aLevel,
+                                             const luint & aI,
+                                             const luint & aJ ) const ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -396,8 +374,7 @@ namespace moris
              * @return luint global ID of element
              *
              */
-            luint
-            calc_domain_id_of_element(
+            luint calc_domain_id_of_element(
                     const uint  & aLevel,
                     const luint & aI,
                     const luint & aJ,
@@ -408,8 +385,7 @@ namespace moris
              * subroutine for collect_side_set that collects elements on coarsest
              * level for a side
              */
-            void
-            collect_coarsest_elements_on_side(
+            void collect_coarsest_elements_on_side(
                     const uint                       & aSideOrdinal,
                     Cell< Background_Element_Base* > & aCoarsestElementsOnSide );
 
@@ -422,22 +398,18 @@ namespace moris
              *
              * @return void
              */
-            void
-            calculate_element_length()
+            void calculate_element_length()
             {
                 // get domain dimensions from settings
-                Matrix< DDRMat > tDomainDimensions
-                    = mParameters->get_domain_dimensions();
+                Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
 
                 // get number of elements on coarsest level from settings
-                Matrix< DDLUMat > tNumberOfElements
-                    = mParameters->get_number_of_elements_per_dimension();
+                Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
                 // calculate width for first level
                 for( uint k=0; k<N; ++k )
                 {
-                    mElementLength[ 0 ][ k ] = tDomainDimensions( k ) /
-                            ( ( real ) ( tNumberOfElements( k ) ) );
+                    mElementLength[ 0 ][ k ] = tDomainDimensions( k ) / ( ( real ) ( tNumberOfElements( k ) ) );
                 }
 
                 // loop over all higher levels
@@ -447,8 +419,7 @@ namespace moris
                     for( uint k=0; k<N; ++k )
                     {
                         // calculate length of element
-                        mElementLength[ l ][ k ]
-                           = 0.5*mElementLength[ l-1 ][ k ];
+                        mElementLength[ l ][ k ] = 0.5*mElementLength[ l-1 ][ k ];
                     }
                 }
             }
@@ -461,12 +432,10 @@ namespace moris
              *
              * @return void
              */
-            void
-            calculate_domain_offset()
+            void calculate_domain_offset()
             {
                 // get domain offset
-                Matrix< DDRMat > tParametersOffset
-                    = mParameters->get_domain_offset();
+                Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
 
                 // get padding size
                 real tPaddingSize = ( real ) mParameters->get_padding_size();
@@ -474,8 +443,7 @@ namespace moris
                 // subtract padding size from offset
                 for( uint k=0; k<N; ++k )
                 {
-                    mDomainOffset[ k ] = tParametersOffset( k )
-                                       - tPaddingSize * mElementLength[ 0 ][ k ];
+                    mDomainOffset[ k ] = tParametersOffset( k ) - tPaddingSize * mElementLength[ 0 ][ k ];
                 }
             }
 
@@ -485,8 +453,7 @@ namespace moris
              *
              * @return  void
              */
-            void
-            decompose_mesh()
+            void decompose_mesh()
             {
                 // print output info
                 if ( mParameters->is_verbose() && par_rank() == 0 )
@@ -511,30 +478,26 @@ namespace moris
                 }
 
                 // calculate neighbors
-                create_proc_cart(
-                        N ,
-                        mProcDims,
-                        mMyProcCoords,
-                        mMyProcNeighbors );
+                create_proc_cart( N ,
+                                  mProcDims,
+                                  mMyProcCoords,
+                                  mMyProcNeighbors );
 
                 // get number of elements per dimension from settings
-                auto tNumberOfElementsPerDimension
-                    = mParameters->get_number_of_elements_per_dimension();
+                auto tNumberOfElementsPerDimension = mParameters->get_number_of_elements_per_dimension();
 
                 // calculate number of elements per dimension
                 Matrix< DDLUMat > tNumberOfElementsPerDimensionOnProc( N, 1 );
                 for ( uint k=0; k<N; ++k )
                 {
-                    tNumberOfElementsPerDimensionOnProc( k )
-                        = tNumberOfElementsPerDimension ( k ) /  mProcDims( k ) ;
+                    tNumberOfElementsPerDimensionOnProc( k ) = tNumberOfElementsPerDimension ( k ) /  mProcDims( k ) ;
 
                     if( par_rank() == 0 )
                     {
                         // make sure that cart size is OK
-                        if ( tNumberOfElementsPerDimension( k )
-                                % mProcDims( k ) != 0 )
+                        if ( tNumberOfElementsPerDimension( k ) % mProcDims( k ) != 0 )
                         {
-                            MORIS_ASSERT(0,"proc size incompatible to defined elements per dimension");
+                            MORIS_ASSERT( 0, "proc size incompatible to defined elements per dimension" );
                         }
                     }
                 }
@@ -545,13 +508,9 @@ namespace moris
 
                 for ( uint k=0; k<N; ++k )
                 {
-                    tDomainIJK( 0, k ) =   mPaddingSize
-                            + tNumberOfElementsPerDimensionOnProc ( k )
-                            * mMyProcCoords ( k );
+                    tDomainIJK( 0, k ) =   mPaddingSize + tNumberOfElementsPerDimensionOnProc ( k ) * mMyProcCoords ( k );
 
-                    tDomainIJK( 1, k ) =   tDomainIJK( 0, k )
-                            + tNumberOfElementsPerDimensionOnProc ( k )
-                            - 1;
+                    tDomainIJK( 1, k ) =   tDomainIJK( 0, k ) + tNumberOfElementsPerDimensionOnProc ( k ) - 1;
                 }
 
                 // create proc domain
@@ -636,7 +595,6 @@ namespace moris
                         {
                             tError = true;
                         }
-
                     }
 
                     // test if error occurred
@@ -669,8 +627,8 @@ namespace moris
                         exit( -1 );
                     }
                 }
-
             }
+
 //--------------------------------------------------------------------------------
             /**
              * In this subroutine, the coarsest layer of elements on the proc,
@@ -682,15 +640,14 @@ namespace moris
              *
              * @return  void
              */
-            void
-            initialize_coarsest_elements();
+            void initialize_coarsest_elements();
 
 //--------------------------------------------------------------------------------
             /**
              * This function loops over all elements on the coarsest level,
              * identifies padding elements and calculates element ownership. It
              * also identifies the elements on the coarsest level that belong to
-             * theaura. In fact, there are two auras. The normal aura around the
+             * the aura. In fact, there are two auras. The normal aura around the
              * proc domain, which contains the elements that belong to the neighbor
              * proc and are shared with the current proc, and the inverse aura,
              * which contains the elements that belong to the current proc,
@@ -699,8 +656,7 @@ namespace moris
              *
              * @return  void
              */
-            void
-            finalize_coarsest_elements();
+            void finalize_coarsest_elements();
 
 //--------------------------------------------------------------------------------
             /**
@@ -710,8 +666,7 @@ namespace moris
              *
              * @return  void
              */
-            void
-            create_coarsest_frame();
+            void create_coarsest_frame();
 
 //--------------------------------------------------------------------------------
 
@@ -720,12 +675,11 @@ namespace moris
              * This function is only needed once.
              * Therefore, template specialization is not required.
              *
-             * @return   Matrix< DDLUMat > of dumension < number of dimensions>
+             * @return   Matrix< DDLUMat > of dimension < number of dimensions>
              *                       containing number of elements per direction
              *                       on coarsest proc, including aura
              */
-            Matrix< DDLUMat >
-            get_number_of_subdomain_elements_per_direction_on_level_zero()
+            Matrix< DDLUMat > get_number_of_subdomain_elements_per_direction_on_level_zero()
             {
                 Matrix< DDLUMat > aNumberOfElements( N, 1 );
                 for( uint k=0; k<N; ++k )
@@ -744,10 +698,8 @@ namespace moris
              *
              *
              */
-            void
-            insert_zero_level_element(
-                    const luint& aPosition,
-                    Background_Element_Base* aElement )
+            void insert_zero_level_element( const luint                   & aPosition,
+                                                  Background_Element_Base * aElement )
             {
                 mCoarsestElementsIncludingAura( aPosition ) = aElement ;
             }
@@ -763,10 +715,8 @@ namespace moris
              * @return luint subdomain ID of element
              *
              */
-            luint
-            calc_subdomain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI ) const ;
+            luint calc_subdomain_id_of_element( const uint  & aLevel,
+                                                const luint & aI ) const ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -780,11 +730,9 @@ namespace moris
              * @return luint subdomain ID of element
              *
              */
-            luint
-            calc_subdomain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ ) const ;
+            luint calc_subdomain_id_of_element( const uint  & aLevel,
+                                                const luint & aI,
+                                                const luint & aJ ) const ;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             /**
@@ -798,12 +746,10 @@ namespace moris
              * @return luint subdomain ID of element
              *
              */
-            luint
-            calc_subdomain_id_of_element(
-                    const uint  & aLevel,
-                    const luint & aI,
-                    const luint & aJ,
-                    const luint & aK ) const;
+            luint calc_subdomain_id_of_element( const uint  & aLevel,
+                                                const luint & aI,
+                                                const luint & aJ,
+                                                const luint & aK ) const;
 
 //--------------------------------------------------------------------------------
             /**
@@ -818,19 +764,14 @@ namespace moris
              *
              * @return void
              */
-            void
-            calc_element_ids(
-                    const uint         & aLevel,
-                    const Matrix< DDLUMat > & aIJK,
-                    Matrix< DDLUMat >       & aIDs ) const;
+            void calc_element_ids( const uint              & aLevel,
+                                   const Matrix< DDLUMat > & aIJK,
+                                         Matrix< DDLUMat > & aIDs ) const;
 
 //--------------------------------------------------------------------------------
 
-            void
-            check_queued_element_for_padding(
-                Background_Element_Base * aElement  )
+            void check_queued_element_for_padding( Background_Element_Base * aElement  )
             {
-
                 // only do something if this element belongs to me
                 if ( aElement->get_owner() == mMyRank )
                 {
@@ -844,32 +785,28 @@ namespace moris
                     bool tIsPaddingCandidate = false;
 
                     // loop over all dimensions
-                    for( uint k=0; k<N; ++k )
+                    for( uint k = 0; k < N; ++k )
                     {
-
                         // claculate global coordinate of element
                         luint tI = tIJK[ k ] + mMySubDomain.mAuraIJK[ tLevel ][ k ][ 0 ];
 
                         // test if element is candidate for padding test
-                        tIsPaddingCandidate =
-                                tIsPaddingCandidate ||
-                               ( ( tI < mDomain.mDomainIJK[ tLevel ][ k ][ 0 ] + mPaddingRefinement )
-                            ||   ( tI > mDomain.mDomainIJK[ tLevel ][ k ][ 1 ] - mPaddingRefinement ) );
-
+                        tIsPaddingCandidate = tIsPaddingCandidate
+                                              || ( ( tI < mDomain.mDomainIJK[ tLevel ][ k ][ 0 ] + mPaddingRefinement )
+                                              ||   ( tI > mDomain.mDomainIJK[ tLevel ][ k ][ 1 ] - mPaddingRefinement ) );
                     }
 
                     if ( tIsPaddingCandidate )
                     {
-                        // get neighbors from samel level
+                        // get neighbors from same level
                         Cell< Background_Element_Base* > tNeighbors;
                         aElement->get_neighbors_from_same_level( mPaddingRefinement,
-                                tNeighbors );
+                                                                 tNeighbors );
 
                         // loop over all neighbors
                         for ( auto tNeighbor : tNeighbors )
                         {
-
-                            // test if neighbor os padding
+                            // test if neighbor is padding
                             if ( tNeighbor->is_padding() && ! tNeighbor->is_queued_for_refinement() )
                             {
                                 // flag padding element for refinement
@@ -880,25 +817,21 @@ namespace moris
                 }
             }
 
-
 //--------------------------------------------------------------------------------
         }; /* Background_Mesh */
 
 //--------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::initialize_coarsest_elements()
+        void Background_Mesh< N >::initialize_coarsest_elements()
         {
-            std::fprintf( stdout, "Do not know how initialize elements\n" );
-            exit(-1);
+            MORIS_ERROR( false, "Do not know how initialize elements\n");
         }
 
 //--------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::finalize_coarsest_elements()
+        void Background_Mesh< N >::finalize_coarsest_elements()
         {
             MORIS_ERROR( false, "Don't know how to finalize coarsest level.");
         }
@@ -906,8 +839,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template < uint N >
-        luint
-        Background_Mesh< N >::calc_domain_id_of_element(
+        luint Background_Mesh< N >::calc_domain_id_of_element(
                 const uint  & aLevel,
                 const luint & aI ) const
         {
@@ -918,8 +850,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template < uint N >
-        luint
-        Background_Mesh< N >::calc_domain_id_of_element(
+        luint Background_Mesh< N >::calc_domain_id_of_element(
                 const uint  & aLevel,
                 const luint & aI,
                 const luint & aJ ) const
@@ -930,8 +861,7 @@ namespace moris
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         template < uint N >
-        luint
-        Background_Mesh< N >::calc_domain_id_of_element(
+        luint Background_Mesh< N >::calc_domain_id_of_element(
                 const uint  & aLevel,
                 const luint & aI,
                 const luint & aJ,
@@ -944,10 +874,8 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template < uint N >
-        luint
-        Background_Mesh< N >::calc_subdomain_id_of_element(
-                const uint  & aLevel,
-                const luint & aI ) const
+        luint Background_Mesh< N >::calc_subdomain_id_of_element( const uint  & aLevel,
+                                                                  const luint & aI ) const
         {
             MORIS_ERROR( false, "wrong function calc_subdomain_id_of_element() called.");
             return 0;
@@ -956,11 +884,9 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template < uint N >
-        luint
-        Background_Mesh< N >::calc_subdomain_id_of_element(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ ) const
+        luint Background_Mesh< N >::calc_subdomain_id_of_element( const uint  & aLevel,
+                                                                  const luint & aI,
+                                                                  const luint & aJ ) const
         {
             MORIS_ERROR( false, "wrong function calc_subdomain_id_of_element() called.");
             return 0;
@@ -969,12 +895,10 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template < uint N >
-        luint
-        Background_Mesh< N >::calc_subdomain_id_of_element(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ,
-                const luint & aK ) const
+        luint Background_Mesh< N >::calc_subdomain_id_of_element( const uint  & aLevel,
+                                                                  const luint & aI,
+                                                                  const luint & aJ,
+                                                                  const luint & aK ) const
         {
             MORIS_ERROR( false, "wrong function calc_subdomain_id_of_element() called.");
             return 0;
@@ -983,8 +907,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
          template < uint N >
-         void
-         Background_Mesh< N >::calc_element_ids(
+         void Background_Mesh< N >::calc_element_ids(
                  const uint         & aLevel,
                  const Matrix< DDLUMat > & aIJK,
                  Matrix< DDLUMat >       & aIDs ) const
@@ -995,8 +918,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
          template < uint N >
-         luint
-         Background_Mesh< N >::calc_subdomain_id_from_global_id(
+         luint Background_Mesh< N >::calc_subdomain_id_from_global_id(
                  const uint         & aLevel,
                  const luint        & aID) const
          {
@@ -1007,8 +929,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::refine_element( Background_Element_Base * aElement, const bool aKeepState )
+        void Background_Mesh< N >::refine_element( Background_Element_Base * aElement, const bool aKeepState )
         {
             MORIS_ERROR( false, "Don't know how to refine element." );
         }
@@ -1016,8 +937,7 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::create_coarsest_frame()
+        void Background_Mesh< N >::create_coarsest_frame()
         {
             MORIS_ERROR( false, "Don't know how to create coarsest frame.");
         }
@@ -1025,8 +945,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::collect_neighbors_on_level_zero()
+        void Background_Mesh< N >::collect_neighbors_on_level_zero()
         {
             MORIS_ERROR( false, "Don't know how to collect_neighbors_on_level_zero.");
         }
@@ -1035,8 +954,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::calc_corner_nodes_of_element(
+        void Background_Mesh< N >::calc_corner_nodes_of_element(
                 const Background_Element_Base   * aElement,
                 Matrix< DDRMat >                       & aNodeCoords )
         {
@@ -1046,8 +964,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::calc_center_of_element(
+        void Background_Mesh< N >::calc_center_of_element(
                 const Background_Element_Base  * aElement,
                 Matrix< DDRMat >                      & aNodeCoords )
         {
@@ -1057,8 +974,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template < uint N >
-        void
-        Background_Mesh< N >::collect_coarsest_elements_on_side(
+        void Background_Mesh< N >::collect_coarsest_elements_on_side(
                 const uint                       & aSideOrdinal,
                 Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
         {
@@ -1069,7 +985,7 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-#include "../../../HMR/src/cl_HMR_Background_Mesh_2D.hpp"
-#include "../../../HMR/src/cl_HMR_Background_Mesh_3D.hpp"
+#include "cl_HMR_Background_Mesh_2D.hpp"
+#include "cl_HMR_Background_Mesh_3D.hpp"
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_ */

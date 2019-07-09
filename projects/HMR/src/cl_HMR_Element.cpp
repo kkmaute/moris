@@ -11,22 +11,18 @@ namespace moris
 
         Element::Element(
                 Background_Element_Base  *  aElement,
-                const uint               & aActivationPattern ) :
-                    mElement( aElement ),
-                    mActivationPattern( aActivationPattern )
+                const uint               & aActivationPattern ) : mElement( aElement ),
+                                                                  mActivationPattern( aActivationPattern )
         {
-
         }
 
 //------------------------------------------------------------------------------
 
-        Element * Element::get_neighbor(
-                moris::Cell< Element * > & aAllElementsOnProc,
-                const luint              & aNeighborNumber )
+        Element * Element::get_neighbor(       moris::Cell< Element * > & aAllElementsOnProc,
+                                         const luint                    & aNeighborNumber )
         {
             // get neighbor of background element
-            Background_Element_Base* tElement
-                = mElement->get_neighbor( aNeighborNumber );
+            Background_Element_Base* tElement = mElement->get_neighbor( aNeighborNumber );
 
             // test if neighbor exists
             if ( tElement != NULL )
@@ -49,14 +45,12 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Element * Element::get_child(
-                        moris::Cell< Element * > & aAllElementsOnProc,
-                        const uint               & aChildIndex )
+        Element * Element::get_child(       moris::Cell< Element * > & aAllElementsOnProc,
+                                      const uint                     & aChildIndex )
         {
             if( mElement->has_children() )
             {
-                return aAllElementsOnProc(
-                        mElement->get_child( aChildIndex )->get_memory_index() );
+                return aAllElementsOnProc( mElement->get_child( aChildIndex )->get_memory_index() );
             }
             else
             {
@@ -69,8 +63,7 @@ namespace moris
         // special funciton for HMR
         Facet * Element::get_hmr_facet( const uint & aIndex )
         {
-            MORIS_ERROR( false,
-                    "get_lagrange_facet() cannot be called from this element type" );
+            MORIS_ERROR( false, "get_lagrange_facet() cannot be called from this element type" );
             return nullptr;
         }
 
@@ -78,16 +71,14 @@ namespace moris
 
         void Element::set_hmr_facet( Facet * aFacet, const uint & aIndex )
         {
-            MORIS_ERROR( false,
-                    "set_hmr_facet() cannot be called from this element type" );
+            MORIS_ERROR( false, "set_hmr_facet() cannot be called from this element type" );
         }
 
 //-------------------------------------------------------------------------------
 
         Edge * Element::get_hmr_edge( const uint & aIndex )
         {
-            MORIS_ERROR( false,
-                    "get_hmr_edge() cannot be called from this element type" );
+            MORIS_ERROR( false, "get_hmr_edge() cannot be called from this element type" );
             return nullptr;
         }
 
@@ -95,8 +86,7 @@ namespace moris
 
         const Edge * Element::get_hmr_edge( const uint & aIndex ) const
         {
-            MORIS_ERROR( false,
-                    "get_hmr_edge() cannot be called from this element type" );
+            MORIS_ERROR( false, "get_hmr_edge() cannot be called from this element type" );
             return nullptr;
         }
 
@@ -104,8 +94,7 @@ namespace moris
 
         void Element::set_hmr_edge( Edge * aEdge, const uint & aIndex )
         {
-            MORIS_ERROR( false,
-                    "set_hmr_edge() cannot be called from this element type" );
+            MORIS_ERROR( false, "set_hmr_edge() cannot be called from this element type" );
         }
 
 //-------------------------------------------------------------------------------

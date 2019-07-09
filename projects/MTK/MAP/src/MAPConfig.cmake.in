@@ -1,0 +1,31 @@
+### Mapper Library Config File ###
+
+if(@MAP@_CONFIGURED)
+	return()
+endif()
+
+set(@MAP@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@MAP@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@MAP@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@MAP@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@MAP_COMPILE_DEFINITIONS@")
+set(@MAP@_C_FLAGS "@MORIS_C_FLAGS@" "@MAP_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@MAP_CONFIG_TPL_DEPENDENCIES@
+@MAP_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_MAP_CONFIG_INSTALL_DIR@/@MAP@Targets.cmake")
+
+# Library target list
+set(@MAP@_LIBRARIES @MAP@-lib)

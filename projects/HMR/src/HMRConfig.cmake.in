@@ -1,10 +1,31 @@
 ### HMR Config File ###
 
+if(@HMR@_CONFIGURED)
+	return()
+endif()
+
+set(@HMR@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@HMR@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@HMR@)
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@HMR@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@HMR@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@HMR@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@HMR_COMPILE_DEFINITIONS@")
+set(@HMR@_C_FLAGS "@MORIS_C_FLAGS@" "@HMR_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@HMR_CONFIG_TPL_DEPENDENCIES@
+@HMR_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@HMR@Targets.cmake)
+include("@PACKAGE_HMR_CONFIG_INSTALL_DIR@/@HMR@Targets.cmake")
+
+# Library target list
+set(@HMR@_LIBRARIES @HMR@-lib)

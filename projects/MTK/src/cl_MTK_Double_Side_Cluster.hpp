@@ -69,19 +69,19 @@ public:
      *
      */
 
-    virtual bool is_trivial( const moris::uint aSide ) const
+    virtual bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().is_trivial();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().is_trivial();
         }
         else
         {
-            MORIS_ERROR(false, "is_trivial(): can only be 0 and 1");
+            MORIS_ERROR(false, "is_trivial(): can only be MASTER or SLAVE");
             return false;
         }
     }
@@ -154,31 +154,31 @@ public:
 
     moris_index
     get_vertex_cluster_index( const Vertex * aVertex,
-                              const moris::uint aSide = 0 ) const
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_vertex_cluster_index( aVertex );
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_vertex_cluster_index( aVertex );
         }
         else
         {
-            MORIS_ERROR(false, "get_vertex_cluster_index(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_vertex_cluster_index(): can only be MASTER and SLAVE");
             return 0;
         }
     }
 
     moris::mtk::Cell const &
-    get_interpolation_cell( const moris::uint aSide ) const
+    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_interpolation_cell();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_interpolation_cell();
         }
@@ -214,19 +214,19 @@ public:
     //----------------------------------------------------------------
 
     moris::Cell<mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const moris::uint aSide ) const
+    get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_cells_in_side_cluster();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster ==  mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_cells_in_side_cluster();
         }
         else
         {
-            MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be MASTER and SLAVE");
             return mDummCellCell;
         }
     }
@@ -256,38 +256,40 @@ public:
     //----------------------------------------------------------------
 
     moris::Matrix<moris::IndexMat>
-    get_cell_side_ordinals( const moris::uint aSide ) const
+    get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_cell_side_ordinals();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_cell_side_ordinals();
         }
         else
         {
-            MORIS_ERROR(false, "get_cell_side_ordinals(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_cell_side_ordinals(): can only be MASTER and SLAVE");
             return moris::Matrix<moris::IndexMat>(0,0);
         }
     }
 
+    //----------------------------------------------------------------
+
     moris_index
     get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-                          const moris::uint aSide) const
+            const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
         }
         else
         {
-            MORIS_ERROR(false, "get_cell_side_ordinal(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_cell_side_ordinal(): can only be MASTER and SLAVE");
             return 0;
         }
     }
@@ -344,19 +346,19 @@ public:
      */
 
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster( const moris::uint aSide ) const
+    get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_vertices_in_cluster();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_vertices_in_cluster();
         }
         else
         {
-            MORIS_ERROR(false, "get_vertices_in_cluster(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_vertices_in_cluster(): can only be MASTER and SLAVE");
             return mDummyVertexCell;
         }
     }
@@ -388,19 +390,19 @@ public:
      */
 
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide ) const
+    get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
         }
         else
         {
-            MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): can only be MASTER and SLAVE");
             return mDummyDDRMat;
         }
     }
@@ -426,19 +428,19 @@ public:
 
     moris::Matrix<moris::DDRMat>
     get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                                                 const moris::uint aSide ) const
+            const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
         }
         else
         {
-            MORIS_ERROR(false, "get_vertex_local_coordinate_wrt_interp_cell(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_vertex_local_coordinate_wrt_interp_cell(): can only be MASTER and SLAVE");
             return moris::Matrix<moris::DDRMat>(0,0);
         }
     }
@@ -467,19 +469,19 @@ public:
 
     moris::Matrix<moris::DDRMat>
     get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
-                                                  const moris::uint aSide ) const
+            const mtk::Master_Slave aIsMaster ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
         }
         else
         {
-            MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): can only be MASTER and SLAVE");
             return moris::Matrix<moris::DDRMat>(0,0);
         }
     }
@@ -516,19 +518,19 @@ public:
      * Size of the xsi vector of left
      */
     moris_index
-    get_dim_of_param_coord( const moris::uint aSide = 0 ) const
+    get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
-        if ( aSide == 0 )
+        if ( aIsMaster == mtk::Master_Slave::MASTER )
         {
             return this->get_left_side_cluster().get_dim_of_param_coord();
         }
-        else if( aSide == 1 )
+        else if( aIsMaster == mtk::Master_Slave::SLAVE )
         {
             return this->get_right_side_cluster().get_dim_of_param_coord();
         }
         else
         {
-            MORIS_ERROR(false, "get_dim_of_param_coord(): can only be 0 and 1");
+            MORIS_ERROR(false, "get_dim_of_param_coord(): can only be MASTER and SLAVE");
             return 0;
         }
     }

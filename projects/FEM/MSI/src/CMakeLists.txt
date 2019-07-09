@@ -78,19 +78,20 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 # Create library
 add_library(${MSI}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${MSI}-lib PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:${${MSI}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${MSI}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MSI}-lib PROPERTIES OUTPUT_NAME ${MSI})
 
-foreach(TPL ${MSI_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${MSI_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+    target_link_libraries(${MSI}-lib
+    	PUBLIC ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${MSI}-lib
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${MSI}-lib
-    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
     target_compile_definitions(${MSI}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
@@ -98,14 +99,34 @@ endforeach()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Model Solver Interface Config Files
 
+# Makes sure all tpl dependencies are searched for in the config file
+foreach(TPL ${MSI_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+	string(APPEND MSI_CONFIG_TPL_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
+endforeach()
+
+# Makes sure all moris library dependencies are included in the config file
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+	string(APPEND MSI_CONFIG_MORIS_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+endforeach()
+
+# Properties to be coppied into config file
+get_target_property(MSI_COMPILE_DEFINITIONS ${MSI}-lib COMPILE_DEFINITIONS)
+
 # Build *Config and *ConfigVersion files
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
     ${MSI}Config.cmake.in
     ${${MSI}_CONFIG_BUILD_DIR}/${MSI}Config.cmake
-    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${MSI}
-    PATH_VARS LIB_INSTALL_DIR )
+    INSTALL_DESTINATION 
+    ${${MSI}_CONFIG_INSTALL_DIR}
+    PATH_VARS 
+    ${MSI}_CONFIG_INSTALL_DIR
+    )
 
 write_basic_package_version_file(
     ${${MSI}_CONFIG_BUILD_DIR}/${MSI}ConfigVersion.cmake
@@ -117,19 +138,17 @@ write_basic_package_version_file(
 # Install *Config and *ConfigVersion files
 install(FILES ${${MSI}_CONFIG_BUILD_DIR}/${MSI}Config.cmake 
     ${${MSI}_CONFIG_BUILD_DIR}/${MSI}ConfigVersion.cmake
-    DESTINATION ${CONFIG_INSTALL_DIR}/${MSI} )
+    DESTINATION ${${MSI}_CONFIG_INSTALL_DIR} )
 
 # Install header files
 install(FILES ${HEADERS}
-    DESTINATION ${HEADER_INSTALL_DIR}/${MSI} )
+    DESTINATION ${${MSI}_HEADER_INSTALL_DIR} )
 
-# Install library and executable
+# Install library
 install(TARGETS ${MSI}-lib
-    EXPORT ${MSI}Targets
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${MSI}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${MSI}
-    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${MSI} )
+    DESTINATION ${${MSI}_LIB_INSTALL_DIR}
+    EXPORT ${MSI}Targets )
 
-# Export library in to *Targets file
+# Export library into *Targets file
 install(EXPORT ${MSI}Targets
-    DESTINATION ${CONFIG_INSTALL_DIR}/${MSI} )
+    DESTINATION ${${MSI}_CONFIG_INSTALL_DIR} )

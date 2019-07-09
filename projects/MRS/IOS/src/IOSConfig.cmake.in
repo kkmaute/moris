@@ -1,10 +1,36 @@
-### ios Library Config File ###
+### IOS Library Config File ###
+
+if(@IOS@_CONFIGURED)
+	return()
+endif()
+
+set(@IOS@_CONFIGURED TRUE)
 
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@IOS@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@IOS@)
+#< TEMP
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@IOS@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@IOS@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@IOS@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@IOS_COMPILE_DEFINITIONS@")
+set(@IOS@_C_FLAGS "@MORIS_C_FLAGS@" "@IOS_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@IOS_CONFIG_TPL_DEPENDENCIES@
+@IOS_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@IOS@Targets.cmake)
+include("@PACKAGE_IOS_CONFIG_INSTALL_DIR@/@IOS@Targets.cmake")
+
+# Library target list
+set(@IOS@_LIBRARIES @IOS@-lib)

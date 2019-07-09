@@ -51,7 +51,7 @@ endforeach()
 
 # List test dependencies
 set(TEST_DEPENDENCIES
-	test-libs
+	#test-libs
     ${INT}-lib
     ${ALG}-lib
     #${MSI}-lib
@@ -88,19 +88,6 @@ set(INT_TEST ${INT}-test)
 add_executable(${INT_TEST} ${TEST_SOURCES})
 target_link_libraries(${INT_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${INT_TEST} PROPERTIES OUTPUT_NAME ${INT_TEST}${EXE_EXT})
-
-foreach(TPL ${INT_TEST_TPL_DEPENDENCIES})
-	string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
-    string(TOUPPER ${TPL} TPL)
-    target_include_directories(${INT_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${INT_TEST}
-    	PRIVATE ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
-    target_compile_definitions(${INT_TEST}
-    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
 
 # Mark as test
 add_test(NAME ${INT_TEST}

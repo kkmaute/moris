@@ -9,7 +9,7 @@
 # Result is 'Linking CXX static library libmoris.a'.
 
 # Require CMake 3.1
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.3.2)
 
 # Guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -108,7 +108,9 @@ set(HEADER_INSTALL_DIR ${INC})
 # -------------------------------------------------------------------------
 ## CMake Paths
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_modules")
+list(APPEND CMAKE_MODULE_PATH 
+	"${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_modules"
+	"${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_wrappers" )
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 # -------------------------------------------------------------------------
@@ -244,6 +246,9 @@ option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
+# -------------------------------------------------------------------------
+# Macros
+include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 
 # -------------------------------------------------------------------------
 # Compiler ----------------------------------------------------------------
@@ -422,7 +427,7 @@ if (USE_SACADO)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/parameter" )
     #list(APPEND MORIS_BASE_LIBS "-L$.../lib64/" )
 
-endif()
+endif() #> clean this up eventually
 
 # -------------------------------------------------------------------------
 # XTK --------------------------------------------------------------------------
@@ -547,7 +552,6 @@ message(STATUS "MORIS recognized the C++ include directories MORIS_INCDIRS=${MOR
 # Enable verbose output from Makefile builds.
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-
 # -------------------------------------------------------------------------
 # Depends files
 
@@ -614,9 +618,9 @@ if(BUILD_MDL)
     include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 endif()
 
-if(BUILD_MOD)
-    include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
-endif()
+#if(BUILD_MOD)
+#    include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
+#endif()
 
 if(BUILD_MSI)
     include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
@@ -668,31 +672,6 @@ if(MORIS_USE_EIGEN)
 	#include(${MORIS_TPL_DIR}/eigen.cmake)
 endif()
 
-# # -------------------------------------------------------------------------
-# # MORIS Config files -----------------------------------------------------------
-# # -------------------------------------------------------------------------
-# 
-# # Needed for the following macros
-# include(CMakePackageConfigHelpers)
-# 
-# # Configure *Config file
-# configure_package_config_file(
-#     ${MORIS}Config.cmake.in
-#     ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}Config.cmake
-#     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS}
-#     PATH_VARS MORIS_CXX_FLAGS MORIS_LDFLAGS MORIS_DEFINITIONS MORIS_INCDIRS )
-# 
-# # Create *ConfigVersion file
-# write_basic_package_version_file(
-#     ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}ConfigVersion.cmake
-#     COMPATIBILITY AnyNewerVersion )
-# 
-# # Install *Config and *ConfigVersion files
-# install(FILES ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}Config.cmake 
-#     ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}ConfigVersion.cmake
-#     DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS} )
-# 
-
 # -------------------------------------------------------------------------
 # MORIS unit tests --------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -708,6 +687,16 @@ enable_testing()
 
 add_subdirectory(${SRC})
 
+# -------------------------------------------------------------------------
+# MORIS Find modules and wrappers -----------------------------------------
+# -------------------------------------------------------------------------
+add_subdirectory(${SHARE}/${CMAKE}/find_modules)
+add_subdirectory(${SHARE}/${CMAKE}/find_wrappers)
+
+# -------------------------------------------------------------------------
+# MORIS utility scripts ---------------------------------------------------
+# -------------------------------------------------------------------------
+add_subdirectory(${SHARE}/${CMAKE}/utilities)
 
 # -------------------------------------------------------------------------
 # MORIS Documentation -----------------------------------------------------
@@ -715,4 +704,45 @@ add_subdirectory(${SRC})
 
 add_subdirectory(share/doc)
 
+# -------------------------------------------------------------------------
+# MORIS Config and Installation -------------------------------------------
+# -------------------------------------------------------------------------
 
+# Target to catch general moris properties
+add_library(${MORIS}_general INTERFACE)
+#target_link_libraries(${MORIS}_general INTERFACE ${MORIS_BASE_LIBS})
+#target_include_directories(${MORIS}_general INTERFACE ${MORIS_INCDIRS})
+target_compile_definitions(${MORIS}_general INTERFACE ${MORIS_DEFINITIONS})
+
+# Needed for the following macros
+include(CMakePackageConfigHelpers)
+
+# Configure *Config file
+configure_package_config_file(
+    ${MORIS_CMAKE_DIR}/${MORIS}Config.cmake.in
+    ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}Config.cmake
+    INSTALL_DESTINATION
+    ${CONFIG_INSTALL_DIR}/${MORIS}
+    PATH_VARS
+    CONFIG_INSTALL_DIR )
+
+# Create *ConfigVersion file
+write_basic_package_version_file(
+    ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
+# Install *Config and *ConfigVersion files
+install(FILES ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}Config.cmake 
+    ${CONFIG_BUILD_DIR}/${MORIS}/${MORIS}ConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS} )
+
+# Install general moris target
+install(TARGETS ${MORIS}_general
+	DESTINATION ${LIB_INSTALL_DIR}/${MORIS}
+	EXPORT ${MORIS}Targets )
+
+install(EXPORT ${MORIS}Targets
+	DESTINATION ${CONFIG_INSTALL_DIR}/${MORIS} )
+
+install(FILES "include/catch.hpp"
+	DESTINATION ${HEADER_INSTALL_DIR}/${MORIS} )

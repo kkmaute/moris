@@ -317,7 +317,7 @@ namespace moris
         BSpline_Element< 2, 4 >::refine_basis( const uint & aBasisNumber, luint & aBasisCounter )
         {
             // get pointer to basis
-            Basis* tBasis = mBasis[ aBasisNumber ];
+            Basis * tBasis = mBasis[ aBasisNumber ];
 
             // test if basis exists
             if ( tBasis != NULL )
@@ -329,7 +329,7 @@ namespace moris
                    tBasis->init_children_container();
 
                    // pointer to basis neighbor
-                   Basis* tNeighbor;
+                   Basis * tNeighbor;
 
                    // get neighbor 0
                    tNeighbor = tBasis->get_neighbor( 0 );
@@ -473,9 +473,9 @@ namespace moris
                    uint tCount = 0;
 
                    // loop over all positions
-                   for( luint j=tJMin; j<tJMax; ++j )
+                   for( luint j = tJMin; j < tJMax; ++j )
                    {
-                       for( luint i=tIMin; i<tIMax; ++i )
+                       for( luint i = tIMin; i < tIMax; ++i )
                        {
                            // test if child does not exist
                            if( tBasis->get_child( tCount ) == NULL )
@@ -485,7 +485,7 @@ namespace moris
 
                                // create child
                                tBasis->insert_child( tCount, 
-                                   new BSpline< 2, 9, 8 >( tIJ, tLevel, gNoProcOwner ) );
+                                                     new BSpline< 2, 9, 8 >( tIJ, tLevel, gNoProcOwner ) );
 
                                // increment basis counter
                                ++aBasisCounter;
@@ -511,17 +511,17 @@ namespace moris
         * @return void
         */
         template<>
-        void
-        BSpline_Element< 2, 4 >::refine( moris::Cell< Element* > & aAllElementsOnProc, luint & aBasisCounter )
+        void BSpline_Element< 2, 4 >::refine( moris::Cell< Element* > & aAllElementsOnProc,
+                                              luint                   & aBasisCounter )
         {
             // refine basis if they have not been refined already
-            for( uint k=0; k<4; ++k )
+            for( uint k = 0; k < 4; ++k )
             {
                 this->refine_basis( k, aBasisCounter );
             }
 
             // initialize temporary basis pattern
-            Basis* tBasis[ 9 ] = { nullptr };
+            Basis * tBasis[ 9 ] = { nullptr };
 
             // populate basis pattern
             if ( mBasis[   0 ] != NULL )
@@ -604,15 +604,14 @@ namespace moris
                 }
             }
 
-
             // initialize child container
             Element * tChildren[ 4 ];
 
             // populate child container
             for( uint k=0; k<4; ++k)
             {
-                tChildren[ k ] = aAllElementsOnProc(
-                    mElement->get_child( k )->get_memory_index() );
+                tChildren[ k ] = aAllElementsOnProc( mElement->get_child( k )->get_memory_index() );
+
                 tChildren[ k ]->init_basis_container();
             }
 

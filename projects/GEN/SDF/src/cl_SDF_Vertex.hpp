@@ -13,7 +13,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "MTK/src/cl_MTK_Vertex.hpp"
+#include "cl_MTK_Vertex.hpp"
 
 namespace moris
 {

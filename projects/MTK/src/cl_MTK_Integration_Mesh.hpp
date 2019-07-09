@@ -27,8 +27,6 @@ protected:
     moris::Cell< moris::mtk::Set * > mListofSideSets;
     moris::Cell< moris::mtk::Set * > mListofDoubleSideSets;
 
-
-
 public:
     Integration_Mesh(){};
     // Functions only valid for integration meshes

@@ -1,10 +1,31 @@
 ### Config Template for TSA Library ###
 
+if(@TSA@_CONFIGURED)
+	return()
+endif()
+
+set(@TSA@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@DISTLINALG@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@TSA@)
+# Additional macros
+include(CMakeFindDependencyMacro)
 
-# Fetch library target
-include(@TSA@Targets.cmake)
+# Compilers and used in build
+set(@TSA@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@TSA@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@TSA@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@TSA_COMPILE_DEFINITIONS@")
+set(@TSA@_C_FLAGS "@MORIS_C_FLAGS@" "@TSA_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@TSA_CONFIG_TPL_DEPENDENCIES@
+@TSA_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_TSA_CONFIG_INSTALL_DIR@/@TSA@Targets.cmake")
+
+# Library target list
+set(@TSA@_LIBRARIES @TSA@-lib)

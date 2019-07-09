@@ -831,9 +831,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         void
-        HMR::flag_elements(
-                      Cell< mtk::Cell* > & aElements,
-                const uint                  aMinRefinementLevel )
+        HMR::flag_elements(       Cell< mtk::Cell* > & aElements,
+                            const uint                 aMinRefinementLevel )
         {
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
@@ -852,10 +851,8 @@ namespace moris
             {
                 // get pointer to Background Element
                 // ( the input elements are general mtk::cells, so they might not have any )
-                Background_Element_Base * tElement =
-                        tLagrangeMesh->get_element_by_memory_index(
-                                tCell->get_memory_index_of_background_element() )
-                                ->get_background_element();
+                Background_Element_Base * tElement = tLagrangeMesh->get_element_by_memory_index( tCell->get_memory_index_of_background_element() )
+                                                                                                      ->get_background_element();
 
                 // put this element on the list
                 tElement->set_refined_flag( tWorkingPattern );
@@ -1523,7 +1520,6 @@ namespace moris
                         Cell< std::shared_ptr< Field > > & aFields,
                         ParameterList              & aParameters )
         {
-
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
 
@@ -1579,10 +1575,9 @@ namespace moris
                 }
 
                 // check flag from user defined function
-                int tFlag = aFunction(
-                        tElement,
-                        tFields,
-                        aParameters );
+                int tFlag = aFunction( tElement,
+                                       tFields,
+                                       aParameters );
 
                 // chop flag if element is at max defined level
                 if( tElement->get_level() > tMaxLevel )
@@ -1622,7 +1617,6 @@ namespace moris
                     mDatabase->create_extra_refinement_buffer_for_level( tLevel );
                 }
             }
-
 
             // reset activation pattern of database
             if( tActivePattern != tInputPattern )

@@ -1,10 +1,33 @@
 ### Config Template for NonLinAlg Library ###
 
+### Optimization Library Config File ###
+
+if(@NLA@_CONFIGURED)
+	return()
+endif()
+
+set(@NLA@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@DISTLINALG@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@NLA@)
+# Additional macros
+include(CMakeFindDependencyMacro)
 
-# Fetch library target
-include(@NLA@Targets.cmake)
+# Compilers and used in build
+set(@NLA@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@NLA@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@NLA@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@NLA_COMPILE_DEFINITIONS@")
+set(@NLA@_C_FLAGS "@MORIS_C_FLAGS@" "@NLA_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@NLA_CONFIG_TPL_DEPENDENCIES@
+@NLA_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_NLA_CONFIG_INSTALL_DIR@/@NLA@Targets.cmake")
+
+# Library target list
+set(@NLA@_LIBRARIES @NLA@-lib)

@@ -54,14 +54,12 @@ namespace moris
          * @param[in] aBackgroundMesh pointer to background mesh
          *
          */
-        BSpline_Mesh( const Parameters     * aParameters,
-                      Background_Mesh_Base * aBackgroundMesh,
-                      const uint           & aActivationPattern ) :
-                      BSpline_Mesh_Base(
-                              aParameters,
-                              aBackgroundMesh,
-                              P,
-                              aActivationPattern )
+        BSpline_Mesh( const Parameters           * aParameters,
+                            Background_Mesh_Base * aBackgroundMesh,
+                      const uint                 & aActivationPattern ) : BSpline_Mesh_Base( aParameters,
+                                                                                             aBackgroundMesh,
+                                                                                             P,
+                                                                                             aActivationPattern )
         {
             // ask background mesh for number of elements per ijk-direction
             this->get_number_of_elements_per_dimension();
@@ -85,7 +83,6 @@ namespace moris
            mActiveBasisOnProc.clear();
 
            this->delete_pointers();
-
         }
 
 //------------------------------------------------------------------------------
@@ -96,8 +93,7 @@ namespace moris
          * @return std::string
          *
          */
-        std::string
-        get_gmsh_string();
+        std::string get_gmsh_string();
 
 //------------------------------------------------------------------------------
 
@@ -106,8 +102,7 @@ namespace moris
          *
          * @return uint
          */
-        uint
-        get_vtk_type();
+        uint get_vtk_type();
 
 //------------------------------------------------------------------------------
 
@@ -119,8 +114,7 @@ namespace moris
          * @return void
          *
          */
-        void
-        get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
+        void get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
 
 // ----------------------------------------------------------------------------
     protected:
@@ -133,10 +127,9 @@ namespace moris
         /**
          * creates a basis depending on polynomial order and dimension
          */
-        Basis*
-        create_basis( const luint * aIJK,
-                      const  uint & aLevel,
-                      const  uint & aOwner );
+        Basis * create_basis( const luint * aIJK,
+                              const  uint & aLevel,
+                              const  uint & aOwner );
 
 // ----------------------------------------------------------------------------
 
@@ -148,9 +141,8 @@ namespace moris
          * @param[in]  aI        proc local i-position of basis
          * @return uint          domain wide unique ID
          */
-        luint
-        calculate_basis_id( const uint  & aLevel,
-                            const luint & aI )
+        luint calculate_basis_id( const uint  & aLevel,
+                                  const luint & aI )
         {
             if( aLevel < gMaxNumberOfLevels && N == 1 )
             {
@@ -173,10 +165,9 @@ namespace moris
          * @param[in]  aJ        proc local j-position of basis
          * @return uint          domain wide unique ID
          */
-        luint
-        calculate_basis_id( const uint  & aLevel,
-                            const luint & aI,
-                            const luint & aJ )
+        luint calculate_basis_id( const uint  & aLevel,
+                                  const luint & aI,
+                                  const luint & aJ )
         {
             if( aLevel < gMaxNumberOfLevels && N == 2 )
             {
@@ -202,11 +193,10 @@ namespace moris
          * @param[in]  aK        proc local k-position of basis
          * @return uint          domain wide unique ID
          */
-        luint
-        calculate_basis_id( const uint  & aLevel,
-                            const luint & aI,
-                            const luint & aJ,
-                            const luint & aK )
+        luint calculate_basis_id( const uint  & aLevel,
+                                  const luint & aI,
+                                  const luint & aJ,
+                                  const luint & aK )
         {
             if( aLevel < gMaxNumberOfLevels && N == 3 )
             {
@@ -232,8 +222,7 @@ namespace moris
          *
          *  @return void
          */
-        void
-        calculate_lookup_tables()
+        void calculate_lookup_tables()
         {
             // calculate number of basis on first level
             for( uint k = 0; k < N; ++k )
@@ -274,8 +263,7 @@ namespace moris
          *
          * @return void
          */
-        void
-        calculate_subdomain_offset()
+        void calculate_subdomain_offset()
         {
             Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
 
@@ -297,8 +285,7 @@ namespace moris
          * @return void
          *
          */
-        void
-        get_number_of_elements_per_dimension()
+        void get_number_of_elements_per_dimension()
         {
             // get elements per level from background mesh
             Matrix< DDLUMat > tMat = mBackgroundMesh->get_number_of_elements_per_direction();
@@ -320,8 +307,7 @@ namespace moris
          *
          * @return void
          */
-        void
-        calculate_basis_coordinates()
+        void calculate_basis_coordinates()
         {
             // get domain dimensions from settings
             Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
@@ -418,8 +404,8 @@ namespace moris
     {
         Element * aBSplineElement = new BSpline_Element< 2, 4 >( aElement, mActivationPattern );
 
-         return aBSplineElement;
-     }
+        return aBSplineElement;
+    }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -513,10 +499,9 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     template < uint N, uint P >
-    Basis*
-    BSpline_Mesh< N, P >::create_basis( const luint * aIJK,
-                                        const uint  & aLevel,
-                                        const uint  & aOwner )
+    Basis * BSpline_Mesh< N, P >::create_basis( const luint * aIJK,
+                                                const uint  & aLevel,
+                                                const uint  & aOwner )
     {
         MORIS_ERROR( false, "Don't know how to create B-Spline element.");
         return nullptr;
@@ -525,10 +510,9 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 2, 1 >::create_basis( const luint * aIJK,
-                                        const uint  & aLevel,
-                                        const uint  & aOwner )
+    Basis * BSpline_Mesh< 2, 1 >::create_basis( const luint * aIJK,
+                                                const uint  & aLevel,
+                                                const uint  & aOwner )
     {
         return new BSpline< 2, 9, 8 >( aIJK, aLevel, aOwner );
     }
@@ -536,8 +520,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 2, 2 >::create_basis(
+    Basis * BSpline_Mesh< 2, 2 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -548,8 +531,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 2, 3 >::create_basis(
+    Basis * BSpline_Mesh< 2, 3 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -560,8 +542,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 2, 4 >::create_basis(
+    Basis * BSpline_Mesh< 2, 4 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -572,8 +553,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 2, 5 >::create_basis(
+    Basis * BSpline_Mesh< 2, 5 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -584,8 +564,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 3, 1 >::create_basis(
+    Basis * BSpline_Mesh< 3, 1 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -608,8 +587,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 3, 3 >::create_basis(
+    Basis * BSpline_Mesh< 3, 3 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -620,8 +598,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 3, 4 >::create_basis(
+    Basis * BSpline_Mesh< 3, 4 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -632,8 +609,7 @@ namespace moris
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis*
-    BSpline_Mesh< 3, 5 >::create_basis(
+    Basis * BSpline_Mesh< 3, 5 >::create_basis(
             const luint * aIJK,
             const  uint & aLevel,
             const  uint & aOwner )
@@ -642,7 +618,6 @@ namespace moris
     }
 
 // ----------------------------------------------------------------------------
-
 
     } /* namespace hmr */
 } /* namespace moris */

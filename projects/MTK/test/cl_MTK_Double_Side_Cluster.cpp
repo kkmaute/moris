@@ -239,23 +239,23 @@ TEST_CASE( "MTK Double Side Cluster", "[MTK_Double_Side_Cluster]" )
 
 //        Side_Cluster const & tLeftCluster = tGhostDoubleSide(0).get_left_side_cluster();
 
-        CHECK(tGhostDoubleSide(0)->is_trivial( 0 ));
-        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( 0 ).get_id() == tLeftInterpCell->get_id());
+        CHECK(tGhostDoubleSide(0)->is_trivial( mtk::Master_Slave::MASTER ));
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id() == tLeftInterpCell->get_id());
 
-        moris::Matrix<moris::IndexMat> tLeftCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( 0 );
+        moris::Matrix<moris::IndexMat> tLeftCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
         CHECK(tLeftCellSideOrds.numel() == 1);
         CHECK(tLeftCellSideOrds(0) == 5);
 
 //        Side_Cluster const & tRightCluster = tGhostDoubleSide(0).get_right_side_cluster();
-        CHECK(tGhostDoubleSide(0)->is_trivial( 1 ));
-        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( 1 ).get_id() == tRightInterpCell->get_id());
+        CHECK(tGhostDoubleSide(0)->is_trivial( mtk::Master_Slave::SLAVE ));
+        CHECK(tGhostDoubleSide(0)->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id() == tRightInterpCell->get_id());
 
-        moris::Matrix<moris::IndexMat> tRightCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( 1 );
+        moris::Matrix<moris::IndexMat> tRightCellSideOrds = tGhostDoubleSide(0)->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
         CHECK(tRightCellSideOrds.numel() == 1);
         CHECK(tRightCellSideOrds(0) == 4);
 
         // iterate through pairs and chekc ids of vertices (should be the same in this case)
-        moris::Cell<moris::mtk::Vertex const *> tLeftVerts = tGhostDoubleSide(0)->get_vertices_in_cluster( 0 );
+        moris::Cell<moris::mtk::Vertex const *> tLeftVerts = tGhostDoubleSide(0)->get_vertices_in_cluster( mtk::Master_Slave::MASTER );
         for(moris::uint  i = 0; i < tLeftVerts.size(); i++)
         {
             moris::mtk::Vertex const * tRightVertex = tGhostDoubleSide(0)->get_left_vertex_pair(tLeftVerts(i));

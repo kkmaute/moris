@@ -230,8 +230,7 @@ namespace moris
         * @return void
         */
         template<>
-        void
-        Lagrange_Element< 2, 4 >::create_basis_for_children(
+        void Lagrange_Element< 2, 4 >::create_basis_for_children(
             moris::Cell< Element * > & aAllElementsOnProc,
             luint             & aBasisCounter )
         {
@@ -254,12 +253,10 @@ namespace moris
                 if ( tNeighbor->children_have_basis() )
                 {
                     // get pointer to background element
-                    Background_Element_Base* tBackNeighbor
-                        = tNeighbor->get_background_element();
+                    Background_Element_Base* tBackNeighbor = tNeighbor->get_background_element();
 
                     // get pointer to child 2
-                    Element* tChild = aAllElementsOnProc(
-                        tBackNeighbor->get_child( 2 )->get_memory_index() );
+                    Element* tChild = aAllElementsOnProc( tBackNeighbor->get_child( 2 )->get_memory_index() );
 
                     tNodes[   1 ] = tChild->get_basis(   2 );
                 }
@@ -275,12 +272,10 @@ namespace moris
                 if ( tNeighbor->children_have_basis() )
                 {
                     // get pointer to background element
-                    Background_Element_Base* tBackNeighbor
-                        = tNeighbor->get_background_element();
+                    Background_Element_Base* tBackNeighbor = tNeighbor->get_background_element();
 
                     // get pointer to child 0
-                    Element* tChild = aAllElementsOnProc(
-                        tBackNeighbor->get_child( 0 )->get_memory_index() );
+                    Element* tChild = aAllElementsOnProc( tBackNeighbor->get_child( 0 )->get_memory_index() );
 
                     tNodes[   5 ] = tChild->get_basis(   3 );
                 }
@@ -296,12 +291,10 @@ namespace moris
                 if ( tNeighbor->children_have_basis() )
                 {
                     // get pointer to background element
-                    Background_Element_Base* tBackNeighbor
-                        = tNeighbor->get_background_element();
+                    Background_Element_Base* tBackNeighbor = tNeighbor->get_background_element();
 
                     // get pointer to child 0
-                    Element* tChild = aAllElementsOnProc(
-                        tBackNeighbor->get_child( 0 )->get_memory_index() );
+                    Element* tChild = aAllElementsOnProc( tBackNeighbor->get_child( 0 )->get_memory_index() );
 
                     tNodes[   7 ] = tChild->get_basis(   1 );
                 }
@@ -317,12 +310,10 @@ namespace moris
                 if ( tNeighbor->children_have_basis() )
                 {
                     // get pointer to background element
-                    Background_Element_Base* tBackNeighbor
-                        = tNeighbor->get_background_element();
+                    Background_Element_Base* tBackNeighbor = tNeighbor->get_background_element();
 
                     // get pointer to child 1
-                    Element* tChild = aAllElementsOnProc(
-                        tBackNeighbor->get_child( 1 )->get_memory_index() );
+                    Element* tChild = aAllElementsOnProc( tBackNeighbor->get_child( 1 )->get_memory_index() );
 
                     tNodes[   3 ] = tChild->get_basis(   2 );
                 }
@@ -415,8 +406,7 @@ namespace moris
              Element* tChild;
 
              // get pointer to child 0
-             tChild = aAllElementsOnProc(
-                 mElement->get_child( 0 )->get_memory_index() );
+             tChild = aAllElementsOnProc( mElement->get_child( 0 )->get_memory_index() );
 
              // init basis container for child 0
              tChild->init_basis_container();

@@ -114,7 +114,11 @@ namespace MSI
         // integration weights
         Matrix< DDRMat > mIntegWeights;
 
+        bool mIsTrivialMaster = false;
+        bool mIsTrivialSlave = false;
+
         friend class MSI::Equation_Object;
+        friend class Cluster;
         friend class Element_Bulk;
         friend class Element_Sideset;
         friend class Element_Double_Sideset;

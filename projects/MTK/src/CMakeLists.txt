@@ -10,32 +10,43 @@ cl_Mesh_Enums.hpp
 cl_Mesh_Factory.hpp
 cl_MTK_Block_Sets_Info.hpp
 cl_MTK_Block.hpp
-cl_MTK_Side_Set.hpp
-cl_MTK_Double_Side_Set.hpp
-cl_MTK_Set.hpp
+cl_MTK_Cell_Cluster_Input.hpp
+cl_MTK_Cell_Cluster_Proxy.hpp
+cl_MTK_Cell_Cluster.hpp
+cl_MTK_Cell_Proxy.hpp
 cl_MTK_Cell.hpp
 cl_MTK_Cluster.hpp
+cl_MTK_Double_Side_Cluster_Input.hpp
+cl_MTK_Double_Side_Cluster.hpp
+cl_MTK_Double_Side_Set.hpp
 cl_MTK_Edge.hpp
 cl_MTK_Enums.hpp
 cl_MTK_Exodus_IO_Helper.hpp
-cl_MTK_Facet_Cluster.hpp
 cl_MTK_Facet.hpp
 cl_MTK_Fields_Info.hpp
+cl_MTK_Hex27_Connectivity.hpp
+cl_MTK_Hex64_Connectivity.hpp
+cl_MTK_Hex8_Connectivity.hpp
 cl_MTK_Integration_Mesh.hpp
 cl_MTK_Interpolation_Mesh.hpp
 cl_MTK_Matrix_Field_Info.hpp
 cl_MTK_Mesh_Core.hpp
 cl_MTK_Mesh_Data_Input.hpp
-cl_MTK_Mesh_Data.hpp
 cl_MTK_Mesh_Manager.hpp
 cl_MTK_Mesh_Tools.hpp
 cl_MTK_Mesh.hpp
 cl_MTK_Node_Sets_Info.hpp
 cl_MTK_Scalar_Field_Info.hpp
+cl_MTK_Set.hpp
 cl_MTK_Sets_Info.hpp
+cl_MTK_Side_Cluster_Input.hpp
+cl_MTK_Side_Cluster.hpp
+cl_MTK_Side_Set.hpp
 cl_MTK_Side_Sets_Info.hpp
+cl_MTK_Tetra4_Connectivity.hpp
 cl_MTK_Topology.hpp
 cl_MTK_Vertex_Interpolation.hpp
+cl_MTK_Vertex_Proxy.hpp
 cl_MTK_Vertex.hpp
 MTK_Tools.hpp
 stk_impl/cl_MTK_Cell_STK.hpp
@@ -87,12 +98,6 @@ set(LIB_DEPENDENCIES
     #${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE LIB_DEPENDENCIES)
-list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
-list(REVERSE LIB_DEPENDENCIES)
-
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
@@ -101,19 +106,20 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 add_library(${MTK}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${MTK}-lib PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/stk_impl> )
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/stk_impl>
+	$<INSTALL_INTERFACE:${${MTK}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${MTK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
 
-foreach(TPL ${MTK_LIB_TPL_DEPENDENCIES})
+foreach(TPL ${MTK_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    
+    target_link_libraries(${MTK}-lib
+    	PUBLIC ${MORIS}::${tpl})
+
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${MTK}-lib
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_link_libraries(${MTK}-lib
-    	PUBLIC ${MORIS_${TPL}_LIBRARIES} ${MORIS_${TPL}_TARGETS})
     target_compile_definitions(${MTK}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
@@ -124,38 +130,56 @@ endforeach()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Config Files
 
+# Makes sure all tpl dependencies are searched for in the config file
+foreach(TPL ${MTK_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+	string(APPEND MTK_CONFIG_TPL_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
+endforeach()
+
+# Makes sure all moris library dependencies are included in the config file
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+	string(APPEND MTK_CONFIG_MORIS_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+endforeach()
+
+# Properties to be coppied into config file
+get_target_property(MTK_COMPILE_DEFINITIONS ${MTK}-lib COMPILE_DEFINITIONS)
+
 # Build *Config and *ConfigVersion files
- include(CMakePackageConfigHelpers)
- 
- configure_package_config_file(
-     ${MTK}Config.cmake.in
-     ${${MTK}_CONFIG_BUILD_DIR}/${MTK}Config.cmake
-     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${MTK}
-     PATH_VARS LIB_INSTALL_DIR )
- 
- write_basic_package_version_file(
-     ${${MTK}_CONFIG_BUILD_DIR}/${MTK}ConfigVersion.cmake
-     COMPATIBILITY AnyNewerVersion )
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${MTK}Config.cmake.in
+    ${${MTK}_CONFIG_BUILD_DIR}/${MTK}Config.cmake
+    INSTALL_DESTINATION 
+    ${${MTK}_CONFIG_INSTALL_DIR}
+    PATH_VARS 
+    ${MTK}_CONFIG_INSTALL_DIR
+    )
+
+write_basic_package_version_file(
+    ${${MTK}_CONFIG_BUILD_DIR}/${MTK}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Installation
 
- # Install *Config and *ConfigVersion files
- install(FILES ${${MTK}_CONFIG_BUILD_DIR}/${MTK}Config.cmake 
-     ${${MTK}_CONFIG_BUILD_DIR}/${MTK}ConfigVersion.cmake
-     DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )
+# Install *Config and *ConfigVersion files
+install(FILES ${${MTK}_CONFIG_BUILD_DIR}/${MTK}Config.cmake 
+    ${${MTK}_CONFIG_BUILD_DIR}/${MTK}ConfigVersion.cmake
+    DESTINATION ${${MTK}_CONFIG_INSTALL_DIR} )
 
 # Install header files
 install(FILES ${HEADERS}
-    DESTINATION ${HEADER_INSTALL_DIR}/${MTK} )
+    DESTINATION ${${MTK}_HEADER_INSTALL_DIR} )
 
-# Install library and executable
+# Install library
 install(TARGETS ${MTK}-lib
-    EXPORT ${MTK}Targets
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${MTK}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${MTK}
-    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${MTK} )
+    DESTINATION ${${MTK}_LIB_INSTALL_DIR}
+    EXPORT ${MTK}Targets )
 
-# Export library in to *Targets file
+# Export library into *Targets file
 install(EXPORT ${MTK}Targets
-    DESTINATION ${CONFIG_INSTALL_DIR}/${MTK} )
+    DESTINATION ${${MTK}_CONFIG_INSTALL_DIR} )

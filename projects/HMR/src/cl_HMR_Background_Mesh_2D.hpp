@@ -17,104 +17,73 @@ namespace moris
 //--------------------------------------------------------------------------------
 
         template <>
-        luint
-        Background_Mesh< 2 >::calc_domain_id_of_element(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ ) const
+        luint Background_Mesh< 2 >::calc_domain_id_of_element( const uint  & aLevel,
+                                                               const luint & aI,
+                                                               const luint & aJ ) const
         {
-            if( aLevel < gMaxNumberOfLevels )
-            {
-                luint tI = aI + mMySubDomain.mAuraIJK[ aLevel ][ 0 ][ 0 ];
-                luint tJ = aJ + mMySubDomain.mAuraIJK[ aLevel ][ 1 ][ 0 ];
+            MORIS_ASSERT( aLevel < gMaxNumberOfLevels, "calc_domain_id_of_element(), Requested refinement level larger than maximal refinement level");
 
-                // test if input is valid
-                if (    ( tI >= mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ] )
-                     || ( tJ >= mDomain.mNumberOfElementsPerDimension[ aLevel ][ 1 ] ) )
-                {
-                    // return error value
-                    return gNoEntityID;
-                }
-                else
-                {
-                    // calculate domain id
-                    return  mDomain.mLevelOffset[ aLevel ] + tI + tJ
-                        * mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
-                }
-            }
-            else
-            {
-                // return error value
-                return gNoEntityID;
-            }
+            luint tI = aI + mMySubDomain.mAuraIJK[ aLevel ][ 0 ][ 0 ];
+            luint tJ = aJ + mMySubDomain.mAuraIJK[ aLevel ][ 1 ][ 0 ];
+
+            MORIS_ASSERT( ( tI < mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ] ) && ( tJ < mDomain.mNumberOfElementsPerDimension[ aLevel ][ 1 ] ),
+                    "calc_domain_id_of_element(), I or J position of this element outside of the domain");
+
+            // calculate domain id
+            return  mDomain.mLevelOffset[ aLevel ] + tI + tJ * mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
         }
 
 //--------------------------------------------------------------------------------
 
         template <>
-        luint
-        Background_Mesh< 2 >::calc_subdomain_id_of_element(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ ) const
+        luint Background_Mesh< 2 >::calc_subdomain_id_of_element( const uint  & aLevel,
+                                                                  const luint & aI,
+                                                                  const luint & aJ ) const
         {
-            if( aLevel < gMaxNumberOfLevels )
+            MORIS_ASSERT( aLevel < gMaxNumberOfLevels, "calc_subdomain_id_of_element(), Requested refinement level larger than maximal refinement level");
+
+            // test if input is valid
+            if (    ( aI >=  mMySubDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ] )
+                 || ( aJ >=  mMySubDomain.mNumberOfElementsPerDimension[ aLevel ][ 1 ] ) )
             {
-                // test if input is valid
-                if ( ( aI >=  mMySubDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ] )
-                        || ( aJ >=  mMySubDomain.mNumberOfElementsPerDimension[ aLevel ][ 1 ] ) )
-                {
-                    //return no value
-                    return gNoEntityID;
-                }
-                else
-                {
-                    // calculate element ID
-                    return mMySubDomain.mLevelOffset[ aLevel ] + aI + aJ *
-                            mMySubDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
-                }
+                //return no value
+                return gNoEntityID;
             }
             else
             {
-                // return error value
-                return gNoEntityID;
+                // calculate element ID
+                return mMySubDomain.mLevelOffset[ aLevel ] + aI + aJ * mMySubDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
             }
         }
 
 //--------------------------------------------------------------------------------
         template <>
-        void
-        Background_Mesh< 2 >::calc_element_ids(
-                const uint         & aLevel,
-                const Matrix< DDLUMat > & aIJK,
-                Matrix< DDLUMat >       & aIDs ) const
-                {
+        void Background_Mesh< 2 >::calc_element_ids( const uint              & aLevel,
+                                                     const Matrix< DDLUMat > & aIJK,
+                                                           Matrix< DDLUMat > & aIDs ) const
+        {
             // reserve memory for output
             aIDs.set_size( 4, 1 );
 
             // child 0
-            aIDs( 0 ) = calc_domain_id_of_element(
-                    aLevel,
-                    aIJK( 0, 0 ),
-                    aIJK( 1, 0 ) );
+            aIDs( 0 ) = calc_domain_id_of_element( aLevel,
+                                                   aIJK( 0, 0 ),
+                                                   aIJK( 1, 0 ) );
 
             // child 1
-            aIDs( 1 ) = calc_domain_id_of_element(
-                    aLevel,
-                    aIJK( 0, 1 ),
-                    aIJK( 1, 1 ) );
+            aIDs( 1 ) = calc_domain_id_of_element( aLevel,
+                                                   aIJK( 0, 1 ),
+                                                   aIJK( 1, 1 ) );
 
             // child 2
-            aIDs( 2 ) = calc_domain_id_of_element(
-                    aLevel,
-                    aIJK( 0, 2 ),
-                    aIJK( 1, 2 ) );
+            aIDs( 2 ) = calc_domain_id_of_element( aLevel,
+                                                   aIJK( 0, 2 ),
+                                                   aIJK( 1, 2 ) );
 
             // child 3
-            aIDs( 3 ) = calc_domain_id_of_element(
-                    aLevel,
-                    aIJK( 0, 3 ),
-                    aIJK( 1, 3 ) );
+            aIDs( 3 ) = calc_domain_id_of_element( aLevel,
+                                                   aIJK( 0, 3 ),
+                                                   aIJK( 1, 3 ) );
         }
 
 //--------------------------------------------------------------------------------
@@ -125,26 +94,20 @@ namespace moris
                 const uint         & aLevel,
                 const luint        & aID) const
         {
-            if( aLevel < gMaxNumberOfLevels )
-            {
-                // subtract level offset from ID
-                luint tID = aID - mDomain.mLevelOffset[ aLevel ];
+            MORIS_ASSERT( aLevel < gMaxNumberOfLevels, "calc_subdomain_id_from_global_id(), Requested refinement level larger than maximal refinement level");
 
-                // calculate global ij position
-                luint tJ = tID / mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
-                luint tI = tID - tJ*mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
+            // subtract level offset from ID
+            luint tID = aID - mDomain.mLevelOffset[ aLevel ];
 
-                // calculate local ij position
-                tI -= mMySubDomain.mAuraIJK[ aLevel ][ 0 ][ 0 ];
-                tJ -= mMySubDomain.mAuraIJK[ aLevel ][ 1 ][ 0 ];
+            // calculate global ij position
+            luint tJ = tID / mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
+            luint tI = tID - tJ*mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
 
-                return this->calc_subdomain_id_of_element( aLevel, tI, tJ);
-            }
-            else
-            {
-                // return error value
-                return gNoEntityID;
-            }
+            // calculate local ij position
+            tI -= mMySubDomain.mAuraIJK[ aLevel ][ 0 ][ 0 ];
+            tJ -= mMySubDomain.mAuraIJK[ aLevel ][ 1 ][ 0 ];
+
+            return this->calc_subdomain_id_of_element( aLevel, tI, tJ);
        }
 
 //--------------------------------------------------------------------------------
@@ -169,18 +132,12 @@ namespace moris
             luint tCount = 0;
 
             // loop over domain
-            for( luint j=mMySubDomain.mFrameIJK[ 0 ][ 1 ][ 0 ];
-                    j<=mMySubDomain.mFrameIJK[ 0 ][ 1 ][ 1 ];
-                    ++j)
+            for( luint j = mMySubDomain.mFrameIJK[ 0 ][ 1 ][ 0 ]; j <= mMySubDomain.mFrameIJK[ 0 ][ 1 ][ 1 ]; ++j)
             {
-                for( luint i=mMySubDomain.mFrameIJK[ 0 ][ 0 ][ 0 ];
-                        i<=mMySubDomain.mFrameIJK[ 0 ][ 0 ][ 1 ];
-                        ++i)
+                for( luint i = mMySubDomain.mFrameIJK[ 0 ][ 0 ][ 0 ]; i <= mMySubDomain.mFrameIJK[ 0 ][ 0 ][ 1 ]; ++i)
                 {
                     // add element from mCoarsestElementsIncludingAura
-                    mCoarsestElements( tCount ++ ) =
-                            mCoarsestElementsIncludingAura(
-                                    calc_subdomain_id_of_element( 0, i, j ) );
+                    mCoarsestElements( tCount ++ ) = mCoarsestElementsIncludingAura( calc_subdomain_id_of_element( 0, i, j ) );
                 }
             }
         }
@@ -192,37 +149,32 @@ namespace moris
         Background_Mesh< 2 >::initialize_coarsest_elements()
         {
             // assign memory for coarsest elements
-            mCoarsestElementsIncludingAura.resize(
-                    mMySubDomain.mNumberOfElementsOnLevelZero,
-                    nullptr );
+            mCoarsestElementsIncludingAura.resize( mMySubDomain.mNumberOfElementsOnLevelZero, nullptr );
 
             // calculate number of elements on level zero per direction
-            Matrix< DDLUMat > tNumberOfElements =
-                    get_number_of_subdomain_elements_per_direction_on_level_zero();
+            Matrix< DDLUMat > tNumberOfElements = this->get_number_of_subdomain_elements_per_direction_on_level_zero();
 
-            luint* tIJK = new luint[ 2 ];
+            luint * tIJK = new luint[ 2 ];
 
             // initialize counter
             luint tCount = 0;
 
             // add elements on level zero
-            for( luint j=0; j<tNumberOfElements( 1 ); ++j )
+            for( luint j = 0; j < tNumberOfElements( 1 ); ++j )
             {
                 tIJK[ 1 ] = j;
-                for( luint i=0; i<tNumberOfElements( 0 ); ++i )
+                for( luint i = 0; i < tNumberOfElements( 0 ); ++i )
                 {
                     tIJK[ 0 ] = i;
 
-                    insert_zero_level_element(
-                            tCount++,
-                            new Background_Element< 2, 4, 8, 4, 0 >(
-                                    ( Background_Element_Base* ) nullptr,
-                                    mActivePattern,
-                                    tIJK,
-                                    this->calc_domain_id_of_element( 0, i, j ) ,
-                                    ( uint ) 0,
-                                    ( uint ) 0,
-                                    ( uint ) gNoProcOwner ) );
+                    this->insert_zero_level_element( tCount++,
+                                               new Background_Element< 2, 4, 8, 4, 0 >( ( Background_Element_Base * ) nullptr,
+                                                                                        mActivePattern,
+                                                                                        tIJK,
+                                                                                        this->calc_domain_id_of_element( 0, i, j ) ,
+                                                                                        ( uint ) 0,
+                                                                                        ( uint ) 0,
+                                                                                        ( uint ) gNoProcOwner ) );
                 }
             }
 
@@ -239,6 +191,17 @@ namespace moris
             luint tImax[ 9 ];
             luint tJmin[ 9 ];
             luint tJmax[ 9 ];
+
+            /*  neighbors for 2D case
+            *
+            *  .--------------.
+            *  |  6 |  7 |  8 |   j
+            *  |--------------|   ^
+            *  |  3 | 5  |  5 |   |
+            *  |--------------|   o --> i
+            *  |  0 |  1 |  2 |
+            *  '--------------'
+            */
 
             // create quadrants for aura elements
             // quadrant 0
@@ -296,15 +259,15 @@ namespace moris
             tJmax[ 8 ] = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ 1 ] - 1;
 
             // loop over all quadrants
-            for( uint q=0; q<9; ++q )
+            for( uint q = 0; q < 9; ++q )
             {
                 // loop over my own elments
                 if ( mMyProcNeighbors( q ) == par_rank() )
                 {
                     // this is an active element
-                    for( auto j=tJmin[ q ]; j<=tJmax[ q ]; ++j )
+                    for( auto j = tJmin[ q ]; j <= tJmax[ q ]; ++j )
                     {
-                        for( auto i=tImin[ q ]; i<=tImax[ q ]; ++i )
+                        for( auto i = tImin[ q ]; i <= tImax[ q ]; ++i )
                         {
                             // get local id == local index for level 0
                             auto tIndex = calc_subdomain_id_of_element( 0, i, j );
@@ -320,20 +283,18 @@ namespace moris
                 else if ( mMyProcNeighbors( q ) != gNoProcNeighbor )
                 {
                     // count elements for aura
-                    uint tCount =   ( tImax[ q ] - tImin[ q ] + 1 )
-                                  * ( tJmax[ q ] - tJmin[ q ] + 1 );
+                    uint tCount = ( tImax[ q ] - tImin[ q ] + 1 ) * ( tJmax[ q ] - tJmin[ q ] + 1 );
 
                     // set size for matrix
-
                     mCoarsestAura( q ).set_size( tCount, 1 );
 
                     // reset counter
                     tCount = 0;
 
                     // this is an active element of a neigbor proc
-                    for( auto j=tJmin[ q ]; j<=tJmax[ q ]; ++j )
+                    for( auto j = tJmin[ q ]; j <= tJmax[ q ]; ++j )
                     {
-                        for( auto i=tImin[ q ]; i<=tImax[ q ]; ++i )
+                        for( auto i = tImin[ q ]; i <= tImax[ q ]; ++i )
                         {
                             // get local id == local index for level 0
                             auto tIndex = calc_subdomain_id_of_element( 0, i, j );
@@ -352,9 +313,9 @@ namespace moris
                 else
                 {
                     // this is definetly a padding element
-                    for( auto j=tJmin[ q ]; j<=tJmax[ q ]; ++j )
+                    for( auto j = tJmin[ q ]; j <= tJmax[ q ]; ++j )
                     {
-                        for( auto i=tImin[ q ]; i<=tImax[ q ]; ++i )
+                        for( auto i = tImin[ q ]; i <= tImax[ q ]; ++i )
                         {
                             // get local id == local index for level 0
                             auto tIndex = calc_subdomain_id_of_element( 0, i, j );
@@ -430,12 +391,10 @@ namespace moris
             for( uint q=0; q<9; ++q )
             {
                 // check if neigbor exists and is not myself
-                if (       mMyProcNeighbors( q ) != gNoProcNeighbor
-                        && mMyProcNeighbors( q ) != par_rank() )
+                if ( mMyProcNeighbors( q ) != gNoProcNeighbor && mMyProcNeighbors( q ) != par_rank() )
                 {
                     // count elements for inverse aura
-                    luint tCount =   ( tImax[ q ] - tImin[ q ] + 1 )
-                                   * ( tJmax[ q ] - tJmin[ q ] + 1 );
+                    luint tCount = ( tImax[ q ] - tImin[ q ] + 1 ) * ( tJmax[ q ] - tJmin[ q ] + 1 );
 
                     mCoarsestInverseAura( q ).set_size( tCount, 1 );
 
@@ -449,8 +408,7 @@ namespace moris
                         for( auto i=tImin[ q ]; i<=tImax[ q ]; ++i )
                         {
                             // add subdomain id of element into matrix
-                            mCoarsestInverseAura( q )( tCount++ )
-                                = calc_subdomain_id_of_element( 0, i, j );
+                            mCoarsestInverseAura( q )( tCount++ ) = calc_subdomain_id_of_element( 0, i, j );
                         }
                     }
                 }
@@ -460,13 +418,11 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         template <>
-        void
-        Background_Mesh< 2 >::refine_element( Background_Element_Base * aElement, const bool aKeepState )
+        void Background_Mesh< 2 >::refine_element( Background_Element_Base * aElement, const bool aKeepState )
         {
             // only perform if element is not refined already
             // and element is below max defined level
-
-            if ( aElement->get_level() < gMaxNumberOfLevels-1 )
+            if ( aElement->get_level() < gMaxNumberOfLevels-1 )      //FIXME perhaps go rid of this check for speed
             {
                 if ( ! aElement->has_children() )
                 {
@@ -474,7 +430,7 @@ namespace moris
                     uint tOwner = aElement->get_owner();
 
                     // get level of new element
-                    auto tLevel = aElement->get_level() + 1 ;
+                    uint tLevel = aElement->get_level() + 1 ;
 
                     // get ijk positions of children
                     Matrix< DDLUMat > tIJK;

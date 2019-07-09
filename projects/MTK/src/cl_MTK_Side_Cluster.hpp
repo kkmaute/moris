@@ -41,14 +41,14 @@ public:
      */
     virtual
     bool
-    is_trivial( const moris::uint aSide = 0 ) const  = 0;
+    is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const  = 0;
 
     /*!
      * Get interpolation cell interpolating into this side cluster
      */
     virtual
     moris::mtk::Cell const &
-    get_interpolation_cell( const moris::uint aSide = 0 ) const = 0;
+    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     /*!
      * Get all integration cells in this side cluster
@@ -58,7 +58,7 @@ public:
     get_cells_in_side_cluster() const = 0;
 
     moris::Cell<mtk::Cell const *> const &
-    get_primary_cells_in_cluster( const moris::uint aSide = 0 ) const
+    get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         return this->get_cells_in_side_cluster();
     }
@@ -68,7 +68,7 @@ public:
      */
     virtual
     moris::Matrix<moris::IndexMat>
-    get_cell_side_ordinals( const moris::uint aSide = 0 ) const  = 0;
+    get_cell_side_ordinals( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const  = 0;
 
     /*!
      * Single side ordinal version of above
@@ -76,7 +76,7 @@ public:
     virtual
     moris_index
     get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-                         const moris::uint aSide = 0) const = 0;
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
 
     /*!
@@ -84,7 +84,7 @@ public:
      */
     virtual
     moris::Cell<moris::mtk::Vertex const *> const &
-    get_vertices_in_cluster( const moris::uint aSide = 0 ) const = 0;
+    get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
 
     //##############################################
@@ -97,7 +97,7 @@ public:
      */
     virtual
     moris::Matrix<moris::DDRMat> const &
-    get_vertices_local_coordinates_wrt_interp_cell( const moris::uint aSide = 0 ) const = 0;
+    get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
     /*
      * Access vertex local index in cluster
@@ -112,7 +112,7 @@ public:
     virtual
     moris::Matrix<moris::DDRMat>
     get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                                                 const moris::uint aSide = 0) const  = 0;
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const  = 0;
 
     //##############################################
     // Size Access
@@ -123,7 +123,7 @@ public:
      */
     virtual
     moris_index
-    get_dim_of_param_coord( const moris::uint aSide = 0 ) const  = 0;
+    get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const  = 0;
 
     //----------------------------------------------------------------
     // EVERYTHING BELOW THIS LINE HAS A DEFAULT IMPLEMENTATION
@@ -254,7 +254,7 @@ public:
     virtual
     moris::Matrix<moris::DDRMat>
     get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
-                                                  const moris::uint aSide = 0) const
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         MORIS_ASSERT(aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),"Integration Cell Cluster index out of bounds");
 
@@ -282,7 +282,7 @@ public:
     virtual
     moris::Matrix<moris::DDRMat>
     get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex,
-                                                          const moris::uint aSide = 0 ) const
+            const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     {
         return this ->get_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellClusterIndex );
     };

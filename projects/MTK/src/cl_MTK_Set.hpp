@@ -89,12 +89,12 @@ namespace moris
                 if( mSetClusters.size() > 0 )
                 {
                     // interpolation order for IP cells fixme
-                    tIPInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_interpolation_cell( 0 ).get_number_of_vertices(),
+                    tIPInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_number_of_vertices(),
                                                                                 mIPGeometryType );
 
                     // interpolation order for IG cells fixme
-                    tIGInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_number_of_vertices(),
-                                                                                mSetClusters( 0 )->get_primary_cells_in_cluster( 0 )( 0 )->get_geometry_type() );
+                    tIGInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_number_of_vertices(),
+                                                                                mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_geometry_type() );
                 }
 
                 uint tRecIPInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
@@ -110,25 +110,30 @@ namespace moris
 //                MORIS_ASSERT( mIGSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ig interpolation order on this processor");
             }
 
+//------------------------------------------------------------------------------
+
             // FIXME should be userdefined in FEM
-            void communicate_is_trivial_flag( mtk::Master_Slave aIsMaster )
+            void communicate_is_trivial_flag( const mtk::Master_Slave aIsMaster )
             {
-//                bool tIsTrivial = false;
                 sint tIsTrivial = 1;
 
                 if( mSetClusters.size() > 0 )
                 {
                     // set the integration geometry type
-                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial(); //FIXME change for double sided set
+                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial( aIsMaster ); //FIXME change for double sided set
                 }
 
-                sint tIsTrivialMAX = (sint) false;
+                sint tIsTrivialMax = (sint) false;
 
-                max_all( tIsTrivial, tIsTrivialMAX );
+                max_all( tIsTrivial, tIsTrivialMax );
 
-                if( tIsTrivialMAX == 1)
+                if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::MASTER )
                 {
                     mIsTrivialMaster = true;
+                }
+                else if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::SLAVE )
+                {
+                    mIsTrivialSlave = true;
                 }
             };
 
@@ -165,7 +170,7 @@ namespace moris
 //              virtual const moris::Matrix< DDUMat > &
 //              get_list_of_block_cell_clusters() const = 0;
 
-            bool is_trivial( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
                 if ( !mMasterLock && aIsMaster == mtk::Master_Slave::MASTER )
                 {
@@ -194,8 +199,9 @@ namespace moris
 
                     return false;
                 }
-
             };
+
+//------------------------------------------------------------------------------
 
             mtk::Geometry_Type get_interpolation_cell_geometry_type()
             {
@@ -226,11 +232,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
               virtual const Cluster  *
-              get_clusters_by_index( moris_index aCellClusterIndex ) const
-              {
-                  MORIS_ASSERT(false, "get_clusters_by_index() virtual base class used");
-                  return nullptr;
-              };
+              get_clusters_by_index( moris_index aCellClusterIndex ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -250,11 +252,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
               virtual moris::Cell<Cluster const *>
-              get_clusters_on_set() const
-              {
-                  MORIS_ASSERT(false, "get_cell_clusters_on_set() virtual base class used");
-                  return moris::Cell<Cluster const *>(0);
-              }
+              get_clusters_on_set() const = 0;
 
 //------------------------------------------------------------------------------
 
