@@ -44,6 +44,7 @@ namespace moris
 // -----------------------------------------------------------------------------
     // print dots for nice output
 
+    inline
     std::string proc_string()
     {
         std::string tString = "              ";
@@ -124,6 +125,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+    inline
     bool string_to_bool( const std::string & aString )
     {
         // locale
@@ -144,6 +146,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+    inline
     std::string parallelize_path( const std::string & aFilePath )
     {
         if( par_size() == 1 || aFilePath.size() == 0 )
