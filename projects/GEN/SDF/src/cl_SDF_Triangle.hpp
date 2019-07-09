@@ -16,7 +16,7 @@
 #include "op_times.hpp"
 
 #include "cl_Cell.hpp"
-#include "MTK/src/cl_MTK_Cell.hpp"
+#include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Triangle_Vertex.hpp"
 
 namespace moris

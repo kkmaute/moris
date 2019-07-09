@@ -826,6 +826,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
         template < uint N, uint C, uint B, uint F , uint E >
+        inline
         void Background_Element< N, C, B, F, E >::get_neighbors_from_same_level(
                 const uint                        & aOrder,
                 Cell< Background_Element_Base * > & aNeighbors )
@@ -4158,8 +4159,8 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-#include "../../../HMR/src/fn_HMR_Background_Element_Neighbors_2D.hpp"
-#include "../../../HMR/src/fn_HMR_Background_Element_Neighbors_3D.hpp"
-#include "../../../HMR/src/fn_HMR_Background_Element_Edges_3D.hpp"
+#include "fn_HMR_Background_Element_Neighbors_2D.hpp"
+#include "fn_HMR_Background_Element_Neighbors_3D.hpp"
+#include "fn_HMR_Background_Element_Edges_3D.hpp"
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_ */

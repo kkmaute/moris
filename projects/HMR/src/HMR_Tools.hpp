@@ -165,6 +165,7 @@ namespace moris
         /**
          * returns the binominalcoefficient of n over k as real
          */
+    	inline
         real nchoosek( const uint & aN, const uint aK )
         {
             real aResult = 1.0;

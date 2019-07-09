@@ -1,10 +1,31 @@
 ### Config Template for distlinalg Library ###
 
+if(@DLA@_CONFIGURED)
+	return()
+endif()
+
+set(@DLA@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@DISTLINALG@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@DLA@)
+# Additional macros
+include(CMakeFindDependencyMacro)
 
-# Fetch library target
-include(@DISTLINALG@Targets.cmake)
+# Compilers and used in build
+set(@DLA@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@DLA@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@DLA@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@DLA_COMPILE_DEFINITIONS@")
+set(@DLA@_C_FLAGS "@MORIS_C_FLAGS@" "@DLA_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@DLA_CONFIG_TPL_DEPENDENCIES@
+@DLA_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_DLA_CONFIG_INSTALL_DIR@/@DLA@Targets.cmake")
+
+# Library target list
+set(@DLA@_LIBRARIES @DLA@-lib)

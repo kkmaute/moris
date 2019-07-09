@@ -1,0 +1,36 @@
+### Containers Library Config File ###
+
+if(@CON@_CONFIGURED)
+	return()
+endif()
+
+set(@CON@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+#< TEMP
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@CON@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@CON@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@CON@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@CON_COMPILE_DEFINITIONS@")
+set(@CON@_C_FLAGS "@MORIS_C_FLAGS@" "@CON_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@CON_CONFIG_TPL_DEPENDENCIES@
+@CON_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_CON_CONFIG_INSTALL_DIR@/@CON@Targets.cmake")
+
+# Library target list
+set(@CON@_LIBRARIES @CON@-lib)

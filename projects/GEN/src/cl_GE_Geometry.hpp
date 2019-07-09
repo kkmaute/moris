@@ -17,7 +17,7 @@
 #include "cl_GE_Geometry_Library.hpp"
 
 // hmr includes
-#include "../projects/HMR/src/cl_HMR_Field.hpp"
+#include "cl_HMR_Field.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"

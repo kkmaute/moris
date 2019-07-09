@@ -1,10 +1,31 @@
 ### Integration and Interpolation Config File ###
 
+if(@INT@_CONFIGURED)
+	return()
+endif()
+
+set(@INT@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIRS
-set_and_check(@INT@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@FEM@/@INT@)
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@INT@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@INT@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@INT@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@INT_COMPILE_DEFINITIONS@")
+set(@INT@_C_FLAGS "@MORIS_C_FLAGS@" "@INT_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@INT_CONFIG_TPL_DEPENDENCIES@
+@INT_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@INT@Targets.cmake)
+include("@PACKAGE_INT_CONFIG_INSTALL_DIR@/@INT@Targets.cmake")
+
+# Library target list
+set(@INT@_LIBRARIES @INT@-lib)

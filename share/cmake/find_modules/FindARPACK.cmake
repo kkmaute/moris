@@ -23,3 +23,7 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ARPACK DEFAULT_MSG ARPACK_LIBRARIES)
 
 mark_as_advanced(ARPACK_LIBRARIES)
+
+add_library(ARPACK::arpack STATIC IMPORTED)
+set_target_properties(ARPACK::arpack PROPERTIES 
+	IMPORTED_LOCATION ${ARPACK_LIBRARIES} )

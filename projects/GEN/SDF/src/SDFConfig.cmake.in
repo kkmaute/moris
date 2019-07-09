@@ -1,0 +1,31 @@
+### SDF Library Config File ###
+
+if(@SDF@_CONFIGURED)
+	return()
+endif()
+
+set(@SDF@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@SDF@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@SDF@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@SDF@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@SDF_COMPILE_DEFINITIONS@")
+set(@SDF@_C_FLAGS "@MORIS_C_FLAGS@" "@SDF_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@SDF_CONFIG_TPL_DEPENDENCIES@
+@SDF_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_SDF_CONFIG_INSTALL_DIR@/@SDF@Targets.cmake")
+
+# Library target list
+set(@SDF@_LIBRARIES @SDF@-lib)

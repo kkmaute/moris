@@ -7,14 +7,18 @@ if(${MORIS_HAVE_PARALLEL})
         if(NOT MPI_FOUND_ONCE)
             find_package(MPI)
             if(MPI_FOUND)
-                set(MPI_FOUND_ONCE TRUE CACHE INTERNAL "MPI was found.")
+                #set(MPI_FOUND_ONCE TRUE CACHE INTERNAL "MPI was found.")
+                set(MPI_FOUND_ONCE TRUE)
                 
-                set(MORIS_MPI_INCLUDE_DIRS ${MPI_CXX_INCLUDE_PATH}
-                	CACHE PATH "OPENMPI include directories." )
-                set(MORIS_MPI_LIBRARIES ${MPI_CXX_LIBRARIES}
-                	CACHE INTERNAL "OPENMPI libraries." )
-                set(MORIS_MPI_DEFINITIONS "-DMORIS_HAVE_PARALLEL"
-                	CACHE INTERNAL "Moris preprocessor definitions for OPENMPI." )
+                #set(MORIS_MPI_INCLUDE_DIRS ${MPI_CXX_INCLUDE_PATH}
+                #	CACHE PATH "OPENMPI include directories." )
+                #set(MORIS_MPI_LIBRARIES ${MPI_CXX_LIBRARIES}
+                #	CACHE INTERNAL "OPENMPI libraries." )
+                #set(MORIS_MPI_DEFINITIONS "-DMORIS_HAVE_PARALLEL"
+                #	CACHE INTERNAL "Moris preprocessor definitions for OPENMPI." )
+                set(MORIS_MPI_INCLUDE_DIRS ${MPI_CXX_INCLUDE_PATH})
+                set(MORIS_MPI_LIBRARIES ${MPI_CXX_LIBRARIES})
+                set(MORIS_MPI_DEFINITIONS "-DMORIS_HAVE_PARALLEL")
                 
                 mark_as_advanced(MPI_LIBRARY
                 	MPI_EXTRA_LIBRARY
@@ -45,17 +49,15 @@ if(${MORIS_HAVE_PARALLEL})
             message(FATAL_ERROR "A library with MPI API not found.")
         endif()
 
-        #add_definitions("-DMORIS_HAVE_PARALLEL")
-        #include_directories(${MPI_CXX_INCLUDE_PATH})
-        #set(MORIS_MPI_LIBS ${MPI_CXX_LIBRARIES})
     else()
         message(FATAL_ERROR "MORIS_USE_MPI supported packages: ${MORIS_MPI_LIBS}")
     endif()
 endif()
 
-if(NOT TARGET mpi)
-	add_library(mpi INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(mpi INTERFACE ${MORIS_MPI_LIBRARIES})
+if(NOT TARGET ${MORIS}::mpi)
+	_import_libraries(MPI_LIBRARY_TARGETS "${MORIS_MPI_LIBRARIES}")
+
+	add_library(${MORIS}::mpi INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(${MORIS}::mpi INTERFACE ${MPI_LIBRARY_TARGETS})
 endif()
 
-#mark_as_advanced(MPI_LIBRARY MPI_EXTRA_LIBRARY)

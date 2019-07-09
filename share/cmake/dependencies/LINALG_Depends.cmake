@@ -32,6 +32,11 @@ elseif(${ARMADILLO_EIGEN} STREQUAL "eigen")
         )
 endif()
 
+foreach(TPL ${LINALG_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
+endforeach()
+
 # List moris projects directly needed by PROJ
 set(LINALG_MORIS_DEPENDENCIES
     ${COM}
@@ -50,11 +55,11 @@ list(REMOVE_DUPLICATES LINALG_TPL_DEPENDENCIES)
 
 # Linear Algebra implementations
 if(MORIS_USE_EIGEN)
-	set(LINALG_IMPLEMENTATION_INCLUDES ${MORIS_PACKAGE_DIR}/${LINALG}/src/Eigen_Impl )
+	set(LINALG_IMPLEMENTATION_INCLUDES Eigen_Impl )
 endif()
 
 if(MORIS_USE_ARMA)
-	set(LINALG_IMPLEMENTATION_INCLUDES ${MORIS_PACKAGE_DIR}/${LINALG}/src/Arma_Impl )
+	set(LINALG_IMPLEMENTATION_INCLUDES Arma_Impl )
 endif()
 
 

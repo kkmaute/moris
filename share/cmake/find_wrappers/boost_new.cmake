@@ -9,6 +9,7 @@
 
 if(NOT BOOST_FOUND_ONCE)
 	find_package(Boost 1.54.0 REQUIRED filesystem system log log_setup thread serialization timer)
+	set(MORIS_BOOST_REQUIREMENTS "Boost 1.54.0 REQUIRED filesystem system log log_setup thread serialization timer")
 	
 	if(Boost_FOUND)
 	    message(STATUS "Boost_FOUND: ${Boost_FOUND}")
@@ -44,8 +45,8 @@ if(NOT BOOST_FOUND_ONCE)
 	        # @note[chvillanuevap@gmail.com] Fix Boost.Log library linking issue.
 	        # @see [Boost logger linking issue]
 	        # (http://stackoverflow.com/questions/18881602/boost-logger-linking-issue)
-	#         list(APPEND MORIS_DEFINITIONS "-DBOOST_LOG_DYN_LINK")
-	        list(APPEND MORIS_BOOST_DEFS "-DBOOST_LOG_DYN_LINK")
+	         list(APPEND MORIS_DEFINITIONS "-DBOOST_LOG_DYN_LINK")
+	   #     list(APPEND MORIS_BOOST_DEFS "-DBOOST_LOG_DYN_LINK")
 	
 	        # @note[chvillanuevap@gmail.com]
 	        # Fix Boost.Preprocessor library variadic template issue in Clang.
@@ -54,10 +55,10 @@ if(NOT BOOST_FOUND_ONCE)
 	        # In that scenario, we need to revisit this definition.
 	        # @see [[Boost-users] Problem with variadic BOOST_PP_TUPLE_REM in Clang]
 	        # (https://groups.google.com/forum/#!topic/boost-list/YTXqzIjMUrg)
-	#         list(APPEND MORIS_DEFINITIONS "-DBOOST_PP_VARIADICS")
-	        list(APPEND MORIS_BOOST_DEFS "-DBOOST_PP_VARIADICS")
-	        set(MORIS_BOOST_DEFINITIONS ${MORIS_BOOST_DEFS}
-	            CACHE INTERNAL "Boost preprocessor definitions.")
+	         list(APPEND MORIS_DEFINITIONS "-DBOOST_PP_VARIADICS")
+	   #     list(APPEND MORIS_BOOST_DEFS "-DBOOST_PP_VARIADICS")
+	   #     set(MORIS_BOOST_DEFINITIONS ${MORIS_BOOST_DEFS}
+	   #         CACHE INTERNAL "Boost preprocessor definitions.")
 	        
 	        # @note[chvillanuevap@gmail.com]
 	        # Boost.Log requires this library.
@@ -65,17 +66,28 @@ if(NOT BOOST_FOUND_ONCE)
 	        # undefined reference to symbol 'pthread_rwlock_wrlock@@GLIBC_2.2.5'
 	        # You can link either '-lpthread' or 'pthread'.
 	#         list(APPEND MORIS_LDLIBS "-lpthread")
-	        list(APPEND MORIS_BOOST_LDLIBS "-lpthread")
+	        list(APPEND MORIS_BOOST_LDLIBS "-lpthread") #<2
 	    endif()
 	    
-	    set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-	        CACHE INTERNAL "Boost include directories." )
-	    set(MORIS_BOOST_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}
-	        CACHE INTERNAL "Boost link directories." )
-	    set(MORIS_BOOST_LIBRARIES ${Boost_LIBRARIES} ${MORIS_BOOST_LDLIBS}
-	        CACHE INTERNAL "Boost libraries." )
+	    #set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+	    #    CACHE INTERNAL "Boost include directories." )
+	    #set(MORIS_BOOST_LIBRARY_DIRS ${Boost_LIBRARY_DIRS}
+	    #    CACHE INTERNAL "Boost link directories." )
+	    #set(MORIS_BOOST_LIBRARIES ${Boost_LIBRARIES} ${MORIS_BOOST_LDLIBS}
+	    #    CACHE INTERNAL "Boost libraries." )
+	    set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+	    set(MORIS_BOOST_LIBRARY_DIRS ${Boost_LIBRARY_DIRS})
+	    set(MORIS_BOOST_LIBRARIES 
+	    	Boost::filesystem 
+	    	Boost::system 
+	    	Boost::log 
+	    	Boost::log_setup 
+	    	Boost::thread 
+	    	Boost::serialization 
+	    	Boost::timer )
 	    
-	    set(BOOST_FOUND_ONCE TRUE CACHE INTERNAL "Boost was found.")
+	    #set(BOOST_FOUND_ONCE TRUE CACHE INTERNAL "Boost was found.")
+	    set(BOOST_FOUND_ONCE TRUE)
 	endif()
 	
 	message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
@@ -83,9 +95,10 @@ if(NOT BOOST_FOUND_ONCE)
 	message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
 endif()
 
-if(NOT TARGET boost)
-	add_library(boost INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(boost INTERFACE ${MORIS_BOOST_LIBRARIES})
+if(NOT TARGET ${MORIS}::boost)
+	add_library(${MORIS}::boost INTERFACE IMPORTED GLOBAL)
+	#target_link_libraries(boost INTERFACE ${MORIS_BOOST_LIBRARIES})
+	target_link_libraries(${MORIS}::boost INTERFACE Boost::filesystem Boost::system Boost::log Boost::log_setup Boost::thread Boost::serialization Boost::timer)
 endif()
 
 #link_directories(${MORIS_BOOST_FLAGS})

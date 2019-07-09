@@ -8,23 +8,72 @@ set(HEADERS
     fn_log_assert.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Assert Target
-add_library(${ASR}-target INTERFACE)
-target_include_directories(${ASR}-target INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Assert Library
+set(LIB_DEPENDENCIES
+	${IOS}-lib
+	${EXC}-lib
+	${COR}-lib
+	)
 
+add_library(${ASR}-lib INTERFACE)
+target_include_directories(${ASR}-lib INTERFACE 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:${${ASR}_HEADER_INSTALL_DIR}>)
+target_link_libraries(${ASR}-lib INTERFACE ${LIB_DEPENDENCIES})
+	
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Assert Executable
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Assert Config Files
 
+# Makes sure all tpl dependencies are searched for in the config file
+foreach(TPL ${ASR_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+	string(APPEND ASR_CONFIG_TPL_DEPENDENCIES 
+		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
+endforeach()
+
+# Makes sure all moris library dependencies are included in the config file
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+	string(APPEND ASR_CONFIG_MORIS_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+endforeach()
+
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${ASR}Config.cmake.in
+    ${${ASR}_CONFIG_BUILD_DIR}/${ASR}Config.cmake
+    INSTALL_DESTINATION 
+    ${${ASR}_CONFIG_INSTALL_DIR}
+    PATH_VARS 
+    ${ASR}_CONFIG_INSTALL_DIR
+    )
+
+write_basic_package_version_file(
+    ${${ASR}_CONFIG_BUILD_DIR}/${ASR}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Assert Installation
 
+# Install *Config and *ConfigVersion files
+install(FILES ${${ASR}_CONFIG_BUILD_DIR}/${ASR}Config.cmake 
+    ${${ASR}_CONFIG_BUILD_DIR}/${ASR}ConfigVersion.cmake
+    DESTINATION ${${ASR}_CONFIG_INSTALL_DIR} )
+
 # Install header files
 install(FILES ${HEADERS}
-    DESTINATION ${HEADER_INSTALL_DIR}/${MRS}/${ASR} )
+    DESTINATION ${${ASR}_HEADER_INSTALL_DIR} )
 
+# Install library
+install(TARGETS ${ASR}-lib
+    DESTINATION ${${ASR}_LIB_INSTALL_DIR}
+    EXPORT ${ASR}Targets )
+
+# Export library in to *Targets file
+install(EXPORT ${ASR}Targets
+    DESTINATION ${${ASR}_CONFIG_INSTALL_DIR} )
