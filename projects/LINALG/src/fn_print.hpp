@@ -12,7 +12,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
-
+#include <iomanip>      // std::setw
 
 namespace moris
 {
@@ -40,6 +40,52 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
+
+    /*
+     * prints the col and row index as well as the data
+     */
+    //------------------------------------------------------------------------------
+        template<typename Matrix_Type>
+        inline void
+        print_fancy(Matrix< Matrix_Type > aMat,
+                    std::string aTitle)
+        {
+            size_t tNumRows = aMat.n_rows();
+            size_t tNumColumns = aMat.n_cols();
+            std::cout << "\n-------------------------------------------------\n";
+            std::cout << aTitle + ": \n";
+            std::cout << "Num Rows: " << tNumRows << " | Num Cols: " << tNumColumns << "\n";
+
+            std::cout<<std::left<<std::setw(8)<<"";
+            for(size_t c = 0; c < tNumColumns; c++)
+            {
+                std::cout<<std::left<<std::setw(8)<<c;
+            }
+
+            std::cout<<"\n";
+
+            for(size_t c = 0; c < tNumColumns+1; c++)
+            {
+                std::cout<<"--------";
+            }
+
+            std::cout<<"\n";
+
+            for(size_t r = 0; r < tNumRows; r++)
+            {
+                std::cout<<std::right<<std::setw(5)<<r<<" | ";
+
+                for(size_t c = 0; c < tNumColumns; c++)
+                {
+                    std::cout << aMat(r, c) << " ";
+                }
+
+                std::cout << "\n";
+            }
+            std::cout << "\n-------------------------------------------------\n"<<std::endl;
+        }
+
+    //------------------------------------------------------------------------------
 
     inline
     void

@@ -186,7 +186,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
 
          // initialize mesh
          std::clock_t tOpTimer = std::clock();
-         moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( aXTKProblemParams.mMeshType, aXTKProblemParams.mInputMeshFile );
+         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( aXTKProblemParams.mMeshType, aXTKProblemParams.mInputMeshFile );
          tMeshLoadTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
          // setup the geometry

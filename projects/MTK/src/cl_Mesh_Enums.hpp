@@ -59,23 +59,33 @@ namespace moris
 {
     enum class EntityRank
     {
-        NODE,   // Indicates the entity has rank NODE
-        EDGE,   // Indicates the entity has rank EDGE
-        FACE,   // Indicates the entity has rank FACE
-        ELEMENT,// Indicates the entity has rank ELEMENT
-        BSPLINE_1, // Indicates the entity has rank BSPLINE
-        BSPLINE_2, // Indicates the entity has rank BSPLINE
-        BSPLINE_3, // Indicates the entity has rank BSPLINE
-        INVALID, // Indicates the entity is invalid
-        END_ENUM//
+        NODE      ,   // Indicates the entity has rank NODE
+        EDGE      ,   // Indicates the entity has rank EDGE
+        FACE      ,   // Indicates the entity has rank FACE
+        ELEMENT   ,// Indicates the entity has rank ELEMENT
+        BSPLINE_1 , // Indicates the entity has rank BSPLINE
+        BSPLINE_2 , // Indicates the entity has rank BSPLINE
+        BSPLINE_3 , // Indicates the entity has rank BSPLINE
+        INVALID   , // Indicates the entity is invalid
+        END_ENUM    //
     };
 
+inline
+const std::string get_enum_str(enum EntityRank aCellTopoEnum)
+{
+    switch (aCellTopoEnum)
+    {
+
+        case EntityRank::NODE     : return "NODE"; break;
+        case EntityRank::EDGE     : return "EDGE"; break;
+        case EntityRank::FACE     : return "FACE"; break;
+        case EntityRank::ELEMENT  : return "ELEMENT"; break;
+        case EntityRank::BSPLINE_1: return "BSPLINE_1"; break;
+        case EntityRank::BSPLINE_2: return "BSPLINE_2"; break;
+        case EntityRank::BSPLINE_3: return "BSPLINE_3"; break;
+        case EntityRank::INVALID  : return "INVALID"; break;
+        default: return "Unrecognized Enum provided to get_enum_str";
+    }
 }
-//enum DerivativeOrder
-//{
-//    ZEROTH_ORDER,           // zeroth order derivative
-//    FIRST_ORDER,        // first order derivative
-//    SECOND_ORDER        // second order derivative
-//};
-//}   // namespace moris
+}
 #endif /* MORIS_MESH_CL_MESH_ENUMS_HPP_ */

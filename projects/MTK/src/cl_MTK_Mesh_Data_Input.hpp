@@ -260,6 +260,16 @@ namespace mtk
 
             std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
 
+            if(FieldsInfo != nullptr)
+            {
+                FieldsInfo->print();
+            }
+            else{
+                std::cout<<"No Fields Information Provided"<<std::endl;
+            }
+
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
             if(CellClusterInput != nullptr)
             {
                 CellClusterInput->print();

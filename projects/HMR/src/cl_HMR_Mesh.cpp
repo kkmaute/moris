@@ -413,11 +413,14 @@ namespace moris
 
 //-----------------------------------------------------------------------------
         Matrix< IndexMat > Mesh::get_entity_connected_to_entity_glob_ids(
-                                   moris_index     aEntityIndex,
+                                   moris_index     aEntityId,
                                    enum EntityRank aInputEntityRank,
                                    enum EntityRank aOutputEntityRank) const
         {
-            Matrix<IndexMat> tEntityToEntity = this->get_entity_connected_to_entity_loc_inds(aEntityIndex,aInputEntityRank,aOutputEntityRank);
+
+            moris_index tEntityIndex = this->get_loc_entity_ind_from_entity_glb_id(aEntityId,aInputEntityRank);
+
+            Matrix<IndexMat> tEntityToEntity = this->get_entity_connected_to_entity_loc_inds(tEntityIndex,aInputEntityRank,aOutputEntityRank);
 
             for(moris::uint i = 0; i <tEntityToEntity.numel(); i++)
             {
@@ -955,6 +958,17 @@ namespace moris
                 }
             }
         }
+
+//-----------------------------------------------------------------------------
+        void
+        Mesh::get_processors_whom_share_entity(moris_index       aEntityIndex,
+                                               enum EntityRank   aEntityRank,
+                                               Matrix< IdMat > & aProcsWhomShareEntity) const
+        {
+            MORIS_ASSERT(par_size() == 1,"Not implemented in HMR (pending completion of entity sharing info in HMR");
+
+            aProcsWhomShareEntity.resize(0,0);
+        }
 //-----------------------------------------------------------------------------
 
         void Mesh::get_adof_map( const uint aOrder,
@@ -1217,6 +1231,7 @@ namespace moris
             }
             if (aSetEntityRank == EntityRank::FACE)
             {
+                // todo: fix this
                 Matrix< IndexMat > tSideSetElementInd = mDatabase->get_output_side_set( aSetName ).mElemIndices;
 
                 return tSideSetElementInd;
@@ -1357,33 +1372,13 @@ namespace moris
         void
         Mesh::setup_glb_to_local_maps()
         {
-            moris::uint tSpatialDim = this->get_spatial_dim();
-
             // Initialize global to local map
             mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>(4);
 
-            if(tSpatialDim == 2)
-            {
-                std::cout<<"Spatial dim =     "<<this->get_spatial_dim()<<std::endl;
-                std::cout<<"Number of nodes = "<<this->get_num_entities(EntityRank::NODE)<<std::endl;
-                std::cout<<"Number of edges = "<<this->get_num_entities(EntityRank::EDGE)<<std::endl;
-                std::cout<<"Number of faces = "<<this->get_num_entities(EntityRank::FACE)<<std::endl;
-                std::cout<<"Number of elems = "<<this->get_num_entities(EntityRank::ELEMENT)<<std::endl;
-
-                setup_entity_global_to_local_map(EntityRank::NODE);
-                setup_entity_global_to_local_map(EntityRank::EDGE);
-                setup_entity_global_to_local_map(EntityRank::FACE);
-                setup_entity_global_to_local_map(EntityRank::ELEMENT);
-
-            }
-
-            else if(tSpatialDim == 3)
-            {
-                setup_entity_global_to_local_map(EntityRank::NODE);
-                setup_entity_global_to_local_map(EntityRank::EDGE);
-                setup_entity_global_to_local_map(EntityRank::FACE);
-                setup_entity_global_to_local_map(EntityRank::ELEMENT);
-            }
+            setup_entity_global_to_local_map(EntityRank::NODE);
+            setup_entity_global_to_local_map(EntityRank::EDGE);
+            setup_entity_global_to_local_map(EntityRank::FACE);
+            setup_entity_global_to_local_map(EntityRank::ELEMENT);
 
         }
 
@@ -1392,13 +1387,10 @@ namespace moris
         {
             uint tNumEntities = this->get_num_entities(aEntityRank);
             moris_id tCount = 0;
-
             for(uint i = 0; i<tNumEntities; i++)
             {
                 moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
-//                std::cout<<"tEntityId = "<< tEntityId<<" i = "<<i<<"  Rank = "<<(uint)aEntityRank <<std::endl;
                 MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");
-
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
                 tCount++;
             }

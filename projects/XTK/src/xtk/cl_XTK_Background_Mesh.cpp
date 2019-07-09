@@ -6,29 +6,34 @@
  */
 
 #include "cl_XTK_Background_Mesh.hpp"
+#include "fn_unique.hpp"
 
 namespace xtk
 {
 // ----------------------------------------------------------------------------------
 // Constructor/Deconstructor Source code
 // ----------------------------------------------------------------------------------
-Background_Mesh::Background_Mesh(moris::mtk::Mesh* aMeshData):
+Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
     mMeshData(aMeshData),
+    mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
     mXtkMtkVertices(0),
     mXtkMtkVerticesInterpolation(0),
     mNodeIndexToChildMeshIndex(0,0)
+
 {
     intialize_downward_inheritance();
     mExternalMeshData.set_up_external_entity_data(mMeshData);
     initialize_background_mesh_vertices();
+    setup_local_to_global_maps();
 }
 
 // ----------------------------------------------------------------------------------
 
-Background_Mesh::Background_Mesh(moris::mtk::Mesh* aMeshData,
+Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
                                  Geometry_Engine & aGeometryEngine):
     mMeshData(aMeshData),
+    mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
     mXtkMtkVertices(0),
     mXtkMtkVerticesInterpolation(0),
@@ -37,6 +42,7 @@ Background_Mesh::Background_Mesh(moris::mtk::Mesh* aMeshData,
     intialize_downward_inheritance();
     mExternalMeshData.set_up_external_entity_data(mMeshData);
     initialize_background_mesh_vertices();
+    setup_local_to_global_maps();
 }
 
 // ----------------------------------------------------------------------------------
@@ -226,6 +232,9 @@ Background_Mesh::batch_create_new_nodes(Cell<moris_index>                    con
                                         Cell<moris::Matrix< moris::IdMat  >> const & aNewNodeProcSharing,
                                         Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
 {
+    // number of nodes prior to creating new ones
+    moris::uint tNumExistingNodes = get_num_entities(EntityRank::NODE);
+
     // Batch create the new copied nodes in the mesh external data
     mExternalMeshData.batch_create_new_nodes_external_data(aNewNodeIds,aNewNodeIndices,aNewNodeOwningProc,aNewNodeProcSharing,aNewNodeCoordinates);
 
@@ -234,16 +243,25 @@ Background_Mesh::batch_create_new_nodes(Cell<moris_index>                    con
     // Allocate space in the vertex interpolations
     mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
 
+    // allocate space in the local to global node map
+    mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
+
     for(moris::uint i = 0; i <tNumNewNodes; i++)
     {
+
+        // create vertex
         mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
                                                           aNewNodeIndices(i),
                                                           this));
+        // add to local to global map
+        mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
+
 
         // add to map
         MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),"Vertex already in map");
         mVertexGlbToLocalMap[aNewNodeIds(i)] = aNewNodeIndices(i);
     }
+
 }
 
 // ----------------------------------------------------------------------------------
@@ -252,6 +270,9 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
                                                                moris::Matrix< moris::IndexMat > const & aNewNodeIds,
                                                                moris::Matrix< moris::IndexMat > const & aNewNodeIndices)
 {
+    // number of nodes prior to creating new ones
+    moris::uint tNumExistingNodes = get_num_entities(EntityRank::NODE);
+
     // Collect node coordinates of nodes being copied
     moris::Matrix< moris::DDRMat > tNewNodeCoords = this->get_selected_node_coordinates_loc_inds(aExistingNodeIndices);
 
@@ -271,6 +292,9 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
 
     moris::uint tNumNewNodes = aNewNodeIds.numel();
 
+    // allocate space in the local to global node map
+    mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
+
     // Allocate space in the vertex interpolations
     mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
 
@@ -279,6 +303,8 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
         mXtkMtkVertices.push_back(moris::mtk::Vertex_XTK( aNewNodeIds(i),
                                                           aNewNodeIndices(i),
                                                           this));
+
+        mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
 
         // add to map
         MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),"Vertex already in map");
@@ -368,20 +394,18 @@ Background_Mesh::get_node_child_mesh_assocation( moris::moris_index aNodeIndex )
 // ----------------------------------------------------------------------------------
 
 moris::size_t
-Background_Mesh::get_glb_entity_id_from_entity_loc_index(moris::size_t         aEntityIndex,
+Background_Mesh::get_glb_entity_id_from_entity_loc_index(moris::size_t   aEntityIndex,
                                                          enum EntityRank aEntityRank) const
 {
-    moris::size_t tGlbId = 0;
-    if (mExternalMeshData.is_external_entity(aEntityIndex, aEntityRank))
+    if(aEntityRank == EntityRank::ELEMENT || aEntityRank == EntityRank::NODE)
     {
-        tGlbId = mExternalMeshData.get_glb_entity_id_from_entity_loc_index_external_data(aEntityIndex, aEntityRank);
+        MORIS_ASSERT(aEntityIndex < mEntityLocaltoGlobalMap((uint)aEntityRank).numel(),"Entity Index out of bounds");
+        return mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex);
     }
     else
     {
-        tGlbId = mMeshData->get_glb_entity_id_from_entity_loc_index(aEntityIndex,(moris::EntityRank)aEntityRank);
+        return mMeshData->get_glb_entity_id_from_entity_loc_index(aEntityIndex,aEntityRank);
     }
-
-    return tGlbId;
 }
 
 
@@ -489,7 +513,7 @@ Background_Mesh::get_local_to_global_map(enum EntityRank aEntityRank) const
 {
     MORIS_ERROR(aEntityRank==EntityRank::NODE," This function is only implemented for node maps");
 
-    moris::Cell<moris::mtk::Vertex const *> tBackgroundVerts = mMeshData->get_all_vertices_no_aura();
+    moris::Cell<moris::mtk::Vertex const *> tBackgroundVerts = mMeshData->get_all_vertices();
 
     moris::uint tNumNodes = tBackgroundVerts.size();
 
@@ -999,7 +1023,42 @@ Background_Mesh::add_child_element_to_mtk_cells(moris::moris_index aElementIndex
     mChildMtkCellMap[aElementIndex] = mChildMtkCells.size()-1;
 
 }
+// ----------------------------------------------------------------------------------
+void
+Background_Mesh::add_cells_to_global_to_local_map(Matrix<IndexMat> const & aCellIndices,
+                                                  Matrix<IdMat>    const & aCellIds)
+{
+#ifdef DEBUG
 
+    if(aCellIndices.numel()> 0 )
+    {
+        MORIS_ASSERT((moris_index)mEntityLocaltoGlobalMap(3).numel() == aCellIndices.min(),"The minimum indices calling this function needs to correspond with the size of the number of elements already in the map");
+    }
+#endif
+    MORIS_ASSERT(aCellIndices.numel() == aCellIds.numel(),"Dimension mismatch between indices and ids");
+    // number of cells
+    moris::uint tNumCells    = aCellIndices.numel();
+    moris::uint tCurrentSize = mEntityLocaltoGlobalMap(3).numel();
+
+    // allocate space
+    mEntityLocaltoGlobalMap(3).resize(tNumCells + tCurrentSize,1);
+
+    // add to map
+    for(moris::uint i = 0; i <tNumCells; i++)
+    {
+        mEntityLocaltoGlobalMap(3)(aCellIndices(i)) = aCellIds(i);
+    }
+
+#ifdef DEBUG
+        // since I can't write these functions in one line, need to have ifdef
+        moris::Matrix<moris::IndexMat> tUniqueCellIds;
+        moris::unique(mEntityLocaltoGlobalMap(3),tUniqueCellIds);
+
+        MORIS_ASSERT(mEntityLocaltoGlobalMap(3).numel() == tUniqueCellIds.numel(), "duplicate cell id detected" );
+#endif
+
+
+}
 // ----------------------------------------------------------------------------------
 const moris::mtk::Cell*
 Background_Mesh::get_child_element_mtk_cell_ptr(moris::moris_index aElementIndex) const
@@ -1110,6 +1169,33 @@ Background_Mesh::initialize_background_mesh_vertices()
 }
 
 // ----------------------------------------------------------------------------------
+
+void
+Background_Mesh::setup_local_to_global_maps()
+{
+    // this only creates node local to global maps and cell local to global maps
+
+    // setup nodes
+    uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
+    mEntityLocaltoGlobalMap(0) = moris::Matrix< moris::IdMat >(tNumNodes,1);
+
+    for(moris::uint iN = 0; iN<tNumNodes; iN++ )
+    {
+        mEntityLocaltoGlobalMap(0)(iN) = mMeshData->get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE);
+    }
+
+    // setup cells
+    uint tNumCells = mMeshData->get_num_entities(EntityRank::ELEMENT);
+    mEntityLocaltoGlobalMap(3) = moris::Matrix< moris::IdMat >(tNumCells,1);
+
+    for(moris::uint iC = 0; iC<tNumCells; iC++)
+    {
+        mEntityLocaltoGlobalMap(3)(iC) = mMeshData->get_glb_entity_id_from_entity_loc_index(iC,EntityRank::ELEMENT);
+    }
+
+}
+
+
 // ----------------------------------------------------------------------------------
 
 }

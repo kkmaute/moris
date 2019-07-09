@@ -35,7 +35,7 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4|sideset:Z";
-            moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+            moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;

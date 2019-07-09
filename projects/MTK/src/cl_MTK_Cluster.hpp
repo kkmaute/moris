@@ -2,7 +2,7 @@
  * cl_MTK_Cluster.hpp
  *
  *  Created on: Apr 26, 2019
- *      Author: cchmidt
+ *      Author: schmidt
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CLUSTER_HPP_

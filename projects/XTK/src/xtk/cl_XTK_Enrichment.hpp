@@ -41,14 +41,18 @@
 
 #include "fn_unique.hpp"
 
-
-
-
 /*
  * This class provides all the functions to perform the enrichment strategy on a child mesh
  */
 namespace xtk
 {
+
+enum class Enrichment_Method
+{
+    USE_INTEGRATION_CELL_BASIS, // this one computes directly the vertex interpolation (uses the basis of tetrahedral cell)
+    USE_INTERPOLATION_CELL_BASIS, // This one constructs an interpolation cell which interpolates into each subphase. (Uses basis of interpolation cell)
+    INVALID
+};
 
 class Enrichment_Parameters
 {
@@ -200,7 +204,8 @@ class Enrichment
 public:
     Enrichment(){};
 
-    Enrichment(moris::size_t          aNumBulkPhases,
+    Enrichment(enum Enrichment_Method aMethod,
+               moris::size_t          aNumBulkPhases,
                xtk::Model*            aXTKModelPtr,
                xtk::Cut_Mesh*         aCutMeshPtr,
                xtk::Background_Mesh*  aBackgroundMeshPtr);
@@ -295,82 +300,25 @@ public:
 //    void
 //    create_multilevel_enrichments();
 
-//    void
-//    declare_enrichment_fields_in_output_options(size_t aNumBasis,
-//                                                Cell<std::string> & aOutputElementIntFields)
-//    {
-//        // declare  enrichment fields
-//        Cell<std::string> tEnrichmentFields(aNumBasis);
-//        std::string tBaseEnrich = "subphase_";
-//        for(size_t i = 0; i<aNumBasis; i++)
-//        {
-//            tEnrichmentFields(i) = tBaseEnrich + std::to_string(i);
-//        }
-//
-//        aOutputElementIntFields = tEnrichmentFields;
-//
-//        // Add local floodfill field to the output mesh
-//        std::string tLocalFFStr = "local_ff";
-//        aOutputElementIntFields.push_back(tLocalFFStr);
-//    }
+    /*
+     * Returns a vector of cell fields names to declare in STK mesh if you want to visualize the cell level
+     * enrichment fields. cells within each subphase of a given basis function. One field per basis function, one field per child mesh
+     */
+    Cell<std::string>
+    get_cell_enrichment_field_names() const;
 
-//    void
-//    write_enrichment_data_to_fields(size_t aNumBasis,
-//                                    Cut_Mesh           & aCutMesh,
-//                                    moris::mtk::Mesh                                                           & aOutputMesh,
-//                                    Enrichment   const & aEnrichment,
-//                                    Cell<std::string> aEnrichmentFieldStrs)
-//    {
-//
-//        // Local subphas bins
-//        moris::Matrix<moris::DDRMat> tLocalSubphaseVal(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),0);
-//        for(size_t i = 0; i<aCutMesh.get_num_simple_meshes(); i++)
-//        {
-//
-//            Child_Mesh_Test & tChildMesh = aCutMesh.get_child_mesh(i);
-//
-//            moris::Matrix< moris::IndexMat > const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
-//
-//            moris::Matrix< moris::IdMat > const & tChildElementIds = tChildMesh.get_element_ids();
-//
-//
-//            for(size_t j = 0; j<tChildElementIds.n_cols(); j++)
-//            {
-//                moris::moris_index tElementInd = aOutputMesh.get_loc_entity_ind_from_entity_glb_id(tChildElementIds(0,j),moris::EntityRank::ELEMENT);
-//                moris::moris_index tBulkPhaseInd = tChildMesh.get_element_phase_index(j);
-//                tLocalSubphaseVal(tElementInd) = (real)(tElementSubphases(0,j));
-//
-//            }
-//        }
-//        std::string tLocalFFStr = "local_ff";
-//        aOutputMesh.add_mesh_field_real_scalar_data_loc_inds(tLocalFFStr, moris::EntityRank::ELEMENT, tLocalSubphaseVal);
-//
-//
-//
-//        // Enrichment values
-//        Cell<moris::Matrix< moris::IndexMat >> const & tElementIdsInBasis = aEnrichment.get_element_ids_in_basis_support();
-//        Cell<moris::Matrix< moris::IndexMat >> const & tElementEnrichmentInBasis = aEnrichment.get_element_enrichment_levels_in_basis_support();
-//
-//        for(size_t i = 0; i<aNumBasis; i++)
-//        {
-//            moris::Matrix<moris::DDRMat> tEnrichmentLevels(aOutputMesh.get_num_entities(moris::EntityRank::ELEMENT),10);
-//
-//            for(size_t j = 0; j<tElementIdsInBasis(i).n_cols(); j++)
-//            {
-//                size_t tElementId = (tElementIdsInBasis(i))(0,j);
-//                size_t tElementInd = aOutputMesh.get_loc_entity_ind_from_entity_glb_id(tElementId,moris::EntityRank::ELEMENT);
-//                tEnrichmentLevels(tElementInd) = (real)(((tElementEnrichmentInBasis(i)))(0,j));
-//
-//            }
-//
-//            aOutputMesh.add_mesh_field_real_scalar_data_loc_inds(aEnrichmentFieldStrs(i), moris::EntityRank::ELEMENT, tEnrichmentLevels);
-//
-//        }
-//    }
-
+    /*
+     * Provided an MTK mesh, writes the cell enrichment data onto the mesh. (fields declared from get_cell_enrichment_field_names )
+     */
+    void
+    write_cell_enrichment_to_fields(Cell<std::string>  & aEnrichmentFieldStrs,
+                                    mtk::Mesh*           aMeshWithEnrFields) const;
 
 
 private:
+    // enrichment method
+    enum Enrichment_Method mEnrichmentMethod;
+
     moris::size_t mNumBulkPhases;
 
     // Pointers to Model, Cut and Background meshes (since they are used in most functions)
@@ -393,7 +341,7 @@ private:
     moris::Cell<moris::Cell<moris::moris_index>> mElementToBasisEnrichmentLevel;
 
     // Basis enrichment level indics
-    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;  //FIXME
+    moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;
 
     //FIXME: REMOVE because it will not help for double intersected elements
     moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentBulkPhase;

@@ -3697,7 +3697,7 @@ namespace moris
             tFilePath = parallelize_path( tFilePath );
 
             // Create a new file using default properties
-            herr_t tFileID = H5Fcreate( tFilePath.c_str(),
+            hid_t tFileID = H5Fcreate( tFilePath.c_str(),
                                         H5F_ACC_TRUNC,
                                         H5P_DEFAULT,
                                         H5P_DEFAULT);

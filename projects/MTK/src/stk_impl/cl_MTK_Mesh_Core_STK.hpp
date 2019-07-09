@@ -194,7 +194,7 @@ public:
     get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
 
     moris::Cell<moris::mtk::Vertex const *>
-    get_all_vertices_no_aura() const;
+    get_all_vertices() const;
 
 
     Matrix< IndexMat >

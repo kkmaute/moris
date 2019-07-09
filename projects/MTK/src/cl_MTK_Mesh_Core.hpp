@@ -170,11 +170,11 @@ public:
 
 
     /*
-     *  Returns all the vertices, not including the ones in the aura
+     *  Returns all the vertices
      */
     virtual
     moris::Cell<moris::mtk::Vertex const *>
-    get_all_vertices_no_aura() const
+    get_all_vertices() const
     {
         MORIS_ERROR(0,"No default implementation of get_all_vertices_no_aura");
 
@@ -343,8 +343,19 @@ public:
     get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
                                                    moris::moris_index aCellIndex) const
     {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (get_facet_ordinal_from_cell_and_facet_id_loc_inds is not implemented)");
-        return 0;
+        Matrix<IdMat> tElementFaces = get_entity_connected_to_entity_loc_inds(aCellIndex,EntityRank::ELEMENT, EntityRank::FACE);
+
+        moris_index tOrdinal = MORIS_INDEX_MAX;
+        for(moris_index iOrd = 0; iOrd<(moris_index)tElementFaces.numel(); iOrd++)
+        {
+            if(tElementFaces(iOrd) == aFaceIndex)
+            {
+                tOrdinal = iOrd;
+                return tOrdinal;
+            }
+        }
+        MORIS_ERROR(tOrdinal!=MORIS_INDEX_MAX," Facet ordinal not found");
+        return tOrdinal;
     }
 
     //------------------------------------------------------------------------------

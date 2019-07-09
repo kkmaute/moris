@@ -20,21 +20,21 @@
 
 
 #include "cl_MGE_Geometry_Engine.hpp"
-#include "geometry/cl_Gyroid.hpp"
+#include "cl_Gyroid.hpp"
 #include "cl_Sphere.hpp"
 #include "catch.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "tools/fn_tet_volume.hpp"
+#include "fn_tet_volume.hpp"
 #include "fn_equal_to.hpp"
 
 //XTK  Includes
 #include "cl_XTK_Cut_Mesh.hpp"
 
-#include "xtk/cl_XTK_Child_Mesh.hpp"
+#include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Model.hpp"
-#include "xtk/cl_XTK_Output_Options.hpp"
-#include "xtk/fn_compute_xtk_model_volumes.hpp"
+#include "cl_XTK_Output_Options.hpp"
+#include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
 namespace xtk
@@ -159,7 +159,7 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
+    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
     std::string tBackgroundMeshOutput = "./xtk_exo/volume_check_rs_bm.e";
     tMeshData->create_output_mesh(tBackgroundMeshOutput);
 
@@ -224,7 +224,7 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
     // Setup XTK Model -----------------------------
     size_t tModelDimension = 3;
@@ -290,7 +290,7 @@ TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
          */
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x1";
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
 
         // Setup XTK Model -----------------------------

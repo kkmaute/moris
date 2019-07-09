@@ -14,14 +14,16 @@
 namespace xtk
 {
 
-Enrichment::Enrichment(moris::size_t         aNumBulkPhases,
-                       xtk::Model*           aXTKModelPtr,
-                       xtk::Cut_Mesh*        aCutMeshPtr,
-                       xtk::Background_Mesh* aBackgroundMeshPtr):
-    mNumBulkPhases(aNumBulkPhases),
-    mXTKModelPtr(aXTKModelPtr),
-    mCutMeshPtr(aCutMeshPtr),
-    mBackgroundMeshPtr(aBackgroundMeshPtr)
+Enrichment::Enrichment(enum Enrichment_Method aMethod,
+                       moris::size_t          aNumBulkPhases,
+                       xtk::Model*            aXTKModelPtr,
+                       xtk::Cut_Mesh*         aCutMeshPtr,
+                       xtk::Background_Mesh*  aBackgroundMeshPtr):
+        mEnrichmentMethod(aMethod),
+        mNumBulkPhases(aNumBulkPhases),
+        mXTKModelPtr(aXTKModelPtr),
+        mCutMeshPtr(aCutMeshPtr),
+        mBackgroundMeshPtr(aBackgroundMeshPtr)
 {
 
 }
@@ -31,9 +33,6 @@ Enrichment::Enrichment(moris::size_t         aNumBulkPhases,
 void
 Enrichment::perform_enrichment()
 {
-    // Start clock
-    std::clock_t start = std::clock();
-
     // Verify initialized properly
     MORIS_ERROR(mCutMeshPtr!=nullptr,"mCutMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
     MORIS_ERROR(mBackgroundMeshPtr!=nullptr,"mBackgroundMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
@@ -41,12 +40,6 @@ Enrichment::perform_enrichment()
     // Perform enrichment over basis clusters
     perform_basis_cluster_enrichment();
 
-
-    // Output time
-    if(moris::par_rank() == 0 && mVerbose)
-    {
-        std::cout<<"XTK: Enrichment completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-    }
 }
 
 
@@ -1054,7 +1047,7 @@ Enrichment::determine_background_vertex_enriched_basis(moris::Cell<moris::Cell<m
         //
         moris::Matrix<moris::IndexMat> const & tSingleVertexToBasis = aVertexToBasisIndex(i);
 
-        MORIS_ASSERT(tNodeToElement.numel()>0,"Node is not attached to one element");
+        MORIS_ASSERT(tNodeToElement.numel()>0,"Node is not attached to at least one element");
 
 
         // iterate over elements until a suitable one is found (namely an active element)
@@ -1065,15 +1058,12 @@ Enrichment::determine_background_vertex_enriched_basis(moris::Cell<moris::Cell<m
 
             // if this element is not a background cell with children, then we can use it to determine the background
             // vertex enriched basis
-
-
             if(mBackgroundMeshPtr->entity_has_children(tElementIndex,EntityRank::ELEMENT))
             {
                 moris::moris_index tChildMeshIndex = mBackgroundMeshPtr->child_mesh_index(tElementIndex,EntityRank::ELEMENT);
 
                 Child_Mesh const & tChildMesh = mCutMeshPtr->get_child_mesh(tChildMeshIndex);
 
-                //TODO: this could possible be improved
                 moris::Matrix<moris::IndexMat> const & tNodeToElement = tChildMesh.get_element_to_node();
 
                 // iterate through elements until we find the background node
@@ -1244,6 +1234,89 @@ Enrichment::set_up_basis_enrichment_to_bulk_phase()
 
     }
 }
+
+
+Cell<std::string>
+Enrichment::get_cell_enrichment_field_names() const
+{
+    // background mesh data
+    moris::mtk::Mesh & tXTKMeshData = mBackgroundMeshPtr->get_mesh_data();
+
+    // number of basis
+    moris::uint tNumBasis = tXTKMeshData.get_num_basis_functions();
+
+    // declare  enrichment fields
+    Cell<std::string> tEnrichmentFields(tNumBasis);
+    std::string tBaseEnrich = "enrlev_basis_";
+    for(size_t i = 0; i<tNumBasis; i++)
+    {
+        tEnrichmentFields(i) = tBaseEnrich + std::to_string(i);
+    }
+
+    // Add local floodfill field to the output mesh
+    std::string tLocalFFStr = "child_ff";
+    tEnrichmentFields.push_back(tLocalFFStr);
+
+    return tEnrichmentFields;
+}
+
+void
+Enrichment::write_cell_enrichment_to_fields(Cell<std::string>  & aEnrichmentFieldStrs,
+                                            mtk::Mesh*           aMeshWithEnrFields) const
+{
+    // background mesh data
+    moris::mtk::Mesh & tXTKMeshData = mBackgroundMeshPtr->get_mesh_data();
+
+    // number of basis
+    moris::uint tNumBasis = tXTKMeshData.get_num_basis_functions();
+
+    // Local subphase bins
+    moris::Matrix<moris::DDRMat> tLocalSubphaseVal(aMeshWithEnrFields->get_num_entities(moris::EntityRank::ELEMENT),1);
+    for(size_t i = 0; i<mCutMeshPtr->get_num_child_meshes(); i++)
+    {
+
+        Child_Mesh & tChildMesh = mCutMeshPtr->get_child_mesh(i);
+
+        moris::Matrix< moris::IndexMat > const & tElementSubphases = tChildMesh.get_elemental_subphase_bin_membership();
+
+        moris::Matrix< moris::IdMat > const & tChildCellIds = tChildMesh.get_element_ids();
+
+        for(size_t j = 0; j<tChildCellIds.n_cols(); j++)
+        {
+            moris_index tNewMeshInd = aMeshWithEnrFields->get_loc_entity_ind_from_entity_glb_id(tChildCellIds(j),EntityRank::ELEMENT);
+            tLocalSubphaseVal(tNewMeshInd) = (real)(tElementSubphases(0,j));
+        }
+    }
+    std::string tLocalFFStr = "child_ff";
+    aMeshWithEnrFields->add_mesh_field_real_scalar_data_loc_inds(tLocalFFStr, moris::EntityRank::ELEMENT, tLocalSubphaseVal);
+
+
+
+    // Enrichment values
+    Cell<moris::Matrix< moris::IndexMat >> const & tElementIndsInBasis = this->get_element_inds_in_basis_support();
+    Cell<moris::Matrix< moris::IndexMat >> const & tElementEnrichmentInBasis = this->get_element_enrichment_levels_in_basis_support();
+
+    for(size_t i = 0; i<tNumBasis; i++)
+    {
+        moris::Matrix<moris::DDRMat> tEnrichmentLevels(aMeshWithEnrFields->get_num_entities(moris::EntityRank::ELEMENT),1,10);
+
+        for(size_t j = 0; j<tElementIndsInBasis(i).n_cols(); j++)
+        {
+            moris_index tBMIndex    = (tElementIndsInBasis(i))(j);
+            moris_id    tElementId  = mBackgroundMeshPtr->get_glb_entity_id_from_entity_loc_index(tBMIndex,EntityRank::ELEMENT);
+            moris_index tNewMeshInd = aMeshWithEnrFields->get_loc_entity_ind_from_entity_glb_id(tElementId,EntityRank::ELEMENT);
+
+            tEnrichmentLevels(tNewMeshInd) = (real)(((tElementEnrichmentInBasis(i)))(j));
+
+        }
+
+        aMeshWithEnrFields->add_mesh_field_real_scalar_data_loc_inds(aEnrichmentFieldStrs(i), moris::EntityRank::ELEMENT, tEnrichmentLevels);
+
+    }
+}
+
+
+
 //
 //void
 //Enrichment::create_multilevel_enrichments()

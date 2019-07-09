@@ -36,7 +36,7 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x8|sideset:z";
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
+    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
 
     std::string tPrefix = std::getenv("MORISOUTPUT");
     std::string tBackgroundFile = tPrefix + "/xtk_test_ghost_background.e";

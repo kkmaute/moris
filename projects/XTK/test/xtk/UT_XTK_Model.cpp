@@ -61,7 +61,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION_MODEL]")
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x1";
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -157,8 +157,7 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION_MODEL]")
 
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-        std::string tPrefix = std::getenv("MORISOUTPUT");
-        std::string tMeshOutputFile = tPrefix + "/xtk_test_output_regular_subdivision.e";
+        std::string tMeshOutputFile ="./xtk_exo/xtk_test_output_regular_subdivision.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);
         delete tMeshData;
         delete tCutMeshData;
@@ -187,7 +186,9 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4";
-            moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+            moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
+            std::string tBMOutputFile ="./xtk_exo/xtk_test_output_conformal_bm.e";
+            tMeshData->create_output_mesh(tBMOutputFile);
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
@@ -214,8 +215,7 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
-            std::string tPrefix = std::getenv("MORISOUTPUT");
-            std::string tMeshOutputFile = tPrefix + "/xtk_test_output_conformal.e";
+            std::string tMeshOutputFile ="./xtk_exo/xtk_test_output_conformal.e";
             tCutMeshData->create_output_mesh(tMeshOutputFile);
 
 
@@ -374,7 +374,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x4";
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName);
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -443,7 +443,7 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x2";
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -516,7 +516,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     tMeshDataInput.FieldsInfo = tFieldsInfo;
 
     // fill in the parallel fields
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName,  &tMeshDataInput  );
+    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName,  &tMeshDataInput  );
 
     tVizTool.populate_parallel_cell_fields_on_mesh(tMeshData);
 

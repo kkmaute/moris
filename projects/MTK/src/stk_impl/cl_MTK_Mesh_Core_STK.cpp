@@ -392,7 +392,7 @@ namespace mtk
 
 
     moris::Cell<moris::mtk::Vertex const *>
-    Mesh_Core_STK::get_all_vertices_no_aura() const
+    Mesh_Core_STK::get_all_vertices() const
     {
         enum EntityRank tEntityRank = EntityRank::NODE;
 
@@ -3471,8 +3471,8 @@ namespace mtk
         std::vector<stk::mesh::Entity> tDesiredEntitiesConnectedToInputEntities;
 
         // Check if the connectivity exists (i.e., was already generated and is stored in mesh data)
-        if (mSTKMeshData->mMtkMeshBulkData->connectivity_map().valid(aInputEntityRank, aOutputEntityRank))
-        {
+//        if (mSTKMeshData->mMtkMeshBulkData->connectivity_map().valid(aInputEntityRank, aOutputEntityRank))
+//        {
 
             switch (aOutputEntityRank)
             {
@@ -3536,11 +3536,11 @@ namespace mtk
                     std::cerr << " wrong topology in entities_connected_to_entity_stk ";
                     break;
             }
-        }
-        else
-        {
-            std::cerr << " STK already has valid connectivity maps. Check if you are trying to access invalid connectivity (e.g., edge to edge)";
-        }
+//        }
+//        else
+//        {
+//            std::cerr << " STK already has valid connectivity maps. Check if you are trying to access invalid connectivity (e.g., edge to edge)";
+//        }
         return tDesiredEntitiesConnectedToInputEntities;
     }
 

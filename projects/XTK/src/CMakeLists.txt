@@ -77,6 +77,7 @@ set(HEADERS
     xtk/cl_XTK_Pending_Node.hpp
     xtk/cl_XTK_Phase_Table.hpp
     xtk/cl_XTK_Sensitivity.hpp
+    xtk/cl_XTK_VTK_Writer.hpp
     xtk/cl_XTK_Tetra4_Connectivity.hpp
     xtk/fn_assemble_boundary_subphase_constraint.hpp
     xtk/fn_compute_interface_surface_area.hpp
@@ -146,10 +147,12 @@ xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
 xtk/cl_MTK_Vertex_XTK_Impl.cpp
 xtk/cl_XTK_Background_Mesh.cpp
 xtk/cl_XTK_Child_Mesh.cpp
+xtk/cl_XTK_Cut_Mesh.cpp
 xtk/cl_XTK_Enrichment.cpp
 xtk/cl_XTK_Ghost_Stabilization.cpp
 xtk/cl_XTK_Model.cpp
-xtk/cl_XTK_Paramfile.cpp)
+xtk/cl_XTK_Paramfile.cpp
+xtk/fn_XTK_IO_Utilities.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

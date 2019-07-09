@@ -13,6 +13,7 @@
 #include "cl_Cell.hpp"
 #include "cl_XTK_Topology.hpp"
 #include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 using namespace moris;
 
 namespace xtk
@@ -343,6 +344,32 @@ namespace xtk
                 }
             }
             return tRequestIndex;
+        }
+
+        void
+        print_requests(moris::mtk::Mesh const & aBackgroundMesh)
+        {
+            std::cout<<"========================"<<std::endl;
+            std::cout<<"Subdivision Method: "<<get_enum_str(mSubdivisionMethod)<<std::endl;
+
+            for(moris::uint  i = 0 ; i < tNewNodeId.size(); i++)
+            {
+                std::cout<<"Node Request: "<<std::right<<std::setw(8)<< i;
+                std::cout<<" | Proc Rank: "<<std::right<<std::setw(8)<<par_rank();
+                std::cout<<" | Parent Id: "<<std::right<<std::setw(8)<<aBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tNewNodeParentIndex(i),tNewNodeParentRank(i));
+                if(mHasSecondaryIdentifier)
+                {
+                    std::cout<<" | Secondary Id: "<<std::right<<std::setw(12)<<tSecondaryIdentifiers(i);
+                }
+                std::cout<<" | Parent Rank: "<<std::right<<std::setw(8)<<get_enum_str(tNewNodeParentRank(i));
+
+                std::cout<<" | Coords: ";
+                for(moris::uint j = 0; j < 3; j++)
+                {
+                    std::cout<<std::scientific<<std::setw(14)<<tNewNodeCoordinate(i)(j)<< "   ";
+                }
+                std::cout<<std::endl;
+            }
         }
 
         void

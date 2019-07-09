@@ -152,7 +152,7 @@ public:
     {
     }
 
-    void set_up_external_entity_data(moris::mtk::Mesh* & aMeshData)
+    void set_up_external_entity_data(moris::mtk::Interpolation_Mesh* aMeshData)
     {
         mFirstAvailableIds.resize(4,  std::numeric_limits<moris::moris_index>::max());
         mFirstExtEntityInds.resize(4, std::numeric_limits<moris::moris_index>::max());

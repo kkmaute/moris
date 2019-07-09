@@ -12,7 +12,8 @@
 #include <utility>
 
 // Mesh Includes:
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Enums.hpp"
 
@@ -43,9 +44,9 @@ class Background_Mesh
 public:
     Background_Mesh(){};
 
-    Background_Mesh(moris::mtk::Mesh* aMeshData);
+    Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData);
 
-    Background_Mesh(moris::mtk::Mesh* aMeshData,
+    Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
                     Geometry_Engine & aGeometryEngine);
     /*!
      * Get number of entities in the background mesh and
@@ -391,6 +392,10 @@ public:
                                    moris::moris_index aCMElementIndex,
                                    Child_Mesh*        aChildMeshPtr);
 
+    void
+    add_cells_to_global_to_local_map(Matrix<IndexMat> const & aCellIndices,
+                                     Matrix<IdMat>    const & aCellIds);
+
 
     /*!
      * return a pointer to a cell
@@ -443,7 +448,7 @@ public:
 
 private:
     // Background mesh data
-    moris::mtk::Mesh* mMeshData;
+    moris::mtk::Interpolation_Mesh* mMeshData;
 
     // External Entity information
     // The background mesh remains constant, and every new entity created is stored within XTK
@@ -452,6 +457,9 @@ private:
 
     // Downward inheritance pairs (links elements in XTK mesh to indices in Child Meshes)
     Downward_Inheritance<moris::moris_index, moris::moris_index> mElementDownwardInheritance;
+
+    // Local to Global Id Entity Matrix
+    moris::Cell<moris::Matrix<moris::IdMat>> mEntityLocaltoGlobalMap;
 
     // Elements constructed by the decomposition process mtk Cells
     std::map < moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
@@ -493,6 +501,12 @@ private:
      */
     void
     initialize_background_mesh_vertices();
+
+    /*!
+     * Sets up the entity local to global maps
+     */
+    void
+    setup_local_to_global_maps();
 
 
 };

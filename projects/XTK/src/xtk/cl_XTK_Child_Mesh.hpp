@@ -439,19 +439,6 @@ public:
      mark_edge_as_on_interface(moris::moris_index aEdgeIndex);
 
 
-      /**
-       * Tells the child mesh where a node index will be placed once it has been communicated
-       */
-      void set_pending_node_index_pointers(Cell<moris::moris_index*>            aNodeIndPtr,
-                                           moris::Matrix< moris::DDRMat > const & aNodeParamCoordinate);
-
-      /**
-       *  retrieve_pending_node_inds
-       * XTK mesh retrieves pending node indices. Prior to this call the unique node assignments
-       * must be complete via the request structure in XTK model
-       */
-      void retrieve_pending_node_inds();
-
 
       /*
        * Take the information of edges on the interface and
@@ -636,7 +623,7 @@ private:
     // Element To Node and Ancestry Information (This is the only data that is set with templates.
     // all other is generated with an algorithm)
     // All node connectivity is indexed by proc local indexs
-    enum CellTopology              mElementTopology;
+    enum CellTopology                mElementTopology;
     moris::size_t                    mNumElem;
     moris::Matrix< moris::IndexMat > mElementToNode; /* proc inds*/
     moris::Matrix< moris::IndexMat > mElementEdgeParentInds;
@@ -693,8 +680,6 @@ private:
 
     bool                             mHasCoincidentEdges;
     moris::Matrix< moris::IndexMat > mEdgeOnInterface;
-    Cell<moris::moris_index*>        mPtrPendingNodeIndex;
-    moris::Matrix< moris::DDRMat >   mPendingParamCoordinates;
 
     // Phase member variables -----------------------------
     bool                                   mHasPhaseInfo;
