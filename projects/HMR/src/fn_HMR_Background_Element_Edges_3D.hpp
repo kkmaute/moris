@@ -19,6 +19,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template <>
+        inline
         void
         Background_Element< 3, 8, 26, 6, 12 >::create_edges()
         {

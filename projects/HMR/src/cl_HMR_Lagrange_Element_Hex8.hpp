@@ -129,6 +129,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template<>
+        inline
         moris::Matrix<moris::DDRMat>
         Lagrange_Element< 3, 8 >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
 		{
