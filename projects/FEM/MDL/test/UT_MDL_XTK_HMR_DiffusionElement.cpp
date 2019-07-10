@@ -137,6 +137,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         moris::uint tBplineOrder = 1;
         moris::uint tLagrangeOrder = 1;
         moris::uint tMyCoeff = 1;
+        std::string tFieldName = "Cylinder";
 
         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
@@ -157,7 +158,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
 
         // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Sphere", tBplineOrder );
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tBplineOrder );
 
         tField->evaluate_scalar_function( LevelSetSphereCylinder );
 
@@ -172,7 +173,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 
         tHMR.finalize();
 
-        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_mesh_bm_bo2.e" );
+        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
 
@@ -204,9 +205,6 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
 
         moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_mesh_no_sol.e";
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
@@ -302,35 +300,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 
         tTimeSolver.solve();
 
-        moris::Matrix< DDRMat > tSolution11;
-        tTimeSolver.get_full_solution( tSolution11 );
 
+        // TODO: add gold solution data for this problem
 
-        Matrix<DDRMat> tGoldSolution =  {{+2.50e+01},
-                                         {+2.50e+01},
-                                         {+2.50e+01},
-                                         {+2.50e+01},
-                                         {+4.50e+01},
-                                         {+4.50e+01},
-                                         {+4.50e+01},
-                                         {+4.50e+01},
-                                         {+6.50e+01},
-                                         {+6.50e+01},
-                                         {+6.50e+01},
-                                         {+6.50e+01},
-                                         {+8.50e+01},
-                                         {+8.50e+01},
-                                         {+8.50e+01},
-                                         {+8.50e+01},
-                                         {+5.00e+00},
-                                         {+5.00e+00},
-                                         {+5.00e+00},
-                                         {+5.00e+00}};
-
-        moris::print_fancy(tSolution11,"tSolution11");
-        std::cout<<"Min = " <<tSolution11.min()<<std::endl;
-        std::cout<<"Max = " <<tSolution11.max()<<std::endl;
-
+        // Write to Integration mesh for visualization
         Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
 
 
@@ -342,13 +315,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         //    CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 
         // output solution and meshes
-
-        //    tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName1,EntityRank::NODE,tSolution11);
-        //
-        //    std::string tOutputInterp = "./mdl_exo/xtk_mdl_interp.exo";
-        //    tInterpMesh1->create_output_mesh(tOutputInterp);
-
-        tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_mesh.e";
+        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         //    delete tInterpMesh1;
