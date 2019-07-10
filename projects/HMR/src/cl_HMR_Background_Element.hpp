@@ -584,12 +584,13 @@ namespace moris
              */
             void create_facets()
             {
-
                 // this->delete_facets();
+
+                // Index on neighbor element
                 uint tIndexOnOther[ 6 ] = { 2, 3, 0, 1, 5, 4 } ;
 
                 // loop over all faces
-                for( uint f=0; f<F; ++f )
+                for( uint f = 0; f < F; ++f )
                 {
                     uint tOther =  tIndexOnOther[ f ];
 

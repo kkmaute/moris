@@ -1464,9 +1464,8 @@ namespace moris
             if( mParameters->get_additional_lagrange_refinement()  == 0 )
             {
                 // union pattern is needed, otherwise error is thrown
-                this->get_database()->copy_pattern(
-                        mParameters->get_lagrange_output_pattern(),
-                        mParameters->get_union_pattern() );
+                this->get_database()->copy_pattern( mParameters->get_lagrange_output_pattern(),
+                                                    mParameters->get_union_pattern() );
 
                  // test if max polynomial is 3
                 if ( mParameters->get_max_polynomial() > 2 )
@@ -1483,8 +1482,7 @@ namespace moris
             else
             {
                 // select B-Spline flags on output for second flagging
-                this->get_database()->set_activation_pattern(
-                        mParameters->get_bspline_output_pattern() );
+                this->get_database()->set_activation_pattern( mParameters->get_bspline_output_pattern() );
 
                 // add delta for Lagrange
                 tInitialRefinement += mParameters->get_additional_lagrange_refinement();

@@ -64,8 +64,7 @@ void state_initialize_mesh( const Arguments & aArguments )
     HMR * tHMR = new HMR( tParams.get_parameter_list() );
 
     // if there is no initial refinement, copy initial tensor mesh to output
-    if(        tHMR->get_parameters()->get_initial_bspline_refinement()  == 0
-            && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
+    if( tHMR->get_parameters()->get_initial_bspline_refinement()  == 0 && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
     {
         // test if max polynomial is 3
         if ( tHMR->get_parameters()->get_max_polynomial() > 2 )
@@ -139,10 +138,9 @@ void state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // call user defined refinement function
-    tHMR->user_defined_flagging(
-            user_refinement,
-            tInputFields,
-            tParams.get_parameter_list() );
+    tHMR->user_defined_flagging( user_refinement,
+                                 tInputFields,
+                                 tParams.get_parameter_list() );
 
     // perform refinement
     tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );

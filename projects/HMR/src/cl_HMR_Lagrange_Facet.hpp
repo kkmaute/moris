@@ -36,13 +36,11 @@ namespace moris
            public:
 //------------------------------------------------------------------------------
 
-               Lagrange_Facet( Mesh_Base * aMesh,
-                               Background_Facet * aBackgroundFacet ) :
-                                   Facet( aMesh, aBackgroundFacet )
+               Lagrange_Facet( Mesh_Base        * aMesh,
+                               Background_Facet * aBackgroundFacet ) : Facet( aMesh, aBackgroundFacet )
                {
                    // copy vertex pointers
-                   this->copy_vertex_pointers(
-                           this->get_index_on_master() );
+                   this->copy_vertex_pointers( this->get_index_on_master() );
                }
 
 //------------------------------------------------------------------------------
@@ -51,16 +49,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-               uint
-               get_number_of_vertices() const
+               uint get_number_of_vertices() const
                {
                    return D;
                }
 
 //------------------------------------------------------------------------------
 
-               Matrix< DDRMat >
-               get_vertex_coords() const
+               Matrix< DDRMat > get_vertex_coords() const
                {
                    // create output matrix
                    Matrix< DDRMat > aCoords( D, N );
@@ -81,34 +77,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-               mtk::Geometry_Type
-               get_geometry_type() const;
+               mtk::Geometry_Type get_geometry_type() const;
 
 //------------------------------------------------------------------------------
 
-               mtk::Interpolation_Order
-               get_interpolation_order() const;
+               mtk::Interpolation_Order get_interpolation_order() const;
 
 //------------------------------------------------------------------------------
 
-               const mtk::Vertex *
-               get_vertex( const uint & aIndex ) const
+               const mtk::Vertex * get_vertex( const uint & aIndex ) const
                {
                    return mVertices[ aIndex ];
                }
 
 // ----------------------------------------------------------------------------
 
-               const Basis *
-               get_basis( const uint & aIndex ) const
+               const Basis * get_basis( const uint & aIndex ) const
                {
                    return mVertices[ aIndex ];
                }
 
 // ----------------------------------------------------------------------------
 
-               Basis *
-               get_basis( const uint & aIndex )
+               Basis * get_basis( const uint & aIndex )
                {
                    return mVertices[ aIndex ];
                }
@@ -120,8 +111,7 @@ namespace moris
                /**
                 * internal function called by constructor
                 */
-               void
-               copy_vertex_pointers( const uint & aIndex );
+               void copy_vertex_pointers( const uint & aIndex );
 
 //------------------------------------------------------------------------------
            };
@@ -129,8 +119,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
            template< uint N, uint D >
-           mtk::Geometry_Type
-           Lagrange_Facet< N, D >::get_geometry_type() const
+           mtk::Geometry_Type Lagrange_Facet< N, D >::get_geometry_type() const
            {
                MORIS_ERROR( false,
                     "get_geometry_type() not implemented for this Lagrange_Facet.");
@@ -140,8 +129,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
            template< uint N, uint D >
-           mtk::Interpolation_Order
-           Lagrange_Facet< N, D >::get_interpolation_order() const
+           mtk::Interpolation_Order Lagrange_Facet< N, D >::get_interpolation_order() const
            {
                MORIS_ERROR( false,
                     "get_interpolation_order() not implemented for this Lagrange_Facet.");
@@ -151,8 +139,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
            template< uint N, uint D >
-           void
-           Lagrange_Facet< N, D >::copy_vertex_pointers( const uint & aIndex )
+           void Lagrange_Facet< N, D >::copy_vertex_pointers( const uint & aIndex )
            {
                MORIS_ERROR( false,
                    "copy_vertex_pointers() not implemented for this Lagrange_Facet.");

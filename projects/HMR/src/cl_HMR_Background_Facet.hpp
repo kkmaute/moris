@@ -59,16 +59,14 @@ namespace moris
             /**
              * Default constructor
              */
-            Background_Facet(
-                    Background_Element_Base * aElementA,
-                    Background_Element_Base * aElementB,
-                    const  uint             & aIndexOnElementA  );
+            Background_Facet(       Background_Element_Base * aElementA,
+                                    Background_Element_Base * aElementB,
+                              const uint                    & aIndexOnElementA  );
 
 //------------------------------------------------------------------------------
 
-            Background_Facet(
-                    Background_Element_Base * aElement,
-                    const  uint             & aIndexOnElement );
+            Background_Facet(       Background_Element_Base * aElement,
+                              const uint                    & aIndexOnElement );
 
 //------------------------------------------------------------------------------
 
@@ -82,71 +80,62 @@ namespace moris
             /**
              * sets the flag
              */
-            void
-            flag();
+            void flag();
 
 //------------------------------------------------------------------------------
 
             /**
              * resets the flag
              */
-            void
-            unflag();
+            void unflag();
 
 //--------------------------------------------------------------------------------
 
             /**
              * test if flag is set
              */
-            bool
-            is_flagged() const;
+            bool is_flagged() const;
 
 //--------------------------------------------------------------------------------
 
             /**
              * get pointer to master element
              */
-            Background_Element_Base *
-            get_master();
+            Background_Element_Base * get_master();
 //--------------------------------------------------------------------------------
 
             /**
              * get pointer to slave element
              */
-            Background_Element_Base *
-            get_slave();
+            Background_Element_Base * get_slave();
 
 //--------------------------------------------------------------------------------
 
             /**
              * sets the slave element
              */
-            void
-            set_slave( Background_Element_Base * aElement );
+            void set_slave( Background_Element_Base * aElement );
 
 //--------------------------------------------------------------------------------
 
             /**
              * returns the index in relation to the master element
              */
-            uint
-            get_index_on_master() const;
+            uint get_index_on_master() const;
 
 //--------------------------------------------------------------------------------
 
             /**
              * returns the index in relation to the master element
              */
-            uint
-            get_index_on_slave() const;
+            uint get_index_on_slave() const;
 
 //--------------------------------------------------------------------------------
 
             /**
              * returns the index in relation to the master element
              */
-            uint
-            get_index_on_other( const uint & aIndex ) const;
+            uint get_index_on_other( const uint & aIndex ) const;
 
 //--------------------------------------------------------------------------------
         };

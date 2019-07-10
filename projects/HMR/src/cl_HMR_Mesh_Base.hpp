@@ -259,8 +259,7 @@ namespace moris
         /**
          * returns the number of basis per element
          */
-        auto get_number_of_basis_per_element() const
-            -> decltype ( mNumberOfBasisPerElement )
+        uint get_number_of_basis_per_element() const
         {
             return mNumberOfBasisPerElement;
         }

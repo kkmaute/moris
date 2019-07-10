@@ -78,7 +78,7 @@ namespace moris
 
             // determine indices of active and flagged basis
             // fixme: try Lagrange to B-Spline distance > 1 works if this is uncommented
-            //this->calculate_basis_indices();
+//            this->calculate_basis_indices();
 
             // update element indices ( not needed so far )
             // this->update_element_indices();

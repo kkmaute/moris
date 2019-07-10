@@ -1724,16 +1724,14 @@ namespace moris
                 Element * tSlave = tFacet->get_hmr_slave();
 
                 // master is always active
-                tMaster->set_hmr_facet(
-                        tFacet,
-                        tFacet->get_index_on_master() );
+                tMaster->set_hmr_facet( tFacet,
+                                        tFacet->get_index_on_master() );
 
                 if( tSlave != NULL )
                 {
                     // insert element into slave
-                    tSlave->set_hmr_facet(
-                            tFacet,
-                            tFacet->get_index_on_slave() );
+                    tSlave->set_hmr_facet( tFacet,
+                                           tFacet->get_index_on_slave() );
                 }
             }
 
