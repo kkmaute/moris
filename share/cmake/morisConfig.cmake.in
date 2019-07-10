@@ -1,0 +1,90 @@
+# -------------------------------------------------------------
+# @MORIS@ configuration file
+# -------------------------------------------------------------
+
+# Users execute find_package(moris [COMPONENTS COMP_LIST])
+# in their CMake files and find this package. The subpackages
+# are specified in COMP_LIST and included from here. If no
+# subpackages are specified, all moris packages that were built
+# will be included.
+
+if(@MORIS@_CONFIGURED)
+	return()
+endif()
+
+set(@MORIS@_CONFIGURED TRUE)
+
+# CMake Automated Configuration
+###############################################################
+@PACKAGE_INIT@
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Variables used in build; repeated for user debugging
+
+set(@MORIS@_C_COMPILER "@MORIS_C_COMPILER@")
+set(@MORIS@_C_FLAGS "@MORIS_C_FLAGS@")
+set(@MORIS@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@MORIS@_CXX_FLAGS "@MORIS_CXX_FLAGS@")
+set(@MORIS@_DEFINITIONS "@MORIS_DEFINITIONS@")
+set(@MORIS@_TPLS "@MORIS_BASE_LIBS@")
+set(@MORIS@_VERSION "@MORIS_VERSION@")
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Find requested subpackages
+
+set(MORIS "@MORIS@")
+set(MORIS_USE_MPI "@MORIS_USE_MPI@")
+set(MORIS_HAVE_PARALLEL "@MORIS_HAVE_PARALLEL@")
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+
+set(MORIS_COMPONENT_DIRS "@MORIS_SOURCE_DIRS@")
+
+# if no subpackages were specified, find all built subpackages
+if(NOT @MORIS@_FIND_COMPONENTS)
+	string(REGEX REPLACE "([^\\/;]*)\\/" "" COMPONENTS "${MORIS_COMPONENT_DIRS}")
+	set(@MORIS@_FIND_COMPONENTS "${COMPONENTS}")
+	
+	# if @MORIS@ is required, so are all built subpackages
+	if(@MORIS@_FIND_REQUIRED)
+		foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
+			set(@MORIS@_FIND_REQUIRED_${COMPONENT} TRUE)
+		endforeach()
+	endif()
+endif()
+
+
+foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
+	string(REGEX MATCH "([^;]+\\/${COMPONENT}|${COMPONENT})" COMPONENT_DIR "${MORIS_COMPONENT_DIRS}")
+	if(${COMPONENT_DIR} STREQUAL "")
+		message(FATAL_ERROR "${COMPONENT} is not a @MORIS@ component. Check documentation to see which components are available.")
+	endif()
+	
+	# returns fatal error if component config file not found
+	set_and_check(COMP_INCLUDE "@PACKAGE_CONFIG_INSTALL_DIR@/${COMPONENT_DIR}/${COMPONENT}Config.cmake")
+	
+	set(@MORIS@_${COMPONENT}_FOUND TRUE)
+	
+	include(${COMP_INCLUDE})
+	
+	list(APPEND @MORIS@_INCLUDE_DIRS ${${COMPONENT}_INCLUDE_DIRS})
+	list(APPEND @MORIS@_LIBRARY_DIRS ${${COMPONENT}_LIBRARY_DIRS})
+	list(APPEND @MORIS@_LIBRARIES ${${COMPONENT}_LIBRARIES})
+	list(APPEND @MORIS@_DEFINITIONS ${${COMPONENT}_DEFINITIONS})
+	
+	add_library(@MORIS@::${COMPONENT} INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(@MORIS@::${COMPONENT} INTERFACE ${${COMPONENT}_LIBRARIES})
+endforeach()
+set(@MORIS@_FOUND TRUE)
+
+# Check that all subpackages were found
+check_required_components(@MORIS@)
+
+# Get general moris properties target
+include("@PACKAGE_CONFIG_INSTALL_DIR@/@MORIS@/@MORIS@Targets.cmake")
+list(INSERT @MORIS@_LIBRARIES 0 @MORIS@_general)
+
+# Create target for all built moris subpackages
+add_library(@MORIS@::@MORIS@ INTERFACE IMPORTED GLOBAL)
+target_link_libraries(@MORIS@::@MORIS@ INTERFACE ${@MORIS@_LIBRARIES})

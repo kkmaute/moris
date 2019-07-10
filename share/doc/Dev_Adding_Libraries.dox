@@ -1,0 +1,80 @@
+namespace{
+
+// Level 3 module
+
+/** \defgroup AddingLibraries Adding Libraries
+This section deals with how to add libraries to moris packages. It includes @ref FirstLibrary and @ref ConsecutiveLibraries.
+
+@section FirstLibrary How to Add the First Library to a Package
+To add the first library in a package, open the @p CMakeLists.txt file in the package's @p src directory. From there, go to the Library section and add the following:
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # project Library
+
+    # List library source files
+    set(LIB_SOURCES
+        lib_source_1.cpp
+        ...
+        lib_source_n.cpp )
+
+    # List library dependencies
+    set(LIB_DEPENDENCIES
+        lib_dependency_1
+        ...
+        lib_dependency_n )
+
+    # Set the output path for library
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+
+    # Create library
+    add_library(${PROJECT}-lib STATIC ${LIB_SOURCES})
+    target_link_libraries(${PROJECT}-lib ${LIB_DEPENDENCIES})
+    set_target_properties(${PROJECT}-lib PROPERTIES OUTPUT_NAME ${PROJECT})
+
+Going through step by step,
+
+ - Replace instances of 'project' with the full name of the current package and 'PROJECT' with the abbreviated, capitalized name of the package.
+ - Add the source files for your library to the @p LIB_SOURCES list.
+ - Add the libraries that need to be linked alongside this library to the @p LIB_DEPENDENCIES list.
+   - If any of the library source files define functions that use functions from other libraries, add those libraries here.
+ - See @ref CMakeFunctionInfo for more information on the variables and functions used here.
+
+@section ConsecutiveLibraries How to Add Consecutive Libraries
+For libraries in a package beyond the first, be sure to consider whether the library should belong to its own package instead. If it surely does belong with this package, the setup is mostly the same, but should use different variable names than before. The guidelines for variable renaming are,
+
+ - Prefix @p LIB_SOURCES and @p LIB_DEPENDENCIES with one or two words that easily differentiate the new library.
+   - These words should give an idea of what the library contents do.
+   - Put these words in ALL CAPS, separated_by_underscores.
+ - In the @p add_library, @p target_link_libraries, and @p set_target_properties commands, append the words used for the prefix between the package name and the @p lib tag.
+   - Words here should be separated-by-hyphens.
+ - In @p set_target_properties, append the words to the output name using-hyphens.
+
+For example, suppose we added a library to the optimization package that is optimized for running on a quantum computer (and suppose we decided it did not need it's own package). The Library section here might look like:
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # Quantum Optimization Library
+
+    # List source files
+    set(QUANTUM_LIB_SOURCES
+        cl_Q_Opt_Alg.cpp
+        ...
+        Q_Opt_Input.cpp )
+
+    # List library dependencies
+    set(QUANTUM_LIB_DEPENDENCIES
+        ${QLA}
+        ...
+        ${QCM} )
+
+    # Set the output path for library
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
+
+    # Create library
+    add_library(${OPT}-quantum-lib STATIC ${LIB_SOURCES})
+    target_link_libraries(${OPT}-quantum-lib ${LIB_DEPENDENCIES})
+    set_target_properties(${OPT}-quantum-lib PROPERTIES OUTPUT_NAME ${OPT}-quantum)
+
+*/
+}

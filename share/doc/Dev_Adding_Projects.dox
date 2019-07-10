@@ -1,0 +1,304 @@
+namespace moris{
+
+// Level 4 module
+
+/** @defgroup AddingProjects Adding Projects
+
+Adding a new project to moris clearly takes a lot of code, and the CMake is no exception. Fortunately, it's not terribly complicated. We've split the instructions into three sections: @ref UpperLevel, @ref CMakeLists, and @ref Config.
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ -->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+@section UpperLevel Upper-Level Edits
+Below is the minimum information needed to complete the upper-level edits for your project. For a more detailed explanation of what each part of the code is doing, refer to @ref ExplainUpperLevel.
+@subsection TopLevel Top-level CMakeLists.txt
+First, open the @p CMakeLists.txt file in the top level moris directory. 
+
+    cd $HOME/codes/moris
+    kwrite CMakeLists.txt
+
+In the CMake file, create a variable for your project under the moris Directories section. It should be a three letter abbreviation of your project's name. Follow the example of the other entries in this section.
+
+    # Source Directories
+    set(ALG "ALG")
+
+Scroll down to the @type{Package Options} section and add an option to build your project. The default behavior of this option should be @p OFF.
+
+    option(BUILD_ALG "Build the algorithms library and executable." OFF)
+
+Toward the bottom of the file, find the @type{Depends files} section. Here, add an @p if statement and @p include command for your project.
+
+    if(BUILD_ALG)
+        include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
+    endif()
+
+@subsection Utilities
+Exit the top-level @p CMakeLists.txt and move into @p share/cmake/utilities. Here, open @p build_all_exe.cmake.
+
+    cd share/cmake/utilities
+    kwrite build_all_exe.cmake
+
+In this file, add a line setting your project's build option to @p ON.
+
+    set(BUILD_ALG ON CACHE BOOL "Build the algorithms library and executable." FORCE)
+
+@subsection Depends Dependency file
+Next, go into the dependency file directory, @p share/cmake/depends, and create a new file. Its name should be your project's three-letter abbreviation followed by @p _Depends.cmake. From the @p utilities directory,
+
+    cd ../depends
+    kwrite ALG_Depends.cmake
+
+Copy and paste the following into your project's new depends file:
+
+    # proj Dependencies -------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # Check if PROJ has already been included
+    if(DEFINED PROJ_CONFIGURED_ONCE)
+        return()
+    endif()
+
+    set(PROJ_CONFIGURED_ONCE "YES")
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # Handle Dependencies
+
+    # Add PROJ to the source directory list
+    list(APPEND MORIS_SOURCE_DIRS ${PROJ})
+
+    # Include third party libraries directly needed by PROJ
+    set(PROJ_TPL_DEPENDENCIES
+        "viennacl"
+        ${ARMADILLO_EIGEN} )
+
+    # List moris projects directly needed by PROJ
+    set(PROJ_MORIS_DEPENDENCIES
+        ${LNA} )
+    
+    foreach(MORIS_DEPENDENCY ${PROJ_MORIS_DEPENDENCIES})
+        # Include moris projects directly needed by PROJ
+        include(${MORIS_DEPENDS_DIR}/${MORIS_DEPENDENCY}_Depends.cmake)
+
+        # Include third party libraries indirectly needed by PROJ
+        list(APPEND PROJ_TPL_DEPENDENCIES ${${MORIS_DEPENDENCY}_TPL_DEPENDENCIES} )
+    endforeach()
+
+ -# Replace all instances of "proj" with the full name of your project and all instances of "PROJ" with the abbreviated name of your project.
+   - For example, ALG is the abbreviated name of the project whose full name is Algorithms (DLA is Distributed Linear Algebra, etc).
+   - In KWrite and most other IDEs, this can be quickly done using a find and replace command (Ctrl + R or Ctrl + F in most platforms). 
+ -# List any third party libraries that your project files use under your project's list of @p TPL_DEPENDENCIES.
+   - These are lowercase library names in quotes, such as @p "viennacl".
+   - For third party libraries where one or another can be used for the same purpose, dereference the appropriate library variable.
+     - These variables are named as an underscore-separated list of the libraries in alphabetical order.
+     - At the time of writing, the only variables like this are @p ARMADILLO_EIGEN and @p ACML_LAPACK_MKL.
+ -# List other moris projects that your project depends on under your project's list of @p MORIS_DEPENDENCIES.
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ -->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+@section CMakeLists Project-Level CMakeLists
+Once the @ref UpperLevel have been made, CMakeLists.txt files have to be added to your project's directory tree. This section will give you only what you need to complete the CMake code. For a more detailed look at what each part of the code does, refer to @ref ExplainCMakeLists.
+@subsection TopLevelProject Project Top-Level CMakeLists.txt
+Go to your project's top directory and create a CMakeLists.txt file. 
+
+    cd $HOME/codes/moris/projects/PROJ
+    kwrite CMakeLists.txt
+
+Copy and paste the following template into this file:
+
+    # proj --------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # Third party library dependencies
+    list(REMOVE_DUPLICATES PROJ_TPL_DEPENDENCIES)
+    foreach(PROJ_TPL ${PROJ_TPL_DEPENDENCIES})
+        include(${MORIS_CMAKE_DIR}/${PROJ_TPL}.cmake)
+    endforeach()
+
+    # Add source directory
+    add_subdirectory(src)
+
+    # Add test directory
+    if(MORIS_USE_TESTS AND BUILD_PROJ)
+        add_subdirectory(test)
+    endif()
+
+ -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG). 
+
+@subsection ProjectSrc Source-Level CMakeLists.txt
+After the top-level project CMakeLists file is created, move into the @p src directory and open a CMakeLists.txt file there.
+
+    cd src
+    kwrite CMakeLists.txt
+
+@subsubsection HeaderSec Header Section
+At the top of this file, paste the following code:
+
+    # proj --------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # Set version
+    set(${PROJ}_VERSION ${MORIS_VERSION})
+
+    # List header files
+    set(HEADERS
+        project_header_1.hpp
+        ...
+        project_header_n.hpp )
+    
+    # List header dependencies
+    set(PROJ_INCLUDES
+        ${MORIS_PROJECT_1}
+        ...
+        ${MORIS_PROJECT_N} )
+    
+    foreach(PROJ_INCLUDE ${PROJ_INCLUDES})
+        include_directories(../../${PROJ_INCLUDE}/src)
+    endforeach()
+
+ -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG). 
+ -# List your project's header files under the @p HEADERS variable.
+   -# This can be done easily by typing @type{ls -1 *.hpp} in the command line and then copying the output into the list.
+ -# List the moris projects that your project includes in the @p _INCLUDES variable.
+   -# Nested projects like @p FEM/INT and @p FEM/MSI need to be listed fully (i.e. @p ${FEM}/${INT}, not just @p ${INT}).
+
+@subsubsection LibraryExecutableSec Library and Executable sections
+For these sections, refer to @ref AddingLibraries and @ref AddingExecutables.
+
+@subsubsection ConfigInstallSec Config File and Installation Sections
+Paste the following after the @p Library and @p Executable sections:
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # proj Config Files
+
+    # Build *Config and *ConfigVersion files
+    include(CMakePackageConfigHelpers)
+
+    configure_package_config_file(
+        ${PROJ}Config.cmake.in
+        ${${PROJ}_CONFIG_BUILD_DIR}/${PROJ}Config.cmake
+        INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${PROJ}
+        PATH_VARS LIB_INSTALL_DIR )
+
+    write_basic_package_version_file(
+        ${${PROJ}_CONFIG_BUILD_DIR}/${PROJ}ConfigVersion.cmake
+        VERSION ${{PROJ}_VERSION}
+        COMPATIBILITY AnyNewerVersion )
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # proj Installation
+
+    # Install *Config and *ConfigVersion files
+    install(FILES ${${PROJ}_CONFIG_BUILD_DIR}/${PROJ}Config.cmake 
+        ${${PROJ}_CONFIG_BUILD_DIR}/${PROJ}ConfigVersion.cmake
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJ} )
+
+    # Install header files
+    install(FILES ${HEADERS}
+        DESTINATION ${HEADER_INSTALL_DIR}/${PROJ} )
+
+    # Install library and executable
+    install(TARGETS ${PROJ}-lib ${PROJ}-exe
+        ARCHIVE_DESTINATION ${LIB_INSTALL_DIR}/${PROJ}
+        LIBRARY_DESTINATION ${LIB_INSTALL_DIR}/${PROJ}
+        RUNTIME_DESTINATION ${EXE_INSTALL_DIR}/${PROJ}
+        EXPORT ${PROJ}Targets )
+
+    # Export library into *Targets file
+    install(EXPORT ${PROJ}Targets
+        DESTINATION ${CONFIG_INSTALL_DIR}/${PROJ} )
+
+ -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG). 
+   -# Note that the @type{install(TARGETS...} command will throw an error if the targets listed do not exist. If no executable is created for your project, remove ${PROJ}-exe. Likewise, if no library is created for your project, remove ${PROJ}-lib.
+
+@subsection ProjectTests Test-Level CMakeLists.txt
+The CMakeLists.txt file in the test directory should take the following form:
+
+    # proj Tests --------------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # List source files
+    set(TEST_SOURCES
+        test_main.cpp
+        my_test_1.cpp
+        ...
+        my_test_n.cpp )
+
+    # List test includes
+    set(TEST_INCLUDES
+        ${LNA}
+        ${IOS}
+        ${COM}
+        ...
+        ${MORIS_PROJECT} )
+
+    foreach(TEST_INCLUDE ${TEST_INCLUDES})
+        include_directories(../../${TEST_INCLUDE}/src)
+    endforeach()
+
+    # List additional includes
+
+    # List test dependencies
+    set(TEST_DEPENDENCIES
+        ${COM}-lib
+        ...
+        ${MORIS_{TPL}_LIBS} )
+
+    # Set the output path for test
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
+
+    # Create executable
+    add_executable(${PROJ}-test${EXE_EXT} ${TEST_SOURCES})
+    target_link_libraries(${PROJ}-test${EXE_EXT} ${TEST_DEPENDENCIES})
+
+    # Mark as test
+    add_test(NAME ${PROJ}-test
+        COMMAND ${PROJ}-test${EXE_EXT} )
+
+ -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG).
+ -# List your source test files in the @p TEST_SOURCE variable.
+   -# This can be quickly done by copying and pasting the output from running @type{ls -1 *.cpp} in the command line.
+   -# The first file in this list should always be @p test_main.cpp.
+     -# @p test_main.cpp can be found in any other moris project's @p test directory.
+ -# List the moris projects your test files include in the @p TEST_INCLUDES variable.
+   -# There may be more projects to include when building the tests than when building the library for a project.
+   -# @p test_main.cpp requires header files from @p ${LNA}, @p ${IOS}, and @p ${COM} so these will always need to be included for tests.
+ -# List libraries the test needs to link to under the @p TEST_DEPENDENCIES variable.
+   -# Libraries from moris projects are a project's abbreviation followed by @p -lib.
+   -# Third party libraries should be dereferenced from @p MORIS_TPL_LIBS variables where @p TPL is the name of the appropriate third party library (e.g. @p MORIS_SUPERLU_LIBS).
+     -# For supported third party libraries that serve the same purpose, replace @p TPL with all of those libraries, in caps and separated by underscores (e.g. @p MORIS_ACML_LAPACK_MKL_LIBS).
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ -->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+@section Config
+The config file is the last CMake file needed to integrate your project into moris. For a detailed look at the lines of code provided below, refer to @ref ExplainConfig. In the @p src directory, create a file named with your project abbreviation followed by @p Config.cmake.in.
+
+    cd ../src
+    kwrite PROJConfig.cmake.in
+
+In the file, paste the following code:
+
+    # proj Config File --------------------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # CMake configuration
+
+    @PACKAGE_INIT@
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # MORIS configuration
+
+    # Set *_INCLUDE_DIRS
+    set_and_check(@PROJ@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@PROJ@)
+
+    # Create PROJ targets
+    include(@PROJ@Targets.cmake)
+
+ -# Replace all instances of "proj" with the full name of your project (eg. algorithms) and all instances of "PROJ" with the abbreviated name of your project (eg. ALG).
+
+Note that this file is used to provide users with what information (mostly paths and the like) moris uses when compiling. Any relevant information along these lines should be added with the steps listed in @ref ExplainConfig.
+
+*/
+}

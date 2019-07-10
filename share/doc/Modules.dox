@@ -1,0 +1,481 @@
+// This file is used to define the module structure.
+// Except for developer modules, this file should include the definition of all 
+top-level modules
+// The lowest-level pages are populated in their own files
+
+namespace moris {
+
+// Level 1 modules:
+
+/** @defgroup DevGroup For Developers
+
+This group of modules will be for developers only! Included topics related to
+checking out and update the code, running test functions, and how to write tests
+and functions.
+*/
+
+/** @addtogroup RunningTests
+    @ingroup DevGroup */
+
+/** @addtogroup EclipseSVNCommands
+    @ingroup DevGroup */
+
+/** @addtogroup CodingStyle
+    @ingroup DevGroup */
+
+/** @addtogroup DocumentationStyle
+    @ingroup DevGroup */
+
+/** @addtogroup WritingFunctions
+    @ingroup DevGroup */
+
+/** @addtogroup WritingTests
+    @ingroup DevGroup */
+
+/** @addtogroup CMakeGroup CMake
+    @ingroup DevGroup 
+    
+Below, you can find a wealth of information about CMake in moris. In each of these pages, you can find an easy to fill in template for each part of the code with a more detailed explanation underneath. @ref CMakeFunctions lists CMake functions used in the moris code and their options.
+
+@note @ref CMakeFunctions is a work in progress. Its page may be incomplete or not exist yet.
+    */
+
+/** @addtogroup AddingLibraries
+    @ingroup CMakeGroup */
+
+/** @addtogroup AddingExecutables
+    @ingroup CMakeGroup */
+
+/** @addtogroup AddingProjects
+    @ingroup CMakeGroup */
+
+
+/** @defgroup LinAlg Linear Algebra 
+
+The first module introduces you to MORIS's matrix class and features an 
+overview 
+of common ways to declare a matrix.
+The second submodule discusses common matrix operations and the third module 
+discusses the linear algbera functions that are part of the @ref moris 
+namespace.
+*/
+
+/** @addtogroup LinAlgIntro
+    @ingroup LinAlg */
+
+/** @addtogroup MatArith
+    @ingroup LinAlg */
+
+/** @addtogroup LinAlgFunc
+    @ingroup LinAlg */
+    
+/** @addtogroup TensorClass
+    @ingroup LinAlg */
+
+/** @addtogroup LinAlgStruc
+    @ingroup LinAlg */
+
+/** @addtogroup LinAlgTests
+    @ingroup LinAlg */
+    
+    
+/** @defgroup SpAlg Sparse Algebra
+This module discusses MORIS's sparse algebra package.
+    
+Some functionality might only live in @ref LinAlg so keep that in mind.
+*/
+    
+/** @addtogroup SpAlgPetsc
+    @ingroup SpAlg */
+    
+/** @addtogroup SpAlgTrilinos
+    @ingroup SpAlg */
+
+
+/** @defgroup OptModule Optimization Module
+    
+This module discusses MORIS's optimization package. The first submodule 
+introduces the theoretical background of formulating an optimzation problem, the 
+second submodule introduces the current optimization framework of MORIS, the 
+third submodule introduces the MORIS wrapper around the GCMMA optimization 
+solver (cl_OptAlgGCMMA.hpp), and the fourth submodule introduces the option of 
+performing a dummy optimization by sweeping the design variables 
+(cl_OptAlgSweep.hpp).
+*/
+    
+/** @addtogroup Background
+    @ingroup OptModule */
+    
+/** @addtogroup Framework
+    @ingroup OptModule */
+    
+/** @addtogroup GCMMA
+    @ingroup OptModule */
+    
+/** @addtogroup Sweep
+    @ingroup OptModule */
+    
+/** @addtogroup OptInp
+    @ingroup OptModule */
+    
+//------------------------------------------------------------------------------
+
+/** @defgroup HMR_Module Hierarchical Mesh Refinement Module ( HMR )
+
+HMR creates tensor meshes, and hierarchically refines them with respect
+to a given field.
+
+The core functionalities of HMR are
+
+- create a uniform tensor mesh from a given set of parameters
+- refine the mesh according to a field and specified criteria
+- save and load the mesh from an HDF5 file
+- determine T-Matrices and B-Spline DOF connectivities for nodes on the mesh
+- provide an interface to the MORIS MTK API
+
+    @addtogroup HMR_Main_Class
+    @ingroup HMR_Module
+     
+    @addtogroup HMR_Background_Mesh
+    @ingroup HMR_Module
+   
+    @addtogroup HMR_Base_Mesh
+    @ingroup HMR_Module
+ 
+    @addtogroup HMR_BSpline_Mesh
+    @ingroup HMR_Module
+
+    @addtogroup HMR_Lagrange_Mesh
+    @ingroup HMR_Module
+            
+    @addtogroup HMR_Factory
+    @ingroup HMR_Module
+    
+    @addtogroup  HMR_MTK_Interface
+    @ingroup HMR_Module
+    
+    @addtogroup  HMR_Refinement_Manager
+    @ingroup HMR_Module
+    
+    @addtogroup HMR_TMatrix
+    @ingroup HMR_Module
+    
+    @addtogroup HMR_Tutorials
+    @ingroup HMR_Module
+    
+    @defgroup HMR_Tutorials HMR Tutorials
+    @addtogroup HMR_Tutorials
+    @ingroup HMR_Command_Line 
+    
+    - HMR_Tutorial_1.cpp
+    - HMR_Tutorial_2.cpp
+    - HMR_Tutorial_3.cpp
+    - HMR_Tutorial_4.cpp
+    
+      
+*/
+                      
+           
+                                
+//------------------------------------------------------------------------------
+
+/** @defgroup MTK_Module Mesh Tool Kit (MTK) Module
+
+The Mesh Toolkit (MTK) is the common API for all mesh implementations in MORIS such as STK, HMR, XTK. MTK is a virtual package that is not allowed to have any dependencies except for the MORIS core packages and LINALG.
+
+MTK entertains two different @ref MTK_Interfaces, which are both accessed through the mesh class.
+
+The first interface concept works on ID, index and entity rank based inquiries to the mesh object. It returns information in Moris matrices. 
+
+The second interface concept is object-based and provides pointers to Blocks, Cells and Vertices. Object attributes such as id, index, neighbors etc are obtained by asking the corresponding object.
+
+@addtogroup MTK_Interfaces
+@ingroup MTK_Module
+
+@addtogroup MTK_Classes
+@ingroup MTK_Module
+
+@addtogroup MTK_Enums
+@ingroup MTK_Module
+
+@addtogroup MTK_Interoperability
+@ingroup MTK_Module
+
+@addtogroup MTK_Mapper
+@ingroup MTK_Module
+*/
+
+//------------------------------------------------------------------------------
+/** @defgroup FE_Module Finite Element Module
+FEM Module description.
+
+*/
+
+/** @addtogroup FE_Model
+    @ingroup FE_Module */
+    
+/** @addtogroup FE_Element
+    @ingroup FE_Module */
+    
+/** @addtogroup FE_Element_Bis
+    @ingroup FE_Module */  
+     
+/** @addtogroup FE_Interpolation_Rule
+    @ingroup FE_Module */ 
+    
+/** @addtogroup FE_Geometry_Interpolator
+    @ingroup FE_Module */  
+    
+/** @addtogroup FE_Field_Interpolator
+    @ingroup FE_Module */ 
+    
+/** @addtogroup FE_IWG
+    @ingroup FE_Module */
+ 
+ /** @addtogroup FE_Cluster
+    @ingroup FE_Module */
+       
+//------------------------------------------------------------------------------
+/** @defgroup XTKModule XFEM Tool Kit (XTK) Module
+The following modules introduce the XTK and its core functionalities.
+*/
+    
+/** @addtogroup XTKOverview
+    @ingroup XTKModule */
+    
+/** @addtogroup XTKDecomp
+    @ingroup XTKModule */
+
+/** @addtogroup XTKSensitivity
+    @ingroup XTKModule */
+    
+/** @addtogroup XTKEnrich
+    @ingroup XTKModule */
+    
+/** @addtogroup XTKOutput
+    @ingroup XTKModule */
+
+/** @addtogroup XTKTutorial
+	@ingroup XTKModule */
+    
+//------------------------------------------------------------------------------   
+    
+    
+    /** @defgroup CommModule Communication Module
+    */
+    
+    /** @addtogroup CommModule
+        @ingroup CommOverview */
+        
+//------------------------------------------------------------------------------
+
+/** @defgroup GeomEng Geometry Engine Module
+	
+This module discusses the functionality of the geometry engine (GE). The GE serves as a query of information about the geometries and fields of interest;
+where a field can be defined by a level set, a density field, or some other design variable. When asked about a certain geometry or field, the GE will return the queried 
+information directly, or an object containing all the information will be returned.  
+
+        @addtogroup GE_overview
+        @ingroup GeomEng	
+
+        @addtogroup GE_setup
+        @ingroup GeomEng
+
+		@addtogroup GE_tutorials
+		@ingroup GeomEng  
+		
+		- GE_Geom_Tutorial_01.cpp
+		- GE_Geom_Tutorial_02.cpp
+		- GE_Geom_Tutorial_03.cpp
+
+        @addtogroup GE_classes
+		@ingroup GeomEng	
+
+
+*/
+
+//------------------------------------------------------------------------------ 
+        
+    /** @defgroup MSIfc Model-Solver Interface Module
+    
+This module discusses MORIS's equation manager and related classes, including equation manager, equation objects, and dof manager. 
+The equation manager serves as the interface between the finite element model and the time integration solver.
+
+This module enables building and solving the following system of nonlinear equations:
+
+  \f[ R_i(u_k(a_j)) = 0 \f]
+
+- Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
+- Independent abstract variables : \f$ a_j  \qquad j=1...N_a \f$
+- Dependent physical variables   : \f$ u_k  \qquad k=1...N_u \f$
+
+@note Are independant variables abstract or like ISVs?
+
+It is assumed that the residuals \f$R_i\f$ are functions of physical variables, i.e. physical degrees of freedom (pdofs), which in turn depend 
+on abstract degrees of freedom (adofs). The pdofs are defined by a type, such as temperature or displacement in x-direction, and a vector of time step indices. 
+Pdofs are hosted by either mesh objects, such as a node or an element, or virtual hosts. Objects hosting a pdof are called pdof hosts. The concept of 
+pdof hosts allows sharing pdofs by multiple equation objects, which ensure consistent interpolation of solution fields, defined by \f$ \mathbf{u}(\mathbf{x}) \f$ 
+across elements. A pdof host can host one or multiple pdofs. Adofs are derived from pdofs. Each adof is linked to one type and time step ID. In addition, 
+it is defined by boundary condition types and values and various states which are defined later. An adof can be used to define one or more pdofs. 
+
+Creating adofs from pdofs, numbering of adofs, determining the dependence of a residual equation on a set of adofs, enabling the assembly of sets for 
+residual is performed by a equations into the global system of equation are primarily performed by the following two classes:
+
+
+- Equation Manager
+The Equation Manager serves as model-solver interface. The model provides a set of equation objects that compute the residuals \f$R_i\f$ for a given vector of adofs.
+The Equation Manager provides vectors of residual equations and their jacobians to the solver. To this end, the Equation Manager numbers the residual equations, 
+determines the active, i.e. unconstrained equations, and establishes the dependence of a residual equations on the adofs. It performs these taks through interactions
+with the Dof Manager
+
+- Dof Manager
+The Dof Manager handles the adofs and pdofs. It constructs and numbers the adofs from pdofs and provides information about the boundary conditions acting on the adofs. 
+It manages the dependence of pdofs and adofs. It enables the computation of pdof values from a vector of adofs and the computation of the derivatives of the residual 
+equations with respect to the adofs.
+
+@section Example
+\f[ R_1 = u_{e_1} + 2u_{e_2} \f]
+\f[ R_2 = u_{e_2} - 2u_{e_1} \f]
+
+\f[ Ele_1 : u_{e_1} = u_1, u_{e_2} = u_2 \f]
+\f[ Ele_2 : u_{e_1} = u_2, u_{e_2} = u_1 \f]
+
+Dof manager
+\f[u_1 = u_1(a_1, a_2) = a_1 + a_2 \f]
+\f[u_2 = u_2(a_1, a_2) = a_1 - 2a_2 \f]
+
+This leads to:
+\f[Ele_1 : u_{e_1} = u_1 = a_1 + a_2 \f]
+\f[Ele_1 : u_{e_2} = u_2 = a_1 - 2a_2 \f]
+\f[Ele_2 : u_{e_1} = u_2 = a_1 - 2a_2 \f]
+\f[Ele_2 : u_{e_2} = u_1 = a_1 + a_2 \f]
+
+*/
+
+/** @addtogroup EqnMgr
+    @ingroup MSIfc */
+    
+/** @addtogroup DofMgr
+    @ingroup MSIfc */
+    
+/** @addtogroup EqnObj
+    @ingroup MSIfc */
+    
+/** @addtogroup PDofHost
+    @ingroup MSIfc */
+    
+/** @addtogroup MSITutorial
+    @ingroup MSIfc */
+    
+/** @addtogroup MSI_User_Tutorial
+    @ingroup MSIfc */
+    
+    
+    /** @defgroup TSMfc Time Solver Module
+    
+This module discusses MORIS's Time Solver manager. The time solver serves as the module orchestrating all matters related to timestepping. 
+In Pysical time-dependent problems, information flows in the direction of positive time. 
+The dicontinousGalerkin appied over space-time slabs of thickness \f$ \delta t \f$ leads to a system in which the solution throughout
+the current slab ( \f$ Q = \Omega \times ]t_{n}, t_{n+1}[ \f$ where \f$ \Omega \f$ is the spatial domain and n the time step number. 
+The boundary \f$ P = \Gamma \times ]t_{n}, t_{n+1}[ \f$ ) depends only upon the solution \f$ t^{+}_{n} \f$.
+In Figure 1 the time slabs \f$ n-1, n , n+1 \f$ are illustraded on the right. On the left the focus is on time slab \f$ n \f$. 
+The marked boundarys \f$ P_{n}^{+} \f$ and \f$ P_{n+1}^{-} \f$ are the upper and lower time boundarys of time slab \f$ n \f$. 
+
+@image html ./figures/Time_Slabs.JPG "Figure 1: Time Slabs"
+
+An space-time equation object therefore provides residual blocks related to a certain set of degrees of freedom.
+Figure 2 shows a space time element.
+
+@image html ./figures/Space_Time_Element.JPG "Figure 2: Space Time Element"
+
+This module orchestrates residual block system of nonlinear equations over time.
+
+  \f[ R_1(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+  \f[ R_2(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+  \f[ R_2(\hat{u}_1, \hat{u}_2, \hat{u}_3) = 0 \f]
+
+- Residual equation block               : \f$ R_i              \qquad i=1...N_{eqn-block} \f$
+- Independent abstract variables blocks : \f$ \hat{u}_j(x, t)  \qquad \f$ with \f$ \hat{u}_i \subseteq \hat{u} \f$
+
+It is assumed that the residuals \f$R_i\f$ are functions of abstract degrees of freedom (adofs). 
+The adofs are defined by a type, such as temperature or displacement in x-direction, and a vector of time step indices. 
+
+The time solver can operate on a monolytic or staggered system in time. 
+A staggerd approach triggers another monolytic or staggerd approach.
+In such a case the the time solvers are stacked in a tree like structure.
+
+During one monolytic timestep the timesolver creates a nonlinear solver to solver the nonlinear system
+
+The highest level time solver has a global time. A map between the global and lower level local times.
+
+@Note timestepping
+*/
+
+/** @addtogroup NLANLBGS
+@ingroup TSMfc */
+
+/** @addtogroup NLANonLinSysMgn
+@ingroup TSMfc */
+
+/** @addtogroup TLAStag
+@ingroup TSMfc */
+
+
+
+
+
+
+
+    
+     /** @defgroup NLAfc Nonlinear Solver Module
+    
+    This module discusses MORIS's nonlinear solver module, including a multidimensional newton algorithm. 
+    
+    This module enables building and solving the following system of nonlinear equations:
+
+    \f[ R_i(a_j) = 0 \f]
+
+    - Residual equation : \f$ R_i  \qquad i=1...N_{eqn} \f$
+    - Independent abstract variables : \f$ a_j  \qquad j=1...N_a \f$
+    
+    @note The nonlinear solver operates on dofs. no knowledege about p or adofs
+    
+    It is assumed that the residuals \f$R_i\f$ are functions of variables.
+    */
+    
+/** @addtogroup NLANonlinearProblem
+@ingroup NLAfc */
+    
+/** @addtogroup NLANewtonRaphson
+    @ingroup NLAfc */
+    
+/** @addtogroup NLANLBGS
+@ingroup NLAfc */
+    
+/** @addtogroup NLANewton_Dev_Tutorial
+    @ingroup NLAfc */
+    
+/** @addtogroup NLA_Newton_User_Tutorial
+    @ingroup NLAfc */
+    
+    
+
+     /** @defgroup DLAfc Linear Solver Module
+    
+    This module discusses MORIS's linear solver mmodule
+    
+    This module enables building and solving the following system of linear equations:
+
+*/
+    
+/** @addtogroup DLALinearProblem
+@ingroup DLAfc */
+    
+/** @addtogroup DLAlinearSolver
+    @ingroup DLAfc */
+    
+/** @addtogroup DLA_User_Tutorial
+    @ingroup DLAfc */
+
+
+}

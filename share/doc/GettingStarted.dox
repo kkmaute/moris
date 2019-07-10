@@ -1,0 +1,240 @@
+namespace moris {
+
+/** @page GettingStarted Getting Started
+
+@tableofcontents
+
+Instructions on how to checkout and compile the code, compiling the Doxygen 
+output and importing/exporting the group's Eclipse preferences are included 
+below.
+
+@section GettingStartedInstallation How to "install" MORIS?
+Instructions on how to @ref Checkout and @ref MTPLSCheckout are included below. 
+If you have already done this, you may skip to @ref CompilingCode.
+
+@subsection Checkout Checkout the Code
+You may @ref EclipseCheckout or @ref CommandCheckout.
+
+@subsubsection EclipseCheckout Checkout via Eclipse
+Checking out the code in Eclipse requires an SVN plug-in; if you have not 
+already installed it, refer to section: @ref SVNInstall. To import the project 
+in Eclipse,
+
+-# Open the New Project Wizard,  either:
+ 
+  - Click on @b File and click on  @bold{New > Project...}  
+  OR
+  - Right-Click inside the Project Brower and select @bold{New > Project...}
+
+-# Expand the SVN folder and select @bold{Project from SVN}. Click 
+@b Next.
+ 
+-# In the URL field, enter: @p 
+svn+ssh://thunderbird.colorado.edu/home/svnroot/MORIS
+
+-# In the Authentication section, enter your Thunderbird username and 
+password. It is recommended that you choose the Save authentication option. 
+Click @b Next.
+ 
+-# The Head Revision is chosen by default. You may choose a version by date 
+or by browsing past revisions. Click @b Finish.
+
+-# Leave the Depth option as Recursively. Click @b Next.
+
+-# Eclipse will checkout the project in the default workspace. You may choose 
+to specify a custom location. It is strongly recommended to have your code in 
+
+     $HOME/codes
+     
+Click @b Finish.
+
+-# If you chose to save your authentication information, you may be prompted 
+to provide security questions and answers. You may opt out or click Yes to 
+provide your custom security information. After you have done so, click 
+@b Ok.
+
+@subsubsection CommandCheckout Checkout via Terminal
+To checkout via a command window, you will need to have Subversion installed on 
+your machine. This requires root access (contact Kurt first). Move to a desired 
+directory, for example:
+
+    cd $HOME/codes
+
+Then, enter the command:
+
+    svn checkout svn+ssh://thunderbird.colorado.edu/home/svnroot/MORIS
+
+You may be prompted to enter your password.
+
+@subsection MTPLSCheckout Checkout the MTPLS Folder
+In addition to checking out the MORIS, you will also need to have a link to a directory
+with third party libraries used in moris. Move to your home directory and run the 
+command:
+
+    cd
+    ln -s /home/maute/tpls .
+
+Included are the @p arma and @p eigen folders, which contain the Armadillo
+and Eigen libraries, among others. If a link called @p tpls already exists,
+remove the link first.
+
+Finally, moris needs to be able to find the @p superlu, @p petsc, and @p boost folders.
+This is done by setting the locations of these libraries as environment variables. 
+In .cshrc files, add the lines:
+
+    # SuperLU
+    setenv SUPERLUDIR $HOME/tpls/SuperLU/gcc-openmpi/
+    
+    # PETSC
+    setenv PETSC_DIR $HOME/tpls/petsc/gcc-openmpi
+    
+    # BOOST
+    setenv BOOST_ROOT $HOME/tpls/boost
+    setenv LD_LIBRARY_PATH $HOME/tpls/boost/lib/:$LD_LIBRARY_PATH/
+
+Alternatively, for .bashrc files, add the lines:
+
+    # set SUPERLU
+    export SUPERLUDIR=$HOME/tpls/superlu
+    
+    # set PETSC
+    export PETSC_DIR=$HOME/tpls/petsc
+
+    # BOOST
+    export BOOST_ROOT=$HOME/tpls/boost
+    export LD_LIBRARY_PATH=$HOME/tpls/boost/lib/:$LD_LIBRARY_PATH/
+
+Note that the lines lead with # are comments for convenience and may be
+omitted.
+
+@subsection EnvVar Setting MORISROOT as an Evironmental Variable
+
+In order to read external files in MORIS, all paths are specified with respect to MORISROOT. 
+Therefore, intially the loaction of the MORIS directory needs to be specified by defining MOORISROOT 
+as an environmental variable. In .cshrc files, add the lines:
+
+    # set MORISROOT
+    setenv MORISROOT $HOME/codes/MORIS
+
+Alternatively, for .bashrc files, add the lines:
+
+    # set MORISROOT
+    export MORISROOT=$HOME/codes/MORIS
+
+Note that the lines lead with # are comments for convenience and may be
+omitted.
+
+@subsection CompilingCode Compile the Code
+This project uses a makefile wrapper to handle all of the compiling; for a 
+detailed discussion on this matter, see @ref MakefileWrapper section.
+
+To compile the project, move into the MORIS directory after checking 
+it out and perform the following steps:
+
+    cd $MORISROOT
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+It is strongly recommended to create a separate build directory for each compile configureation. Compile configurations differ by
+the BLAS and LAPACK libraries used, the optimization level, and which linear algebra package (i.e. Armadillo or Eigen) is used.
+
+Standard compile configurations are:
+
+- Non-optimized BLAS/LAPACK -- Armadillo -- debug option:
+
+        cd $MORISROOT
+        mkdir build-blas-arma-dbg
+        cd build-blas-arma-dbg
+        cmake -D MORIS_USE_ARMA:STRING=ON -D MORIS_USE_ACML:STRING=OFF -D MORIS_USE_BLAS:STRING=ON -D MORIS_HAVE_DEBUG:STRING=ON ..
+
+- Non-optimized BLAS/LAPACK -- Eigen -- debug option:
+
+        cd $MORISROOT
+        mkdir build-blas-eigen-dbg
+        cd build-blas-eigen-dbg
+        cmake -D MORIS_USE_ARMA:STRING=OFF -D MORIS_USE_EIGEN:STRING=ON -D MORIS_USE_ACML:STRING=OFF -D MORIS_USE_BLAS:STRING=ON -D MORIS_HAVE_DEBUG:STRING=ON ..
+
+- Optimized BLAS/LAPACK (ACML) -- Armadillo -- no-debug option:
+
+        cd $MORISROOT
+        mkdir build-acml-arma-opt
+        cd build-acml-arma-opt
+        cmake -D MORIS_USE_ARMA:STRING=ON -D MORIS_USE_ACML:STRING=ON -D MORIS_USE_BLAS:STRING=OFF -D MORIS_HAVE_DEBUG:STRING=OFF ..
+
+- Optimized BLAS/LAPACK (ACML) -- Eigen -- no-debug option:
+
+        cd $MORISROOT
+        mkdir build-acml-eigen-opt
+        cd build-acml-egien-opt
+        cmake -D MORIS_USE_ARMA:STRING=OFF -D MORIS_USE_EIGEN:STRING=ON -D MORIS_USE_ACML:STRING=ON  -D MORIS_USE_BLAS:STRING=OFF -D MORIS_HAVE_DEBUG:STRING=OFF ..
+
+Everytime a new library is linked to MORIS, the build directory needs to be deleted. Same needs to be done if any of the cmake files were changed.
+
+To clean the code (whenever a .hpp or .tpp file is changed), use the @p clean target:
+
+    cd $MORISROOT/build
+    make clean
+    
+To clean and build MORIS via Eclipse,
+
+-# Right click on the project @p MORIS and click on  @b Properties.
+-# Go to the @bold{C/C++ Build} tab and set the @bold{Build directory} to path/to/MORIS.
+-# Under the @b Behavior tab set the @bold{clean target to distclean}.
+    
+@section RunDoxy Running Doxygen
+Assuming you have doxygen installed on your local machine, move into the MORIS 
+main directory and run the doxygen command:
+
+    cd $MORISROOT
+    make doxy
+
+You may now open @p doc/doxygen/html/index.html in an internet browser. To do
+this from a terminal using firefox, use the command:
+
+    firefox doc/doxygen/html/index.html &
+
+Doxygen gathers any warnings and errors in the file: @p warn_log_doxy.txt in 
+the @p %MORIS directory. Typical errors include misused doxygen warnings and 
+incorrect paths to code snippets (see @ref DocumentationStyle).
+
+@subsection CleanDoxy Cleaning Doxygen
+To clean the Doxygen output, use the command:
+
+    cd $MORISROOT
+    make doxyclean
+
+@subsection InstallDoxy Installing Doxygen
+Doxygen has a binary distribution for Linux available for download. After
+downloading the executable, add the location to the @p PATH variable in the 
+@p .cshrc or @p .bashrc file.
+
+@section Preferences
+To maintain a level of uniformity, it is recommended that you use the Eclipse 
+preferences that are part of the project.
+
+@subsection Importing
+To import the group's Eclipse preferences,
+
+-# Open the @b File menu and click on @b Import.
+-# Expand the General folder and select Preferences. Click @b Next.
+-# Click @b Browse next to the dropdown menu and navigate to MORIS/share/eclipse/.
+-# Select @p eclipse_preferences.epf and click @b Open.
+-# Check the box next to Import All and click @b Finish.
+
+@subsection Exporting
+To export your Eclipse preferences,
+
+-# Open the @b File menu and click on @b Export.
+-# Expand the General folder and select Preferences. Click @b Next.
+-# Click @b Browse next to the dropdown menu and navigate to 
+MORIS/share/eclipse/.
+-# If it already exists, select @p eclipse_preferences.epf to overwrite it. 
+Otherwise, type a custom name. Click @b Finish.
+-# If overwriting, Eclipse will display an overwrite warning. Click 
+@b Yes.
+-# Commit your preferences.
+
+*/
+}

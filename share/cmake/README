@@ -1,0 +1,75 @@
+################################################################################
+#                                                                              #
+#    MORIS First Time Use README                                               #
+#                                                                              #
+################################################################################
+
+
+# ------------------------------------------------------------------------------
+# Required Environment Variables -----------------------------------------------
+# # these must be set for MORIS to build properly
+
+# PETSc
+# # path to the PETSc directory
+PETSC_DIR
+
+# ViennaCL
+# # path to the ViennaCL directory
+ViennaCL_DIR
+
+# Boost
+# # path to the Boost directory
+BOOST_ROOT
+
+# GCMMA
+# # path to the GCMMA directory
+GCMMA_DIR
+
+# SuperLU
+# # path to the SuperLU directory
+SuperLU_DIR
+# # path to the SuperLU-DIST directory
+SuperLU_DIST_DIR
+
+# Trilinos
+# # path to the Trilinos directory
+Trilinos_DIR
+# # path to the Trilinos debug directory; optional
+Trilinos_DEBUG_DIR
+
+# Armadillo
+# # path to the Armadillo directory; Eigen3 can be used instead
+Armadillo_DIR
+
+# Eigen3
+# # path to the Eigen3 directory; Armadillo can be used instead
+Eigen3_DIR
+
+# ACML
+# # path to the ACML directory; MKL or BLAS/LAPACK can be used instead
+ACML_DIR
+
+# MKL
+# # path to the MKL directory; ACML or BLAS/LAPACK can be used instead
+MKL_DIR
+
+# BLAS and LAPACK
+# # path to the BLAS/LAPACK directory; MKL or ACML can be used instead
+LAPACK_DIR
+
+
+# ------------------------------------------------------------------------------
+# Optional Environment Variables -----------------------------------------------
+# # these must be set for MORIS to use certain options
+
+# SNOPT
+# # path to the SNOPT directory
+SNOPT_DIR
+
+# LBFGSB
+# # path to the LBFGSB directory; must be also have ARPACK
+LBFGSB_DIR
+
+# ARPACK
+# # path to the ARPACK directory; must be also have LBFGSB
+ARPACK_DIR
