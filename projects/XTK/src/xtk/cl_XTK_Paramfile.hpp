@@ -37,7 +37,8 @@ public:
     mEnrich(false),
     mGhost(false),
     mExport(false),
-    mOutputMeshFile("")
+    mOutputMeshFile(""),
+    mWriteobj(false)
     {};
 
     // input mesh
@@ -71,6 +72,12 @@ public:
     // export mesh file
     bool mExport;
     std::string mOutputMeshFile;
+
+    // write obj file
+    bool mWriteobj;
+    moris_index mPhaseForobj;
+    std::string mobjOutputFile;
+
 
     // dump data to hdf5
     bool mOutputData;
@@ -175,8 +182,11 @@ private:
     void
     parse_xtk_problem_output(moris::uint aProblemIndex);
 
-
-
+    /*!
+     * Parse the obj output information
+     */
+    void
+    parse_xtk_problem_obj(moris::uint aProblemIndex);
 
     enum MeshType
     get_mesh_type_enum(std::string const & aMeshStr)

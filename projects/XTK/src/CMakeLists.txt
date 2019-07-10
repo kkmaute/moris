@@ -68,7 +68,6 @@ set(HEADERS
     xtk/cl_XTK_Input_Generator.hpp
     xtk/cl_XTK_Interface_Element.hpp
     xtk/cl_XTK_Mesh.hpp
-    xtk/cl_XTK_Model_Export.hpp
     xtk/cl_XTK_Model.hpp
     xtk/cl_XTK_Node.hpp
     xtk/cl_XTK_Output_Options.hpp
@@ -78,7 +77,6 @@ set(HEADERS
     xtk/cl_XTK_Phase_Table.hpp
     xtk/cl_XTK_Request_Handler.hpp
     xtk/cl_XTK_Sensitivity.hpp
-    xtk/cl_XTK_Tetra4_Connectivity.hpp
     xtk/fn_assemble_boundary_subphase_constraint.hpp
     xtk/fn_compute_interface_surface_area.hpp
     xtk/fn_compute_xtk_model_volumes.hpp
@@ -147,6 +145,7 @@ xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
 xtk/cl_MTK_Vertex_XTK_Impl.cpp
 xtk/cl_XTK_Background_Mesh.cpp
 xtk/cl_XTK_Child_Mesh.cpp
+xtk/cl_XTK_Cut_Mesh.cpp
 xtk/cl_XTK_Enrichment.cpp
 xtk/cl_XTK_Ghost_Stabilization.cpp
 xtk/cl_XTK_Model.cpp
@@ -159,17 +158,11 @@ set(LIB_DEPENDENCIES
 	${MTK}-lib
 	${ALG}-lib
 	#${HMR}-lib
-    ${MORIS_BASE_LIBS}
+    #${MORIS_BASE_LIBS}
     #${MORIS_TRILINOS_LIBS}
     #${MORIS_ACML_LAPACK_MKL_LIBS}
     #${MORIS_ARMADILLO_EIGEN_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE LIB_DEPENDENCIES)
-list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
-list(REVERSE LIB_DEPENDENCIES)
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
@@ -178,7 +171,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 # Create library
 add_library(${XTK}-lib STATIC ${LIB_SOURCES})
 target_include_directories(${XTK}-lib PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:${${XTK}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${XTK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 
@@ -187,7 +181,7 @@ foreach(TPL ${XTK_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${XTK}-lib
-    	PUBLIC ${tpl})
+    	PUBLIC ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${XTK}-lib 
@@ -316,55 +310,60 @@ endif()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Config Files
 
-# Build *Config and *ConfigVersion files
- include(CMakePackageConfigHelpers)
+# Makes sure all tpl dependencies are searched for in the config file
+foreach(TPL ${XTK_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+	string(APPEND XTK_CONFIG_TPL_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
+endforeach()
 
- 
- configure_package_config_file(
-     ${XTK}Config.cmake.in
-     ${${XTK}_CONFIG_BUILD_DIR}/${XTK}Config.cmake
-     INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}/${XTK}
-     PATH_VARS LIB_INSTALL_DIR )
- 
- write_basic_package_version_file(
-     ${${XTK}_CONFIG_BUILD_DIR}/${XTK}ConfigVersion.cmake
-     COMPATIBILITY AnyNewerVersion )
+# Makes sure all moris library dependencies are included in the config file
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+	string(APPEND XTK_CONFIG_MORIS_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+endforeach()
+
+# Properties to be coppied into config file
+get_target_property(XTK_COMPILE_DEFINITIONS ${XTK}-lib COMPILE_DEFINITIONS)
+
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${XTK}Config.cmake.in
+    ${${XTK}_CONFIG_BUILD_DIR}/${XTK}Config.cmake
+    INSTALL_DESTINATION 
+    ${${XTK}_CONFIG_INSTALL_DIR}
+    PATH_VARS 
+    ${XTK}_CONFIG_INSTALL_DIR
+    )
+
+write_basic_package_version_file(
+    ${${XTK}_CONFIG_BUILD_DIR}/${XTK}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
  
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  # XTK Installation
  
- # Install *Config and *ConfigVersion files
- install(FILES ${${XTK}_CONFIG_BUILD_DIR}/${XTK}Config.cmake 
-     ${${XTK}_CONFIG_BUILD_DIR}/${XTK}ConfigVersion.cmake
-     DESTINATION ${CONFIG_INSTALL_DIR}/${XTK} )
+# Install *Config and *ConfigVersion files
+install(FILES ${${XTK}_CONFIG_BUILD_DIR}/${XTK}Config.cmake 
+    ${${XTK}_CONFIG_BUILD_DIR}/${XTK}ConfigVersion.cmake
+    DESTINATION ${${XTK}_CONFIG_INSTALL_DIR} )
 
 # Install header files
- install(FILES ${HEADERS}
-    DESTINATION ${HEADER_INSTALL_DIR}/${XTK} )
-    
-# Install library and executable
+install(FILES ${HEADERS}
+    DESTINATION ${${XTK}_HEADER_INSTALL_DIR} )
+
+# Install library
 install(TARGETS ${XTK}-lib
-    EXPORT ${XTK}Targets
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${XTK}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${XTK}
-    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${XTK} )
-
-# Install executable
-install(TARGETS XTK_PLATO
-    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
+    DESTINATION ${${XTK}_LIB_INSTALL_DIR}
     EXPORT ${XTK}Targets )
 
-# Install executable
-install(TARGETS XTK_HOLE_SEED
+# Install executables
+install(TARGETS XTK_PLATO XTK_HOLE_SEED XTK_EXE
     DESTINATION ${EXE_INSTALL_DIR}/${XTK}
     EXPORT ${XTK}Targets )
-    
-    
-# Install executable
-install(TARGETS XTK_EXE
-    DESTINATION ${EXE_INSTALL_DIR}/${XTK}
-    EXPORT ${XTK}Targets )
-    
     
 if(BUILD_HMR)
 install(TARGETS XTK_HMR

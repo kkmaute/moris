@@ -1,10 +1,31 @@
 ### Config Template for SOL_CORE Library ###
 
+if(@SOL_CORE@_CONFIGURED)
+	return()
+endif()
+
+set(@SOL_CORE@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@SOL_CORE@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@SOL_CORE@)
+# Additional macros
+include(CMakeFindDependencyMacro)
 
-# Fetch library target
-include(@SOL_CORE@Targets.cmake)
+# Compilers and used in build
+set(@SOL_CORE@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@SOL_CORE@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@SOL_CORE@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@SOL_CORE_COMPILE_DEFINITIONS@")
+set(@SOL_CORE@_C_FLAGS "@MORIS_C_FLAGS@" "@SOL_CORE_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@SOL_CORE_CONFIG_TPL_DEPENDENCIES@
+@SOL_CORE_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_SOL_CORE_CONFIG_INSTALL_DIR@/@SOL_CORE@Targets.cmake")
+
+# Library target list
+set(@SOL_CORE@_LIBRARIES @SOL_CORE@-lib)

@@ -9,23 +9,59 @@ set(HEADERS
     cl_tic_toc_error.hpp )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Exceptions Target
-add_library(${EXC}-target INTERFACE)
-target_include_directories(${EXC}-target INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Exceptions Library
 
+add_library(${EXC}-lib INTERFACE)
+target_include_directories(${EXC}-lib INTERFACE
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:${${EXC}_HEADER_INSTALL_DIR}> )
+	
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Exceptions Executable
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Exceptions Config Files
 
+# Makes sure all tpl dependencies are searched for in the config file
+foreach(TPL ${EXC_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+	list(APPEND EXC_CONFIG_TPL_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
+endforeach()
+
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${EXC}Config.cmake.in
+    ${${EXC}_CONFIG_BUILD_DIR}/${EXC}Config.cmake
+    INSTALL_DESTINATION 
+    ${${EXC}_CONFIG_INSTALL_DIR}
+    PATH_VARS 
+    ${EXC}_CONFIG_INSTALL_DIR
+    )
+
+write_basic_package_version_file(
+    ${${EXC}_CONFIG_BUILD_DIR}/${EXC}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Exceptions Installation
 
+# Install *Config and *ConfigVersion files
+install(FILES ${${EXC}_CONFIG_BUILD_DIR}/${EXC}Config.cmake 
+    ${${EXC}_CONFIG_BUILD_DIR}/${EXC}ConfigVersion.cmake
+    DESTINATION ${${EXC}_CONFIG_INSTALL_DIR} )
+
 # Install header files
 install(FILES ${HEADERS}
-    DESTINATION ${HEADER_INSTALL_DIR}/${MRS}/${EXC} )
+    DESTINATION ${${EXC}_HEADER_INSTALL_DIR} )
 
+# Install library
+install(TARGETS ${EXC}-lib
+    DESTINATION ${${EXC}_LIB_INSTALL_DIR}
+    EXPORT ${EXC}Targets )
+
+# Export library in to *Targets file
+install(EXPORT ${EXC}Targets
+    DESTINATION ${${EXC}_CONFIG_INSTALL_DIR} )

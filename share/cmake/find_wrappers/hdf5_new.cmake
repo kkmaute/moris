@@ -15,14 +15,18 @@ if(NOT HDF5_FOUND_ONCE)
 	find_package(HDF5)
 	
 	if(HDF5_FOUND)
-		set(MORIS_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS}
-		    CACHE PATH "HDF5 include directories." )
-		set(MORIS_HDF5_LIBRARY_DIRS ${HDF5_LIBRARY_DIRS}
-		    CACHE PATH "HDF5 library directories." )
-		set(MORIS_HDF5_LIBRARIES ${HDF5_LIBRARIES}
-		    CACHE FILEPATH "HDF5 libraries." )
+		#set(MORIS_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS}
+		#    CACHE PATH "HDF5 include directories." )
+		#set(MORIS_HDF5_LIBRARY_DIRS ${HDF5_LIBRARY_DIRS}
+		#    CACHE PATH "HDF5 library directories." )
+		#set(MORIS_HDF5_LIBRARIES ${HDF5_LIBRARIES}
+		#    CACHE FILEPATH "HDF5 libraries." )
+		set(MORIS_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
+		set(MORIS_HDF5_LIBRARY_DIRS ${HDF5_LIBRARY_DIRS})
+		set(MORIS_HDF5_LIBRARIES ${HDF5_LIBRARIES})
 		
-	    set(HDF5_FOUND_ONCE TRUE CACHE INTERNAL "HDF5 was found.")
+	    #set(HDF5_FOUND_ONCE TRUE CACHE INTERNAL "HDF5 was found.")
+	    set(HDF5_FOUND_ONCE TRUE)
 	endif()
 	
 	mark_as_advanced(#HDF5_DIR
@@ -35,7 +39,7 @@ if(NOT HDF5_FOUND_ONCE)
 	message(STATUS "HDF5_LIBRARIES: ${HDF5_LIBRARIES}")
 endif()
 
-if(NOT TARGET hdf5)
-	add_library(hdf5 INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(hdf5 INTERFACE ${MORIS_HDF5_LIBRARIES})
+if(NOT TARGET ${MORIS}::hdf5)
+	add_library(${MORIS}::hdf5 INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(${MORIS}::hdf5 INTERFACE ${MORIS_HDF5_LIBRARIES})
 endif()

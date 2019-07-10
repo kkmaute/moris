@@ -36,3 +36,8 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LAPACK DEFAULT_MSG LAPACK_LIBRARIES)
 
 mark_as_advanced(LAPACK_lapack LAPACK_blas LAPACK_LIBRARIES)
+
+_import_libraries(LAPACK_LIBRARY_TARGETS ${LAPACK_LIBRARIES})
+
+add_library(LAPACK::lapack INTERFACE IMPORTED GLOBAL)
+target_link_libraries(LAPACK::lapack INTERFACE ${LAPACK_LIBRARY_TARGETS})

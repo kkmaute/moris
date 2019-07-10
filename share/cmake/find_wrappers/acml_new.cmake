@@ -4,14 +4,17 @@
 
 if(NOT ACML_FOUND_ONCE)
     find_package(ACML)
-    
+	
     if(ACML_FOUND)
-        set(ACML_FOUND_ONCE TRUE CACHE INTERNAL "ACML was found." FORCE)
+        #set(ACML_FOUND_ONCE TRUE CACHE INTERNAL "ACML was found." FORCE)
+        set(ACML_FOUND_ONCE TRUE)
         
-        set(MORIS_ACML_LIBRARIES ${ACML_LIBRARIES}
-        	CACHE INTERNAL "ACML libraries.")
-        set(MORIS_ACML_DEFINITIONS "-DMORIS_HAVE_ACML"
-        	CACHE INTERNAL "Moris preprocessor definitions for ACML.")
+        #set(MORIS_ACML_LIBRARIES ${ACML_LIBRARIES}
+        #	CACHE INTERNAL "ACML libraries.")
+        #set(MORIS_ACML_DEFINITIONS "-DMORIS_HAVE_ACML"
+        #	CACHE INTERNAL "Moris preprocessor definitions for ACML.")
+        set(MORIS_ACML_DEFINITIONS "-DMORIS_HAVE_ACML")
+        set(MORIS_ACML_LIBRARIES ACML::acml)
         
         mark_as_advanced(MORIS_ACML_LIBRARIES
         	MORIS_ACML_DEFINITIONS )
@@ -20,9 +23,9 @@ if(NOT ACML_FOUND_ONCE)
     message(STATUS "ACML_LIBRARIES: ${ACML_LIBRARIES}")
 endif()
 
-if(NOT TARGET acml)
-	add_library(acml INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(acml INTERFACE ${MORIS_ACML_LIBRARIES})
+if(NOT TARGET ${MORIS}::acml)
+	add_library(${MORIS}::acml INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(${MORIS}::acml INTERFACE ${MORIS_ACML_LIBRARIES})
 endif()
 
 #add_definitions("-DMORIS_HAVE_ACML")

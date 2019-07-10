@@ -1,10 +1,38 @@
-### comm Library Config File ###
+### Communications Library Config File ###
+
+if(@COM@_CONFIGURED)
+	return()
+endif()
+
+set(@COM@_CONFIGURED TRUE)
 
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@COM@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@COM@)
+#< TEMP
+set(MORIS "@MORIS@")
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@COM@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@COM@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@COM@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@COM_COMPILE_DEFINITIONS@")
+set(@COM@_C_FLAGS "@MORIS_C_FLAGS@" "@COM_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@COM_CONFIG_TPL_DEPENDENCIES@
+@COM_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@COM@Targets.cmake)
+include("@PACKAGE_COM_CONFIG_INSTALL_DIR@/@COM@Targets.cmake")
+
+# Library target list
+set(@COM@_LIBRARIES @COM@-lib)

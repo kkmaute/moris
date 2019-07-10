@@ -1,16 +1,38 @@
-### algorithms Library Config File ###
+### Algorithms Library Config File ###
+
+if(@ALG@_CONFIGURED)
+	return()
+endif()
+
+set(@ALG@_CONFIGURED TRUE)
 
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@ALG@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@ALG@)
+#< TEMP
+set(MORIS "@MORIS@")
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@ALG@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@ALG@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@ALG@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@ALG_COMPILE_DEFINITIONS@")
+set(@ALG@_C_FLAGS "@MORIS_C_FLAGS@" "@ALG_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@ALG_CONFIG_TPL_DEPENDENCIES@
+@ALG_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(${CMAKE_CURRENT_LIST_DIR}/@ALG@Targets.cmake)
+include("@PACKAGE_ALG_CONFIG_INSTALL_DIR@/@ALG@Targets.cmake")
 
 # Library target list
 set(@ALG@_LIBRARIES @ALG@-lib)
-
-# Executable target list
-set(@ALG@_EXECUTABLE)

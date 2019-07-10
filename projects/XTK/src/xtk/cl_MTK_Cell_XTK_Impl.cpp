@@ -16,11 +16,13 @@ namespace mtk
     // ----------------------------------------------------------------------------------
     Cell_XTK::Cell_XTK(moris::moris_id       aElementId,
                        moris::moris_index    aElementIndex,
+                       moris::moris_index    aElementOwner,
                        moris::moris_index    aCMElementIndex,
                        xtk::Child_Mesh*      aChildMeshPtr,
                        xtk::Background_Mesh* aBackgroundMeshPtr):
                            mElementId(aElementId),
                            mElementIndex(aElementIndex),
+                           mElementOwner(aElementOwner),
                            mCMElementIndex(aCMElementIndex),
                            mChildMeshPtr(aChildMeshPtr),
                            mBackgroundMeshPtr(aBackgroundMeshPtr)

@@ -1,10 +1,31 @@
 ### Model Solver Interface Config File ###
 
+if(@MSI@_CONFIGURED)
+	return()
+endif()
+
+set(@MSI@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIRS
-set_and_check(@MSI@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@FEM@/@MSI@)
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@MSI@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@MSI@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@MSI@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@MSI_COMPILE_DEFINITIONS@")
+set(@MSI@_C_FLAGS "@MORIS_C_FLAGS@" "@MSI_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@MSI_CONFIG_TPL_DEPENDENCIES@
+@MSI_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@MSI@Targets.cmake)
+include("@PACKAGE_MSI_CONFIG_INSTALL_DIR@/@MSI@Targets.cmake")
+
+# Library target list
+set(@MSI@_LIBRARIES @MSI@-lib)

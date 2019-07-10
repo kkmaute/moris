@@ -1,10 +1,31 @@
-### optimization Library Config File ###
+### Optimization Library Config File ###
+
+if(@OPT@_CONFIGURED)
+	return()
+endif()
+
+set(@OPT@_CONFIGURED TRUE)
 
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@OPTIMIZATION@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@/@OPT@)
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@OPT@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@OPT@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@OPT@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@OPT_COMPILE_DEFINITIONS@")
+set(@OPT@_C_FLAGS "@MORIS_C_FLAGS@" "@OPT_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@OPT_CONFIG_TPL_DEPENDENCIES@
+@OPT_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@OPTIMIZATION@Targets.cmake)
+include("@PACKAGE_OPT_CONFIG_INSTALL_DIR@/@OPT@Targets.cmake")
+
+# Library target list
+set(@OPT@_LIBRARIES @OPT@-lib)

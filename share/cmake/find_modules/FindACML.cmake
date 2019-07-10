@@ -57,10 +57,13 @@ if(NOT ACML_LIBRARIES)
         )
 endif()
 
-
-
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ACML DEFAULT_MSG ACML_LIBRARIES)
 
 mark_as_advanced(ACML_LIBRARIES)
+
+_import_libraries(ACML_LIBRARY_TARGETS ${ACML_LIBRARIES})
+
+add_library(ACML::acml INTERFACE IMPORTED GLOBAL)
+target_link_libraries(ACML::acml INTERFACE ${ACML_LIBRARY_TARGETS})
+

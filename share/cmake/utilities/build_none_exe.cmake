@@ -9,7 +9,7 @@ set(BUILD_CHR OFF CACHE BOOL "Build the chronos executable." FORCE)
 
 set(BUILD_COM OFF CACHE BOOL "Build the communication executable." FORCE)
 
-set(BUILD_COFF OFF CACHE BOOL "Build the containers executable." FORCE)
+set(BUILD_CON OFF CACHE BOOL "Build the containers executable." FORCE)
 
 set(BUILD_DLA OFF CACHE BOOL "Build the distributed linear algebra executable." FORCE)
 
@@ -29,7 +29,7 @@ set(BUILD_LINALG OFF CACHE BOOL "Build the linear algebra executable." FORCE)
 
 set(BUILD_MDL OFF CACHE BOOL "Build the model executable." FORCE)
 
-set(BUILD_MOD OFF CACHE BOOL "Build the model executable." FORCE)
+#set(BUILD_MOD OFF CACHE BOOL "Build the model executable." FORCE)
 
 set(BUILD_MSI OFF CACHE BOOL "Build the model solver interface executable." FORCE)
 

@@ -81,3 +81,8 @@ mark_as_advanced(MKL_DIR
     MKL_sequential
     MKL_pthread
     MKL_LIBRARIES )
+
+_import_libraries(MKL_LIBRARY_TARGETS ${MKL_LIBRARIES})
+
+add_library(MKL::mkl INTERFACE IMPORTED GLOBAL)
+target_link_libraries(MKL::mkl INTERFACE ${MKL_LIBRARY_TARGETS})

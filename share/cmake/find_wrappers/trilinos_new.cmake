@@ -204,21 +204,20 @@ if(NOT TRILINOS_FOUND_ONCE)
     mark_as_advanced(MORIS_TRILINOS_LIBRARIES)
 endif()
 
-if(NOT TARGET trilinos)
+if(NOT TARGET ${MORIS}::trilinos)
 	set(MORIS_TRILINOS_TPLS
-		arpack
+		"arpack"
 		)
 	
 	foreach(TPL ${MORIS_TRILINOS_TPLS})
-		include(${MORIS_TPL_DIR}/${TPL}_new.cmake)
+		include(${TPL}_new)
+		list(APPEND MORIS_TRILINOS_TPLS_TARGETS ${MORIS}::${TPL})
 	endforeach()
 
 	_import_libraries(TRILINOS_LIBRARY_TARGETS "${MORIS_TRILINOS_LIBRARIES}")
 	
-	_link_each_target("${TRILINOS_LIBRARY_TARGETS}" "${MORIS_TRILINOS_TPLS}")
+	_link_each_target("${TRILINOS_LIBRARY_TARGETS}" "${MORIS_TRILINOS_TPLS_TARGETS}")
 
-	add_library(trilinos INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(trilinos INTERFACE ${TRILINOS_LIBRARY_TARGETS})
+	add_library(${MORIS}::trilinos INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(${MORIS}::trilinos INTERFACE ${TRILINOS_LIBRARY_TARGETS})
 endif()
-
-#include_directories(${MORIS_TRILINOS_INCLUDE_DIRS})

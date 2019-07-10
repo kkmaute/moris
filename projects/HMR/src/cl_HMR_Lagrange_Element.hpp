@@ -554,11 +554,11 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
-#include "../../../HMR/src/cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Quad4.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Quad9.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Quad16.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex8.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex27.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_ */

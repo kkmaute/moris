@@ -332,6 +332,14 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         /**
+         * get the field interpolators for a dof type
+         */
+         Field_Interpolator*
+         get_dof_type_field_interpolators ( enum MSI::Dof_Type aDofType);
+
+//------------------------------------------------------------------------------
+
+        /**
          * auto detect full integration scheme
          */
         //FIXME: works for Lagrange only

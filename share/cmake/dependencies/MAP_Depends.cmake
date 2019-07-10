@@ -8,7 +8,7 @@ endif()
 
 set(MAP_CONFIGURED_ONCE "YES")
 
-# Add MTK to the header directory list
+# Add MTK to the source directory list
 list(APPEND MORIS_SOURCE_DIRS ${MTK}/${MAP})
 
 # Third party libraries directly used by MAP library

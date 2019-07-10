@@ -24,9 +24,9 @@ if(NOT SUPERLU_FOUND_ONCE)
 	message(STATUS "SUPERLU_LIBRARIES: ${SUPERLU_LIBRARIES}")
 endif()
 
-if(NOT TARGET superlu)
-	add_library(superlu STATIC IMPORTED GLOBAL)
-	set_target_properties(superlu
+if(NOT TARGET ${MORIS}::superlu)
+	add_library(${MORIS}::superlu STATIC IMPORTED GLOBAL)
+	set_target_properties(${MORIS}::superlu
 		PROPERTIES IMPORTED_LOCATION ${MORIS_SUPERLU_LIBRARIES})
 endif()
 
@@ -56,15 +56,15 @@ if(NOT SUPERLU_DIST_FOUND_ONCE)
     message(STATUS "SUPERLU_DIST_LIBRARIES: ${SUPERLU_DIST_LIBRARIES}")
 endif()
 
-if(NOT TARGET superlu_dist)
-	add_library(superlu_dist STATIC IMPORTED GLOBAL)
-	set_target_properties(superlu_dist
+if(NOT TARGET ${MORIS}::superlu_dist)
+	add_library(${MORIS}::superlu_dist STATIC IMPORTED GLOBAL)
+	set_target_properties(${MORIS}::superlu_dist
 		PROPERTIES IMPORTED_LOCATION ${MORIS_SUPERLU_DIST_LIBRARIES} )
 	
-	if(NOT TARGET superlu)
-		add_library(superlu INTERFACE IMPORTED GLOBAL)
+	if(NOT TARGET ${MORIS}::superlu)
+		add_library(${MORIS}::superlu INTERFACE IMPORTED GLOBAL)
 	endif()
-	target_link_libraries(superlu INTERFACE superlu_dist)
+	target_link_libraries(${MORIS}::superlu INTERFACE ${MORIS}::superlu_dist)
 endif()
 
 #list(APPEND MORIS_SUPERLU_LIBS ${SUPERLU_DIST_LIBRARIES})

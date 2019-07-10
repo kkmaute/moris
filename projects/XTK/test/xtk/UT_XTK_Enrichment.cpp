@@ -43,30 +43,12 @@ namespace xtk
 {
 
 
-Cell<std::string>
-declare_enrichment_fields_in_output_options(size_t aNumBasis)
-{
-    // declare  enrichment fields
-    Cell<std::string> tEnrichmentFields(aNumBasis + 1);
-    std::string tBaseEnrich = "subphase_";
-    for(size_t i = 0; i<aNumBasis; i++)
-    {
-        tEnrichmentFields(i) = tBaseEnrich + std::to_string(i);
-    }
-
-
-    // Add local floodfill field to the output mesh
-    std::string tLocalFFStr = "local_ff";
-    tEnrichmentFields(aNumBasis) = tLocalFFStr;
-    return tEnrichmentFields;
-}
-
 
 TEST_CASE("Enrichment Example 1","[ENRICH_1]")
 {
     if(par_size() == 1 || par_size() == 1)
     {
-        bool tOutputEnrichmentFields = false;
+        bool tOutputEnrichmentFields = true;
 
         // Generate mesh from string
         std::string tMeshFileName     = "generated:1x1x3";
@@ -88,7 +70,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         tSuppMeshData.FieldsInfo = &tFieldsInfo;
 
         // Create mesh with supplementary data
-        moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
+        moris::mtk::Interpolation_Mesh* tMeshData   = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
 
 
         xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
@@ -106,8 +88,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
         tMeshData->mVerbose = true;
-        std::string tPrefix2 = std::getenv("MORISOUTPUT");
-        std::string tMeshOutputFile2 = tPrefix2 + "/unit_enrichment_1_background.e";
+        std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
         Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
@@ -131,14 +112,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
          */
         tXTKModel.decompose(tDecompositionMethods);
 
-
-        // Declare the fields related to enrichment strategy in output options
-        Cell<std::string> tEnrichmentFieldNames;
-        if(tOutputEnrichmentFields)
-        {
-            tEnrichmentFieldNames = declare_enrichment_fields_in_output_options(tNumNodes);
-        }
-
         // unzip
         tXTKModel.unzip_interface();
 
@@ -147,25 +120,34 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
+
+
+        // Declare the fields related to enrichment strategy in output options
+        Cell<std::string> tEnrichmentFieldNames;
+        if(tOutputEnrichmentFields)
+        {
+            tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+        }
+
         moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
 
         for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
         {
             Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
-//            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
-//            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
-//            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
         }
 
         // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.
 
+        // setup output mesh options with cell enrichment fields
+        Output_Options tOutputOptions;
+        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 
 
+        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
 
-        std::string tPrefix = std::getenv("MORISOUTPUT");
-        std::string tMeshOutputFile = tPrefix + "/unit_enrichment_1.e";
+        std::string tMeshOutputFile = "./xtk_exo/unit_enrichment_1.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);
 
         delete tMeshData;
@@ -200,7 +182,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         tSuppMeshData.FieldsInfo = &tFieldsInfo;
 
         // Create mesh with supplementary data
-        moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
+        moris::mtk::Interpolation_Mesh* tMeshData   = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
 
 
         xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
@@ -245,8 +227,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
         tMeshData->mVerbose = true;
-        std::string tPrefix2 = std::getenv("MORISOUTPUT");
-        std::string tMeshOutputFile2 = tPrefix2 + "/enrichment_test_10_cluster_background.e";
+        std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
         Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
@@ -264,6 +245,7 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
         tXTKModel.mSameMesh = true;
+        tXTKModel.mVerbose  = true;
 
         /*
          * Decompose
@@ -272,34 +254,32 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         tXTKModel.unzip_interface();
 
 
-        // Declare the fields related to enrichment strategy in output options
-        Cell<std::string> tEnrichmentFieldNames;
-        if(tOutputEnrichmentFields)
-        {
-            tEnrichmentFieldNames = declare_enrichment_fields_in_output_options(tNumNodes);
-        }
-
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
-        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
+        // declare cell enrichment fields in output mesh
+        Cell<std::string> tEnrichmentFieldNames;
+        if(tOutputEnrichmentFields)
+        {
+            tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+        }
 
         for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
         {
             Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
-            std::cout<<"iN = "<<iN<<"| Glb Id = "<<tXTKModel.get_background_mesh().get_glb_entity_id_from_entity_loc_index(iN,EntityRank::NODE)<<std::endl;
-            moris::print(tVertEnrichment.get_basis_basis_indices(),"Vertex Basis");
-            moris::print(tVertEnrichment.get_basis_weights(),"Vertex Basis Weights");
         }
 
+        Output_Options tOutputOptions;
+        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
+        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
+
+        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
 
 
-        std::string tPrefix = std::getenv("MORISOUTPUT");
-        std::string tMeshOutputFile = tPrefix + "/enrichment_test_10_cluster.e";
+        std::string tMeshOutputFile = "./xtk_exo/enrichment_test_10_cluster.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);
 
 
@@ -309,88 +289,5 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
     }
 }
 
-
-
-TEST_CASE("Mixed Unintersected and Intersected Parent Elements","[Enrich_2]")
-{
-    if(par_size() == 1 || par_size() == 2)
-    {
-//        // This problem has a mix between intersected background elements and non-intersected background elements
-//        bool tOutputEnrichmentFields = true;
-//
-//        // Generate mesh from string and then adding a level set field
-//        xtk::size_t tNumX = 2;
-//        xtk::size_t tNumY = 2;
-//        xtk::size_t tNumZ = 2;
-//        std::string tMeshFileName ="generated:2x2x2";
-//        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
-//
-//        xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
-//
-//
-//        Plane tPlane1( 0.0, 0.0, 0.1, 0.0, 0.0, 1.0);
-//        Plane tPlane2( 0.0, 0.0, 0.1, 1.0, 0.0, 0.0);
-//        Plane tPlane3( 0.0, 0.0, 1.4, 1.0, 0.0, 0.0);
-//        Plane tPlane4( 0.0, 0.0, 1.5, 0.0, 1.0, 0.0);
-//
-//        Phase_Table tPhaseTable (4, Phase_Table_Structure::EXP_BASE_2);
-//        Geometry_Engine tGeometryEngine({&tPlane1,&tPlane2,&tPlane3,&tPlane4},tPhaseTable);
-//
-//        tGeometryEngine.mThresholdValue = 0.0;
-//        tGeometryEngine.mComputeDxDp = false;
-//
-//        /*
-//         * Setup XTK Model and tell it how to cut
-//         */
-//        size_t tModelDimension = 3;
-//        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-//        Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-//        tXTKModel.mSameMesh = true;
-//        tXTKModel.mVerbose = true;
-//
-//
-//        /*
-//         * Decompose
-//         */
-//        tXTKModel.decompose(tDecompositionMethods);
-//
-//        tXTKModel.unzip_interface();
-//
-//
-//        // Create output mesh
-//        Output_Options tOutputOptions;
-//        tOutputOptions.mInternalUseFlag = true;
-//        tOutputOptions.mAddPhaseField = true;
-//
-//
-//        // Declare the fields related to enrichment strategy in output options
-//        if(tOutputEnrichmentFields)
-//        {
-//            tOutputOptions.mRealElementExternalFieldNames = declare_enrichment_fields_in_output_options(tNumNodes);
-//        }
-//
-//        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//
-//
-//        // Perform enrichment
-//        tXTKModel.perform_basis_enrichment();
-//
-//
-//        if(tOutputEnrichmentFields)
-//        {
-//            Cut_Mesh & tCutMesh = tXTKModel.get_cut_mesh();
-//            // TODO:REWRITE THIS FUNCTION
-////            write_enrichment_data_to_fields(tNumNodes,tCutMesh,*tCutMeshData,tEnrichment,tOutputOptions.mRealElementExternalFieldNames);
-//        }
-//
-//        std::string tPrefix = std::getenv("MORISOUTPUT");
-//        std::string tMeshOutputFile = tPrefix + "/enrichment_test_2.e";
-//        tCutMeshData->create_output_mesh(tMeshOutputFile);
-//
-//        delete tCutMeshData;
-//        delete tMeshData;
-    }
-}
 
 }

@@ -39,7 +39,10 @@ class Entity
 {
 public:
     Entity() :
-            mGlbId(std::numeric_limits<moris::moris_id>::max()), mLocInd(std::numeric_limits<moris::moris_id>::max())
+            mGlbId(MORIS_ID_MAX),
+            mLocInd(MORIS_ID_MAX),
+            mOwningProc(MORIS_ID_MAX),
+            mSharingProcs(0,0)
     {
 
     }
@@ -49,13 +52,17 @@ public:
 
     }
 
-    void set_entity_identifiers(moris::moris_id aGlbId,
-                                moris::moris_id aLocInd,
-                                enum moris::EntityRank aEntityRank)
+    void set_entity_identifiers(moris::moris_id                     aGlbId,
+                                moris::moris_id                     aLocInd,
+                                moris::moris_id                     aOwnerProc,
+                                moris::Matrix<moris::IdMat> const & aSharingProcs,
+                                enum moris::EntityRank              aEntityRank)
     {
-        mGlbId = aGlbId;
-        mLocInd = aLocInd;
-        mEntityRank = aEntityRank;
+        mGlbId        = aGlbId;
+        mLocInd       = aLocInd;
+        mOwningProc   = aOwnerProc;
+        mSharingProcs = aSharingProcs.copy();
+        mEntityRank   = aEntityRank;
     }
 
     void set_entity_coords(moris::Matrix< moris::DDRMat > const & aCoordinates)
@@ -90,6 +97,19 @@ public:
         return mGlbId;
     }
 
+    moris::moris_index
+    get_entity_owner() const
+    {
+        MORIS_ASSERT(mOwningProc!=std::numeric_limits<moris::moris_id>::max(),"Owner has not been set");
+        return mOwningProc;
+    }
+
+    moris::Matrix<moris::IdMat> const &
+    get_entity_sharing() const
+    {
+        return mSharingProcs;
+    }
+
     moris::Matrix< moris::DDRMat > const &
     get_entity_coords() const
     {
@@ -109,6 +129,8 @@ public:
 private:
     moris::moris_id              mGlbId;
     moris::moris_id              mLocInd;
+    moris::moris_id              mOwningProc;
+    moris::Matrix<moris::IdMat>  mSharingProcs;
     moris::size_t                mNumFields;
     enum moris::EntityRank       mEntityRank;
     moris::Matrix< moris::DDRMat > mFieldData;
@@ -130,7 +152,7 @@ public:
     {
     }
 
-    void set_up_external_entity_data(moris::mtk::Mesh* & aMeshData)
+    void set_up_external_entity_data(moris::mtk::Interpolation_Mesh* aMeshData)
     {
         mFirstAvailableIds.resize(4,  std::numeric_limits<moris::moris_index>::max());
         mFirstExtEntityInds.resize(4, std::numeric_limits<moris::moris_index>::max());
@@ -178,38 +200,10 @@ public:
 
 
     void
-    batch_create_new_nodes_external_data(
-            Cell<Pending_Node> const & aPendingNodes)
-    {
-
-        moris::moris_index tEntInd = (moris::moris_index)EntityRank::NODE;
-        moris::size_t tAddSize      = aPendingNodes.size();
-        moris::size_t tInitialSize  = mExternalEntities(tEntInd).size();
-
-        moris::size_t j    = 0;
-        moris::moris_index tInd = MORIS_INDEX_MAX;
-        moris::moris_id    tId  = MORIS_ID_MAX;
-
-        // Resize
-        mExternalEntities(tEntInd).resize((tInitialSize+tAddSize),mesh::Entity());
-        mLocalToGlobalExtNodes.resize(1,(tInitialSize+tAddSize));
-
-        for(moris::size_t i = tInitialSize; i<tAddSize+tInitialSize;i++)
-        {
-            // Add information to entities
-            tInd    = aPendingNodes(j).get_node_index();
-            tId     = aPendingNodes(j).get_node_id();
-            mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-            moris::Matrix< moris::DDRMat > const & tCoords = aPendingNodes(j).get_coordinates();
-            mExternalEntities(tEntInd)(i).set_entity_identifiers(tId,tInd,moris::EntityRank::NODE);
-            mExternalEntities(tEntInd)(i).set_entity_coords(tCoords);
-            j++;
-        }
-    }
-
-    void
-    batch_create_new_nodes_external_data(Cell<moris_index> const & aNewNodeIds,
-                                         Cell<moris_index> const & aNewNodeIndices,
+    batch_create_new_nodes_external_data(Cell<moris_index>                    const & aNewNodeIds,
+                                         Cell<moris_index>                    const & aNewNodeIndices,
+                                         Cell<moris_index>                    const & aNewNodeOwners,
+                                         Cell<moris::Matrix< moris::IdMat >>  const & aSharingProcs,
                                          Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
     {
         moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
@@ -218,8 +212,9 @@ public:
 
         // Initialize
         moris::size_t j    = 0;
-        moris::moris_index tInd = MORIS_INDEX_MAX;
-        moris::moris_id    tId  = MORIS_ID_MAX;
+        moris::moris_index tInd   = MORIS_INDEX_MAX;
+        moris::moris_id    tId    = MORIS_ID_MAX;
+        moris::moris_id    tOwner = MORIS_ID_MAX;
 
         // Resize
         mExternalEntities(tEntRankInd).resize((tInitialSize+tAddSize),mesh::Entity());
@@ -230,17 +225,21 @@ public:
             // Add information to entities
             tInd    = aNewNodeIndices(j);
             tId     = aNewNodeIds(j);
+            tOwner  = aNewNodeOwners(j);
+
             mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-            mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,moris::EntityRank::NODE);
+            mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,tOwner,aSharingProcs(j),moris::EntityRank::NODE);
             mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_coords(aNewNodeCoordinates(j));
             j++;
         }
     }
 
     void
-    batch_create_new_nodes_external_data(moris::Matrix< moris::IndexMat > const & aNewNodeIds,
-                                         moris::Matrix< moris::IndexMat > const & aNewNodeIndices,
-                                         moris::Matrix< moris::DDRMat >   const & aNewNodeCoordinates)
+    batch_create_new_nodes_external_data(moris::Matrix< moris::IndexMat >    const & aNewNodeIds,
+                                         moris::Matrix< moris::IndexMat >    const & aNewNodeIndices,
+                                         moris::Matrix< moris::IndexMat >    const & aNewNodeOwners,
+                                         Cell<moris::Matrix< moris::IdMat >> const & aSharingProcs,
+                                         moris::Matrix< moris::DDRMat >      const & aNewNodeCoordinates)
     {
         moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
         moris::size_t      tAddSize     = aNewNodeIds.numel();
@@ -248,8 +247,9 @@ public:
 
         // Initialize
         moris::size_t j    = 0;
-        moris::moris_index tInd = MORIS_INDEX_MAX;
-        moris::moris_id    tId  = MORIS_ID_MAX;
+        moris::moris_index tInd   = MORIS_INDEX_MAX;
+        moris::moris_id    tId    = MORIS_ID_MAX;
+        moris::moris_id    tOwner = MORIS_ID_MAX;
 
         // Resize
         mExternalEntities(tEntRankInd).resize((tInitialSize+tAddSize),mesh::Entity());
@@ -260,8 +260,9 @@ public:
             // Add information to entities
             tInd    = aNewNodeIndices(j);
             tId     = aNewNodeIds(j);
+            tOwner  = aNewNodeOwners(j);
             mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-            mExternalEntities(tEntRankInd)(i).set_entity_identifiers(tId,tInd,moris::EntityRank::NODE);
+            mExternalEntities(tEntRankInd)(i).set_entity_identifiers(tId,tInd,tOwner,aSharingProcs(j),moris::EntityRank::NODE);
             mExternalEntities(tEntRankInd)(i).set_entity_coords(aNewNodeCoordinates.get_row(j));
             j++;
         }
@@ -284,7 +285,7 @@ public:
             {
                 moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
                 moris::moris_index tNumExtEntities = mExternalEntities((moris::size_t)aEntityRank).size();
-                MORIS_ERROR(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");\
+                MORIS_ERROR(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");
             }
             return true;
         }
@@ -299,7 +300,26 @@ public:
     get_external_entity_index(moris::moris_index aEntityIndex,
                               enum EntityRank    aEntityRank) const
     {
+        moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
+        moris::moris_index tNumExtEntities = mExternalEntities((moris::size_t)aEntityRank).size();
+        MORIS_ERROR(aEntityIndex-tOffset<=tNumExtEntities,"Requested Entity Index is out of bounds");
         return  aEntityIndex - mFirstExtEntityInds((moris::moris_index)aEntityRank);
+    }
+
+    moris::moris_index
+    get_external_vertex_owner(moris::moris_index aEntityIndex) const
+    {
+        moris::moris_index tExternalIndex = this->get_external_entity_index(aEntityIndex,EntityRank::NODE);
+
+        return mExternalEntities(0)(tExternalIndex).get_entity_owner();
+    }
+
+    moris::Matrix<moris::IdMat> const &
+    get_external_vertex_sharing(moris::moris_index aEntityIndex) const
+    {
+        moris::moris_index tExternalIndex = this->get_external_entity_index(aEntityIndex,EntityRank::NODE);
+
+        return mExternalEntities(0)(tExternalIndex).get_entity_sharing();
     }
 
     moris::moris_id get_glb_entity_id_from_entity_loc_index_external_data(moris::moris_id aEntityIndex, enum EntityRank aEntityRank) const

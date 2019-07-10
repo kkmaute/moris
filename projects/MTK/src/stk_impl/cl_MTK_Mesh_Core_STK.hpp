@@ -193,6 +193,10 @@ public:
     Matrix< IndexMat >
     get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const;
 
+    moris::Cell<moris::mtk::Vertex const *>
+    get_all_vertices() const;
+
+
     Matrix< IndexMat >
     get_elements_in_support_of_basis(moris_index aBasisIndex)
     {
@@ -296,6 +300,18 @@ public:
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const;
 
+    /*
+     * Topology of cells in block set
+     */
+    enum CellTopology
+    get_blockset_topology(const  std::string & aSetName);
+
+    /*
+     * Topology of sides in side set
+     */
+    enum CellTopology
+    get_sideset_topology(const  std::string & aSetName);
+
     void
     get_sideset_elems_loc_inds_and_ords(
             const  std::string & aSetName,
@@ -307,6 +323,10 @@ public:
             const  std::string & aSetName,
             moris::Cell< mtk::Cell const* > & aCells,
             Matrix< IndexMat > &       aSidesetOrdinals ) const;
+
+
+    moris::Cell<moris::mtk::Vertex const *>
+    get_vertices_in_vertex_set_no_aura(std::string aSetName) const;
 
 
 
@@ -404,6 +424,19 @@ public:
         return mSTKMeshData->mEntityLocaltoGlobalMap(0);
     }
 
+    Matrix< IdMat >
+    get_communication_proc_ranks() const
+    {
+        return mSTKMeshData->mProcsWithSharedVertex;
+    }
+
+    moris::Cell<Matrix< IdMat >>
+    get_communication_vertex_pairing() const
+    {
+        return mSTKMeshData->mVertexSharingData;
+    }
+
+
     //##############################################
     //  Output Mesh To a File
     //##############################################
@@ -446,6 +479,32 @@ public:
      */
     void
     create_communication_lists_and_local_to_global_map(enum EntityRank aEntityRank);
+
+    /*
+     * Constructs vertex pairs across processors
+     */
+    void
+    setup_parallel_vertex_pairing();
+
+    /*
+     * Constructs cell sharing across processors
+     */
+    void
+    setup_parallel_cell_sharing();
+
+    /*
+     * Resolves issues with sharing of aura entities
+     */
+    moris::Cell<Matrix<IdMat>>
+    resolve_aura_cell_sharing();
+
+    void
+    setup_parallel_cell_sharing_without_aura_resolved();
+
+    void
+    setup_parallel_cell_sharing_with_resolved_aura( moris::Cell<Matrix<IdMat>> const & aAuraCellSharing);
+
+
     //------------------------------------------------------------------------------
 
     /*
@@ -465,6 +524,15 @@ public:
      */
     stk::mesh::EntityRank
     get_stk_entity_rank(enum EntityRank aMRSEntityRank) const;
+
+    //------------------------------------------------------------------------------
+
+    /*
+     * Returns the moris cell topology given a stk topo
+     */
+    enum CellTopology
+    stk_topo_to_moris_topo(stk::topology::topology_t aSTKTopo) const;
+
     //------------------------------------------------------------------------------
 
     /*
@@ -680,6 +748,9 @@ public:
 
     //------------------------------------------------------------------------------
 
+    void
+    process_nodes(MtkMeshData &  aMeshData);
+
     /*
      * Returns
      * @param[in]  aMeshData
@@ -761,18 +832,6 @@ public:
     void
     populate_mesh_database_serial(
             moris::uint  aElementTypeInd,
-            MtkMeshData                            aMeshData,
-            std::vector< stk::mesh::PartVector >   aElemParts,
-            Matrix< IdMat >                       aOwnerPartInds);
-    //------------------------------------------------------------------------------
-    /*
-     * Returns
-     * @param[in]  aStkElemConn
-     * @param[in]  aElemParts
-     * @param[in]  aMeshData
-     */
-    void
-    populate_mesh_database_parallel(
             MtkMeshData                            aMeshData,
             std::vector< stk::mesh::PartVector >   aElemParts,
             Matrix< IdMat >                       aOwnerPartInds);

@@ -7,6 +7,8 @@ set(TEST_SOURCES
     cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     cl_MDL_DiffusionElement_Cut_Mesh.cpp
     UT_MDL_Mesh_Model_Helper.cpp
+    UT_MDL_XTK_DiffusionElement.cpp
+    UT_MDL_XTK_HMR_DiffusionElement.cpp
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp
@@ -33,6 +35,26 @@ foreach(TEST_INCLUDE ${TEST_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
 endforeach()
 
+#FIXME: Remove this once xtk has removed subdirectories from its package
+set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )                                                                                                                                                                                                                                                                          
+
+# Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()   
+
 # List additional includes
 
 # List test dependencies
@@ -49,6 +71,7 @@ set(TEST_DEPENDENCIES
     ${HMR}-lib
     ${SDF}-lib
     ${MAP}-lib
+    ${XTK}-lib
     #${DLA}-lib
     #${NLA}-lib
     #${TSA}-lib

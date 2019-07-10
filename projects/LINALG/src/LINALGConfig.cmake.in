@@ -1,16 +1,38 @@
-# LINALG Config File --------------------------------------------------------
-# -------------------------------------------------------------------------
+### Linear Algebra Library Config File ###
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if(@LINALG@_CONFIGURED)
+	return()
+endif()
+
+set(@LINALG@_CONFIGURED TRUE)
+
 # CMake configuration
+@PACKAGE_INIT@
 
-\@PACKAGE_INIT\@
+#< TEMP
+set(MORIS "@MORIS@")
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# MORIS configuration
+# Additional macros
+#include(CMakeFindDependencyMacro)
 
-# Set *_INCLUDE_DIRS
-set_and_check(\@LINALG\@_INCLUDE_DIRS \@PACKAGE_LIB_INSTALL_DIR\@/@LINALG@)
+# Compilers and used in build
+set(@LINALG@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@LINALG@_C_COMPLIER "@MORIS_C_COMPLIER@")
 
-# Create LINALG targets
-include(\@LINALG\@Targets.cmake)
+# Flags used in build
+set(@LINALG@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@LINALG_COMPILE_DEFINITIONS@")
+set(@LINALG@_C_FLAGS "@MORIS_C_FLAGS@" "@LINALG_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@LINALG_CONFIG_TPL_DEPENDENCIES@
+@LINALG_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_LINALG_CONFIG_INSTALL_DIR@/@LINALG@Targets.cmake")
+
+# Library target list
+set(@LINALG@_LIBRARIES @LINALG@-lib)

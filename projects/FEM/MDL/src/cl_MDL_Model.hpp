@@ -28,6 +28,7 @@ namespace moris
         class IWG;
         class Node_Base;
         class Cell;
+        class Set;
         enum class IWG_Type;
         enum class BC_Type;
     }
@@ -52,6 +53,7 @@ namespace moris
         class MSI_Solver_Interface;
         class Equation_Set;
         class Equation_Object;
+        enum class Dof_Type;
     }
     namespace tsa
     {
@@ -72,7 +74,7 @@ namespace moris
             moris::Cell< fem::Cell* >      mIPCells;
             moris::Cell< fem::Cell* >      mIGCells;
 
-            moris::Cell< MSI::Equation_Set * >      mFemSets;
+            moris::Cell< fem::Set * >               mFemSets;
             moris::Cell< MSI::Equation_Object* >    mFemClusters;
             moris::Cell< moris::Cell< fem::IWG* > > mIWGs;
 
@@ -173,14 +175,27 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-           void output_solution( const std::string & aFilePath );
-
-//------------------------------------------------------------------------------
-
            void
-           output_solution_nils_HACK( const std::string & aFilePath, mtk::Mesh * aMesh );
+           output_solution( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
+
+           /*
+            * Returns Matrix for integration mesh outputting
+            */
+           Matrix<DDRMat>
+           get_solution_for_integration_mesh_output( enum MSI::Dof_Type aDofType );
+
+
+           /*!
+            * Provided a list of dofs, returns a bool saying whether the desired dof is
+            * contained in the cell of dof types
+            */
+           bool
+           dof_type_is_in_list( enum MSI::Dof_Type aDofTypeToFind,
+                                moris::Cell< enum MSI::Dof_Type > & aDofList);
+
+
         };
 //------------------------------------------------------------------------------
     } /* namespace mdl */

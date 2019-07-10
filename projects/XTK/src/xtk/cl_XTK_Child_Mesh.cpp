@@ -1053,15 +1053,8 @@ Child_Mesh::set_child_element_inds(moris::moris_index & aElementInd)
 
     for(moris::size_t iElem = 0; iElem<tNumElements; iElem++)
     {
-        if(iElem == 0)
-        {
-            mChildElementInds(iElem) = mParentElementIndex;
-        }
-        else
-        {
             mChildElementInds(0,iElem) = aElementInd;
             aElementInd++;
-        }
     }
 }
 
@@ -1331,47 +1324,6 @@ Child_Mesh::mark_edge_as_on_interface(moris::moris_index aEdgeIndex)
 
 // ---------------------------------------------------------------------------------
 
-void
-Child_Mesh::set_pending_node_index_pointers(Cell<moris::moris_index*>            aNodeIndPtr,
-                                     moris::Matrix< moris::DDRMat > const & aNodeParamCoordinate)
-{
-    mPtrPendingNodeIndex     = aNodeIndPtr;
-    mPendingParamCoordinates = aNodeParamCoordinate.copy();
-}
-
-// ---------------------------------------------------------------------------------
-
-void
-Child_Mesh::retrieve_pending_node_inds()
-{
-    // Number of nodes before adding the new nodes
-    moris::size_t tNumNodesPre = this->get_num_entities(EntityRank::NODE);
-
-    // number of new nodes
-    moris::size_t tNumNodesToAdd = mPtrPendingNodeIndex.size();
-
-    // Collect node indices from their address
-    moris::Matrix< moris::IndexMat > tNodeIndexMat(1, mPtrPendingNodeIndex.size());
-    for(moris::size_t i = 0; i < mPtrPendingNodeIndex.size(); i++)
-    {
-        tNodeIndexMat(0, i) = *mPtrPendingNodeIndex(i);
-    }
-
-    // Add node indices to child mesh
-    add_node_indices(tNodeIndexMat);
-
-    // Resize the parametric coordinate information
-    mNodeParametricCoord.resize(tNumNodesPre + tNumNodesToAdd ,3);
-
-    // Add parametric information
-    add_node_parametric_coordinate(tNodeIndexMat,mPendingParamCoordinates);
-
-    // size out since the nodes have been retrieved
-    mPtrPendingNodeIndex.resize(0, NULL);
-    mPendingParamCoordinates.resize(0,0);
-}
-
-// ---------------------------------------------------------------------------------
 
 void
 Child_Mesh::mark_interface_faces_from_interface_coincident_faces()

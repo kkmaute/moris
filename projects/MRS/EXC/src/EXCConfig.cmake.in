@@ -1,0 +1,36 @@
+### EXC Library Config File ###
+
+if(@EXC@_CONFIGURED)
+	return()
+endif()
+
+set(@EXC@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+#< TEMP
+list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
+include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
+#< TEMP
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@EXC@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@EXC@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@EXC@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@EXC_COMPILE_DEFINITIONS@")
+set(@EXC@_C_FLAGS "@MORIS_C_FLAGS@" "@EXC_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@EXC_CONFIG_TPL_DEPENDENCIES@
+@EXC_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_EXC_CONFIG_INSTALL_DIR@/@EXC@Targets.cmake")
+
+# Library target list
+set(@EXC@_LIBRARIES @EXC@-lib)

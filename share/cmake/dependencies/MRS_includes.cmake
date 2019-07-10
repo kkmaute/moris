@@ -11,7 +11,13 @@ include_directories(
     ${MORIS_PACKAGE_DIR}/MRS/IOS/src )
 
 # Add MRS to the header directory list
-list(APPEND MORIS_SOURCE_DIRS ${MRS})
+list(APPEND MORIS_SOURCE_DIRS 
+	${MRS}/${ASR} 
+	${MRS}/${CHR} 
+	${MRS}/${CON} 
+	${MRS}/${COR} 
+	${MRS}/${EXC} 
+	${MRS}/${IOS} )
 
 set(ASR_TPL_DEPENDENCIES
     "" )

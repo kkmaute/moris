@@ -19,10 +19,24 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template <>
+        inline
         void
         Background_Element< 3, 8, 26, 6, 12 >::create_edges()
         {
-            // step 1: copy existing edges from neighbors 0 to 5
+            // step 1: copy existing edges from neighbors 0 to tE5
+            moris_index tE0  = 0;
+            moris_index tE1  = 1;
+            moris_index tE2  = 2;
+            moris_index tE3  = 3;
+            moris_index tE4  = 8;
+            moris_index tE5  = 9;
+            moris_index tE6  = 10;
+            moris_index tE7  = 11;
+            moris_index tE8  = 4;
+            moris_index tE9  = 5;
+            moris_index tE10 = 6;
+            moris_index tE11 = 7;
+
 
             // test if neighbor 0 exists and is on same level
             if( mNeighbors[ 0 ] != NULL )
@@ -30,28 +44,28 @@ namespace moris
                 if( mNeighbors[ 0 ]->get_level() == mLevel )
                 {
                     // test edge 0 deos not exists
-                    if( mEdges[ 0 ] == NULL )
+                    if( mEdges[ tE0 ] == NULL )
                     {
                        // copy edge 2 from neighbor
-                       this->insert_edge( mNeighbors[ 0 ]->get_edge( 2 ), 0 );
+                       this->insert_edge( mNeighbors[ 0 ]->get_edge( tE2 ), tE0 );
                     }
                     // test edge 0 deos not exists
-                    if( mEdges[ 4 ] == NULL )
+                    if( mEdges[ tE4 ] == NULL )
                     {
-                       // copy edge 7 from neighbor
-                       this->insert_edge( mNeighbors[ 0 ]->get_edge( 7 ), 4 );
+                       // copy edge tE7 from neighbor
+                       this->insert_edge( mNeighbors[ 0 ]->get_edge( tE7 ), tE4 );
                     }
                     // test edge 0 deos not exists
-                    if( mEdges[ 5 ] == NULL )
+                    if( mEdges[ tE5 ] == NULL )
                     {
-                       // copy edge 6 from neighbor
-                       this->insert_edge( mNeighbors[ 0 ]->get_edge( 6 ), 5 );
+                       // copy edge tE6 from neighbor
+                       this->insert_edge( mNeighbors[ 0 ]->get_edge( tE6 ), tE5 );
                     }
                     // test edge 0 deos not exists
-                    if( mEdges[ 8 ] == NULL )
+                    if( mEdges[ tE8 ] == NULL )
                     {
-                       // copy edge 10 from neighbor
-                       this->insert_edge( mNeighbors[ 0 ]->get_edge( 10 ), 8 );
+                       // copy edge tE10 from neighbor
+                       this->insert_edge( mNeighbors[ 0 ]->get_edge( tE10 ), tE8 );
                     }
                 }
 
@@ -63,28 +77,28 @@ namespace moris
                 if( mNeighbors[ 1 ]->get_level() == mLevel )
                 {
                     // test edge 1 deos not exists
-                    if( mEdges[ 1 ] == NULL )
+                    if( mEdges[ tE1 ] == NULL )
                     {
                        // copy edge 3 from neighbor
-                       this->insert_edge( mNeighbors[ 1 ]->get_edge( 3 ), 1 );
+                       this->insert_edge( mNeighbors[ 1 ]->get_edge( tE3 ), tE1 );
                     }
                     // test edge 1 deos not exists
-                    if( mEdges[ 5 ] == NULL )
+                    if( mEdges[ tE5 ] == NULL )
                     {
-                       // copy edge 4 from neighbor
-                       this->insert_edge( mNeighbors[ 1 ]->get_edge( 4 ), 5 );
+                       // copy edge tE4 from neighbor
+                       this->insert_edge( mNeighbors[ 1 ]->get_edge( tE4 ), tE5 );
                     }
                     // test edge 1 deos not exists
-                    if( mEdges[ 6 ] == NULL )
+                    if( mEdges[ tE6 ] == NULL )
                     {
-                       // copy edge 7 from neighbor
-                       this->insert_edge( mNeighbors[ 1 ]->get_edge( 7 ), 6 );
+                       // copy edge tE7 from neighbor
+                       this->insert_edge( mNeighbors[ 1 ]->get_edge( tE7 ), tE6 );
                     }
                     // test edge 1 deos not exists
-                    if( mEdges[ 9 ] == NULL )
+                    if( mEdges[ tE9 ] == NULL )
                     {
-                       // copy edge 11 from neighbor
-                       this->insert_edge( mNeighbors[ 1 ]->get_edge( 11 ), 9 );
+                       // copy edge tE11 from neighbor
+                       this->insert_edge( mNeighbors[ 1 ]->get_edge( tE11 ), tE9 );
                     }
                 }
 
@@ -96,28 +110,28 @@ namespace moris
                 if( mNeighbors[ 2 ]->get_level() == mLevel )
                 {
                     // test edge 2 deos not exists
-                    if( mEdges[ 2 ] == NULL )
+                    if( mEdges[ tE2 ] == NULL )
                     {
                        // copy edge 0 from neighbor
-                       this->insert_edge( mNeighbors[ 2 ]->get_edge( 0 ), 2 );
+                       this->insert_edge( mNeighbors[ 2 ]->get_edge( tE0 ), tE2 );
                     }
                     // test edge 2 deos not exists
-                    if( mEdges[ 6 ] == NULL )
+                    if( mEdges[ tE6 ] == NULL )
                     {
-                       // copy edge 5 from neighbor
-                       this->insert_edge( mNeighbors[ 2 ]->get_edge( 5 ), 6 );
+                       // copy edge tE5 from neighbor
+                       this->insert_edge( mNeighbors[ 2 ]->get_edge( tE5 ), tE6 );
                     }
                     // test edge 2 deos not exists
-                    if( mEdges[ 7 ] == NULL )
+                    if( mEdges[ tE7 ] == NULL )
                     {
-                       // copy edge 4 from neighbor
-                       this->insert_edge( mNeighbors[ 2 ]->get_edge( 4 ), 7 );
+                       // copy edge tE4 from neighbor
+                       this->insert_edge( mNeighbors[ 2 ]->get_edge( tE4 ), tE7 );
                     }
                     // test edge 2 deos not exists
-                    if( mEdges[ 10 ] == NULL )
+                    if( mEdges[ tE10 ] == NULL )
                     {
-                       // copy edge 8 from neighbor
-                       this->insert_edge( mNeighbors[ 2 ]->get_edge( 8 ), 10 );
+                       // copy edge tE8 from neighbor
+                       this->insert_edge( mNeighbors[ 2 ]->get_edge( tE8 ), tE10 );
                     }
                 }
 
@@ -129,215 +143,215 @@ namespace moris
                 if( mNeighbors[ 3 ]->get_level() == mLevel )
                 {
                     // test edge 3 deos not exists
-                    if( mEdges[ 3 ] == NULL )
+                    if( mEdges[ tE3 ] == NULL )
                     {
                        // copy edge 1 from neighbor
-                       this->insert_edge( mNeighbors[ 3 ]->get_edge( 1 ), 3 );
+                       this->insert_edge( mNeighbors[ 3 ]->get_edge( tE1 ), tE3 );
                     }
                     // test edge 3 deos not exists
-                    if( mEdges[ 4 ] == NULL )
+                    if( mEdges[ tE4 ] == NULL )
                     {
-                       // copy edge 5 from neighbor
-                       this->insert_edge( mNeighbors[ 3 ]->get_edge( 5 ), 4 );
+                       // copy edge tE5 from neighbor
+                       this->insert_edge( mNeighbors[ 3 ]->get_edge( tE5 ), tE4 );
                     }
                     // test edge 3 deos not exists
-                    if( mEdges[ 7 ] == NULL )
+                    if( mEdges[ tE7 ] == NULL )
                     {
-                       // copy edge 6 from neighbor
-                       this->insert_edge( mNeighbors[ 3 ]->get_edge( 6 ), 7 );
+                       // copy edge tE6 from neighbor
+                       this->insert_edge( mNeighbors[ 3 ]->get_edge( tE6 ), tE7 );
                     }
                     // test edge 3 deos not exists
-                    if( mEdges[ 11 ] == NULL )
+                    if( mEdges[ tE11 ] == NULL )
                     {
-                       // copy edge 9 from neighbor
-                       this->insert_edge( mNeighbors[ 3 ]->get_edge( 9 ), 11 );
+                       // copy edge tE9 from neighbor
+                       this->insert_edge( mNeighbors[ 3 ]->get_edge( tE9 ), tE11 );
                     }
                 }
 
             }
 
-            // test if neighbor 4 exists and is on same level
+            // test if neighbor tE4 exists and is on same level
             if( mNeighbors[ 4 ] != NULL )
             {
                 if( mNeighbors[ 4 ]->get_level() == mLevel )
                 {
-                    // test edge 4 deos not exists
-                    if( mEdges[ 0 ] == NULL )
+                    // test edge tE4 deos not exists
+                    if( mEdges[ tE0 ] == NULL )
                     {
-                       // copy edge 8 from neighbor
-                       this->insert_edge( mNeighbors[ 4 ]->get_edge( 8 ), 0 );
+                       // copy edge tE8 from neighbor
+                       this->insert_edge( mNeighbors[ 4 ]->get_edge( tE8 ), tE0 );
                     }
-                    // test edge 4 deos not exists
-                    if( mEdges[ 1 ] == NULL )
+                    // test edge tE4 deos not exists
+                    if( mEdges[ tE1 ] == NULL )
                     {
-                       // copy edge 9 from neighbor
-                       this->insert_edge( mNeighbors[ 4 ]->get_edge( 9 ), 1 );
+                       // copy edge tE9 from neighbor
+                       this->insert_edge( mNeighbors[ 4 ]->get_edge( tE9 ), tE1 );
                     }
-                    // test edge 4 deos not exists
-                    if( mEdges[ 2 ] == NULL )
+                    // test edge tE4 deos not exists
+                    if( mEdges[ tE2 ] == NULL )
                     {
-                       // copy edge 10 from neighbor
-                       this->insert_edge( mNeighbors[ 4 ]->get_edge( 10 ), 2 );
+                       // copy edge tE10 from neighbor
+                       this->insert_edge( mNeighbors[ 4 ]->get_edge( tE10 ), tE2 );
                     }
-                    // test edge 4 deos not exists
-                    if( mEdges[ 3 ] == NULL )
+                    // test edge tE4 deos not exists
+                    if( mEdges[ tE3 ] == NULL )
                     {
-                       // copy edge 11 from neighbor
-                       this->insert_edge( mNeighbors[ 4 ]->get_edge( 11 ), 3 );
+                       // copy edge tE11 from neighbor
+                       this->insert_edge( mNeighbors[ 4 ]->get_edge( tE11 ), tE3 );
                     }
                 }
 
             }
 
-            // test if neighbor 5 exists and is on same level
+            // test if neighbor tE5 exists and is on same level
             if( mNeighbors[ 5 ] != NULL )
             {
                 if( mNeighbors[ 5 ]->get_level() == mLevel )
                 {
-                    // test edge 5 deos not exists
-                    if( mEdges[ 8 ] == NULL )
+                    // test edge tE5 deos not exists
+                    if( mEdges[ tE8 ] == NULL )
                     {
                        // copy edge 0 from neighbor
-                       this->insert_edge( mNeighbors[ 5 ]->get_edge( 0 ), 8 );
+                       this->insert_edge( mNeighbors[ 5 ]->get_edge( tE0 ), tE8 );
                     }
-                    // test edge 5 deos not exists
-                    if( mEdges[ 9 ] == NULL )
+                    // test edge tE5 deos not exists
+                    if( mEdges[ tE9 ] == NULL )
                     {
                        // copy edge 1 from neighbor
-                       this->insert_edge( mNeighbors[ 5 ]->get_edge( 1 ), 9 );
+                       this->insert_edge( mNeighbors[ 5 ]->get_edge( tE1 ), tE9 );
                     }
-                    // test edge 5 deos not exists
-                    if( mEdges[ 10 ] == NULL )
+                    // test edge tE5 deos not exists
+                    if( mEdges[ tE10 ] == NULL )
                     {
                        // copy edge 2 from neighbor
-                       this->insert_edge( mNeighbors[ 5 ]->get_edge( 2 ), 10 );
+                       this->insert_edge( mNeighbors[ 5 ]->get_edge( tE2 ), tE10 );
                     }
-                    // test edge 5 deos not exists
-                    if( mEdges[ 11 ] == NULL )
+                    // test edge tE5 deos not exists
+                    if( mEdges[ tE11 ] == NULL )
                     {
                        // copy edge 3 from neighbor
-                       this->insert_edge( mNeighbors[ 5 ]->get_edge( 3 ), 11 );
+                       this->insert_edge( mNeighbors[ 5 ]->get_edge( tE3 ), tE11 );
                     }
                 }
 
             }
 
-            // step 2: copy existing edges from neighbors 6 to 17
+            // step 2: copy existing edges from neighbors tE6 to 17
 
             // test if edge 0 does not exist
-            if( mEdges[ 0 ] == NULL )
+            if( mEdges[ tE0 ] == NULL )
             {
                 // test if neighbor 25 exists and is on same level
                 if( mNeighbors[ 6 ] != NULL )
                 {
                     if( mNeighbors[ 6 ]->get_level() == mLevel )
                     {
-                       // copy edge 10 from neighbor
-                       this->insert_edge( mNeighbors[ 6 ]->get_edge( 10 ), 0 );
+                       // copy edge tE10 from neighbor
+                       this->insert_edge( mNeighbors[ 6 ]->get_edge( tE10 ), tE0 );
                     }
                 }
             }
 
             // test if edge 1 does not exist
-            if( mEdges[ 1 ] == NULL )
+            if( mEdges[ tE1 ] == NULL )
             {
                 // test if neighbor 26 exists and is on same level
                 if( mNeighbors[ 7 ] != NULL )
                 {
                     if( mNeighbors[ 7 ]->get_level() == mLevel )
                     {
-                       // copy edge 11 from neighbor
-                       this->insert_edge( mNeighbors[ 7 ]->get_edge( 11 ), 1 );
+                       // copy edge tE11 from neighbor
+                       this->insert_edge( mNeighbors[ 7 ]->get_edge( tE11 ), tE1 );
                     }
                 }
             }
 
             // test if edge 2 does not exist
-            if( mEdges[ 2 ] == NULL )
+            if( mEdges[ tE2 ] == NULL )
             {
                 // test if neighbor 27 exists and is on same level
                 if( mNeighbors[ 8 ] != NULL )
                 {
                     if( mNeighbors[ 8 ]->get_level() == mLevel )
                     {
-                       // copy edge 8 from neighbor
-                       this->insert_edge( mNeighbors[ 8 ]->get_edge( 8 ), 2 );
+                       // copy edge tE8 from neighbor
+                       this->insert_edge( mNeighbors[ 8 ]->get_edge( tE8 ), tE2 );
                     }
                 }
             }
 
             // test if edge 3 does not exist
-            if( mEdges[ 3 ] == NULL )
+            if( mEdges[ tE3 ] == NULL )
             {
                 // test if neighbor 28 exists and is on same level
                 if( mNeighbors[ 9 ] != NULL )
                 {
                     if( mNeighbors[ 9 ]->get_level() == mLevel )
                     {
-                       // copy edge 9 from neighbor
-                       this->insert_edge( mNeighbors[ 9 ]->get_edge( 9 ), 3 );
+                       // copy edge tE9 from neighbor
+                       this->insert_edge( mNeighbors[ 9 ]->get_edge( tE9 ), tE3 );
                     }
                 }
             }
 
-            // test if edge 4 does not exist
-            if( mEdges[ 4 ] == NULL )
+            // test if edge tE4 does not exist
+            if( mEdges[ tE4 ] == NULL )
             {
                 // test if neighbor 29 exists and is on same level
                 if( mNeighbors[ 10 ] != NULL )
                 {
                     if( mNeighbors[ 10 ]->get_level() == mLevel )
                     {
-                       // copy edge 6 from neighbor
-                       this->insert_edge( mNeighbors[ 10 ]->get_edge( 6 ), 4 );
+                       // copy edge tE6 from neighbor
+                       this->insert_edge( mNeighbors[ 10 ]->get_edge( tE6 ), tE4 );
                     }
                 }
             }
 
-            // test if edge 5 does not exist
-            if( mEdges[ 5 ] == NULL )
+            // test if edge tE5 does not exist
+            if( mEdges[ tE5 ] == NULL )
             {
                 // test if neighbor 30 exists and is on same level
                 if( mNeighbors[ 11 ] != NULL )
                 {
                     if( mNeighbors[ 11 ]->get_level() == mLevel )
                     {
-                       // copy edge 7 from neighbor
-                       this->insert_edge( mNeighbors[ 11 ]->get_edge( 7 ), 5 );
+                       // copy edge tE7 from neighbor
+                       this->insert_edge( mNeighbors[ 11 ]->get_edge( tE7 ), tE5 );
                     }
                 }
             }
 
-            // test if edge 6 does not exist
-            if( mEdges[ 6 ] == NULL )
+            // test if edge tE6 does not exist
+            if( mEdges[ tE6 ] == NULL )
             {
                 // test if neighbor 31 exists and is on same level
                 if( mNeighbors[ 12 ] != NULL )
                 {
                     if( mNeighbors[ 12 ]->get_level() == mLevel )
                     {
-                       // copy edge 4 from neighbor
-                       this->insert_edge( mNeighbors[ 12 ]->get_edge( 4 ), 6 );
+                       // copy edge tE4 from neighbor
+                       this->insert_edge( mNeighbors[ 12 ]->get_edge( tE4 ), tE6 );
                     }
                 }
             }
 
-            // test if edge 7 does not exist
-            if( mEdges[ 7 ] == NULL )
+            // test if edge tE7 does not exist
+            if( mEdges[ tE7 ] == NULL )
             {
                 // test if neighbor 32 exists and is on same level
                 if( mNeighbors[ 13 ] != NULL )
                 {
                     if( mNeighbors[ 13 ]->get_level() == mLevel )
                     {
-                       // copy edge 5 from neighbor
-                       this->insert_edge( mNeighbors[ 13 ]->get_edge( 5 ), 7 );
+                       // copy edge tE5 from neighbor
+                       this->insert_edge( mNeighbors[ 13 ]->get_edge( tE5 ), tE7 );
                     }
                 }
             }
 
-            // test if edge 8 does not exist
-            if( mEdges[ 8 ] == NULL )
+            // test if edge tE8 does not exist
+            if( mEdges[ tE8 ] == NULL )
             {
                 // test if neighbor 33 exists and is on same level
                 if( mNeighbors[ 14 ] != NULL )
@@ -345,13 +359,13 @@ namespace moris
                     if( mNeighbors[ 14 ]->get_level() == mLevel )
                     {
                        // copy edge 2 from neighbor
-                       this->insert_edge( mNeighbors[ 14 ]->get_edge( 2 ), 8 );
+                       this->insert_edge( mNeighbors[ 14 ]->get_edge( tE2 ), tE8 );
                     }
                 }
             }
 
-            // test if edge 9 does not exist
-            if( mEdges[ 9 ] == NULL )
+            // test if edge tE9 does not exist
+            if( mEdges[ tE9 ] == NULL )
             {
                 // test if neighbor 34 exists and is on same level
                 if( mNeighbors[ 15 ] != NULL )
@@ -359,13 +373,13 @@ namespace moris
                     if( mNeighbors[ 15 ]->get_level() == mLevel )
                     {
                        // copy edge 3 from neighbor
-                       this->insert_edge( mNeighbors[ 15 ]->get_edge( 3 ), 9 );
+                       this->insert_edge( mNeighbors[ 15 ]->get_edge( tE3 ), tE9 );
                     }
                 }
             }
 
-            // test if edge 10 does not exist
-            if( mEdges[ 10 ] == NULL )
+            // test if edge tE10 does not exist
+            if( mEdges[ tE10 ] == NULL )
             {
                 // test if neighbor 35 exists and is on same level
                 if( mNeighbors[ 16 ] != NULL )
@@ -373,13 +387,13 @@ namespace moris
                     if( mNeighbors[ 16 ]->get_level() == mLevel )
                     {
                        // copy edge 0 from neighbor
-                       this->insert_edge( mNeighbors[ 16 ]->get_edge( 0 ), 10 );
+                       this->insert_edge( mNeighbors[ 16 ]->get_edge( tE0 ), tE10 );
                     }
                 }
             }
 
-            // test if edge 11 does not exist
-            if( mEdges[ 11 ] == NULL )
+            // test if edge tE11 does not exist
+            if( mEdges[ tE11 ] == NULL )
             {
                 // test if neighbor 36 exists and is on same level
                 if( mNeighbors[ 17 ] != NULL )
@@ -387,7 +401,7 @@ namespace moris
                     if( mNeighbors[ 17 ]->get_level() == mLevel )
                     {
                        // copy edge 1 from neighbor
-                       this->insert_edge( mNeighbors[ 17 ]->get_edge( 1 ), 11 );
+                       this->insert_edge( mNeighbors[ 17 ]->get_edge( tE1 ), tE11 );
                     }
                 }
             }
@@ -395,13 +409,13 @@ namespace moris
             // step 3: create edges that do not exist
 
             // test if edge 0 does not exist
-            if( mEdges[ 0 ] == NULL )
+            if( mEdges[ tE0 ] == NULL )
             {
                 // create edge
-                mEdges[ 0 ] = new Background_Edge( this, 0 );
+                mEdges[ tE0 ] = new Background_Edge( this, tE0 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 0 );
+                mEdgeOwnFlags.set( tE0 );
 
                 // test if neighbor 0 exists
                 if( mNeighbors[ 0 ] != NULL )
@@ -409,38 +423,38 @@ namespace moris
                     if( mNeighbors[ 0 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 0 ]->insert_edge( mEdges[ 0 ], 2 );
+                        mNeighbors[ 0 ]->insert_edge( mEdges[ tE0 ], tE2 );
                     }
                 }
 
-                // test if neighbor 4 exists
+                // test if neighbor tE4 exists
                 if( mNeighbors[ 4 ] != NULL )
                 {
                     if( mNeighbors[ 4 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 4 ]->insert_edge( mEdges[ 0 ], 8 );
+                        mNeighbors[ 4 ]->insert_edge( mEdges[ tE0 ], tE8 );
                     }
                 }
 
-                // test if neighbor 6 exists
+                // test if neighbor tE6 exists
                 if( mNeighbors[ 6 ] != NULL )
                 {
                     if( mNeighbors[ 6 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 6 ]->insert_edge( mEdges[ 0 ], 10 );
+                        mNeighbors[ 6 ]->insert_edge( mEdges[ tE0 ], tE10 );
                     }
                 }
             }
             // test if edge 1 does not exist
-            if( mEdges[ 1 ] == NULL )
+            if( mEdges[ tE1 ] == NULL )
             {
                 // create edge
-                mEdges[ 1 ] = new Background_Edge( this, 1 );
+                mEdges[ tE1 ] = new Background_Edge( this, tE1 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 1 );
+                mEdgeOwnFlags.set( tE1 );
 
                 // test if neighbor 1 exists
                 if( mNeighbors[ 1 ] != NULL )
@@ -448,77 +462,77 @@ namespace moris
                     if( mNeighbors[ 1 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 1 ]->insert_edge( mEdges[ 1 ], 3 );
+                        mNeighbors[ 1 ]->insert_edge( mEdges[ tE1 ], tE3 );
                     }
                 }
 
-                // test if neighbor 4 exists
+                // test if neighbor tE4 exists
                 if( mNeighbors[ 4 ] != NULL )
                 {
                     if( mNeighbors[ 4 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 4 ]->insert_edge( mEdges[ 1 ], 9 );
+                        mNeighbors[ 4 ]->insert_edge( mEdges[ tE1 ], tE9 );
                     }
                 }
 
-                // test if neighbor 7 exists
+                // test if neighbor tE7 exists
                 if( mNeighbors[ 7 ] != NULL )
                 {
                     if( mNeighbors[ 7 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 7 ]->insert_edge( mEdges[ 1 ], 11 );
+                        mNeighbors[ 7 ]->insert_edge( mEdges[ tE1 ], tE11 );
                     }
                 }
             }
             // test if edge 2 does not exist
-            if( mEdges[ 2 ] == NULL )
+            if( mEdges[ tE2 ] == NULL )
             {
                 // create edge
-                mEdges[ 2 ] = new Background_Edge( this, 2 );
+                mEdges[ tE2 ] = new Background_Edge( this, tE2 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 2 );
+                mEdgeOwnFlags.set( tE2 );
 
-                // test if neighbor 2 exists
+                // test if neighbor tE2 exists
                 if( mNeighbors[ 2 ] != NULL )
                 {
                     if( mNeighbors[ 2 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 2 ]->insert_edge( mEdges[ 2 ], 0 );
+                        mNeighbors[ 2 ]->insert_edge( mEdges[ tE2 ], tE0 );
                     }
                 }
 
-                // test if neighbor 4 exists
+                // test if neighbor tE4 exists
                 if( mNeighbors[ 4 ] != NULL )
                 {
                     if( mNeighbors[ 4 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 4 ]->insert_edge( mEdges[ 2 ], 10 );
+                        mNeighbors[ 4 ]->insert_edge( mEdges[ tE2 ], tE10 );
                     }
                 }
 
-                // test if neighbor 8 exists
+                // test if neighbor tE8 exists
                 if( mNeighbors[ 8 ] != NULL )
                 {
                     if( mNeighbors[ 8 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 8 ]->insert_edge( mEdges[ 2 ], 8 );
+                        mNeighbors[ 8 ]->insert_edge( mEdges[ tE2 ], tE8 );
                     }
                 }
             }
             // test if edge 3 does not exist
-            if( mEdges[ 3 ] == NULL )
+            if( mEdges[ tE3 ] == NULL )
             {
                 // create edge
-                mEdges[ 3 ] = new Background_Edge( this, 3 );
+                mEdges[ tE3 ] = new Background_Edge( this, tE3 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 3 );
+                mEdgeOwnFlags.set( tE3 );
 
                 // test if neighbor 3 exists
                 if( mNeighbors[ 3 ] != NULL )
@@ -526,38 +540,38 @@ namespace moris
                     if( mNeighbors[ 3 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 3 ]->insert_edge( mEdges[ 3 ], 1 );
+                        mNeighbors[ 3 ]->insert_edge( mEdges[ tE3 ], tE1 );
                     }
                 }
 
-                // test if neighbor 4 exists
+                // test if neighbor tE4 exists
                 if( mNeighbors[ 4 ] != NULL )
                 {
                     if( mNeighbors[ 4 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 4 ]->insert_edge( mEdges[ 3 ], 11 );
+                        mNeighbors[ 4 ]->insert_edge( mEdges[ tE3 ], tE11 );
                     }
                 }
 
-                // test if neighbor 9 exists
+                // test if neighbor tE9 exists
                 if( mNeighbors[ 9 ] != NULL )
                 {
                     if( mNeighbors[ 9 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 9 ]->insert_edge( mEdges[ 3 ], 9 );
+                        mNeighbors[ 9 ]->insert_edge( mEdges[ tE3 ], tE9 );
                     }
                 }
             }
-            // test if edge 4 does not exist
-            if( mEdges[ 4 ] == NULL )
+            // test if edge tE4 does not exist
+            if( mEdges[ tE4 ] == NULL )
             {
                 // create edge
-                mEdges[ 4 ] = new Background_Edge( this, 4 );
+                mEdges[ tE4 ] = new Background_Edge( this, tE4 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 4 );
+                mEdgeOwnFlags.set( tE4 );
 
                 // test if neighbor 0 exists
                 if( mNeighbors[ 0 ] != NULL )
@@ -565,7 +579,7 @@ namespace moris
                     if( mNeighbors[ 0 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 0 ]->insert_edge( mEdges[ 4 ], 7 );
+                        mNeighbors[ 0 ]->insert_edge( mEdges[ tE4 ], tE7 );
                     }
                 }
 
@@ -575,28 +589,28 @@ namespace moris
                     if( mNeighbors[ 3 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 3 ]->insert_edge( mEdges[ 4 ], 5 );
+                        mNeighbors[ 3 ]->insert_edge( mEdges[ tE4 ], tE5 );
                     }
                 }
 
-                // test if neighbor 10 exists
+                // test if neighbor tE10 exists
                 if( mNeighbors[ 10 ] != NULL )
                 {
                     if( mNeighbors[ 10 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 10 ]->insert_edge( mEdges[ 4 ], 6 );
+                        mNeighbors[ 10 ]->insert_edge( mEdges[ tE4 ], tE6 );
                     }
                 }
             }
-            // test if edge 5 does not exist
-            if( mEdges[ 5 ] == NULL )
+            // test if edge tE5 does not exist
+            if( mEdges[ tE5 ] == NULL )
             {
                 // create edge
-                mEdges[ 5 ] = new Background_Edge( this, 5 );
+                mEdges[ tE5 ] = new Background_Edge( this, tE5 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 5 );
+                mEdgeOwnFlags.set( tE5 );
 
                 // test if neighbor 0 exists
                 if( mNeighbors[ 0 ] != NULL )
@@ -604,7 +618,7 @@ namespace moris
                     if( mNeighbors[ 0 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 0 ]->insert_edge( mEdges[ 5 ], 6 );
+                        mNeighbors[ 0 ]->insert_edge( mEdges[ tE5 ], tE6 );
                     }
                 }
 
@@ -614,28 +628,28 @@ namespace moris
                     if( mNeighbors[ 1 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 1 ]->insert_edge( mEdges[ 5 ], 4 );
+                        mNeighbors[ 1 ]->insert_edge( mEdges[ tE5 ], tE4 );
                     }
                 }
 
-                // test if neighbor 11 exists
+                // test if neighbor tE11 exists
                 if( mNeighbors[ 11 ] != NULL )
                 {
                     if( mNeighbors[ 11 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 11 ]->insert_edge( mEdges[ 5 ], 7 );
+                        mNeighbors[ 11 ]->insert_edge( mEdges[ tE5 ], tE7 );
                     }
                 }
             }
-            // test if edge 6 does not exist
-            if( mEdges[ 6 ] == NULL )
+            // test if edge tE6 does not exist
+            if( mEdges[ tE6 ] == NULL )
             {
                 // create edge
-                mEdges[ 6 ] = new Background_Edge( this, 6 );
+                mEdges[ tE6 ] = new Background_Edge( this, tE6 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 6 );
+                mEdgeOwnFlags.set( tE6 );
 
                 // test if neighbor 1 exists
                 if( mNeighbors[ 1 ] != NULL )
@@ -643,7 +657,7 @@ namespace moris
                     if( mNeighbors[ 1 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 1 ]->insert_edge( mEdges[ 6 ], 7 );
+                        mNeighbors[ 1 ]->insert_edge( mEdges[ tE6 ], tE7 );
                     }
                 }
 
@@ -653,7 +667,7 @@ namespace moris
                     if( mNeighbors[ 2 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 2 ]->insert_edge( mEdges[ 6 ], 5 );
+                        mNeighbors[ 2 ]->insert_edge( mEdges[ tE6 ], tE5 );
                     }
                 }
 
@@ -663,18 +677,18 @@ namespace moris
                     if( mNeighbors[ 12 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 12 ]->insert_edge( mEdges[ 6 ], 4 );
+                        mNeighbors[ 12 ]->insert_edge( mEdges[ tE6 ], tE4 );
                     }
                 }
             }
-            // test if edge 7 does not exist
-            if( mEdges[ 7 ] == NULL )
+            // test if edge tE7 does not exist
+            if( mEdges[ tE7 ] == NULL )
             {
                 // create edge
-                mEdges[ 7 ] = new Background_Edge( this, 7 );
+                mEdges[ tE7 ] = new Background_Edge( this, tE7 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 7 );
+                mEdgeOwnFlags.set( tE7 );
 
                 // test if neighbor 2 exists
                 if( mNeighbors[ 2 ] != NULL )
@@ -682,7 +696,7 @@ namespace moris
                     if( mNeighbors[ 2 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 2 ]->insert_edge( mEdges[ 7 ], 4 );
+                        mNeighbors[ 2 ]->insert_edge( mEdges[ tE7 ], tE4 );
                     }
                 }
 
@@ -692,7 +706,7 @@ namespace moris
                     if( mNeighbors[ 3 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 3 ]->insert_edge( mEdges[ 7 ], 6 );
+                        mNeighbors[ 3 ]->insert_edge( mEdges[ tE7 ], tE6 );
                     }
                 }
 
@@ -702,18 +716,18 @@ namespace moris
                     if( mNeighbors[ 13 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 13 ]->insert_edge( mEdges[ 7 ], 5 );
+                        mNeighbors[ 13 ]->insert_edge( mEdges[ tE7 ], tE5 );
                     }
                 }
             }
-            // test if edge 8 does not exist
-            if( mEdges[ 8 ] == NULL )
+            // test if edge tE8 does not exist
+            if( mEdges[ tE8 ] == NULL )
             {
                 // create edge
-                mEdges[ 8 ] = new Background_Edge( this, 8 );
+                mEdges[ tE8 ] = new Background_Edge( this, tE8 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 8 );
+                mEdgeOwnFlags.set( tE8 );
 
                 // test if neighbor 0 exists
                 if( mNeighbors[ 0 ] != NULL )
@@ -721,17 +735,17 @@ namespace moris
                     if( mNeighbors[ 0 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 0 ]->insert_edge( mEdges[ 8 ], 10 );
+                        mNeighbors[ 0 ]->insert_edge( mEdges[ tE8 ], tE10 );
                     }
                 }
 
-                // test if neighbor 5 exists
+                // test if neighbor tE5 exists
                 if( mNeighbors[ 5 ] != NULL )
                 {
                     if( mNeighbors[ 5 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 5 ]->insert_edge( mEdges[ 8 ], 0 );
+                        mNeighbors[ 5 ]->insert_edge( mEdges[ tE8 ], tE0 );
                     }
                 }
 
@@ -741,18 +755,18 @@ namespace moris
                     if( mNeighbors[ 14 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 14 ]->insert_edge( mEdges[ 8 ], 2 );
+                        mNeighbors[ 14 ]->insert_edge( mEdges[ tE8 ], tE2 );
                     }
                 }
             }
-            // test if edge 9 does not exist
-            if( mEdges[ 9 ] == NULL )
+            // test if edge tE9 does not exist
+            if( mEdges[ tE9 ] == NULL )
             {
                 // create edge
-                mEdges[ 9 ] = new Background_Edge( this, 9 );
+                mEdges[ tE9 ] = new Background_Edge( this, tE9 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 9 );
+                mEdgeOwnFlags.set( tE9 );
 
                 // test if neighbor 1 exists
                 if( mNeighbors[ 1 ] != NULL )
@@ -760,17 +774,17 @@ namespace moris
                     if( mNeighbors[ 1 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 1 ]->insert_edge( mEdges[ 9 ], 11 );
+                        mNeighbors[ 1 ]->insert_edge( mEdges[ tE9 ], tE11 );
                     }
                 }
 
-                // test if neighbor 5 exists
+                // test if neighbor tE5 exists
                 if( mNeighbors[ 5 ] != NULL )
                 {
                     if( mNeighbors[ 5 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 5 ]->insert_edge( mEdges[ 9 ], 1 );
+                        mNeighbors[ 5 ]->insert_edge( mEdges[ tE9 ], tE1 );
                     }
                 }
 
@@ -780,18 +794,18 @@ namespace moris
                     if( mNeighbors[ 15 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 15 ]->insert_edge( mEdges[ 9 ], 3 );
+                        mNeighbors[ 15 ]->insert_edge( mEdges[ tE9 ], tE3 );
                     }
                 }
             }
-            // test if edge 10 does not exist
-            if( mEdges[ 10 ] == NULL )
+            // test if edge tE10 does not exist
+            if( mEdges[ tE10 ] == NULL )
             {
                 // create edge
-                mEdges[ 10 ] = new Background_Edge( this, 10 );
+                mEdges[ tE10 ] = new Background_Edge( this, tE10 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 10 );
+                mEdgeOwnFlags.set( tE10 );
 
                 // test if neighbor 2 exists
                 if( mNeighbors[ 2 ] != NULL )
@@ -799,17 +813,17 @@ namespace moris
                     if( mNeighbors[ 2 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 2 ]->insert_edge( mEdges[ 10 ], 8 );
+                        mNeighbors[ 2 ]->insert_edge( mEdges[ tE10 ], tE8 );
                     }
                 }
 
-                // test if neighbor 5 exists
+                // test if neighbor tE5 exists
                 if( mNeighbors[ 5 ] != NULL )
                 {
                     if( mNeighbors[ 5 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 5 ]->insert_edge( mEdges[ 10 ], 2 );
+                        mNeighbors[ 5 ]->insert_edge( mEdges[ tE10 ], tE2 );
                     }
                 }
 
@@ -819,18 +833,18 @@ namespace moris
                     if( mNeighbors[ 16 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 16 ]->insert_edge( mEdges[ 10 ], 0 );
+                        mNeighbors[ 16 ]->insert_edge( mEdges[ tE10 ], tE0 );
                     }
                 }
             }
-            // test if edge 11 does not exist
-            if( mEdges[ 11 ] == NULL )
+            // test if edge tE11 does not exist
+            if( mEdges[ tE11 ] == NULL )
             {
                 // create edge
-                mEdges[ 11 ] = new Background_Edge( this, 11 );
+                mEdges[ tE11 ] = new Background_Edge( this, tE11 );
 
                 // set owning flag
-                mEdgeOwnFlags.set( 11 );
+                mEdgeOwnFlags.set( tE11 );
 
                 // test if neighbor 3 exists
                 if( mNeighbors[ 3 ] != NULL )
@@ -838,17 +852,17 @@ namespace moris
                     if( mNeighbors[ 3 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 3 ]->insert_edge( mEdges[ 11 ], 9 );
+                        mNeighbors[ 3 ]->insert_edge( mEdges[ tE11 ], tE9 );
                     }
                 }
 
-                // test if neighbor 5 exists
+                // test if neighbor tE5 exists
                 if( mNeighbors[ 5 ] != NULL )
                 {
                     if( mNeighbors[ 5 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 5 ]->insert_edge( mEdges[ 11 ], 3 );
+                        mNeighbors[ 5 ]->insert_edge( mEdges[ tE11 ], tE3 );
                     }
                 }
 
@@ -858,7 +872,7 @@ namespace moris
                     if( mNeighbors[ 17 ]->get_level() == mLevel )
                     {
                         // copy edge to neighbor
-                        mNeighbors[ 17 ]->insert_edge( mEdges[ 11 ], 1 );
+                        mNeighbors[ 17 ]->insert_edge( mEdges[ tE11 ], tE1 );
                     }
                 }
             }
