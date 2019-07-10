@@ -43,7 +43,7 @@ namespace MSI
     class Set : public MSI::Equation_Set
     {
     private:
-        moris::mtk::Set                          * mSet = nullptr;
+        moris::mtk::Set                          * mMeshSet = nullptr;
 
         //! Mesh cluster
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
@@ -70,25 +70,16 @@ namespace MSI
         moris::Cell< Node_Base* >           mNodes;
 
         // geometry interpolator pointer for the interpolation cells
-        Geometry_Interpolator             * mIPGeometryInterpolator = nullptr;
+        Geometry_Interpolator             * mMasterIPGeometryInterpolator = nullptr;
+        Geometry_Interpolator             * mSlaveIPGeometryInterpolator  = nullptr;
 
         // geometry interpolator pointer for the integration cells
-        Geometry_Interpolator             * mIGGeometryInterpolator = nullptr;
+        Geometry_Interpolator             * mMasterIGGeometryInterpolator = nullptr;
+        Geometry_Interpolator             * mSlaveIGGeometryInterpolator  = nullptr;
 
         // list of field interpolator pointers
-        moris::Cell< Field_Interpolator* >  mFieldInterpolators;
-
-        // list of field interpolator pointers for double side-set
-        moris::Cell< Field_Interpolator* >  mLeftFieldInterpolators;
-        moris::Cell< Field_Interpolator* >  mRightFieldInterpolators;
-
-        // geometry interpolator pointer for the interpolation cells for double side-set
-        Geometry_Interpolator             * mLeftIPGeometryInterpolator = nullptr;
-        Geometry_Interpolator             * mRightIPGeometryInterpolator = nullptr;
-
-        // geometry interpolator pointer for the integration cells
-        Geometry_Interpolator             * mLeftIGGeometryInterpolator = nullptr;
-        Geometry_Interpolator             * mRightIGGeometryInterpolator = nullptr;
+        moris::Cell< Field_Interpolator* >  mMasterFieldInterpolators;
+        moris::Cell< Field_Interpolator* >  mSlaveFieldInterpolators;
 
         // cell of pointers to IWG objects
         moris::Cell< IWG* > mIWGs;
@@ -115,7 +106,7 @@ namespace MSI
         Matrix< DDRMat > mIntegWeights;
 
         bool mIsTrivialMaster = false;
-        bool mIsTrivialSlave = false;
+        bool mIsTrivialSlave  = false;
 
         friend class MSI::Equation_Object;
         friend class Cluster;
@@ -191,46 +182,68 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        moris::Cell< Field_Interpolator* > & get_field_interpolator()
+        moris::Cell< Field_Interpolator* > & get_field_interpolator( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
-            return mFieldInterpolators;
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterFieldInterpolators;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveFieldInterpolators;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_field_interpolator - can only be MASTER or SLAVE");
+                    return mMasterFieldInterpolators;
+                }
+            }
         }
 
-        moris::Cell< Field_Interpolator* > & get_left_field_interpolator()
-        {
-            return mLeftFieldInterpolators;
-        }
-        moris::Cell< Field_Interpolator* > & get_right_field_interpolator()
-        {
-            return mRightFieldInterpolators;
-        }
 //------------------------------------------------------------------------------
 
-        Geometry_Interpolator * get_IP_geometry_interpolator()
+        Geometry_Interpolator * get_IP_geometry_interpolator( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
-            return mIPGeometryInterpolator;
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterIPGeometryInterpolator;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveIPGeometryInterpolator;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "is_trivial(): can only be MASTER or SLAVE");
+                    return nullptr;
+                }
+            }
         }
 
-        Geometry_Interpolator * get_IG_geometry_interpolator()
-        {
-            return mIGGeometryInterpolator;
-        }
+//------------------------------------------------------------------------------
 
-        Geometry_Interpolator * get_left_IP_geometry_interpolator()
+        Geometry_Interpolator * get_IG_geometry_interpolator( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
-            return mLeftIPGeometryInterpolator;
-        }
-        Geometry_Interpolator * get_right_IP_geometry_interpolator()
-        {
-            return mRightIPGeometryInterpolator;
-        }
-        Geometry_Interpolator * get_left_IG_geometry_interpolator()
-        {
-            return mLeftIGGeometryInterpolator;
-        }
-        Geometry_Interpolator * get_right_IG_geometry_interpolator()
-        {
-            return mRightIGGeometryInterpolator;
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterIGGeometryInterpolator;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveIGGeometryInterpolator;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "is_trivial(): can only be MASTER or SLAVE");
+                    return nullptr;
+                }
+            }
         }
 
 //------------------------------------------------------------------------------

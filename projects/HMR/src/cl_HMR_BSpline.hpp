@@ -253,8 +253,8 @@ namespace moris
             {
 #ifdef DEBUG
                 return mXYZ;
-#elif
-                MORIS_ERROR(false, "get_xyz() If you wish this function to work for B-Splines and non DEBUG, delete the #ifdef DEBUG around mXYZ in the class BSplin")
+#else
+                MORIS_ERROR(false, "get_xyz() If you wish this function to work for B-Splines and non DEBUG, delete the #ifdef DEBUG around mXYZ in the class BSplin");
                 return nullptr;
 #endif
             }

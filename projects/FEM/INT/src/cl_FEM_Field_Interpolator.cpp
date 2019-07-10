@@ -20,12 +20,15 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-
         Field_Interpolator::Field_Interpolator( const uint                   & aNumberOfFields,
                                                 const Interpolation_Rule     & aFieldInterpolationRule,
-                                                const Geometry_Interpolator*   aGeometryInterpolator )
+                                                const Geometry_Interpolator*   aGeometryInterpolator,
+                                                const MSI::Dof_Type            aDofType,
+                                                const fem::Property_Type       aPropertyType )
                                               : mNumberOfFields( aNumberOfFields ),
-                                                mGeometryInterpolator( aGeometryInterpolator )
+                                                mGeometryInterpolator( aGeometryInterpolator ),
+                                                mDofType( aDofType ),
+                                                mPropertyType( aPropertyType )
         {
             // create space and time interpolation function
             mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();

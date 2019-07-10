@@ -21,7 +21,7 @@ namespace moris
         Set::Set( moris::mtk::Set                          * aSet,
                   enum fem::Element_Type                     aElementType,
                   moris::Cell< IWG* >                      & aIWGs,
-                  moris::Cell< Node_Base* >                & aIPNodes) : mSet(aSet),
+                  moris::Cell< Node_Base* >                & aIPNodes) : mMeshSet(aSet),
                                                                          mNodes(aIPNodes),
                                                                          mIWGs( aIWGs ),
                                                                          mElementType( aElementType )
@@ -69,39 +69,30 @@ namespace moris
     void Set::delete_pointers()
     {
         // delete the interpolation geometry interpolator pointer
-        if ( mIPGeometryInterpolator != nullptr )
+        if ( mMasterIPGeometryInterpolator != nullptr )
         {
-            delete mIPGeometryInterpolator;
+            delete mMasterIPGeometryInterpolator;
         }
 
-        if ( mLeftIPGeometryInterpolator != nullptr )
+        if ( mSlaveIPGeometryInterpolator != nullptr )
         {
-            delete mLeftIPGeometryInterpolator;
-        }
-        if ( mRightIPGeometryInterpolator != nullptr )
-        {
-            delete mRightIPGeometryInterpolator;
+            delete mSlaveIPGeometryInterpolator;
         }
 
         // delete the integration geometry interpolator pointer
-        if ( mIGGeometryInterpolator != nullptr )
+        if ( mMasterIGGeometryInterpolator != nullptr )
         {
-            delete mIGGeometryInterpolator;
+            delete mMasterIGGeometryInterpolator;
         }
 
-        if ( mLeftIGGeometryInterpolator != nullptr )
+        if ( mSlaveIGGeometryInterpolator != nullptr )
         {
-            delete mLeftIGGeometryInterpolator;
-        }
-        if ( mRightIGGeometryInterpolator != nullptr )
-        {
-            delete mRightIGGeometryInterpolator;
+            delete mSlaveIGGeometryInterpolator;
         }
 
         // delete the list of field interpolator pointers
-        mFieldInterpolators.clear();
-        mLeftFieldInterpolators.clear();
-        mRightFieldInterpolators.clear();
+        mMasterFieldInterpolators.clear();
+        mSlaveFieldInterpolators.clear();
     }
 
 //------------------------------------------------------------------------------
@@ -110,15 +101,15 @@ namespace moris
     {
         this->delete_pointers();
 
-        mIsTrivialMaster = mSet->is_trivial( mtk::Master_Slave::MASTER );
+        mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
 
-        mIPGeometryType = mSet->get_interpolation_cell_geometry_type();
+        mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
 
-        mIGGeometryType = mSet->get_integration_cell_geometry_type();
+        mIGGeometryType = mMeshSet->get_integration_cell_geometry_type();
 
-        mIPSpaceInterpolationOrder = mSet->get_interpolation_cell_interpolation_order();
+        mIPSpaceInterpolationOrder = mMeshSet->get_interpolation_cell_interpolation_order();
 
-        mIGSpaceInterpolationOrder = mSet->get_integration_cell_interpolation_order();
+        mIGSpaceInterpolationOrder = mMeshSet->get_integration_cell_interpolation_order();
 
         // time interpolation order for IP cells fixme not linear
         mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
@@ -141,55 +132,69 @@ namespace moris
                                                          mIGTimeInterpolationOrder );
 
         // if block-set
-        if( mElementType == fem::Element_Type::BULK )
+        switch ( mElementType )
         {
-            // create an interpolation geometry intepolator
-            mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
+            case ( fem::Element_Type::BULK ):
+            {
+                // create an interpolation geometry intepolator
+                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
 
-            // create an integration geometry intepolator
-            mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
+                // create an integration geometry intepolator
+                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
 
-            // create the element field interpolators
-            this->create_field_interpolators( aModelSolverInterface );
+                // create the element field interpolators
+                this->create_field_interpolators( aModelSolverInterface );
 
-            // create the element dof assembly map
-            this->create_dof_assembly_map();
-        }
+                // create the element dof assembly map
+                this->create_dof_assembly_map();
 
-        // if side-set
-        else if( mElementType == fem::Element_Type::SIDESET )
-        {
-            // create an interpolation geometry intepolator
-            mIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+                break;
+            }
 
-            // create an integration geometry intepolator
-            mIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+            // if side-set
+            case( fem::Element_Type::SIDESET ):
+            {
+                // create an interpolation geometry intepolator
+                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
 
-            // create the element field interpolators
-            this->create_field_interpolators( aModelSolverInterface );
+                // create an integration geometry intepolator
+                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
 
-            // create the element dof assembly map
-            this->create_dof_assembly_map();
-        }
+                // create the element field interpolators
+                this->create_field_interpolators( aModelSolverInterface );
 
-        // if double side-set
-        else if( mElementType == fem::Element_Type::DOUBLE_SIDESET )
-        {
-            mIsTrivialSlave = mSet->is_trivial( mtk::Master_Slave::SLAVE );
+                // create the element dof assembly map
+                this->create_dof_assembly_map();
 
-            // create an interpolation geometry intepolator
-            mLeftIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-            mRightIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+                break;
+            }
 
-            // create an integration geometry intepolator
-            mLeftIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-            mRightIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+            // if double side-set
+            case( fem::Element_Type::DOUBLE_SIDESET ):
+            {
+                mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
 
-            // create the element field interpolators
-            this->create_field_interpolators_double( aModelSolverInterface );
+                // create an interpolation geometry intepolator
+                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+                mSlaveIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
 
-            // create the element dof assembly map
-            this->create_dof_assembly_map_double();
+                // create an integration geometry intepolator
+                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+                mSlaveIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+
+                // create the element field interpolators
+                this->create_field_interpolators_double( aModelSolverInterface );
+
+                // create the element dof assembly map
+                this->create_dof_assembly_map_double();
+
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR(false, "Set::finalize - unknown element type");
+                break;
+            }
         }
 
         // create an interpolation rule for the side
@@ -338,7 +343,7 @@ namespace moris
             mInterpDofAssemblyMap( i, 0 ) = tDofCounter;
 
             // update dof counter
-            tDofCounter = tDofCounter + mFieldInterpolators( i )->get_number_of_space_time_coefficients()-1;
+            tDofCounter = tDofCounter + mMasterFieldInterpolators( i )->get_number_of_space_time_coefficients()-1;
 
             // fill the assembly map with starting dof counter
             mInterpDofAssemblyMap( i, 1 ) = tDofCounter;
@@ -367,7 +372,7 @@ namespace moris
 
             // update dof counter
             //FIXME works if left and right field interpolators are the same
-            tDofCounter = tDofCounter + 2 * mLeftFieldInterpolators( i )->get_number_of_space_time_coefficients()-1;
+            tDofCounter = tDofCounter + 2 * mMasterFieldInterpolators( i )->get_number_of_space_time_coefficients()-1;
 
             // fill the assembly map with starting dof counter
             mInterpDofAssemblyMap( i, 1 ) = tDofCounter;
@@ -513,7 +518,7 @@ namespace moris
     void Set::create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // cell of field interpolators
-        mFieldInterpolators.resize( mInterpDofTypeList.size() + mPropertyTypeList.size(), nullptr );
+        mMasterFieldInterpolators.resize( mInterpDofTypeList.size() + mPropertyTypeList.size(), nullptr );
 
         // create a field interpolator for each dof type
         for( uint i = 0; i < mInterpDofTypeList.size(); i++ )
@@ -535,9 +540,9 @@ namespace moris
             uint tNumOfFields = tDofTypeGroup.size();
 
             // create an interpolator for the ith dof type group
-            mFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
-                                                               tFieldInterpolationRule,
-                                                               mIPGeometryInterpolator );
+            mMasterFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
+                                                                     tFieldInterpolationRule,
+                                                                     mMasterIPGeometryInterpolator );
         }
 
         // create a field interpolator for each property type
@@ -560,17 +565,17 @@ namespace moris
             uint tNumOfFields = 1; // fixme
 
             // create an interpolator for the ith dof type group
-            mFieldInterpolators( mInterpDofTypeList.size() + i ) = new Field_Interpolator( tNumOfFields,
-                                                                                           tFieldInterpolationRule,
-                                                                                           mIPGeometryInterpolator );
+            mMasterFieldInterpolators( mInterpDofTypeList.size() + i ) = new Field_Interpolator( tNumOfFields,
+                                                                                                 tFieldInterpolationRule,
+                                                                                                 mMasterIPGeometryInterpolator );
         }
     }
 
     void Set::create_field_interpolators_double( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // init the lists of field interpolators for left and right IP cells
-        mLeftFieldInterpolators.resize( mNumOfInterp, nullptr );
-        mRightFieldInterpolators.resize( mNumOfInterp, nullptr );
+        mMasterFieldInterpolators.resize( mNumOfInterp, nullptr );
+        mSlaveFieldInterpolators.resize( mNumOfInterp, nullptr );
 
         // loop on the dof type groups and create a field interpolator for each
         for( uint i = 0; i < mNumOfInterp; i++ )
@@ -592,12 +597,12 @@ namespace moris
             uint tNumOfFields = tDofTypeGroup.size();
 
             // create an interpolator for the ith dof type group
-            mLeftFieldInterpolators( i )  = new Field_Interpolator( tNumOfFields,
-                                                                    tFieldInterpolationRule,
-                                                                    mLeftIPGeometryInterpolator );
-            mRightFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
-                                                                    tFieldInterpolationRule,
-                                                                    mRightIPGeometryInterpolator );
+            mMasterFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
+                                                                     tFieldInterpolationRule,
+                                                                     mMasterIPGeometryInterpolator );
+            mSlaveFieldInterpolators( i )  = new Field_Interpolator( tNumOfFields,
+                                                                     tFieldInterpolationRule,
+                                                                     mSlaveIPGeometryInterpolator );
         }
     }
 
@@ -607,7 +612,7 @@ namespace moris
                                                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators )
     {
         // ask the IWG for its active dof types
-    	moris::Cell< moris::Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
+        moris::Cell< moris::Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
 
         // number of active dof type for the IWG
         uint tNumOfIWGActiveDof = tIWGActiveDof.size();

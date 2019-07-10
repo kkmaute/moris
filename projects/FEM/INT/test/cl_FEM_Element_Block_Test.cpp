@@ -57,7 +57,7 @@ namespace moris
             //tFieldInterpolators( 2 )->mNFieldCoeff = 4;
 
             // pass in the cell of FI pointers to the element block
-            tElementBlock.mFieldInterpolators = tFieldInterpolators;
+            tElementBlock.mMasterFieldInterpolators = tFieldInterpolators;
 
             SECTION("Test create_unique_dof_type_lists")
             {

@@ -15,6 +15,7 @@
 
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
+#include "cl_MSI_Dof_Type_Enums.hpp"     //FEM/MSI/src
 
 namespace moris
 {
@@ -56,6 +57,12 @@ namespace moris
             // matrix of field coefficients uHat
             Matrix < DDRMat > mUHat;
 
+            // field interpolator dof type
+            MSI::Dof_Type mDofType;
+
+            // field interpolator property type
+            fem::Property_Type mPropertyType;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -64,16 +71,19 @@ namespace moris
              * @param[ in ] aNumberOfFields           number of interpolated fields
              * @param[ in ] aFieldInterpolationRule   field interpolation rule
              * @param[ in ] aGeometryInterpolator     pointer to geometry interpolator object
+             * @param[ in ] aDofType                  dof type for the interpolated fields
              *
              */
             Field_Interpolator( const uint                   & aNumberOfFields,
                                 const Interpolation_Rule     & aFieldInterpolationRule,
-                                const Geometry_Interpolator*   aGeometryInterpolator );
+                                const Geometry_Interpolator*   aGeometryInterpolator,
+                                const MSI::Dof_Type            aDofType = MSI::Dof_Type::UNDEFINED,
+                                const fem::Property_Type       aPropertyType = fem::Property_Type::UNDEFINED );
 
             /**
              * trivial constructor
              */
-            Field_Interpolator( const uint & aNumberOfFields ) : mNumberOfFields( aNumberOfFields )
+            Field_Interpolator( const uint          & aNumberOfFields) : mNumberOfFields( aNumberOfFields )
             {};
 
 //------------------------------------------------------------------------------
@@ -81,6 +91,15 @@ namespace moris
              * default constructor
              */
             ~Field_Interpolator();
+
+//------------------------------------------------------------------------------
+            /**
+             * get dof type
+             */
+            MSI::Dof_Type get_dof_type() const
+            {
+                return mDofType;
+            }
 
 //------------------------------------------------------------------------------
             /**

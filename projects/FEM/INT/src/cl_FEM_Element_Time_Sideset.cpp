@@ -24,7 +24,7 @@ namespace moris
         void Element_Time_Sideset::compute_residual()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords() );
+            mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords() );
             mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
 
             // set the geometry interpolator param space and time coefficients for integration cell
@@ -100,7 +100,7 @@ namespace moris
         void Element_Time_Sideset::compute_jacobian()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_coeff( mCell->get_vertex_coords() );
+            mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_vertex_coords() );
             mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
 
             // set the geometry interpolator param space and time coefficients for integration cell
