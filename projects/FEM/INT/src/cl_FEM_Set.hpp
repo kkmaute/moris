@@ -235,6 +235,21 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        enum fem::Element_Type
+        get_set_element_type() const
+        {
+            return mElementType;
+        }
+
+
+        moris::Cell< mtk::Cluster const* > const &
+        get_clusters_on_set() const
+        {
+            return mMeshClusterList;
+        }
+
+//------------------------------------------------------------------------------
+
         mtk::Geometry_Type get_IG_geometry_type()
         {
             return mIGGeometryType;
