@@ -70,7 +70,8 @@ public:
 
     void print() const
     {
-        MORIS_ERROR( false, "not impelemented for petsc yet");
+        VecView( mPetscVector, PETSC_VIEWER_STDOUT_WORLD );
+//        MORIS_ERROR( false, "not impelemented for petsc yet");
     }
 
     void save_vector_to_matrix_market_file( const char* aFilename ){};

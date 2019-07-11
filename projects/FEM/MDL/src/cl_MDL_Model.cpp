@@ -60,8 +60,10 @@ namespace moris
                       const moris::Cell< moris_index >                  aSidesetList,
                       const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
                       const moris::Cell< moris_index >                  aDoubleSidesetList,
-                      const moris_index                                 aMeshPairIndex) : mMeshManager( aMeshManager ),
-                                                                                          mMeshPairIndex( aMeshPairIndex )
+                      const moris_index                                 aMeshPairIndex,
+                      const bool                                        aUseMultigrid) : mMeshManager( aMeshManager ),
+                                                                                          mMeshPairIndex( aMeshPairIndex ),
+                                                                                          mUseMultigrid(aUseMultigrid)
         {
             // start timer
             tic tTimer1;
@@ -190,14 +192,23 @@ namespace moris
             {
                 // create a list of side clusters
                 moris::mtk::Set * tSideSet = tIntegrationMesh->get_side_set_by_index( aSidesetList( Ik ) );
-//                moris::Cell<mtk::Cluster const*> tSideSetClusterList = tIntegrationMesh->get_side_set_by_index( aSidesetList( Ik ) )
-//                                                                                        ->get_clusters_on_set();
 
-                // create a new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
-                                                           fem::Element_Type::SIDESET,
-                                                           mIWGs( Ik + 1 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
-                                                           mIPNodes );
+                if (aSidesetBCTypeList(Ik) ==fem::BC_Type::DIRICHLET)
+                {
+                    // create a new fem set
+                    mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
+                                                               fem::Element_Type::SIDESET,
+                                                               mIWGs( 1 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
+                                                               mIPNodes );
+                }
+                if (aSidesetBCTypeList(Ik) ==fem::BC_Type::NEUMANN)
+                {
+                    // create a new fem set
+                    mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
+                                                               fem::Element_Type::SIDESET,
+                                                               mIWGs( 2 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
+                                                               mIPNodes );
+                }
 
                 // collect equation objects associated with the side-set
                 mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
@@ -319,6 +330,8 @@ namespace moris
                 // get the treated sideset name
                 std::string tTreatedSidesetName = tSidesetNames( aSidesetList( Ik ) );
 
+                std::cout<<tSidesetNames( aSidesetList( Ik ) )<<std::endl;
+
                 // get the sideset ordinal
                 moris_index tSideSetOrd = tIntegrationMesh->get_side_set_index( tTreatedSidesetName );
 
@@ -355,7 +368,7 @@ namespace moris
 
             //------------------------------------------------------------------------------------------
 
-            mModelSolverInterface->finalize();
+            mModelSolverInterface->finalize( mUseMultigrid );
 
             // calculate AdofMap
             mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();

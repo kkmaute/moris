@@ -95,6 +95,8 @@ namespace moris
 
             tsa::Time_Solver * mTimeSolver;
 
+            bool mUseMultigrid = false;
+
 
 
 //------------------------------------------------------------------------------
@@ -113,7 +115,8 @@ namespace moris
                    const moris::Cell< moris_index >                  aSidesetList,
                    const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
                    const moris::Cell< moris_index >                  aDoubleSidesetList,
-                   const moris_index                                 aMeshPairIndex = 0 );
+                   const moris_index                                 aMeshPairIndex = 0,
+                   const bool                                        aUseMultigrid = false );
 
 //------------------------------------------------------------------------------
 
@@ -121,6 +124,7 @@ namespace moris
             {
                 return mSolHMR;
             };
+
 
 //------------------------------------------------------------------------------
 

@@ -11,6 +11,10 @@
 #include <algorithm>
 #include <iostream>
 
+#include "petscmat.h"
+
+#include "fn_trans.hpp"
+
 extern moris::Comm_Manager gMorisComm;
 
 // TPL header files
@@ -60,9 +64,13 @@ Matrix_PETSc::Matrix_PETSc( const moris::uint aRows,
     // Create and set Matrix
     MatCreate( PETSC_COMM_WORLD, &mPETScMat );
 
+
+
     MatSetSizes( mPETScMat, aCols, aRows, PETSC_DETERMINE, PETSC_DETERMINE );
     MatSetFromOptions( mPETScMat );
     MatMPIAIJSetPreallocation( mPETScMat, tNonzeros, NULL, tNonzeros, NULL );
+
+//    MatSetOption( mPETScMat, MAT_COLUMN_ORIENTED, PETSC_TRUE );
 
     //FIXME extra matrix for serial (performance)
     //MatSeqAIJSetPreallocation(mPETScMat, tNonzeros, NULL);
@@ -104,6 +112,8 @@ void Matrix_PETSc::build_graph( const moris::uint             & aNumMyDof,
         }
      }
 
+
+
     // Applying Petsc map AO
     AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
 
@@ -116,6 +126,7 @@ void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
                                 const moris::Matrix< DDSMat > & aEleDofConectivity)
 {
     moris::Matrix< DDSMat >tTempElemDofs( aNumMyDof, 1 );
+    moris::Matrix< DDRMat >tTempVal( aNumMyDof, aNumMyDof );
     tTempElemDofs = aEleDofConectivity;
 
     //loop over elemental dofs
@@ -128,10 +139,12 @@ void Matrix_PETSc::fill_matrix( const moris::uint             & aNumMyDof,
         }
      }
 
+    tTempVal=trans(aA_val);
+
     // Applying Petsc map AO
     AOApplicationToPetsc( mMap->get_petsc_map(), aNumMyDof, tTempElemDofs.data() );
 
-    MatSetValues( mPETScMat, aNumMyDof, tTempElemDofs.data(), aNumMyDof, tTempElemDofs.data(), aA_val.data(), ADD_VALUES );
+    MatSetValues( mPETScMat, aNumMyDof, tTempElemDofs.data(), aNumMyDof, tTempElemDofs.data(), tTempVal.data(), ADD_VALUES );
     //MatSetValuesBlocked();                                                  //important+
 }
 
