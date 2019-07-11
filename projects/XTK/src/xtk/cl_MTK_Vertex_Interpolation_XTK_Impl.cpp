@@ -8,6 +8,7 @@
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
 
 #include "cl_XTK_Enrichment.hpp"
+#include "cl_XTK_Vertex_Enrichment.hpp"
 namespace moris
 {
 namespace mtk

@@ -67,6 +67,9 @@ set(HEADERS
     xtk/cl_XTK_Ghost_Stabilization.hpp
     xtk/cl_XTK_Input_Generator.hpp
     xtk/cl_XTK_Interface_Element.hpp
+    xtk/cl_XTK_Interpolation_Cell.hpp
+    xtk/cl_XTK_Interpolation_Cell_Unzipped.hpp
+    xtk/cl_XTK_Enriched_Interpolation_Mesh.hpp
     xtk/cl_XTK_Mesh.hpp
     xtk/cl_XTK_Model.hpp
     xtk/cl_XTK_Node.hpp
@@ -149,7 +152,11 @@ xtk/cl_XTK_Cut_Mesh.cpp
 xtk/cl_XTK_Enrichment.cpp
 xtk/cl_XTK_Ghost_Stabilization.cpp
 xtk/cl_XTK_Model.cpp
-xtk/cl_XTK_Paramfile.cpp)
+xtk/cl_XTK_Paramfile.cpp
+xtk/cl_XTK_Interpolation_Vertex_Unzipped.cpp
+xtk/cl_XTK_Interpolation_Cell_Unzipped.cpp
+xtk/cl_XTK_Enriched_Interpolation_Mesh.cpp
+xtk/cl_XTK_Vertex_Enrichment.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

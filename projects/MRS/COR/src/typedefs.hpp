@@ -88,19 +88,20 @@ namespace moris
 #define MORIS_ID_MAX    std::numeric_limits<moris::moris_id>::max()
 #define MORIS_INDEX_MAX std::numeric_limits<moris::moris_index>::max()
 // define maximum numbers
-#ifdef MORIS_USE_32BIT
-#define MORIS_LINT_MAX   INT_MAX
-#define MORIS_UINT_MAX   UINT_MAX
-#define MORIS_REAL_MAX   std::numeric_limits<moris::real>::max()
-#define MORIS_REAL_MIN   DBL_MIN
-#define MORIS_SINT_MAX   INT_MAX
-#elif MORIS_USE_64BIT
+#if MORIS_USE_64BIT
 #define MORIS_LINT_MAX   LONG_MAX
 #define MORIS_UINT_MAX   ULONG_MAX
 #define MORIS_REAL_MAX   LDBL_MAX
 #define MORIS_REAL_MIN   LDBL_MIN
 #define MORIS_SINT_MAX   INT_MAX
+#else
+#define MORIS_LINT_MAX   INT_MAX
+#define MORIS_UINT_MAX   UINT_MAX
+#define MORIS_REAL_MAX   std::numeric_limits<moris::real>::max()
+#define MORIS_REAL_MIN   DBL_MIN
+#define MORIS_SINT_MAX   INT_MAX
 #endif
+
 
 }
 

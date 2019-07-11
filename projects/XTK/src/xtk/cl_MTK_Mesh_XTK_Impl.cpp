@@ -8,6 +8,7 @@
 #include "cl_MTK_Mesh_XTK_Impl.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enrichment.hpp"
+#include "cl_XTK_Vertex_Enrichment.hpp"
 
 namespace moris
 {
