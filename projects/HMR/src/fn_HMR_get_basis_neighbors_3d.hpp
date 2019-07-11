@@ -17,11 +17,9 @@ namespace moris
     {
 // ----------------------------------------------------------------------------
 
-        void
-        get_basis_neighbors_3d(
-            Basis          * aBasis,
-            const uint     & aOrder,
-            Basis          ** aNeighbors )
+        void get_basis_neighbors_3d(       Basis  * aBasis,
+                                     const uint   & aOrder,
+                                           Basis ** aNeighbors )
         {
              // make sure order is not too big
              MORIS_ASSERT( 0 < aOrder && aOrder <= 3, "Neighbor order too big.");

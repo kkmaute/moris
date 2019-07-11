@@ -3405,7 +3405,7 @@ namespace moris
             {
                 if( tMesh != NULL )
                 {
-                    mTMatrix( tMesh->get_order() )->evaluate(aBool);
+                        mTMatrix( tMesh->get_order() )->evaluate( aBool );
                 }
             }
 

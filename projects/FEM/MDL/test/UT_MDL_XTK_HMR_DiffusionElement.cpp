@@ -339,7 +339,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
+        tParameters.set( "number_of_elements_per_dimension", "4, 4, 8" );
         tParameters.set( "domain_dimensions", "2, 2, 4" );
         tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
         tParameters.set( "domain_sidesets", "5,6");
@@ -504,14 +504,14 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         CHECK( equal_to( tSolution( 505, 0 ), 29.33523440842293, 1.0e+08 ) );
 
         // Write to Integration mesh for visualization
-//        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-//
-//        // add solution field to integration mesh
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
-//
-//        // output solution and meshes
-//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
-//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+
+        // add solution field to integration mesh
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
+
+        // output solution and meshes
+        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
+        tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         //    delete tInterpMesh1;
         delete tModel;

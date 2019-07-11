@@ -168,614 +168,493 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-//        void T_Matrix::calculate_truncated_t_matrix( const luint            & aMemoryIndex,
-//                                                           Matrix< DDRMat > & aTMatrixTransposed,
-//                                                           Cell< Basis* >   & aDOFs  )
-//        {
-//            aDOFs.clear();
-//
-//            Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
-//
-//            // get level of element
-//            auto tLevel = tElement->get_level();
-//
-//            // get number of basis per element
-//            auto tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
-//
-//            // help index for total number of basis
-//            uint tNumberOfBasis = ( tLevel+1 ) * tNumberOfBasisPerElement;
-//
-//            // reserve memory for full T-Matrix
-////            Matrix< DDRMat > tTmatrixTransposed( tNumberOfBasisPerElement, tNumberOfBasis, 0.0 );
-//
-//            // get pointer to parent
-////            Element* tParent = tElement;
-//
-//            // initialize counter
-//            uint tCount = 0;
-//            uint tCount_1 = 0;
-//
-//            // write unity into level matrix
-////            Matrix< DDRMat > tT( mEye );
-//
-//            // container for basis levels
-//            moris::Cell< Basis* > tAllBasis( tNumberOfBasis, nullptr );
-//
-////            // create full matrix
-////            for( int l = tLevel; l >= 0; --l )
-////            {
-////                // copy basis
-////                for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
-////                {
-////                    tTmatrixTransposed.set_column( tCount, tT.get_column( k ) );
-////
-////                    // copy basis
-//////                    tAllBasis( tCount++ ) = tParent->get_basis( k );
-////                }
-////
-////                // left-multiply T-Matrix with child matrix
-////                tT = tT * mChild( tParent->get_background_element()->get_child_index() );
-////
-////                // jump to next parent
-////                tParent = mBSplineMesh->get_parent_of_element( tParent );
-////            }
-//
-//            // reset counter
-//            tCount = 0;
-//
-//            aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tNumberOfBasis, 0.0 );
-//
-//            aDOFs.resize( tNumberOfBasis, nullptr );
-//
-//            // copy basis on lowest level into output
-//            for( uint k=0; k<tNumberOfBasisPerElement; ++k )
-//            {
-//                Basis * tBasis = tElement->get_basis( k );
-//
-//                tAllBasis( tCount_1++ ) = tBasis;
-//
-//                if (  tBasis->is_active() )
-//                {
-//                    aTMatrixTransposed.set_column( tCount, mEye.get_column( k ) );
-//
-//                    aDOFs( tCount++ ) = tBasis;
-//                }
-//            }
-//
-//            uint tK0 = 0;
-//            uint tK1 = tNumberOfBasisPerElement;
-//            uint tK2 = 2* tNumberOfBasisPerElement;
-//
-//            // ask B-Spline mesh for number of children per basis
-//            auto tNumberOfChildrenPerBasis = mBSplineMesh->get_number_of_children_per_basis();
-//
-//
-//
-////            // loop over higher levels
-////            for( int l = tLevel-1; l >= 0; --l )
-////            {
-////                //check if all basis are refined
-////                bool tAllBasisRefined = true;
-////
-////                // Element = Parent FIXME FIXME
-//////                tChildIndices.resize( tSizeCounter++, tParent->get_background_element()->get_child_index() );
-//////
-//////                Matrix< DDRMat > const & tChildMatrix = this->get_child_matrix_1( tChildIndices );
-////
-////                // loop over all basis of this level
-////                for( uint k = tK1; k < tK2; ++k )
-////                {
-////                    // get pointer to basis
-////                    Basis * tBasis = tAllBasis( k );
-////
-////                    // test if basis is active
-////                    if ( tBasis->is_active() )
-////                    {
-////                        tAllBasisRefined = false;
-////
-////                        // loop over all children of this basis
-////                        for( uint j = 0; j < tNumberOfChildrenPerBasis; ++j )
-////                        {
-////                            // get pointer to child of basis
-////                            Basis * tChild = tBasis->get_child( j );
-////
-////                            // test if child exists
-////                            if ( tChild != NULL )
-////                            {
-////                                // test if child is deactive
-////                                if ( !tChild->is_active( ) && !tChild->is_refined() )
-////                                {
-////                                    // get memory index of child
-////                                    luint tIndex = tChild->get_memory_index();
-////
-//////                                    uint tCounter_2 = 0;
-////                                    // search for child in element
-////                                    for( uint i = tK0; i < tK1; ++i )
-////                                    {
-////                                        if ( tAllBasis( i )->get_memory_index() == tIndex )
-////                                        {
-////                                            // fixme: this operation is supposed to work the same way for both Armadillo and Eigen.
-////#ifdef MORIS_USE_EIGEN
-//////                                            aTMatrixTransposed.set_column( tCount,
-//////                                                    aTMatrixTransposed.get_column( tCount ).matrix_data()
-//////                                                    + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-////                                            aTMatrixTransposed.set_column( tCount,
-////                                                    aTMatrixTransposed.get_column( tCount ).matrix_data()
-////                                                    + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-////#else
-/////*                                            tTMatrixTruncatedTransposed.set_column( tCount,
-////                                                    tTMatrixTruncatedTransposed.get_column( tCount )
-////                                                    + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) ); */
-////                                            // try direct arma access, see how much time we loose
-////                                            aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-////                                                      + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
-//////                                            aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-//////                                                      + mTruncationWeights( j ) * tChildMatrix.matrix_data().col( tCounter_2 );
-////#endif
-////                                            break;
-////                                        }
-//////                                        tCounter_2++;
-////                                    }
-////                                }
-////                            }
-////                        }
-////
-////                        if ( aTMatrixTransposed.get_column( tCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tCount ).max() > gEpsilon )
-////                        {
-//////                            // copy parent index
-////                            aDOFs( tCount++ ) = tBasis;
-////                        }
-////                        else
-////                        {
-////                            // reset this column to zero
-////                            aTMatrixTransposed.set_column( tCount, mZero.get_column( 0 ) );
-////                        }
-////                    }
-////                }
-////
-////                if( tAllBasisRefined )
-////                {
-////                    break;
-////                }
-////
-////                tK0 = tK1;
-////                tK1 = tK2;
-////                tK2 += tNumberOfBasisPerElement;
-////            }
-//
-//            Cell< moris::uint > tChildIndices;
-//            uint tSizeCounter = 1;
-//
-//            // jump to next parent
-//            if ( tLevel > 0)
-//            {
-////                bool tBreaker = false;
-//                Element * tParent_1 = mBSplineMesh->get_parent_of_element( tElement );
-//
-//                // loop over higher levels
-//                for( int l = tLevel-1; l >= (int)tLevel-2; --l )
-//                {
-//                    //check if all basis are refined
-//                    bool tAllBasisRefined = true;
-//
-//                    tChildIndices.resize( tSizeCounter++, tParent_1->get_background_element()->get_child_index() );
-//
-//                    Matrix< DDRMat > const & tChildMatrix = this->get_child_matrix_1( tChildIndices );
-//
-//                    // loop over all basis of this level
-//                    for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
-//                    {
-//                        // get pointer to basis
-//                        Basis * tBasis = tParent_1->get_basis( k );
-//
-//                        // test if basis is active
-//                        if ( tBasis->is_active() )
-//                        {
-//                            tAllBasisRefined = false;
-//
-//                            // loop over all children of this basis
-//                            for( uint j = 0; j < tNumberOfChildrenPerBasis; ++j )
-//                            {
-//                                // get pointer to child of basis
-//                                Basis * tChild = tBasis->get_child( j );
-//
-//                                // test if child exists
-//                                if ( tChild != NULL )
-//                                {
-//                                    // test if child is deactive
-//                                    if ( !tChild->is_active( ) && !tChild->is_refined() )
-//                                    {
-//                                        // get memory index of child
-//                                        luint tIndex = tChild->get_memory_index();
-//
-//                                        uint tCounter_2 = 0;
-//                                        // search for child in element
-//                                        for( uint i = tK0; i < tK1; ++i )
-//                                        {
-//                                            if ( tAllBasis( i )->get_memory_index() == tIndex )
-//                                            {
-//                                                // fixme: this operation is supposed to work the same way for both Armadillo and Eigen.
-//#ifdef MORIS_USE_EIGEN
-////                                                aTMatrixTransposed.set_column( tCount,
-////                                                        aTMatrixTransposed.get_column( tCount ).matrix_data()
-////                                                        + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-//                                               // aTMatrixTransposed.set_column( tCount,
-//                                               //         aTMatrixTransposed.get_column( tCount ).matrix_data()
-//                                               //         + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-//#else
-///*                                                tTMatrixTruncatedTransposed.set_column( tCount,
-//                                                        tTMatrixTruncatedTransposed.get_column( tCount )
-//                                                        + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) ); */
-//                                                // try direct arma access, see how much time we loose
-////                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-////                                                          + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
-//                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-//                                                          + mTruncationWeights( j ) * tChildMatrix.matrix_data().col( tCounter_2 );
-//
-//#endif
-//                                                break;
-//                                            }
-//                                            tCounter_2++;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//
-//                            if ( aTMatrixTransposed.get_column( tCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tCount ).max() > gEpsilon )
-//                            {
-////                                // copy parent index
-//                                aDOFs( tCount++ ) = tBasis;
-//                            }
-//                            else
-//                            {
-//                                // reset this column to zero
-//                                aTMatrixTransposed.set_column( tCount, mZero.get_column( 0 ) );
-//                            }
-//                        }
-//
-//                        tAllBasis( tCount_1++ ) = tBasis;
-//                    }
-//
-//                    if ( l == 0 || tAllBasisRefined )
-//                    {
-////                        tBreaker = true;
-//                        break;
-//                    }
-//
-//                    tK0 = tK1;
-//                    tK1 = tK2;
-//                    tK2 += tNumberOfBasisPerElement;
-//
-//                    tParent_1 = mBSplineMesh->get_parent_of_element( tParent_1 );
-//                }
-//
-////                MORIS_ERROR( tBreaker, "Breaker not activated");
-//
-////                if( tLevel > 3 && !tBreaker)
-////                {
-////                    for( int l = tLevel-4; l >= 0; --l )
-////                    {
-////                        //check if all basis are refined
-//////                        bool tAllBasisRefined = true;
-////
-////                        // Element = Parent FIXME FIXME
-//////                        tChildIndices.resize( tSizeCounter++, tParent->get_background_element()->get_child_index() );
-//////
-//////                        Matrix< DDRMat > const & tChildMatrix = this->get_child_matrix_1( tChildIndices );
-////
-////                        // loop over all basis of this level
-////                        for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
-////                        {
-////                            // get pointer to basis
-////                            Basis * tBasis = tParent_1->get_basis( k );
-////
-////                            // test if basis is active
-////                            if ( tBasis->is_active() )
-////                            {
-//////                                tAllBasisRefined = false;
-////
-////                                // loop over all children of this basis
-////                                for( uint j = 0; j < tNumberOfChildrenPerBasis; ++j )
-////                                {
-////                                    // get pointer to child of basis
-////                                    Basis * tChild = tBasis->get_child( j );
-////
-////                                    // test if child exists
-////                                    if ( tChild != NULL )
-////                                    {
-////                                        // test if child is deactive
-////                                        if ( !tChild->is_active( ) && !tChild->is_refined() )
-////                                        {
-////                                            // get memory index of child
-////                                            luint tIndex = tChild->get_memory_index();
-////
-//////                                            uint tCounter_2 = 0;
-////                                            // search for child in element
-////                                            for( uint i = tK0; i < tK1; ++i )
-////                                            {
-////                                                if ( tAllBasis( i )->get_memory_index() == tIndex )
-////                                                {
-////                                                    // fixme: this operation is supposed to work the same way for both Armadillo and Eigen.
-////#ifdef MORIS_USE_EIGEN
-//////                                                    aTMatrixTransposed.set_column( tCount,
-//////                                                            aTMatrixTransposed.get_column( tCount ).matrix_data()
-//////                                                            + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-////                                                    aTMatrixTransposed.set_column( tCount,
-////                                                            aTMatrixTransposed.get_column( tCount ).matrix_data()
-////                                                            + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-////#else
-/////*                                                    tTMatrixTruncatedTransposed.set_column( tCount,
-////                                                            tTMatrixTruncatedTransposed.get_column( tCount )
-////                                                            + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) ); */
-////                                                    // try direct arma access, see how much time we loose
-////                                                    aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-////                                                              + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
-//////                                                    aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-//////                                                              + mTruncationWeights( j ) * tChildMatrix.matrix_data().col( tCounter_2 );
-////#endif
-////                                                    break;
-////                                                }
-//////                                                tCounter_2++;
-////                                            }
-////                                        }
-////                                    }
-////                                }
-////
-////                                if ( aTMatrixTransposed.get_column( tCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tCount ).max() > gEpsilon )
-////                                {
-//////                                    // copy parent index
-////                                    aDOFs( tCount++ ) = tBasis;
-////                                }
-////                                else
-////                                {
-////                                    // reset this column to zero
-////                                    aTMatrixTransposed.set_column( tCount, mZero.get_column( 0 ) );
-////                                }
-////                            }
-////                        }
-////
-////                        tK0 = tK1;
-////                        tK1 = tK2;
-////                        tK2 += tNumberOfBasisPerElement;
-////
-////                        if ( l == 0 ){break;}
-////
-////                        tParent_1 = mBSplineMesh->get_parent_of_element( tParent_1 );
-////
-//////                        if( tAllBasisRefined )
-//////                        {
-//////                            break;
-//////                        }
-////                    }
-////                }
-//
-//            }
-//
-//            // assign memory for output matrix
-//            aTMatrixTransposed.resize( tNumberOfBasisPerElement, tCount );
-//
-//            aDOFs.resize( tCount, nullptr );
-//        }
+        void T_Matrix::calculate_truncated_t_matrix( const luint            & aMemoryIndex,
+                                                           Matrix< DDRMat > & aTMatrixTransposed,
+                                                           Cell< Basis* >   & aDOFs  )
+        {
+            aDOFs.clear();
 
+            Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
 
-        void T_Matrix::calculate_truncated_t_matrix(
-                        const luint    & aMemoryIndex,
-                        Matrix< DDRMat >    & aTMatrixTransposed,
-                        Cell< Basis* > & aDOFs  )
+            // get level of element
+            auto tLevel = tElement->get_level();
+
+            // get number of basis per element
+            auto tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
+
+            // help index for total number of basis
+            uint tNumberOfBasis = ( tLevel+1 ) * tNumberOfBasisPerElement;
+
+            // initialize counter
+            uint tCount = 0;
+            uint tCount_1 = 0;
+
+            // container for basis levels
+            moris::Cell< Basis* > tAllBasis( tNumberOfBasis, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tNumberOfBasis, 0.0 );
+
+            aDOFs.resize( tNumberOfBasis, nullptr );
+
+            // copy basis on lowest level into output
+            for( uint k=0; k<tNumberOfBasisPerElement; ++k )
+            {
+                Basis * tBasis = tElement->get_basis( k );
+
+                tAllBasis( tCount_1++ ) = tBasis;
+
+                if (  tBasis->is_active() )
                 {
-                    aDOFs.clear();
+                    aTMatrixTransposed.set_column( tCount, mEye.get_column( k ) );
 
-                    Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
+                    aDOFs( tCount++ ) = tBasis;
+                }
+            }
 
-                    // get level of element
-                    auto tLevel = tElement->get_level();
+            uint tK0 = 0;
+            uint tK1 = tNumberOfBasisPerElement;
+            uint tK2 = 2* tNumberOfBasisPerElement;
 
-                    // get number of basis per element
-                    auto tNumberOfBasisPerElement
-                              = mBSplineMesh->get_number_of_basis_per_element();
+            // ask B-Spline mesh for number of children per basis
+            auto tNumberOfChildrenPerBasis = mBSplineMesh->get_number_of_children_per_basis();
 
-                    // help index for total number of basis
-                    uint tNumberOfBasis = ( tLevel+1 ) * tNumberOfBasisPerElement;
+            Cell< moris::uint > tChildIndices;
+            uint tSizeCounter = 1;
 
-                    // reserve memory for full T-Matrix
-                    Matrix< DDRMat > tTmatrixTransposed(
-                            tNumberOfBasisPerElement,
-                            tNumberOfBasis, 0 );
+            // jump to next parent
+            if ( tLevel > 0)
+            {
+//                bool tBreaker = false;
+                Element * tParent_1 = mBSplineMesh->get_parent_of_element( tElement );
 
-                    // get pointer to parent
-                    Element* tParent = tElement;
+                // loop over higher levels
+                for( int l = tLevel-1; l >= (int)tLevel-2; --l )
+                {
+                    //check if all basis are refined
+                    bool tAllBasisRefined = true;
 
-                    // initialize counter
-                    uint tCount = 0;
+                    tChildIndices.resize( tSizeCounter++, tParent_1->get_background_element()->get_child_index() );
 
-                    // write unity into level matrix
-                    Matrix< DDRMat > tT( mEye );
+                    Matrix< DDRMat > const & tChildMatrix = this->get_child_matrix_1( tChildIndices );
 
-                    // help index for T-Matrix copying
-                    uint tEnd =  tNumberOfBasisPerElement - 1 ;
-
-                    // container for basis levels
-                    Matrix< DDLUMat > tBasisIndices( tNumberOfBasis, 1 );
-
-                    // create full matrix
-                    for( int l=tLevel; l>=0; --l )
+                    // loop over all basis of this level
+                    for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
                     {
-                        // copy T-Matrix
-                        //tTmatrixTransposed.cols( tCount, tCount+tEnd )
-                        //        = tT.cols( 0, tEnd );
+                        // get pointer to basis
+                        Basis * tBasis = tParent_1->get_basis( k );
 
-                        for( uint k=0; k<=tEnd; ++k )
+                        // test if basis is active
+                        if ( tBasis->is_active() )
                         {
-                            tTmatrixTransposed.set_column( tCount+k, tT.get_column( k ) );
-                        }
+                            tAllBasisRefined = false;
 
-                        // copy basis
-                        for( uint k=0; k<tNumberOfBasisPerElement; ++k )
-                        {
-                            // copy memory index of basis
-                            tBasisIndices( tCount++ )
-                                    =  tParent->get_basis( k )->get_memory_index();
-                        }
-
-                        // left-multiply T-Matrix with child matrix
-                        tT = tT *mChild( tParent->get_background_element()->get_child_index() );
-
-                        // jump to next parent
-                        tParent = mBSplineMesh->get_parent_of_element( tParent );
-                    }
-
-                    // reserve memory for truncated matrix
-                    Matrix< DDRMat > tTMatrixTruncatedTransposed(
-                            tNumberOfBasisPerElement,
-                            tNumberOfBasis, 0 );
-
-                    // reset counter
-                    tCount = 0;
-
-                    Matrix< DDLUMat > tDOFs( tNumberOfBasis, 1 );
-
-                    // copy basis on lowest level into output
-                    for( uint k=0; k<tNumberOfBasisPerElement; ++k )
-                    {
-                        if (  mBSplineMesh -> get_basis_by_memory_index( tBasisIndices( k ) )->is_active() )
-                        {
-                            tTMatrixTruncatedTransposed.set_column( tCount, tTmatrixTransposed.get_column( k ) );
-                            tDOFs( tCount++ ) = tBasisIndices( k );
-                        }
-                    }
-
-                    uint tK0 = 0;
-                    uint tK1 = tNumberOfBasisPerElement;
-                    uint tK2 = 2* tNumberOfBasisPerElement;
-
-                    // ask B-Spline mesh for number of children per basis
-                    auto tNumberOfChildrenPerBasis = mBSplineMesh->get_number_of_children_per_basis();
-
-                    // loop over higher levels
-                    for( int l=tLevel-1; l>=0; --l )
-                    {
-                        // loop over all basis of this level
-                        for( uint k=tK1; k<tK2; ++k )
-                        {
-                            // get pointer to basis
-                            Basis * tBasis = mBSplineMesh ->get_basis_by_memory_index( tBasisIndices( k ) );
-
-                            // test if basis is active
-                            if ( tBasis->is_active() )
+                            // loop over all children of this basis
+                            for( uint j = 0; j < tNumberOfChildrenPerBasis; ++j )
                             {
-                                //tTMatrixTruncatedTransposed.cols( tCount, tCount )
-                                //        = tTmatrixTransposed.cols( k, k );
+                                // get pointer to child of basis
+                                Basis * tChild = tBasis->get_child( j );
 
-                                // loop over all children of this basis
-                                for( uint j=0; j<tNumberOfChildrenPerBasis; ++j )
+                                // test if child exists
+                                if ( tChild != NULL )
                                 {
-                                    // get pointer to child of basis
-                                    Basis * tChild = tBasis->get_child( j );
-
-                                    // test if child exists
-                                    if ( tChild != NULL )
+                                    // test if child is deactive
+                                    if ( !tChild->is_active( ) && !tChild->is_refined() )
                                     {
-                                        // test if child is deactive
-                                        if ( !tChild->is_active( ) && !tChild->is_refined() )
+                                        // get memory index of child
+                                        luint tIndex = tChild->get_memory_index();
+
+                                        uint tCounter_2 = 0;
+                                        // search for child in element
+                                        for( uint i = tK0; i < tK1; ++i )
                                         {
-                                            // get memory index of child
-                                            luint tIndex = tChild->get_memory_index();
-
-                                            // search for child in element
-                                            for( uint i=tK0; i<tK1; ++i )
+                                            if ( tAllBasis( i )->get_memory_index() == tIndex )
                                             {
-                                                if ( tBasisIndices( i ) == tIndex )
-                                                {
-                                                    // fixme: this operation is supposed to work the same way
-                                                    // for both Armadillo and Eigen. Please help.
-                                                    //
-                                                    // line from old LNA:
-                                                    // tTMatrixTruncatedTransposed.cols( tCount, tCount )
-                                                    //    += mTruncationWeights( j )
-                                                    //      * tTmatrixTransposed.cols( i, i );
-        #ifdef MORIS_USE_EIGEN
-                                                    tTMatrixTruncatedTransposed.set_column( tCount,
-                                                            tTMatrixTruncatedTransposed.get_column( tCount ).matrix_data()
-                                                            + mTruncationWeights( j ) *
-                                                            tTmatrixTransposed.get_column( i ).matrix_data() );
-        #else
-        /*                                            tTMatrixTruncatedTransposed.set_column( tCount,
-                                                            tTMatrixTruncatedTransposed.get_column( tCount )
-                                                            + mTruncationWeights( j ) *
-                                                            tTmatrixTransposed.get_column( i ) ); */
-                                                    // try direct arma access, see how much time we loose
-                                                    tTMatrixTruncatedTransposed.matrix_data().col( tCount )
-                                                            = tTMatrixTruncatedTransposed.matrix_data().col( tCount )
-                                                              + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
-        #endif
-
-                                                    break;
-                                                }
+                                                // fixme: this operation is supposed to work the same way for both Armadillo and Eigen.
+#ifdef MORIS_USE_EIGEN
+//                                                aTMatrixTransposed.set_column( tCount,
+//                                                        aTMatrixTransposed.get_column( tCount ).matrix_data()
+//                                                        + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
+                                               // aTMatrixTransposed.set_column( tCount,
+                                               //         aTMatrixTransposed.get_column( tCount ).matrix_data()
+                                               //         + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
+                                                 aTMatrixTransposed.set_column( tCount,
+                                                         aTMatrixTransposed.get_column( tCount ).matrix_data()
+                                                         + mTruncationWeights( j ) * tChildMatrix.get_column( tCounter_2 ).matrix_data() );
+#else
+/*                                                tTMatrixTruncatedTransposed.set_column( tCount,
+                                                        tTMatrixTruncatedTransposed.get_column( tCount )
+                                                        + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) ); */
+                                                // try direct arma access, see how much time we loose
+//                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
+//                                                          + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
+                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
+                                                          + mTruncationWeights( j ) * tChildMatrix.matrix_data().col( tCounter_2 );
+#endif
+                                                break;
                                             }
+                                            tCounter_2++;
                                         }
                                     }
                                 }
+                            }
 
-                                // copy parent index
-                                tDOFs( tCount++ ) = tBasisIndices( k );
+                            if ( aTMatrixTransposed.get_column( tCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tCount ).max() > gEpsilon )
+                            {
+//                                // copy parent index
+                                aDOFs( tCount++ ) = tBasis;
+                            }
+                            else
+                            {
+                                // reset this column to zero
+                                aTMatrixTransposed.set_column( tCount, mZero.get_column( 0 ) );
                             }
                         }
 
-                        tK0 = tK1;
-                        tK1 = tK2;
-                        tK2 += tNumberOfBasisPerElement;
+                        tAllBasis( tCount_1++ ) = tBasis;
                     }
 
-                    // remember new number of basis, we can drop the old one
-                    tNumberOfBasis = tCount;
-
-                    // test vector
-                    Matrix< DDRMat > tCol( tNumberOfBasisPerElement, 1 );
-
-                    // reset counter
-                    tCount = 0;
-
-                    // flags ( to avoid calculating the norm twice )
-                    Matrix< DDUMat > tUseColumn( tNumberOfBasis, 1, 0 );
-
-                    // count number of relevant entries
-                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    if ( l == 0 || tAllBasisRefined )
                     {
-                        // copy column
-                        tCol.set_column( 0, tTMatrixTruncatedTransposed.get_column( k ) );
-
-                        // test if matrix is relevant
-                        //if ( norm(tCol) > gEpsilon )
-                        if ( tCol.min() < -gEpsilon || tCol.max() > gEpsilon )
-                        {
-                            tUseColumn( k ) = 1;
-                            ++tCount;
-                        }
+//                        tBreaker = true;
+                        break;
                     }
 
-                    // assign memory for output matrix
-                    aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tCount );
+                    tK0 = tK1;
+                    tK1 = tK2;
+                    tK2 += tNumberOfBasisPerElement;
 
-                    aDOFs.resize( tCount, nullptr );
-
-                    // reset counter
-                    tCount = 0;
-
-                    // loop over matrix and copy relevant entries
-                    for( uint k=0; k<tNumberOfBasis; ++k )
-                    {
-                        // test if matrix is relevant
-                        if ( tUseColumn( k ) == 1 )
-                        {
-                            aTMatrixTransposed.set_column( tCount,
-                                    tTMatrixTruncatedTransposed.get_column( k ) );
-
-                            // get pointer to basis from background mesh
-                            aDOFs( tCount++ ) =
-                                    mBSplineMesh->get_basis_by_memory_index( tDOFs( k ) );
-                        }
-                    }
+                    tParent_1 = mBSplineMesh->get_parent_of_element( tParent_1 );
                 }
+
+//                MORIS_ERROR( tBreaker, "Breaker not activated");
+
+//                if( tLevel > 3 && !tBreaker)
+//                {
+//                    for( int l = tLevel-4; l >= 0; --l )
+//                    {
+//                        //check if all basis are refined
+////                        bool tAllBasisRefined = true;
+//
+//                        // Element = Parent FIXME FIXME
+////                        tChildIndices.resize( tSizeCounter++, tParent->get_background_element()->get_child_index() );
+////
+////                        Matrix< DDRMat > const & tChildMatrix = this->get_child_matrix_1( tChildIndices );
+//
+//                        // loop over all basis of this level
+//                        for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
+//                        {
+//                            // get pointer to basis
+//                            Basis * tBasis = tParent_1->get_basis( k );
+//
+//                            // test if basis is active
+//                            if ( tBasis->is_active() )
+//                            {
+////                                tAllBasisRefined = false;
+//
+//                                // loop over all children of this basis
+//                                for( uint j = 0; j < tNumberOfChildrenPerBasis; ++j )
+//                                {
+//                                    // get pointer to child of basis
+//                                    Basis * tChild = tBasis->get_child( j );
+//
+//                                    // test if child exists
+//                                    if ( tChild != NULL )
+//                                    {
+//                                        // test if child is deactive
+//                                        if ( !tChild->is_active( ) && !tChild->is_refined() )
+//                                        {
+//                                            // get memory index of child
+//                                            luint tIndex = tChild->get_memory_index();
+//
+////                                            uint tCounter_2 = 0;
+//                                            // search for child in element
+//                                            for( uint i = tK0; i < tK1; ++i )
+//                                            {
+//                                                if ( tAllBasis( i )->get_memory_index() == tIndex )
+//                                                {
+//                                                    // fixme: this operation is supposed to work the same way for both Armadillo and Eigen.
+//#ifdef MORIS_USE_EIGEN
+////                                                    aTMatrixTransposed.set_column( tCount,
+////                                                            aTMatrixTransposed.get_column( tCount ).matrix_data()
+////                                                            + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
+//                                                    aTMatrixTransposed.set_column( tCount,
+//                                                            aTMatrixTransposed.get_column( tCount ).matrix_data()
+//                                                            + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
+//#else
+///*                                                    tTMatrixTruncatedTransposed.set_column( tCount,
+//                                                            tTMatrixTruncatedTransposed.get_column( tCount )
+//                                                            + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) ); */
+//                                                    // try direct arma access, see how much time we loose
+//                                                    aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
+//                                                              + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
+////                                                    aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
+////                                                              + mTruncationWeights( j ) * tChildMatrix.matrix_data().col( tCounter_2 );
+//#endif
+//                                                    break;
+//                                                }
+////                                                tCounter_2++;
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//
+//                                if ( aTMatrixTransposed.get_column( tCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tCount ).max() > gEpsilon )
+//                                {
+////                                    // copy parent index
+//                                    aDOFs( tCount++ ) = tBasis;
+//                                }
+//                                else
+//                                {
+//                                    // reset this column to zero
+//                                    aTMatrixTransposed.set_column( tCount, mZero.get_column( 0 ) );
+//                                }
+//                            }
+//                        }
+//
+//                        tK0 = tK1;
+//                        tK1 = tK2;
+//                        tK2 += tNumberOfBasisPerElement;
+//
+//                        if ( l == 0 ){break;}
+//
+//                        tParent_1 = mBSplineMesh->get_parent_of_element( tParent_1 );
+//
+////                        if( tAllBasisRefined )
+////                        {
+////                            break;
+////                        }
+//                    }
+//                }
+            }
+
+            // assign memory for output matrix
+            aTMatrixTransposed.resize( tNumberOfBasisPerElement, tCount );
+
+            aDOFs.resize( tCount, nullptr );
+        }
+
+
+//        void T_Matrix::calculate_truncated_t_matrix(
+//                        const luint    & aMemoryIndex,
+//                        Matrix< DDRMat >    & aTMatrixTransposed,
+//                        Cell< Basis* > & aDOFs  )
+//                {
+//                    aDOFs.clear();
+//
+//                    Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
+//
+//                    // get level of element
+//                    auto tLevel = tElement->get_level();
+//
+//                    // get number of basis per element
+//                    auto tNumberOfBasisPerElement
+//                              = mBSplineMesh->get_number_of_basis_per_element();
+//
+//                    // help index for total number of basis
+//                    uint tNumberOfBasis = ( tLevel+1 ) * tNumberOfBasisPerElement;
+//
+//                    // reserve memory for full T-Matrix
+//                    Matrix< DDRMat > tTmatrixTransposed(
+//                            tNumberOfBasisPerElement,
+//                            tNumberOfBasis, 0 );
+//
+//                    // get pointer to parent
+//                    Element* tParent = tElement;
+//
+//                    // initialize counter
+//                    uint tCount = 0;
+//
+//                    // write unity into level matrix
+//                    Matrix< DDRMat > tT( mEye );
+//
+//                    // help index for T-Matrix copying
+//                    uint tEnd =  tNumberOfBasisPerElement - 1 ;
+//
+//                    // container for basis levels
+//                    Matrix< DDLUMat > tBasisIndices( tNumberOfBasis, 1 );
+//
+//                    // create full matrix
+//                    for( int l=tLevel; l>=0; --l )
+//                    {
+//                        // copy T-Matrix
+//                        //tTmatrixTransposed.cols( tCount, tCount+tEnd )
+//                        //        = tT.cols( 0, tEnd );
+//
+//                        for( uint k=0; k<=tEnd; ++k )
+//                        {
+//                            tTmatrixTransposed.set_column( tCount+k, tT.get_column( k ) );
+//                        }
+//
+//                        // copy basis
+//                        for( uint k=0; k<tNumberOfBasisPerElement; ++k )
+//                        {
+//                            // copy memory index of basis
+//                            tBasisIndices( tCount++ )
+//                                    =  tParent->get_basis( k )->get_memory_index();
+//                        }
+//
+//                        // left-multiply T-Matrix with child matrix
+//                        tT = tT *mChild( tParent->get_background_element()->get_child_index() );
+//
+//                        // jump to next parent
+//                        tParent = mBSplineMesh->get_parent_of_element( tParent );
+//                    }
+//
+//                    // reserve memory for truncated matrix
+//                    Matrix< DDRMat > tTMatrixTruncatedTransposed(
+//                            tNumberOfBasisPerElement,
+//                            tNumberOfBasis, 0 );
+//
+//                    // reset counter
+//                    tCount = 0;
+//
+//                    Matrix< DDLUMat > tDOFs( tNumberOfBasis, 1 );
+//
+//                    // copy basis on lowest level into output
+//                    for( uint k=0; k<tNumberOfBasisPerElement; ++k )
+//                    {
+//                        if (  mBSplineMesh -> get_basis_by_memory_index( tBasisIndices( k ) )->is_active() )
+//                        {
+//                            tTMatrixTruncatedTransposed.set_column( tCount, tTmatrixTransposed.get_column( k ) );
+//                            tDOFs( tCount++ ) = tBasisIndices( k );
+//                        }
+//                    }
+//
+//                    uint tK0 = 0;
+//                    uint tK1 = tNumberOfBasisPerElement;
+//                    uint tK2 = 2* tNumberOfBasisPerElement;
+//
+//                    // ask B-Spline mesh for number of children per basis
+//                    auto tNumberOfChildrenPerBasis = mBSplineMesh->get_number_of_children_per_basis();
+//
+//                    // loop over higher levels
+//                    for( int l=tLevel-1; l>=0; --l )
+//                    {
+//                        // loop over all basis of this level
+//                        for( uint k=tK1; k<tK2; ++k )
+//                        {
+//                            // get pointer to basis
+//                            Basis * tBasis = mBSplineMesh ->get_basis_by_memory_index( tBasisIndices( k ) );
+//
+//                            // test if basis is active
+//                            if ( tBasis->is_active() )
+//                            {
+//                                //tTMatrixTruncatedTransposed.cols( tCount, tCount )
+//                                //        = tTmatrixTransposed.cols( k, k );
+//
+//                                // loop over all children of this basis
+//                                for( uint j=0; j<tNumberOfChildrenPerBasis; ++j )
+//                                {
+//                                    // get pointer to child of basis
+//                                    Basis * tChild = tBasis->get_child( j );
+//
+//                                    // test if child exists
+//                                    if ( tChild != NULL )
+//                                    {
+//                                        // test if child is deactive
+//                                        if ( !tChild->is_active( ) && !tChild->is_refined() )
+//                                        {
+//                                            // get memory index of child
+//                                            luint tIndex = tChild->get_memory_index();
+//
+//                                            // search for child in element
+//                                            for( uint i=tK0; i<tK1; ++i )
+//                                            {
+//                                                if ( tBasisIndices( i ) == tIndex )
+//                                                {
+//                                                    // fixme: this operation is supposed to work the same way
+//                                                    // for both Armadillo and Eigen. Please help.
+//                                                    //
+//                                                    // line from old LNA:
+//                                                    // tTMatrixTruncatedTransposed.cols( tCount, tCount )
+//                                                    //    += mTruncationWeights( j )
+//                                                    //      * tTmatrixTransposed.cols( i, i );
+//        #ifdef MORIS_USE_EIGEN
+//                                                    tTMatrixTruncatedTransposed.set_column( tCount,
+//                                                            tTMatrixTruncatedTransposed.get_column( tCount ).matrix_data()
+//                                                            + mTruncationWeights( j ) *
+//                                                            tTmatrixTransposed.get_column( i ).matrix_data() );
+//        #else
+//        /*                                            tTMatrixTruncatedTransposed.set_column( tCount,
+//                                                            tTMatrixTruncatedTransposed.get_column( tCount )
+//                                                            + mTruncationWeights( j ) *
+//                                                            tTmatrixTransposed.get_column( i ) ); */
+//                                                    // try direct arma access, see how much time we loose
+//                                                    tTMatrixTruncatedTransposed.matrix_data().col( tCount )
+//                                                            = tTMatrixTruncatedTransposed.matrix_data().col( tCount )
+//                                                              + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
+//        #endif
+//
+//                                                    break;
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//
+//                                // copy parent index
+//                                tDOFs( tCount++ ) = tBasisIndices( k );
+//                            }
+//                        }
+//
+//                        tK0 = tK1;
+//                        tK1 = tK2;
+//                        tK2 += tNumberOfBasisPerElement;
+//                    }
+//
+//                    // remember new number of basis, we can drop the old one
+//                    tNumberOfBasis = tCount;
+//
+//                    // test vector
+//                    Matrix< DDRMat > tCol( tNumberOfBasisPerElement, 1 );
+//
+//                    // reset counter
+//                    tCount = 0;
+//
+//                    // flags ( to avoid calculating the norm twice )
+//                    Matrix< DDUMat > tUseColumn( tNumberOfBasis, 1, 0 );
+//
+//                    // count number of relevant entries
+//                    for( uint k=0; k<tNumberOfBasis; ++k )
+//                    {
+//                        // copy column
+//                        tCol.set_column( 0, tTMatrixTruncatedTransposed.get_column( k ) );
+//
+//                        // test if matrix is relevant
+//                        //if ( norm(tCol) > gEpsilon )
+//                        if ( tCol.min() < -gEpsilon || tCol.max() > gEpsilon )
+//                        {
+//                            tUseColumn( k ) = 1;
+//                            ++tCount;
+//                        }
+//                    }
+//
+//                    // assign memory for output matrix
+//                    aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tCount );
+//
+//                    aDOFs.resize( tCount, nullptr );
+//
+//                    // reset counter
+//                    tCount = 0;
+//
+//                    // loop over matrix and copy relevant entries
+//                    for( uint k=0; k<tNumberOfBasis; ++k )
+//                    {
+//                        // test if matrix is relevant
+//                        if ( tUseColumn( k ) == 1 )
+//                        {
+//                            aTMatrixTransposed.set_column( tCount,
+//                                    tTMatrixTruncatedTransposed.get_column( k ) );
+//
+//                            // get pointer to basis from background mesh
+//                            aDOFs( tCount++ ) =
+//                                    mBSplineMesh->get_basis_by_memory_index( tDOFs( k ) );
+//                        }
+//                    }
+//                }
 
 //-------------------------------------------------------------------------------
 
@@ -1535,12 +1414,24 @@ namespace moris
                     auto tBackgroundElement = tLagrangeElement->get_background_element();
 
                     // initialize refinement Matrix
-                    Matrix< DDRMat > tR( tEye );
+                    Matrix< DDRMat > tR;
+
+                    bool tLagrangeEqualBspline = false;
+                    bool tFirstLagrangeRefinement = true;
 
                     while( ! tBackgroundElement->is_active( tBSplinePattern ) )
                     {
-                        // right multiply refinement matrix
-                        tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() ).matrix_data() * tR.matrix_data();
+                        if( tFirstLagrangeRefinement )
+                        {
+                            // right multiply refinement matrix
+                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() ).matrix_data();
+                            tFirstLagrangeRefinement = false;
+                            tLagrangeEqualBspline = true;
+                        }
+                        else
+                        {
+                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() ).matrix_data() * tR.matrix_data();
+                        }
 
                         // jump to parent
                         tBackgroundElement = tBackgroundElement->get_parent();
@@ -1554,8 +1445,17 @@ namespace moris
                                               tB,
                                               tDOFs );
 
-                    // transposed T-Matrix
-                    Matrix< DDRMat > tT = tR * tL * tB;
+                    Matrix< DDRMat > tT;
+
+                    if(tLagrangeEqualBspline)
+                    {
+                        // transposed T-Matrix
+                        tT = tR * tL * tB;
+                    }
+                    else
+                    {
+                        tT = tL * tB;
+                    }
 
                     // number of columns in T-Matrix
                     uint tNCols = tT.n_cols();
@@ -1575,24 +1475,11 @@ namespace moris
                             // initialize counter
                             uint tCount = 0;
 
-                            // count number of nonzero entries
-                            for( uint i=0; i<tNCols; ++i )
-                            {
-                                if ( std::abs( tT( k, i ) ) > tEpsilon )
-                                {
-                                    // increment counter
-                                    ++tCount;
-                                }
-                            }
-
                             // reserve DOF cell
-                            Cell< mtk::Vertex* > tNodeDOFs( tCount, nullptr );
+                            Cell< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
 
                             // reserve matrix with coefficients
-                            Matrix< DDRMat > tCoefficients( tCount, 1 );
-
-                            // reset counter
-                            tCount = 0;
+                            Matrix< DDRMat > tCoefficients( tNCols, 1 );
 
                             // loop over all nonzero entries
                             for( uint i=0; i<tNCols; ++i )
@@ -1613,7 +1500,10 @@ namespace moris
                                 }
                             }
 
-                            if ( aBool == true)
+                            tCoefficients.resize( tCount, 1 );
+                            tNodeDOFs.resize( tCount );
+
+                            if ( aBool == true )
                             {
                                 // init interpolation container for this node
                                 tNode->init_interpolation( tOrder );

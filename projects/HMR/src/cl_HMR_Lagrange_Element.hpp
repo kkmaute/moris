@@ -424,8 +424,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           create_basis( const uint & aBasisNumber )
+           void create_basis( const uint & aBasisNumber )
            {
                // container for basis position
                luint tIJK[ N ];
@@ -434,11 +433,9 @@ namespace moris
                this->get_ijk_of_basis( aBasisNumber, tIJK );
 
                // create new Lagrange node
-               mNodes[ aBasisNumber ]
-                       = new Lagrange_Node< N >(
-                            tIJK,
-                            mElement->get_level(),
-                            mElement->get_owner() );
+               mNodes[ aBasisNumber ] = new Lagrange_Node< N >( tIJK,
+                                                                mElement->get_level(),
+                                                                mElement->get_owner() );
            }
 
 //------------------------------------------------------------------------------
