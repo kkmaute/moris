@@ -41,12 +41,9 @@ namespace moris
 
     protected:
 
-        //! pointer to integration cell on mesh
-        const mtk::Cell * mCell;
-
-        //! pointer to left and right integration cells on mesh
-        const mtk::Cell * mLeftCell;
-        const mtk::Cell * mRightCell;
+        //! pointer to master and slave integration cells on mesh
+        const mtk::Cell * mMasterCell;
+        const mtk::Cell * mSlaveCell;
 
         moris::moris_index mCellIndexInCluster;
 
@@ -76,11 +73,11 @@ namespace moris
             mCellIndexInCluster = tCellIndexInCluster;
 
             // fill the bulk mtk::Cell pointer //FIXME
-            mCell = aCell;
+            mMasterCell = aCell;
 
             // select the element nodes from aNodes and fill mNodeObj
             // get vertices from cell
-            moris::Cell< mtk::Vertex* > tVertices = mCell->get_vertex_pointers();
+            moris::Cell< mtk::Vertex* > tVertices = mMasterCell->get_vertex_pointers();
 
             // get number of nodes from cell
             uint tNumOfNodes = tVertices.size();
@@ -94,8 +91,8 @@ namespace moris
             mInterpDofTypeMap = mSet->get_interpolator_dof_type_map();          //Fixme
         };
 
-        Element( const mtk::Cell  * aLeftCell,
-                 const mtk::Cell  * aRightCell,
+        Element( const mtk::Cell  * aMasterCell,
+                 const mtk::Cell  * aSlaveCell,
                  Set              * aSet,
                  Cluster          * aCluster,
                  moris::moris_index tCellIndexInCluster ) : mSet( aSet ),
@@ -104,9 +101,9 @@ namespace moris
             // fill the cell index in cluster
             mCellIndexInCluster = tCellIndexInCluster;
 
-            // fill the left and right cell pointers
-            mLeftCell  = aLeftCell;
-            mRightCell = aRightCell;
+            // fill the master and slave cell pointers
+            mMasterCell = aMasterCell;
+            mSlaveCell  = aSlaveCell;
 
             // get the number of IWGs
             mNumOfIWGs = mSet->get_num_IWG();                //FIXME
