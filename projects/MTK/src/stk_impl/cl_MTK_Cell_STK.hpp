@@ -396,7 +396,31 @@ public:
     Interpolation_Order
     get_interpolation_order() const
     {
-        MORIS_ASSERT(false,"Cell_STK::get_interpolation_order - Not implemented");
+        Geometry_Type tGeomType = get_geometry_type();
+        moris::uint tNumNodes   = this->get_number_of_vertices();
+
+        switch (tGeomType)
+        {
+            case(Geometry_Type::HEX):
+            {
+                switch(tNumNodes)
+                {
+                    case(8):
+                            return Interpolation_Order::LINEAR;
+                    case(20):
+                            return Interpolation_Order::SERENDIPITY;
+                    case(27):
+                            return Interpolation_Order::QUADRATIC;
+                    default:
+                        MORIS_ASSERT(false,"Cell_STK::get_interpolation_order - Not implemented for provided cell geometry type");
+                        return Interpolation_Order::UNDEFINED;
+                }
+            }
+            default:
+                MORIS_ASSERT(false,"Cell_STK::get_interpolation_order - Not implemented for provided cell geometry type");
+                return Interpolation_Order::UNDEFINED;
+        }
+
         return Interpolation_Order::UNDEFINED;
     }
 

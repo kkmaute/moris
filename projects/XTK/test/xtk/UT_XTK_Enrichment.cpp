@@ -38,6 +38,7 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_MTK_Mesh_XTK_Impl.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
 namespace xtk
 {
@@ -77,12 +78,12 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
 
         moris::Matrix<moris::DDRMat> tLevelsetVal(tNumNodes,1,-1.3);
 
-        moris_id tIndexOfNodeId7  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 7,EntityRank::NODE);
-        moris_id tIndexOfNodeId10 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1,EntityRank::NODE);
+        moris_id tIndexOfNodeId6 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 6,EntityRank::NODE);
+        moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3,EntityRank::NODE);
 
         // Bottom face
-        tLevelsetVal(tIndexOfNodeId10) = 1;
-        tLevelsetVal(tIndexOfNodeId7)  = 1;
+        tLevelsetVal(tIndexOfNodeId3) = 1;
+        tLevelsetVal(tIndexOfNodeId6) = 1;
 
 
 
@@ -93,7 +94,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
 
         Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 
-        Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+        Phase_Table     tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
         Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
@@ -118,7 +119,16 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
 
+        // get the enriched interpolation mesh
+        Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+
+        tEnrInterpMesh.print();
+
+        Cell<Interpolation_Cell_Unzipped> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
+
+
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
 
 
 
@@ -129,7 +139,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
         }
 
-        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
+//        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
 
         for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
         {

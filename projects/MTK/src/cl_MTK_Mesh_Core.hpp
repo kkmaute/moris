@@ -616,7 +616,7 @@ public:
     }
 
     //--------------------------------------------------------------
-
+    // FIXME: REMOVE SINCE NOT USED
     virtual
     moris_id
     get_max_entity_id( enum EntityRank aEntityRank ) const

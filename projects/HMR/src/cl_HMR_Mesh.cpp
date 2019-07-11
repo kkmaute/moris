@@ -44,7 +44,7 @@ namespace moris
 
             if(mMesh !=nullptr)
             {
-            setup_glb_to_local_maps();
+                setup_glb_to_local_maps();
             }
 
 //             MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
@@ -1390,7 +1390,7 @@ namespace moris
             for(uint i = 0; i<tNumEntities; i++)
             {
                 moris_id tEntityId = this->get_glb_entity_id_from_entity_loc_index(i,aEntityRank);
-                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");
+//                MORIS_ASSERT(mEntityGlobaltoLocalMap((uint)aEntityRank).find(tEntityId) == mEntityGlobaltoLocalMap((uint)aEntityRank).end(),"Id already in the map.");
                 mEntityGlobaltoLocalMap((uint)aEntityRank)[tEntityId] = tCount;
                 tCount++;
             }

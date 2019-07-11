@@ -61,6 +61,7 @@ namespace xtk
 class Enrichment;
 class Enrichment_Parameters;
 class Ghost_Stabilization;
+class Enriched_Interpolation_Mesh;
 }
 
 
@@ -77,6 +78,10 @@ public:
     // Forward declare the maximum value of moris::size_t and moris::real
     moris::real REAL_MAX          = MORIS_REAL_MAX;
     moris::moris_index INTEGER_MAX = MORIS_INDEX_MAX;
+
+    // friend class
+    friend class Enrichment;
+    friend class Enriched_Interpolation_Mesh;
 
     //--------------------------------------------------------------------------------
     // Initialization
@@ -144,6 +149,12 @@ public:
      */
     Enrichment const &
     get_basis_enrichment();
+
+    // ----------------------------------------------------------------------------------
+
+    Enriched_Interpolation_Mesh const &
+    get_enriched_interp_mesh();
+
 
     // ----------------------------------------------------------------------------------
 
@@ -248,6 +259,12 @@ public:
     // Data access functions
     //--------------------------------------------------------------------------------
 
+    /*
+     * get spatial dimension of model
+     */
+    moris::uint
+    get_spatial_dim();
+
     /*!
      * returns the number of elements in the entire model
      * includes all child elements and all background elements (combination)
@@ -279,13 +296,16 @@ public:
 
     //--------------------------------------------------------------------------------
 
+protected:
+    uint                         mModelDimension;
+    Background_Mesh              mBackgroundMesh;
+    Cut_Mesh                     mCutMesh;
+    Geometry_Engine              mGeometryEngine;
+    Enrichment*                  mEnrichment;
+    Ghost_Stabilization*         mGhostStabilization;
+    Enriched_Interpolation_Mesh* mEnrichedInterpMesh;
+
 private:
-    uint                 mModelDimension;
-    Background_Mesh      mBackgroundMesh;
-    Cut_Mesh             mCutMesh;
-    Geometry_Engine      mGeometryEngine;
-    Enrichment*          mEnrichment;
-    Ghost_Stabilization* mGhostStabilization;
 
     // XTK Model State Flags
     bool mLinkedBackground  = false; // Model background mesh linked to geometry model

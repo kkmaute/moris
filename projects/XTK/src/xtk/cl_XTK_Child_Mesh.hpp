@@ -473,7 +473,7 @@ public:
       }
 
       moris::size_t
-      get_num_subphase_bins()
+      get_num_subphase_bins() const
       {
           return mSubPhaseBins.size();
       }
@@ -503,6 +503,40 @@ public:
       {
           return mElementBinIndex;
       }
+
+      /*
+       * Add a basis to subphase bin relationship
+       */
+      void
+      add_basis_and_enrichment_to_subphase_group(moris_index aSubphaseBin,
+                                                 moris_index aBasisIndex,
+                                                 moris_index aBasisEnrLev)
+      {
+
+          MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisIndices.size(),"Subphase group index out of bounds");
+          MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisEnrichmentLevel.size(),"Subphase group index out of bounds");
+          mSubphaseBasisIndices(aSubphaseBin).push_back(aBasisIndex);
+          mSubphaseBasisEnrichmentLevel(aSubphaseBin).push_back(aBasisEnrLev);
+      }
+
+
+      Cell<moris_index> const &
+      get_subphase_basis_indices(moris_index aSubphaseBin) const
+      {
+          MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisIndices.size(),"Subphase group index out of bounds");
+
+          return mSubphaseBasisIndices(aSubphaseBin);
+      }
+
+      Cell<moris_index> const &
+      get_subphase_basis_enrichment_levels(moris_index aSubphaseBin) const
+      {
+          MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisEnrichmentLevel.size(),"Subphase group index out of bounds");
+
+          return mSubphaseBasisEnrichmentLevel(aSubphaseBin);
+      }
+
+
 
       // --------------------------------------------------------------
       // Functions IO
@@ -687,6 +721,10 @@ private:
     moris::Matrix< moris::IndexMat >       mElementBinIndex;
     Cell<moris::moris_index>               mBinBulkPhase;
     Cell<moris::Matrix< moris::IndexMat >> mSubPhaseBins;
+    Cell<Cell< moris_index >>              mSubphaseBasisIndices;
+    Cell<Cell< moris_index >>              mSubphaseBasisEnrichmentLevel;
+
+
 
     // Unzipping information
     bool mUnzippingFlag = false;
@@ -1815,6 +1853,8 @@ private:
 
         moris::Matrix< moris::DDSTMat > tBinSizeCounter(1,tNumBins,0);
         mSubPhaseBins = Cell<moris::Matrix< moris::IndexMat >>(tNumBins);
+        mSubphaseBasisEnrichmentLevel = Cell<Cell< moris_index >>(tNumBins);
+        mSubphaseBasisIndices         = Cell<Cell< moris_index >>(tNumBins);
         for(moris::size_t i = 0; i<tNumBins; i++)
         {
             mSubPhaseBins(i) = moris::Matrix< moris::IndexMat >(1,tNumElements);
