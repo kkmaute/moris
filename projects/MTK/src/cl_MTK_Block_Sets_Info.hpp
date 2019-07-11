@@ -36,6 +36,7 @@ struct MtkBlockSetInfo
     Matrix< IdMat >*  mCellIdsInSet;
     std::string       mBlockSetName;
     enum CellTopology mBlockSetTopo;
+    bool              mParallelConsistencyReq = true;
 
     MtkBlockSetInfo():
         mCellIdsInSet(),
@@ -49,6 +50,14 @@ struct MtkBlockSetInfo
 
 
 };
+
+std::ostream &
+operator<<(std::ostream & os, mtk::MtkBlockSetInfo const * const & dt)
+{
+    os<<"Block Set Name: "<< dt->mBlockSetName << " | Block Cell Topology: "<<get_enum_str(dt->mBlockSetTopo)<<" | Number of Cells: "<<dt->mCellIdsInSet->numel();
+    return os;
+}
+
 }
 }
 

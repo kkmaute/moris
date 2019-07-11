@@ -13,6 +13,7 @@
 #include "cl_Cell.hpp"
 #include "cl_XTK_Topology.hpp"
 #include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 using namespace moris;
 
 namespace xtk
@@ -23,6 +24,7 @@ namespace xtk
             tCMNewNodeLoc(0,0),
             tNewNodeIndex(0,0),
             tNewNodeId(0,0),
+            tNewNodeOwner(0,0),
             tNewNodeParentIndex(0,0),
             tNewNodeParentRank(0,EntityRank::INVALID),
             tNewNodeCoordinate(0,Matrix<DDRMat>(0,0)),
@@ -179,6 +181,8 @@ namespace xtk
 
         moris_index
         register_new_request(moris_index             aParentEntityIndex,
+                             moris_index             aParentEntityOwner,
+                             moris::Matrix<IdMat>    aParentEntitySharing,
                              enum EntityRank         aParentEntityRank,
                              Matrix<DDRMat>  const & aNewNodeCoord,
                              Topology *              aParentTopology,
@@ -193,6 +197,8 @@ namespace xtk
             // maximum value here because it is not known
             tNewNodeIndex.push_back(MORIS_INDEX_MAX);
             tNewNodeId.push_back(MORIS_INDEX_MAX);
+            tNewNodeOwner.push_back(aParentEntityOwner);
+            tNewNodeSharing.push_back(aParentEntitySharing);
 
             // add node parent information
             tNewNodeParentIndex.push_back(aParentEntityIndex);
@@ -245,6 +251,8 @@ namespace xtk
         moris_index
         register_new_request(moris_index             aParentEntityIndex,
                              moris_index             aSecondaryIdentifier,
+                             moris_index             aParentEntityOwner,
+                             moris::Matrix<IdMat>    aParentEntitySharing,
                              enum EntityRank         aParentEntityRank,
                              Matrix<DDRMat>  const & aNewNodeCoord,
                              Topology *              aParentTopology,
@@ -258,6 +266,9 @@ namespace xtk
             // maximum value here because it is not known
             tNewNodeIndex.push_back(MORIS_INDEX_MAX);
             tNewNodeId.push_back(MORIS_INDEX_MAX);
+
+            tNewNodeOwner.push_back(aParentEntityOwner);
+            tNewNodeSharing.push_back(aParentEntitySharing);
 
             // add node parent information
             tNewNodeParentIndex.push_back(aParentEntityIndex);
@@ -336,6 +347,32 @@ namespace xtk
         }
 
         void
+        print_requests(moris::mtk::Mesh const & aBackgroundMesh)
+        {
+            std::cout<<"========================"<<std::endl;
+            std::cout<<"Subdivision Method: "<<get_enum_str(mSubdivisionMethod)<<std::endl;
+
+            for(moris::uint  i = 0 ; i < tNewNodeId.size(); i++)
+            {
+                std::cout<<"Node Request: "<<std::right<<std::setw(8)<< i;
+                std::cout<<" | Proc Rank: "<<std::right<<std::setw(8)<<par_rank();
+                std::cout<<" | Parent Id: "<<std::right<<std::setw(8)<<aBackgroundMesh.get_glb_entity_id_from_entity_loc_index(tNewNodeParentIndex(i),tNewNodeParentRank(i));
+                if(mHasSecondaryIdentifier)
+                {
+                    std::cout<<" | Secondary Id: "<<std::right<<std::setw(12)<<tSecondaryIdentifiers(i);
+                }
+                std::cout<<" | Parent Rank: "<<std::right<<std::setw(8)<<get_enum_str(tNewNodeParentRank(i));
+
+                std::cout<<" | Coords: ";
+                for(moris::uint j = 0; j < 3; j++)
+                {
+                    std::cout<<std::scientific<<std::setw(14)<<tNewNodeCoordinate(i)(j)<< "   ";
+                }
+                std::cout<<std::endl;
+            }
+        }
+
+        void
         print()
         {
             std::cout<<"========================"<<std::endl;
@@ -366,6 +403,14 @@ namespace xtk
 
         // new node ids
         Cell<moris_index>    tNewNodeId;
+
+        // new node owner
+        Cell<moris_index>    tNewNodeOwner;
+        Cell<Matrix<IdMat>>  tNewNodeSharing;
+
+        // hanging nodes between procs
+        Cell<moris_index> tNewNodeHangingFlag;
+        Cell<moris_index> tNewNodeHangingWRTProcRank;
 
         // New node parent topology
         Cell<Topology*>             tNewNodeParentTopology;

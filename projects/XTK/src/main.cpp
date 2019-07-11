@@ -152,6 +152,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
           real tGhostTime      = 0.0;
           real tEnrichmentTime = 0.0;
           real tOutputTime     = 0.0;
+          real tWriteObjTime   = 0.0;
           real tWriteData      = 0.0;
 
           // print some stuff
@@ -172,6 +173,11 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
           {
             std::cout<<"Output Data File: "<<aXTKProblemParams.mDataFile<< std::endl;
           }
+          if(aXTKProblemParams.mWriteobj)
+          {
+              std::cout<<"Obj Surf File:    "<<aXTKProblemParams.mobjOutputFile<< std::endl;
+          }
+
           }
 
 
@@ -180,7 +186,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
 
          // initialize mesh
          std::clock_t tOpTimer = std::clock();
-         moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( aXTKProblemParams.mMeshType, aXTKProblemParams.mInputMeshFile );
+         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( aXTKProblemParams.mMeshType, aXTKProblemParams.mInputMeshFile );
          tMeshLoadTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
 
          // setup the geometry
@@ -250,6 +256,18 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
             delete tOutputMTK;
           }
 
+          if(aXTKProblemParams.mWriteobj)
+          {
+              tOpTimer = std::clock();
+              moris::Cell<std::string> tBoundingSets = {"surface_1","surface_2","surface_3","surface_4","surface_5","surface_6"};
+
+
+              tXTKModel.extract_surface_mesh_to_obj(aXTKProblemParams.mobjOutputFile,
+                                                    aXTKProblemParams.mPhaseForobj,
+                                                    tBoundingSets);
+              tWriteObjTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
+          }
+
 
            // stop full clock timer
           tFullTime = (std::clock() - tFullTimer)/(CLOCKS_PER_SEC/1000);
@@ -317,6 +335,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
           std::cout<<"Ghost Penalty:       "<<tGhostTime<<" ms."<<std::endl;
           std::cout<<"Basis Enrichment:    "<<tEnrichmentTime<<" ms."<<std::endl;
           std::cout<<"Mesh Output Time:    "<<tOutputTime<<" ms."<<std::endl;
+          std::cout<<"Write Obj Time:      "<<tWriteObjTime<<" ms."<<std::endl;
           std::cout<<"Data Output Time:    "<<tWriteData<<" ms."<<std::endl;
          }
          delete tMeshData;

@@ -1,0 +1,31 @@
+### MDL Library Config File ###
+
+if(@MDL@_CONFIGURED)
+	return()
+endif()
+
+set(@MDL@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@MDL@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@MDL@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@MDL@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@MDL_COMPILE_DEFINITIONS@")
+set(@MDL@_C_FLAGS "@MORIS_C_FLAGS@" "@MDL_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@MDL_CONFIG_TPL_DEPENDENCIES@
+@MDL_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_MDL_CONFIG_INSTALL_DIR@/@MDL@Targets.cmake")
+
+# Library target list
+set(@MDL@_LIBRARIES @MDL@-lib)

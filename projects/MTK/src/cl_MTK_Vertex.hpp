@@ -144,6 +144,7 @@ namespace moris
     } /* namespace mtk */
 
     // operators for printing
+    inline
     std::ostream &
     operator<<(std::ostream & os, const mtk::Vertex & dt)
     {
@@ -152,6 +153,7 @@ namespace moris
         return os;
     }
 
+    inline
     std::ostream &
     operator<<(std::ostream & os, mtk::Vertex const * const & dt)
     {

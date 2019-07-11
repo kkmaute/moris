@@ -248,6 +248,21 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
+        enum fem::Element_Type
+        get_set_element_type() const
+        {
+            return mElementType;
+        }
+
+
+        moris::Cell< mtk::Cluster const* > const &
+        get_clusters_on_set() const
+        {
+            return mMeshClusterList;
+        }
+
+//------------------------------------------------------------------------------
+
         mtk::Geometry_Type get_IG_geometry_type()
         {
             return mIGGeometryType;
@@ -341,6 +356,14 @@ namespace MSI
          */
         moris::Cell< Field_Interpolator* > get_IWG_field_interpolators ( IWG*                               & aIWG,
                                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+
+//------------------------------------------------------------------------------
+
+        /**
+         * get the field interpolators for a dof type
+         */
+         Field_Interpolator*
+         get_dof_type_field_interpolators ( enum MSI::Dof_Type aDofType);
 
 //------------------------------------------------------------------------------
 

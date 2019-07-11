@@ -13,7 +13,7 @@ list(APPEND MORIS_SOURCE_DIRS ${COM})
 
 # Third party libraries needed directly
 set(COM_TPL_DEPENDENCIES
-	"" )
+	"mpi" )
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)

@@ -48,7 +48,6 @@ fn_svd.hpp
 fn_trans.hpp
 fn_unique.hpp
 linalg_typedefs.hpp
-main.cpp
 op_div.hpp
 op_elemwise_div.hpp
 op_elemwise_mult.hpp
@@ -167,27 +166,27 @@ Arma_Impl/op_times_Arma.hpp
     )
 endif()
 
-
-# List header dependencies
-set(LINALG_INCLUDES
-    ${COM})
-
-foreach(LINALG_INCLUDE ${LINALG_INCLUDES})
-    include_directories(../../${LINALG_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Library
+set(LIB_DEPENDENCIES
+	${ASR}-lib
+	${CON}-lib
+	)
+
 add_library(${LINALG}-lib INTERFACE)
 target_include_directories(${LINALG}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> 
-	$<BUILD_INTERFACE:${LINALG_IMPLEMENTATION_INCLUDES}>)
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${LINALG_IMPLEMENTATION_INCLUDES}>
+	$<INSTALL_INTERFACE:${${LINALG}_HEADER_INSTALL_DIR}>
+	$<INSTALL_INTERFACE:${${LINALG}_HEADER_INSTALL_DIR}/${LINALG_IMPLEMENTATION_INCLUDES}>
+	)
+target_link_libraries(${LINALG}-lib INTERFACE ${LIB_DEPENDENCIES})
 
 foreach(TPL ${LINALG_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${LINALG}-lib
-    	INTERFACE ${tpl})
+    	INTERFACE ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${LINALG}-lib
@@ -214,12 +213,6 @@ if(BUILD_LINALG)
 		#${MORIS_ACML_LAPACK_MKL_LIBS}
 	    #${MORIS_SUPERLU_LIBS}
 	    )
-	
-	# Remove duplicate dependencies
-	# REVERSE is required to maintain proper linking order
-	list(REVERSE EXE_DEPENDENCIES)
-	list(REMOVE_DUPLICATES EXE_DEPENDENCIES)
-	list(REVERSE EXE_DEPENDENCIES)
 		
 	# Set the output path for library
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
@@ -227,24 +220,65 @@ if(BUILD_LINALG)
 	# Create library
 	add_executable(${LINALG} ${EXE_SOURCES})
 	target_link_libraries(${LINALG} PRIVATE ${EXE_DEPENDENCIES})
-	target_include_directories(${LINALG} PRIVATE ${MORIS_PACKAGE_DIR}/XTK/include)
 endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Config Files
 
+# Makes sure all tpl dependencies are searched for in the config file
+foreach(TPL ${LINALG_TPL_DEPENDENCIES})
+	string(TOLOWER ${TPL} tpl)
+	string(APPEND LINALG_CONFIG_TPL_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
+endforeach()
+
+# Makes sure all moris library dependencies are included in the config file
+foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
+	string(APPEND LINALG_CONFIG_MORIS_DEPENDENCIES
+		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
+endforeach()
+
+# Build *Config and *ConfigVersion files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${LINALG}Config.cmake.in
+    ${${LINALG}_CONFIG_BUILD_DIR}/${LINALG}Config.cmake
+    INSTALL_DESTINATION 
+    ${${LINALG}_CONFIG_INSTALL_DIR}
+    PATH_VARS 
+    ${LINALG}_CONFIG_INSTALL_DIR
+    )
+
+write_basic_package_version_file(
+    ${${LINALG}_CONFIG_BUILD_DIR}/${LINALG}ConfigVersion.cmake
+    COMPATIBILITY AnyNewerVersion )
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Installation
 
+# Install *Config and *ConfigVersion files
+install(FILES ${${LINALG}_CONFIG_BUILD_DIR}/${LINALG}Config.cmake 
+    ${${LINALG}_CONFIG_BUILD_DIR}/${LINALG}ConfigVersion.cmake
+    DESTINATION ${${LINALG}_CONFIG_INSTALL_DIR} )
+
 # Install header files
 install(FILES ${HEADERS}
-    DESTINATION ${HEADER_INSTALL_DIR}/${LINALG} )
+    DESTINATION ${${LINALG}_HEADER_INSTALL_DIR} )
 
+# Install library
 install(TARGETS ${LINALG}-lib
 	EXPORT ${LINALG}Targets
-	ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${LINALG}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${LINALG}
-    RUNTIME DESTINATION ${EXE_INSTALL_DIR}/${LINALG} )
+    DESTINATION ${${LINALG}_LIB_INSTALL_DIR} )
 
-install(EXPORT ${LINALG}Targets 
-	DESTINATION ${CONFIG_INSTALL_DIR}/${LINALG} )
+# Install executable
+if(BUILD_LINALG)
+	install(TARGETS ${LINALG}
+		EXPORT ${LINALG}Targets
+	    DESTINATION ${${LINALG}_EXE_INSTALL_DIR} )
+endif()
+
+# Export library into *Targets file
+install(EXPORT ${LINALG}Targets
+    DESTINATION ${${LINALG}_CONFIG_INSTALL_DIR} )

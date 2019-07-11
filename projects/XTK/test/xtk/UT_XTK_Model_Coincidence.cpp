@@ -65,7 +65,7 @@ TEST_CASE("Cylinders coincident with each other ","[COINCIDENT]")
 
             // Create Mesh ---------------------------------
             std::string tMeshFileName = "generated:5x5x10";
-            moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+            moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
             // Setup XTK Model -----------------------------
             size_t tModelDimension = 3;
@@ -79,8 +79,7 @@ TEST_CASE("Cylinders coincident with each other ","[COINCIDENT]")
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-            std::string tPrefix = std::getenv("MORISOUTPUT");
-            std::string tMeshOutputFile = tPrefix + "/xtk_test_output_coincident.e";
+            std::string tMeshOutputFile ="./xtk_exo/xtk_test_output_coincident.e";
             std::cout<<"Output mesh: "<<tMeshOutputFile<<std::endl;
             tCutMeshData->create_output_mesh(tMeshOutputFile);
             delete tCutMeshData;
@@ -113,7 +112,7 @@ TEST_CASE("Plane coincident with background mesh ","[COINCIDENT_PLANE]")
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x10";
-        moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 3;
@@ -127,8 +126,7 @@ TEST_CASE("Plane coincident with background mesh ","[COINCIDENT_PLANE]")
 
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
-        std::string tPrefix = std::getenv("MORISOUTPUT");
-        std::string tMeshOutputFile = tPrefix + "/xtk_test_output_coincident_plane.e";
+        std::string tMeshOutputFile ="./xtk_exo/xtk_test_output_coincident_plane.e";
         std::cout<<"Output mesh: "<<tMeshOutputFile<<std::endl;
         tCutMeshData->create_output_mesh(tMeshOutputFile);
         delete tCutMeshData;

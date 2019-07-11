@@ -44,7 +44,7 @@ namespace xtk
 
 TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
 {
-    if(moris::par_size()== 0 || moris::par_size()== 2)
+    if(moris::par_size()== 1 || moris::par_size()== 2)
     {
     bool tOutputEnrichmentFields = true;
 
@@ -68,7 +68,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
     tSuppMeshData.FieldsInfo = &tFieldsInfo;
 
     // Create mesh with supplementary data
-    moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
+    moris::mtk::Interpolation_Mesh* tMeshData   = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
 
 
     xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
@@ -113,8 +113,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
 
     tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
     tMeshData->mVerbose = true;
-    std::string tPrefix2 = std::getenv("MORISOUTPUT");
-    std::string tMeshOutputFile2 = tPrefix2 + "/enrichment_test_10_cluster_background.e";
+    std::string tMeshOutputFile2 = "./xtk_exo/xtk_cell_cluster_bm.e";
     tMeshData->create_output_mesh(tMeshOutputFile2);
 
     // geometry
@@ -130,7 +129,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
     tXTKModel.mSameMesh = true;
-
+    tXTKModel.mVerbose  = true;
     /*
      * Decompose
      */
@@ -144,8 +143,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
     moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 
 
-    std::string tPrefix = std::getenv("MORISOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/enrichment_test_10_cluster.e";
+    std::string tMeshOutputFile = "./xtk_exo/xtk_cell_cluster_output.e";
     tCutMeshData->create_output_mesh(tMeshOutputFile);
 
 

@@ -462,6 +462,22 @@ namespace moris
         std::cout<<std::endl;
     }
 
+    moris::Cell<char>
+    string_to_char(moris::Cell<std::string>& strings)
+    {
+        moris::Cell<char> cstrings;
+        cstrings.reserve(strings.size());
+        for(std::string s: strings)
+        {
+            for(size_t i = 0; i < strlen(s.c_str()); ++i)
+            {
+                cstrings.push_back(s.c_str()[i]);
+            }
+        }
+
+        return cstrings;
+    }
+
 }
 
 #endif /* MORIS_CONTAINERS_CL_Cell_HPP_ */

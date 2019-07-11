@@ -64,7 +64,7 @@ main(
     std::cout<<"Field: "<<tLSFName<<std::endl;
 
     // Create mesh with supplementary data
-    moris::mtk::Mesh* tMeshData   = moris::mtk::create_mesh( MeshType::STK, tMeshInputFileName );
+    moris::mtk::Interpolation_Mesh* tMeshData   = moris::mtk::create_interpolation_mesh(MeshType::STK, tMeshInputFileName );
 
 
     xtk::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
@@ -77,7 +77,7 @@ main(
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
-    Model tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
+    Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
     tXTKModel.mSameMesh = true;
     tXTKModel.mVerbose = true;
 

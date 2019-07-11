@@ -40,6 +40,14 @@ struct MtkNodeSetInfo
     }
 
 };
+
+std::ostream &
+operator<<(std::ostream & os, mtk::MtkNodeSetInfo const * const & dt)
+{
+    os<<"Vertex Set Name:"<< dt->mNodeSetName << " | Number of Vertices: "<<dt->mNodeIds->numel();
+
+    return os;
+}
 }
 }
 

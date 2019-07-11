@@ -16,6 +16,8 @@
 #include "cl_MTK_Side_Cluster_Input.hpp"
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 
+#include <iomanip>      // std::setw
+
 
 namespace moris
 {
@@ -183,12 +185,114 @@ namespace mtk
         void
         print_details()
         {
-            std::cout<<" Spatial Dimension: "<<*SpatialDim<<std::endl;
-            std::cout<<" Number of cells: "<<this->get_num_elements()<<std::endl;
-            std::cout<<" Number of vertices: "<<this->get_num_nodes()<<std::endl;
-            moris::print(collapse_element_map(), "Condensed element map");
-            moris::print(*LocaltoGlobalNodeMap, "Node map");
-            moris::print(*ElemConn(0),"element to node");
+            std::cout<<"Processor Rank: "<<par_rank()<<std::endl;
+            std::cout<<"Spatial Dimension: "<<*SpatialDim<<std::endl;
+            std::cout<<"Number of cells: "<<this->get_num_elements()<<std::endl;
+            std::cout<<"Number of vertices: "<<this->get_num_nodes()<<std::endl;
+
+            std::cout<<"-------------------------------------------------------------------------"<<std::endl;
+            std::cout<<"Vertex Coordinates:"<< std::endl;
+            for(moris::uint i = 0; i < NodeCoords->n_rows(); i++)
+            {
+                std::cout<<"    Vert Id: "<<std::right<<std::setw(5)<<(*LocaltoGlobalNodeMap)(i)<<" | ";
+                for(moris::uint j = 0; j < *SpatialDim; j++)
+                {
+                    std::cout<<std::scientific<<std::setw(14)<<(*NodeCoords)(i,j)<< "   ";
+                }
+
+                std::cout<<std::endl;
+            }
+            std::cout<<"-------------------------------------------------------------------------"<<std::endl;
+
+            std::cout<<"Vertex Sharing:"<<std::endl;
+            if(NodeProcsShared != nullptr)
+            {
+                for(moris::uint i = 0; i < NodeProcsShared->n_rows(); i++)
+                {
+                    std::cout<<"    Vert Id: "<<std::right<<std::setw(5)<<(*LocaltoGlobalNodeMap)(i)<<" | ";
+                    for(moris::uint j = 0; j < NodeProcsShared->n_cols(); j++)
+                    {
+                        if((*NodeProcsShared)(i,j) == MORIS_ID_MAX)
+                        {
+                            break;
+                        }
+                        std::cout<<std::scientific<<(*NodeProcsShared)(i,j)<< "   ";
+                    }
+
+                    std::cout<<std::endl;
+                }
+            }
+            else
+            {
+                std::cout<<"No Vertex Sharing provided"<<std::endl;
+            }
+
+            std::cout<<"-------------------------------------------------------------------------"<<std::endl;
+
+
+
+            for(moris::uint  iType = 0; iType < ElemConn.size(); iType++)
+            {
+                std::cout<<"\nNumber of elements: "<<ElemConn(iType)->n_rows()<<" | Cell Topology: "<<get_enum_str(CellTopology(iType))<<std::endl;
+
+                for(moris::uint i = 0; i < ElemConn(iType)->n_rows(); i++)
+                {
+                    std::cout<<"    Cell Id: "<<std::right<<std::setw(5)<<(*LocaltoGlobalElemMap(iType))(i)<<" | ";
+                    for(moris::uint j = 0; j < ElemConn(iType)->n_cols(); j++)
+                    {
+                        std::cout<<std::right<<std::setw(10)<<(*ElemConn(iType))(i,j)<< "   ";
+                    }
+
+                    std::cout<<std::endl;
+                }
+                std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            }
+
+            if(SetsInfo !=nullptr)
+            {
+                SetsInfo->print();
+            }
+            else{
+                std::cout<<"Cell sets: 0"<<std::endl;
+                std::cout<<"Side sets: 0"<<std::endl;
+                std::cout<<"Vertex sets: 0"<<std::endl;
+            }
+
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
+            if(FieldsInfo != nullptr)
+            {
+                FieldsInfo->print();
+            }
+            else{
+                std::cout<<"No Fields Information Provided"<<std::endl;
+            }
+
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
+            if(CellClusterInput != nullptr)
+            {
+                CellClusterInput->print();
+            }
+            else
+            {
+                std::cout<<"No Cell Cluster Information Provided"<<std::endl;
+            }
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
+
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
+            if(SideClusterInput != nullptr)
+            {
+                SideClusterInput->print();
+            }
+            else
+            {
+                std::cout<<"No Side Cluster Information Provided"<<std::endl;
+            }
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+
         }
 
     };

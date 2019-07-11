@@ -1,10 +1,31 @@
-### xtk Library Config File ###
+### XTK Library Config File ###
+
+if(@XTK@_CONFIGURED)
+	return()
+endif()
+
+set(@XTK@_CONFIGURED TRUE)
 
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIR
-set_and_check(@XTK@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@)
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@XTK@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@XTK@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@XTK@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@XTK_COMPILE_DEFINITIONS@")
+set(@XTK@_C_FLAGS "@MORIS_C_FLAGS@" "@XTK_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@XTK_CONFIG_TPL_DEPENDENCIES@
+@XTK_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@XTK@Targets.cmake)
+include("@PACKAGE_XTK_CONFIG_INSTALL_DIR@/@XTK@Targets.cmake")
+
+# Library target list
+set(@XTK@_LIBRARIES @XTK@-lib)

@@ -40,6 +40,9 @@ bool mSplitBackgroundSideSet = true;
 // Specify that the mesh has phase information
 bool mHasPhaseInfo;
 
+// add parallel fields
+bool mAddParallelFields;
+
 // Appendix for sets indicating material phase
 std::string mMaterialAppendix;
 

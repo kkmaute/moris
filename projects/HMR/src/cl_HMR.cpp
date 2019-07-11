@@ -390,7 +390,7 @@ namespace moris
                     tFilePath = parallelize_path( tFilePath );
 
                     // Create a new file using default properties
-                    herr_t tFileID = H5Fcreate(
+                    hid_t tFileID = H5Fcreate(
                             tFilePath.c_str(),
                             H5F_ACC_TRUNC,
                             H5P_DEFAULT,
@@ -539,7 +539,7 @@ namespace moris
                     tFilePath = parallelize_path( tFilePath );
 
                     // Create a new file using default properties
-                    herr_t tFileID = H5Fcreate(
+                    hid_t tFileID = H5Fcreate(
                             tFilePath.c_str(),
                             H5F_ACC_TRUNC,
                             H5P_DEFAULT,
@@ -686,7 +686,7 @@ namespace moris
                 tFilePath = parallelize_path( tFilePath );
 
                 // Create a new file using default properties
-                herr_t tFileID = H5Fcreate(
+                hid_t tFileID = H5Fcreate(
                         tFilePath.c_str(),
                         H5F_ACC_TRUNC,
                         H5P_DEFAULT,
@@ -1169,7 +1169,7 @@ namespace moris
             hid_t tFileID = open_hdf5_file( aFilePath );
 
             // error handler
-            hid_t tStatus = 0;
+            herr_t tStatus = 0;
 
             // load order from file
             uint tLagrangeOrder;

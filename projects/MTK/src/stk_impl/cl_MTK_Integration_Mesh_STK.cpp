@@ -368,8 +368,6 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
 
      for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
      {
-         std::cout<<" get_block_set_label = "<< tBSNames(Ik) <<" on "<<par_rank()<<std::endl;
-
          mListofBlocks( Ik ) = new moris::mtk::Block( this->get_cell_clusters_in_set( Ik ));
      }
 
@@ -431,8 +429,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
         }
         else
         {
-            // figure out which integration cells are in this mesh
-
             // access side set cluster data
             Side_Set_Cluster_Data const & tSideSetClusterData = aSideClusterInput->get_cluster_data(tSideClusterOrd);
 
@@ -513,8 +509,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
-        std::cout<<" get_side_set_label = "<< this->get_side_set_label(Ik) <<" on "<<par_rank()<<std::endl;
-
         mListofSideSets( Ik ) = new moris::mtk::Side_Set( this->get_side_set_cluster( Ik ));
     }
 
@@ -648,6 +642,7 @@ Integration_Mesh_STK::setup_double_side_set_clusters(Interpolation_Mesh & aInter
 moris::Cell<moris::mtk::Cell const *>
 Integration_Mesh_STK::get_cell_pointers_from_ids(moris::Matrix<moris::IdMat> const & aCellIds) const
 {
+
     moris::Cell<moris::mtk::Cell const *> tCellPtrs(aCellIds.numel());
 
     for(moris::uint i = 0; i < aCellIds.numel(); i++)

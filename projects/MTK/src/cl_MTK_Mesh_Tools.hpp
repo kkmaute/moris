@@ -19,7 +19,7 @@ namespace mtk
 {
 
     /*
-     * Takes a matrix of entity indices and entity rank, and returnss
+     * Takes a matrix of entity indices and entity rank, and returns
      * a matrix of entity glb ids.
      */
     inline
@@ -42,25 +42,7 @@ namespace mtk
         return tEntityIds;
     }
 
-//    inline
-//    Matrix< IdMat >
-//    convert_entity_indices_to_ids(
-//                    Matrix< IndexMat > aEntityIndices,
-//                    EntityRank         aEntityRank,
-//                    Mesh_Core*         aMesh)
-//    {
-//        Matrix< IdMat > tEntityIds ( aEntityIndices.n_rows(), aEntityIndices.n_cols());
-//
-//        for( uint  i = 0; i < aEntityIndices.n_rows(); i++)
-//        {
-//            for( uint  j = 0; j < aEntityIndices.n_cols(); j++)
-//            {
-//                tEntityIds(i,j) = aMesh->get_glb_entity_id_from_entity_loc_index(aEntityIndices(i,j),aEntityRank);
-//            }
-//        }
-//
-//        return tEntityIds;
-//    }
+
 
 }
 }

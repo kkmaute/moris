@@ -11,7 +11,7 @@
 #include "assert.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "MTK/src/cl_MTK_Vertex.hpp"
+#include "cl_MTK_Vertex.hpp"
 
 namespace moris
 {

@@ -59,7 +59,7 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
     std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
     moris::Cell<std::string> tFieldNames;
 
-    moris::mtk::Mesh* tMeshData = moris::mtk::create_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
     /*
      * Setup XTK Model and tell it how to cut
@@ -98,8 +98,7 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
     Cell<size_t> tPhasesToOutput = {0};
     tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
     tOutputMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-    tPrefix = std::getenv("MORISOUTPUT");
-    tMeshOutputFile = tPrefix + "/xtk_export/xtk_export_phase_0.e";
+    tMeshOutputFile ="./xtk_exo/xtk_export/xtk_export_phase_0.e";
     tOutputMeshData->create_output_mesh(tMeshOutputFile);
     delete tOutputMeshData;
 

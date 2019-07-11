@@ -161,7 +161,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             Matrix< IndexMat > get_entity_connected_to_entity_glob_ids(
-                                       moris_index     aEntityIndex,
+                                       moris_index     aEntityId,
                                        enum EntityRank aInputEntityRank,
                                        enum EntityRank aOutputEntityRank) const;
 
@@ -248,6 +248,12 @@ namespace moris
             moris_id get_entity_owner(  moris_index     aEntityIndex,
                     enum EntityRank aEntityRank ) const;
 
+            //FIXME Needs parallel implementation
+            void
+            get_processors_whom_share_entity(moris_index       aEntityIndex,
+                                             enum EntityRank   aEntityRank,
+                                             Matrix< IdMat > & aProcsWhomShareEntity) const;
+
 //-------------------------------------------------------------------------------
 //           Set Functions
 //-------------------------------------------------------------------------------
@@ -277,6 +283,13 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            mtk::Vertex const & get_mtk_vertex( moris_index aVertexIndex ) const
+            {
+                return *mMesh->get_node_by_index( aVertexIndex );
+            }
+
+//-------------------------------------------------------------------------------
+
             mtk::Cell & get_mtk_cell( moris_index aElementIndex )
             {
                 return *mMesh->get_element( aElementIndex );
@@ -288,6 +301,23 @@ namespace moris
             {
                 return *mMesh->get_element( aElementIndex );
             }
+//-------------------------------------------------------------------------------
+
+            moris::Cell<moris::mtk::Vertex const *>
+            get_all_vertices() const
+            {
+                uint tNumVertices = this->get_num_entities(EntityRank::NODE);
+
+                moris::Cell<moris::mtk::Vertex const *> tVertices (tNumVertices);
+
+                for(moris::uint  i = 0; i < tNumVertices; i++)
+                {
+                    tVertices(i) = &get_mtk_vertex((moris_index)i);
+                }
+
+                return tVertices;
+            }
+
 //-------------------------------------------------------------------------------
 
             void get_adof_map( const uint aOrder,

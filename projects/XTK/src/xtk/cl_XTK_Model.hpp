@@ -14,7 +14,8 @@
 #include <ctime>
 
 // XTKL: Mesh Includes
-#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Sets_Info.hpp"
 #include "cl_MTK_Fields_Info.hpp"
@@ -37,8 +38,6 @@
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_XTK_Decomposition_Data.hpp"
 
-
-#include "cl_XTK_Request_Handler.hpp"
 #include "cl_XTK_Output_Options.hpp"
 #include "cl_XTK_Active_Process_Manager.hpp"
 
@@ -72,9 +71,8 @@ namespace xtk
 class Model
 {
 public:
-    // Public member functions
+    // Public member functions/data
     bool mVerbose = false;
-
 
     // Forward declare the maximum value of moris::size_t and moris::real
     moris::real REAL_MAX          = MORIS_REAL_MAX;
@@ -89,7 +87,7 @@ public:
      * Primary constructor (this constructor is used for all cases except when testing something)
      */
     Model(uint aModelDimension,
-          moris::mtk::Mesh* aMeshData,
+          moris::mtk::Interpolation_Mesh* aMeshData,
           Geometry_Engine & aGeometryEngine,
           bool aLinkGeometryOnConstruction = true);
 
@@ -383,6 +381,18 @@ private:
     finalize_decomp_in_xtk_mesh(bool aSetPhase);
 
     /*!
+     * assign child element identifiers
+     */
+    void
+    assign_child_element_identifiers();
+
+    /*!
+     * Add children elements to local to global map
+     */
+    void
+    add_child_elements_to_local_to_global_map();
+
+    /*!
      * Constructs the mtk cell interface for all child elements created during the
      * decomposition process
      */
@@ -469,40 +479,27 @@ private:
     // internal ghost functions -------------------------------------------------------
 
 
+    /*
+     * Constructs child mesh groups (owned, owned shared, not owned shared)
+     */
+    void
+    sort_children_meshes_into_groups();
 
     /*
      * For nodes that are created during the decomposition process, tell
      * the XTK mesh about where they live in child meshes.
      */
     void
-    associate_nodes_created_during_decomp_to_child_meshes()
-    {
-        // Initialize the data in the XTK mesh
-        mBackgroundMesh.allocate_external_node_to_child_mesh_associations();
-
-        // Number of children meshes
-        size_t tNumCM = mCutMesh.get_num_child_meshes();
-        for(size_t i = 0 ; i < tNumCM; i++)
-        {
-            // Get reference to the child mesh
-            Child_Mesh const & tChildMesh = mCutMesh.get_child_mesh(i);
-
-            // Get reference to the nods in the child mesh node indices
-            moris::Matrix<moris::IndexMat> const & tNodeIndices = tChildMesh.get_node_indices();
-
-            // Associate these node indices with their child mesh index
-            mBackgroundMesh.associate_external_nodes_to_child_mesh(i,tNodeIndices);
-        }
-    }
+    associate_nodes_created_during_decomp_to_child_meshes();
 
     /*
      * Set element phase index
      */
     void
-    set_element_phases(moris::size_t aElementIndexOffset)
+    set_element_phases()
     {
         // Set element phase indices
-         mBackgroundMesh.initialize_element_phase_indices(aElementIndexOffset);
+         mBackgroundMesh.initialize_element_phase_indices(this->get_num_elements_total());
 
         moris::size_t tNumElem = mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
 
@@ -646,6 +643,12 @@ private:
                 Matrix< IndexMat > tFacetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
                 Matrix< IndexMat > tElementMat        = {{tParentElementIndex}};
 
+                for(moris::uint i = 0; i < tEdgetoElemConnInd.numel(); i++)
+                {
+                    moris_index tEdgeIndex = tEdgetoElemConnInd(i);
+                    Matrix<IndexMat> tEdgeNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tEdgeIndex,EntityRank::EDGE,EntityRank::NODE);
+                }
+
                 // Set parent element, nodes, and entity ancestry
                 moris::Matrix< moris::IndexMat > tElemToNodeIndices(tNodetoElemConnVec);
 
@@ -752,6 +755,45 @@ private:
      */
     Cell<Matrix<IdMat>>
     pack_ghost_as_side_set();
+
+
+    // Internal Aura Construction ------------------------------------------------------
+    /*!
+     * Package up the elements in the aura
+     */
+    void
+    package_aura_block(Output_Options              const & aOutputOptions,
+                       Cell<std::string>                 & aAuraChildrenBlockNames,
+                       Cell<moris::Matrix<moris::IdMat>> & aAuraChildrenCellIdsByPhase,
+                       Cell<std::string>                 & aAuraNoChildrenBlockNames,
+                       Cell<moris::Matrix<moris::IdMat>> & aAuraNoChildrenCellIdsByPhase);
+
+    /*
+     * setup the block names
+     */
+    void
+    setup_aura_block_names(Output_Options              const & aOutputOptions,
+                           Cell<std::string>                 & aAuraChildrenBlockNames,
+                           Cell<std::string>                 & aAuraNoChildrenBlockNames);
+
+    /*
+     * place cells into aura blocks
+     */
+    void
+    setup_aura_cells_into_blocks(Output_Options              const & aOutputOptions,
+                                 Cell<std::string>                 & aAuraChildrenBlockNames,
+                                 Cell<moris::Matrix<moris::IdMat>> & aAuraChildrenCellIdsByPhase,
+                                 Cell<std::string>                 & aAuraNoChildrenBlockNames,
+                                 Cell<moris::Matrix<moris::IdMat>> & aAuraNoChildrenCellIdsByPhase);
+
+    moris_index
+    get_aura_block_index(Output_Options const & aOutputOptions,
+                         moris_index            aBulkPhase,
+                         moris_index            aProcessorRank,
+                         moris_index            aNumBulkPhases);
+
+
+
 
     /*
      * Returns the number of phases to output given the output options

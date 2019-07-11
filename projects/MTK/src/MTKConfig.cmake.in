@@ -1,10 +1,31 @@
 ### Moris Toolkit Config File ###
 
+if(@MTK@_CONFIGURED)
+	return()
+endif()
+
+set(@MTK@_CONFIGURED TRUE)
+
 # CMake configuration
 @PACKAGE_INIT@
 
-# Set *_INCLUDE_DIRS
-set_and_check(@MTK@_INCLUDE_DIRS @PACKAGE_LIB_INSTALL_DIR@/@MTK@)
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@MTK@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@MTK@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@MTK@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@MTK_COMPILE_DEFINITIONS@")
+set(@MTK@_C_FLAGS "@MORIS_C_FLAGS@" "@MTK_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@MTK_CONFIG_TPL_DEPENDENCIES@
+@MTK_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include(@MTK@Targets.cmake)
+include("@PACKAGE_MTK_CONFIG_INSTALL_DIR@/@MTK@Targets.cmake")
+
+# Library target list
+set(@MTK@_LIBRARIES @MTK@-lib)
