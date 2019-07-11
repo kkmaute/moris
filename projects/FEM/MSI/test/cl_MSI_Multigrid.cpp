@@ -113,7 +113,7 @@ namespace moris
 //             }
 //             std::cout << std::endl;
 
-              tHMR.save_bsplines_to_vtk("BSplines_for_matlab.vtk");
+//              tHMR.save_bsplines_to_vtk("BSplines_for_matlab.vtk");
 
               tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_matlab.hdf5" );
 

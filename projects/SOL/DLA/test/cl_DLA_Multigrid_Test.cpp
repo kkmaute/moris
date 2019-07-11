@@ -100,7 +100,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
 
-        tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
+//        tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
 
         moris::map< moris::moris_id, moris::moris_index > tMap;
         tInterpolationMesh->get_adof_map( tOrder, tMap );

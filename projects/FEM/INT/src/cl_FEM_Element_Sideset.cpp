@@ -24,10 +24,10 @@ namespace moris
         void Element_Sideset::compute_residual()
         {
             // get treated side ordinal
-            uint tSideOrd = mCluster->mListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_coeff( mCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+            mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
             mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
 
             // set the geometry interpolator param space and time coefficients for integration cell
@@ -49,8 +49,7 @@ namespace moris
                 uint tNumOfIWGActiveDof = tTreatedIWG->get_active_dof_types().size();
 
                 // get the field interpolators for the ith IWG in the list of element dof type
-                Cell< Field_Interpolator* > tIWGInterpolators
-                    = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_field_interpolator() );
+                Cell< Field_Interpolator* > tIWGInterpolators = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_field_interpolator() );
 
                 //get number of integration points
                 uint tNumOfIntegPoints = mSet->get_num_integration_points();
@@ -74,7 +73,7 @@ namespace moris
                                 * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
 
                     // get the normal from mesh and set if for the IWG
-                    Matrix< DDRMat > tNormal = mCluster->get_side_normal( mCell, tSideOrd, tLocalIntegPoint );
+                    Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd, tLocalIntegPoint );
                     tTreatedIWG->set_normal( tNormal );
 
                     // compute residual at integration point
@@ -102,15 +101,15 @@ namespace moris
         void Element_Sideset::compute_jacobian()
         {
             // get treated side ordinal
-            uint tSideOrd = mCluster->mListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
 
             // set the geometry interpolator physical space and time coefficients for integration cell
-            mSet->get_IG_geometry_interpolator()->set_space_coeff( mCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+            mSet->get_IG_geometry_interpolator()->set_space_coeff( mMasterCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
             mSet->get_IG_geometry_interpolator()->set_time_coeff( mCluster->mTime );
 
             // set the geometry interpolator param space and time coefficients for integration cell
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster,
-                                                                                                                                        tSideOrd ) );
+                                                                                                                                  tSideOrd ) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme default
 
             // loop over the IWGs
@@ -156,7 +155,7 @@ namespace moris
                                 * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
 
                     // get the normal from mesh and set if for the IWG
-                    Matrix< DDRMat > tNormal = mCell->compute_outward_side_normal( tSideOrd );
+                    Matrix< DDRMat > tNormal = mMasterCell->compute_outward_side_normal( tSideOrd );
                     tTreatedIWG->set_normal( tNormal );
 
                     // compute jacobian at evaluation point
