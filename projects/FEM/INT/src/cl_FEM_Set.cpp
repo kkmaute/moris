@@ -630,13 +630,14 @@ namespace moris
         return tIWGFieldInterpolators;
     }
 
+//------------------------------------------------------------------------------
 
     Field_Interpolator*
     Set::get_dof_type_field_interpolators ( enum MSI::Dof_Type aDofType )
     {
         uint tIndex = mInterpDofTypeMap( static_cast< int >( aDofType ) );
 
-        return mFieldInterpolators(tIndex);
+        return mMasterFieldInterpolators(tIndex);
     }
 
 
