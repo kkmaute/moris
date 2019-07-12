@@ -321,8 +321,8 @@ namespace moris
         Matrix < DDRMat > Geometry_Interpolator::NXi( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
-            Matrix <DDRMat> tN = mSpaceInterpolation->eval_N( aXi );
-            return tN;
+//            Matrix <DDRMat> tN = mSpaceInterpolation->eval_N( aXi );
+            return mSpaceInterpolation->eval_N( aXi );
          }
 
 //------------------------------------------------------------------------------
@@ -330,8 +330,8 @@ namespace moris
          Matrix < DDRMat > Geometry_Interpolator::NTau( const Matrix< DDRMat > & aTau ) const
          {
              // pass data through interpolation function
-             Matrix <DDRMat> tN = mTimeInterpolation->eval_N( aTau );
-             return tN;
+//             Matrix <DDRMat> tN = mTimeInterpolation->eval_N( aTau );
+             return mTimeInterpolation->eval_N( aTau );
          }
 
 //------------------------------------------------------------------------------
@@ -339,8 +339,8 @@ namespace moris
         Matrix< DDRMat > Geometry_Interpolator::dNdXi( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
-            Matrix <DDRMat> tdNdXi = mSpaceInterpolation->eval_dNdXi( aXi );
-            return tdNdXi;
+//            Matrix <DDRMat> tdNdXi = mSpaceInterpolation->eval_dNdXi( aXi );
+            return mSpaceInterpolation->eval_dNdXi( aXi );
         }
 
 //------------------------------------------------------------------------------
@@ -348,8 +348,8 @@ namespace moris
         Matrix< DDRMat > Geometry_Interpolator::dNdTau( const Matrix< DDRMat > & aTau) const
         {
             // pass data through interpolation function
-            Matrix <DDRMat> tdNdTau = mTimeInterpolation->eval_dNdXi( aTau );
-            return tdNdTau;
+//            Matrix <DDRMat> tdNdTau = mTimeInterpolation->eval_dNdXi( aTau );
+            return mTimeInterpolation->eval_dNdXi( aTau );
         }
 
 //------------------------------------------------------------------------------
@@ -357,8 +357,8 @@ namespace moris
         Matrix< DDRMat > Geometry_Interpolator::d2NdXi2( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
-            Matrix <DDRMat> td2NdXi2 = mSpaceInterpolation->eval_d2NdXi2( aXi );
-            return td2NdXi2;
+//            Matrix <DDRMat> td2NdXi2 = mSpaceInterpolation->eval_d2NdXi2( aXi );
+            return mSpaceInterpolation->eval_d2NdXi2( aXi );
         }
 
 //------------------------------------------------------------------------------
@@ -366,8 +366,8 @@ namespace moris
         Matrix< DDRMat > Geometry_Interpolator::d3NdXi3( const Matrix< DDRMat > & aXi ) const
         {
             // pass data through interpolation function
-            Matrix <DDRMat> td3NdXi3 = mSpaceInterpolation->eval_d3NdXi3( aXi );
-            return td3NdXi3;
+//            Matrix <DDRMat> td3NdXi3 = mSpaceInterpolation->eval_d3NdXi3( aXi );
+            return mSpaceInterpolation->eval_d3NdXi3( aXi );
         }
 
 //------------------------------------------------------------------------------
@@ -375,8 +375,8 @@ namespace moris
         Matrix< DDRMat > Geometry_Interpolator::d2NdTau2( const Matrix< DDRMat > & aTau ) const
         {
             // pass data through interpolation function
-            Matrix <DDRMat> td2NdTau2 = mTimeInterpolation->eval_d2NdXi2( aTau );
-            return td2NdTau2;
+//            Matrix <DDRMat> td2NdTau2 = mTimeInterpolation->eval_d2NdXi2( aTau );
+            return mTimeInterpolation->eval_d2NdXi2( aTau );
         }
 //------------------------------------------------------------------------------
 
@@ -386,8 +386,8 @@ namespace moris
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::space_jacobian - mXHat is not set." );
 
             // compute the Jacobian
-            Matrix< DDRMat > tJt = adNdXi * mXHat ;
-            return tJt;
+//            Matrix< DDRMat > tJt = adNdXi * mXHat ;
+            return adNdXi * mXHat;
         }
 
 //------------------------------------------------------------------------------
@@ -397,8 +397,8 @@ namespace moris
             // check that mXHat is set
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::second_space_jacobian - mXHat is not set." );
 
-            Matrix< DDRMat > tJ2bt = ad2NdXi2 * mXHat ;
-            return tJ2bt;
+//            Matrix< DDRMat > tJ2bt = ad2NdXi2 * mXHat ;
+            return ad2NdXi2 * mXHat;
         }
 
 //------------------------------------------------------------------------------
@@ -408,8 +408,8 @@ namespace moris
             // check that mXHat is set
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::third_space_jacobian - mXHat is not set." );
 
-            Matrix< DDRMat > tJ3ct = ad3NdXi3 * mXHat ;
-            return tJ3ct;
+//            Matrix< DDRMat > tJ3ct = ad3NdXi3 * mXHat ;
+            return ad3NdXi3 * mXHat;
         }
 
 //------------------------------------------------------------------------------
@@ -420,8 +420,8 @@ namespace moris
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
             // compute the Jacobian
-            Matrix< DDRMat > tJt = adNdTau * mTHat ;
-            return tJt;
+//            Matrix< DDRMat > tJt = adNdTau * mTHat ;
+            return adNdTau * mTHat;
         }
 
 //------------------------------------------------------------------------------
