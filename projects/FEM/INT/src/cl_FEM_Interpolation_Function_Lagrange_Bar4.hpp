@@ -53,7 +53,7 @@ namespace moris
         template<>
         void
         Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_N( const Matrix< DDRMat > & aXi,
-                                                                                                              Matrix< DDRMat > & aNXi) const
+                                                                                                              Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "LINE4 - eval_N: aXi not allocated or hat wrong size." );
@@ -61,7 +61,7 @@ namespace moris
             real xi = aXi( 0 );
             real t116 = 1.0 / 16.0;
 
-            aNXi.set_size(1,4);
+            aNXi.set_size( 1, 4 );
             aNXi( 0 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 - xi );
             aNXi( 1 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 + xi );
             aNXi( 2 ) = 9.0 * t116 * ( xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( xi - 1.0 );
@@ -71,24 +71,24 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE4 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE4 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
+            // unpack param point
             real xi  = aXi( 0 );
             real xi2 = std::pow( xi, 2 );
             real t116 = 1.0 / 16.0;
 
-            Matrix< DDRMat > tdNdXi(1,4);
-            tdNdXi( 0 ) = t116 * ( -27.0 * xi2 + 18.0 * xi + 1.0 );
-            tdNdXi( 1 ) = t116 * (  27.0 * xi2 + 18.0 * xi - 1.0 );
-            tdNdXi( 2 ) = 9.0 * t116 * (  9.0 * xi2 - 2.0 * xi - 3.0 );
-            tdNdXi( 3 ) = 9.0 * t116 * ( -9.0 * xi2 - 2.0 * xi + 3.0 );
-            return tdNdXi;
-
+            // set adNdXi
+            adNdXi.set_size( 1, 4 );
+            adNdXi( 0 ) = t116 * ( -27.0 * xi2 + 18.0 * xi + 1.0 );
+            adNdXi( 1 ) = t116 * (  27.0 * xi2 + 18.0 * xi - 1.0 );
+            adNdXi( 2 ) = 9.0 * t116 * (  9.0 * xi2 - 2.0 * xi - 3.0 );
+            adNdXi( 3 ) = 9.0 * t116 * ( -9.0 * xi2 - 2.0 * xi + 3.0 );
         }
 
 //------------------------------------------------------------------------------

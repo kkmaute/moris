@@ -80,7 +80,8 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
 
         // construct jacobian matrices
 
-		Matrix< DDRMat > tdNdXi   = tGeomInterpolator.dNdXi( tXi );
+		Matrix< DDRMat > tdNdXi;
+		tGeomInterpolator.dNdXi( tXi, tdNdXi );
 		Matrix< DDRMat > td2NdXi2 = tGeomInterpolator.d2NdXi2( tXi );
 		Matrix< DDRMat > td3NdXi3 = tGeomInterpolator.d3NdXi3( tXi );
 
@@ -257,7 +258,8 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
 
         // construct jacobian matrices
 
-		Matrix< DDRMat > tdNdXi   = tGeomInterpolator.dNdXi( tXi );
+		Matrix< DDRMat > tdNdXi;
+		tGeomInterpolator.dNdXi( tXi, tdNdXi );
 		Matrix< DDRMat > td2NdXi2 = tGeomInterpolator.d2NdXi2( tXi );
 		Matrix< DDRMat > td3NdXi3 = tGeomInterpolator.d3NdXi3( tXi );
 

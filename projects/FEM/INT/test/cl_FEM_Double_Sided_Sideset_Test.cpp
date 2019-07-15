@@ -221,6 +221,10 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
             }
         }
     }
+
+    // clean up
+    delete tSpaceInterp;
+    delete tSideSpaceInterp;
 }
 
 TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
@@ -419,6 +423,10 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
             }
         }
     }
+
+    // clean up
+    delete tSpaceInterp;
+    delete tSideSpaceInterp;
 }
 
 
@@ -653,6 +661,9 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
             }
         }
     }
+    // clean up
+    delete tSpaceInterp;
+    delete tSideSpaceInterp;
 }
 
 
@@ -934,4 +945,7 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
             }
         }
     }
+    // clean up
+    delete tSpaceInterp;
+    delete tSideSpaceInterp;
 }

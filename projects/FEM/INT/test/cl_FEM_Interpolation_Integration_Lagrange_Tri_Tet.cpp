@@ -35,7 +35,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
 //------------------------------------------------------------------------------
 
         // define an epsilon environment
-        real tEpsilon = 1E-4;
+        double tEpsilon = 1E-4;
 
         // use the integration points as test points
         // create an integration rule
@@ -92,7 +92,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
                 Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
                 // evaluation of the first order derivative dNdZeta at test point k
-                tdNdXi = tFunction->eval_dNdXi( tTestPoint );
+                tFunction->eval_dNdXi( tTestPoint, tdNdXi );
 
                 for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                 {
@@ -148,8 +148,10 @@ SECTION( "TRI3: test d2NdXi2" )
                      tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
                      // evaluate the first derivatives of the shape functions at test point and perturbed test point
-                     Matrix< DDRMat > tdNdXi     = tFunction->eval_dNdXi( tTestPoint );
-                     Matrix< DDRMat > tdNdXiPert = tFunction->eval_dNdXi( tTestPointPert );
+                     Matrix< DDRMat > tdNdXi;
+                     tFunction->eval_dNdXi( tTestPoint, tdNdXi );
+                     Matrix< DDRMat > tdNdXiPert;
+                     tFunction->eval_dNdXi( tTestPointPert, tdNdXiPert );
 
                      // compute the second order derivatives by finite difference
                      Matrix< DDRMat > td2NdXi2_FD = ( tdNdXiPert - tdNdXi ) / tPert;
@@ -237,7 +239,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
 //------------------------------------------------------------------------------
 
         // define an epsilon environment
-        real tEpsilon = 1E-4;
+        double tEpsilon = 1E-4;
 
         // use the integration points as test points
         // create an integration rule
@@ -294,7 +296,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
                 Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
                 // evaluation of the first order derivative dNdZeta at test point k
-                tdNdXi = tFunction->eval_dNdXi( tTestPoint );
+                tFunction->eval_dNdXi( tTestPoint, tdNdXi );
 
                 for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                 {
@@ -350,8 +352,10 @@ SECTION( "TRI6: test d2NdXi2" )
                      tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
                      // evaluate the first derivatives of the shape functions at test point and perturbed test point
-                     Matrix< DDRMat > tdNdXi     = tFunction->eval_dNdXi( tTestPoint );
-                     Matrix< DDRMat > tdNdXiPert = tFunction->eval_dNdXi( tTestPointPert );
+                     Matrix< DDRMat > tdNdXi;
+                     tFunction->eval_dNdXi( tTestPoint, tdNdXi );
+                     Matrix< DDRMat > tdNdXiPert;
+                     tFunction->eval_dNdXi( tTestPointPert, tdNdXiPert );
 
                      // compute the second order derivatives by finite difference
                      Matrix< DDRMat > td2NdXi2_FD = ( tdNdXiPert - tdNdXi ) / tPert;
@@ -440,7 +444,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
 //------------------------------------------------------------------------------
 
         // define an epsilon environment
-        real tEpsilon = 1E-4;
+        double tEpsilon = 1E-4;
 
         // use the integration points as test points
         // create an integration rule
@@ -497,7 +501,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
                 Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
                 // evaluation of the first order derivative dNdZeta at test point k
-                tdNdXi = tFunction->eval_dNdXi( tTestPoint );
+                tFunction->eval_dNdXi( tTestPoint, tdNdXi );
 
                 for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                 {
@@ -553,8 +557,10 @@ SECTION( "TRI10: test d2NdXi2" )
                      tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
                      // evaluate the first derivatives of the shape functions at test point and perturbed test point
-                     Matrix< DDRMat > tdNdXi     = tFunction->eval_dNdXi( tTestPoint );
-                     Matrix< DDRMat > tdNdXiPert = tFunction->eval_dNdXi( tTestPointPert );
+                     Matrix< DDRMat > tdNdXi;
+                     tFunction->eval_dNdXi( tTestPoint, tdNdXi );
+                     Matrix< DDRMat > tdNdXiPert;
+                     tFunction->eval_dNdXi( tTestPointPert, tdNdXiPert );
 
                      // compute the second order derivatives by finite difference
                      Matrix< DDRMat > td2NdXi2_FD = ( tdNdXiPert - tdNdXi ) / tPert;
@@ -642,7 +648,7 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
 //------------------------------------------------------------------------------
 
         // define an epsilon environment
-        real tEpsilon = 1E-4;
+        double tEpsilon = 1E-4;
 
         // use the integration points as test points
         // create an integration rule
@@ -699,7 +705,7 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
                 Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
                 // evaluation of the first order derivative dNdZeta at test point k
-                tdNdXi = tFunction->eval_dNdXi( tTestPoint );
+                tFunction->eval_dNdXi( tTestPoint, tdNdXi );
 
                 for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                 {
@@ -754,8 +760,10 @@ SECTION( "TET4: test d2NdXi2" )
                      tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
                      // evaluate the first derivatives of the shape functions at test point and perturbed test point
-                     Matrix< DDRMat > tdNdXi     = tFunction->eval_dNdXi( tTestPoint );
-                     Matrix< DDRMat > tdNdXiPert = tFunction->eval_dNdXi( tTestPointPert );
+                     Matrix< DDRMat > tdNdXi;
+                     tFunction->eval_dNdXi( tTestPoint, tdNdXi );
+                     Matrix< DDRMat > tdNdXiPert;
+                     tFunction->eval_dNdXi( tTestPointPert, tdNdXiPert );
 
                      // compute the second order derivatives by finite difference
                      Matrix< DDRMat > td2NdXi2_FD = ( tdNdXiPert - tdNdXi ) / tPert;
@@ -853,7 +861,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
 //------------------------------------------------------------------------------
 
         // define an epsilon environment
-        real tEpsilon = 1E-4;
+        double tEpsilon = 1E-4;
 
         // use the integration points as test points
         // create an integration rule
@@ -910,7 +918,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
                 Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
                 // evaluation of the first order derivative dNdZeta at test point k
-                tdNdXi = tFunction->eval_dNdXi( tTestPoint );
+                tFunction->eval_dNdXi( tTestPoint, tdNdXi );
 
                 for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                 {
@@ -966,8 +974,10 @@ SECTION( "TET10: test d2NdXi2" )
                      tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
                      // evaluate the first derivatives of the shape functions at test point and perturbed test point
-                     Matrix< DDRMat > tdNdXi     = tFunction->eval_dNdXi( tTestPoint );
-                     Matrix< DDRMat > tdNdXiPert = tFunction->eval_dNdXi( tTestPointPert );
+                     Matrix< DDRMat > tdNdXi;
+                     tFunction->eval_dNdXi( tTestPoint, tdNdXi );
+                     Matrix< DDRMat > tdNdXiPert;
+                     tFunction->eval_dNdXi( tTestPointPert, tdNdXiPert );
 
                      // compute the second order derivatives by finite difference
                      Matrix< DDRMat > td2NdXi2_FD = ( tdNdXiPert - tdNdXi ) / tPert;
@@ -1031,7 +1041,7 @@ SECTION( "TET10: test param coords" )
         Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
         // evaluate shape functions at param point k
-        tFunction->eval_N( tParamPoint,tN );
+        tFunction->eval_N( tParamPoint, tN );
 
         // check that kth shape function = 1
         tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );
@@ -1069,7 +1079,7 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
 //------------------------------------------------------------------------------
 
         // define an epsilon environment
-        real tEpsilon = 1E-4;
+        double tEpsilon = 1E-4;
 
         // use the integration points as test points
         // create an integration rule
@@ -1126,7 +1136,7 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
                 Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
                 // evaluation of the first order derivative dNdZeta at test point k
-                tdNdXi = tFunction->eval_dNdXi( tTestPoint );
+                tFunction->eval_dNdXi( tTestPoint, tdNdXi );
 
                 for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                 {
@@ -1182,8 +1192,10 @@ SECTION( "TET20: test d2NdXi2" )
                      tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
                      // evaluate the first derivatives of the shape functions at test point and perturbed test point
-                     Matrix< DDRMat > tdNdXi     = tFunction->eval_dNdXi( tTestPoint );
-                     Matrix< DDRMat > tdNdXiPert = tFunction->eval_dNdXi( tTestPointPert );
+                     Matrix< DDRMat > tdNdXi;
+                     tFunction->eval_dNdXi( tTestPoint, tdNdXi );
+                     Matrix< DDRMat > tdNdXiPert;
+                     tFunction->eval_dNdXi( tTestPointPert, tdNdXiPert );
 
                      // compute the second order derivatives by finite difference
                      Matrix< DDRMat > td2NdXi2_FD = ( tdNdXiPert - tdNdXi ) / tPert;
@@ -1268,7 +1280,7 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
 //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 1E-12;
+    double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
     Matrix< DDRMat > tXHat = {{ 0.0,  0.0, 0.0 },
@@ -1330,7 +1342,7 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
 //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 1E-12;
+    double tEpsilon = 1E-12;
 
     // define a TET10 in the physical space
     real t12 = 1.0/2.0;
@@ -1379,19 +1391,23 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
 
     // init volume
-    real tVolume = 0;
+    real tVolume = 0.0;
+    real tWStar = 0.0;
 
     // loop over integration points
     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
         // compute integration point weight x detJ
-        real tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
-                    * tIntegWeights( iGP );
+        tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
+               * tIntegWeights( iGP );
 
         // add contribution to jacobian from evaluation point
         tVolume = tVolume + tWStar;
     }
-    REQUIRE( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
+
+    bool tCheck = true;
+    tCheck = tCheck && ( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
+    REQUIRE( tCheck );
 }
 
 TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
@@ -1399,7 +1415,7 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
 //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 1E-12;
+    double tEpsilon = 1E-12;
 
     // define a TET20 in the physical space
     real t13 = 1.0/3.0;
@@ -1480,7 +1496,7 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
 //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 1E-12;
+    double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
     Matrix< DDRMat > tXHat = {{ 0.0,  0.0 },
@@ -1542,7 +1558,7 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
 //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 1E-12;
+    double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
     Matrix< DDRMat > tXHat = {{ 0.0,  0.0 },
@@ -1606,7 +1622,7 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
 //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 1E-12;
+    double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
     Matrix< DDRMat > tXHat = {{ 0.0,          0.0 },

@@ -407,9 +407,6 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
          Matrix< DDRMat > tTimeSideIntegPoints  = tTimeSideIntegrator.get_points();
          Matrix< DDRMat > tTimeSideIntegWeights = tTimeSideIntegrator.get_weights();
 
-         // boolean for surface check
-         bool tTimeSurfaceCheck = true;
-
          // loop over the time side
          for ( uint iTimeSide = 0; iTimeSide < tListOfTimeOrdinals.size(); iTimeSide++ )
          {
@@ -426,6 +423,9 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
 
              // init the side surface
              real tTimeSideSurface = 0;
+
+             // boolean for surface check
+             bool tTimeSurfaceCheck = true;
 
              // loop over the integration points
              for ( uint iGP = 0; iGP < tNumOfTimeIntegPoints; iGP++ )

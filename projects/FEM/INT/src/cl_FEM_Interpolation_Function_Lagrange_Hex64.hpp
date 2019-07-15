@@ -123,7 +123,7 @@ namespace moris
         template<>
         void
         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >::eval_N( const Matrix< DDRMat > & aXi,
-                                                                                                              Matrix< DDRMat > & aNXi) const
+                                                                                                              Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "HEX64 - eval_N: aXi not allocated or hat wrong size." );
@@ -219,17 +219,17 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat>
-        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3,
-                          "HEX64 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 3, "HEX64 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta and zeta from input vector
-            auto   xi = aXi( 0 );
-            auto  eta = aXi( 1 );
-            auto zeta = aXi( 2 );
+            real   xi = aXi( 0 );
+            real  eta = aXi( 1 );
+            real zeta = aXi( 2 );
 
             // often used parameters
             real a0 =  ( xi*( 1.0 + 9.0 * xi * ( 1.0 - xi ) ) - 1.0 ) * 0.0625;
@@ -263,263 +263,262 @@ namespace moris
             real dc3 = (  -1.0 + zeta*( 18.0 + 27.0*zeta )) * 0.0625;
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi(3,64);
-            tdNdXi( 0, 0 ) = b0*c0*da0;
-            tdNdXi( 1, 0 ) = a0*c0*db0;
-            tdNdXi( 2, 0 ) = a0*b0*dc0;
+            adNdXi.set_size( 3, 64 );
+            adNdXi( 0, 0 ) = b0*c0*da0;
+            adNdXi( 1, 0 ) = a0*c0*db0;
+            adNdXi( 2, 0 ) = a0*b0*dc0;
 
-            tdNdXi( 0, 1 ) = b0*c0*da3;
-            tdNdXi( 1, 1 ) = a3*c0*db0;
-            tdNdXi( 2, 1 ) = a3*b0*dc0;
+            adNdXi( 0, 1 ) = b0*c0*da3;
+            adNdXi( 1, 1 ) = a3*c0*db0;
+            adNdXi( 2, 1 ) = a3*b0*dc0;
 
-            tdNdXi( 0, 2 ) = b3*c0*da3;
-            tdNdXi( 1, 2 ) = a3*c0*db3;
-            tdNdXi( 2, 2 ) = a3*b3*dc0;
+            adNdXi( 0, 2 ) = b3*c0*da3;
+            adNdXi( 1, 2 ) = a3*c0*db3;
+            adNdXi( 2, 2 ) = a3*b3*dc0;
 
-            tdNdXi( 0, 3 ) = b3*c0*da0;
-            tdNdXi( 1, 3 ) = a0*c0*db3;
-            tdNdXi( 2, 3 ) = a0*b3*dc0;
+            adNdXi( 0, 3 ) = b3*c0*da0;
+            adNdXi( 1, 3 ) = a0*c0*db3;
+            adNdXi( 2, 3 ) = a0*b3*dc0;
 
-            tdNdXi( 0, 4 ) = b0*c3*da0;
-            tdNdXi( 1, 4 ) = a0*c3*db0;
-            tdNdXi( 2, 4 ) = a0*b0*dc3;
+            adNdXi( 0, 4 ) = b0*c3*da0;
+            adNdXi( 1, 4 ) = a0*c3*db0;
+            adNdXi( 2, 4 ) = a0*b0*dc3;
 
-            tdNdXi( 0, 5 ) = b0*c3*da3;
-            tdNdXi( 1, 5 ) = a3*c3*db0;
-            tdNdXi( 2, 5 ) = a3*b0*dc3;
+            adNdXi( 0, 5 ) = b0*c3*da3;
+            adNdXi( 1, 5 ) = a3*c3*db0;
+            adNdXi( 2, 5 ) = a3*b0*dc3;
 
-            tdNdXi( 0, 6 ) = b3*c3*da3;
-            tdNdXi( 1, 6 ) = a3*c3*db3;
-            tdNdXi( 2, 6 ) = a3*b3*dc3;
+            adNdXi( 0, 6 ) = b3*c3*da3;
+            adNdXi( 1, 6 ) = a3*c3*db3;
+            adNdXi( 2, 6 ) = a3*b3*dc3;
 
-            tdNdXi( 0, 7 ) = b3*c3*da0;
-            tdNdXi( 1, 7 ) = a0*c3*db3;
-            tdNdXi( 2, 7 ) = a0*b3*dc3;
+            adNdXi( 0, 7 ) = b3*c3*da0;
+            adNdXi( 1, 7 ) = a0*c3*db3;
+            adNdXi( 2, 7 ) = a0*b3*dc3;
 
-            tdNdXi( 0, 8 ) = b0*c0*da1;
-            tdNdXi( 1, 8 ) = a1*c0*db0;
-            tdNdXi( 2, 8 ) = a1*b0*dc0;
+            adNdXi( 0, 8 ) = b0*c0*da1;
+            adNdXi( 1, 8 ) = a1*c0*db0;
+            adNdXi( 2, 8 ) = a1*b0*dc0;
 
-            tdNdXi( 0, 9 ) = b0*c0*da2;
-            tdNdXi( 1, 9 ) = a2*c0*db0;
-            tdNdXi( 2, 9 ) = a2*b0*dc0;
+            adNdXi( 0, 9 ) = b0*c0*da2;
+            adNdXi( 1, 9 ) = a2*c0*db0;
+            adNdXi( 2, 9 ) = a2*b0*dc0;
 
-            tdNdXi( 0, 10 ) = b1*c0*da0;
-            tdNdXi( 1, 10 ) = a0*c0*db1;
-            tdNdXi( 2, 10 ) = a0*b1*dc0;
+            adNdXi( 0, 10 ) = b1*c0*da0;
+            adNdXi( 1, 10 ) = a0*c0*db1;
+            adNdXi( 2, 10 ) = a0*b1*dc0;
 
-            tdNdXi( 0, 11 ) = b2*c0*da0;
-            tdNdXi( 1, 11 ) = a0*c0*db2;
-            tdNdXi( 2, 11 ) = a0*b2*dc0;
+            adNdXi( 0, 11 ) = b2*c0*da0;
+            adNdXi( 1, 11 ) = a0*c0*db2;
+            adNdXi( 2, 11 ) = a0*b2*dc0;
 
-            tdNdXi( 0, 12 ) = b0*c1*da0;
-            tdNdXi( 1, 12 ) = a0*c1*db0;
-            tdNdXi( 2, 12 ) = a0*b0*dc1;
+            adNdXi( 0, 12 ) = b0*c1*da0;
+            adNdXi( 1, 12 ) = a0*c1*db0;
+            adNdXi( 2, 12 ) = a0*b0*dc1;
 
-            tdNdXi( 0, 13 ) = b0*c2*da0;
-            tdNdXi( 1, 13 ) = a0*c2*db0;
-            tdNdXi( 2, 13 ) = a0*b0*dc2;
+            adNdXi( 0, 13 ) = b0*c2*da0;
+            adNdXi( 1, 13 ) = a0*c2*db0;
+            adNdXi( 2, 13 ) = a0*b0*dc2;
 
-            tdNdXi( 0, 14 ) = b1*c0*da3;
-            tdNdXi( 1, 14 ) = a3*c0*db1;
-            tdNdXi( 2, 14 ) = a3*b1*dc0;
+            adNdXi( 0, 14 ) = b1*c0*da3;
+            adNdXi( 1, 14 ) = a3*c0*db1;
+            adNdXi( 2, 14 ) = a3*b1*dc0;
 
-            tdNdXi( 0, 15 ) = b2*c0*da3;
-            tdNdXi( 1, 15 ) = a3*c0*db2;
-            tdNdXi( 2, 15 ) = a3*b2*dc0;
+            adNdXi( 0, 15 ) = b2*c0*da3;
+            adNdXi( 1, 15 ) = a3*c0*db2;
+            adNdXi( 2, 15 ) = a3*b2*dc0;
 
-            tdNdXi( 0, 16 ) = b0*c1*da3;
-            tdNdXi( 1, 16 ) = a3*c1*db0;
-            tdNdXi( 2, 16 ) = a3*b0*dc1;
+            adNdXi( 0, 16 ) = b0*c1*da3;
+            adNdXi( 1, 16 ) = a3*c1*db0;
+            adNdXi( 2, 16 ) = a3*b0*dc1;
 
-            tdNdXi( 0, 17 ) = b0*c2*da3;
-            tdNdXi( 1, 17 ) = a3*c2*db0;
-            tdNdXi( 2, 17 ) = a3*b0*dc2;
+            adNdXi( 0, 17 ) = b0*c2*da3;
+            adNdXi( 1, 17 ) = a3*c2*db0;
+            adNdXi( 2, 17 ) = a3*b0*dc2;
 
-            tdNdXi( 0, 18 ) = b3*c0*da2;
-            tdNdXi( 1, 18 ) = a2*c0*db3;
-            tdNdXi( 2, 18 ) = a2*b3*dc0;
+            adNdXi( 0, 18 ) = b3*c0*da2;
+            adNdXi( 1, 18 ) = a2*c0*db3;
+            adNdXi( 2, 18 ) = a2*b3*dc0;
 
-            tdNdXi( 0, 19 ) = b3*c0*da1;
-            tdNdXi( 1, 19 ) = a1*c0*db3;
-            tdNdXi( 2, 19 ) = a1*b3*dc0;
+            adNdXi( 0, 19 ) = b3*c0*da1;
+            adNdXi( 1, 19 ) = a1*c0*db3;
+            adNdXi( 2, 19 ) = a1*b3*dc0;
 
-            tdNdXi( 0, 20 ) = b3*c1*da3;
-            tdNdXi( 1, 20 ) = a3*c1*db3;
-            tdNdXi( 2, 20 ) = a3*b3*dc1;
+            adNdXi( 0, 20 ) = b3*c1*da3;
+            adNdXi( 1, 20 ) = a3*c1*db3;
+            adNdXi( 2, 20 ) = a3*b3*dc1;
 
-            tdNdXi( 0, 21 ) = b3*c2*da3;
-            tdNdXi( 1, 21 ) = a3*c2*db3;
-            tdNdXi( 2, 21 ) = a3*b3*dc2;
+            adNdXi( 0, 21 ) = b3*c2*da3;
+            adNdXi( 1, 21 ) = a3*c2*db3;
+            adNdXi( 2, 21 ) = a3*b3*dc2;
 
-            tdNdXi( 0, 22 ) = b3*c1*da0;
-            tdNdXi( 1, 22 ) = a0*c1*db3;
-            tdNdXi( 2, 22 ) = a0*b3*dc1;
+            adNdXi( 0, 22 ) = b3*c1*da0;
+            adNdXi( 1, 22 ) = a0*c1*db3;
+            adNdXi( 2, 22 ) = a0*b3*dc1;
 
-            tdNdXi( 0, 23 ) = b3*c2*da0;
-            tdNdXi( 1, 23 ) = a0*c2*db3;
-            tdNdXi( 2, 23 ) = a0*b3*dc2;
+            adNdXi( 0, 23 ) = b3*c2*da0;
+            adNdXi( 1, 23 ) = a0*c2*db3;
+            adNdXi( 2, 23 ) = a0*b3*dc2;
 
-            tdNdXi( 0, 24 ) = b0*c3*da1;
-            tdNdXi( 1, 24 ) = a1*c3*db0;
-            tdNdXi( 2, 24 ) = a1*b0*dc3;
+            adNdXi( 0, 24 ) = b0*c3*da1;
+            adNdXi( 1, 24 ) = a1*c3*db0;
+            adNdXi( 2, 24 ) = a1*b0*dc3;
 
-            tdNdXi( 0, 25 ) = b0*c3*da2;
-            tdNdXi( 1, 25 ) = a2*c3*db0;
-            tdNdXi( 2, 25 ) = a2*b0*dc3;
+            adNdXi( 0, 25 ) = b0*c3*da2;
+            adNdXi( 1, 25 ) = a2*c3*db0;
+            adNdXi( 2, 25 ) = a2*b0*dc3;
 
-            tdNdXi( 0, 26 ) = b1*c3*da0;
-            tdNdXi( 1, 26 ) = a0*c3*db1;
-            tdNdXi( 2, 26 ) = a0*b1*dc3;
+            adNdXi( 0, 26 ) = b1*c3*da0;
+            adNdXi( 1, 26 ) = a0*c3*db1;
+            adNdXi( 2, 26 ) = a0*b1*dc3;
 
-            tdNdXi( 0, 27 ) = b2*c3*da0;
-            tdNdXi( 1, 27 ) = a0*c3*db2;
-            tdNdXi( 2, 27 ) = a0*b2*dc3;
+            adNdXi( 0, 27 ) = b2*c3*da0;
+            adNdXi( 1, 27 ) = a0*c3*db2;
+            adNdXi( 2, 27 ) = a0*b2*dc3;
 
-            tdNdXi( 0, 28 ) = b1*c3*da3;
-            tdNdXi( 1, 28 ) = a3*c3*db1;
-            tdNdXi( 2, 28 ) = a3*b1*dc3;
+            adNdXi( 0, 28 ) = b1*c3*da3;
+            adNdXi( 1, 28 ) = a3*c3*db1;
+            adNdXi( 2, 28 ) = a3*b1*dc3;
 
-            tdNdXi( 0, 29 ) = b2*c3*da3;
-            tdNdXi( 1, 29 ) = a3*c3*db2;
-            tdNdXi( 2, 29 ) = a3*b2*dc3;
+            adNdXi( 0, 29 ) = b2*c3*da3;
+            adNdXi( 1, 29 ) = a3*c3*db2;
+            adNdXi( 2, 29 ) = a3*b2*dc3;
 
-            tdNdXi( 0, 30 ) = b3*c3*da2;
-            tdNdXi( 1, 30 ) = a2*c3*db3;
-            tdNdXi( 2, 30 ) = a2*b3*dc3;
+            adNdXi( 0, 30 ) = b3*c3*da2;
+            adNdXi( 1, 30 ) = a2*c3*db3;
+            adNdXi( 2, 30 ) = a2*b3*dc3;
 
-            tdNdXi( 0, 31 ) = b3*c3*da1;
-            tdNdXi( 1, 31 ) = a1*c3*db3;
-            tdNdXi( 2, 31 ) = a1*b3*dc3;
+            adNdXi( 0, 31 ) = b3*c3*da1;
+            adNdXi( 1, 31 ) = a1*c3*db3;
+            adNdXi( 2, 31 ) = a1*b3*dc3;
 
-            tdNdXi( 0, 32 ) = b1*c0*da1;
-            tdNdXi( 1, 32 ) = a1*c0*db1;
-            tdNdXi( 2, 32 ) = a1*b1*dc0;
+            adNdXi( 0, 32 ) = b1*c0*da1;
+            adNdXi( 1, 32 ) = a1*c0*db1;
+            adNdXi( 2, 32 ) = a1*b1*dc0;
 
-            tdNdXi( 0, 33 ) = b2*c0*da1;
-            tdNdXi( 1, 33 ) = a1*c0*db2;
-            tdNdXi( 2, 33 ) = a1*b2*dc0;
+            adNdXi( 0, 33 ) = b2*c0*da1;
+            adNdXi( 1, 33 ) = a1*c0*db2;
+            adNdXi( 2, 33 ) = a1*b2*dc0;
 
-            tdNdXi( 0, 34 ) = b2*c0*da2;
-            tdNdXi( 1, 34 ) = a2*c0*db2;
-            tdNdXi( 2, 34 ) = a2*b2*dc0;
+            adNdXi( 0, 34 ) = b2*c0*da2;
+            adNdXi( 1, 34 ) = a2*c0*db2;
+            adNdXi( 2, 34 ) = a2*b2*dc0;
 
-            tdNdXi( 0, 35 ) = b1*c0*da2;
-            tdNdXi( 1, 35 ) = a2*c0*db1;
-            tdNdXi( 2, 35 ) = a2*b1*dc0;
+            adNdXi( 0, 35 ) = b1*c0*da2;
+            adNdXi( 1, 35 ) = a2*c0*db1;
+            adNdXi( 2, 35 ) = a2*b1*dc0;
 
-            tdNdXi( 0, 36 ) = b0*c1*da1;
-            tdNdXi( 1, 36 ) = a1*c1*db0;
-            tdNdXi( 2, 36 ) = a1*b0*dc1;
+            adNdXi( 0, 36 ) = b0*c1*da1;
+            adNdXi( 1, 36 ) = a1*c1*db0;
+            adNdXi( 2, 36 ) = a1*b0*dc1;
 
-            tdNdXi( 0, 37 ) = b0*c1*da2;
-            tdNdXi( 1, 37 ) = a2*c1*db0;
-            tdNdXi( 2, 37 ) = a2*b0*dc1;
+            adNdXi( 0, 37 ) = b0*c1*da2;
+            adNdXi( 1, 37 ) = a2*c1*db0;
+            adNdXi( 2, 37 ) = a2*b0*dc1;
 
-            tdNdXi( 0, 38 ) = b0*c2*da2;
-            tdNdXi( 1, 38 ) = a2*c2*db0;
-            tdNdXi( 2, 38 ) = a2*b0*dc2;
+            adNdXi( 0, 38 ) = b0*c2*da2;
+            adNdXi( 1, 38 ) = a2*c2*db0;
+            adNdXi( 2, 38 ) = a2*b0*dc2;
 
-            tdNdXi( 0, 39 ) = b0*c2*da1;
-            tdNdXi( 1, 39 ) = a1*c2*db0;
-            tdNdXi( 2, 39 ) = a1*b0*dc2;
+            adNdXi( 0, 39 ) = b0*c2*da1;
+            adNdXi( 1, 39 ) = a1*c2*db0;
+            adNdXi( 2, 39 ) = a1*b0*dc2;
 
-            tdNdXi( 0, 40 ) = b1*c1*da0;
-            tdNdXi( 1, 40 ) = a0*c1*db1;
-            tdNdXi( 2, 40 ) = a0*b1*dc1;
+            adNdXi( 0, 40 ) = b1*c1*da0;
+            adNdXi( 1, 40 ) = a0*c1*db1;
+            adNdXi( 2, 40 ) = a0*b1*dc1;
 
-            tdNdXi( 0, 41 ) = b1*c2*da0;
-            tdNdXi( 1, 41 ) = a0*c2*db1;
-            tdNdXi( 2, 41 ) = a0*b1*dc2;
+            adNdXi( 0, 41 ) = b1*c2*da0;
+            adNdXi( 1, 41 ) = a0*c2*db1;
+            adNdXi( 2, 41 ) = a0*b1*dc2;
 
-            tdNdXi( 0, 42 ) = b2*c2*da0;
-            tdNdXi( 1, 42 ) = a0*c2*db2;
-            tdNdXi( 2, 42 ) = a0*b2*dc2;
+            adNdXi( 0, 42 ) = b2*c2*da0;
+            adNdXi( 1, 42 ) = a0*c2*db2;
+            adNdXi( 2, 42 ) = a0*b2*dc2;
 
-            tdNdXi( 0, 43 ) = b2*c1*da0;
-            tdNdXi( 1, 43 ) = a0*c1*db2;
-            tdNdXi( 2, 43 ) = a0*b2*dc1;
+            adNdXi( 0, 43 ) = b2*c1*da0;
+            adNdXi( 1, 43 ) = a0*c1*db2;
+            adNdXi( 2, 43 ) = a0*b2*dc1;
 
-            tdNdXi( 0, 44 ) = b1*c1*da3;
-            tdNdXi( 1, 44 ) = a3*c1*db1;
-            tdNdXi( 2, 44 ) = a3*b1*dc1;
+            adNdXi( 0, 44 ) = b1*c1*da3;
+            adNdXi( 1, 44 ) = a3*c1*db1;
+            adNdXi( 2, 44 ) = a3*b1*dc1;
 
-            tdNdXi( 0, 45 ) = b2*c1*da3;
-            tdNdXi( 1, 45 ) = a3*c1*db2;
-            tdNdXi( 2, 45 ) = a3*b2*dc1;
+            adNdXi( 0, 45 ) = b2*c1*da3;
+            adNdXi( 1, 45 ) = a3*c1*db2;
+            adNdXi( 2, 45 ) = a3*b2*dc1;
 
-            tdNdXi( 0, 46 ) = b2*c2*da3;
-            tdNdXi( 1, 46 ) = a3*c2*db2;
-            tdNdXi( 2, 46 ) = a3*b2*dc2;
+            adNdXi( 0, 46 ) = b2*c2*da3;
+            adNdXi( 1, 46 ) = a3*c2*db2;
+            adNdXi( 2, 46 ) = a3*b2*dc2;
 
-            tdNdXi( 0, 47 ) = b1*c2*da3;
-            tdNdXi( 1, 47 ) = a3*c2*db1;
-            tdNdXi( 2, 47 ) = a3*b1*dc2;
+            adNdXi( 0, 47 ) = b1*c2*da3;
+            adNdXi( 1, 47 ) = a3*c2*db1;
+            adNdXi( 2, 47 ) = a3*b1*dc2;
 
-            tdNdXi( 0, 48 ) = b3*c1*da2;
-            tdNdXi( 1, 48 ) = a2*c1*db3;
-            tdNdXi( 2, 48 ) = a2*b3*dc1;
+            adNdXi( 0, 48 ) = b3*c1*da2;
+            adNdXi( 1, 48 ) = a2*c1*db3;
+            adNdXi( 2, 48 ) = a2*b3*dc1;
 
-            tdNdXi( 0, 49 ) = b3*c1*da1;
-            tdNdXi( 1, 49 ) = a1*c1*db3;
-            tdNdXi( 2, 49 ) = a1*b3*dc1;
+            adNdXi( 0, 49 ) = b3*c1*da1;
+            adNdXi( 1, 49 ) = a1*c1*db3;
+            adNdXi( 2, 49 ) = a1*b3*dc1;
 
-            tdNdXi( 0, 50 ) = b3*c2*da1;
-            tdNdXi( 1, 50 ) = a1*c2*db3;
-            tdNdXi( 2, 50 ) = a1*b3*dc2;
+            adNdXi( 0, 50 ) = b3*c2*da1;
+            adNdXi( 1, 50 ) = a1*c2*db3;
+            adNdXi( 2, 50 ) = a1*b3*dc2;
 
-            tdNdXi( 0, 51 ) = b3*c2*da2;
-            tdNdXi( 1, 51 ) = a2*c2*db3;
-            tdNdXi( 2, 51 ) = a2*b3*dc2;
+            adNdXi( 0, 51 ) = b3*c2*da2;
+            adNdXi( 1, 51 ) = a2*c2*db3;
+            adNdXi( 2, 51 ) = a2*b3*dc2;
 
-            tdNdXi( 0, 52 ) = b1*c3*da1;
-            tdNdXi( 1, 52 ) = a1*c3*db1;
-            tdNdXi( 2, 52 ) = a1*b1*dc3;
+            adNdXi( 0, 52 ) = b1*c3*da1;
+            adNdXi( 1, 52 ) = a1*c3*db1;
+            adNdXi( 2, 52 ) = a1*b1*dc3;
 
-            tdNdXi( 0, 53 ) = b1*c3*da2;
-            tdNdXi( 1, 53 ) = a2*c3*db1;
-            tdNdXi( 2, 53 ) = a2*b1*dc3;
+            adNdXi( 0, 53 ) = b1*c3*da2;
+            adNdXi( 1, 53 ) = a2*c3*db1;
+            adNdXi( 2, 53 ) = a2*b1*dc3;
 
-            tdNdXi( 0, 54 ) = b2*c3*da2;
-            tdNdXi( 1, 54 ) = a2*c3*db2;
-            tdNdXi( 2, 54 ) = a2*b2*dc3;
+            adNdXi( 0, 54 ) = b2*c3*da2;
+            adNdXi( 1, 54 ) = a2*c3*db2;
+            adNdXi( 2, 54 ) = a2*b2*dc3;
 
-            tdNdXi( 0, 55 ) = b2*c3*da1;
-            tdNdXi( 1, 55 ) = a1*c3*db2;
-            tdNdXi( 2, 55 ) = a1*b2*dc3;
+            adNdXi( 0, 55 ) = b2*c3*da1;
+            adNdXi( 1, 55 ) = a1*c3*db2;
+            adNdXi( 2, 55 ) = a1*b2*dc3;
 
-            tdNdXi( 0, 56 ) = b1*c1*da1;
-            tdNdXi( 1, 56 ) = a1*c1*db1;
-            tdNdXi( 2, 56 ) = a1*b1*dc1;
+            adNdXi( 0, 56 ) = b1*c1*da1;
+            adNdXi( 1, 56 ) = a1*c1*db1;
+            adNdXi( 2, 56 ) = a1*b1*dc1;
 
-            tdNdXi( 0, 57 ) = b1*c1*da2;
-            tdNdXi( 1, 57 ) = a2*c1*db1;
-            tdNdXi( 2, 57 ) = a2*b1*dc1;
+            adNdXi( 0, 57 ) = b1*c1*da2;
+            adNdXi( 1, 57 ) = a2*c1*db1;
+            adNdXi( 2, 57 ) = a2*b1*dc1;
 
-            tdNdXi( 0, 58 ) = b2*c1*da2;
-            tdNdXi( 1, 58 ) = a2*c1*db2;
-            tdNdXi( 2, 58 ) = a2*b2*dc1;
+            adNdXi( 0, 58 ) = b2*c1*da2;
+            adNdXi( 1, 58 ) = a2*c1*db2;
+            adNdXi( 2, 58 ) = a2*b2*dc1;
 
-            tdNdXi( 0, 59 ) = b2*c1*da1;
-            tdNdXi( 1, 59 ) = a1*c1*db2;
-            tdNdXi( 2, 59 ) = a1*b2*dc1;
+            adNdXi( 0, 59 ) = b2*c1*da1;
+            adNdXi( 1, 59 ) = a1*c1*db2;
+            adNdXi( 2, 59 ) = a1*b2*dc1;
 
-            tdNdXi( 0, 60 ) = b1*c2*da1;
-            tdNdXi( 1, 60 ) = a1*c2*db1;
-            tdNdXi( 2, 60 ) = a1*b1*dc2;
+            adNdXi( 0, 60 ) = b1*c2*da1;
+            adNdXi( 1, 60 ) = a1*c2*db1;
+            adNdXi( 2, 60 ) = a1*b1*dc2;
 
-            tdNdXi( 0, 61 ) = b1*c2*da2;
-            tdNdXi( 1, 61 ) = a2*c2*db1;
-            tdNdXi( 2, 61 ) = a2*b1*dc2;
+            adNdXi( 0, 61 ) = b1*c2*da2;
+            adNdXi( 1, 61 ) = a2*c2*db1;
+            adNdXi( 2, 61 ) = a2*b1*dc2;
 
-            tdNdXi( 0, 62 ) = b2*c2*da2;
-            tdNdXi( 1, 62 ) = a2*c2*db2;
-            tdNdXi( 2, 62 ) = a2*b2*dc2;
+            adNdXi( 0, 62 ) = b2*c2*da2;
+            adNdXi( 1, 62 ) = a2*c2*db2;
+            adNdXi( 2, 62 ) = a2*b2*dc2;
 
-            tdNdXi( 0, 63 ) = b2*c2*da1;
-            tdNdXi( 1, 63 ) = a1*c2*db2;
-            tdNdXi( 2, 63 ) = a1*b2*dc2;
-            return tdNdXi;
+            adNdXi( 0, 63 ) = b2*c2*da1;
+            adNdXi( 1, 63 ) = a1*c2*db2;
+            adNdXi( 2, 63 ) = a1*b2*dc2;
         }
 
 //------------------------------------------------------------------------------

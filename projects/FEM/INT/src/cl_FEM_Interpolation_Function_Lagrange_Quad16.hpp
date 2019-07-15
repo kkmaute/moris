@@ -125,16 +125,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                   Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                    "QUAD16 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             // often used parameters
             real a0 =  ( xi*( 1.0 + 9.0 * xi * ( 1.0 - xi ) ) - 1.0 ) * 0.0625;
@@ -158,55 +158,54 @@ namespace moris
             real db3 = (  -1.0 + eta*( 18.0 + 27.0*eta )) * 0.0625;
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi(2,16);
-            tdNdXi( 0,  0 ) = da0*b0;
-            tdNdXi( 1,  0 ) = a0*db0;
+            adNdXi.set_size( 2, 16 );
+            adNdXi( 0,  0 ) = da0*b0;
+            adNdXi( 1,  0 ) = a0*db0;
 
-            tdNdXi( 0,  1 ) = da3*b0;
-            tdNdXi( 1,  1 ) = a3*db0;
+            adNdXi( 0,  1 ) = da3*b0;
+            adNdXi( 1,  1 ) = a3*db0;
 
-            tdNdXi( 0,  2 ) = da3*b3;
-            tdNdXi( 1,  2 ) = a3*db3;
+            adNdXi( 0,  2 ) = da3*b3;
+            adNdXi( 1,  2 ) = a3*db3;
 
-            tdNdXi( 0,  3 ) = da0*b3;
-            tdNdXi( 1,  3 ) = a0*db3;
+            adNdXi( 0,  3 ) = da0*b3;
+            adNdXi( 1,  3 ) = a0*db3;
 
-            tdNdXi( 0,  4 ) = da1*b0;
-            tdNdXi( 1,  4 ) = a1*db0;
+            adNdXi( 0,  4 ) = da1*b0;
+            adNdXi( 1,  4 ) = a1*db0;
 
-            tdNdXi( 0,  5 ) = da2*b0;
-            tdNdXi( 1,  5 ) = a2*db0;
+            adNdXi( 0,  5 ) = da2*b0;
+            adNdXi( 1,  5 ) = a2*db0;
 
-            tdNdXi( 0,  6 ) = da3*b1;
-            tdNdXi( 1,  6 ) = a3*db1;
+            adNdXi( 0,  6 ) = da3*b1;
+            adNdXi( 1,  6 ) = a3*db1;
 
-            tdNdXi( 0,  7 ) = da3*b2;
-            tdNdXi( 1,  7 ) = a3*db2;
+            adNdXi( 0,  7 ) = da3*b2;
+            adNdXi( 1,  7 ) = a3*db2;
 
-            tdNdXi( 0,  8 ) = da2*b3;
-            tdNdXi( 1,  8 ) = a2*db3;
+            adNdXi( 0,  8 ) = da2*b3;
+            adNdXi( 1,  8 ) = a2*db3;
 
-            tdNdXi( 0,  9 ) = da1*b3;
-            tdNdXi( 1,  9 ) = a1*db3;
+            adNdXi( 0,  9 ) = da1*b3;
+            adNdXi( 1,  9 ) = a1*db3;
 
-            tdNdXi( 0, 10 ) = da0*b2;
-            tdNdXi( 1, 10 ) = a0*db2;
+            adNdXi( 0, 10 ) = da0*b2;
+            adNdXi( 1, 10 ) = a0*db2;
 
-            tdNdXi( 0, 11 ) = da0*b1;
-            tdNdXi( 1, 11 ) = a0*db1;
+            adNdXi( 0, 11 ) = da0*b1;
+            adNdXi( 1, 11 ) = a0*db1;
 
-            tdNdXi( 0, 12 ) = da1*b1;
-            tdNdXi( 1, 12 ) = a1*db1;
+            adNdXi( 0, 12 ) = da1*b1;
+            adNdXi( 1, 12 ) = a1*db1;
 
-            tdNdXi( 0, 13 ) = da2*b1;
-            tdNdXi( 1, 13 ) = a2*db1;
+            adNdXi( 0, 13 ) = da2*b1;
+            adNdXi( 1, 13 ) = a2*db1;
 
-            tdNdXi( 0, 14 ) = da2*b2;
-            tdNdXi( 1, 14 ) = a2*db2;
+            adNdXi( 0, 14 ) = da2*b2;
+            adNdXi( 1, 14 ) = a2*db2;
 
-            tdNdXi( 0, 15 ) = da1*b2;
-            tdNdXi( 1, 15 ) = a1*db2;
-            return tdNdXi;
+            adNdXi( 0, 15 ) = da1*b2;
+            adNdXi( 1, 15 ) = a1*db2;
         }
 
 //------------------------------------------------------------------------------

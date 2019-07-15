@@ -334,7 +334,8 @@ namespace moris
          * @param[ in ]  aXi    evaluation point
          *                      ( <number of dimensions>  x 1 )
          */
-        Matrix< DDRMat > dNdXi( const Matrix< DDRMat > & aXi ) const;
+        void dNdXi( const Matrix< DDRMat > & aXi,
+                          Matrix< DDRMat > & adNdXi ) const;
 
 //------------------------------------------------------------------------------
         /**
@@ -345,7 +346,8 @@ namespace moris
          * @param[ in ] aTau     evaluation point
          *                       ( <number of dimensions>  x 1 )
          */
-         Matrix< DDRMat > dNdTau( const Matrix< DDRMat > & aTau ) const;
+         void dNdTau( const Matrix< DDRMat > & aTau,
+                            Matrix< DDRMat > & adNdTau ) const;
 
 //------------------------------------------------------------------------------
         /**

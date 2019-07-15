@@ -62,14 +62,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix < DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::CONSTANT, 1, 1 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::CONSTANT, 1, 1 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                       Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "LINE1 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > tdNdXi( 1, 1, 0.0 );
-            return tdNdXi;
+            adNdXi.set_size( 1, 1 );
+            adNdXi( 0, 0 ) = 0.0;
         }
 
 //------------------------------------------------------------------------------

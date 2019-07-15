@@ -77,19 +77,34 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                 Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 4, "TET4 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi( 4, 4, 0.0 );
-            tdNdXi( 0, 0 ) = 1.0;
-            tdNdXi( 1, 1 ) = 1.0;
-            tdNdXi( 2, 2 ) = 1.0;
-            tdNdXi( 3, 3 ) = 1.0;
-            return tdNdXi;
+            adNdXi.set_size( 4, 4 );
+            adNdXi( 0, 0 ) = 1.0;
+            adNdXi( 0, 1 ) = 0.0;
+            adNdXi( 0, 2 ) = 0.0;
+            adNdXi( 0, 3 ) = 0.0;
+
+            adNdXi( 1, 0 ) = 0.0;
+            adNdXi( 1, 1 ) = 1.0;
+            adNdXi( 1, 2 ) = 0.0;
+            adNdXi( 1, 3 ) = 0.0;
+
+            adNdXi( 2, 0 ) = 0.0;
+            adNdXi( 2, 1 ) = 0.0;
+            adNdXi( 2, 2 ) = 1.0;
+            adNdXi( 2, 3 ) = 0.0;
+
+            adNdXi( 3, 0 ) = 0.0;
+            adNdXi( 3, 1 ) = 0.0;
+            adNdXi( 3, 2 ) = 0.0;
+            adNdXi( 3, 3 ) = 1.0;
         }
 
 //------------------------------------------------------------------------------

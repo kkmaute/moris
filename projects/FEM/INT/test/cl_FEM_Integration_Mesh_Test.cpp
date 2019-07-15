@@ -176,10 +176,12 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
 
             // get the space jacobian
-            Matrix <DDRMat> tdNSpacedXi = tIntegSpaceInterpolation->eval_dNdXi( tXi );
+            Matrix <DDRMat> tdNSpacedXi;
+            tIntegSpaceInterpolation->eval_dNdXi( tXi, tdNSpacedXi );
             Matrix< DDRMat > tSpaceJt   = tdNSpacedXi * tXiHatIG ;
             // get the time Jacobian
-            Matrix< DDRMat > tdNTimedTau = tTimeInterpolation->eval_dNdXi( tTau );
+            Matrix< DDRMat > tdNTimedTau;
+            tTimeInterpolation->eval_dNdXi( tTau, tdNTimedTau );
             Matrix< DDRMat > tTimeJt     = tdNTimedTau * tTauHatIG ;
             real tDetJ2 = det( tSpaceJt ) * det( tTimeJt );
 
@@ -206,6 +208,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         //std::cout<<tSurface2<<std::endl;
         REQUIRE( tSurfaceCheck2 );
 
+        // clean up
+        delete tSpaceInterpolation;
+        delete tTimeInterpolation;
+        delete tIntegSpaceInterpolation;
     }
 
     SECTION( "Interpolation mesh QUAD4 - Integration mesh TRI3 " )
@@ -375,10 +381,12 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                 real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
 
                 // get the space jacobian
-                Matrix <DDRMat> tdNSpacedXi = tIntegSpaceInterpolation->eval_dNdXi( tXi );
+                Matrix <DDRMat> tdNSpacedXi;
+                tIntegSpaceInterpolation->eval_dNdXi( tXi, tdNSpacedXi );
                 Matrix< DDRMat > tSpaceJt   = tdNSpacedXi * tXiHatIG;
                 // get the time Jacobian
-                Matrix< DDRMat > tdNTimedTau = tTimeInterpolation->eval_dNdXi( tTau );
+                Matrix< DDRMat > tdNTimedTau;
+                tTimeInterpolation->eval_dNdXi( tTau, tdNTimedTau );
                 Matrix< DDRMat > tTimeJt     = tdNTimedTau * tTauHatIG;
 
                 Matrix< DDRMat > tSpaceJt2( tIntegNumParamSpaceDim, tIntegNumParamSpaceDim, 1.0 );
@@ -408,6 +416,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             //std::cout<<tSurface2<<std::endl;
             REQUIRE( tSurfaceCheck2 );
 
+            // clean up
+            delete tSpaceInterpolation;
+            delete tTimeInterpolation;
+            delete tIntegSpaceInterpolation;
        }
 
 
@@ -593,10 +605,12 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
 
             // get the space jacobian
-            Matrix <DDRMat> tdNSpacedXi = tIntegSpaceInterpolation->eval_dNdXi( tXi );
+            Matrix <DDRMat> tdNSpacedXi;
+            tIntegSpaceInterpolation->eval_dNdXi( tXi, tdNSpacedXi );
             Matrix< DDRMat > tSpaceJt   = tdNSpacedXi * tXiHatIG ;
             // get the time Jacobian
-            Matrix< DDRMat > tdNTimedTau = tTimeInterpolation->eval_dNdXi( tTau );
+            Matrix< DDRMat > tdNTimedTau;
+            tTimeInterpolation->eval_dNdXi( tTau, tdNTimedTau );
             Matrix< DDRMat > tTimeJt     = tdNTimedTau * tTauHatIG;
             real tDetJ2 = det( tSpaceJt ) * det( tTimeJt );
 
@@ -621,6 +635,11 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 0.5 ) < tEpsilon );
         //std::cout<<tSurface2<<std::endl;
         REQUIRE( tSurfaceCheck2 );
+
+        // clean up
+        delete tSpaceInterpolation;
+        delete tTimeInterpolation;
+        delete tIntegSpaceInterpolation;
     }
 
 
@@ -804,10 +823,12 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                 real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
 
                 // get the space jacobian
-                Matrix <DDRMat> tdNSpacedXi = tIntegSpaceInterpolation->eval_dNdXi( tXi );
+                Matrix <DDRMat> tdNSpacedXi;
+                tIntegSpaceInterpolation->eval_dNdXi( tXi, tdNSpacedXi );
                 Matrix< DDRMat > tSpaceJt   = tdNSpacedXi * tXiHatIG;
                 // get the time Jacobian
-                Matrix< DDRMat > tdNTimedTau = tTimeInterpolation->eval_dNdXi( tTau );
+                Matrix< DDRMat > tdNTimedTau;
+                tTimeInterpolation->eval_dNdXi( tTau, tdNTimedTau );
                 Matrix< DDRMat > tTimeJt     = tdNTimedTau * tTauHatIG;
 
                 Matrix< DDRMat > tSpaceJt2( tIntegNumParamSpaceDim, tIntegNumParamSpaceDim, 1.0 );
@@ -836,6 +857,11 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 0.083333333334 ) < tEpsilon );
             //std::cout<<tSurface2<<std::endl;
             REQUIRE( tSurfaceCheck2 );
+
+            // clean up
+            delete tSpaceInterpolation;
+            delete tTimeInterpolation;
+            delete tIntegSpaceInterpolation;
 
        }
 }

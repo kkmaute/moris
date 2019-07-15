@@ -106,7 +106,7 @@ TEST_CASE( "Lagrange HEX64", "[moris],[fem],[Hex64LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tFunction->eval_N( tXi.get_column(k ), tN  );
+                tFunction->eval_N( tXi.get_column(k ), tN );
 
                 // test evaluated value
                 Matrix< DDRMat > tError  = tN * tPhiHat ;
@@ -127,7 +127,7 @@ TEST_CASE( "Lagrange HEX64", "[moris],[fem],[Hex64LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tdNdXi = tFunction->eval_dNdXi( tXi.get_column( k ) );
+                tFunction->eval_dNdXi( tXi.get_column( k ), tdNdXi );
 
                 // test evaluated value
                 Matrix< DDRMat > tError = tdPhidXi.get_column( k );

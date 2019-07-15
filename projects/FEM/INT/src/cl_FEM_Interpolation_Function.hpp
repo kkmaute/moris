@@ -49,7 +49,7 @@ namespace moris
              *                   ( <number of dimensions>  x 1 )
              */
             void eval_N( const Matrix< DDRMat > & aXi,
-                               Matrix< DDRMat > & aNXi) const;
+                               Matrix< DDRMat > & aNXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -64,7 +64,8 @@ namespace moris
              *
              */
 
-            Matrix< DDRMat > eval_dNdXi( const Matrix< DDRMat > & aXi ) const;
+            void eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                   Matrix< DDRMat > & adNdXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -153,7 +154,7 @@ namespace moris
 
         template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
         void Interpolation_Function< G, T, N, B>::eval_N( const Matrix< DDRMat > & aXi,
-                                                                Matrix< DDRMat > & aNXi) const
+                                                                Matrix< DDRMat > & aNXi ) const
         {
             MORIS_ERROR( false, "eval_N not implemented for this interpolation function" );
         }
@@ -161,11 +162,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
-        Matrix< DDRMat > Interpolation_Function< G, T, N, B>::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void Interpolation_Function< G, T, N, B>::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                Matrix< DDRMat > & adNdXi ) const
         {
             MORIS_ERROR( false, "eval_dNdXi not implemented for this interpolation function" );
-            Matrix< DDRMat > aEmpty;
-            return aEmpty;
         }
 
 //------------------------------------------------------------------------------

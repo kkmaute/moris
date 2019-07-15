@@ -76,6 +76,8 @@ namespace moris
 
             // clean up
             delete tProperty;
+            delete tGeomInterpolator;
+            delete tFI;
         }
 
         TEST_CASE( "Set", "[moris],[fem],[ElementBlock]" )
@@ -194,6 +196,16 @@ namespace moris
 //                CHECK( equal_to( static_cast< uint >( tElementBlock.mInterpDofAssemblyMap( 2, 0 ) ), 12 ) );
 //                CHECK( equal_to( static_cast< uint >( tElementBlock.mInterpDofAssemblyMap( 2, 1 ) ), 15 ) );
             };
+
+            // clean up
+            for ( uint i = 0; i < tIWGs.size(); i++ )
+            {
+                delete tIWGs( i );
+            }
+            for ( uint i = 0; i < tFieldInterpolators.size(); i++ )
+            {
+                delete tFieldInterpolators( i );
+            }
 
         }/* TEST_CASE */
     }/* namespace fem */

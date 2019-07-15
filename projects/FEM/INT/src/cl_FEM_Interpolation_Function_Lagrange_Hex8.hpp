@@ -105,52 +105,51 @@ namespace moris
 //------------------------------------------------------------------------------
 
          template<>
-         Matrix< DDRMat >
-         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+         void
+         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
          {
              // make sure that input is correct
-             MORIS_ASSERT( aXi.length() >= 3,
-                           "HEX8 - eval_dNdXi: aXi not allocated or hat wrong size." );
+             MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
              // unpack xi and eta from input vector
-             auto   xi = aXi( 0 );
-             auto  eta = aXi( 1 );
-             auto zeta = aXi( 2 );
+             real   xi = aXi( 0 );
+             real  eta = aXi( 1 );
+             real zeta = aXi( 2 );
 
              // populate output matrix
-             Matrix< DDRMat > tdNdXi(3,8);
-             tdNdXi( 0, 0 ) = -(  eta - 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 1, 0 ) = -(   xi - 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 2, 0 ) = -(  eta - 1 ) * (   xi - 1 ) * 0.125;
+             adNdXi.set_size( 3, 8 );
+             adNdXi( 0, 0 ) = -(  eta - 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 1, 0 ) = -(   xi - 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 2, 0 ) = -(  eta - 1 ) * (   xi - 1 ) * 0.125;
 
-             tdNdXi( 0, 1 ) =  (  eta - 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 1, 1 ) =  (   xi + 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 2, 1 ) =  (  eta - 1 ) * (   xi + 1 ) * 0.125;
+             adNdXi( 0, 1 ) =  (  eta - 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 1, 1 ) =  (   xi + 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 2, 1 ) =  (  eta - 1 ) * (   xi + 1 ) * 0.125;
 
-             tdNdXi( 0, 2 ) = -(  eta + 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 1, 2 ) = -(   xi + 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 2, 2 ) = -(  eta + 1 ) * (   xi + 1 ) * 0.125;
+             adNdXi( 0, 2 ) = -(  eta + 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 1, 2 ) = -(   xi + 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 2, 2 ) = -(  eta + 1 ) * (   xi + 1 ) * 0.125;
 
-             tdNdXi( 0, 3 ) =  (  eta + 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 1, 3 ) =  (   xi - 1 ) * ( zeta - 1 ) * 0.125;
-             tdNdXi( 2, 3 ) =  (  eta + 1 ) * (   xi - 1 ) * 0.125;
+             adNdXi( 0, 3 ) =  (  eta + 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 1, 3 ) =  (   xi - 1 ) * ( zeta - 1 ) * 0.125;
+             adNdXi( 2, 3 ) =  (  eta + 1 ) * (   xi - 1 ) * 0.125;
 
-             tdNdXi( 0, 4 ) =  (  eta - 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 1, 4 ) =  (   xi - 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 2, 4 ) =  (  eta - 1 ) * (   xi - 1 ) * 0.125;
+             adNdXi( 0, 4 ) =  (  eta - 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 1, 4 ) =  (   xi - 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 2, 4 ) =  (  eta - 1 ) * (   xi - 1 ) * 0.125;
 
-             tdNdXi( 0, 5 ) = -(  eta - 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 1, 5 ) = -(   xi + 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 2, 5 ) = -(  eta - 1 ) * (   xi + 1 ) * 0.125;
+             adNdXi( 0, 5 ) = -(  eta - 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 1, 5 ) = -(   xi + 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 2, 5 ) = -(  eta - 1 ) * (   xi + 1 ) * 0.125;
 
-             tdNdXi( 0, 6 ) =  (  eta + 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 1, 6 ) =  (   xi + 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 2, 6 ) =  (  eta + 1 ) * (   xi + 1 ) * 0.125;
+             adNdXi( 0, 6 ) =  (  eta + 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 1, 6 ) =  (   xi + 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 2, 6 ) =  (  eta + 1 ) * (   xi + 1 ) * 0.125;
 
-             tdNdXi( 0, 7 ) = -(  eta + 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 1, 7 ) = -(   xi - 1 ) * ( zeta + 1 ) * 0.125;
-             tdNdXi( 2, 7 ) = -(  eta + 1 ) * (   xi - 1 ) * 0.125;
-             return tdNdXi;
+             adNdXi( 0, 7 ) = -(  eta + 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 1, 7 ) = -(   xi - 1 ) * ( zeta + 1 ) * 0.125;
+             adNdXi( 2, 7 ) = -(  eta + 1 ) * (   xi - 1 ) * 0.125;
          }
 
 //------------------------------------------------------------------------------

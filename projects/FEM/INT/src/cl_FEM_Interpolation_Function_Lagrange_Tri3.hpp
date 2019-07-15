@@ -76,18 +76,26 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                 Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.numel() >= 3, "TRI3 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi( 3, 3, 0.0 );
-            tdNdXi( 0, 0 ) = 1.0;
-            tdNdXi( 1, 1 ) = 1.0;
-            tdNdXi( 2, 2 ) = 1.0;
-            return tdNdXi;
+            adNdXi.set_size( 3, 3 );
+            adNdXi( 0, 0 ) = 1.0;
+            adNdXi( 0, 1 ) = 0.0;
+            adNdXi( 0, 2 ) = 0.0;
+
+            adNdXi( 1, 0 ) = 0.0;
+            adNdXi( 1, 1 ) = 1.0;
+            adNdXi( 1, 2 ) = 0.0;
+
+            adNdXi( 2, 0 ) = 0.0;
+            adNdXi( 2, 1 ) = 0.0;
+            adNdXi( 2, 2 ) = 1.0;
         }
 
 //------------------------------------------------------------------------------

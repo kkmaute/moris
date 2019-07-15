@@ -81,7 +81,7 @@ namespace moris
     template<>
     void
     Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27  >::eval_N( const Matrix< DDRMat > & aXi,
-                                                                                                           Matrix< DDRMat > & aNXi) const
+                                                                                                           Matrix< DDRMat > & aNXi ) const
     {
         // make sure that input is correct
         MORIS_ASSERT( aXi.length() >= 3, "HEX27 - eval_N: aXi not allocated or hat wrong size." );
@@ -135,139 +135,138 @@ namespace moris
 //------------------------------------------------------------------------------
 
     template<>
-    Matrix< DDRMat >
-    Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27  >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+    void
+    Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 27  >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                               Matrix< DDRMat > & adNdXi ) const
     {
         // make sure that input is correct
-        MORIS_ASSERT( aXi.length() >= 3,
-                "HEX27 - eval_dNdXi: aXi not allocated or hat wrong size." );
+        MORIS_ASSERT( aXi.length() >= 3, "HEX27 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
         // unpack xi and eta from input vector
-        auto   xi = aXi( 0 );
-        auto  eta = aXi( 1 );
-        auto zeta = aXi( 2 );
+        real   xi = aXi( 0 );
+        real  eta = aXi( 1 );
+        real zeta = aXi( 2 );
 
         // often used constants
-        auto   xi2 = std::pow(   xi, 2 );
-        auto  eta2 = std::pow(  eta, 2 );
-        auto zeta2 = std::pow( zeta, 2 );
+        real   xi2 = std::pow(   xi, 2 );
+        real  eta2 = std::pow(  eta, 2 );
+        real zeta2 = std::pow( zeta, 2 );
 
-        auto a = 0.125*eta*zeta;
-        auto b = 0.125*xi*zeta;
-        auto c = 0.125*xi*eta;
-        auto d = -0.5*xi*eta*zeta;
+        real a = 0.125*eta*zeta;
+        real b = 0.125*xi*zeta;
+        real c = 0.125*xi*eta;
+        real d = -0.5*xi*eta*zeta;
 
-        Matrix< DDRMat > tdNdXi(3,27);
-        tdNdXi( 0,  0 ) = a * ( 2.0 * xi - 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 1,  0 ) = b * ( 2.0 * eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 2,  0 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 );
+        adNdXi.set_size( 3, 27 );
+        adNdXi( 0,  0 ) = a * ( 2.0 * xi - 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 1,  0 ) = b * ( 2.0 * eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 2,  0 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 );
 
-        tdNdXi( 0,  1 ) = a * ( 2.0 * xi + 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 1,  1 ) = b * ( 2.0 * eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 2,  1 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 );
+        adNdXi( 0,  1 ) = a * ( 2.0 * xi + 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 1,  1 ) = b * ( 2.0 * eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 2,  1 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 );
 
-        tdNdXi( 0,  2 ) = a * ( 2.0 * xi + 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 1,  2 ) = b * ( 2.0 * eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 2,  2 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 );
+        adNdXi( 0,  2 ) = a * ( 2.0 * xi + 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 1,  2 ) = b * ( 2.0 * eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 2,  2 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 );
 
-        tdNdXi( 0,  3 ) = a * ( 2.0 * xi - 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 1,  3 ) = b * ( 2.0 * eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 2,  3 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 );
+        adNdXi( 0,  3 ) = a * ( 2.0 * xi - 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 1,  3 ) = b * ( 2.0 * eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 2,  3 ) = c * ( 2.0 * zeta - 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 );
 
-        tdNdXi( 0,  4 ) = a * ( 2.0 * xi - 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 1,  4 ) = b * ( 2.0 * eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 2,  4 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 );
+        adNdXi( 0,  4 ) = a * ( 2.0 * xi - 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 1,  4 ) = b * ( 2.0 * eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 2,  4 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 );
 
-        tdNdXi( 0,  5 ) = a * ( 2.0 * xi + 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 1,  5 ) = b * ( 2.0 * eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 2,  5 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 );
+        adNdXi( 0,  5 ) = a * ( 2.0 * xi + 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 1,  5 ) = b * ( 2.0 * eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 2,  5 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 );
 
-        tdNdXi( 0,  6 ) = a * ( 2.0 * xi + 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 1,  6 ) = b * ( 2.0 * eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 2,  6 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 );
+        adNdXi( 0,  6 ) = a * ( 2.0 * xi + 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 1,  6 ) = b * ( 2.0 * eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 2,  6 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 );
 
-        tdNdXi( 0,  7 ) = a * ( 2.0 * xi - 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 1,  7 ) = b * ( 2.0 * eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 2,  7 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 );
+        adNdXi( 0,  7 ) = a * ( 2.0 * xi - 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 1,  7 ) = b * ( 2.0 * eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 2,  7 ) = c * ( 2.0 * zeta + 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 );
 
-        tdNdXi( 0,  8 ) = d * ( eta - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 1,  8 ) = - ( zeta * ( 2.0 * eta - 1.0 ) * ( xi2 - 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
-        tdNdXi( 2,  8 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( eta - 1.0 ) ) * 0.25;
+        adNdXi( 0,  8 ) = d * ( eta - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 1,  8 ) = - ( zeta * ( 2.0 * eta - 1.0 ) * ( xi2 - 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
+        adNdXi( 2,  8 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( eta - 1.0 ) ) * 0.25;
 
-        tdNdXi( 0,  9 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi + 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
-        tdNdXi( 1,  9 ) = d * ( xi + 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 2,  9 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( xi + 1.0 ) ) * 0.25;
-
-
-        tdNdXi( 0, 10 ) = d * ( eta + 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 1, 10 ) =  - ( zeta * ( 2.0 * eta + 1.0 ) * ( xi2 - 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
-        tdNdXi( 2, 10 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( eta + 1.0 ) ) * 0.25;
-
-        tdNdXi( 0, 11 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi - 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
-        tdNdXi( 1, 11 ) = d * ( xi - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 2, 11 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( xi - 1.0 ) ) * 0.25;
-
-        tdNdXi( 0, 12 ) = - ( eta * ( 2.0 * xi - 1.0 ) * ( zeta2 - 1.0 ) * ( eta - 1.0 ) ) * 0.25;
-        tdNdXi( 1, 12 ) = - ( xi * ( 2.0 * eta - 1.0 ) * ( zeta2 - 1.0 ) * ( xi - 1.0 ) ) * 0.25;
-        tdNdXi( 2, 12 ) = d * ( eta - 1.0 ) * ( xi - 1.0 );
-
-        tdNdXi( 0, 13 ) = - ( eta * ( 2.0 * xi + 1.0 ) * ( zeta2 - 1.0 ) * ( eta - 1.0 ) ) * 0.25;
-        tdNdXi( 1, 13 ) = - ( xi * ( 2.0 * eta - 1.0 ) * ( zeta2 - 1.0 ) * ( xi + 1.0 ) ) * 0.25;
-        tdNdXi( 2, 13 ) = d * ( eta - 1.0 ) * ( xi + 1.0 );
-
-        tdNdXi( 0, 14 ) = - ( eta * ( 2.0 * xi + 1.0 ) * ( zeta2 - 1.0 ) * ( eta + 1.0 ) ) * 0.25;
-        tdNdXi( 1, 14 ) = - ( xi * ( 2.0 * eta + 1.0 ) * ( zeta2 - 1.0 ) * ( xi + 1.0 ) ) * 0.25;
-        tdNdXi( 2, 14 ) = d * ( eta + 1.0 ) * ( xi + 1.0 );
-
-        tdNdXi( 0, 15 ) = - ( eta * ( 2.0 * xi - 1.0 ) * ( zeta2 - 1.0 ) * ( eta + 1.0 ) ) * 0.25;
-        tdNdXi( 1, 15 ) = - ( xi * ( 2.0 * eta + 1.0 ) * ( zeta2 - 1.0 ) * ( xi - 1.0 ) ) * 0.25;
-        tdNdXi( 2, 15 ) = d * ( eta + 1.0 ) * ( xi - 1.0 );
-
-        tdNdXi( 0, 16 ) = d * ( eta - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 1, 16 ) = - ( zeta * ( 2.0 * eta - 1.0 ) * ( xi2 - 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
-        tdNdXi( 2, 16 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( eta - 1.0 ) ) * 0.25;
+        adNdXi( 0,  9 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi + 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
+        adNdXi( 1,  9 ) = d * ( xi + 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 2,  9 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( xi + 1.0 ) ) * 0.25;
 
 
-        tdNdXi( 0, 17 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi + 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
-        tdNdXi( 1, 17 ) = d * ( xi + 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 2, 17 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( xi + 1.0 ) ) * 0.25;
+        adNdXi( 0, 10 ) = d * ( eta + 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 1, 10 ) =  - ( zeta * ( 2.0 * eta + 1.0 ) * ( xi2 - 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
+        adNdXi( 2, 10 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( eta + 1.0 ) ) * 0.25;
 
-        tdNdXi( 0, 18 ) = d * ( eta + 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 1, 18 ) = - ( zeta * ( 2.0 * eta + 1.0 ) * ( xi2 - 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
-        tdNdXi( 2, 18 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( eta + 1.0 ) ) * 0.25;
+        adNdXi( 0, 11 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi - 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
+        adNdXi( 1, 11 ) = d * ( xi - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 2, 11 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( xi - 1.0 ) ) * 0.25;
 
-        tdNdXi( 0, 19 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi - 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
-        tdNdXi( 1, 19 ) = d * ( xi - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 2, 19 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( xi - 1.0 ) ) * 0.25;
+        adNdXi( 0, 12 ) = - ( eta * ( 2.0 * xi - 1.0 ) * ( zeta2 - 1.0 ) * ( eta - 1.0 ) ) * 0.25;
+        adNdXi( 1, 12 ) = - ( xi * ( 2.0 * eta - 1.0 ) * ( zeta2 - 1.0 ) * ( xi - 1.0 ) ) * 0.25;
+        adNdXi( 2, 12 ) = d * ( eta - 1.0 ) * ( xi - 1.0 );
 
-        tdNdXi( 0, 20 ) = - 2.0 * xi * ( eta2 - 1.0 ) * ( zeta2 - 1.0 );
-        tdNdXi( 1, 20 ) = - 2.0 * eta * ( xi2 - 1.0 ) * ( zeta2 - 1.0 );
-        tdNdXi( 2, 20 ) = - 2.0 * zeta * ( eta2 - 1.0 ) * ( xi2 - 1.0 );
+        adNdXi( 0, 13 ) = - ( eta * ( 2.0 * xi + 1.0 ) * ( zeta2 - 1.0 ) * ( eta - 1.0 ) ) * 0.25;
+        adNdXi( 1, 13 ) = - ( xi * ( 2.0 * eta - 1.0 ) * ( zeta2 - 1.0 ) * ( xi + 1.0 ) ) * 0.25;
+        adNdXi( 2, 13 ) = d * ( eta - 1.0 ) * ( xi + 1.0 );
 
-        tdNdXi( 0, 21 ) = 8.0 * b * ( eta2 - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 1, 21 ) = 8.0 * a * ( xi2 - 1.0 ) * ( zeta - 1.0 );
-        tdNdXi( 2, 21 ) = ( ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) ) * 0.5;
+        adNdXi( 0, 14 ) = - ( eta * ( 2.0 * xi + 1.0 ) * ( zeta2 - 1.0 ) * ( eta + 1.0 ) ) * 0.25;
+        adNdXi( 1, 14 ) = - ( xi * ( 2.0 * eta + 1.0 ) * ( zeta2 - 1.0 ) * ( xi + 1.0 ) ) * 0.25;
+        adNdXi( 2, 14 ) = d * ( eta + 1.0 ) * ( xi + 1.0 );
 
-        tdNdXi( 0, 22 ) = 8.0 * b * ( eta2 - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 1, 22 ) = 8.0 * a * ( xi2 - 1.0 ) * ( zeta + 1.0 );
-        tdNdXi( 2, 22 ) = ( ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) ) * 0.5;
+        adNdXi( 0, 15 ) = - ( eta * ( 2.0 * xi - 1.0 ) * ( zeta2 - 1.0 ) * ( eta + 1.0 ) ) * 0.25;
+        adNdXi( 1, 15 ) = - ( xi * ( 2.0 * eta + 1.0 ) * ( zeta2 - 1.0 ) * ( xi - 1.0 ) ) * 0.25;
+        adNdXi( 2, 15 ) = d * ( eta + 1.0 ) * ( xi - 1.0 );
 
-        tdNdXi( 0, 23 ) =( ( eta2 - 1.0 ) * ( 2.0 * xi - 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
-        tdNdXi( 1, 23 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( xi - 1.0 );
-        tdNdXi( 2, 23 ) = 8.0 * b * ( eta2 - 1.0 ) * ( xi - 1.0 );
+        adNdXi( 0, 16 ) = d * ( eta - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 1, 16 ) = - ( zeta * ( 2.0 * eta - 1.0 ) * ( xi2 - 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
+        adNdXi( 2, 16 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( eta - 1.0 ) ) * 0.25;
 
-        tdNdXi( 0, 24 ) =( ( eta2 - 1.0 ) * ( 2.0 * xi + 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
-        tdNdXi( 1, 24 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( xi + 1.0 );
-        tdNdXi( 2, 24 ) = 8.0 * b * ( eta2 - 1.0 ) * ( xi + 1.0 );
 
-        tdNdXi( 0, 25 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( eta - 1.0 );
-        tdNdXi( 1, 25 ) = ( ( 2.0 * eta - 1.0 ) * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
-        tdNdXi( 2, 25 ) = 8.0 * a * ( xi2 - 1.0 ) * ( eta - 1.0 );
+        adNdXi( 0, 17 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi + 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
+        adNdXi( 1, 17 ) = d * ( xi + 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 2, 17 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( xi + 1.0 ) ) * 0.25;
 
-        tdNdXi( 0, 26 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( eta + 1.0 );
-        tdNdXi( 1, 26 ) = ( ( 2.0 * eta + 1.0 ) * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
-        tdNdXi( 2, 26 ) = 8.0 * a * ( xi2 - 1.0 ) * ( eta + 1.0 );
-        return tdNdXi;
+        adNdXi( 0, 18 ) = d * ( eta + 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 1, 18 ) = - ( zeta * ( 2.0 * eta + 1.0 ) * ( xi2 - 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
+        adNdXi( 2, 18 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( eta + 1.0 ) ) * 0.25;
+
+        adNdXi( 0, 19 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi - 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
+        adNdXi( 1, 19 ) = d * ( xi - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 2, 19 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( xi - 1.0 ) ) * 0.25;
+
+        adNdXi( 0, 20 ) = - 2.0 * xi * ( eta2 - 1.0 ) * ( zeta2 - 1.0 );
+        adNdXi( 1, 20 ) = - 2.0 * eta * ( xi2 - 1.0 ) * ( zeta2 - 1.0 );
+        adNdXi( 2, 20 ) = - 2.0 * zeta * ( eta2 - 1.0 ) * ( xi2 - 1.0 );
+
+        adNdXi( 0, 21 ) = 8.0 * b * ( eta2 - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 1, 21 ) = 8.0 * a * ( xi2 - 1.0 ) * ( zeta - 1.0 );
+        adNdXi( 2, 21 ) = ( ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) ) * 0.5;
+
+        adNdXi( 0, 22 ) = 8.0 * b * ( eta2 - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 1, 22 ) = 8.0 * a * ( xi2 - 1.0 ) * ( zeta + 1.0 );
+        adNdXi( 2, 22 ) = ( ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) ) * 0.5;
+
+        adNdXi( 0, 23 ) =( ( eta2 - 1.0 ) * ( 2.0 * xi - 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
+        adNdXi( 1, 23 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( xi - 1.0 );
+        adNdXi( 2, 23 ) = 8.0 * b * ( eta2 - 1.0 ) * ( xi - 1.0 );
+
+        adNdXi( 0, 24 ) =( ( eta2 - 1.0 ) * ( 2.0 * xi + 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
+        adNdXi( 1, 24 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( xi + 1.0 );
+        adNdXi( 2, 24 ) = 8.0 * b * ( eta2 - 1.0 ) * ( xi + 1.0 );
+
+        adNdXi( 0, 25 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( eta - 1.0 );
+        adNdXi( 1, 25 ) = ( ( 2.0 * eta - 1.0 ) * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
+        adNdXi( 2, 25 ) = 8.0 * a * ( xi2 - 1.0 ) * ( eta - 1.0 );
+
+        adNdXi( 0, 26 ) = 8.0 * c * ( zeta2 - 1.0 ) * ( eta + 1.0 );
+        adNdXi( 1, 26 ) = ( ( 2.0 * eta + 1.0 ) * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) ) * 0.5;
+        adNdXi( 2, 26 ) = 8.0 * a * ( xi2 - 1.0 ) * ( eta + 1.0 );
 
     }
 

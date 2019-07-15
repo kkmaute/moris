@@ -99,47 +99,46 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_dNdXi( const Matrix< DDRMat > & aXi) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                          "QUAD8 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD8 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             // often used constants
-            auto  xi2 = std::pow(  xi, 2 );
-            auto eta2 = std::pow( eta, 2 );
+            real  xi2 = std::pow(  xi, 2 );
+            real eta2 = std::pow( eta, 2 );
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi(2,8);
-            tdNdXi( 0, 0 ) = -( eta+xi*2.0 )*( eta-1.0 )*0.25;
-            tdNdXi( 1, 0 ) = -( eta*2.0+xi )*( xi-1.0 )*0.25;
+            adNdXi.set_size( 2, 8 );
+            adNdXi( 0, 0 ) = -( eta+xi*2.0 )*( eta-1.0 )*0.25;
+            adNdXi( 1, 0 ) = -( eta*2.0+xi )*( xi-1.0 )*0.25;
 
-            tdNdXi( 0, 1 ) = ( eta-xi*2.0 )*( eta-1.0 )*0.25;
-            tdNdXi( 1, 1 ) = ( xi+1.0 )*( eta*2.0-xi )*0.25;
+            adNdXi( 0, 1 ) = ( eta-xi*2.0 )*( eta-1.0 )*0.25;
+            adNdXi( 1, 1 ) = ( xi+1.0 )*( eta*2.0-xi )*0.25;
 
-            tdNdXi( 0, 2 ) = ( eta+xi*2.0 )*( eta+1.0 )*0.25;
-            tdNdXi( 1, 2 ) = ( eta*2.0+xi )*( xi+1.0 )*0.25;
+            adNdXi( 0, 2 ) = ( eta+xi*2.0 )*( eta+1.0 )*0.25;
+            adNdXi( 1, 2 ) = ( eta*2.0+xi )*( xi+1.0 )*0.25;
 
-            tdNdXi( 0, 3 ) = -( eta-xi*2.0 )*( eta+1.0 )*0.25;
-            tdNdXi( 1, 3 ) = -( xi-1.0 )*( eta*2.0-xi )*0.25;
+            adNdXi( 0, 3 ) = -( eta-xi*2.0 )*( eta+1.0 )*0.25;
+            adNdXi( 1, 3 ) = -( xi-1.0 )*( eta*2.0-xi )*0.25;
 
-            tdNdXi( 0, 4 ) = xi*( eta-1.0 );
-            tdNdXi( 1, 4 ) = 0.5*xi2-0.5;
+            adNdXi( 0, 4 ) = xi*( eta-1.0 );
+            adNdXi( 1, 4 ) = 0.5*xi2-0.5;
 
-            tdNdXi( 0, 5 ) = -0.5*eta2+0.5;
-            tdNdXi( 1, 5 ) = -eta*( xi+1.0 );
+            adNdXi( 0, 5 ) = -0.5*eta2+0.5;
+            adNdXi( 1, 5 ) = -eta*( xi+1.0 );
 
-            tdNdXi( 0, 6 ) = -xi*( eta+1.0 );
-            tdNdXi( 1, 6 ) = -0.5*xi2+0.5;
+            adNdXi( 0, 6 ) = -xi*( eta+1.0 );
+            adNdXi( 1, 6 ) = -0.5*xi2+0.5;
 
-            tdNdXi( 0, 7 ) = 0.5*eta2-0.5;
-            tdNdXi( 1, 7 ) = eta*( xi-1.0 );
-            return tdNdXi;
+            adNdXi( 0, 7 ) = 0.5*eta2-0.5;
+            adNdXi( 1, 7 ) = eta*( xi-1.0 );
         }
 
 //------------------------------------------------------------------------------

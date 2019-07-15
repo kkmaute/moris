@@ -18,7 +18,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
     tSideSurfaceExact( 3 ) = 3.400367627183861;
     
     // get side normals for comparison
-    Matrix< DDRMat > tSideNormalsExact( 2, 4, 0.0 );
+    Matrix< DDRMat > tSideNormalsExact( 2, 4 );
     tSideNormalsExact( 0, 0 ) =  0.3846153846153846;
     tSideNormalsExact( 1, 0 ) = -0.9230769230769231;
     tSideNormalsExact( 0, 1 ) =  0.8778955729143844;
@@ -207,7 +207,6 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
 
             // check the surface value
             tSideSurfaceCheck = tSideSurfaceCheck && ( std::abs( tSideSurface - tSideSurfaceExact( iSide ) ) < tEpsilon );
-
         }
         // check surfDetJ and surfNormal values
         REQUIRE( tSideSurfaceCheck );

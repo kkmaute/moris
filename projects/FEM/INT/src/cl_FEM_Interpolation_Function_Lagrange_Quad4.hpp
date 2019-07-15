@@ -68,7 +68,7 @@ namespace moris
             real eta = aXi( 1 );
 
             // populate matrix with values
-            aNXi.set_size(1,4);
+            aNXi.set_size( 1, 4 );
             aNXi( 0 ) = ( ( 1.0 - xi ) * ( 1.0 - eta ) ) * 0.25;
             aNXi( 1 ) = ( ( 1.0 + xi ) * ( 1.0 - eta ) ) * 0.25;
             aNXi( 2 ) = ( ( 1.0 + xi ) * ( 1.0 + eta ) ) * 0.25;
@@ -78,8 +78,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2, "QUAD4 - eval_dNdXi: aXi not allocated or hat wrong size." );
@@ -89,19 +90,18 @@ namespace moris
             real eta = aXi( 1 );
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi(2,4);
-            tdNdXi( 0, 0 ) =  0.25 * ( eta - 1.0 );
-            tdNdXi( 1, 0 ) =  0.25 * ( xi - 1.0 );
+            adNdXi.set_size( 2, 4 );
+            adNdXi( 0, 0 ) =  0.25 * ( eta - 1.0 );
+            adNdXi( 1, 0 ) =  0.25 * ( xi - 1.0 );
 
-            tdNdXi( 0, 1 ) = -0.25 * ( eta - 1.0 );
-            tdNdXi( 1, 1 ) = -0.25 * ( xi + 1.0 );
+            adNdXi( 0, 1 ) = -0.25 * ( eta - 1.0 );
+            adNdXi( 1, 1 ) = -0.25 * ( xi + 1.0 );
 
-            tdNdXi( 0, 2 ) =  0.25 * ( eta + 1.0 );
-            tdNdXi( 1, 2 ) =  0.25 * ( xi + 1.0 );
+            adNdXi( 0, 2 ) =  0.25 * ( eta + 1.0 );
+            adNdXi( 1, 2 ) =  0.25 * ( xi + 1.0 );
 
-            tdNdXi( 0, 3 ) = -0.25 * ( eta + 1.0 );
-            tdNdXi( 1, 3 ) = -0.25 * ( xi - 1.0 );
-            return tdNdXi;
+            adNdXi( 0, 3 ) = -0.25 * ( eta + 1.0 );
+            adNdXi( 1, 3 ) = -0.25 * ( xi - 1.0 );
         }
 
 

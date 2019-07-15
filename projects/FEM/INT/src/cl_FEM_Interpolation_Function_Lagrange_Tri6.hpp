@@ -82,8 +82,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 6 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 6 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                 Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2, "TRI6 - eval_dNdXi: aXi not allocated or hat wrong size." );
@@ -94,21 +95,27 @@ namespace moris
             real zeta3 = aXi( 2 );
 
             // populate output matrix
-            Matrix< DDRMat > tdNdZeta( 3, 6, 0.0 );
-            tdNdZeta( 0, 0 ) = 4 * zeta1 - 1.0;
-            tdNdZeta( 1, 1 ) = 4 * zeta2 - 1.0;
-            tdNdZeta( 2, 2 ) = 4 * zeta3 - 1.0;
+            adNdXi.set_size( 3, 6 );
+            adNdXi( 0, 0 ) = 4 * zeta1 - 1.0;
+            adNdXi( 0, 1 ) = 0.0;
+            adNdXi( 0, 2 ) = 0.0;
+            adNdXi( 0, 3 ) = 4 * zeta2;
+            adNdXi( 0, 4 ) = 0.0;
+            adNdXi( 0, 5 ) = 4 * zeta3;
 
-            tdNdZeta( 0, 3 ) = 4 * zeta2;
-            tdNdZeta( 1, 3 ) = 4 * zeta1;
+            adNdXi( 1, 0 ) = 0.0;
+            adNdXi( 1, 1 ) = 4 * zeta2 - 1.0;
+            adNdXi( 1, 2 ) = 0.0;
+            adNdXi( 1, 3 ) = 4 * zeta1;
+            adNdXi( 1, 4 ) = 4 * zeta3;
+            adNdXi( 1, 5 ) = 0.0;
 
-            tdNdZeta( 1, 4 ) = 4 * zeta3;
-            tdNdZeta( 2, 4 ) = 4 * zeta2;
-
-            tdNdZeta( 0, 5 ) = 4 * zeta3;
-            tdNdZeta( 2, 5 ) = 4 * zeta1;
-
-            return tdNdZeta;
+            adNdXi( 2, 0 ) = 0.0;
+            adNdXi( 2, 1 ) = 0.0;
+            adNdXi( 2, 2 ) = 4 * zeta3 - 1.0;
+            adNdXi( 2, 3 ) = 0.0;
+            adNdXi( 2, 4 ) = 4 * zeta2;
+            adNdXi( 2, 5 ) = 4 * zeta1;
         }
 
 //------------------------------------------------------------------------------

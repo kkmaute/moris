@@ -52,7 +52,7 @@ namespace moris
         template<>
         void
         Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_N( const Matrix< DDRMat > & aXi,
-                                                                                                              Matrix< DDRMat > & aNXi) const
+                                                                                                              Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_N: aXi not allocated or hat wrong size." );
@@ -60,7 +60,7 @@ namespace moris
             real xi = aXi( 0 );
             real xi2 = std::pow( xi , 2 );
 
-            aNXi.set_size(1,3);
+            aNXi.set_size( 1, 3 );
             aNXi( 0 ) = 0.5 * ( xi2 - xi );
             aNXi( 1 ) = 0.5 * ( xi2 + xi );
             aNXi( 2 ) = 1.0 - xi2;
@@ -69,20 +69,19 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE3 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
+            // set adNdXi
             real xi = aXi( 0 );
-            Matrix< DDRMat > tdNdXi(1,3);
-            tdNdXi( 0 ) =   xi - 0.5;
-            tdNdXi( 1 ) =   xi + 0.5;
-            tdNdXi( 2 ) = - 2.0 * xi;
-            return tdNdXi;
-
+            adNdXi.set_size( 1, 3 );
+            adNdXi( 0 ) =   xi - 0.5;
+            adNdXi( 1 ) =   xi + 0.5;
+            adNdXi( 2 ) = - 2.0 * xi;
         }
 
 //------------------------------------------------------------------------------
