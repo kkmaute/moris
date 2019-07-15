@@ -81,23 +81,18 @@ namespace moris
             // update element indices ( not needed so far )
             // this->update_element_indices();
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created B-Spline mesh of order %u on pattern %u.\n               Mesh has %lu  Elements and %lu basis in total.\n               Mesh uses %lu basis on proc.\n               Mesh has %lu active basis on proc.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( unsigned int )      mOrder,
-                        ( unsigned int )      mActivationPattern,
-                        ( long unsigned int ) mNumberOfAllElementsOnProc,
-                        ( long unsigned int ) mNumberOfAllBasis,
-                        ( long unsigned int ) mNumberOfBasis,
-                        ( long unsigned int ) mNumberOfActiveBasisOnProc,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u.\n               Mesh has %lu  Elements and %lu basis in total.\n               Mesh uses %lu basis on proc.\n               Mesh has %lu active basis on proc.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( unsigned int )      mOrder,
+                    ( unsigned int )      mActivationPattern,
+                    ( long unsigned int ) mNumberOfAllElementsOnProc,
+                    ( long unsigned int ) mNumberOfAllBasis,
+                    ( long unsigned int ) mNumberOfBasis,
+                    ( long unsigned int ) mNumberOfActiveBasisOnProc,
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -322,34 +317,29 @@ namespace moris
                                tDeactiveTest &&
                                tRefinedHasActiveChild ;
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+           // stop timer
+           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                if ( aPassedTest )
-                {
-                    // print output
-                    std::fprintf( stdout,"%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               All tests passed.\n\n",
-                        proc_string().c_str(),
+           if ( aPassedTest )
+           {
+               MORIS_LOG_INFO( "%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               All tests passed.\n\n",
+                       proc_string().c_str(),
+                       ( double ) tElapsedTime / 1000 );
+
+           }
+           else
+           {
+               MORIS_LOG_INFO("%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               AT LEAST ONE TEST FAILED.\n\n",
+                       proc_string().c_str(),
                         ( double ) tElapsedTime / 1000 );
-                }
-                else
-                {
-                        // print output
-                        std::fprintf( stdout,"%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               AT LEAST ONE TEST FAILED.\n\n",
-                        proc_string().c_str(),
-                                ( double ) tElapsedTime / 1000 );
 
-                        std::cout << "Test result: "
-                                  <<  tTestForStateContratiction << " "
-                                  << tTestTopLevelState << " "
-                                  << tHaveRefinedParent << " "
-                                  << tDeactiveTest << " "
-                                  << tRefinedHasActiveChild  << std::endl;
-                }
-            }
+                   std::cout << "Test result: "
+                             <<  tTestForStateContratiction << " "
+                             << tTestTopLevelState << " "
+                             << tHaveRefinedParent << " "
+                             << tDeactiveTest << " "
+                             << tRefinedHasActiveChild  << std::endl;
+           }
 
             return aPassedTest;
         }
@@ -889,19 +879,16 @@ namespace moris
                 aBasis.clear();
                 aBasis = std::move( tBasisOut );
 
-                if ( mParameters->is_verbose() )
-                {
-                    // stop timer
-                    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                    // print output
-                    std::fprintf( stdout,"%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
-                            proc_string().c_str(),
-                            ( long unsigned int ) tDeleteCount,
-                            ( long unsigned int ) tNumberOfAllBasis,
-                            ( unsigned int )      aLevel,
-                            ( double ) tElapsedTime / 1000 );
-                }
+                // print output
+                MORIS_LOG_INFO( "%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) tDeleteCount,
+                        ( long unsigned int ) tNumberOfAllBasis,
+                        ( unsigned int )      aLevel,
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 
@@ -2496,17 +2483,14 @@ namespace moris
            // unflag all bases
            this->unflag_all_basis();
 
-           if ( mParameters->is_verbose() )
-           {
-               // stop timer
-               real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+           // stop timer
+           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-               // print output
-               std::fprintf( stdout,"%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
-                       proc_string().c_str(),
-                       ( long unsigned int ) tNumberOfBasis,
-                       ( double ) tElapsedTime / 1000 );
-           }
+           // print output
+           MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
+                   proc_string().c_str(),
+                   ( long unsigned int ) tNumberOfBasis,
+                   ( double ) tElapsedTime / 1000 );
         }
 //------------------------------------------------------------------------------
 

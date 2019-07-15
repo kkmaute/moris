@@ -74,7 +74,6 @@ main(
     tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
     tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
     std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
-    tParameters.set( "verbose", 1 );
 
 //------------------------------------------------------------------------------
     // get path for STL file to load

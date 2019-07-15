@@ -28,7 +28,7 @@ TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
         tParameters.set( "domain_dimensions", "1, 1, 1" );
         tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
         tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-        tParameters.set( "verbose", 0 );
+
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "2" );
         tParameters.set( "lagrange_orders", "1" );
@@ -88,7 +88,7 @@ TEST_CASE("Single Hex 27 Lagrange Mesh","[Lag_Hex27]")
         tParameters.set( "domain_dimensions", "1, 1, 1" );
         tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
         tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-        tParameters.set( "verbose", 0 );
+
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "2" );
         tParameters.set( "lagrange_orders", "2" );
@@ -150,7 +150,7 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
         tParameters.set( "domain_dimensions", "1, 1, 1" );
         tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
         tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-        tParameters.set( "verbose", 0 );
+
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "2" );
         tParameters.set( "lagrange_orders", "3" );

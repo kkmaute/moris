@@ -31,7 +31,7 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
     tParameters.set( "domain_dimensions", "10, 4, 4" );
     tParameters.set( "domain_offset", "-10.0, -2.0, -2.0" );
     tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-    tParameters.set( "verbose", 0 );
+
     tParameters.set( "truncate_bsplines", 1 );
     tParameters.set( "bspline_orders", "1" );
     tParameters.set( "lagrange_orders", "1" );

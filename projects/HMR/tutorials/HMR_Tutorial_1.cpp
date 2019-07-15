@@ -133,7 +133,6 @@ main(
        * tParameters.set( "verbose", 1 );
        * \endcode
        */
-      tParameters.set( "verbose", 1 );
       tParameters.set( "truncate_bsplines", 1 );
 
       tParameters.set( "bspline_orders", "2" );

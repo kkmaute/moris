@@ -231,18 +231,15 @@ namespace moris
             mSetsInfo.SideSetsInfo.push_back( &tInfo );
         }
 
-        if ( mParameters->is_verbose() )
-        {
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+        // stop timer
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            // print output
-            std::fprintf( stdout,"%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
-                    proc_string().c_str(),
-                    ( long unsigned int ) tNumberOfElements,
-                    ( long unsigned int ) tNumberOfNodes,
-                    ( double ) tElapsedTime / 1000);
-        }
+        // print output
+        MORIS_LOG_INFO( "%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+                proc_string().c_str(),
+                ( long unsigned int ) tNumberOfElements,
+                ( long unsigned int ) tNumberOfNodes,
+                ( double ) tElapsedTime / 1000);
     }
 
 // ----------------------------------------------------------------------------
@@ -265,17 +262,14 @@ namespace moris
         // save file
         tMesh.create_output_mesh( tFilePath, tAddElemCmap );
 
-        if ( mParameters->is_verbose() )
-        {
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+        // stop timer
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            // print output
-            std::fprintf( stdout,"%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
-                    proc_string().c_str(),
-                    aFilePath.c_str(),
-                    ( double ) tElapsedTime / 1000 );
-        }
+        // print output
+        MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
+                proc_string().c_str(),
+                aFilePath.c_str(),
+                ( double ) tElapsedTime / 1000 );
     }
 
 // ----------------------------------------------------------------------------

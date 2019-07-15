@@ -62,9 +62,6 @@ namespace moris
            //! max polynomial to be supported
            luint        mMaxPolynomial           = 1;
 
-           //! tells if debug flags are to be printed
-           bool         mVerbose                 = true ;
-
            //! scale factor for gmsh output
            real         mGmshScale = 1;
 
@@ -171,28 +168,22 @@ namespace moris
 //--------------------------------------------------------------------------------
 
            /**
-            * returns verbosity switch
-            *
-            * @return bool
-            */
-           auto is_verbose() const
-               -> decltype ( mVerbose )
-           {
-               return mVerbose;
-           }
-
-//--------------------------------------------------------------------------------
-
-           /**
             * sets verbosity switch
             *
             * @param[in] aSwitch    true or false
             * @return void
             */
-           void set_verbose( const bool aSwitch )
+           void set_severity_level( const sint aSwitch )
            {
-               mVerbose = aSwitch;
+               gLogger.set_severity_level( aSwitch );
            }
+
+//--------------------------------------------------------------------------------
+
+           sint get_severity_level() const
+           {
+               return gLogger.get_severity_level( );
+           };
 
 //--------------------------------------------------------------------------------
 

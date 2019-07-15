@@ -29,7 +29,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
-            tParameters->set_verbose( true );
+//            tParameters->set_verbose( true );
+            tParameters->set_severity_level( 0 );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
@@ -357,9 +358,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -620,7 +618,8 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
-        tParameters.set_verbose( true );
+//        tParameters.set_verbose( true );
+        tParameters.set_severity_level( 0 );
         tParameters.set_multigrid( false );
         tParameters.set_bspline_truncation( true );
         tParameters.set_mesh_orders_simple( 1 );

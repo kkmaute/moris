@@ -79,14 +79,6 @@ main(
     tParameters.set( "domain_dimensions",                "2, 2, 2" );
     tParameters.set( "domain_offset",                    "0, 0, 0" );
 
-
-    /*!
-     * Make HMR talkative
-     * \code{.cpp}
-     * tParameters.set( "verbose", 1 );
-     * \endcode
-     */
-    tParameters.set( "verbose", 1 );
 //------------------------------------------------------------------------------
 
     /*!

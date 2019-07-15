@@ -340,16 +340,12 @@ namespace moris
 
                         tFoundLagrMesh = true;
 
-                        // print output if verbose level is set
-                        if ( mParameters->is_verbose() )
-                        {
-                            // stop timer
-                            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                        // stop timer
+                        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                            std::fprintf( stdout,"%s Renumbering of Lagrange mesh.\n                took %5.3f seconds.\n\n",
-                                    proc_string().c_str(),
-                                    ( double ) tElapsedTime / 1000 );
-                        }
+                        MORIS_LOG_INFO( "%s Renumbering of Lagrange mesh.\n                took %5.3f seconds.\n\n",
+                                proc_string().c_str(),
+                                ( double ) tElapsedTime / 1000 );
                     }
 
                     // add order to path
@@ -965,13 +961,10 @@ namespace moris
 
         std::shared_ptr< Field > HMR::create_field( const Field_Param & aParameters )
         {
-            if( mParameters->is_verbose() )
-            {
-                std::fprintf( stdout,"%s Loading field %s from file %s.\n\n",
-                        proc_string().c_str(),
-                        aParameters.mLabel.c_str(),
-                        aParameters.mSource.c_str() );
-            }
+            MORIS_LOG_INFO( "%s Loading field %s from file %s.\n\n",
+                    proc_string().c_str(),
+                    aParameters.mLabel.c_str(),
+                    aParameters.mSource.c_str() );
 
             // load the field from an exodos or hdf file
             std::shared_ptr< Field > aField = this->load_field_from_file(

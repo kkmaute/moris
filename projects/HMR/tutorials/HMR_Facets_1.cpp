@@ -85,9 +85,6 @@ main(
     tParameters->set_refinement_buffer( 0 );
     tParameters->set_staircase_buffer( 0 );
 
-    // do not print debug information during test
-    tParameters.set_verbose( false );
-
 //------------------------------------------------------------------------------
 
     // create an HMR object and perform an arbitrary refinement

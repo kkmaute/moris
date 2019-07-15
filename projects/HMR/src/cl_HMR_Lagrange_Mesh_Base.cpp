@@ -115,21 +115,17 @@ namespace moris
                 this->link_twins();
             }
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created Lagrange mesh of order %u on pattern %u.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( unsigned int ) mOrder,
-                        ( unsigned int ) mActivationPattern,
-                        ( long unsigned int ) this->get_number_of_elements(),
-                        ( long unsigned int ) this->get_number_of_nodes_on_proc(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Created Lagrange mesh of order %u on pattern %u.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( unsigned int ) mOrder,
+                    ( unsigned int ) mActivationPattern,
+                    ( long unsigned int ) this->get_number_of_elements(),
+                    ( long unsigned int ) this->get_number_of_nodes_on_proc(),
+                    ( double ) tElapsedTime / 1000 );
         }
 
 // ----------------------------------------------------------------------------
@@ -1190,18 +1186,15 @@ namespace moris
             // close file
             std::fclose( tFile );
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created GMSH File: %s\n               Writing took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        tFilePath.c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Created GMSH File: %s\n               Writing took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    tFilePath.c_str(),
+                    ( double ) tElapsedTime / 1000 );
+
         }
 
 //------------------------------------------------------------------------------
@@ -1503,18 +1496,15 @@ namespace moris
             // close the output file
             tFile.close();
 
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created VTK debug file.\n               Mesh has %lu active and refined Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tNumberOfElements,
-                        ( long unsigned int ) tNumberOfNodes,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu active and refined Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( long unsigned int ) tNumberOfElements,
+                    ( long unsigned int ) tNumberOfNodes,
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -1802,16 +1792,12 @@ namespace moris
             }
             std::cout << par_rank() << " flag 2" << std::endl; */
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( double ) tElapsedTime / 1000 );
         }
 //------------------------------------------------------------------------------
 
@@ -1994,16 +1980,12 @@ namespace moris
                 }
             }
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created Edges for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created Edges for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -3367,17 +3349,14 @@ namespace moris
             // step 3: store output matrix into file
             save_matrix_to_binary_file( tOutput, tFilePath );
 
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        tFilePath.c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    tFilePath.c_str(),
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -3409,18 +3388,14 @@ namespace moris
                 }
             }
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( unsigned int ) mOrder,
-                        ( unsigned int ) mActivationPattern,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( unsigned int ) mOrder,
+                    ( unsigned int ) mActivationPattern,
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------

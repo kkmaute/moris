@@ -145,7 +145,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         tParameters.set( "domain_dimensions", "2, 2, 4" );
         tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
         tParameters.set( "domain_sidesets", "5,6");
-        tParameters.set( "verbose", 0 );
+
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "2" );
         tParameters.set( "lagrange_orders", "2" );
@@ -345,7 +345,6 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tParameters.set( "domain_dimensions", "2, 2, 4" );
         tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
         tParameters.set( "domain_sidesets", "5,6");
-        tParameters.set( "verbose", 0 );
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "1" );
         tParameters.set( "lagrange_orders", "1" );

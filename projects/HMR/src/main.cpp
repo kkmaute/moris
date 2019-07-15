@@ -235,7 +235,7 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
     // Severity level 0 - all outputs
-    gLogger.initialize( 2 );
+    gLogger.initialize( 1 );
 
     // create arguments object
     Arguments tArguments( argc, argv );

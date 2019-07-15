@@ -489,20 +489,15 @@ namespace moris
                                              aSourceB,
                                              aTarget );
 
-            // create output messahe
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s United patterns %lu and %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) aSourceA,
-                        ( long unsigned int ) aSourceB,
-                        ( long unsigned int ) aTarget,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s United patterns %lu and %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( long unsigned int ) aSourceA,
+                    ( long unsigned int ) aSourceB,
+                    ( long unsigned int ) aTarget,
+                    ( double ) tElapsedTime / 1000  );
         }
 
 // -----------------------------------------------------------------------------
@@ -520,20 +515,15 @@ namespace moris
 
             // this->update_meshes();
 
-            // create output messahe
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+           // stop timer
+           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-
-                std::fprintf( stdout,"%s Copied pattern %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) aSource,
-                        ( long unsigned int ) aTarget,
-                        ( double ) tElapsedTime / 1000 );
-            }
+           // print output
+           MORIS_LOG_INFO("%s Copied pattern %lu to %lu.\n               Calculation took %5.3f seconds.\n\n",
+                   proc_string().c_str(),
+                   ( long unsigned int ) aSource,
+                   ( long unsigned int ) aTarget,
+                   ( double ) tElapsedTime / 1000);
         }
 
 // -----------------------------------------------------------------------------
@@ -1101,15 +1091,12 @@ namespace moris
                     }
                 }
 
-                if( mParameters->is_verbose() )
-                {
-                    // stop timer
-                    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                    // print output
-                    std::fprintf( stdout,"%s passed entity ID test, testing took %5.3f seconds.\n\n",
-                            proc_string().c_str(), ( double ) tElapsedTime / 1000 );
-                }
+                // print output
+                MORIS_LOG_INFO( "%s passed entity ID test, testing took %5.3f seconds.\n\n",
+                        proc_string().c_str(), ( double ) tElapsedTime / 1000 );
             }
         }
 

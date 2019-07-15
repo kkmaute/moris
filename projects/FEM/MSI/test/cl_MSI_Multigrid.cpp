@@ -59,7 +59,8 @@ namespace moris
             // create parameter object
             moris::hmr::Parameters tParameters;
             tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
-            tParameters.set_verbose( false );
+
+            tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );
             tParameters.set_mesh_orders_simple( tOrder );
@@ -254,7 +255,7 @@ namespace moris
 //
 //                 uint tOrder = 2;
 //                 tParameters.set_mesh_orders_simple( tOrder );
-//                 tParameters.set_verbose( true );
+//
 //                 tParameters.set_multigrid( true );
 //
 //                 // create HMR object

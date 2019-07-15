@@ -40,9 +40,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
              moris::Matrix< moris::DDLUMat > tNumberOfElements = { {1}, {1} };
              tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-             // do not print debug information during test
-             tParameters->set_verbose( false );
-
              // set buffer to three
              tParameters->set_refinement_buffer( 3 );
              tParameters->set_staircase_buffer( 3 );
@@ -199,9 +196,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
             moris::Matrix< moris::DDRMat > tOffset = { {-1}, {-1} };
             tParameters->set_domain_offset( tOffset );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             for( uint tOrder=1; tOrder<=3; ++tOrder )
             {
                 // set buffer size
@@ -314,9 +308,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
             tParameters->set_domain_dimensions( tDomain );
             moris::Matrix< moris::DDRMat > tOffset = { {-1}, {-1}, {-1} };
             tParameters->set_domain_offset( tOffset );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             for( uint tOrder=1; tOrder<=3; ++tOrder )
             {
