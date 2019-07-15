@@ -38,7 +38,7 @@ namespace moris
         aParameterList.insert( "bspline_orders", std::string( "1" ) );
         aParameterList.insert( "lagrange_orders", std::string( "1" ) );
 
-        aParameterList.insert( "verbose", 1 );
+        aParameterList.insert( "severity_level", 1 );
         aParameterList.insert( "truncate_bsplines", 1 );
 
         aParameterList.insert( "use_multigrid", 0 );
@@ -105,9 +105,9 @@ namespace moris
             {
                 aParameterList.set( "initial_bspline_refinement", ( sint ) std::stoi( tSecond( k ) ) );
             }
-            else if ( tKey == "verbose" )
+            else if ( tKey == "severity_level" )
             {
-                aParameterList.set( "verbose", ( sint ) string_to_bool( tSecond( k ) ) );
+                aParameterList.set( "severity_level", ( sint ) std::stoi( tSecond( k ) ) );
             }
             else if ( tKey == "truncate_bsplines" )
             {
@@ -174,33 +174,29 @@ namespace moris
         Matrix< DDUMat > tBSplineOrders;
         Matrix< DDUMat > tLagrangeOrders;
 
-        string_to_mat( aParameterList.get< std::string >("bspline_orders"),
-                tBSplineOrders );
+        string_to_mat( aParameterList.get< std::string >("bspline_orders"), tBSplineOrders );
 
-        string_to_mat( aParameterList.get< std::string >("lagrange_orders"),
-                tLagrangeOrders );
+        string_to_mat( aParameterList.get< std::string >("lagrange_orders"), tLagrangeOrders );
 
-        string_to_mat( aParameterList.get< std::string >("domain_sidesets"),
-                        mSideSets );
+        string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
 
         // set B-Spline and Lagrange orders and create mesh maps
         this->set_mesh_orders( tBSplineOrders, tLagrangeOrders );
 
-        // set verbose fag
-        this->set_verbose( aParameterList.get< sint >("verbose") == 1 );
+        if( aParameterList.get< sint >("severity_level") != 1 )
+        {
+            this->set_severity_level( aParameterList.get< sint >("severity_level") );
+        }
 
         // set truncation flag
         this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
 
         // set minimum initial refinement
-        this->set_initial_bspline_refinement(
-                aParameterList.get< sint >("initial_bspline_refinement") );
+        this->set_initial_bspline_refinement( aParameterList.get< sint >("initial_bspline_refinement") );
 
-        this->set_additional_lagrange_refinement(
-                        aParameterList.get< sint >( "additional_lagrange_refinement" ) );
+        this->set_additional_lagrange_refinement( aParameterList.get< sint >( "additional_lagrange_refinement" ) );
 
-        this->set_max_refinement_level(
-                        aParameterList.get< sint >( "max_refinement_level" ) );
+        this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
 
         // get multigrid parameter
         this->set_multigrid( aParameterList.get< sint >("use_multigrid") == 1 );
@@ -219,33 +215,33 @@ namespace moris
     ParameterList create_hmr_parameter_list( const Parameters * aParameters )
     {
         // create default values
-        ParameterList aParameterList = create_hmr_parameter_list();
+        ParameterList tParameterList = create_hmr_parameter_list();
 
         // buffer size
-        aParameterList.set( "refinement_buffer", ( sint ) aParameters->get_refinement_buffer() );
-        aParameterList.set( "staircase_buffer", ( sint ) aParameters->get_staircase_buffer() );
+        tParameterList.set( "refinement_buffer", ( sint ) aParameters->get_refinement_buffer() );
+        tParameterList.set( "staircase_buffer", ( sint ) aParameters->get_staircase_buffer() );
 
         // verbosity flag
-        aParameterList.set( "verbose", ( sint ) aParameters->is_verbose() );
+        tParameterList.set( "severity_level", ( sint ) aParameters->get_severity_level() );
 
         // truncation flag
-        aParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
+        tParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
 
         // initial refinement
-        aParameterList.set( "initial_bspline_refinement",     ( sint ) aParameters->get_initial_bspline_refinement() );
-        aParameterList.set( "additional_lagrange_refinement", ( sint )  aParameters->get_additional_lagrange_refinement()  );
-        aParameterList.set( "max_refinement_level", ( sint ) aParameters->get_max_refinement_level() );
+        tParameterList.set( "initial_bspline_refinement",     ( sint ) aParameters->get_initial_bspline_refinement() );
+        tParameterList.set( "additional_lagrange_refinement", ( sint )  aParameters->get_additional_lagrange_refinement()  );
+        tParameterList.set( "max_refinement_level", ( sint ) aParameters->get_max_refinement_level() );
 
         // side sets
-        aParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
+        tParameterList.set( "domain_sidesets", aParameters->get_side_sets_as_string() );
 
-        aParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
+        tParameterList.set( "use_multigrid", ( sint ) aParameters->use_multigrid() );
 
-        aParameterList.set( "use_refinement_interrelation", ( sint ) aParameters->get_refinement_interrelation() );
+        tParameterList.set( "use_refinement_interrelation", ( sint ) aParameters->get_refinement_interrelation() );
 
-        aParameterList.set( "renumber_lagrange_nodes", ( sint ) aParameters->get_renumber_lagrange_nodes() );
+        tParameterList.set( "renumber_lagrange_nodes", ( sint ) aParameters->get_renumber_lagrange_nodes() );
 
-        return aParameterList;
+        return tParameterList;
     }
 
 //--------------------------------------------------------------------------------
@@ -257,7 +253,7 @@ namespace moris
         this->set_staircase_buffer ( aParameters.get_staircase_buffer() );
 
         // verbosity flag
-        this->set_verbose( aParameters.is_verbose() );
+        this->set_severity_level( aParameters.get_severity_level() );
 
         // truncation flag
         this->set_bspline_truncation( aParameters.truncate_bsplines() );
@@ -332,43 +328,43 @@ namespace moris
 //--------------------------------------------------------------------------------
         void Parameters::print() const
         {
-            if ( mVerbose && par_rank() == 0 )
+            if ( par_rank() == 0 )
             {
-                std::fprintf( stdout, "\n" );
-                std::fprintf( stdout, "--------------------------------------------------------------------------------\n" ) ;
-                std::fprintf( stdout, "  user defined settings\n" ) ;
-                std::fprintf( stdout, "--------------------------------------------------------------------------------\n" ) ;
-                std::fprintf( stdout, "\n" );
+                MORIS_LOG_INFO( "\n" );
+                MORIS_LOG_INFO( "--------------------------------------------------------------------------------\n" ) ;
+                MORIS_LOG_INFO( "  user defined settings\n" ) ;
+                MORIS_LOG_INFO( "--------------------------------------------------------------------------------\n" ) ;
+                MORIS_LOG_INFO( "\n" );
                 if ( mNumberOfElementsPerDimension.length() == 1 )
                 {
-                    std::fprintf( stdout, "  elements per dimension ....... : %lu\n",
+                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu\n",
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 0 ) );
                 }
                 else if (  mNumberOfElementsPerDimension.length() == 2 )
                 {
-                    std::fprintf( stdout, "  elements per dimension ....... : %lu x %lu\n",
+                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu x %lu\n",
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 0 ),
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 1 ) );
                 }
                 else if (  mNumberOfElementsPerDimension.length() == 3 )
                 {
-                    std::fprintf( stdout, "  elements per dimension ....... : %lu x %lu x %lu\n",
+                    MORIS_LOG_INFO( "  elements per dimension ....... : %lu x %lu x %lu\n",
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 0 ),
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 1 ),
                             ( long unsigned int ) mNumberOfElementsPerDimension ( 2 )
                     );
                 }
-                std::fprintf( stdout,     "  refinement buffer............. : %lu\n", ( long unsigned int ) mRefinementBuffer );
-                std::fprintf( stdout,     "  staircase buffer.............. : %lu\n", ( long unsigned int ) mStaircaseBuffer );
-                std::fprintf( stdout,     "  max polynomial ............... : %lu\n", ( long unsigned int ) mMaxPolynomial );
-                std::fprintf( stdout, "\n" );
-                std::fprintf( stdout, "--------------------------------------------------------------------------------\n" ) ;
-                std::fprintf( stdout, "  automatically defined settings\n" ) ;
-                std::fprintf( stdout, "--------------------------------------------------------------------------------\n" ) ;
-                std::fprintf( stdout, "\n" );
-                std::fprintf( stdout,     "  dimension .................... : %u\n", ( unsigned int ) this->get_number_of_dimensions() );
-                std::fprintf( stdout,     "  padding size ................. : %lu\n", ( long unsigned int ) this->get_padding_size() );
-                std::fprintf( stdout, "\n");
+                MORIS_LOG_INFO(      "  refinement buffer............. : %lu\n", ( long unsigned int ) mRefinementBuffer );
+                MORIS_LOG_INFO(      "  staircase buffer.............. : %lu\n", ( long unsigned int ) mStaircaseBuffer );
+                MORIS_LOG_INFO(      "  max polynomial ............... : %lu\n", ( long unsigned int ) mMaxPolynomial );
+                MORIS_LOG_INFO(  "\n" );
+                MORIS_LOG_INFO(  "--------------------------------------------------------------------------------\n" ) ;
+                MORIS_LOG_INFO(  "  automatically defined settings\n" ) ;
+                MORIS_LOG_INFO(  "--------------------------------------------------------------------------------\n" ) ;
+                MORIS_LOG_INFO(  "\n" );
+                MORIS_LOG_INFO(      "  dimension .................... : %u\n", ( unsigned int ) this->get_number_of_dimensions() );
+                MORIS_LOG_INFO(      "  padding size ................. : %lu\n", ( long unsigned int ) this->get_padding_size() );
+                MORIS_LOG_INFO(  "\n");
             }
         }
 

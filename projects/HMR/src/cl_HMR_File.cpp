@@ -77,8 +77,8 @@ namespace moris
 
             // save verbosity flag
             save_scalar_to_hdf5_file( mFileID,
-                                      "VerboseFlag",
-                                      aParameters->is_verbose(),
+                                      "SeverityFlag",
+                                      gLogger.get_severity_level(),
                                       mStatus );
 
             // save multigrid flag
@@ -175,6 +175,7 @@ namespace moris
             Matrix< DDUMat >  tMatUint;
             real              tValReal;
             uint              tValUint;
+            sint              tValSint;
             luint             tValLuint;
             bool              tValBool;
 
@@ -234,12 +235,12 @@ namespace moris
 
             // load verbosity flag
             load_scalar_from_hdf5_file( mFileID,
-                                        "VerboseFlag",
-                                        tValBool,
+                                        "SeverityFlag",
+                                        tValSint,
                                         mStatus );
 
             // set verbose flag
-            aParameters->set_verbose( tValBool );
+            aParameters->set_severity_level( tValSint );
 
             // load multigrid flag
             load_scalar_from_hdf5_file( mFileID,
@@ -247,7 +248,7 @@ namespace moris
                                         tValBool,
                                         mStatus );
 
-            // set verbose flag
+            // set Multigrid flag
             aParameters->set_multigrid( tValBool );
 
             // load initial refinement

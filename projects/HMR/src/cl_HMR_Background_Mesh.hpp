@@ -455,22 +455,23 @@ namespace moris
             void decompose_mesh()
             {
                 // print output info
-                if ( mParameters->is_verbose() && par_rank() == 0 )
+                if ( par_rank() == 0 )
                 {
-                    std::fprintf( stdout, "--------------------------------------------------------------------------------\n" ) ;
+                    MORIS_LOG_INFO( "--------------------------------------------------------------------------------\n" ) ;
+
                     if ( par_size() == 1 )
                     {
-                        std::fprintf( stdout, "  decomposing mesh over %u proc\n", ( unsigned int ) par_size() ) ;
+                        MORIS_LOG_INFO("  decomposing mesh over %u proc\n", ( unsigned int ) par_size() ) ;
                     }
                     else
                     {
-                        std::fprintf( stdout, "  decomposing mesh over %u procs\n", ( unsigned int ) par_size() ) ;
+                        MORIS_LOG_INFO("  decomposing mesh over %u procs\n", ( unsigned int ) par_size() ) ;
                     }
-                    std::fprintf( stdout, "--------------------------------------------------------------------------------\n" ) ;
-                    std::fprintf( stdout, "\n" );
+                    MORIS_LOG_INFO("--------------------------------------------------------------------------------\n" ) ;
+                    MORIS_LOG_INFO("\n" );
                 }
 
-                if ( mParameters->is_verbose() )
+                if ( gLogger.get_severity_level() < 1 )
                 {
                     // wait until all procs are here ( because of output )
                     barrier();
@@ -519,7 +520,7 @@ namespace moris
                 mMySubDomain = std::move( tMySubDomain );
 
                 // print proc area
-                if ( mParameters->is_verbose() )
+                if ( gLogger.get_severity_level() < 1 )
                 {
                     moris_id tMyRank = par_rank() ;
 
@@ -551,28 +552,28 @@ namespace moris
 
                     if ( tNumberOfDimensions == 1 )
                     {
-                        std::fprintf( stdout, "%s owns i domain ", tString.c_str() ) ;
+                        MORIS_LOG_INFO("%s owns i domain ", tString.c_str() ) ;
                     }
                     else if ( tNumberOfDimensions == 2 )
                     {
-                        std::fprintf( stdout, "%s owns i-j domain ", tString.c_str()  ) ;
+                        MORIS_LOG_INFO("%s owns i-j domain ", tString.c_str()  ) ;
                     }
                     else if( tNumberOfDimensions == 3 )
                     {
-                        std::fprintf( stdout, "%s owns i-j-k domain ", tString.c_str() ) ;
+                        MORIS_LOG_INFO("%s owns i-j-k domain ", tString.c_str() ) ;
                     }
 
                     // print ijk domain
-                    std::fprintf( stdout, "%lu-%lu",
+                    MORIS_LOG_INFO("%lu-%lu",
                             ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 0 ],
                             ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 1 ] );
                     for ( uint k=1; k<N; ++k )
                     {
-                        std::fprintf( stdout, ", %lu-%lu ",
+                        MORIS_LOG_INFO(", %lu-%lu ",
                                 ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 0 ],
                                 ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 1 ] );
                     }
-                    std::fprintf( stdout, "\n\n" );
+                    MORIS_LOG_INFO("\n\n" );
                 }
 
                 // test if settings are OK

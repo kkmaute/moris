@@ -43,9 +43,6 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -125,9 +122,6 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
@@ -216,7 +210,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set( "number_of_elements_per_dimension", "2, 2" );
         tParameters.set( "domain_dimensions", "3, 3" );
         tParameters.set( "domain_offset", "-1.5, -1.5" );
-        tParameters.set( "verbose", 0 );
+
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "1" );
         tParameters.set( "lagrange_orders", "1" );
@@ -314,7 +308,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         tParameters.set( "number_of_elements_per_dimension", "2, 2" );
         tParameters.set( "domain_dimensions", "3, 3" );
         tParameters.set( "domain_offset", "-1.5, -1.5" );
-        tParameters.set( "verbose", 0 );
+
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "2" );
         tParameters.set( "lagrange_orders", "2" );
@@ -432,7 +426,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set( "number_of_elements_per_dimension", "2, 2" );
         tParameters.set( "domain_dimensions", "3, 3" );
         tParameters.set( "domain_offset", "-1.5, -1.5" );
-        tParameters.set( "verbose", 0 );
+
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "bspline_orders", "3" );
         tParameters.set( "lagrange_orders", "3" );

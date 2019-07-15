@@ -70,7 +70,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
-        tParameters.set_verbose( false );
+
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
         tParameters.set_mesh_orders_simple( tOrder );
@@ -305,7 +305,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
-        tParameters.set_verbose( false );
+
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
         tParameters.set_mesh_orders_simple( tOrder );
@@ -489,7 +489,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 }, { 4 } } );
-        tParameters.set_verbose( false );
+
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
         tParameters.set_mesh_orders_simple( tOrder );
@@ -674,7 +674,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 16 }, { 16 }, { 16 } } );
-        tParameters.set_verbose( false );
+
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
         tParameters.set_mesh_orders_simple( tOrder );

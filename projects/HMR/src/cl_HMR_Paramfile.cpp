@@ -353,9 +353,9 @@ namespace moris
                 {
                     mParameterList.set( "initial_bspline_refinement", ( sint ) std::stoi( tSecond( k ) ) );
                 }
-                else if ( tKey == "verbose" )
+                else if ( tKey == "severity_level" )
                 {
-                    mParameterList.set( "verbose", ( sint ) string_to_bool( tSecond( k ) ) );
+                    mParameterList.set( "severity_level", ( sint ) std::stoi( tSecond( k ) ) );
                 }
                 else if ( tKey == "truncate_bsplines" )
                 {

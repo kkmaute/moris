@@ -68,7 +68,6 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
             tParameters.set( "domain_sidesets", "1, 2, 3, 4" );
             tParameters.set( "bspline_orders", "1" );
             tParameters.set( "lagrange_orders", "1" );
-            tParameters.set( "verbose", 0 );
 
 //------------------------------------------------------------------------------
 
@@ -195,7 +194,6 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
           tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
           tParameters.set( "bspline_orders", "1" );
           tParameters.set( "lagrange_orders", "1" );
-          tParameters.set( "verbose", 0 );
 
 //------------------------------------------------------------------------------
 

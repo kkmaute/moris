@@ -49,9 +49,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
@@ -146,9 +143,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             }
 
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );

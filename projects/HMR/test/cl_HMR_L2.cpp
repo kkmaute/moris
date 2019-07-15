@@ -64,9 +64,6 @@ TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
                 // set values to parameters
                 tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
-                // make mesh output silent
-                tParameters.set_verbose( false );
-
                 // B-Spline truncation is turned on by default.
                 // It is recommended to leave this setting as is.
                 tParameters.set_bspline_truncation( true );
@@ -224,9 +221,6 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         // set values to parameters
         tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
-
-        // make mesh output silent
-        tParameters.set_verbose( false );
 
         // B-Spline truncation is turned on by default.
         // It is recommended to leave this setting as is.

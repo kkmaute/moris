@@ -33,9 +33,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer sizes to zero
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -106,9 +103,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {6}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
@@ -189,9 +183,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {4} };
 
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
@@ -393,9 +384,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {2}, {3} };
 
                 tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-                // do not print debug information during test
-                tParameters->set_verbose( false );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
@@ -642,9 +630,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer size to one
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -760,9 +745,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             // set buffer size to one
             tParameters->set_refinement_buffer( 0 );

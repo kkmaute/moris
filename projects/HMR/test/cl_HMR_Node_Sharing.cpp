@@ -81,7 +81,6 @@ TEST_CASE("HMR_Node_Sharing", "[moris],[mesh],[hmr],[node_share]")
             tParameters.set( "domain_offset", "-2, -2" );
 
             // Other parameters
-            tParameters.set( "verbose", 0 );
             tParameters.set( "truncate_bsplines", 1 );
 
             tParameters.set( "bspline_orders", "1" );
