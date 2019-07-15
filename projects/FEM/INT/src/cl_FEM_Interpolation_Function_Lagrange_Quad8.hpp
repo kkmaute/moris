@@ -68,8 +68,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix < DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_N(const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_N(const Matrix< DDRMat > & aXi,
+                                                                                                             Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2,
@@ -84,16 +85,15 @@ namespace moris
             auto eta2 = std::pow( eta, 2 );
 
             // populate output matrix
-            Matrix< DDRMat > tN(1,8);
-            tN( 0 ) = - ( eta - 1.0 ) * ( xi - 1.0 ) * ( eta + xi + 1.0 ) * 0.25;
-            tN( 1 ) =  ( eta - 1.0 ) * ( xi + 1.0 ) * ( eta - xi + 1.0 ) * 0.25;
-            tN( 2 ) =  ( eta + 1.0 ) * ( xi + 1.0 ) * ( eta + xi - 1.0 ) * 0.25;
-            tN( 3 ) =  ( eta + 1.0 ) * ( xi - 1.0 ) * (  - eta + xi + 1.0 ) * 0.25;
-            tN( 4 ) =   ( xi2 - 1.0 ) * ( eta - 1.0 ) * 0.5;
-            tN( 5 ) = - ( eta2 - 1.0 ) * ( xi + 1.0 ) * 0.5;
-            tN( 6 ) = - ( xi2 - 1.0 ) * ( eta + 1.0 ) * 0.5;
-            tN( 7 ) =   ( eta2 - 1.0 ) * ( xi - 1.0 ) * 0.5;
-            return tN;
+            aNXi.set_size(1,8);
+            aNXi( 0 ) = - ( eta - 1.0 ) * ( xi - 1.0 ) * ( eta + xi + 1.0 ) * 0.25;
+            aNXi( 1 ) =  ( eta - 1.0 ) * ( xi + 1.0 ) * ( eta - xi + 1.0 ) * 0.25;
+            aNXi( 2 ) =  ( eta + 1.0 ) * ( xi + 1.0 ) * ( eta + xi - 1.0 ) * 0.25;
+            aNXi( 3 ) =  ( eta + 1.0 ) * ( xi - 1.0 ) * (  - eta + xi + 1.0 ) * 0.25;
+            aNXi( 4 ) =   ( xi2 - 1.0 ) * ( eta - 1.0 ) * 0.5;
+            aNXi( 5 ) = - ( eta2 - 1.0 ) * ( xi + 1.0 ) * 0.5;
+            aNXi( 6 ) = - ( xi2 - 1.0 ) * ( eta + 1.0 ) * 0.5;
+            aNXi( 7 ) =   ( eta2 - 1.0 ) * ( xi - 1.0 ) * 0.5;
         }
 
 //------------------------------------------------------------------------------

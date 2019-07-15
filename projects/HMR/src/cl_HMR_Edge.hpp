@@ -16,7 +16,6 @@
 #include "cl_MTK_Edge.hpp"
 #include "cl_MTK_Vertex.hpp"
 
-
 namespace moris
 {
     namespace hmr

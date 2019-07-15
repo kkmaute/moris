@@ -58,8 +58,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 4, "TET20 - eval_N: aXi not allocated or hat wrong size." );
@@ -71,36 +72,34 @@ namespace moris
             real zeta4 = aXi( 3 );
 
             // populate matrix with values
-            Matrix< DDRMat > tN( 1, 20 );
-            tN( 0 ) = 0.5 * zeta1 * ( 3.0 * zeta1 - 1.0 ) * ( 3.0 * zeta1 - 2.0 );
-            tN( 1 ) = 0.5 * zeta2 * ( 3.0 * zeta2 - 1.0 ) * ( 3.0 * zeta2 - 2.0 );
-            tN( 2 ) = 0.5 * zeta3 * ( 3.0 * zeta3 - 1.0 ) * ( 3.0 * zeta3 - 2.0 );
-            tN( 3 ) = 0.5 * zeta4 * ( 3.0 * zeta4 - 1.0 ) * ( 3.0 * zeta4 - 2.0 );
+            aNXi.set_size( 1, 20 );
+            aNXi( 0 ) = 0.5 * zeta1 * ( 3.0 * zeta1 - 1.0 ) * ( 3.0 * zeta1 - 2.0 );
+            aNXi( 1 ) = 0.5 * zeta2 * ( 3.0 * zeta2 - 1.0 ) * ( 3.0 * zeta2 - 2.0 );
+            aNXi( 2 ) = 0.5 * zeta3 * ( 3.0 * zeta3 - 1.0 ) * ( 3.0 * zeta3 - 2.0 );
+            aNXi( 3 ) = 0.5 * zeta4 * ( 3.0 * zeta4 - 1.0 ) * ( 3.0 * zeta4 - 2.0 );
 
-            tN( 4 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta1 - 1.0 );
-            tN( 5 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta2 - 1.0 );
+            aNXi( 4 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta1 - 1.0 );
+            aNXi( 5 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta2 - 1.0 );
 
-            tN( 6 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta2 - 1.0 );
-            tN( 7 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta3 - 1.0 );
+            aNXi( 6 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta2 - 1.0 );
+            aNXi( 7 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta3 - 1.0 );
 
-            tN( 8 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta1 - 1.0 );
-            tN( 9 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta3 - 1.0 );
+            aNXi( 8 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta1 - 1.0 );
+            aNXi( 9 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta3 - 1.0 );
 
-            tN( 10 ) = 4.5 * zeta1 * zeta4 * ( 3.0 * zeta1 - 1.0 );
-            tN( 11 ) = 4.5 * zeta1 * zeta4 * ( 3.0 * zeta4 - 1.0 );
+            aNXi( 10 ) = 4.5 * zeta1 * zeta4 * ( 3.0 * zeta1 - 1.0 );
+            aNXi( 11 ) = 4.5 * zeta1 * zeta4 * ( 3.0 * zeta4 - 1.0 );
 
-            tN( 12 ) = 4.5 * zeta2 * zeta4 * ( 3.0 * zeta2 - 1.0 );
-            tN( 13 ) = 4.5 * zeta2 * zeta4 * ( 3.0 * zeta4 - 1.0 );
+            aNXi( 12 ) = 4.5 * zeta2 * zeta4 * ( 3.0 * zeta2 - 1.0 );
+            aNXi( 13 ) = 4.5 * zeta2 * zeta4 * ( 3.0 * zeta4 - 1.0 );
 
-            tN( 14 ) = 4.5 * zeta3 * zeta4 * ( 3.0 * zeta3 - 1.0 );
-            tN( 15 ) = 4.5 * zeta3 * zeta4 * ( 3.0 * zeta4 - 1.0 );
+            aNXi( 14 ) = 4.5 * zeta3 * zeta4 * ( 3.0 * zeta3 - 1.0 );
+            aNXi( 15 ) = 4.5 * zeta3 * zeta4 * ( 3.0 * zeta4 - 1.0 );
 
-            tN( 16 ) = 27.0 * zeta1 * zeta2 * zeta3;
-            tN( 17 ) = 27.0 * zeta1 * zeta2 * zeta4;
-            tN( 18 ) = 27.0 * zeta2 * zeta3 * zeta4;
-            tN( 19 ) = 27.0 * zeta1 * zeta3 * zeta4;
-
-            return tN;
+            aNXi( 16 ) = 27.0 * zeta1 * zeta2 * zeta3;
+            aNXi( 17 ) = 27.0 * zeta1 * zeta2 * zeta4;
+            aNXi( 18 ) = 27.0 * zeta2 * zeta3 * zeta4;
+            aNXi( 19 ) = 27.0 * zeta1 * zeta3 * zeta4;
         }
 
 //------------------------------------------------------------------------------

@@ -58,8 +58,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "TET10 - eval_N: aXi not allocated or hat wrong size." );
@@ -71,18 +72,17 @@ namespace moris
             real zeta4 = aXi( 3 );
 
             // populate matrix with values
-            Matrix< DDRMat > tN( 1, 10 );
-            tN( 0 ) = zeta1*(2.0*zeta1 - 1.0);
-            tN( 1 ) = zeta2*(2.0*zeta2 - 1.0);
-            tN( 2 ) = zeta3*(2.0*zeta3 - 1.0);
-            tN( 3 ) = zeta4*(2.0*zeta4 - 1.0);
-            tN( 4 ) = 4.0*zeta1*zeta2;
-            tN( 5 ) = 4.0*zeta2*zeta3;
-            tN( 6 ) = 4.0*zeta1*zeta3;
-            tN( 7 ) = 4.0*zeta1*zeta4;
-            tN( 8 ) = 4.0*zeta2*zeta4;
-            tN( 9 ) = 4.0*zeta3*zeta4;
-            return tN;
+            aNXi.set_size( 1, 10 );
+            aNXi( 0 ) = zeta1*(2.0*zeta1 - 1.0);
+            aNXi( 1 ) = zeta2*(2.0*zeta2 - 1.0);
+            aNXi( 2 ) = zeta3*(2.0*zeta3 - 1.0);
+            aNXi( 3 ) = zeta4*(2.0*zeta4 - 1.0);
+            aNXi( 4 ) = 4.0*zeta1*zeta2;
+            aNXi( 5 ) = 4.0*zeta2*zeta3;
+            aNXi( 6 ) = 4.0*zeta1*zeta3;
+            aNXi( 7 ) = 4.0*zeta1*zeta4;
+            aNXi( 8 ) = 4.0*zeta2*zeta4;
+            aNXi( 9 ) = 4.0*zeta3*zeta4;
         }
 
 //------------------------------------------------------------------------------

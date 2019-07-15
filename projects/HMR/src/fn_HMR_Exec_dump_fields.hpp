@@ -26,13 +26,11 @@ namespace moris
     {
 //--------------------------------------------------------------------------------
 
-        void
-        dump_fields( const Paramfile & aParams, Cell< std::shared_ptr< Field > > & aFields )
+        void dump_fields( const Paramfile & aParams, Cell< std::shared_ptr< Field > > & aFields )
         {
             // before we dump the fields, we must find out if they are all
             // written into the same output database or not
             // we create a cell of strings
-
 
             Cell< std::string > tOutputFiles;
 
@@ -42,8 +40,7 @@ namespace moris
             map< moris_id, std::string > tFieldIdToTarget;
             for( uint f=0; f<tNumberOfFields; ++f )
             {
-                tFieldIdToTarget[ aParams.get_field_params( f ).mID ]
-                 =  aParams.get_field_params( f ).mTarget;
+                tFieldIdToTarget[ aParams.get_field_params( f ).mID ] =  aParams.get_field_params( f ).mTarget;
 
                 tOutputFiles.push_back( aParams.get_field_params( f ).mTarget );
             }
@@ -88,11 +85,10 @@ namespace moris
                     tFileFlags( tIndex ) = 1;
                 }
 
-                save_matrix_to_hdf5_file(
-                        tFileIDs( tIndex ),
-                        tField->get_label(),
-                        tField->get_coefficients(),
-                        tStatus );
+                save_matrix_to_hdf5_file( tFileIDs( tIndex ),
+                                          tField->get_label(),
+                                          tField->get_coefficients(),
+                                          tStatus );
             }
 
             // close all open files
@@ -100,11 +96,9 @@ namespace moris
             {
                 close_hdf5_file( tFileID );
             }
-
         }
 //--------------------------------------------------------------------------------
     }
 }
-
 
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_FIELDS_HPP_ */

@@ -41,6 +41,8 @@
 
 #include "fn_unique.hpp"
 
+#include "cl_XTK_Vertex_Enrichment.hpp"
+
 /*
  * This class provides all the functions to perform the enrichment strategy on a child mesh
  */
@@ -62,140 +64,6 @@ public:
     enum moris::EntityRank mBasisToEnrich = EntityRank::NODE ; /*For lagrange mesh this is node, for HMR this may be bsplines*/
 };
 
-/*
- * Enrichment of a vertex
- */
-class Vertex_Enrichment
-{
-public:
-
-    Vertex_Enrichment():
-     mNodeIndex(MORIS_INDEX_MAX)
-    {}
-
-    void
-    set_node_index(moris::moris_index aNodeIndex)
-    {
-        MORIS_ASSERT(mNodeIndex==MORIS_INDEX_MAX,"Node index already set for Vertex Enrichment");
-        mNodeIndex = aNodeIndex;
-    }
-
-    /*
-     * Add the basis information which includes weights, enrichment level, and basis index.
-     * There is no "smartness" in this function. Duplicates should have been removed prior to call
-     * An assertion will catch duplicates in debug mode
-     */
-    void
-    add_basis_information( moris::Matrix<moris::IndexMat> const & aBasisIndices )
-    {
-#ifdef DEBUG
-        // since I can't write these functions in one line, need to have ifdef
-        moris::Matrix<moris::IndexMat> tUniqueBasis;
-        moris::unique(aBasisIndices,tUniqueBasis);
-
-        MORIS_ASSERT(tUniqueBasis.numel() == aBasisIndices.numel(), "duplicate basis indices detected" );
-#endif
-
-
-        // num basis
-        moris::uint tNumBasis = aBasisIndices.numel();
-
-        // allocate space
-        mBasisIndices.resize(tNumBasis,1);
-        mBasisWeights.resize(tNumBasis,1);
-
-        // iterate to store data
-        for(moris::uint i = 0; i<aBasisIndices.numel(); i++ )
-        {
-            moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
-            mBasisIndices(tBasisLocInd)         = aBasisIndices(i);
-        }
-    }
-
-    void
-    add_basis_weights(moris::Matrix<moris::IndexMat> const & aBasisIndices,
-                      moris::Matrix<moris::DDRMat>   const & aBasisWeight)
-    {
-        for(moris::uint i = 0; i <aBasisIndices.numel(); i++)
-        {
-            moris::uint tBasisLocInd = this->local_basis_index(aBasisIndices(i));
-            mBasisWeights(tBasisLocInd) = aBasisWeight(i);
-        }
-    }
-
-
-    std::unordered_map<moris::moris_index, moris::moris_index> &
-    get_basis_map()
-    {
-        return mBasisMap;
-    }
-
-    moris::uint
-    local_basis_index(moris::uint aBasisIndex)
-    {
-        auto tIter = mBasisMap.find(aBasisIndex);
-        MORIS_ASSERT(tIter!=mBasisMap.end(),"Provided basis index not found in map");
-
-        return tIter->second;
-    }
-
-    void
-    condense_out_basis_with_0_weight()
-    {
-        moris::uint tCount = 0;
-
-        for( moris::uint i = 0;  i<mBasisIndices.numel(); i++)
-        {
-            if(moris::equal_to( mBasisWeights(i), 0))
-            {
-                mBasisMap.erase(mBasisIndices(i));
-            }
-
-            else
-            {
-                mBasisIndices(tCount) = mBasisIndices(i);
-                mBasisWeights(tCount) = mBasisWeights(i);
-
-                // change map index
-                mBasisMap[mBasisIndices(i)] = tCount;
-                tCount++;
-            }
-        }
-
-        // remove excess space
-        mBasisIndices.resize(tCount,1);
-        mBasisWeights.resize(tCount,1);
-
-    }
-
-    moris::Matrix< moris::IndexMat > const &
-    get_basis_basis_indices() const
-    {
-        return mBasisIndices;
-    }
-
-    moris::Matrix< moris::DDRMat > const &
-    get_basis_weights() const
-    {
-        return mBasisWeights;
-    }
-
-    moris::Matrix< moris::DDRMat > &
-    get_basis_weights()
-    {
-        return mBasisWeights;
-    }
-
-
-private:
-    moris::moris_index               mNodeIndex;
-    moris::Matrix< moris::IndexMat > mBasisIndices;
-    moris::Matrix< moris::DDRMat >   mBasisWeights;
-    std::unordered_map<moris::moris_index, moris::moris_index> mBasisMap; /*From basis to local index*/
-
-};
-
-
 
 class Model;
 
@@ -205,6 +73,8 @@ public:
     Enrichment(){};
 
     Enrichment(enum Enrichment_Method aMethod,
+               enum EntityRank        aBasisRank,
+               moris::uint            aBasisOrder,
                moris::size_t          aNumBulkPhases,
                xtk::Model*            aXTKModelPtr,
                xtk::Cut_Mesh*         aCutMeshPtr,
@@ -316,8 +186,15 @@ public:
 
 
 private:
+
     // enrichment method
     enum Enrichment_Method mEnrichmentMethod;
+
+    // basis rank
+    enum EntityRank mBasisRank;
+
+    // basis order
+    uint mBasisOrder;
 
     moris::size_t mNumBulkPhases;
 
@@ -343,7 +220,12 @@ private:
     // Basis enrichment level indics
     moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentIndices;
 
-    //FIXME: REMOVE because it will not help for double intersected elements
+    // Unintersected Parent Cell, Basis interpolating in them and corresponding enrichment level
+    // outer cell corresponds to interp cell index
+    // inncer cell corrsponds to basis/enrlev in intepr cell
+    Cell<Cell< moris_index >> mInterpCellBasis;
+    Cell<Cell< moris_index >> mInterpCellBasisEnrLev;
+
     moris::Cell<moris::Matrix<moris::IndexMat>> mBasisEnrichmentBulkPhase;
 
     // total number of basis enrichment levels (all basis functions)
@@ -460,16 +342,36 @@ private:
 
 
     void
-    unzip_subphase_bin_enrichment_into_element_enrichment(moris::Matrix< moris::IndexMat > const &                     aParentElementsInSupport,
+    unzip_subphase_bin_enrichment_into_element_enrichment(moris_index                                                  aBasisIndex,
+                                                          moris::Matrix< moris::IndexMat > const &                     aParentElementsInSupport,
                                                           std::unordered_map<moris::moris_index, moris::moris_index> & aSubphaseBinIndexToCMBinIndex,
-                                                          moris::Matrix< moris::IndexMat > const &                      aSubPhaseBinEnrichmentLevel,
-                                                          moris::Matrix< moris::IndexMat > &       aElementIndInBasisSupport,
-                                                          moris::Matrix< moris::IndexMat > &       aElementEnrichmentLevel);
+                                                          moris::Matrix< moris::IndexMat > const &                     aSubPhaseBinEnrichmentLevel,
+                                                          moris::Matrix< moris::IndexMat > &                           aElementIndInBasisSupport,
+                                                          moris::Matrix< moris::IndexMat > &                           aElementEnrichmentLevel);
 
 
     void
     setup_vertex_enrichment_data();
 
+    void
+    construct_enriched_interpolation_mesh();
+
+    void
+    allocate_interpolation_cells();
+
+    //FIXME: this needs to be done in parallel
+    void
+    construct_enriched_interpolation_vertices_and_cells();
+
+    void
+    construct_enriched_vertex_interpolation(mtk::Vertex_Interpolation* aBaseVertexInterp,
+                                            Cell<moris_index> const &  aSubPhaseBasisEnrLev,
+                                            std::unordered_map<moris_id,moris_id> & aMapBasisIndexToLocInSubPhase,
+                                            Vertex_Enrichment &        aVertexEnrichment);
+
+
+    std::unordered_map<moris_id,moris_id>
+    construct_subphase_basis_to_basis_map(Cell<moris_id> const & aSubPhaseBasisIndex);
 
     moris::size_t
     count_subphase_bins_in_support(moris::Matrix< moris::IndexMat > const & aParentElementsInSupport);

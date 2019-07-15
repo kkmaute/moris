@@ -13,9 +13,6 @@
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
-#include "fn_print.hpp"
-
-
 
 namespace moris
 {
@@ -24,16 +21,14 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-    Background_Mesh_Base::Background_Mesh_Base( const Parameters * aParameters ):
-                            mParameters   ( aParameters ),
-                            mNumberOfDimensions( aParameters->get_number_of_dimensions() ),
-                            mMaxPolynomial( aParameters->get_max_polynomial() ),
-                            mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
-                            mPaddingSize( aParameters->get_padding_size() ),
-                            mBufferSize ( aParameters->get_staircase_buffer() ),
-                            mNumberOfChildrenPerElement( pow( 2,
-                                    aParameters->get_number_of_dimensions() ) ),
-                            mMyRank( par_rank() )
+    Background_Mesh_Base::Background_Mesh_Base( const Parameters * aParameters ) :  mParameters( aParameters ),
+                                                                                    mNumberOfDimensions( aParameters->get_number_of_dimensions() ),
+                                                                                    mMaxPolynomial( aParameters->get_max_polynomial() ),
+                                                                                    mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
+                                                                                    mPaddingSize( aParameters->get_padding_size() ),
+                                                                                    mBufferSize( aParameters->get_staircase_buffer() ),
+                                                                                    mNumberOfChildrenPerElement( pow( 2, aParameters->get_number_of_dimensions() ) ),
+                                                                                    mMyRank( par_rank() )
     {
         // make sure that settings are OK
         aParameters->check_sanity();

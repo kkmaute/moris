@@ -7,7 +7,6 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "typedefs.hpp" // COR/src
 
-
 namespace moris
 {
     namespace hmr

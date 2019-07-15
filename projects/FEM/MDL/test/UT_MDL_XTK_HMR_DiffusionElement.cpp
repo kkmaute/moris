@@ -88,7 +88,7 @@ LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     real mZn = 1.0;
     real mXc = 1.0;
     real mYc = 1.0;
-    real mZc = 3.51;
+    real mZc = 1.51;
     return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
 }
 
@@ -134,8 +134,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 {
     if(par_size() == 1)
     {
-        moris::uint tBplineOrder = 1;
-        moris::uint tLagrangeOrder = 1;
+        moris::uint tBplineOrder = 2;
+        moris::uint tLagrangeOrder = 2;
         moris::uint tMyCoeff = 1;
         std::string tFieldName = "Cylinder";
 
@@ -147,8 +147,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         tParameters.set( "domain_sidesets", "5,6");
         tParameters.set( "verbose", 0 );
         tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "bspline_orders", "2" );
+        tParameters.set( "lagrange_orders", "2" );
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "refinement_buffer", 2 );
         tParameters.set( "staircase_buffer", 2 );
@@ -162,7 +162,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 
         tField->evaluate_scalar_function( LevelSetSphereCylinder );
 
-        for( uint k=0; k<1; ++k )
+        for( uint k=0; k<2; ++k )
         {
             tHMR.flag_surface_elements( tField );
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
@@ -220,14 +220,14 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         moris::Cell< moris_index >  tBlocksetList = { 4, 5 };
 
         // create a list of active side-sets
-        moris::Cell< moris_index >  tSidesetList = { 1, 3 };
+        moris::Cell< moris_index >  tSidesetList = { 1,3 };
 
         std::cout<<"Set name 1 = "<<tIntegMesh1->get_side_set_label(1)<<std::endl;
         std::cout<<"Set name 3 = "<<tIntegMesh1->get_side_set_label(3)<<std::endl;
 
         // create a list of BC type for the side-sets
         moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
-                                                           fem::BC_Type::NEUMANN };
+                                                           fem::BC_Type::NEUMANN};
 
         // create a list of active double side-sets
         moris::Cell< moris_index >  tDoubleSidesetList = {  };
@@ -261,10 +261,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+//        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+//        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
+//        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+//        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -311,6 +311,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
 
 
+        Matrix<DDRMat> tFullSol;
+        tTimeSolver.get_full_solution(tFullSol);
+//        print_fancy(tFullSol,"Full Solution");
+
         // verify solution
         //    CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 
@@ -319,6 +323,201 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         //    delete tInterpMesh1;
+        delete tModel;
+        delete tIntegMesh1;
+    }
+}
+
+TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_MULTIGRID]")
+{
+    if(par_size() == 1)
+    {
+        gLogger.set_severity_level( 0 );
+
+        moris::uint tBplineOrder = 1;
+        moris::uint tLagrangeOrder = 1;
+        moris::uint tMyCoeff = 1;
+        std::string tFieldName = "Cylinder";
+
+        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+
+        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
+        tParameters.set( "domain_dimensions", "2, 2, 4" );
+        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
+        tParameters.set( "domain_sidesets", "5,6");
+        tParameters.set( "verbose", 0 );
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "bspline_orders", "1" );
+        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set( "use_multigrid", 1 );
+        tParameters.set( "refinement_buffer", 2 );
+        tParameters.set( "staircase_buffer", 2 );
+
+        hmr::HMR tHMR( tParameters );
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+
+        // create field
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tBplineOrder );
+
+        tField->evaluate_scalar_function( LevelSetSphereCylinder );
+
+        for( uint k=0; k<2; ++k )
+        {
+            tHMR.flag_surface_elements( tField );
+            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.update_refinement_pattern();
+
+            tField->evaluate_scalar_function( LevelSetSphereCylinder );
+        }
+
+        tHMR.finalize();
+
+//        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
+
+        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
+
+        xtk::Geom_Field tFieldAsGeom(tField);
+
+        moris::Cell<xtk::Geometry*> tGeometryVector = {&tFieldAsGeom};
+
+        // Tell the geometry engine about the discrete field mesh and how to interpret phases
+        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+
+        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
+        size_t tModelDimension = 3;
+        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        tXTKModel.mSameMesh = true;
+        tXTKModel.mVerbose = true;
+
+        // Do the cutting
+        tXTKModel.decompose(tDecompositionMethods);
+
+        xtk::Output_Options tOutputOptions;
+        tOutputOptions.mAddNodeSets = false;
+        tOutputOptions.mAddSideSets = true;
+        tOutputOptions.mAddClusters = true;
+
+        // add solution field to integration mesh
+        std::string tIntegSolFieldName = "solution";
+        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+
+        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+
+        // place the pair in mesh manager
+        mtk::Mesh_Manager tMeshManager;
+        tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+
+        // create a list of IWG type
+        Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
+        tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+        // create a list of active block-sets
+        moris::Cell< moris_index >  tBlocksetList = { 4, 5 };
+
+        // create a list of active side-sets
+        moris::Cell< moris_index >  tSidesetList = { 1,3,0 };
+
+//        std::cout<<"Set name 0 = "<<tIntegMesh1->get_side_set_label(0)<<std::endl;
+//        std::cout<<"Set name 1 = "<<tIntegMesh1->get_side_set_label(1)<<std::endl;
+//        std::cout<<"Set name 3 = "<<tIntegMesh1->get_side_set_label(3)<<std::endl;
+
+        // create a list of BC type for the side-sets
+        moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
+                                                           fem::BC_Type::DIRICHLET,
+                                                           fem::BC_Type::NEUMANN};
+
+        // create a list of active double side-sets
+        moris::Cell< moris_index >  tDoubleSidesetList = {  };
+
+        // create model
+        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+                                              tBplineOrder,
+                                              tIWGTypeList,
+                                              tBlocksetList, tSidesetList,
+                                              tSidesetBCTypeList,
+                                              tDoubleSidesetList,
+                                              0,
+                                              true);
+
+        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 1: create linear solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        dla::Solver_Factory  tSolFactory;
+
+        // create linear solver
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+
+        tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPFGMRES );
+        tLinearSolverAlgorithm->set_param("PCType")  = std::string( PCMG );
+//        tLinearSolverAlgorithm->set_param("PCType")  = std::string( PCILU );
+        tLinearSolverAlgorithm->set_param("ILUFill")  = 3;
+
+        dla::Linear_Solver tLinSolver;
+
+        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 2: create nonlinear solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tModel->get_solver_interface(), 0, true, MapType::Petsc );
+
+        // create factory for nonlinear solver
+        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+
+        // create nonlinear solver
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+        NLA::Nonlinear_Solver  tNonlinearSolver;
+
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")                = 10;
+        tNonlinearSolverAlgorithm->set_param("NLA_hard_break")              = false;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian")        = true;
+
+        // set manager and settings
+        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+
+        tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+
+        tNonlinearSolver.solve( tNonlinearProblem );
+
+        // temporary array for solver
+        Matrix< DDRMat > tSolution;
+        tNonlinearSolverAlgorithm->get_full_solution( tSolution );
+
+        CHECK( equal_to( tSolution( 0, 0 ), 4.991691079008517, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 1, 0 ), 5.000966490616513, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 2, 0 ), 4.991691079008363, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 3, 0 ), 5.000966490616352, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 4, 0 ), 17.06241419809754, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 5, 0 ), 17.02038634782764, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 6, 0 ), 17.06241419809900, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 7, 0 ), 17.02038634782907, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 8, 0 ), 5.006375939765809, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 382, 0 ), 51.10753242793825, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 461, 0 ), 17.06241419810062, 1.0e+08 ) );
+        CHECK( equal_to( tSolution( 505, 0 ), 29.33523440842293, 1.0e+08 ) );
+
+//        // Write to Integration mesh for visualization
+//        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+//
+//        // add solution field to integration mesh
+//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
+//
+//        // output solution and meshes
+//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+
+        //    delete tInterpMesh1;
+        delete tNonlinearProblem;
         delete tModel;
         delete tIntegMesh1;
     }

@@ -48,7 +48,6 @@ namespace moris
          */
         class Lagrange_Mesh_Base : public Mesh_Base
         {
-
             Cell< BSpline_Mesh_Base *  > mBSplineMeshes;
 
             // @fixme: confirm that this is not identical to mAllNodesOnProc
@@ -80,8 +79,6 @@ namespace moris
 
             //! pointer to sidesets on database object
             Cell< Side_Set > * mSideSets = nullptr;
-
-
 
 // ----------------------------------------------------------------------------
         protected:
@@ -131,15 +128,13 @@ namespace moris
             /**
              * called by field constructor
              */
-            uint create_real_scalar_field_data(
-                    const std::string & aLabel,
-                    const enum EntityRank aEntityRank = EntityRank::NODE );
+            uint create_real_scalar_field_data( const std::string & aLabel,
+                                                const enum EntityRank aEntityRank = EntityRank::NODE );
 
 // ----------------------------------------------------------------------------
 
-            uint create_sint_scalar_field_data(
-                    const std::string & aLabel,
-                    const enum EntityRank aEntityRank = EntityRank::NODE );
+            uint create_sint_scalar_field_data( const std::string & aLabel,
+                                                const enum EntityRank aEntityRank = EntityRank::NODE );
 
 // ----------------------------------------------------------------------------
 
@@ -195,9 +190,8 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            void set_real_scalar_field_label(
-                    const uint        & aFieldIndex,
-                    const std::string & aLabel )
+            void set_real_scalar_field_label( const uint        & aFieldIndex,
+                                              const std::string & aLabel )
             {
                 mRealScalarFieldLabels( aFieldIndex ) = aLabel;
             }
@@ -211,9 +205,8 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            void set_real_scalar_field_bspline_order(
-                    const uint & aFieldIndex,
-                    const uint & aOrder )
+            void set_real_scalar_field_bspline_order( const uint & aFieldIndex,
+                                                      const uint & aOrder )
             {
                 mRealScalarFieldBSplineOrders( aFieldIndex ) = aOrder;
             }
@@ -553,8 +546,8 @@ namespace moris
                 Cell< Side_Set > & tSets = *mSideSets;
 
                 // set pointer of output object
-                tSets( aIndex ).mInfo.mElemIdsAndSideOrds
-                        = & tSets( aIndex ).mElemIdsAndSideOrds;
+                tSets( aIndex ).mInfo.mElemIdsAndSideOrds = & tSets( aIndex ).mElemIdsAndSideOrds;
+
                 return tSets( aIndex ).mInfo;
             }
 

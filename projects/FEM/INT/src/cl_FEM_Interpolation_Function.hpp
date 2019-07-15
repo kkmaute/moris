@@ -48,7 +48,8 @@ namespace moris
              * @param[ in ]  aXi parameter coordinates
              *                   ( <number of dimensions>  x 1 )
              */
-            Matrix< DDRMat > eval_N( const Matrix< DDRMat > & aXi ) const;
+            void eval_N( const Matrix< DDRMat > & aXi,
+                               Matrix< DDRMat > & aNXi) const;
 
 //------------------------------------------------------------------------------
 
@@ -151,11 +152,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
-        Matrix< DDRMat > Interpolation_Function< G, T, N, B>::eval_N( const Matrix< DDRMat > & aXi ) const
+        void Interpolation_Function< G, T, N, B>::eval_N( const Matrix< DDRMat > & aXi,
+                                                                Matrix< DDRMat > & aNXi) const
         {
             MORIS_ERROR( false, "eval_N not implemented for this interpolation function" );
-            Matrix< DDRMat > aEmpty;
-            return aEmpty;
         }
 
 //------------------------------------------------------------------------------

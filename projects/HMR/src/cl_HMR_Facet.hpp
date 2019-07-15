@@ -17,7 +17,6 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Facet.hpp"
 
-
 namespace moris
 {
     namespace hmr
@@ -80,8 +79,7 @@ namespace moris
              *
              * @return moris_id ID
              */
-            moris_id
-            get_id() const;
+            moris_id get_id() const;
 
 // ----------------------------------------------------------------------------
 
@@ -90,48 +88,42 @@ namespace moris
              *
              * @return moris_index ID
              */
-            moris_index
-            get_index() const;
+            moris_index get_index() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * tells how many vertices are connected to this cell
              */
-            virtual uint
-            get_number_of_vertices() const = 0;
+            virtual uint get_number_of_vertices() const = 0;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns the proc id of the owner of this cell
              */
-            moris_id
-            get_owner() const;
+            moris_id get_owner() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * fills a moris::cell with pointers to connected vertices
              */
-            moris::Cell< mtk::Vertex* >
-            get_vertex_pointers() const;
+            moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns a Mat with IDs of connected vertices
              */
-            Matrix< IdMat >
-            get_vertex_ids() const;
+            Matrix< IdMat > get_vertex_ids() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns a Mat with Indices of connected vertices
              */
-            Matrix< IndexMat >
-            get_vertex_inds() const;
+            Matrix< IndexMat > get_vertex_inds() const;
 
 // ----------------------------------------------------------------------------
 
@@ -139,59 +131,49 @@ namespace moris
              * returns a Mat of dimension
              * < number of vertices * number of dimensions >
              */
-            virtual Matrix< DDRMat >
-            get_vertex_coords() const = 0;
+            virtual Matrix< DDRMat > get_vertex_coords() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns an enum that defines the geometry type of the element
              */
-            virtual mtk::Geometry_Type
-            get_geometry_type() const = 0;
+            virtual mtk::Geometry_Type get_geometry_type() const = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * returns the order of the element
              */
-            virtual mtk::Interpolation_Order
-            get_interpolation_order() const = 0;
+            virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
 
 //------------------------------------------------------------------------------
 
-            mtk::Cell *
-            get_master();
+            mtk::Cell * get_master();
 
 //------------------------------------------------------------------------------
 
-            const mtk::Cell *
-            get_master() const;
+            const mtk::Cell * get_master() const;
 
 //------------------------------------------------------------------------------
 
-            mtk::Cell *
-            get_slave();
+            mtk::Cell * get_slave();
 
 //------------------------------------------------------------------------------
 
-            const mtk::Cell *
-            get_slave() const;
+            const mtk::Cell * get_slave() const;
 
 //-----------------------------------------------------------------------------
 
-            uint
-            get_index_on_master() const;
+            uint get_index_on_master() const;
 
 //-----------------------------------------------------------------------------
 
-            uint
-            get_index_on_slave() const;
+            uint get_index_on_slave() const;
 
 // ----------------------------------------------------------------------------
 
-            virtual const mtk::Vertex *
-            get_vertex( const uint & aIndex ) const = 0;
+            virtual const mtk::Vertex * get_vertex( const uint & aIndex ) const = 0;
 
 // ----------------------------------------------------------------------------
 //      HMR public:
@@ -200,54 +182,45 @@ namespace moris
             /**
              * inverts the order of the nodes
              */
-            void
-            flip();
-
-// ----------------------------------------------------------------------------
-            bool
-            is_active() const;
+            void flip();
 
 // ----------------------------------------------------------------------------
 
-            void
-            set_id( const moris_id & aID );
+            bool is_active() const;
 
 // ----------------------------------------------------------------------------
 
-            void
-            set_index( const moris_index & aIndex );
+            void set_id( const moris_id & aID );
 
 // ----------------------------------------------------------------------------
 
-            Element *
-            get_hmr_master();
+            void set_index( const moris_index & aIndex );
 
 // ----------------------------------------------------------------------------
 
-            Element *
-            get_hmr_slave();
+            Element * get_hmr_master();
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_level() const;
+            Element * get_hmr_slave();
 
 // ----------------------------------------------------------------------------
 
-            virtual Basis *
-            get_basis( const uint & aIndex ) = 0;
+            uint get_level() const;
 
 // ----------------------------------------------------------------------------
 
-            virtual const Basis *
-            get_basis( const uint & aIndex ) const = 0;
+            virtual Basis * get_basis( const uint & aIndex ) = 0;
+
+// ----------------------------------------------------------------------------
+
+            virtual const Basis * get_basis( const uint & aIndex ) const = 0;
 
 // ----------------------------------------------------------------------------
         private:
 // ----------------------------------------------------------------------------
 
-            void
-            swap_master_and_slave();
+            void swap_master_and_slave();
 
         };
 

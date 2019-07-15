@@ -20,7 +20,6 @@
 
 #include "cl_Communication_Tools.hpp"
 #include "cl_Matrix.hpp"
-#include "fn_print.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 #include "fn_equal_to.hpp"

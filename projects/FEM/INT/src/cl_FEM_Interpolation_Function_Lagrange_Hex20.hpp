@@ -116,12 +116,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 20 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
              // make sure that input is correct
-             MORIS_ASSERT( aXi.length() >= 3,
-                           "HEX20 - eval_N: aXi not allocated or hat wrong size." );
+             MORIS_ASSERT( aXi.length() >= 3, "HEX20 - eval_N: aXi not allocated or hat wrong size." );
 
              // unpack xi and eta from input vector
              auto xi = aXi( 0 );
@@ -134,28 +134,27 @@ namespace moris
              auto zeta2 = std::pow( zeta, 2 );
 
              // populate output matrix
-             Matrix< DDRMat > tN(1,20);
-             tN(  0 ) =   ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * ( eta + xi + zeta + 2.0 ) * 0.125;
-             tN(  1 ) = - ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * ( eta - xi + zeta + 2.0 ) * 0.125;
-             tN(  2 ) = - ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * ( eta + xi - zeta - 2.0 ) * 0.125;
-             tN(  3 ) = - ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * (  - eta + xi + zeta + 2.0 ) * 0.125;
-             tN(  4 ) = - ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * ( eta + xi - zeta + 2.0 ) * 0.125;
-             tN(  5 ) =   ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * ( eta - xi - zeta + 2.0 ) * 0.125;
-             tN(  6 ) =   ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * ( eta + xi + zeta - 2.0 ) * 0.125;
-             tN(  7 ) = - ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * ( eta - xi + zeta - 2.0 ) * 0.125;
-             tN(  8 ) = - ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 ) * 0.25;
-             tN(  9 ) =   ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.25;
-             tN( 10 ) =   ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 ) * 0.25;
-             tN( 11 ) = - ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.25;
-             tN( 12 ) = - ( zeta2- 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 ) * 0.25;
-             tN( 13 ) =   ( zeta2- 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 ) * 0.25;
-             tN( 14 ) = - ( zeta2- 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 ) * 0.25;
-             tN( 15 ) =   ( zeta2- 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 ) * 0.25;
-             tN( 16 ) =   ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 ) * 0.25;
-             tN( 17 ) = - ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.25;
-             tN( 18 ) = - ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 ) * 0.25;
-             tN( 19 ) =   ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.25;
-             return tN;
+             aNXi.set_size(1,20);
+             aNXi(  0 ) =   ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * ( eta + xi + zeta + 2.0 ) * 0.125;
+             aNXi(  1 ) = - ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * ( eta - xi + zeta + 2.0 ) * 0.125;
+             aNXi(  2 ) = - ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * ( eta + xi - zeta - 2.0 ) * 0.125;
+             aNXi(  3 ) = - ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * (  - eta + xi + zeta + 2.0 ) * 0.125;
+             aNXi(  4 ) = - ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * ( eta + xi - zeta + 2.0 ) * 0.125;
+             aNXi(  5 ) =   ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * ( eta - xi - zeta + 2.0 ) * 0.125;
+             aNXi(  6 ) =   ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * ( eta + xi + zeta - 2.0 ) * 0.125;
+             aNXi(  7 ) = - ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * ( eta - xi + zeta - 2.0 ) * 0.125;
+             aNXi(  8 ) = - ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 ) * 0.25;
+             aNXi(  9 ) =   ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.25;
+             aNXi( 10 ) =   ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 ) * 0.25;
+             aNXi( 11 ) = - ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.25;
+             aNXi( 12 ) = - ( zeta2- 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 ) * 0.25;
+             aNXi( 13 ) =   ( zeta2- 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 ) * 0.25;
+             aNXi( 14 ) = - ( zeta2- 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 ) * 0.25;
+             aNXi( 15 ) =   ( zeta2- 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 ) * 0.25;
+             aNXi( 16 ) =   ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 ) * 0.25;
+             aNXi( 17 ) = - ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.25;
+             aNXi( 18 ) = - ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 ) * 0.25;
+             aNXi( 19 ) =   ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.25;
         }
 
 //------------------------------------------------------------------------------

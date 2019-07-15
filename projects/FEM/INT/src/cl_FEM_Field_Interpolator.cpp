@@ -151,9 +151,12 @@ namespace moris
              MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::N - mXi  is not set." );
              MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::N - mTau is not set." );
 
+             Matrix < DDRMat > tNSpace;
+             Matrix < DDRMat > tNTime;
+
              //evaluate space and time SF at Xi, Tau
-             Matrix < DDRMat > tNSpace = mSpaceInterpolation->eval_N( mXi );
-             Matrix < DDRMat > tNTime  = mTimeInterpolation->eval_N( mTau );
+             mSpaceInterpolation->eval_N( mXi, tNSpace );
+             mTimeInterpolation ->eval_N( mTau, tNTime );
 
              //evaluate space time SF by multiplying space and time SF
              return reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
@@ -170,9 +173,10 @@ namespace moris
             // evaluate dNSpacedXi for the field time interpolation and transpose
             Matrix< DDRMat> tdNSpacedXi = mSpaceInterpolation->eval_dNdXi( mXi );
             tdNSpacedXi = trans( tdNSpacedXi );
+            Matrix < DDRMat > tNTime;
 
             // evaluate NTime for the field time interpolation
-            Matrix < DDRMat > tNTime  = mTimeInterpolation->eval_N( mTau );
+            mTimeInterpolation->eval_N( mTau, tNTime );
 
             // set size dNFielddXi for the field
             Matrix< DDRMat> tdNFielddXi ( mNSpaceDim, mNFieldBases );
@@ -214,8 +218,10 @@ namespace moris
             // get the derivatives of the space time SF wrt x
             Matrix< DDRMat > tdNFielddx = this->Bx();
 
+            Matrix< DDRMat > tNTime;
+
             // evaluate N for the field time interpolation
-            Matrix< DDRMat > tNTime = mTimeInterpolation->eval_N( mTau );
+           mTimeInterpolation->eval_N( mTau, tNTime );
 
             // evaluate d2Ndxi2 for the field space interpolation
             Matrix< DDRMat > td2NSpacedxi2 = mSpaceInterpolation->eval_d2NdXi2( mXi );
@@ -265,8 +271,10 @@ namespace moris
             Matrix< DDRMat > tdNFielddx = this->Bx();
             Matrix< DDRMat > td2NFielddx2 = this->eval_d2Ndx2();
 
+            Matrix< DDRMat > tNTime;
+
             // evaluate N for the field time interpolation
-            Matrix< DDRMat > tNTime = mTimeInterpolation->eval_N( mTau );
+            mTimeInterpolation->eval_N( mTau, tNTime );
 
             // evaluate derivatives of the field space interpolation
             Matrix< DDRMat > td2NSpacedxi2 = mSpaceInterpolation->eval_d2NdXi2( mXi );
@@ -300,8 +308,10 @@ namespace moris
             // evaluate dNdTau for the field time interpolation
             Matrix< DDRMat > tdNTimedTau = mTimeInterpolation->eval_dNdXi( mTau );
 
+            Matrix < DDRMat > tNSpace;
+
             // evaluate N for the field space interpolation
-            Matrix < DDRMat > tNSpace = mSpaceInterpolation->eval_N( mXi );
+            mSpaceInterpolation->eval_N( mXi, tNSpace );
             tNSpace = trans( tNSpace );
 
             // set size tdNFielddTau for the field
@@ -345,9 +355,10 @@ namespace moris
             Matrix< DDRMat > tdNFielddt = this->Bt();
 
             //get the second derivatives of the space time SF wrt tau
+            Matrix< DDRMat > tNSpace;
 
             // get N for the field space interpolation and transpose
-            Matrix< DDRMat > tNSpace = mSpaceInterpolation->eval_N( mXi );
+            mSpaceInterpolation->eval_N( mXi, tNSpace );
             tNSpace = trans( tNSpace );
 
             // get d2Ndtau2 for the field time interpolation

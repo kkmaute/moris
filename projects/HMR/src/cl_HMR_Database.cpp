@@ -5,10 +5,8 @@
 #include "cl_HMR_Mesh.hpp"
 #include "MTK_Tools.hpp"
 
-
 #include "op_times.hpp"
 #include "fn_dot.hpp"
-#include "fn_print.hpp"
 
 namespace moris
 {
@@ -18,7 +16,7 @@ namespace moris
 
         Database::Database( Parameters * aParameters ) : mParameters( aParameters )
         {
-            // locl parameters ( number of elements per direction etc )
+            // lock parameters ( number of elements per direction etc )
             aParameters->lock();
 
             // create factory object
@@ -122,10 +120,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::load_pattern_from_hdf5_file(
-                const std::string & aPath,
-                const bool          aMode )
+        void Database::load_pattern_from_hdf5_file( const std::string & aPath,
+                                                    const bool          aMode )
         {
             // create file object
             File tHDF5;
@@ -134,7 +130,7 @@ namespace moris
             tHDF5.open( aPath );
 
             // load input pattern into file
-            tHDF5.load_refinement_pattern( mBackgroundMesh, aMode  );
+            tHDF5.load_refinement_pattern( mBackgroundMesh, aMode );
 
             // close hdf5 file
             tHDF5.close();
@@ -146,8 +142,7 @@ namespace moris
          * sets the flag that the parameter object must be deleted
          * by the destructor
          */
-        void
-        Database::set_parameter_owning_flag()
+        void Database::set_parameter_owning_flag()
         {
             mDeleteParametersOnDestruction = true;
         }
@@ -484,10 +479,9 @@ namespace moris
         /**
          * creates a union of two patterns
          */
-        void Database::unite_patterns(
-                const uint & aSourceA,
-                const uint & aSourceB,
-                const uint & aTarget )
+        void Database::unite_patterns( const uint & aSourceA,
+                                       const uint & aSourceB,
+                                       const uint & aTarget )
         {
             tic tTimer;
 
@@ -516,9 +510,8 @@ namespace moris
         /**
          * copies a source pattern to a target pattern
          */
-        void
-        Database::copy_pattern( const uint & aSource,
-                                const uint & aTarget )
+        void Database::copy_pattern( const uint & aSource,
+                                     const uint & aTarget )
         {
             tic tTimer;
 
@@ -695,11 +688,11 @@ namespace moris
                     this->create_union_pattern();
                     
                     // test if max polynomial is 3
-                    if ( mParameters->get_max_polynomial() > 2 )
-                    {
-                        // activate extra pattern for exodus
+//                    if ( mParameters->get_max_polynomial() > 2 )
+//                    {
+//                        // activate extra pattern for exodus
 //                        this->add_extra_refinement_step_for_exodus();
-                    }
+//                    }
 
                     // create new B-Spline Meshes
                     this->update_bspline_meshes();
@@ -724,12 +717,12 @@ namespace moris
                                           mParameters->get_lagrange_output_pattern(),
                                           mParameters->get_union_pattern() );
 
-                    // test if max polynomial is 3
-                    if ( mParameters->get_max_polynomial() > 2 )
-                    {
-                        // activate extra pattern for exodus
+//                    // test if max polynomial is 3
+//                    if ( mParameters->get_max_polynomial() > 2 )
+//                    {
+//                        // activate extra pattern for exodus
 //                        this->add_extra_refinement_step_for_exodus();
-                    }
+//                    }
 
                     // create new B-Spline Meshes
                     this->update_bspline_meshes();
@@ -765,12 +758,12 @@ namespace moris
                                           mParameters->get_lagrange_output_pattern(),
                                           mParameters->get_union_pattern() );
 
-                    // test if max polynomial is 3
-                    if ( mParameters->get_max_polynomial() > 2 )
-                    {
-                        // activate extra pattern for exodus
+//                    // test if max polynomial is 3
+//                    if ( mParameters->get_max_polynomial() > 2 )
+//                    {
+//                        // activate extra pattern for exodus
 //                        this->add_extra_refinement_step_for_exodus();
-                    }
+//                    }
 
                     // create new B-Spline Meshes
                     this->update_bspline_meshes();
@@ -792,11 +785,10 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::interpolate_field( const uint                   & aSourcePattern,
-                                     const std::shared_ptr<Field>   aSource,
-                                     const uint                   & aTargetPattern,
-                                           std::shared_ptr<Field>   aTarget )
+        void Database::interpolate_field( const uint                   & aSourcePattern,
+                                          const std::shared_ptr<Field>   aSource,
+                                          const uint                   & aTargetPattern,
+                                                std::shared_ptr<Field>   aTarget )
         {
             // make sure that mesh orders match
 
@@ -1262,8 +1254,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        Database::create_working_pattern_for_bspline_refinement()
+        void Database::create_working_pattern_for_bspline_refinement()
         {
             // get pattern
             uint tWorkingPattern  = mParameters->get_working_pattern();
@@ -1306,8 +1297,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        Database::flag_element( const luint & aIndex )
+        void Database::flag_element( const luint & aIndex )
         {
             // flag element implies that a manual refinement is performed
             // therefore, we set the flag
@@ -1323,8 +1313,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        Database::flag_parent( const luint & aIndex )
+        void Database::flag_parent( const luint & aIndex )
         {
             // get pointer to this element
             Background_Element_Base * tElement = mBackgroundMesh->get_element( aIndex );
@@ -1347,8 +1336,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        Database::create_extra_refinement_buffer_for_level( const uint aLevel )
+        void Database::create_extra_refinement_buffer_for_level( const uint aLevel )
         {
             // collect elements from level
             Cell< Background_Element_Base * > tElementsOfLevel;

@@ -173,9 +173,9 @@ namespace moris
         {
             real aResult = 1.0;
 
-            for ( uint i=1; i<=aK; ++i )
+            for ( uint i = 1; i <= aK; ++i )
             {
-                aResult *= ( ( real ) aN+1-i ) / ( real( i ) );
+                aResult *= ( ( real ) aN + 1 - i ) / ( real( i ) );
             }
 
             return aResult;

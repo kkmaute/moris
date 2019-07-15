@@ -121,12 +121,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat>
-        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3,
-                    "HEX64 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 3, "HEX64 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta and zeta from input vector
             auto   xi = aXi( 0 );
@@ -149,72 +149,71 @@ namespace moris
             real c3 = ( -zeta*( 1.0 - 9.0 * zeta * ( 1.0 + zeta ) ) - 1.0 )*0.0625;
 
             // populate matrix with values
-            Matrix< DDRMat > tN(1,64);
-            tN(  0 ) = a0 * b0 * c0;
-            tN(  1 ) = a3 * b0 * c0;
-            tN(  2 ) = a3 * b3 * c0;
-            tN(  3 ) = a0 * b3 * c0;
-            tN(  4 ) = a0 * b0 * c3;
-            tN(  5 ) = a3 * b0 * c3;
-            tN(  6 ) = a3 * b3 * c3;
-            tN(  7 ) = a0 * b3 * c3;
-            tN(  8 ) = a1 * b0 * c0;
-            tN(  9 ) = a2 * b0 * c0;
-            tN( 10 ) = a0 * b1 * c0;
-            tN( 11 ) = a0 * b2 * c0;
-            tN( 12 ) = a0 * b0 * c1;
-            tN( 13 ) = a0 * b0 * c2;
-            tN( 14 ) = a3 * b1 * c0;
-            tN( 15 ) = a3 * b2 * c0;
-            tN( 16 ) = a3 * b0 * c1;
-            tN( 17 ) = a3 * b0 * c2;
-            tN( 18 ) = a2 * b3 * c0;
-            tN( 19 ) = a1 * b3 * c0;
-            tN( 20 ) = a3 * b3 * c1;
-            tN( 21 ) = a3 * b3 * c2;
-            tN( 22 ) = a0 * b3 * c1;
-            tN( 23 ) = a0 * b3 * c2;
-            tN( 24 ) = a1 * b0 * c3;
-            tN( 25 ) = a2 * b0 * c3;
-            tN( 26 ) = a0 * b1 * c3;
-            tN( 27 ) = a0 * b2 * c3;
-            tN( 28 ) = a3 * b1 * c3;
-            tN( 29 ) = a3 * b2 * c3;
-            tN( 30 ) = a2 * b3 * c3;
-            tN( 31 ) = a1 * b3 * c3;
-            tN( 32 ) = a1 * b1 * c0;
-            tN( 33 ) = a1 * b2 * c0;
-            tN( 34 ) = a2 * b2 * c0;
-            tN( 35 ) = a2 * b1 * c0;
-            tN( 36 ) = a1 * b0 * c1;
-            tN( 37 ) = a2 * b0 * c1;
-            tN( 38 ) = a2 * b0 * c2;
-            tN( 39 ) = a1 * b0 * c2;
-            tN( 40 ) = a0 * b1 * c1;
-            tN( 41 ) = a0 * b1 * c2;
-            tN( 42 ) = a0 * b2 * c2;
-            tN( 43 ) = a0 * b2 * c1;
-            tN( 44 ) = a3 * b1 * c1;
-            tN( 45 ) = a3 * b2 * c1;
-            tN( 46 ) = a3 * b2 * c2;
-            tN( 47 ) = a3 * b1 * c2;
-            tN( 48 ) = a2 * b3 * c1;
-            tN( 49 ) = a1 * b3 * c1;
-            tN( 50 ) = a1 * b3 * c2;
-            tN( 51 ) = a2 * b3 * c2;
-            tN( 52 ) = a1 * b1 * c3;
-            tN( 53 ) = a2 * b1 * c3;
-            tN( 54 ) = a2 * b2 * c3;
-            tN( 55 ) = a1 * b2 * c3;
-            tN( 56 ) = a1 * b1 * c1;
-            tN( 57 ) = a2 * b1 * c1;
-            tN( 58 ) = a2 * b2 * c1;
-            tN( 59 ) = a1 * b2 * c1;
-            tN( 60 ) = a1 * b1 * c2;
-            tN( 61 ) = a2 * b1 * c2;
-            tN( 62 ) = a2 * b2 * c2;
-            tN( 63 ) = a1 * b2 * c2;
-            return tN;
+            aNXi.set_size(1,64);
+            aNXi(  0 ) = a0 * b0 * c0;
+            aNXi(  1 ) = a3 * b0 * c0;
+            aNXi(  2 ) = a3 * b3 * c0;
+            aNXi(  3 ) = a0 * b3 * c0;
+            aNXi(  4 ) = a0 * b0 * c3;
+            aNXi(  5 ) = a3 * b0 * c3;
+            aNXi(  6 ) = a3 * b3 * c3;
+            aNXi(  7 ) = a0 * b3 * c3;
+            aNXi(  8 ) = a1 * b0 * c0;
+            aNXi(  9 ) = a2 * b0 * c0;
+            aNXi( 10 ) = a0 * b1 * c0;
+            aNXi( 11 ) = a0 * b2 * c0;
+            aNXi( 12 ) = a0 * b0 * c1;
+            aNXi( 13 ) = a0 * b0 * c2;
+            aNXi( 14 ) = a3 * b1 * c0;
+            aNXi( 15 ) = a3 * b2 * c0;
+            aNXi( 16 ) = a3 * b0 * c1;
+            aNXi( 17 ) = a3 * b0 * c2;
+            aNXi( 18 ) = a2 * b3 * c0;
+            aNXi( 19 ) = a1 * b3 * c0;
+            aNXi( 20 ) = a3 * b3 * c1;
+            aNXi( 21 ) = a3 * b3 * c2;
+            aNXi( 22 ) = a0 * b3 * c1;
+            aNXi( 23 ) = a0 * b3 * c2;
+            aNXi( 24 ) = a1 * b0 * c3;
+            aNXi( 25 ) = a2 * b0 * c3;
+            aNXi( 26 ) = a0 * b1 * c3;
+            aNXi( 27 ) = a0 * b2 * c3;
+            aNXi( 28 ) = a3 * b1 * c3;
+            aNXi( 29 ) = a3 * b2 * c3;
+            aNXi( 30 ) = a2 * b3 * c3;
+            aNXi( 31 ) = a1 * b3 * c3;
+            aNXi( 32 ) = a1 * b1 * c0;
+            aNXi( 33 ) = a1 * b2 * c0;
+            aNXi( 34 ) = a2 * b2 * c0;
+            aNXi( 35 ) = a2 * b1 * c0;
+            aNXi( 36 ) = a1 * b0 * c1;
+            aNXi( 37 ) = a2 * b0 * c1;
+            aNXi( 38 ) = a2 * b0 * c2;
+            aNXi( 39 ) = a1 * b0 * c2;
+            aNXi( 40 ) = a0 * b1 * c1;
+            aNXi( 41 ) = a0 * b1 * c2;
+            aNXi( 42 ) = a0 * b2 * c2;
+            aNXi( 43 ) = a0 * b2 * c1;
+            aNXi( 44 ) = a3 * b1 * c1;
+            aNXi( 45 ) = a3 * b2 * c1;
+            aNXi( 46 ) = a3 * b2 * c2;
+            aNXi( 47 ) = a3 * b1 * c2;
+            aNXi( 48 ) = a2 * b3 * c1;
+            aNXi( 49 ) = a1 * b3 * c1;
+            aNXi( 50 ) = a1 * b3 * c2;
+            aNXi( 51 ) = a2 * b3 * c2;
+            aNXi( 52 ) = a1 * b1 * c3;
+            aNXi( 53 ) = a2 * b1 * c3;
+            aNXi( 54 ) = a2 * b2 * c3;
+            aNXi( 55 ) = a1 * b2 * c3;
+            aNXi( 56 ) = a1 * b1 * c1;
+            aNXi( 57 ) = a2 * b1 * c1;
+            aNXi( 58 ) = a2 * b2 * c1;
+            aNXi( 59 ) = a1 * b2 * c1;
+            aNXi( 60 ) = a1 * b1 * c2;
+            aNXi( 61 ) = a2 * b1 * c2;
+            aNXi( 62 ) = a2 * b2 * c2;
+            aNXi( 63 ) = a1 * b2 * c2;
         }
 
 //------------------------------------------------------------------------------

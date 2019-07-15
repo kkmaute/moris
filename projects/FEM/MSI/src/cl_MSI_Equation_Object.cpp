@@ -199,6 +199,7 @@ namespace moris
         mSolVec = aSolutionVector;
 
         Matrix< DDRMat > tTMatrix;
+
         this->build_PADofMap( tTMatrix );
 
         this->compute_jacobian();

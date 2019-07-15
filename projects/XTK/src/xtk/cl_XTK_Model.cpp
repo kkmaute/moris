@@ -9,6 +9,7 @@
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
@@ -26,6 +27,7 @@ Model::~Model()
     if(mEnriched)
     {
         delete mEnrichment;
+        delete mEnrichedInterpMesh;
     }
 
     if(mGhost)
@@ -1699,12 +1701,20 @@ Model::get_basis_enrichment()
     MORIS_ASSERT(mEnriched,"Cannot get basis enrichment from an XTK model which has not called perform_basis_enrichment ");
     return *mEnrichment;
 }
+Enriched_Interpolation_Mesh const &
+Model::get_enriched_interp_mesh()
+{
+    MORIS_ASSERT(mEnriched,"Cannot get enriched interpolation mesh from an XTK model which has not called perform_basis_enrichment ");
+    return *mEnrichedInterpMesh;
+}
 
 void
 Model::perform_basis_enrichment_internal()
 {
     // initialize enrichment (ptr because of circular dependency)
     mEnrichment = new Enrichment(Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
+                                 EntityRank::NODE,
+                                 1,
                                  mGeometryEngine.get_num_phases(),
                                  this,
                                  &mCutMesh,
@@ -2100,6 +2110,14 @@ Model::get_output_mesh(Output_Options const & aOutputOptions)
         std::cout<<"XTK: Mesh output completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
     }
     return tOutputMesh;
+}
+
+//------------------------------------------------------------------------------
+
+moris::uint
+Model::get_spatial_dim()
+{
+    return mModelDimension;
 }
 
 //------------------------------------------------------------------------------

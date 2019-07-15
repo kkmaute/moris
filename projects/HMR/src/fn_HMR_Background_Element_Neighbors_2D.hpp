@@ -36,7 +36,7 @@ namespace moris
              tNeighbors( tArraySize[ aOrder ], nullptr );
 
              // fill first frame
-             for ( uint k=0; k<8; ++k)
+             for ( uint k = 0; k < 8; ++k)
              {
                  // test if neighbor exists
                  if ( mNeighbors[ k ] != NULL )

@@ -9,7 +9,6 @@
 
 #include "assert.hpp"
 
-#include "fn_print.hpp"
 #include "fn_unique.hpp"
 
 namespace moris

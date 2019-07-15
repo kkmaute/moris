@@ -17,11 +17,9 @@ namespace moris
     {
 // ----------------------------------------------------------------------------
 
-        void
-        get_basis_neighbors_2d(
-            Basis          * aBasis,
-            const uint     & aOrder,
-            Basis          ** aNeighbors )
+        void get_basis_neighbors_2d(       Basis  * aBasis,
+                                     const uint   & aOrder,
+                                           Basis ** aNeighbors )
         {
              // make sure order is not too big
              MORIS_ASSERT( 0 < aOrder && aOrder <= 3, "Neighbor order too big.");
@@ -41,7 +39,6 @@ namespace moris
                  for( uint k=8; k<tArraySize[ aOrder ]; ++k )
                  {
                      aNeighbors[ k ] = nullptr;
-
                  }
 
                  // placeholder for basis neighbor
@@ -374,9 +371,9 @@ namespace moris
                          aNeighbors[ 19 ] = tNeighbor;
                      }
                  }
+
              if ( aOrder >= 3 )
              {
-
                  // test if neighbor 8 exists
                  if ( aNeighbors[ 8 ] != NULL )
                  {

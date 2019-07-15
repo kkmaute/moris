@@ -56,8 +56,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2, "QUAD4 - eval_N: aXi not allocated or hat wrong size." );
@@ -67,12 +68,11 @@ namespace moris
             real eta = aXi( 1 );
 
             // populate matrix with values
-            Matrix< DDRMat> tN(1,4);
-            tN( 0 ) = ( ( 1.0 - xi ) * ( 1.0 - eta ) ) * 0.25;
-            tN( 1 ) = ( ( 1.0 + xi ) * ( 1.0 - eta ) ) * 0.25;
-            tN( 2 ) = ( ( 1.0 + xi ) * ( 1.0 + eta ) ) * 0.25;
-            tN( 3 ) = ( ( 1.0 - xi ) * ( 1.0 + eta ) ) * 0.25;
-            return tN;
+            aNXi.set_size(1,4);
+            aNXi( 0 ) = ( ( 1.0 - xi ) * ( 1.0 - eta ) ) * 0.25;
+            aNXi( 1 ) = ( ( 1.0 + xi ) * ( 1.0 - eta ) ) * 0.25;
+            aNXi( 2 ) = ( ( 1.0 + xi ) * ( 1.0 + eta ) ) * 0.25;
+            aNXi( 3 ) = ( ( 1.0 - xi ) * ( 1.0 + eta ) ) * 0.25;
         }
 
 //------------------------------------------------------------------------------

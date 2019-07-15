@@ -80,13 +80,13 @@ main( int    argc,
      * XTKROOT is a convenient  environment variable specifying a directory where
      * some commonly used meshes are stored. It does not need to be used in general.
      * \code{.cpp}
-     * std::string tPrefix = std::getenv("XTKROOT");
-     * std::string tMeshFileName = tPrefix + "/tutorial_exodus_files/sandwich.e";
+     * std::string tPrefix = std::getenv("MORISROOT");
+     * std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
      * \endcode
      *
      */
     std::string tPrefix = std::getenv("MORISROOT");
-    std::string tMeshFileName = tPrefix + "/tutorial_exodus_files/sandwich.e";
+    std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
 
     std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
 
@@ -100,7 +100,7 @@ main( int    argc,
      * In this example a mesh file called sandwich.e which has multiple block sets, side sets and node sets is used.
      * @image html ./figures/sandwich_base_mesh.png "Sandwich Background Mesh"
      */
-    moris::mtk::Mesh* tBackgroundMesh = moris::mtk::create_mesh( MeshType::STK, tMeshFileName );
+    moris::mtk::Interpolation_Mesh* tBackgroundMesh = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
 
     /*!
      * \subsection geometry_vector_sectup 2.) Geometry Vector Setup
@@ -302,7 +302,7 @@ main( int    argc,
      * tXTKModel.compute_interface_sensitivity();
      * \endcode
      */
-      tXTKModel.compute_sensitivity();
+//      tXTKModel.compute_sensitivity();
 
       /*!
        * \subsection unzip 4.) Interface unzipping
@@ -337,8 +337,7 @@ main( int    argc,
      * @image html ./figures/output_mesh.png "Output mesh. Red line - isocontour surface of Sphere 1. Blue line - isocontour surface of Sphere 2$
      */
     moris::mtk::Mesh* tOutputMesh = tXTKModel.get_output_mesh();
-    tPrefix = std::getenv("MORISOUTPUT");
-    std::string tMeshOutputFile = tPrefix + "/XTK_Tutorial_Multi.e";
+    std::string tMeshOutputFile = "./xtk_exo/XTK_Tutorial_Multi.e";
     tOutputMesh->create_output_mesh(tMeshOutputFile);
 
 

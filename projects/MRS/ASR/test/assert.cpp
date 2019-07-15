@@ -18,12 +18,6 @@ TEST_CASE(
         "MORIS_ASSERT and MORIS_ERROR Tests",
         "[MORIS],[assert],[error]"      )
                                 {
-    moris::uint p_size = 1;
-    moris::uint p_rank = 1;
-#ifdef MORIS_HAVE_PARALLEL
-    p_size = par_size();
-    p_rank = par_rank();
-#endif
 
     SECTION("CHECK FOR THROWS")
     {

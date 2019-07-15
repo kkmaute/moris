@@ -616,7 +616,7 @@ public:
     }
 
     //--------------------------------------------------------------
-
+    // FIXME: REMOVE SINCE NOT USED
     virtual
     moris_id
     get_max_entity_id( enum EntityRank aEntityRank ) const
@@ -950,10 +950,10 @@ public:
     get_t_matrix_of_node_loc_ind(
             const moris_index aNodeIndex,
             const EntityRank  aBSplineRank )
-            {
+    {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
         return mDummyMatrix;
-            }
+    }
 
     //FIXME: IMPLEMENT THIS FUNCTION IN XTK
     virtual Matrix< IndexMat >
@@ -981,9 +981,9 @@ public:
     virtual
     get_adof_map( const uint aOrder,
                   map< moris_id, moris_index > & aAdofMap ) const
-                  {
+    {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");
-                  }
+    }
 
     /**
      * return the interpolation order of this field

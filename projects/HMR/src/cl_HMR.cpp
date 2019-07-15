@@ -19,21 +19,12 @@
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_eye.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
-#include "fn_print.hpp" //LINALG/src
+
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
-
-//#include "cl_DLA_Solver_Factory.hpp"
-//#include "cl_DLA_Linear_Solver_Aztec.hpp"
-//#include "cl_Vector.hpp"
-//
-//#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-//#include "cl_NLA_Newton_Solver.hpp"
-//#include "cl_NLA_Nonlinear_Problem.hpp"
-//#include "cl_NLA_Solver_Interface_Proxy.hpp"
 
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -41,8 +32,6 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Factory.hpp"
-#include "cl_MDL_Model.hpp"
-#include "cl_FEM_IWG_L2.hpp"
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -53,8 +42,7 @@ namespace moris
     {
 // -----------------------------------------------------------------------------
 
-        HMR::HMR ( Parameters * aParameters ) :
-                mParameters( aParameters )
+        HMR::HMR ( Parameters * aParameters ) : mParameters( aParameters )
         {
             mDatabase = std::make_shared< Database >( aParameters );
 
@@ -68,8 +56,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         // alternative constuctor that converts ref to a pointer
-        HMR::HMR ( Parameters & aParameters ) :
-                                HMR( & aParameters )
+        HMR::HMR ( Parameters & aParameters ) : HMR( & aParameters )
         {
 
         }
@@ -77,8 +64,7 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         // alternative constuctor that uses parameter list
-        HMR::HMR ( ParameterList & aParameterList )
-            : HMR( new Parameters( aParameterList ) )
+        HMR::HMR ( ParameterList & aParameterList ) : HMR( new Parameters( aParameterList ) )
         {
             mDatabase->set_parameter_owning_flag();
         }
@@ -99,13 +85,13 @@ namespace moris
 
             mDatabase->calculate_t_matrices_for_input();
 
-            mDatabase->set_activation_pattern(
-                                mParameters->get_lagrange_input_pattern() );
+            mDatabase->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
 
-        HMR::HMR( const std::string & aInPath, const std::string & aOutPath )
+        HMR::HMR( const std::string & aInPath,
+                  const std::string & aOutPath )
         {
             mDatabase = std::make_shared< Database >( aInPath, aOutPath );
 
@@ -120,10 +106,10 @@ namespace moris
             // create union of input and output
             mDatabase->create_union_pattern();
 
-            if( mParameters->get_max_polynomial() > 2 )
-            {
+//            if( mParameters->get_max_polynomial() > 2 )
+//            {
 //                mDatabase->add_extra_refinement_step_for_exodus();
-            }
+//            }
 
             // update database
             mDatabase->update_bspline_meshes();
@@ -139,29 +125,24 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::finalize()
+        void HMR::finalize()
         {
             // if mesh has not been refined, copy input to output before finalizing
             if( ! mDatabase->have_refined_at_least_one_element() )
             {
                 // copy input to output
-                mDatabase->get_background_mesh()->copy_pattern(
-                        mParameters->get_bspline_input_pattern(),
-                        mParameters->get_bspline_output_pattern() );
+                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_bspline_input_pattern(),
+                                                                mParameters->get_bspline_output_pattern() );
 
                 // copy input to output
-                mDatabase->get_background_mesh()->copy_pattern(
-                        mParameters->get_lagrange_input_pattern(),
-                        mParameters->get_lagrange_output_pattern() );
+                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_lagrange_input_pattern(),
+                                                                mParameters->get_lagrange_output_pattern() );
 
-                mDatabase->get_background_mesh()->copy_pattern(
-                        mParameters->get_lagrange_input_pattern(),
-                        mParameters->get_union_pattern() );
+                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_lagrange_input_pattern(),
+                                                                mParameters->get_union_pattern() );
 
                 // select output pattern
-                mDatabase->set_activation_pattern(
-                        mParameters->get_lagrange_output_pattern()  );
+                mDatabase->set_activation_pattern( mParameters->get_lagrange_output_pattern()  );
 
                 // update database
                 mDatabase->update_bspline_meshes();
@@ -173,8 +154,7 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
+        void HMR::save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
         {
             uint tOutputOrder = MORIS_UINT_MAX;
             uint tIndex = MORIS_UINT_MAX;
@@ -204,16 +184,14 @@ namespace moris
             MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
                     "Picked wrong mesh for output");
 
-            this->save_to_exodus(
-                    tIndex,
-                    aPath,
-                    aTimeStep );
+            this->save_to_exodus( tIndex,
+                                  aPath,
+                                  aTimeStep );
         }
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
+        void HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
         {
             uint tOutputOrder = MORIS_UINT_MAX;
             uint tIndex = MORIS_UINT_MAX;
@@ -245,19 +223,16 @@ namespace moris
 
             mDatabase->get_lagrange_mesh_by_index( tIndex )->nodes_renumbering_hack_for_femdoc();
 
-            this->save_to_exodus(
-                    tIndex,
-                    aPath,
-                    aTimeStep );
+            this->save_to_exodus( tIndex,
+                                  aPath,
+                                  aTimeStep );
         }
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_last_step_to_exodus(
-                            const std::string & aPath,
-                            const double aTimeStep,
-                            const uint aOutputOrder )
+        void HMR::save_last_step_to_exodus( const std::string & aPath,
+                                            const double aTimeStep,
+                                            const uint aOutputOrder )
         {
             MORIS_ERROR( ! mUpdateRefinementCalled,
                     "HMR does not feel comfortable with you calling save_last_step_to_exodus() after you have overwritten the input pattern using update_refinement_pattern()");
@@ -294,14 +269,12 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_to_exodus(
-                const uint        & aMeshIndex,
-                const std::string & aPath,
-                const double aTimeStep  )
+        void HMR::save_to_exodus( const uint        & aMeshIndex,
+                                  const std::string & aPath,
+                                  const double aTimeStep  )
         {
             STK * tSTK = mDatabase->get_lagrange_mesh_by_index( aMeshIndex )
-                    ->create_stk_object( aTimeStep );
+                                  ->create_stk_object( aTimeStep );
 
             // save MTK to exodus
             tSTK->save_to_file( aPath );
@@ -312,8 +285,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_to_hdf5( const std::string & aPath )
+        void HMR::save_to_hdf5( const std::string & aPath )
         {
             // create file object
             File tHDF5;
@@ -344,8 +316,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_coeffs_to_hdf5_file( const std::string & aFilePath )
+        void HMR::save_coeffs_to_hdf5_file( const std::string & aFilePath )
         {
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
@@ -390,21 +361,19 @@ namespace moris
                     tFilePath = parallelize_path( tFilePath );
 
                     // Create a new file using default properties
-                    hid_t tFileID = H5Fcreate(
-                            tFilePath.c_str(),
-                            H5F_ACC_TRUNC,
-                            H5P_DEFAULT,
-                            H5P_DEFAULT);
+                    hid_t tFileID = H5Fcreate( tFilePath.c_str(),
+                                               H5F_ACC_TRUNC,
+                                               H5P_DEFAULT,
+                                               H5P_DEFAULT);
 
                     // error handler
                     herr_t tStatus;
 
                     // save mesh order
-                    save_scalar_to_hdf5_file(
-                            tFileID,
-                            "LagrangeOrder",
-                            tMesh->get_order(),
-                            tStatus );
+                    save_scalar_to_hdf5_file( tFileID,
+                                              "LagrangeOrder",
+                                              tMesh->get_order(),
+                                              tStatus );
 
                     // get number of nodes of this mesh
                     uint tNumberOfNodes = tMesh->get_number_of_nodes_on_proc();
@@ -419,11 +388,10 @@ namespace moris
                     }
 
                     // save ids to file
-                    save_matrix_to_hdf5_file(
-                            tFileID,
-                            "NodeID",
-                            tIDs,
-                            tStatus );
+                    save_matrix_to_hdf5_file( tFileID,
+                                              "NodeID",
+                                              tIDs,
+                                              tStatus );
 
                     // loop over all B-Spline meshes
                     uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
@@ -447,23 +415,21 @@ namespace moris
                             // populate matrix
                             for( uint k=0; k<tNumberOfNodes; ++k )
                             {
-                                tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )
-                                                                            ->get_interpolation( tOrder )
-                                                                            ->get_number_of_coefficients();
+                                tNumberOfCoeffs( k ) = tMesh->get_node_by_index( k )->get_interpolation( tOrder )
+                                                                                    ->get_number_of_coefficients();
                             }
 
                             // save number of coeffs to file
-                            save_matrix_to_hdf5_file(
-                                    tFileID,
-                                    tLabel,
-                                    tNumberOfCoeffs,
-                                    tStatus );
+                            save_matrix_to_hdf5_file( tFileID,
+                                                      tLabel,
+                                                      tNumberOfCoeffs,
+                                                      tStatus );
 
                             // get max number of coeffs
                             uint tMaxNumCoeffs = tNumberOfCoeffs.max();
 
                             Matrix< IdMat > tCoeffIDs( tNumberOfNodes, tMaxNumCoeffs, gNoID );
-                            Matrix< DDRMat >  tWeights( tNumberOfNodes, tMaxNumCoeffs, 0.0 );
+                            Matrix< DDRMat > tWeights( tNumberOfNodes, tMaxNumCoeffs, 0.0 );
 
                             // populate matrix
                             for( uint k=0; k<tNumberOfNodes; ++k )
@@ -491,21 +457,19 @@ namespace moris
                             tLabel = "BSplineIDs_" + std::to_string( tOrder );
 
                             // save ids to file
-                            save_matrix_to_hdf5_file(
-                                    tFileID,
-                                    tLabel,
-                                    tCoeffIDs,
-                                    tStatus );
+                            save_matrix_to_hdf5_file( tFileID,
+                                                      tLabel,
+                                                      tCoeffIDs,
+                                                      tStatus );
 
                             // generate  label
                             tLabel = "InterpolationWeights_" + std::to_string( tOrder );
 
                             // save weights to file
-                            save_matrix_to_hdf5_file(
-                                    tFileID,
-                                    tLabel,
-                                    tWeights,
-                                    tStatus );
+                            save_matrix_to_hdf5_file( tFileID,
+                                                      tLabel,
+                                                      tWeights,
+                                                      tStatus );
                         }
                     }
 
@@ -515,8 +479,7 @@ namespace moris
             }
         }
 
-        void
-        HMR::renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath )
+        void HMR::renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath )
         {
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
@@ -539,21 +502,19 @@ namespace moris
                     tFilePath = parallelize_path( tFilePath );
 
                     // Create a new file using default properties
-                    hid_t tFileID = H5Fcreate(
-                            tFilePath.c_str(),
-                            H5F_ACC_TRUNC,
-                            H5P_DEFAULT,
-                            H5P_DEFAULT);
+                    hid_t tFileID = H5Fcreate( tFilePath.c_str(),
+                                               H5F_ACC_TRUNC,
+                                               H5P_DEFAULT,
+                                               H5P_DEFAULT);
 
                     // error handler
                     herr_t tStatus;
 
                     // save mesh order
-                    save_scalar_to_hdf5_file(
-                            tFileID,
-                            "LagrangeOrder",
-                            tMesh->get_order(),
-                            tStatus );
+                    save_scalar_to_hdf5_file( tFileID,
+                                              "LagrangeOrder",
+                                              tMesh->get_order(),
+                                              tStatus );
 
                     // get number of nodes of this mesh
                     uint tNumberOfNodes = tMesh->get_number_of_nodes_on_proc();
@@ -568,11 +529,10 @@ namespace moris
                     }
 
                     // save ids to file
-                    save_matrix_to_hdf5_file(
-                            tFileID,
-                            "NodeID",
-                            tIDs,
-                            tStatus );
+                    save_matrix_to_hdf5_file( tFileID,
+                                              "NodeID",
+                                              tIDs,
+                                              tStatus );
 
                     // loop over all B-Spline meshes
                     uint tNumberOfBSplineMeshes = tMesh->get_number_of_bspline_meshes();
@@ -603,11 +563,10 @@ namespace moris
                             }
 
                             // save number of coeffs to file
-                            save_matrix_to_hdf5_file(
-                                    tFileID,
-                                    tLabel,
-                                    tNumberOfCoeffs,
-                                    tStatus );
+                            save_matrix_to_hdf5_file( tFileID,
+                                                      tLabel,
+                                                      tNumberOfCoeffs,
+                                                      tStatus );
 
                             // get max number of coeffs
                             uint tMaxNumCoeffs = tNumberOfCoeffs.max();
@@ -641,21 +600,19 @@ namespace moris
                             tLabel = "BSplineIDs_" + std::to_string( tOrder );
 
                             // save ids to file
-                            save_matrix_to_hdf5_file(
-                                    tFileID,
-                                    tLabel,
-                                    tCoeffIDs,
-                                    tStatus );
+                            save_matrix_to_hdf5_file( tFileID,
+                                                      tLabel,
+                                                      tCoeffIDs,
+                                                      tStatus );
 
                             // generate  label
                             tLabel = "InterpolationWeights_" + std::to_string( tOrder );
 
                             // save weights to file
-                            save_matrix_to_hdf5_file(
-                                    tFileID,
-                                    tLabel,
-                                    tWeights,
-                                    tStatus );
+                            save_matrix_to_hdf5_file( tFileID,
+                                                      tLabel,
+                                                      tWeights,
+                                                      tStatus );
                         }
                     }
 
@@ -667,8 +624,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_mesh_relations_to_hdf5_file( const std::string & aFilePath )
+        void HMR::save_mesh_relations_to_hdf5_file( const std::string & aFilePath )
         {
             // get pointer to output mesh
             BSpline_Mesh_Base * tMesh = nullptr;
@@ -686,21 +642,19 @@ namespace moris
                 tFilePath = parallelize_path( tFilePath );
 
                 // Create a new file using default properties
-                hid_t tFileID = H5Fcreate(
-                        tFilePath.c_str(),
-                        H5F_ACC_TRUNC,
-                        H5P_DEFAULT,
-                        H5P_DEFAULT);
+                hid_t tFileID = H5Fcreate( tFilePath.c_str(),
+                                           H5F_ACC_TRUNC,
+                                           H5P_DEFAULT,
+                                           H5P_DEFAULT);
 
                 // error handler
                 herr_t tStatus;
 
                 // save mesh order
-                save_scalar_to_hdf5_file(
-                        tFileID,
-                        "BSplineOrder",
-                        tMesh->get_order(),
-                        tStatus );
+                save_scalar_to_hdf5_file( tFileID,
+                                          "BSplineOrder",
+                                          tMesh->get_order(),
+                                          tStatus );
 
                 // get number of nodes of this mesh
                 uint tNumberOfBasis = tMesh->get_number_of_indexed_basis();
@@ -721,25 +675,22 @@ namespace moris
                 }
 
                 // save ids to file
-                save_matrix_to_hdf5_file(
-                        tFileID,
-                        "Basis_HMR_Domain_ID",
-                        tHMRDomainIDs,
-                        tStatus );
+                save_matrix_to_hdf5_file( tFileID,
+                                          "Basis_HMR_Domain_ID",
+                                          tHMRDomainIDs,
+                                          tStatus );
 
                 // save ids to file
-                save_matrix_to_hdf5_file(
-                        tFileID,
-                        "Basis_HMR_ID",
-                        tHMRIDs,
-                        tStatus );
+                save_matrix_to_hdf5_file( tFileID,
+                                          "Basis_HMR_ID",
+                                          tHMRIDs,
+                                          tStatus );
 
                 // save ids to file
-                save_matrix_to_hdf5_file(
-                        tFileID,
-                        "Basis_HMR_Ind",
-                        tHMRInds,
-                        tStatus );
+                save_matrix_to_hdf5_file( tFileID,
+                                          "Basis_HMR_Ind",
+                                          tHMRInds,
+                                          tStatus );
 
                 Matrix< IdMat > tHMRLevel( tNumberOfBasis, 1 );
 
@@ -750,11 +701,10 @@ namespace moris
                 }
 
                 // save ids to file
-                save_matrix_to_hdf5_file(
-                        tFileID,
-                        "Basis_HMR_Level",
-                        tHMRLevel,
-                        tStatus );
+                save_matrix_to_hdf5_file( tFileID,
+                                          "Basis_HMR_Level",
+                                          tHMRLevel,
+                                          tStatus );
 
                 // populate matrix
                 for( uint k=0; k<tNumberOfBasis; ++k )
@@ -777,18 +727,16 @@ namespace moris
                      moris_id tID= tMesh->get_basis_by_index( k )->get_id();
 
                      // save ids to file
-                     save_matrix_to_hdf5_file(
-                             tFileID,
-                             "Children for Basis_HMR_Ind ID =" + std::to_string( tID ),
-                             tIndices,
-                             tStatus );
+                     save_matrix_to_hdf5_file( tFileID,
+                                               "Children for Basis_HMR_Ind ID =" + std::to_string( tID ),
+                                               tIndices,
+                                               tStatus );
 
                      // save ids to file
-                     save_matrix_to_hdf5_file(
-                             tFileID,
-                             "Children for Basis_HMR_Weights ID =" + std::to_string( tID ),
-                             tWeights,
-                             tStatus );
+                     save_matrix_to_hdf5_file( tFileID,
+                                               "Children for Basis_HMR_Weights ID =" + std::to_string( tID ),
+                                               tWeights,
+                                               tStatus );
                 }
 
                 // populate matrix
@@ -816,11 +764,10 @@ namespace moris
                      moris_id tID= tMesh->get_basis_by_index( k )->get_id();
 
                      // save ids to file
-                     save_matrix_to_hdf5_file(
-                             tFileID,
-                             "Parents for Basis_HMR_Ind ID =" + std::to_string( tID ),
-                             tIndices,
-                             tStatus );
+                     save_matrix_to_hdf5_file( tFileID,
+                                               "Parents for Basis_HMR_Ind ID =" + std::to_string( tID ),
+                                               tIndices,
+                                               tStatus );
                 }
 
                 // close file
@@ -830,9 +777,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::flag_elements(       Cell< mtk::Cell* > & aElements,
-                            const uint                 aMinRefinementLevel )
+        void HMR::flag_elements(       Cell< mtk::Cell* > & aElements,
+                                 const uint                 aMinRefinementLevel )
         {
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
@@ -874,8 +820,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::perform_refinement( const enum RefinementMode aRefinementMode )
+        void HMR::perform_refinement( const enum RefinementMode aRefinementMode )
         {
             // refine database and remember flag
             mDatabase->perform_refinement( aRefinementMode, ! mPerformRefinementCalled );
@@ -900,16 +845,13 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::update_refinement_pattern()
+        void HMR::update_refinement_pattern()
         {
-            mDatabase->copy_pattern(
-                    mParameters->get_bspline_output_pattern(),
-                    mParameters->get_bspline_input_pattern() );
+            mDatabase->copy_pattern( mParameters->get_bspline_output_pattern(),
+                                     mParameters->get_bspline_input_pattern() );
 
-            mDatabase->copy_pattern(
-                    mParameters->get_lagrange_output_pattern(),
-                    mParameters->get_lagrange_input_pattern() );
+            mDatabase->copy_pattern( mParameters->get_lagrange_output_pattern(),
+                                     mParameters->get_lagrange_input_pattern() );
 
             // get number of bspline meshes
             uint tNumberOfBsplineMeshes = mDatabase->get_number_of_bspline_meshes();
@@ -947,8 +889,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Mesh >
-        HMR::create_mesh()
+        std::shared_ptr< Mesh > HMR::create_mesh()
         {
             return std::make_shared< Mesh >( mDatabase,
                                              mParameters->get_lagrange_orders().max(),
@@ -957,8 +898,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Mesh >
-        HMR::create_mesh( const uint & aLagrangeOrder )
+        std::shared_ptr< Mesh > HMR::create_mesh( const uint & aLagrangeOrder )
         {
             return std::make_shared< Mesh >( mDatabase,
                                              aLagrangeOrder,
@@ -967,8 +907,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Mesh >
-        HMR::create_mesh( const uint & aLagrangeOrder, const uint & aPattern )
+        std::shared_ptr< Mesh > HMR::create_mesh( const uint & aLagrangeOrder, const uint & aPattern )
         {
             return std::make_shared< Mesh >( mDatabase,
                                              aLagrangeOrder,
@@ -977,30 +916,28 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Interpolation_Mesh_HMR >
-        HMR::create_interpolation_mesh( const uint & aLagrangeOrder, const uint & aPattern )
+        std::shared_ptr< Interpolation_Mesh_HMR > HMR::create_interpolation_mesh( const uint & aLagrangeOrder,
+                                                                                  const uint & aPattern )
         {
             return std::make_shared< Interpolation_Mesh_HMR >( mDatabase,
                                                                aLagrangeOrder,
                                                                aPattern );
         }
 
-        std::shared_ptr< Integration_Mesh_HMR >
-        HMR::create_integration_mesh( const uint &             aLagrangeOrder,
-                                      const uint &             aPattern,
-                                      Interpolation_Mesh_HMR & aInterpolationMesh)
+        std::shared_ptr< Integration_Mesh_HMR > HMR::create_integration_mesh( const uint &                   aLagrangeOrder,
+                                                                              const uint &                   aPattern,
+                                                                                    Interpolation_Mesh_HMR & aInterpolationMesh)
         {
-            return std::make_shared< Integration_Mesh_HMR >(  mDatabase,
-                                                              aLagrangeOrder,
-                                                              aPattern,
-                                                              aInterpolationMesh);
+            return std::make_shared< Integration_Mesh_HMR >( mDatabase,
+                                                             aLagrangeOrder,
+                                                             aPattern,
+                                                             aInterpolationMesh);
         }
 
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Field >
-        HMR::create_field( const std::string & aLabel )
+        std::shared_ptr< Field > HMR::create_field( const std::string & aLabel )
         {
             return this->create_field( aLabel,
                                        mParameters->get_lagrange_orders().max(),
@@ -1009,10 +946,9 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Field >
-        HMR::create_field( const std::string & aLabel,
-                           const uint        & aLagrangeOrder,
-                           const uint        & aBSplineOrder )
+        std::shared_ptr< Field > HMR::create_field( const std::string & aLabel,
+                                                    const uint        & aLagrangeOrder,
+                                                    const uint        & aBSplineOrder )
         {
             //return mInputMesh->create_field( aLabel );
             uint tFieldIndex = mFields.size();
@@ -1027,10 +963,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        std::shared_ptr< Field >
-        HMR::create_field( const Field_Param & aParameters )
+        std::shared_ptr< Field > HMR::create_field( const Field_Param & aParameters )
         {
-
             if( mParameters->is_verbose() )
             {
                 std::fprintf( stdout,"%s Loading field %s from file %s.\n\n",
@@ -1061,16 +995,14 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_background_mesh_to_vtk( const std::string & aFilePath )
+        void HMR::save_background_mesh_to_vtk( const std::string & aFilePath )
         {
             mDatabase->get_background_mesh()->save_to_vtk( aFilePath );
         }
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_bsplines_to_vtk( const std::string & aFilePath )
+        void HMR::save_bsplines_to_vtk( const std::string & aFilePath )
         {
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
@@ -1090,8 +1022,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_faces_to_vtk( const std::string & aFilePath )
+        void HMR::save_faces_to_vtk( const std::string & aFilePath )
         {
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
@@ -1109,8 +1040,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        HMR::save_edges_to_vtk( const std::string & aFilePath )
+        void HMR::save_edges_to_vtk( const std::string & aFilePath )
         {
             if( mParameters->get_number_of_dimensions() == 3 )
             {
@@ -1135,8 +1065,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        HMR::save_mesh_to_vtk( const std::string & aFilePath )
+        void HMR::save_mesh_to_vtk( const std::string & aFilePath )
         {
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
@@ -1154,11 +1083,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        std::shared_ptr< Field >
-        HMR::load_field_from_hdf5_file( const std::string & aLabel,
-                                        const std::string & aFilePath,
-                                        const uint          aLagrangeOrder,
-                                        const uint          aBSpineOrder )
+        std::shared_ptr< Field > HMR::load_field_from_hdf5_file( const std::string & aLabel,
+                                                                 const std::string & aFilePath,
+                                                                 const uint          aLagrangeOrder,
+                                                                 const uint          aBSpineOrder )
         {
             //if(  mParameters->get_renumber_lagrange_nodes() )
             //{
@@ -1239,11 +1167,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        std::shared_ptr< Field >
-        HMR::load_field_from_exo_file( const std::string & aLabel,
-                                       const std::string & aFilePath,
-                                       const uint          aLagrangeOrder,
-                                       const uint          aBSpineOrder )
+        std::shared_ptr< Field > HMR::load_field_from_exo_file( const std::string & aLabel,
+                                                                const std::string & aFilePath,
+                                                                const uint          aLagrangeOrder,
+                                                                const uint          aBSpineOrder )
         {
             // create mesh object
             mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr, false );
@@ -1321,7 +1248,6 @@ namespace moris
             Matrix< DDSMat > tReverseMap;
             if(  mParameters->get_renumber_lagrange_nodes() )
             {
-
                 // load values into field
                 herr_t tStatus = 0;
                 hid_t tHDF5File = open_hdf5_file( "Reverse_Map_1.hdf5" );
@@ -1383,11 +1309,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        std::shared_ptr< Field >
-        HMR::load_field_from_file( const std::string & aLabel,
-                                   const std::string & aFilePath,
-                                   const uint          aLagrangeOrder,
-                                   const uint          aBSpineOrder )
+        std::shared_ptr< Field > HMR::load_field_from_file( const std::string & aLabel,
+                                                            const std::string & aFilePath,
+                                                            const uint          aLagrangeOrder,
+                                                            const uint          aBSpineOrder )
         {
             // detect file type
             std::string tType = aFilePath.substr( aFilePath.find_last_of(".")+1, aFilePath.length() );
@@ -1406,8 +1331,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        HMR::create_input_and_output_meshes()
+        void HMR::create_input_and_output_meshes()
         {
             // clear memory
             mInputMeshes.clear();
@@ -1433,8 +1357,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        HMR::perform_initial_refinement()
+        void HMR::perform_initial_refinement()
         {
             // get minimum refinement from parameters object
             uint tInitialRefinement = mParameters->get_initial_bspline_refinement();
@@ -1464,16 +1387,15 @@ namespace moris
             if( mParameters->get_additional_lagrange_refinement()  == 0 )
             {
                 // union pattern is needed, otherwise error is thrown
-                this->get_database()->copy_pattern(
-                        mParameters->get_lagrange_output_pattern(),
-                        mParameters->get_union_pattern() );
+                this->get_database()->copy_pattern( mParameters->get_lagrange_output_pattern(),
+                                                    mParameters->get_union_pattern() );
 
                  // test if max polynomial is 3
-                if ( mParameters->get_max_polynomial() > 2 )
-                {    
-                    // activate extra pattern for exodus
+//                if ( mParameters->get_max_polynomial() > 2 )
+//                {
+//                    // activate extra pattern for exodus
 //                    mDatabase->add_extra_refinement_step_for_exodus();
-                }    
+//                }
 
                 // update database
                 mDatabase->update_bspline_meshes();
@@ -1483,8 +1405,7 @@ namespace moris
             else
             {
                 // select B-Spline flags on output for second flagging
-                this->get_database()->set_activation_pattern(
-                        mParameters->get_bspline_output_pattern() );
+                this->get_database()->set_activation_pattern( mParameters->get_bspline_output_pattern() );
 
                 // add delta for Lagrange
                 tInitialRefinement += mParameters->get_additional_lagrange_refinement();
@@ -1512,8 +1433,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        HMR::user_defined_flagging(
+        void HMR::user_defined_flagging(
                         int ( *aFunction )(       Element                    * aElement,
                                             const Cell< Matrix< DDRMat > >   & aElementLocalValues,
                                                   ParameterList              & aParameters ),
@@ -1627,8 +1547,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        uint
-        HMR::get_mesh_index( const uint aOrder, const uint aPattern )
+        uint HMR::get_mesh_index( const uint aOrder, const uint aPattern )
         {
             uint aIndex = MORIS_UINT_MAX;
 
@@ -1651,16 +1570,13 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void
-        HMR::get_candidates_for_refinement(
-                Cell< mtk::Cell* > & aCandidates,
-                const uint           aMaxLevel )
+        void HMR::get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
+                                                 const uint                 aMaxLevel )
         {
             // reset candidate list
             aCandidates.clear();
 
             uint tPattern =  mParameters->get_lagrange_input_pattern();
-
 
             // make sure that input pattern is active
             mDatabase->set_activation_pattern( tPattern );
@@ -1721,9 +1637,7 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        uint
-        HMR::flag_volume_and_surface_elements(
-                const std::shared_ptr<Field> aScalarField )
+        uint HMR::flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField )
         {
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
@@ -1774,8 +1688,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        uint
-        HMR::flag_surface_elements( const std::shared_ptr<Field> aScalarField )
+        uint HMR::flag_surface_elements( const std::shared_ptr<Field> aScalarField )
         {
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
@@ -1791,14 +1704,13 @@ namespace moris
             Cell< mtk::Cell* > tRefinementList;
 
             // get candidates for surface
-            this->get_candidates_for_refinement(
-                    tCandidates,
-                    aScalarField->get_max_surface_level() );
+            this->get_candidates_for_refinement( tCandidates,
+                                                 aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
             tRefMan.find_cells_intersected_by_levelset( tRefinementList,
-                    tCandidates,
-                    aScalarField->get_node_values() );
+                                                        tCandidates,
+                                                        aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -1815,8 +1727,7 @@ namespace moris
         /**
          * needed for tutorials
          */
-        void
-        HMR::perform_refinement_and_map_fields()
+        void HMR::perform_refinement_and_map_fields()
         {
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 0: perform simple refinement
@@ -1937,54 +1848,44 @@ namespace moris
                 if( tInputField->get_lagrange_order() >= tBSplineOrder )
                 {
                     // interpolate field onto union mesh
-                    mDatabase->interpolate_field(
-                            mParameters->get_lagrange_input_pattern(),
-                            tInputField,
-                            mParameters->get_union_pattern(),
-                            tUnionField );
+                    mDatabase->interpolate_field( mParameters->get_lagrange_input_pattern(),
+                                                  tInputField,
+                                                  mParameters->get_union_pattern(),
+                                                  tUnionField );
                 }
                 else
                 {
                     // first, project field on mesh with correct order
-                    std::shared_ptr< Field > tTemporaryField =
-                            tInputInterpMeshes( m )->create_field(
-                                    tInputField->get_label(),
-                                    tBSplineOrder );
+                    std::shared_ptr< Field > tTemporaryField = tInputInterpMeshes( m )->create_field( tInputField->get_label(),
+                                                                                                      tBSplineOrder );
 
-                    mDatabase->change_field_order(
-                            tInputField, tTemporaryField );
+                    mDatabase->change_field_order( tInputField, tTemporaryField );
 
                     // now, interpolate this field onto the inion
-                    mDatabase->interpolate_field(
-                            mParameters->get_lagrange_input_pattern(),
-                            tTemporaryField,
-                            mParameters->get_union_pattern(),
-                            tUnionField );
+                    mDatabase->interpolate_field( mParameters->get_lagrange_input_pattern(),
+                                                  tTemporaryField,
+                                                  mParameters->get_union_pattern(),
+                                                  tUnionField );
                 }
 
                 // perform mapping
-                tMappers( m )->perform_mapping(
-                        tInputField->get_label(),
-                        EntityRank::NODE,
-                        tInputField->get_label(),
-                        tUnionField->get_bspline_rank() );
+                tMappers( m )->perform_mapping( tInputField->get_label(),
+                                                EntityRank::NODE,
+                                                tInputField->get_label(),
+                                                tUnionField->get_bspline_rank() );
 
                 // a small sanity test
-                MORIS_ASSERT(  tUnionField->get_coefficients().length()
-                        == tUnionInterpMeshes( m )->get_num_entities(
+                MORIS_ASSERT(  tUnionField->get_coefficients().length() == tUnionInterpMeshes( m )->get_num_entities(
                                 mtk::order_to_entity_rank( tBSplineOrder ) ),
                                 "Number of B-Splines does not match" );
 
                 // get pointer to output mesh
-                std::shared_ptr< Mesh >  tOutputMesh = this->create_mesh(
-                        tInputField->get_lagrange_order(),
-                        mParameters->get_lagrange_output_pattern() );
+                std::shared_ptr< Mesh >  tOutputMesh = this->create_mesh( tInputField->get_lagrange_order(),
+                                                                          mParameters->get_lagrange_output_pattern() );
 
                 // create output field
-                std::shared_ptr< Field >  tOutputField =
-                        tOutputMesh->create_field(
-                                tInputField->get_label(),
-                                tBSplineOrder );
+                std::shared_ptr< Field >  tOutputField = tOutputMesh->create_field( tInputField->get_label(),
+                                                                                    tBSplineOrder );
 
                 // move coefficients to output field
                 // fixme: to be tested with Eigen also
@@ -1997,9 +1898,8 @@ namespace moris
                 tOutputField->evaluate_node_values();
 
                 // make this field point to the output mesh
-                tInputField->change_mesh(
-                        tOutputField->get_mesh(),
-                        tOutputField->get_field_index() );
+                tInputField->change_mesh( tOutputField->get_mesh(),
+                                          tOutputField->get_field_index() );
             }
 
             // delete mappers
@@ -2010,8 +1910,7 @@ namespace moris
         }
 // ----------------------------------------------------------------------------
 
-        void
-        HMR::map_field_to_output( std::shared_ptr< Field > aField )
+        void HMR::map_field_to_output( std::shared_ptr< Field > aField )
         {
             // grab orders of meshes
             uint tLagrangeOrder = aField->get_lagrange_order();
@@ -2024,22 +1923,20 @@ namespace moris
             mDatabase->create_union_pattern();
 
             // create union mesh
-            std::shared_ptr< Interpolation_Mesh_HMR > tUnionInterpolationMesh =  this->create_interpolation_mesh(
+            std::shared_ptr< Interpolation_Mesh_HMR > tUnionInterpolationMesh = this->create_interpolation_mesh(
                     tOrder, mParameters->get_union_pattern() );
 
             // create union field
-            std::shared_ptr< Field > tUnionField =  tUnionInterpolationMesh->create_field(
-                    aField->get_label(),
-                    aField->get_bspline_order() );
+            std::shared_ptr< Field > tUnionField = tUnionInterpolationMesh->create_field( aField->get_label(),
+                                                                                          aField->get_bspline_order() );
 
             if( tLagrangeOrder >=  tBSplineOrder )
             {
                 // interpolate field onto union mesh
-                mDatabase->interpolate_field(
-                        mParameters->get_lagrange_input_pattern(),
-                        aField,
-                        mParameters->get_union_pattern(),
-                        tUnionField );
+                mDatabase->interpolate_field( mParameters->get_lagrange_input_pattern(),
+                                              aField,
+                                              mParameters->get_union_pattern(),
+                                              tUnionField );
             }
             else
             {
@@ -2048,19 +1945,16 @@ namespace moris
                         tOrder, mParameters->get_lagrange_input_pattern() );
 
                 // first, project field on mesh with correct order
-                std::shared_ptr< Field > tTemporaryField =
-                        tInputMesh->create_field(
-                                aField->get_label(),
-                                tBSplineOrder );
+                std::shared_ptr< Field > tTemporaryField = tInputMesh->create_field( aField->get_label(),
+                                                                                     tBSplineOrder );
 
                 mDatabase->change_field_order( aField, tTemporaryField );
 
                 // now, interpolate this field onto the union
-                mDatabase->interpolate_field(
-                        mParameters->get_lagrange_input_pattern(),
-                        tTemporaryField,
-                        mParameters->get_union_pattern(),
-                        tUnionField );
+                mDatabase->interpolate_field( mParameters->get_lagrange_input_pattern(),
+                                              tTemporaryField,
+                                              mParameters->get_union_pattern(),
+                                              tUnionField );
             }
 
             // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
@@ -2075,28 +1969,23 @@ namespace moris
             mapper::Mapper tMapper( &tMeshManager,tMeshPairIndex );
 
             // project field to union
-            tMapper.perform_mapping(
-                                    aField->get_label(),
-                                    EntityRank::NODE,
-                                    aField->get_label(),
-                                    tUnionField->get_bspline_rank() );
+            tMapper.perform_mapping( aField->get_label(),
+                                     EntityRank::NODE,
+                                     aField->get_label(),
+                                     tUnionField->get_bspline_rank() );
 
             // a small sanity test
-            MORIS_ASSERT(  tUnionField->get_coefficients().length()
-                    == tUnionInterpolationMesh->get_num_entities(
+            MORIS_ASSERT( tUnionField->get_coefficients().length() == tUnionInterpolationMesh->get_num_entities(
                             mtk::order_to_entity_rank( tBSplineOrder ) ),
                             "Number of B-Splines does not match" );
 
             // get pointer to output mesh
-            std::shared_ptr< Mesh >  tOutputMesh = this->create_mesh(
-                    tLagrangeOrder,
-                    mParameters->get_lagrange_output_pattern() );
+            std::shared_ptr< Mesh > tOutputMesh = this->create_mesh( tLagrangeOrder,
+                                                                     mParameters->get_lagrange_output_pattern() );
 
             // create output field
-            std::shared_ptr< Field >  tOutputField =
-                    tOutputMesh->create_field(
-                            aField->get_label(),
-                            tBSplineOrder );
+            std::shared_ptr< Field > tOutputField = tOutputMesh->create_field( aField->get_label(),
+                                                                               tBSplineOrder );
 
             // move coefficients to output field
             tOutputField->get_coefficients() = std::move( tUnionField->get_coefficients() );
@@ -2108,9 +1997,8 @@ namespace moris
             tOutputField->evaluate_node_values();
 
             // make this field point to the output mesh
-            aField->change_mesh(
-                    tOutputField->get_mesh(),
-                    tOutputField->get_field_index() );
+            aField->change_mesh( tOutputField->get_mesh(),
+                                 tOutputField->get_field_index() );
         }
 
 // ----------------------------------------------------------------------------

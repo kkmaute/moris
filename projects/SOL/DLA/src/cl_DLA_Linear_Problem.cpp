@@ -8,6 +8,12 @@
 #include "cl_Vector.hpp"
 #include "cl_Sparse_Matrix.hpp"
 
+#include "cl_Stopwatch.hpp" //CHR/src
+
+#ifdef WITHGPERFTOOLS
+#include <gperftools/profiler.h>
+#endif
+
 namespace moris
 {
 namespace dla
@@ -54,12 +60,22 @@ namespace dla
     {
         mMat->mat_put_scalar( 0.0 );
 
+        // start timer
+        tic tTimer;
+#ifdef WITHGPERFTOOLS
+     ProfilerStart("/tmp/gprofmoris.log");
+#endif
+
         mInput->assemble_jacobian( mMat, aFullSolutionVector);
 
-        //std::string tString = "singular_matrix";
-        //mMat->save_matrix_to_matlab_file( tString.c_str());
+#ifdef WITHGPERFTOOLS
+    ProfilerStop();
+#endif
 
-        //mMat->print();
+       // stop timer
+       real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+       MORIS_LOG_INFO( " Assembly of linear system on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
     }
 
 //----------------------------------------------------------------------------------------

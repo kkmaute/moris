@@ -50,8 +50,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
     template<>
-    Matrix< DDRMat >
-    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_N( const Matrix< DDRMat > & aXi) const
+    void
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                          Matrix< DDRMat > & aNXi) const
     {
         // make sure that input is correct
         MORIS_ASSERT( aXi.length() >= 1,
@@ -59,10 +60,9 @@ namespace moris
 
         auto xi = aXi( 0 );
 
-        Matrix< DDRMat > tN(1,2);
-        tN( 0 ) = 0.5*(1.0-xi);
-        tN( 1 ) = 0.5*(1.0+xi);
-        return tN;
+        aNXi.set_size(1,2);
+        aNXi( 0 ) = 0.5*(1.0-xi);
+        aNXi( 1 ) = 0.5*(1.0+xi);
     }
 
 //------------------------------------------------------------------------------

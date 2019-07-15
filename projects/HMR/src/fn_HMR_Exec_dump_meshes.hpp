@@ -21,11 +21,9 @@ namespace moris
     {
 //--------------------------------------------------------------------------------
 
-        void
-        dump_meshes(
-                const Arguments & aArguments,
-                const Paramfile & aParamfile,
-                HMR * aHMR )
+        void dump_meshes( const Arguments & aArguments,
+                          const Paramfile & aParamfile,
+                                HMR       * aHMR )
         {
             // test if an output database path is given
             if( aParamfile.get_output_db_path().size() > 0 )
@@ -53,22 +51,19 @@ namespace moris
                     // get index of mesh order
                     if( tOrder <= 2 )
                     {
-                        tIndex = aHMR->get_mesh_index(
-                                 tOrder,
-                                 aHMR->get_parameters()->get_lagrange_output_pattern() );
+                        tIndex = aHMR->get_mesh_index( tOrder,
+                                                       aHMR->get_parameters()->get_lagrange_output_pattern() );
                     }
                     else
                     {
-                        tIndex = aHMR->get_mesh_index(
-                                tOrder,
-                                aHMR->get_parameters()->get_refined_output_pattern() );
+                        tIndex = aHMR->get_mesh_index( tOrder,
+                                                       aHMR->get_parameters()->get_refined_output_pattern() );
                     }
 
                     // dump mesh
-                    aHMR->save_to_exodus(
-                        tIndex,
-                        aParamfile.get_mesh_path( m ),
-                        aArguments.get_timestep() );
+                    aHMR->save_to_exodus( tIndex,
+                                          aParamfile.get_mesh_path( m ),
+                                          aArguments.get_timestep() );
 
                     // also save last step
                     if( aArguments.get_state() == State::REFINE_MESH && tOrder < 3 )
@@ -82,16 +77,14 @@ namespace moris
                                 + "_last_step" +
                                 tOrgPath.substr( tOrgPath.find_last_of("."), tOrgPath.length() ); // file extension
 
-                        tIndex = aHMR->get_mesh_index(
-                                tOrder,
-                                aHMR->get_parameters()->get_lagrange_input_pattern() );
+                        tIndex = aHMR->get_mesh_index( tOrder,
+                                                       aHMR->get_parameters()->get_lagrange_input_pattern() );
 
 
                         // dump mesh
-                        aHMR->save_to_exodus(
-                                tIndex,
-                                tPath,
-                                aArguments.get_timestep() );
+                        aHMR->save_to_exodus( tIndex,
+                                              tPath,
+                                              aArguments.get_timestep() );
                     }
                 }
             }

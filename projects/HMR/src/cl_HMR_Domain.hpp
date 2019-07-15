@@ -1,5 +1,5 @@
 /*
- * cl_HMR_Domaon.hpp
+ * cl_HMR_Domain.hpp
  *
  *  Created on: May 7, 2018
  *      Author: messe
@@ -11,7 +11,6 @@
 #include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
-
 
 namespace moris
 {

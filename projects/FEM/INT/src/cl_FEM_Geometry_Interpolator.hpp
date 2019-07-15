@@ -313,7 +313,8 @@ namespace moris
          * @param[ out ] aNXi shape functions ( 1 x <number of nodes> )
          * @param[ in ]  aXi  evaluation point ( <number of dimensions> x 1 )
          */
-        Matrix < DDRMat > NXi( const Matrix< DDRMat > & aXi ) const;
+        void NXi( const Matrix< DDRMat > & aXi,
+                        Matrix< DDRMat > & aNXi) const;
 
 //------------------------------------------------------------------------------
         /**
@@ -321,7 +322,8 @@ namespace moris
          * @param[ out ] aNTau shape functions ( 1 x <number of nodes> )
          * @param[ in ]  aTau  evaluation point ( <number of dimensions> x 1 )
          */
-        Matrix < DDRMat > NTau( const Matrix< DDRMat > & aTau ) const;
+        void NTau( const Matrix< DDRMat > & aTau,
+                         Matrix< DDRMat > & anTau) const;
 
 //------------------------------------------------------------------------------
         /**

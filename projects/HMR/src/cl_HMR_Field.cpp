@@ -18,8 +18,6 @@
 #include "HDF5_Tools.hpp"
 
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MDL_Model.hpp"
-#include "cl_FEM_IWG_L2.hpp"
 #include "fn_dot.hpp"
 
 namespace moris

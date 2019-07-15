@@ -51,22 +51,21 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE4 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE4 - eval_N: aXi not allocated or hat wrong size." );
 
             real xi = aXi( 0 );
             real t116 = 1.0 / 16.0;
 
-            Matrix< DDRMat > tN(1,4);
-            tN( 0 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 - xi );
-            tN( 1 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 + xi );
-            tN( 2 ) = 9.0 * t116 * ( xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( xi - 1.0 );
-            tN( 3 ) = 9.0 * t116 * ( xi + 1.0 ) * ( 3.0 * xi + 1.0 ) * ( 1.0 - xi );
-            return tN;
+            aNXi.set_size(1,4);
+            aNXi( 0 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 - xi );
+            aNXi( 1 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 + xi );
+            aNXi( 2 ) = 9.0 * t116 * ( xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( xi - 1.0 );
+            aNXi( 3 ) = 9.0 * t116 * ( xi + 1.0 ) * ( 3.0 * xi + 1.0 ) * ( 1.0 - xi );
         }
 
 //------------------------------------------------------------------------------

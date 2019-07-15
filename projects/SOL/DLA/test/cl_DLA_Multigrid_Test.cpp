@@ -218,8 +218,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolver = tSolFactory.create_solver( SolverType::PETSC );
 
         tLinearSolver->set_param("KSPType") = std::string( KSPFGMRES );
-        //tLinearSolver->set_param("PCType")  = std::string( PCMG );
-        tLinearSolver->set_param("PCType")  = std::string( PCILU );
+        tLinearSolver->set_param("PCType")  = std::string( PCMG );
+        //tLinearSolver->set_param("PCType")  = std::string( PCILU );
 
         tLinearSolver->set_param("ILUFill")  = 3;
 
@@ -868,6 +868,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 
 }
 */
+
 }
 
 
