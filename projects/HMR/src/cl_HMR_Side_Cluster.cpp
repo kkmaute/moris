@@ -6,7 +6,6 @@
  */
 #include "cl_HMR_Side_Cluster.hpp"
 
-
 namespace moris
 {
 namespace hmr

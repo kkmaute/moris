@@ -11,9 +11,7 @@
 #include <exodusII.h>
 #include <ne_nemesisI.h>
 #include "cl_Matrix.hpp"
-#include "fn_print.hpp"
 #include "cl_Communication_Tools.hpp"
-
 
 namespace moris
 {
@@ -25,7 +23,6 @@ namespace mtk
 
       Exodus_IO_Helper(const char * aExodusFile)
       {
-
           mTitle = new char[MAX_LINE_LENGTH+1];
           int   io_ws = 0;
           int   cpu_ws = 0;
@@ -40,7 +37,6 @@ namespace mtk
                                &version);
 
           MORIS_ASSERT(mExoFileId!=-1,"Exo open failure");
-
 
           mVerbose = false;
 
@@ -58,7 +54,6 @@ namespace mtk
           get_set_information();
           get_nodal_fields();
       }
-
 
       ~Exodus_IO_Helper()
       {
@@ -118,7 +113,6 @@ namespace mtk
                                       const_cast<char *>("p"));
           MORIS_ASSERT(!mErrFlag,"ex_put_init_info failed");
 
-
           // Put global information on the file
           mErrFlag = ex_put_init_global( tNewExoFileId,
                               mNumNodesGlobal,
@@ -139,8 +133,6 @@ namespace mtk
                                  init_params.num_side_sets);
           MORIS_ASSERT(!mErrFlag,"ex_put_init failed");
 
-
-
           // Put information about global blk ids and blk counts
           mErrFlag = ex_put_eb_info_global(tNewExoFileId,
                                            this->mGlobalElemBlkIds.data(),
@@ -158,7 +150,6 @@ namespace mtk
           }
 
           // TODO: SIDE SETS and BLOCKSET copying
-
 
           // Specify new load balance parameters but add the num_elem_cmaps of 1
           mNumElemCmaps = 1;
@@ -227,13 +218,9 @@ namespace mtk
           copy_nodal_fields(tNewExoFileId,  init_params);
 
           ex_close(tNewExoFileId);
-
       }
 
-
-
   private:
-
       int  mErrFlag;
       bool mVerbose;
 
@@ -281,7 +268,6 @@ namespace mtk
       std::vector<int> mNumGlobalNodeCounts;
       std::vector<int> mNumGlobalNodeDfCounts;
 
-
       Matrix<IdMat> mElemMapi;
       Matrix<IdMat> mElemMapb;
       Matrix<IdMat> mNodeMapi;
@@ -289,7 +275,6 @@ namespace mtk
       Matrix<IdMat> mNodeMape;
       Matrix<IdMat> mNodeNumMap;
       Matrix<IdMat> mElemNumMap;
-
 
       // Node Sets
       std::vector<int>              mNodeSetIds;
@@ -331,7 +316,6 @@ namespace mtk
 
       void get_init_mesh_data()
       {
-
           mErrFlag = ex_get_init(mExoFileId,
                                  mTitle,
                                  &mNumDim,
@@ -354,9 +338,7 @@ namespace mtk
           }
       }
 
-
-      void
-      get_load_bal_parameters()
+      void get_load_bal_parameters()
       {
           mErrFlag =ex_get_loadbal_param(mExoFileId,
                                          &mNumInternalNodes,
@@ -401,7 +383,6 @@ namespace mtk
                                           par_rank());
            MORIS_ERROR(!mErrFlag, "Error reading cmap parameters!");
 
-
            if (mVerbose)
              {
 //               print(node_cmap_ids,"node_cmap_ids");
@@ -410,7 +391,6 @@ namespace mtk
 //               print(elem_cmap_elem_cnts,"elem_cmap_elem_cnts");
              }
       }
-
 
       void
       get_node_cmap()
@@ -462,7 +442,6 @@ namespace mtk
             std::cout << "[" << par_rank() << "] " << "num_side_sets_global=" << mNumSideSetsGlobal << std::endl;
           }
       }
-
 
       void get_eb_info_global()
       {
@@ -547,7 +526,6 @@ namespace mtk
           MORIS_ERROR(!mErrFlag, "ne_get_node_map failed!");
       }
 
-
       void
       get_node_id_map()
       {
@@ -585,7 +563,6 @@ namespace mtk
               mNodeSetNodeIds[i] = Matrix<IndexMat>(1,mNodeSetNEntries[i]);
               ex_get_set(mExoFileId, EX_NODE_SET, mNodeSetIds[i],
                          mNodeSetNodeIds[i].data(), nullptr);
-
           }
 
           // Copy over the side sets
@@ -617,7 +594,6 @@ namespace mtk
               ex_get_set(mExoFileId, EX_SIDE_SET, mSideSetIds[i],
                          mSideSetElemIds[i].data(), mSideSetSideOrd[i].data());
           }
-
 
           mBlockIds.resize(mNumElemBlk);
           ex_get_ids(mExoFileId, EX_ELEM_BLOCK, mBlockIds.data());
@@ -663,13 +639,9 @@ namespace mtk
                           mBlockSetEdgeConn[i].data(),
                           mBlockSetFaceConn[i].data());
 
-
               MORIS_ASSERT(!mErrFlag,"ex_put_conn failed");
           }
-
-
       }
-
 
       void
       get_nodal_fields()
@@ -693,10 +665,8 @@ namespace mtk
             mFieldsNodalVars[i] = Matrix<DDRMat>(mNumNodes, 1);
             ex_get_var(mExoFileId, time_step + 1, EX_NODAL, i + 1, /*obj_id*/ 0,
                        mNumNodes, mFieldsNodalVars[i].data());
-
         }
       }
-
 
       void
       copy_coordinates(int tNewExoFileId)
@@ -715,7 +685,6 @@ namespace mtk
       void
       copy_node_sets(int              aNewExoFileId)
       {
-
           // Put the names onto the new file
           ex_put_names(aNewExoFileId,EX_NODE_SET, mNodeSetNamePtrs.data());
 
@@ -750,10 +719,8 @@ namespace mtk
 
               ex_put_set(aNewExoFileId, EX_SIDE_SET, mSideSetIds[i],
                          mSideSetElemIds[i].data(), mSideSetSideOrd[i].data());
-
           }
       }
-
 
       void
       copy_block_sets(int              aNewExoFileId)
@@ -762,8 +729,6 @@ namespace mtk
 
           for (size_t i = 0; i < mBlockIds.size(); ++i)
           {
-
-
               mErrFlag = ex_put_block(aNewExoFileId,
                                       EX_ELEM_BLOCK,
                                       mBlockIds[i],
@@ -781,7 +746,6 @@ namespace mtk
                                      mBlockSetNodeConn[i].data(),
                                      mBlockSetEdgeConn[i].data(),
                                      mBlockSetFaceConn[i].data());
-
           }
       }
 
@@ -795,7 +759,6 @@ namespace mtk
           ex_put_variable_param(aNewExoFileId, EX_NODAL, mNumNodalVars);
           ex_put_variable_names(aNewExoFileId, EX_NODAL, mNumNodalVars, mNodeFieldNamePtrs.data());
 
-
           for (int i = 0; i < mNumNodalVars; ++i) {
             auto name = mNodeFieldNamePtrs[std::size_t(i)];
             if (mVerbose)
@@ -805,9 +768,7 @@ namespace mtk
             }
             ex_put_var(aNewExoFileId, time_step + 1, EX_NODAL, i + 1, /*obj_id*/ 0,
                        mNumNodes, mFieldsNodalVars[i].data());
-
         }
-
       }
 
       /*
@@ -881,8 +842,5 @@ namespace mtk
   };
 }
 }
-
-
-
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_EXODUS_IO_HELPER_HPP_ */

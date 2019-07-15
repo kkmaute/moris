@@ -48,15 +48,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix < DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_N(
-                const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                                Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "POINT - eval_N: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > tN( 1, 1, 1.0 );
-            return tN;
+            aNXi.set_size( 1, 1, 1.0 );
         }
 
 //------------------------------------------------------------------------------

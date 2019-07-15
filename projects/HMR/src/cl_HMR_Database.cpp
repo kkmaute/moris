@@ -5,10 +5,8 @@
 #include "cl_HMR_Mesh.hpp"
 #include "MTK_Tools.hpp"
 
-
 #include "op_times.hpp"
 #include "fn_dot.hpp"
-#include "fn_print.hpp"
 
 namespace moris
 {
@@ -690,11 +688,11 @@ namespace moris
                     this->create_union_pattern();
                     
                     // test if max polynomial is 3
-                    if ( mParameters->get_max_polynomial() > 2 )
-                    {
-                        // activate extra pattern for exodus
+//                    if ( mParameters->get_max_polynomial() > 2 )
+//                    {
+//                        // activate extra pattern for exodus
 //                        this->add_extra_refinement_step_for_exodus();
-                    }
+//                    }
 
                     // create new B-Spline Meshes
                     this->update_bspline_meshes();
@@ -719,12 +717,12 @@ namespace moris
                                           mParameters->get_lagrange_output_pattern(),
                                           mParameters->get_union_pattern() );
 
-                    // test if max polynomial is 3
-                    if ( mParameters->get_max_polynomial() > 2 )
-                    {
-                        // activate extra pattern for exodus
+//                    // test if max polynomial is 3
+//                    if ( mParameters->get_max_polynomial() > 2 )
+//                    {
+//                        // activate extra pattern for exodus
 //                        this->add_extra_refinement_step_for_exodus();
-                    }
+//                    }
 
                     // create new B-Spline Meshes
                     this->update_bspline_meshes();
@@ -760,12 +758,12 @@ namespace moris
                                           mParameters->get_lagrange_output_pattern(),
                                           mParameters->get_union_pattern() );
 
-                    // test if max polynomial is 3
-                    if ( mParameters->get_max_polynomial() > 2 )
-                    {
-                        // activate extra pattern for exodus
+//                    // test if max polynomial is 3
+//                    if ( mParameters->get_max_polynomial() > 2 )
+//                    {
+//                        // activate extra pattern for exodus
 //                        this->add_extra_refinement_step_for_exodus();
-                    }
+//                    }
 
                     // create new B-Spline Meshes
                     this->update_bspline_meshes();

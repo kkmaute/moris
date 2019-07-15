@@ -51,7 +51,8 @@ namespace moris
              * @param[ in ]  aXi parameter coordinates
              *                   ( <number of dimensions>  x 1 )
              */
-            virtual Matrix< DDRMat > eval_N( const Matrix< DDRMat > & aXi ) const = 0;
+            virtual void eval_N( const Matrix< DDRMat > & aXi,
+                                       Matrix< DDRMat > & aNXi) const = 0;
 
 //------------------------------------------------------------------------------
 

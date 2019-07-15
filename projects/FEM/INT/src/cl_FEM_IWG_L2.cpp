@@ -5,7 +5,6 @@
 #include "fn_norm.hpp"  //LINALG/src
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_dot.hpp"   //LINALG/src
-#include "fn_print.hpp" //LINALG/src
 
 namespace moris
 {

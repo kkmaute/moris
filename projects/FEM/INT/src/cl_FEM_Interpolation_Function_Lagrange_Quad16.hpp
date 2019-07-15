@@ -81,12 +81,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix < DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_N(const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_N(const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                    "QUAD16 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
             auto  xi = aXi( 0 );
@@ -103,25 +103,23 @@ namespace moris
             real b3 = ( -eta*( 1.0 - 9.0 * eta * ( 1.0 + eta ) ) - 1.0 )*0.0625;
 
             // populate matrix with values
-            Matrix< DDRMat > tN(1,16);
-            tN(  0 ) = a0*b0;
-            tN(  1 ) = a3*b0;
-            tN(  2 ) = a3*b3;
-            tN(  3 ) = a0*b3;
-            tN(  4 ) = a1*b0;
-            tN(  5 ) = a2*b0;
-            tN(  6 ) = a3*b1;
-            tN(  7 ) = a3*b2;
-            tN(  8 ) = a2*b3;
-            tN(  9 ) = a1*b3;
-            tN( 10 ) = a0*b2;
-            tN( 11 ) = a0*b1;
-            tN( 12 ) = a1*b1;
-            tN( 13 ) = a2*b1;
-            tN( 14 ) = a2*b2;
-            tN( 15 ) = a1*b2;
-            return tN;
-
+            aNXi.set_size(1,16);
+            aNXi(  0 ) = a0*b0;
+            aNXi(  1 ) = a3*b0;
+            aNXi(  2 ) = a3*b3;
+            aNXi(  3 ) = a0*b3;
+            aNXi(  4 ) = a1*b0;
+            aNXi(  5 ) = a2*b0;
+            aNXi(  6 ) = a3*b1;
+            aNXi(  7 ) = a3*b2;
+            aNXi(  8 ) = a2*b3;
+            aNXi(  9 ) = a1*b3;
+            aNXi( 10 ) = a0*b2;
+            aNXi( 11 ) = a0*b1;
+            aNXi( 12 ) = a1*b1;
+            aNXi( 13 ) = a2*b1;
+            aNXi( 14 ) = a2*b2;
+            aNXi( 15 ) = a1*b2;
         }
 
 //------------------------------------------------------------------------------

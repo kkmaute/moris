@@ -13,9 +13,6 @@
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
-#include "fn_print.hpp"
-
-
 
 namespace moris
 {

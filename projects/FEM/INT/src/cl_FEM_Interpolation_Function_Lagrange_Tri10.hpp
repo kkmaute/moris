@@ -60,8 +60,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 10 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 10 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "TRI10 - eval_N: aXi not allocated or hat wrong size." );
@@ -72,18 +73,17 @@ namespace moris
             real zeta3 = aXi( 2 );
 
             // populate matrix with values
-            Matrix< DDRMat > tN( 1, 10 );
-            tN( 0 ) = 0.5 * ( 3.0 * zeta1 - 1.0 ) * ( 3.0 * zeta1 - 2.0 ) * zeta1;
-            tN( 1 ) = 0.5 * ( 3.0 * zeta2 - 1.0 ) * ( 3.0 * zeta2 - 2.0 ) * zeta2;
-            tN( 2 ) = 0.5 * ( 3.0 * zeta3 - 1.0 ) * ( 3.0 * zeta3 - 2.0 ) * zeta3;
-            tN( 3 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta1 - 1.0 );
-            tN( 4 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta2 - 1.0 );
-            tN( 5 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta2 - 1.0 );
-            tN( 6 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta3 - 1.0 );
-            tN( 7 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta3 - 1.0 );
-            tN( 8 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta1 - 1.0 );
-            tN( 9 ) = 27.0 * zeta1 * zeta2 * zeta3;
-            return tN;
+            aNXi.set_size( 1, 10 );
+            aNXi( 0 ) = 0.5 * ( 3.0 * zeta1 - 1.0 ) * ( 3.0 * zeta1 - 2.0 ) * zeta1;
+            aNXi( 1 ) = 0.5 * ( 3.0 * zeta2 - 1.0 ) * ( 3.0 * zeta2 - 2.0 ) * zeta2;
+            aNXi( 2 ) = 0.5 * ( 3.0 * zeta3 - 1.0 ) * ( 3.0 * zeta3 - 2.0 ) * zeta3;
+            aNXi( 3 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta1 - 1.0 );
+            aNXi( 4 ) = 4.5 * zeta1 * zeta2 * ( 3.0 * zeta2 - 1.0 );
+            aNXi( 5 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta2 - 1.0 );
+            aNXi( 6 ) = 4.5 * zeta2 * zeta3 * ( 3.0 * zeta3 - 1.0 );
+            aNXi( 7 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta3 - 1.0 );
+            aNXi( 8 ) = 4.5 * zeta1 * zeta3 * ( 3.0 * zeta1 - 1.0 );
+            aNXi( 9 ) = 27.0 * zeta1 * zeta2 * zeta3;
         }
 
 //------------------------------------------------------------------------------

@@ -5,7 +5,6 @@
  *      Author: doble
  */
 
-
 #include "catch.hpp"
 
 // MTK includes
@@ -17,11 +16,9 @@
 // Other MORIS includes
 #include "cl_Communication_Tools.hpp"
 #include "cl_Matrix.hpp"
-#include "fn_print.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
 #include "fn_equal_to.hpp"
-
 
 namespace moris
 {
@@ -38,7 +35,6 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
     std::string tMORISROOT = std::getenv("MORISROOT");
 
     std::string tPrefix =  tMORISROOT +"projects/MTK/test/Test_Files/";
-
 
         if( p_rank == 0 && p_size == 1 ) // specify it is a serial test only
         {

@@ -70,8 +70,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 9 >::eval_N(const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 9 >::eval_N(const Matrix< DDRMat > & aXi,
+                                                                                                             Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2,
@@ -87,18 +88,16 @@ namespace moris
             auto eta2 = std::pow( eta, 2 );
 
             // populate output matrix
-            Matrix < DDRMat > tN(1,9);
-            tN( 0 ) = ( c * ( eta - 1.0 ) * (xi - 1.0) );
-            tN( 1 ) = ( c * ( eta - 1.0 ) * (xi + 1.0) );
-            tN( 2 ) = ( c * ( eta + 1.0 ) * (xi + 1.0) );
-            tN( 3 ) = ( c * ( eta + 1.0 ) * (xi - 1.0) );
-            tN( 4 ) = ( eta * ( 1.0 - xi2 ) * ( eta - 1.0 ) ) * 0.5;
-            tN( 5 ) = ( xi * ( 1.0 - eta2)*( xi + 1.0 ) )*0.5;
-            tN( 6 ) = ( eta * (1.0 - xi2)*( eta + 1.0 ) )*0.5;
-            tN( 7 ) = ( xi*( 1.0 - eta2 )*( xi - 1.0 ) )*0.5;
-            tN( 8 ) = ( eta2 - 1.0 )*( xi2 - 1.0 );
-            return tN;
-
+            aNXi.set_size(1,9);
+            aNXi( 0 ) = ( c * ( eta - 1.0 ) * (xi - 1.0) );
+            aNXi( 1 ) = ( c * ( eta - 1.0 ) * (xi + 1.0) );
+            aNXi( 2 ) = ( c * ( eta + 1.0 ) * (xi + 1.0) );
+            aNXi( 3 ) = ( c * ( eta + 1.0 ) * (xi - 1.0) );
+            aNXi( 4 ) = ( eta * ( 1.0 - xi2 ) * ( eta - 1.0 ) ) * 0.5;
+            aNXi( 5 ) = ( xi * ( 1.0 - eta2)*( xi + 1.0 ) )*0.5;
+            aNXi( 6 ) = ( eta * (1.0 - xi2)*( eta + 1.0 ) )*0.5;
+            aNXi( 7 ) = ( xi*( 1.0 - eta2 )*( xi - 1.0 ) )*0.5;
+            aNXi( 8 ) = ( eta2 - 1.0 )*( xi2 - 1.0 );
         }
 //------------------------------------------------------------------------------
 

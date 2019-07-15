@@ -318,20 +318,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix < DDRMat > Geometry_Interpolator::NXi( const Matrix< DDRMat > & aXi ) const
+        void Geometry_Interpolator::NXi( const Matrix< DDRMat > & aXi,
+                                               Matrix< DDRMat > & aNXi) const
         {
             // pass data through interpolation function
 //            Matrix <DDRMat> tN = mSpaceInterpolation->eval_N( aXi );
-            return mSpaceInterpolation->eval_N( aXi );
+            mSpaceInterpolation->eval_N( aXi, aNXi );
          }
 
 //------------------------------------------------------------------------------
 
-         Matrix < DDRMat > Geometry_Interpolator::NTau( const Matrix< DDRMat > & aTau ) const
+         void Geometry_Interpolator::NTau( const Matrix< DDRMat > & aTau,
+                                                 Matrix< DDRMat > & aNTau) const
          {
              // pass data through interpolation function
 //             Matrix <DDRMat> tN = mTimeInterpolation->eval_N( aTau );
-             return mTimeInterpolation->eval_N( aTau );
+             mTimeInterpolation->eval_N( aTau, aNTau );
          }
 
 //------------------------------------------------------------------------------
@@ -600,8 +602,12 @@ namespace moris
             // check that mTHat is set
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::time_jacobian - mXHat is not set." );
 
+            Matrix< DDRMat > tNXi;
+
+            this->NXi( aXi, tNXi );
+
             //evaluate the field
-            return this->NXi( aXi ) * mXHat ;
+            return tNXi * mXHat ;
         }
 
 //------------------------------------------------------------------------------
@@ -611,8 +617,11 @@ namespace moris
             // check that mTHat is set
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
+            Matrix< DDRMat > tNtTau;
+            this->NTau( aTau, tNtTau );
+
             //evaluate the field
-            return this->NTau( aTau ) * mTHat ;
+            return tNtTau * mTHat ;
         }
 
 //------------------------------------------------------------------------------
@@ -629,8 +638,16 @@ namespace moris
             // evaluate the coords of the mapped param point
             uint tNumSpaceCoords = mXiHat.n_cols();
             Matrix< DDRMat > aParamPoint( tNumSpaceCoords + 1, 1 );
-            aParamPoint( {0, tNumSpaceCoords-1 }, {0,0} )            = trans( this->NXi( aLocalXi )   * mXiHat  ) ;
-            aParamPoint( {tNumSpaceCoords, tNumSpaceCoords}, {0,0} ) = trans( this->NTau( aLocalTau ) * mTauHat ) ;
+
+            Matrix< DDRMat > tNXi;
+            Matrix< DDRMat > tNTau;
+
+            this->NXi( aLocalXi, tNXi );
+            this->NTau( aLocalTau,tNTau ),
+
+//            aParamPoint( {0, tNumSpaceCoords-1 }, {0,0} )            = trans( this->NXi( aLocalXi, NXi )   * mXiHat  ) ;
+            aParamPoint( {0, tNumSpaceCoords-1 }, {0,0} )            = trans( tNXi * mXiHat );
+            aParamPoint( {tNumSpaceCoords, tNumSpaceCoords}, {0,0} ) = trans( tNTau * mTauHat ) ;
 
             // return the mapped param point
             return aParamPoint;

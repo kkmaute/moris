@@ -17,7 +17,6 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Facet.hpp"
 
-
 namespace moris
 {
     namespace hmr

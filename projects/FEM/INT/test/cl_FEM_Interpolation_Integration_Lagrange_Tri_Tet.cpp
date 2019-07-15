@@ -66,7 +66,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
             for( uint k=0; k<tNumOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tZeta.get_column( k ) );
+                tFunction->eval_N( tZeta.get_column( k ), tN );
 
                 // test unity
                 tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -101,9 +101,12 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
                     real tPert = 1E-6 * tTestPointPert( iDim );
                     tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
+                    Matrix< DDRMat > tN;
+                    Matrix< DDRMat > tNPert;
+
                     // evaluate shape functions at test point and perturbed test point
-                    Matrix< DDRMat > tN     = tFunction->eval_N( tTestPoint );
-                    Matrix< DDRMat > tNPert = tFunction->eval_N( tTestPointPert );
+                    tFunction->eval_N( tTestPoint, tN );
+                    tFunction->eval_N( tTestPointPert, tNPert );
 
                     // compute the first order derivatives wrt param coords by finite difference
                     Matrix< DDRMat > tdNdXi_FD = ( tNPert - tN ) / tPert;
@@ -200,7 +203,7 @@ SECTION( "TRI3: test param coords" )
         Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
         // evaluate shape functions at param point k
-        tN = tFunction->eval_N( tParamPoint );
+        tFunction->eval_N( tParamPoint, tN );
 
         // check that kth shape function = 1
         tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );
@@ -265,7 +268,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
             for( uint k=0; k<tNumOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tZeta.get_column( k ) );
+                tFunction->eval_N( tZeta.get_column( k ), tN );
 
                 // test unity
                 tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -300,9 +303,12 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
                     real tPert = 1E-6 * tTestPointPert( iDim );
                     tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
+                    Matrix< DDRMat > tN;
+                    Matrix< DDRMat > tNPert;
+
                     // evaluate shape functions at test point and perturbed test point
-                    Matrix< DDRMat > tN     = tFunction->eval_N( tTestPoint );
-                    Matrix< DDRMat > tNPert = tFunction->eval_N( tTestPointPert );
+                    tFunction->eval_N( tTestPoint,tN );
+                    tFunction->eval_N( tTestPointPert,tNPert );
 
                     // compute the first order derivatives wrt param coords by finite difference
                     Matrix< DDRMat > tdNdXi_FD = ( tNPert - tN ) / tPert;
@@ -399,7 +405,7 @@ SECTION( "TRI6: test param coords" )
         Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
         // evaluate shape functions at param point k
-        tN = tFunction->eval_N( tParamPoint );
+        tFunction->eval_N( tParamPoint, tN );
 
         // check that kth shape function = 1
         tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );
@@ -465,7 +471,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
             for( uint k=0; k<tNumOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tZeta.get_column( k ) );
+                tFunction->eval_N( tZeta.get_column( k ),tN );
 
                 // test unity
                 tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -500,9 +506,12 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
                     real tPert = 1E-6 * tTestPointPert( iDim );
                     tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
+                    Matrix< DDRMat > tN;
+                    Matrix< DDRMat > tNPert;
+
                     // evaluate shape functions at test point and perturbed test point
-                    Matrix< DDRMat > tN     = tFunction->eval_N( tTestPoint );
-                    Matrix< DDRMat > tNPert = tFunction->eval_N( tTestPointPert );
+                    tFunction->eval_N( tTestPoint, tN );
+                    tFunction->eval_N( tTestPointPert ,tNPert );
 
                     // compute the first order derivatives wrt param coords by finite difference
                     Matrix< DDRMat > tdNdXi_FD = ( tNPert - tN ) / tPert;
@@ -599,7 +608,7 @@ SECTION( "TRI10: test param coords" )
         Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
         // evaluate shape functions at param point k
-        tN = tFunction->eval_N( tParamPoint );
+        tFunction->eval_N( tParamPoint, tN );
 
         // check that kth shape function = 1
         tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );
@@ -664,7 +673,7 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
             for( uint k=0; k<tNumOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tZeta.get_column( k ) );
+                tFunction->eval_N( tZeta.get_column( k ),tN );
 
                 // test unity
                 tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -699,9 +708,11 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
                     real tPert = 1E-6 * tTestPointPert( iDim );
                     tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
+                    Matrix< DDRMat > tN;
+                    Matrix< DDRMat > tNPert;
                     // evaluate shape functions at test point and perturbed test point
-                    Matrix< DDRMat > tN     = tFunction->eval_N( tTestPoint );
-                    Matrix< DDRMat > tNPert = tFunction->eval_N( tTestPointPert );
+                    tFunction->eval_N( tTestPoint, tN );
+                    tFunction->eval_N( tTestPointPert, tNPert );
 
                     // compute the first order derivatives wrt param coords by finite difference
                     Matrix< DDRMat > tdNdXi_FD = ( tNPert - tN ) / tPert;
@@ -808,7 +819,7 @@ SECTION( "TET4: test param coords" )
         Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
         // evaluate shape functions at param point k
-        tN = tFunction->eval_N( tParamPoint );
+        tFunction->eval_N( tParamPoint, tN );
 
         // check that kth shape function = 1
         tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );
@@ -873,7 +884,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
             for( uint k=0; k<tNumOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tZeta.get_column( k ) );
+                tFunction->eval_N( tZeta.get_column( k ), tN );
 
                 // test unity
                 tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -908,9 +919,12 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
                     real tPert = 1E-6 * tTestPointPert( iDim );
                     tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
+                    Matrix< DDRMat > tN;
+                    Matrix< DDRMat > tNPert;
+
                     // evaluate shape functions at test point and perturbed test point
-                    Matrix< DDRMat > tN     = tFunction->eval_N( tTestPoint );
-                    Matrix< DDRMat > tNPert = tFunction->eval_N( tTestPointPert );
+                    tFunction->eval_N( tTestPoint, tN );
+                    tFunction->eval_N( tTestPointPert,tNPert );
 
                     // compute the first order derivatives wrt param coords by finite difference
                     Matrix< DDRMat > tdNdXi_FD = ( tNPert - tN ) / tPert;
@@ -1017,7 +1031,7 @@ SECTION( "TET10: test param coords" )
         Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
         // evaluate shape functions at param point k
-        tN = tFunction->eval_N( tParamPoint );
+        tFunction->eval_N( tParamPoint,tN );
 
         // check that kth shape function = 1
         tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );
@@ -1086,7 +1100,7 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
             for( uint k=0; k<tNumOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tZeta.get_column( k ) );
+                tFunction->eval_N( tZeta.get_column( k ) , tN);
 
                 // test unity
                 tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -1121,9 +1135,12 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
                     real tPert = 1E-6 * tTestPointPert( iDim );
                     tTestPointPert( iDim ) = tTestPointPert( iDim ) + tPert;
 
+                    Matrix< DDRMat > tN;
+                    Matrix< DDRMat > tNPert;
+
                     // evaluate shape functions at test point and perturbed test point
-                    Matrix< DDRMat > tN     = tFunction->eval_N( tTestPoint );
-                    Matrix< DDRMat > tNPert = tFunction->eval_N( tTestPointPert );
+                    tFunction->eval_N( tTestPoint, tN );
+                    tFunction->eval_N( tTestPointPert, tNPert );
 
                     // compute the first order derivatives wrt param coords by finite difference
                     Matrix< DDRMat > tdNdXi_FD = ( tNPert - tN ) / tPert;
@@ -1230,7 +1247,7 @@ SECTION( "TET20: test param coords" )
         Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
         // evaluate shape functions at param point k
-        tN = tFunction->eval_N( tParamPoint );
+        tFunction->eval_N( tParamPoint,tN );
 
         // check that kth shape function = 1
         tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );

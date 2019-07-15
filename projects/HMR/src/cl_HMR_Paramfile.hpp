@@ -14,7 +14,6 @@
 #include "cl_HMR_State.hpp"
 #include "HMR_Globals.hpp"
 #include "HMR_Tools.hpp"
-//#include "assert.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -23,8 +22,6 @@
 
 //#include "cl_Matrix.hpp"
 //#include "linalg_typedefs.hpp"
-
-
 
 #include "cl_Map.hpp"
 
@@ -102,93 +99,81 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            ParameterList &
-            get_parameter_list();
+            ParameterList & get_parameter_list();
 
 // -----------------------------------------------------------------------------
 
-            const std::string &
-            get_input_db_path() const
+            const std::string & get_input_db_path() const
             {
                 return mInputDatabase;
             }
 
 // -----------------------------------------------------------------------------
 
-            const std::string &
-            get_output_db_path() const
+            const std::string & get_output_db_path() const
             {
                 return mOutputDatabase;
             }
 
 // -----------------------------------------------------------------------------
 
-            const std::string &
-            get_coefficient_db_path() const
+            const std::string & get_coefficient_db_path() const
             {
                 return mCoefficients;
             }
 
 // -----------------------------------------------------------------------------
 
-            const std::string &
-            get_library_path() const
+            const std::string & get_library_path() const
             {
                 return mLibraryPath;
             }
 
 // -----------------------------------------------------------------------------
 
-            const std::string &
-            get_user_function_name() const
+            const std::string & get_user_function_name() const
             {
                 return mUserFunction;
             }
 
 // -----------------------------------------------------------------------------
 
-            uint
-            get_number_of_meshes() const
+            uint get_number_of_meshes() const
             {
                 return mMeshIDs.length();
             }
 
 // -----------------------------------------------------------------------------
 
-            const uint &
-            get_mesh_order( const uint & aIndex ) const
+            const uint & get_mesh_order( const uint & aIndex ) const
             {
                 return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mOrder;
             }
 
 // -----------------------------------------------------------------------------
 
-            const std::string &
-            get_mesh_path( const uint & aIndex ) const
+            const std::string & get_mesh_path( const uint & aIndex ) const
             {
                 return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mPath;
             }
 
 // -----------------------------------------------------------------------------
 
-            uint
-            get_number_of_fields() const
+            uint get_number_of_fields() const
             {
                 return mFieldIDs.length();
             }
 
 // -----------------------------------------------------------------------------
 
-            const Field_Param &
-            get_field_params( const uint & aIndex ) const
+            const Field_Param & get_field_params( const uint & aIndex ) const
             {
                 return mFieldParams( mFieldMap.find( mFieldIDs( aIndex ) ) );
             }
 
 // -----------------------------------------------------------------------------
 
-            const std::string &
-            get_union_mesh_path() const
+            const std::string & get_union_mesh_path() const
             {
                 return mUnionMesh;
             }
@@ -197,8 +182,7 @@ namespace moris
         private:
 // -----------------------------------------------------------------------------
 
-            void
-            load_mesh_params();
+            void load_mesh_params();
 
 // -----------------------------------------------------------------------------
 
@@ -207,23 +191,19 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void
-            load_state_params();
+            void load_state_params();
 
 // -----------------------------------------------------------------------------
 
-            void
-            load_parameter_list();
+            void load_parameter_list();
 
 // -----------------------------------------------------------------------------
 
-            void
-            update_parameter_list();
+            void update_parameter_list();
 
 // -----------------------------------------------------------------------------
 
-            void
-            load_user_refinement_parameters();
+            void load_user_refinement_parameters();
 
 // -----------------------------------------------------------------------------
         };
@@ -231,7 +211,5 @@ namespace moris
 // -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
-
-
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_PARAMFILE_HPP_ */

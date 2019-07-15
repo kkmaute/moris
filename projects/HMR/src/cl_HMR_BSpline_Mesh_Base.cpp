@@ -12,7 +12,6 @@
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
-#include "fn_print.hpp"
 #include "cl_Map.hpp"
 #include "fn_sum.hpp"
 
@@ -44,7 +43,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
 
         void BSpline_Mesh_Base::update_mesh()
         {
@@ -193,7 +191,6 @@ namespace moris
             // loop over all basis
             for( auto tBasis : mAllBasisOnProc )
             {
-
                 // the statements
                 if ( tBasis->is_active() && tBasis->is_refined() )
                 {
@@ -217,7 +214,6 @@ namespace moris
                                     << tBasis->get_level() << "] "
                                     << tBasis->is_active()  << " " << tBasis->is_refined() << " "
                                    << tBasis->get_memory_index() << std::endl;
-
                         } */
                     }
                     else

@@ -10,14 +10,13 @@
 
 #include "HMR_Globals.hpp"     //HMR/src
 #include "HMR_Tools.hpp"
-#include "op_times.hpp"        //LINALG/src
+#include "fn_eye.hpp"
 #include "fn_norm.hpp"         //LINALG/src
 #include "fn_sum.hpp"          //LINALG/src
 #include "fn_trans.hpp"        //LINALG/src
 #include "fn_inv.hpp"          //LINALG/src
 #include "op_plus.hpp"         //LINALG/src
 #include "op_times.hpp"        //LINALG/src
-#include "fn_eye.hpp"
 
 namespace moris
 {

@@ -8,7 +8,6 @@
 #ifndef SRC_HMR_CL_HMR_HPP_
 #define SRC_HMR_CL_HMR_HPP_
 
-
 #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Field_Param.hpp"
@@ -103,73 +102,61 @@ namespace moris
             /**
              * save the mesh to an exodus file
              */
-            void
-            save_to_exodus(
-                    const uint        & aMeshIndex,
-                    const std::string & aPath,
-                    const double aTimeStep = 0.0 );
+            void save_to_exodus( const uint        & aMeshIndex,
+                                 const std::string & aPath,
+                                 const double        aTimeStep = 0.0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an exodus file
              */
-            void
-            save_to_exodus(
-                    const std::string & aPath,
-                    const double aTimeStep = 0.0,
-                    const uint aOutputOrder = 0 );
+            void save_to_exodus( const std::string & aPath,
+                                 const double        aTimeStep = 0.0,
+                                 const uint          aOutputOrder = 0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * renumber nodes for femdoc and save the mesh to an exodus file. HACK with consent of Kurt
              */
-            void
-            renumber_and_save_to_exodus(
-                    const std::string & aPath,
-                    const double aTimeStep = 0.0,
-                    const uint aOutputOrder = 0 );
+            void renumber_and_save_to_exodus( const std::string & aPath,
+                                              const double        aTimeStep = 0.0,
+                                              const uint          aOutputOrder = 0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an exodus file
              */
-            void
-            save_last_step_to_exodus(
-                    const std::string & aPath,
-                    const double aTimeStep = 0.0,
-                    const uint aOutputOrder = 0 );
+            void save_last_step_to_exodus( const std::string & aPath,
+                                           const double        aTimeStep = 0.0,
+                                           const uint          aOutputOrder = 0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an hdf5 file
              */
-            void
-            save_to_hdf5( const std::string & aPath );
+            void save_to_hdf5( const std::string & aPath );
 
 // -----------------------------------------------------------------------------
 
             /**
              * store the T-Matrices and B-Spline IDs into a file
              */
-            void
-            save_coeffs_to_hdf5_file( const std::string & aFilePath );
+            void save_coeffs_to_hdf5_file( const std::string & aFilePath );
 
             // -----------------------------------------------------------------------------
 
-            void
-            renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath );
+            void renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
             /**
              * store the T-Matrices and B-Spline IDs into a file
              */
-            void
-            save_mesh_relations_to_hdf5_file ( const std::string & aFilePath );
+            void save_mesh_relations_to_hdf5_file ( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
@@ -177,30 +164,24 @@ namespace moris
              * loads a field from an HDF5 file and creates a smart pointer
              * to it
              */
-            std::shared_ptr< Field >
-            load_field_from_hdf5_file(
-                    const std::string & aLabel,
-                    const std::string & aFilePath,
-                    const uint          aLagrangeOrder=0,
-                    const uint          aBSpineOrder=0 );
+            std::shared_ptr< Field > load_field_from_hdf5_file( const std::string & aLabel,
+                                                                const std::string & aFilePath,
+                                                                const uint          aLagrangeOrder=0,
+                                                                const uint          aBSpineOrder=0 );
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Field >
-            load_field_from_exo_file(
-                    const std::string & aLabel,
-                    const std::string & aFilePath,
-                    const uint          aLagrangeOrder=0,
-                    const uint          aBSpineOrder=0 );
+            std::shared_ptr< Field > load_field_from_exo_file( const std::string & aLabel,
+                                                               const std::string & aFilePath,
+                                                               const uint          aLagrangeOrder=0,
+                                                               const uint          aBSpineOrder=0 );
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Field >
-            load_field_from_file(
-                    const std::string & aLabel,
-                    const std::string & aFilePath,
-                    const uint          aLagrangeOrder=0,
-                    const uint          aBSpineOrder=0 );
+            std::shared_ptr< Field > load_field_from_file( const std::string & aLabel,
+                                                           const std::string & aFilePath,
+                                                           const uint          aLagrangeOrder=0,
+                                                           const uint          aBSpineOrder=0 );
 
 // -----------------------------------------------------------------------------
 
@@ -261,32 +242,27 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Interpolation_Mesh_HMR >
-            create_interpolation_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aLagrangeOrder, const uint & aPattern );
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Integration_Mesh_HMR >
-            create_integration_mesh( const uint &             aLagrangeOrder,
-                                     const uint &             aPattern,
-                                     Interpolation_Mesh_HMR & aInterpolationMesh);
+            std::shared_ptr< Integration_Mesh_HMR > create_integration_mesh( const uint                   & aLagrangeOrder,
+                                                                             const uint                   & aPattern,
+                                                                                   Interpolation_Mesh_HMR & aInterpolationMesh);
 
 // -----------------------------------------------------------------------------
-            std::shared_ptr< Field >
-            create_field( const std::string & aLabel );
+            std::shared_ptr< Field > create_field( const std::string & aLabel );
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Field >
-            create_field( const std::string & aLabel,
-                          const uint        & aLagrangeOrder,
-                          const uint        & aBSplineOrder );
+            std::shared_ptr< Field > create_field( const std::string & aLabel,
+                                                   const uint        & aLagrangeOrder,
+                                                   const uint        & aBSplineOrder );
 
  // -----------------------------------------------------------------------------
 
             // create field from parameter list
-            std::shared_ptr< Field >
-            create_field( const Field_Param & aParameters );
+            std::shared_ptr< Field > create_field( const Field_Param & aParameters );
 
 // -----------------------------------------------------------------------------
 
@@ -294,8 +270,7 @@ namespace moris
              * grab the pointer to the datavase
              */
             // std::shared_ptr< Database >
-            auto
-            get_database() -> decltype ( mDatabase )
+            auto get_database() -> decltype ( mDatabase )
             {
                 return mDatabase;
             }
@@ -315,10 +290,8 @@ namespace moris
             /**
              * for flagging
              */
-            void
-            get_candidates_for_refinement(
-                    Cell< mtk::Cell* > & aCandidates,
-                    const uint           aMaxLevel=gMaxNumberOfLevels );
+            void get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
+                                                const uint                 aMaxLevel=gMaxNumberOfLevels );
 
 
 // -----------------------------------------------------------------------------
@@ -326,42 +299,35 @@ namespace moris
             /**
              * flags elements on the surface and inside of a level set
              */
-            uint
-            flag_volume_and_surface_elements(
-                    const std::shared_ptr<Field> aScalarField );
+            uint flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
             /**
              * flags elements on the surface of a level set
              */
-            uint
-            flag_surface_elements(
-                    const std::shared_ptr<Field> aScalarField );
+            uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
             /**
              * special function for tutorial
              */
-            void
-            perform_refinement_and_map_fields();
+            void perform_refinement_and_map_fields();
 
 // -----------------------------------------------------------------------------
 
             /**
              * funciton for L2 test
              */
-            void
-            map_field_to_output( std::shared_ptr< Field > aField );
+            void map_field_to_output( std::shared_ptr< Field > aField );
 
 // -----------------------------------------------------------------------------
 
             /**
              * calculate T-Matrices, faces and edges
              */
-            void
-            finalize();
+            void finalize();
 
 // -----------------------------------------------------------------------------
 // Debug files
@@ -372,8 +338,7 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void
-            save_background_mesh_to_vtk( const std::string & aFilePath );
+            void save_background_mesh_to_vtk( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
@@ -382,8 +347,7 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void
-            save_bsplines_to_vtk( const std::string & aFilePath );
+            void save_bsplines_to_vtk( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
@@ -392,8 +356,7 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void
-            save_faces_to_vtk( const std::string & aFilePath );
+            void save_faces_to_vtk( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
@@ -402,8 +365,7 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void
-            save_edges_to_vtk( const std::string & aFilePath );
+            void save_edges_to_vtk( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
@@ -412,34 +374,27 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void
-            save_mesh_to_vtk( const std::string & aFilePath );
+            void save_mesh_to_vtk( const std::string & aFilePath );
 
 // -----------------------------------------------------------------------------
 
-            void
-            create_input_and_output_meshes();
+            void create_input_and_output_meshes();
 
 // -----------------------------------------------------------------------------
 
-            void
-            perform_initial_refinement();
+            void perform_initial_refinement();
 
 // -----------------------------------------------------------------------------
 
-            void
-            user_defined_flagging(
-                    int (*aFunction)(
-                                 Element                    * aElement,
-                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                                  ParameterList              & aParameters ),
-                            Cell< std::shared_ptr< Field > > & aFields,
-                                  ParameterList              & aParameters );
+            void user_defined_flagging( int (*aFunction)(        Element                    * aElement,
+                                                           const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                                                 ParameterList              & aParameters ),
+                                        Cell< std::shared_ptr< Field > > & aFields,
+                                        ParameterList                    & aParameters );
 
 // -----------------------------------------------------------------------------
 
-            uint
-            get_mesh_index( const uint aOrder, const uint aPattern );
+            uint get_mesh_index( const uint aOrder, const uint aPattern );
 
 // -----------------------------------------------------------------------------
         }; /* HMR */

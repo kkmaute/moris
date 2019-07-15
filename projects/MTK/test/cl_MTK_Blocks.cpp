@@ -30,10 +30,8 @@
 // linalg includes
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "fn_print.hpp"
 #include "op_equal_equal.hpp"
 #include "cl_Communication_Tools.hpp"
-
 
 namespace moris
 {

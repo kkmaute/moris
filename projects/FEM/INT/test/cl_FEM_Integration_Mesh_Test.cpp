@@ -125,11 +125,14 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             Matrix< DDRMat > tXi = tIntegPointI( { 0, tIntegNumParamSpaceDim-1 }, { 0, 0 } );
             Matrix< DDRMat > tTau( 1, 1, tIntegPointI( tIntegNumParamSpaceDim ) );
 
+            Matrix< DDRMat > tNIntegSpace;
+            Matrix< DDRMat > tNTime;
+
             // evaluate space interpolation shape functions at integration point
-            Matrix< DDRMat > tNIntegSpace = tIntegSpaceInterpolation->eval_N( tXi );
+           tIntegSpaceInterpolation->eval_N( tXi, tNIntegSpace );
 
             // evaluate time interpolation shape functions at aParamPoint
-            Matrix< DDRMat > tNTime = tTimeInterpolation->eval_N( tTau );
+            tTimeInterpolation->eval_N( tTau, tNTime );
 
             // build space time interpolation functions for integration mesh
             Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );
@@ -320,11 +323,14 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                Matrix< DDRMat > tXi = tIntegPointI( { 0, tIntegNumParamSpaceDim-1 }, { 0, 0 } );
                Matrix< DDRMat > tTau( 1, 1, tIntegPointI( tIntegNumParamSpaceDim ) );
 
+               Matrix< DDRMat > tNIntegSpace;
+               Matrix< DDRMat > tNTime;
+
                // evaluate space interpolation shape functions at integration point
-               Matrix< DDRMat > tNIntegSpace = tIntegSpaceInterpolation->eval_N( tXi );
+               tIntegSpaceInterpolation->eval_N( tXi,tNIntegSpace);
 
                // evaluate time interpolation shape functions at aParamPoint
-               Matrix< DDRMat > tNTime = tTimeInterpolation->eval_N( tTau );
+               tTimeInterpolation->eval_N( tTau, tNTime );
 
                // build space time interpolation functions for integration mesh
                Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );
@@ -535,11 +541,15 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             Matrix< DDRMat > tXi = tIntegPointI( { 0, tIntegNumParamSpaceDim-1 }, { 0, 0 } );
             Matrix< DDRMat > tTau( 1, 1, tIntegPointI( tIntegNumParamSpaceDim ) );
 
+
+            Matrix< DDRMat > tNIntegSpace;
+            Matrix< DDRMat > tNTime;
+
             // evaluate space interpolation shape functions at integration point
-            Matrix< DDRMat > tNIntegSpace = tIntegSpaceInterpolation->eval_N( tXi );
+            tIntegSpaceInterpolation->eval_N( tXi, tNIntegSpace );
 
             // evaluate time interpolation shape functions at aParamPoint
-            Matrix< DDRMat > tNTime = tTimeInterpolation->eval_N( tTau );
+            tTimeInterpolation->eval_N( tTau, tNTime );
 
             // build space time interpolation functions for integration mesh
             Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );
@@ -742,11 +752,14 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                //print(tXi,"tXi");
                //print(tTau,"tTau");
 
+               Matrix< DDRMat > tNIntegSpace;
+               Matrix< DDRMat > tNTime;
+
                // evaluate space interpolation shape functions at integration point
-               Matrix< DDRMat > tNIntegSpace = tIntegSpaceInterpolation->eval_N( tXi );
+               tIntegSpaceInterpolation->eval_N( tXi, tNIntegSpace );
 
                // evaluate time interpolation shape functions at aParamPoint
-               Matrix< DDRMat > tNTime = tTimeInterpolation->eval_N( tTau );
+               tTimeInterpolation->eval_N( tTau, tNTime );
 
                // build space time interpolation functions for integration mesh
                Matrix< DDRMat > tN = reshape( trans( tNIntegSpace ) * tNTime, 1, tNumTimeBases*tIntegNumSpaceBases );

@@ -28,7 +28,6 @@
 
 #include "cl_Matrix.hpp" //LINALG/src
 
-
 namespace moris
 {
     namespace hmr

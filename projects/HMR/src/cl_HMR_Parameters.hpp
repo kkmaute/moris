@@ -23,7 +23,6 @@
 
 #include "cl_XML_Parser.hpp"
 
-
 namespace moris
 {
     namespace hmr
@@ -33,10 +32,8 @@ namespace moris
 
         // fixme: to be deleted soon
         // creates a parameter list with default inputs
-        void
-        load_hmr_parameter_list_from_xml(
-                const std::string & aFilePath,
-                ParameterList     & aParameterList );
+        void load_hmr_parameter_list_from_xml( const std::string   & aFilePath,
+                                                     ParameterList & aParameterList );
 
 //--------------------------------------------------------------------------------
 
@@ -504,10 +501,9 @@ namespace moris
             * @param[in] aElementsZ
             * @return void
             */
-           void set_number_of_elements_per_dimension(
-                   const luint & aElementsX,
-                   const luint & aElementsY,
-                   const luint & aElementsZ );
+           void set_number_of_elements_per_dimension( const luint & aElementsX,
+                                                      const luint & aElementsY,
+                                                      const luint & aElementsZ );
 
 //-------------------------------------------------------------------------------
 
@@ -541,9 +537,8 @@ namespace moris
             * @param[in] real dimension in Y-Direction
             * @return void
             */
-           void set_domain_dimensions(
-                   const real & aDomainDimensionsX,
-                   const real & aDomainDimensionsY );
+           void set_domain_dimensions( const real & aDomainDimensionsX,
+                                       const real & aDomainDimensionsY );
 
 //-------------------------------------------------------------------------------
 
@@ -555,10 +550,9 @@ namespace moris
             * @param[in] real dimension in Z-Direction
             * @return void
             */
-           void set_domain_dimensions(
-                   const real & aDomainDimensionsX,
-                   const real & aDomainDimensionsY,
-                   const real & aDomainDimensionsZ);
+           void set_domain_dimensions( const real & aDomainDimensionsX,
+                                       const real & aDomainDimensionsY,
+                                       const real & aDomainDimensionsZ);
 
 //-------------------------------------------------------------------------------
 
@@ -590,9 +584,8 @@ namespace moris
             *
             * @return void
             */
-           void set_domain_offset(
-                   const real & aDomainOffsetX,
-                   const real & aDomainOffsetY );
+           void set_domain_offset( const real & aDomainOffsetX,
+                                   const real & aDomainOffsetY );
 
 //-------------------------------------------------------------------------------
 
@@ -605,10 +598,9 @@ namespace moris
             *
             * @return void
             */
-           void set_domain_offset(
-                   const real & aDomainOffsetX,
-                   const real & aDomainOffsetY,
-                   const real & aDomainOffsetZ );
+           void set_domain_offset( const real & aDomainOffsetX,
+                                   const real & aDomainOffsetY,
+                                   const real & aDomainOffsetZ );
 
 //-------------------------------------------------------------------------------
            /**
@@ -630,8 +622,7 @@ namespace moris
             *
             * return Matrix< DDLUMat >
             */
-           Matrix< DDLUMat >
-           get_domain_ijk() const;
+           Matrix< DDLUMat > get_domain_ijk() const;
 
 //-------------------------------------------------------------------------------
 
@@ -951,9 +942,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void set_mesh_orders(
-                   const Matrix< DDUMat > & aBSplineOrders,
-                   const Matrix< DDUMat > & aLagrangeOrders );
+           void set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
+                                 const Matrix< DDUMat > & aLagrangeOrders );
 
 //-------------------------------------------------------------------------------
         }; /* Parameters */

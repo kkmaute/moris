@@ -42,10 +42,8 @@
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
-#include "fn_print.hpp" // for check
 #include "fn_iscol.hpp"
 #include "fn_trans.hpp"
-
 
 namespace moris
 {

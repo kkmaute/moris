@@ -50,8 +50,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_N: aXi not allocated or hat wrong size." );
@@ -59,11 +60,10 @@ namespace moris
             real xi = aXi( 0 );
             real xi2 = std::pow( xi , 2 );
 
-            Matrix< DDRMat > tN(1,3);
-            tN( 0 ) = 0.5 * ( xi2 - xi );
-            tN( 1 ) = 0.5 * ( xi2 + xi );
-            tN( 2 ) = 1.0 - xi2;
-            return tN;
+            aNXi.set_size(1,3);
+            aNXi( 0 ) = 0.5 * ( xi2 - xi );
+            aNXi( 1 ) = 0.5 * ( xi2 + xi );
+            aNXi( 2 ) = 1.0 - xi2;
         }
 
 //------------------------------------------------------------------------------

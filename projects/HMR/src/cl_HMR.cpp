@@ -19,21 +19,12 @@
 #include "fn_trans.hpp" //LINALG/src
 #include "fn_eye.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
-#include "fn_print.hpp" //LINALG/src
+
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
 #include "cl_HMR_File.hpp" //HMR/src
 #include "cl_HMR_Mesh.hpp" //HMR/src
 #include "cl_HMR_STK.hpp" //HMR/src
-
-//#include "cl_DLA_Solver_Factory.hpp"
-//#include "cl_DLA_Linear_Solver_Aztec.hpp"
-//#include "cl_Vector.hpp"
-//
-//#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-//#include "cl_NLA_Newton_Solver.hpp"
-//#include "cl_NLA_Nonlinear_Problem.hpp"
-//#include "cl_NLA_Solver_Interface_Proxy.hpp"
 
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -41,8 +32,6 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_Mesh_Factory.hpp"
-#include "cl_MDL_Model.hpp"
-#include "cl_FEM_IWG_L2.hpp"
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -117,10 +106,10 @@ namespace moris
             // create union of input and output
             mDatabase->create_union_pattern();
 
-            if( mParameters->get_max_polynomial() > 2 )
-            {
+//            if( mParameters->get_max_polynomial() > 2 )
+//            {
 //                mDatabase->add_extra_refinement_step_for_exodus();
-            }
+//            }
 
             // update database
             mDatabase->update_bspline_meshes();
@@ -1402,11 +1391,11 @@ namespace moris
                                                     mParameters->get_union_pattern() );
 
                  // test if max polynomial is 3
-                if ( mParameters->get_max_polynomial() > 2 )
-                {    
-                    // activate extra pattern for exodus
+//                if ( mParameters->get_max_polynomial() > 2 )
+//                {
+//                    // activate extra pattern for exodus
 //                    mDatabase->add_extra_refinement_step_for_exodus();
-                }    
+//                }
 
                 // update database
                 mDatabase->update_bspline_meshes();

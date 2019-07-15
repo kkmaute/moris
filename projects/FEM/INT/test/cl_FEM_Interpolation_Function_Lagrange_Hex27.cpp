@@ -93,7 +93,7 @@ TEST_CASE( "Lagrange HEX27", "[moris],[fem],[Hex27LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tXi.get_column( k ) );
+                tFunction->eval_N( tXi.get_column( k ), tN );
 
                 // test unity
                 tCheck = tCheck && ( std::abs( sum(tN) - 1.0 ) < tEpsilon );
@@ -110,7 +110,7 @@ TEST_CASE( "Lagrange HEX27", "[moris],[fem],[Hex27LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tXi.get_column(k ) );
+                tFunction->eval_N( tXi.get_column(k ), tN );
 
                 // test evaluated value
                 Matrix< DDRMat > tError  = tN * tPhiHat ;

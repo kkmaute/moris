@@ -53,8 +53,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 4 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 4 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                             Matrix< DDRMat > & aNXi) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 4, "TET4 - eval_N: aXi not allocated or hat wrong size." );
@@ -66,12 +67,11 @@ namespace moris
             real zeta4 = aXi( 3 );
 
             // populate matrix with values
-            Matrix< DDRMat > tN( 1, 4 );
-            tN( 0 ) = zeta1;
-            tN( 1 ) = zeta2;
-            tN( 2 ) = zeta3;
-            tN( 3 ) = zeta4;
-            return tN;
+            aNXi.set_size( 1, 4 );
+            aNXi( 0 ) = zeta1;
+            aNXi( 1 ) = zeta2;
+            aNXi( 2 ) = zeta3;
+            aNXi( 3 ) = zeta4;
         }
 
 //------------------------------------------------------------------------------

@@ -14,7 +14,6 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Cell.hpp" //CON/src
-//#include "cl_HMR_STK.hpp" //HMR/src
 
 namespace moris
 {

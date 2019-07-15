@@ -9,7 +9,6 @@
 #define PROJECTS_MTK_SRC_CL_MTK_SCALAR_FIELD_INFO_HPP_
 
 #include "fn_assert.hpp"
-#include "fn_print.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
@@ -34,7 +33,6 @@ struct Scalar_Field_Info
     {
 
     }
-
 
     /*
      * Set the field name for this field
@@ -140,7 +138,6 @@ struct Scalar_Field_Info
         return *mFieldData;
     }
 
-
     /*
      * Ask if field has data
      */
@@ -156,7 +153,6 @@ struct Scalar_Field_Info
             return true;
         }
     }
-
 
     uint
     get_num_components()
@@ -182,12 +178,8 @@ private:
 
     // Field Entity Ids associated with mFieldData (ordering here matters)
     Matrix<IdMat>* mEntityIds;
-
-
 };
 }
 }
-
-
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_SCALAR_FIELD_INFO_HPP_ */

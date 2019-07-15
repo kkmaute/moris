@@ -191,17 +191,26 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
 
                 // get the integration point in the IP parametric space
                 // via the side shape functions for the master side
-                Matrix< DDRMat > tMasterRefIntegPointI = trans( tSideSpaceInterp->eval_N( tMasterIntegPointI({0,0}, {0,0}) ) * tMasterSideParamCoords );
+                Matrix< DDRMat > tN1;
+                Matrix< DDRMat > tN2;
+                Matrix< DDRMat > tN3;
+                Matrix< DDRMat > tN4;
+                tSideSpaceInterp->eval_N( tMasterIntegPointI({0,0}, {0,0}), tN1 );
+                tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,0}, {0,0}), tN2 );
+
+                Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1  * tMasterSideParamCoords );
 
                 // get the integration point in the IP parametric space
                 // via the rotation matrix for the slave side
-                Matrix< DDRMat > tSlaveRefIntegPointI = trans( tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,0}, {0,0}) ) * tSlaveSideParamCoords );
+                Matrix< DDRMat > tSlaveRefIntegPointI = trans( tN2 * tSlaveSideParamCoords );
+
+                tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
+                tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
+                // to check only
+                Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
 
                 // to check only
-                Matrix< DDRMat > tMasterPhysIntegPointI = trans( tSpaceInterp->eval_N( tMasterRefIntegPointI ) * tXHatIP_M );
-
-                // to check only
-                Matrix< DDRMat > tSlavePhysIntegPointI = trans( tSpaceInterp->eval_N( tSlaveRefIntegPointI ) * tXHatIP_S );
+                Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                 // check the integration point in the IP parametric space
                 for( uint iCoords = 0; iCoords < 2; iCoords++ )
@@ -378,20 +387,28 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
                 // get the integration point in the IP parametric space
                 // via the side shape functions for the master side
                 Matrix< DDRMat > tMasterRefIntegPointI( 4, 1, 0.0 );
-                tMasterRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tSideSpaceInterp->eval_N( tMasterIntegPointI({0,0},{0,0}) ) * tMasterSideParamCoords );
+                Matrix< DDRMat > tN1;
+                tSideSpaceInterp->eval_N( tMasterIntegPointI({0,0},{0,0}),tN1 );
+                tMasterRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tN1 * tMasterSideParamCoords );
                 tMasterRefIntegPointI( 3 ) = tMasterIntegPointI( 1 );
 
                 // get the integration point in the IP parametric space
                 // via the rotation matrix for the slave side
                 Matrix< DDRMat > tSlaveRefIntegPointI( 4, 1, 0.0 );
-                tSlaveRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,0},{0,0}) ) * tSlaveSideParamCoords );
+                Matrix< DDRMat > tN2;
+                tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,0},{0,0}),tN2);
+                tSlaveRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tN2 * tSlaveSideParamCoords );
                 tSlaveRefIntegPointI( 3 ) = tSlaveIntegPointI( 1 );
 
                 // to check only
-                Matrix< DDRMat > tMasterPhysIntegPointI = trans( tSpaceInterp->eval_N( tMasterRefIntegPointI ) * tXHatIP_M );
+                Matrix< DDRMat > tN3;
+                tSpaceInterp->eval_N( tMasterRefIntegPointI,tN3 );
+                Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
 
                 // to check only
-                Matrix< DDRMat > tSlavePhysIntegPointI = trans( tSpaceInterp->eval_N( tSlaveRefIntegPointI ) * tXHatIP_S );
+                Matrix< DDRMat > tN4;
+                tSpaceInterp->eval_N( tSlaveRefIntegPointI,tN4 );
+                Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                 // check the integration point in the IP parametric space
                 for( uint iCoords = 0; iCoords < 2; iCoords++ )
@@ -606,17 +623,25 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
 
                     // get the integration point in the IP parametric space
                     // via the side shape functions for the master side
-                    Matrix< DDRMat > tMasterRefIntegPointI = trans( tSideSpaceInterp->eval_N( tMasterIntegPointI({0,2}, {0,0}) ) * tMasterSideParamCoords );
+                    Matrix< DDRMat > tN1;
+                    tSideSpaceInterp->eval_N( tMasterIntegPointI({0,2}, {0,0}),tN1 );
+                    Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1 * tMasterSideParamCoords );
 
                     // get the integration point in the IP parametric space
                     // via the rotation matrix for the slave side
-                    Matrix< DDRMat > tSlaveRefIntegPointI = trans( tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,2}, {0,0}) ) * tSlaveSideParamCoords );
+                    Matrix< DDRMat > tN2;
+                    tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,2}, {0,0}), tN2 );
+                    Matrix< DDRMat > tSlaveRefIntegPointI = trans( tN2 * tSlaveSideParamCoords );
 
                     // to check only
-                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tSpaceInterp->eval_N( tMasterRefIntegPointI ) * tXHatIP_M );
+                    Matrix< DDRMat > tN3;
+                    tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
+                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
 
                     // to check only
-                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tSpaceInterp->eval_N( tSlaveRefIntegPointI ) * tXHatIP_S );
+                    Matrix< DDRMat > tN4;
+                    tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
+                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                     // check the integration point in the IP parametric space
                     for( uint iCoords = 0; iCoords < 3; iCoords++ )
@@ -879,17 +904,25 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
 
                     // get the integration point in the IP parametric space
                     // via the side shape functions for the master side
-                    Matrix< DDRMat > tMasterRefIntegPointI = trans( tSideSpaceInterp->eval_N( tMasterIntegPointI({0,1}, {0,0}) ) * tMasterSideParamCoords );
+                    Matrix< DDRMat > tN1;
+                    tSideSpaceInterp->eval_N( tMasterIntegPointI({0,1}, {0,0}),tN1 );
+                    Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1 * tMasterSideParamCoords );
 
                     // get the integration point in the IP parametric space
                     // via the rotation matrix for the slave side
-                    Matrix< DDRMat > tSlaveRefIntegPointI = trans( tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,1}, {0,0}) ) * tSlaveSideParamCoords );
+                    Matrix< DDRMat > tN2;
+                    tSideSpaceInterp->eval_N( tSlaveIntegPointI({0,1}, {0,0}), tN2 );
+                    Matrix< DDRMat > tSlaveRefIntegPointI = trans(tN2  * tSlaveSideParamCoords );
 
                     // to check only
-                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tSpaceInterp->eval_N( tMasterRefIntegPointI ) * tXHatIP_M );
+                    Matrix< DDRMat > tN3;
+                    tSpaceInterp->eval_N( tMasterRefIntegPointI,tN3 );
+                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
 
                     // to check only
-                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tSpaceInterp->eval_N( tSlaveRefIntegPointI ) * tXHatIP_S );
+                    Matrix< DDRMat > tN4;
+                    tSpaceInterp->eval_N( tSlaveRefIntegPointI,tN4 );
+                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                     // check the integration point in the IP parametric space
                     for( uint iCoords = 0; iCoords < 3; iCoords++ )
