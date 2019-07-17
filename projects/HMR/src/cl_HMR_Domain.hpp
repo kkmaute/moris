@@ -14,10 +14,8 @@
 
 namespace moris
 {
-
     namespace hmr
     {
-
         /**
          * the Domain struct contains basic information needed for
          * mesh generation and calculation of IDs.
