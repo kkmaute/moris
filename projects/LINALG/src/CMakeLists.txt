@@ -195,6 +195,9 @@ foreach(TPL ${LINALG_TPL_DEPENDENCIES})
     	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
 
+get_target_property(prop ${LINALG}-lib INTERFACE_LINK_LIBRARIES)
+message("LINALG ILL: ${prop}")
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Executable
 
@@ -234,6 +237,12 @@ endforeach()
 
 # Makes sure all moris library dependencies are included in the config file
 foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	# skip if -lfoo format
+	string(FIND ${LIB_TARGET} "-" pos)
+	if(pos EQUAL "0")
+		continue()
+	endif()
+	
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
 	string(APPEND LINALG_CONFIG_MORIS_DEPENDENCIES
 		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )

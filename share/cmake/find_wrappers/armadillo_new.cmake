@@ -35,7 +35,7 @@ if(NOT ARMADILLO_FOUND_ONCE)
     
     if(Armadillo_FOUND)
         #set(ARMADILLO_FOUND_ONCE TRUE CACHE INTERNAL "Armadillo was found.")
-        #set(ARMADILLO_FOUND_ONCE TRUE)
+        set(ARMADILLO_FOUND_ONCE TRUE)
     endif()
     
     message(STATUS "ARMADILLO_INCLUDE_DIRS: ${ARMADILLO_INCLUDE_DIRS}")
@@ -49,12 +49,13 @@ if(NOT TARGET ${MORIS}::armadillo)
 		"arpack"
 		)
 	
+	add_library(${MORIS}::armadillo STATIC IMPORTED GLOBAL)
+	
 	foreach(TPL ${MORIS_ARMADILLO_TPLS})
 		include(${TPL}_new)
 		list(APPEND MORIS_ARMADILLO_TPL_TARGETS ${MORIS}::${TPL})
 	endforeach()
-
-	add_library(${MORIS}::armadillo STATIC IMPORTED GLOBAL)
+	
 	set_target_properties(${MORIS}::armadillo PROPERTIES
 		IMPORTED_LOCATION ${MORIS_ARMADILLO_LIBRARIES})
 	target_link_libraries(${MORIS}::armadillo INTERFACE ${MORIS_ARMADILLO_TPL_TARGETS})
