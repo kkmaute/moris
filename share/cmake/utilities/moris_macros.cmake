@@ -6,9 +6,15 @@ macro(_import_libraries OUTPUT_VAR LIBRARY_LIST)
 	
 	foreach(LIB ${LIBRARY_LIST})
 		string(REGEX REPLACE "^.*/([^/.]+).(a|so)" "subtarget_\\1" LIB_TARGET ${LIB})
+		string(REGEX REPLACE "^.*/([^/.]+).(a|so)" "\\2" LIB_TYPE ${LIB})
 		
 		if(NOT TARGET ${LIB_TARGET})
-			add_library(${LIB_TARGET} STATIC IMPORTED GLOBAL)
+			if(${LIB_TYPE} STREQUAL "a")
+				add_library(${LIB_TARGET} STATIC IMPORTED GLOBAL)
+			else()
+				add_library(${LIB_TARGET} SHARED IMPORTED GLOBAL)
+			endif()
+			
 			set_target_properties(${LIB_TARGET} PROPERTIES IMPORTED_LOCATION ${LIB})
 		endif()
 		

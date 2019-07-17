@@ -60,8 +60,8 @@ find_library(MKL_pthread
 
 set(MKL_LIBRARIES
     ${MKL_lp64}
-    ${MKL_core}
     ${MKL_sequential}
+    ${MKL_core}
 #    ${MKL_pthread}
     CACHE FILEPATH "List of library paths." )
 
@@ -82,7 +82,10 @@ mark_as_advanced(MKL_DIR
     MKL_pthread
     MKL_LIBRARIES )
 
-_import_libraries(MKL_LIBRARY_TARGETS ${MKL_LIBRARIES})
+_import_libraries(MKL_LIBRARY_TARGETS "${MKL_LIBRARIES}")
+
+target_link_libraries(subtarget_libmkl_intel_lp64 INTERFACE subtarget_libmkl_core)
+target_link_libraries(subtarget_libmkl_sequential INTERFACE subtarget_libmkl_core)
 
 add_library(MKL::mkl INTERFACE IMPORTED GLOBAL)
 target_link_libraries(MKL::mkl INTERFACE ${MKL_LIBRARY_TARGETS})

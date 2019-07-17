@@ -12,8 +12,10 @@ set(LAPACK_ENV_VARS
     $ENV{LAPACK_PATH}
     $ENV{lapack_PATH} )
     
-    find_package(LAPACK HINTS ${LAPACK_ENV_VARS})
+    #find_package(LAPACK REQUIRED PATHS ${LAPACK_ENV_VARS})
+    find_package(LAPACK REQUIRED)
     if(LAPACK_FOUND)
+    message("'ere : ${LAPACK_LINKER_FLAGS}")
         set(LAPACK_FOUND_ONCE TRUE)
         
         #set(MORIS_LAPACK_LIBRARIES ${LAPACK_LIBRARIES}
@@ -26,7 +28,7 @@ set(LAPACK_ENV_VARS
         mark_as_advanced(MORIS_LAPACK_LIBRARIES
         	MORIS_LAPACK_DEFINTIONS )
     endif()
-    message(STATUS "LAPACK_LIBRARIES: ${LAPACK_LIBRARIES}")
+    message( "LAPACK_LIBRARIES: ${LAPACK_LIBRARIES}")
 endif()
 
 if(NOT TARGET ${MORIS}::lapack)
@@ -34,6 +36,9 @@ if(NOT TARGET ${MORIS}::lapack)
 
 	add_library(${MORIS}::lapack INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(${MORIS}::lapack INTERFACE ${LAPACK_LIBRARY_TARGETS})
+	
+	get_target_property(prop ${MORIS}::lapack INTERFACE_LINK_LIBRARIES)
+	message("lapack ILL: ${prop} -- ${LAPACK_LIBRARIES}")
 endif()
 
 #add_definitions("-DMORIS_HAVE_LAPACK")
