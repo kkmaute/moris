@@ -40,7 +40,6 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
         tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
         tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
         tParameters.set( "lagrange_orders",                  "2" );
-        tParameters.set( "verbose", 1 ); // verbosity flag for debugging and other outputs
 
         hmr::HMR tHMR( tParameters );
         // create MTK mesh object and SDF field
