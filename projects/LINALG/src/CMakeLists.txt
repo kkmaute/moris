@@ -195,9 +195,6 @@ foreach(TPL ${LINALG_TPL_DEPENDENCIES})
     	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
 
-get_target_property(prop ${LINALG}-lib INTERFACE_LINK_LIBRARIES)
-message("LINALG ILL: ${prop}")
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Executable
 

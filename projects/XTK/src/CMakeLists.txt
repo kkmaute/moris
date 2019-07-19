@@ -164,6 +164,7 @@ set(LIB_DEPENDENCIES
 	#${COM}-lib
 	${MTK}-lib
 	${ALG}-lib
+	${CHR}-lib
 	#${HMR}-lib
     #${MORIS_BASE_LIBS}
     #${MORIS_TRILINOS_LIBS}

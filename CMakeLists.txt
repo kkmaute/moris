@@ -414,7 +414,8 @@ if (USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
 
     #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -lprofiler -ltcmalloc" )
-    list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
+    #list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
+    # Need to add this to a bigger MRS kind of target that's linked to everything. For now, just adding to LINALG, MRS, and XTK.
 endif()
 
 # -------------------------------------------------------------------------
