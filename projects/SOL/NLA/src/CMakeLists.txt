@@ -6,32 +6,16 @@ set(${NLA}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-cl_NLA_Arc_Length.hpp
-cl_NLA_Convergence.hpp
-cl_NLA_Newton_Solver.hpp
-cl_NLA_NLBGS.hpp
-cl_NLA_Nonlinear_Algorithm.hpp
-cl_NLA_Nonlinear_Problem.hpp
-cl_NLA_Nonlinear_Solver_Enums.hpp
-cl_NLA_Nonlinear_Solver_Factory.hpp
-cl_NLA_Nonlinear_Solver.hpp
-)
-    
-# List header dependencies
-set(NLA_INCLUDES
-    #${LINALG}
-    #${SOL}/${DLA}
-    #${SOL}/${SOL_CORE}
-    #${NLA}
-    #${IOS}
-    #${COM}
-    #${FEM}/${MSI}
-    )
-
-# Include depedency directories
-foreach(NLA_INCLUDE ${NLA_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${NLA_INCLUDE}/src)
-endforeach()
+	cl_NLA_Arc_Length.hpp
+	cl_NLA_Convergence.hpp
+	cl_NLA_Newton_Solver.hpp
+	cl_NLA_NLBGS.hpp
+	cl_NLA_Nonlinear_Algorithm.hpp
+	cl_NLA_Nonlinear_Problem.hpp
+	cl_NLA_Nonlinear_Solver_Enums.hpp
+	cl_NLA_Nonlinear_Solver_Factory.hpp
+	cl_NLA_Nonlinear_Solver.hpp
+	)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # NonLinear Library
@@ -54,11 +38,6 @@ set(LIB_DEPENDENCIES
     ${COM}-lib
     ${MSI}-lib
     ${SOL_CORE}-lib
-    #${MORIS_PETSC_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-  #  ${MORIS_BASE_LIBS}
-    #${MORIS_ARPACK_LIBS}
     )
 
 # Set the output path for library

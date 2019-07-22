@@ -9,27 +9,6 @@ set(HEADERS
 	cl_MTK_Mapper_Node.hpp
 	cl_MTK_Mapper.hpp
     )
-
-# List header dependencies
-set(MAP_INCLUDES
-    #${LINALG}
-    #${COM}
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    #${SOL}/${TSA}
-    #${SOL}/${SOL_CORE}
-    #${MTK}
-    #${HMR}
-    #${MTK}/${MAP}
-    #${FEM}/${INT}
-    #${FEM}/${MDL}
-    #${FEM}/${MSI}
-    )
-    
-# Include depedency directories
-foreach(MAP_INCLUDE ${MAP_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${MAP_INCLUDE}/src)
-endforeach()
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # MAP Library

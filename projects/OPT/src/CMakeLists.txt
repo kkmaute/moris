@@ -16,16 +16,6 @@ set(HEADERS
     cl_Opt_Prob.hpp
     Opt_Input.hpp )
 
-# List header dependencies
-set(OPT_INCLUDES
-    #${LINALG}
-    )
-
-# Include depedency directories
-foreach(OPT_INCLUDE ${OPT_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${OPT_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Optimization Library
 
@@ -58,6 +48,7 @@ target_include_directories(${OPT}-lib PUBLIC
 	$<INSTALL_INTERFACE:${${OPT}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${OPT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${OPT}-lib PROPERTIES OUTPUT_NAME ${OPT})
+target_compile_definitions(${OPT}-lib PUBLIC "-DF77ADD_")
 
 # Link third party libraries
 foreach(TPL ${OPT_TPL_DEPENDENCIES})

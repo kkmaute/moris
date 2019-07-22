@@ -31,23 +31,6 @@ set(HEADERS
     cl_Vector.hpp
     cl_VectorPETSc.hpp )
 
-# List header dependencies
-set(DLA_INCLUDES
-    #${LINALG}
-    #${SOL}/${SOL_CORE}
-    #${IOS}
-    #${COM}
-    #${MTK}
-    #${HMR}
-#    ${FEM}/${MSI}
-#    ${FEM}/${INT}
-)
-
-# Include depedency directories
-foreach(DLA_INCLUDE ${DLA_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${DLA_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Library
 
@@ -79,12 +62,6 @@ set(LIB_DEPENDENCIES
 	${COM}-lib
     ${MTK}-lib
     ${HMR}-lib
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_PETSC_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-  #  ${MORIS_BASE_LIBS}
-    #${MORIS_ARPACK_LIBS}
     )
 
 # Set the output path for library
