@@ -29,54 +29,13 @@ set(TEST_SOURCES
     cl_FEM_Model_Param_Interpolator_Test.cpp
     )
 
-# List test includes
-set(TEST_INCLUDES
-    #${LINALG}
-    #${COM}
-    #${MTK}
-    #${ALG}
-	#${HMR}
-    #${FEM}/${INT}
-    #${FEM}/${MSI}
-    #${FEM}/${MDL}
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additional includes
-
 # List test dependencies
 set(TEST_DEPENDENCIES
-	#test-libs
+	test-libs
     ${INT}-lib
     ${ALG}-lib
-    #${MSI}-lib
-    #${MDL}-lib
-    
-    #${DLA}-lib
-    #${NLA}-lib
-    #${MTK}-lib
-    #${TOL}-lib
-	#${HMR}-lib
-	#${MAP}-lib
     ${MORIS_BASE_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}
-    #${MORIS_BOOST_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

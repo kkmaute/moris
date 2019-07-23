@@ -7,28 +7,12 @@ set(TEST_SOURCES
     cl_Stopwatch.cpp
     cl_Waitbar.cpp )
 
-# List test includes
-set(TEST_INCLUDES
-    ${COM} )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additonal includes
-
 # List test dependencies
 set(TEST_DEPENDENCIES
 	test-libs
 	${CHR}-lib
     ${MORIS_BASE_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

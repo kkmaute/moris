@@ -14,27 +14,6 @@ set(TEST_SOURCES
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp
     )
 
-# List test includes
-set(TEST_INCLUDES
-    #${LINALG}
-    #${IOS}
-    #${COM}
-    #${MTK}
-    #${HMR}
-    #${ALG}
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    #${SOL}/${TSA}
-    #${SOL}/${SOL_CORE}
-    #${FEM}/${INT}
-    #${FEM}/${MSI}
-    #${FEM}/${MDL}
-    )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
 #FIXME: Remove this once xtk has removed subdirectories from its package
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               
     "assert"                                                                                                                                                                                                                                                                   
@@ -55,37 +34,18 @@ foreach(XTK_INCLUDE ${XTK_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
 endforeach()   
 
-# List additional includes
-
 # List test dependencies
 set(TEST_DEPENDENCIES
 	test-libs
 	${MTK}-lib
 	${ALG}-lib
-    #${COM}-lib
-    #${MDL}-lib
-    #${MSI}-lib
     ${INT}-lib
-    #${MTK}-lib
-    #${TOL}-lib
     ${HMR}-lib
     ${SDF}-lib
     ${MAP}-lib
     ${XTK}-lib
-    #${DLA}-lib
-    #${NLA}-lib
-    #${TSA}-lib
-    #${SOL_CORE}-lib
     ${MORIS_BASE_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
