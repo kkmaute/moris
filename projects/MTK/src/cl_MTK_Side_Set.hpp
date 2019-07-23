@@ -145,7 +145,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              const uint
+              uint
               get_num_vertieces_on_set() const
               {
                   return mNumVerticesOnSet;
@@ -161,7 +161,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              const moris::uint
+              moris::uint
               get_num_clusters_on_set() const
               {
                   return mSetClusters.size();
