@@ -244,16 +244,25 @@ include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 # -------------------------------------------------------------------------
 
 # Set default C compiler.
-#if (NOT MORIS_C_COMPILER )
-#    set(MORIS_C_COMPILER "mpicc" )
-#endif()
+if (NOT MORIS_C_COMPILER )
+    set(MORIS_C_COMPILER "mpicc" )
+endif()
 
 # Set default C++ compiler
 if (NOT MORIS_CXX_COMPILER )
-    if (USE_TACC ) 
-        set(MORIS_CXX_COMPILER "mpicxx" )
+	find_program(MPIC++_PATH "mpic++")
+	find_program(MPICXX_PATH "mpicxx")
+	
+    if(MPIC++_PATH) 
+        set(MORIS_CXX_COMPILER "mpic++" )
+    elseif(MPICXX_PATH)
+        set(MORIS_CXX_COMPILER "mpicxx")
     else()
-        set(MORIS_CXX_COMPILER "mpic++")
+    	message(WARNING "MORIS expects the mpic++ or mpicxx compiler. "
+    		"Neither of these were found, but CMake found the compiler:"
+    		"\n${CMAKE_CXX_COMPILER}\n"
+    		"MORIS will try to compile, but may fail."
+    		"If you would like to try a different compiler, set the MORIS_CXX_COMPILER variable." )
     endif()
 endif()
 
@@ -266,10 +275,11 @@ include(CheckCXXCompilerFlag)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
-    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto")
+    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt")
 else()
-   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
+   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran")
 endif()
+list(APPEND MORIS_BASE_LIBS "-ldl -lssl -lcrypto")
 
 # -g Request that the compiler and linker generate 
 # and retain symbol information in the executable itself,
@@ -462,8 +472,8 @@ endif()
 # -------------------------------------------------------------------------
 
 # C++ compiler flags.
-#set(CMAKE_C_COMPILER ${MORIS_C_COMPILER})
-#set(CMAKE_CXX_COMPILER ${MORIS_CXX_COMPILER})
+set(CMAKE_C_COMPILER ${MORIS_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${MORIS_CXX_COMPILER})
 set(CMAKE_CXX_FLAGS ${MORIS_CXX_FLAGS})
 
 # Preprocessor definitions.
