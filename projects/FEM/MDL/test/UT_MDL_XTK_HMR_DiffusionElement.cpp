@@ -330,7 +330,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_MULTIGRID]")
 {
-    if(par_size() == 1)
+    if( par_size() == 1 )
     {
         gLogger.set_severity_level( 0 );
 
@@ -505,7 +505,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         CHECK( equal_to( tSolution( 461, 0 ), 17.06241419810062, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 505, 0 ), 29.33523440842293, 1.0e+08 ) );
 
-//        // Write to Integration mesh for visualization
+        // Write to Integration mesh for visualization
 //        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
 //
 //        // add solution field to integration mesh

@@ -15,7 +15,6 @@ namespace moris
 
             aParameterList.insert( "input_mesh", std::string( "Mesh.exo" ) );
             aParameterList.insert( "output_mesh", std::string( "Mesh.exo" ) );
-            aParameterList.insert( "verbose", 0 );
 
             return aParameterList;
         }
@@ -52,10 +51,9 @@ namespace moris
             // global parameters
             aGlobalParameters = create_sdf_parameter_list();
 
-
-            tParser.get( "moris.sdf.parameters.verbose", tValue );
-            sint tSwitch = (sint) string_to_bool( tValue );
-            aGlobalParameters.set("verbose",  tSwitch );
+//            tParser.get( "moris.sdf.parameters.verbose", tValue );
+//            sint tSwitch = (sint) string_to_bool( tValue );
+//            aGlobalParameters.set("verbose",  tSwitch );
 
             // object parameters
             uint tNumberOfObjects = tParser.count_keys_in_subtree( "moris.sdf", "object" );

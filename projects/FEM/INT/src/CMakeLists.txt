@@ -93,22 +93,6 @@ set(HEADERS
     cl_FEM_Property_Temp_Dirichlet.hpp
     )
 
-# List header dependencies
-set(INT_INCLUDES
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    #${LINALG}
-    #${MTK}
-    #${COM}
-    #${FEM}/${MSI}
-    #${FEM}/${MDL}
-    )
-
-# Include depedency directories
-foreach(INT_INCLUDE ${INT_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${INT_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fem/int Library
 
@@ -153,13 +137,6 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${MTK}-lib
 	${MSI}-lib
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
- #   ${MORIS_BASE_LIBS}
-    #${MORIS_ARPACK_LIBS}
-    #${MSI}-lib
-    #${MDL}-lib
     )
 
 # Set the output path for library

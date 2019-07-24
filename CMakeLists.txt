@@ -2,6 +2,7 @@
 # MORIS CMakeLists.txt ----------------------------------------------------
 # -------------------------------------------------------------------------
 
+#> add to documentation
 # NOTES:
 # The command 'add_library(${MORIS} STATIC ${SOURCES})' automatically
 # adds the 'lib' prefix to the library and the 'a' file extension.
@@ -109,14 +110,14 @@ set(HEADER_INSTALL_DIR ${INC})
 ## CMake Paths
 
 list(APPEND CMAKE_MODULE_PATH 
-	"${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_modules"
-	"${CMAKE_SOURCE_DIR}/${SHARE}/${CMAKE}/find_wrappers" )
+	"${MORIS_CMAKE_DIR}/find_modules"
+	"${MORIS_CMAKE_DIR}/find_wrappers" )
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 # -------------------------------------------------------------------------
 ## MORIS Important Include Directories
 
-list(APPEND MORIS_INCDIRS "${SRC}" "snippets" "${INC}" "/usr/include")
+list(APPEND MORIS_INCDIRS "snippets" "${INC}" "/usr/include")
 
 # -------------------------------------------------------------------------
 ## Options
@@ -150,25 +151,16 @@ option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
 option(MORIS_USE_MKL
-    "Use the Inel Math kernel library as the linear algebra package." OFF )
+    "Use the Inel Math kernel library as the linear algebra package." ON )
 
 option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." ON )
+    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
 
 option(HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
 
 option(HAVE_SNOPT
     "Build MORIS with support for SNOPT." ON )
-    
-# option(HAVE_PERF_MAT
-#     "Run matrix performance tests." OFF )
-#     
-# option(HAVE_PERF_SP_MAT
-#     "Run sparse matrix performance tests." OFF )
-#     
-# option(HAVE_PERF_LIN_SOLVE
-#     "Run linear solver performance tests." OFF )
 
 option(MORIS_USE_TESTS
     "Compile unit tests." ON )
@@ -206,8 +198,6 @@ option(BUILD_EXC "Build the exceptions executable." OFF)
 
 option(BUILD_FEM "Build the FEM executable." OFF)
 
-#option(BUILD_GE "Build the geometry engine executable." OFF)
-
 option(BUILD_GEN "Build the geometry engine executable." OFF)
 
 option(BUILD_HMR "Build the HMR executable." OFF)
@@ -236,8 +226,6 @@ option(BUILD_SDF "Build the SDF executable." OFF)
 
 option(BUILD_STK "Build the STK executable." OFF)
 
-# option(BUILD_TIN "Build the TIN executable." OFF)
-
 option(BUILD_TOL "Build the tools executable." OFF)
 
 option(BUILD_TSA "Build the time solver algebra executable." OFF)
@@ -247,7 +235,8 @@ option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
 option(BUILD_XTK "Build the XTK executable." OFF)
 
 # -------------------------------------------------------------------------
-# Macros
+# Macros ------------------------------------------------------------------
+# -------------------------------------------------------------------------
 include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 
 # -------------------------------------------------------------------------
@@ -258,35 +247,50 @@ include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
 if (NOT MORIS_C_COMPILER )
     set(MORIS_C_COMPILER "mpicc" )
 endif()
-set(MORIS_C_LINK_EXECUTABLE ${MORIS_C_COMPILER} )
 
 # Set default C++ compiler
 if (NOT MORIS_CXX_COMPILER )
-    if (USE_TACC ) 
-        set(MORIS_CXX_COMPILER "mpicxx" )
+	find_program(MPIC++_PATH "mpic++")
+	find_program(MPICXX_PATH "mpicxx")
+	
+    if(MPIC++_PATH) 
+        set(MORIS_CXX_COMPILER "mpic++" )
+    elseif(MPICXX_PATH)
+        set(MORIS_CXX_COMPILER "mpicxx")
     else()
-        set(MORIS_CXX_COMPILER "mpic++")
+    	message(WARNING "MORIS expects the mpic++ or mpicxx compiler. "
+    		"Neither of these were found, but CMake found the compiler:"
+    		"\n${CMAKE_CXX_COMPILER}\n"
+    		"MORIS will try to compile, but may fail."
+    		"If you would like to try a different compiler, set the MORIS_CXX_COMPILER variable." )
     endif()
 endif()
-set(MORIS_CXX_LINK_EXECUTABLE ${MORIS_CXX_COMPILER})
 
-message(STATUS "MORIS recognized the C compiler type MORIS_C_COMPILER=${MORIS_C_COMPILER}.")
-message(STATUS "MORIS recognized the C++ compiler type MORIS_CXX_COMPILER=${MORIS_CXX_COMPILER}.")
+message(STATUS "MORIS C compiler: ${MORIS_C_COMPILER}.")
+message(STATUS "MORIS C++ compiler: ${MORIS_CXX_COMPILER}.")
+
+# Check linker libraries
+execute_process(COMMAND ${MORIS_CXX_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/tes.cpp 
+	-o ${CMAKE_CURRENT_SOURCE_DIR}/tes -lmpi_mpifh -lgfortran 
+	RESULT_VARIABLE MPIFH_GFORTRAN)
+execute_process(COMMAND ${MORIS_CXX_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/tes.cpp 
+	-o ${CMAKE_CURRENT_SOURCE_DIR}/tes -lifcore
+	RESULT_VARIABLE IFCORE)
+
+if (NOT MPIFH_GFORTRAN)
+	list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran")
+elseif(NOT IFCORE)#-lifcoremt -lrt
+	list(APPEND MORIS_BASE_LIBS "-lifcore")
+else()
+	message(FATAL_ERROR "MORIS requires either mpi_mpifh and gfortran, or ifcore. "
+		"If you have these libraries, add their locations to the $PATH environment variable.")
+endif()
+list(APPEND MORIS_BASE_LIBS "-ldl -lssl -lcrypto")
 
 # Check for compiler flags.
 include(CheckCXXCompilerFlag)
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
-
-if (USE_TACC)
-    # openmp should be taken out when we can figure this out
-    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto")
-#     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
-else()
-   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
-endif()
-
-list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
 
 # -g Request that the compiler and linker generate 
 # and retain symbol information in the executable itself,
@@ -301,26 +305,6 @@ endif()
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
     list(APPEND MORIS_DEFINITIONS "-DDEBUG")
-else()
-    list(APPEND MORIS_DEFINITIONS "-DNDEBUG")
-endif()
-
-# # Performace test flags
-# if (HAVE_PERF_MAT)
-#     list(APPEND MORIS_DEFINITIONS "-DPERF_MAT")
-# endif()
-# 
-# if (HAVE_PERF_SP_MAT)
-#     list(APPEND MORIS_DEFINITIONS "-DPERF_SP_MAT")
-# endif()
-# 
-# if (HAVE_PERF_LIN_SOLVE)
-#     list(APPEND MORIS_DEFINITIONS "-DPERF_LIN_SOLVE")
-# endif()
-
-# Performace check flag for logger
-if(MORIS_PERFORM_CHECK)
-        list(APPEND MORIS_DEFINITIONS "-DMORIS_PERFORM_CHECK")
 endif()
 
 # Set optimization type.
@@ -329,13 +313,13 @@ if (NOT MORIS_HAVE_DEBUG)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
         if (USE_TACC)
-	    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
+	    	set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
         else()
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
         endif()
     endif()
 else()
-#> redundant? see stuff starting at line 210
+#> redundant? see stuff starting at line 277
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -g -ggdb -m64")
 endif()
 
@@ -375,6 +359,7 @@ endif()
 # Build 64-bit binaries.
 check_cxx_compiler_flag(-m64 HAVE_M64)
 if (HAVE_M64)
+#> may need to go earlier. check line 277.
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -m64")
 endif()
 
@@ -403,7 +388,7 @@ if (HAVE_FPIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fPIC")
 endif()
 
-# Attempt
+# Attempt #> try removing
 find_package(Threads)
 
 # -------------------------------------------------------------------------
@@ -414,7 +399,8 @@ if (USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
 
     #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -lprofiler -ltcmalloc" )
-    list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
+    #list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
+    #> Need to add this to a bigger MRS kind of target that's linked to everything. For now, just adding to LINALG, MRS, and XTK.
 endif()
 
 # -------------------------------------------------------------------------
@@ -425,8 +411,6 @@ if (USE_SACADO)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src" )
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/mpl" )
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{HOME}/codes/Sacado/Trilinos-master/packages/sacado/src/parameter" )
-    #list(APPEND MORIS_BASE_LIBS "-L$.../lib64/" )
-
 endif() #> clean this up eventually
 
 # -------------------------------------------------------------------------
@@ -455,15 +439,13 @@ endif()
 #if (MORIS_USE_LAPACK AND MORIS_USE_MKL)
 #    message(FATAL_ERROR "Use either MKL or LAPACK")
 #endif()
+#> why is this commented?
 
 if (MORIS_USE_ACML)
-    #include(${SHARE}/${CMAKE}/acml.cmake)
     set(ACML_LAPACK_MKL "acml")
 elseif(MORIS_USE_MKL)
-    #include(${SHARE}/${CMAKE}/mkl.cmake)
     set(ACML_LAPACK_MKL "mkl")
 elseif(MORIS_USE_LAPACK)
-    #include(${SHARE}/${CMAKE}/lapack.cmake)
     set(ACML_LAPACK_MKL "lapack")
 else()
     message(FATAL_ERROR "MORIS only supports the ACML, LAPACK, and MKL linear algebra libraries." )
@@ -484,12 +466,6 @@ endif()
 set(ARMADILLO_EIGEN)
 if (MORIS_USE_ARMA)
     list(APPEND ARMADILLO_EIGEN "armadillo")
-#     include(${MORIS_TPL_DIR}/armadillo.cmake)
-#     find_package(Armadillo REQUIRED HINTS "$ENV{Armadillo_DIR}")
-#     list(APPEND MORIS_INCDIRS "${ARMADILLO_INCLUDE_DIRS}")
-#     list(APPEND MORIS_LDFLAGS "${ARMADILLO_LIBRARY_DIRS}")
-#     list(APPEND MORIS_BASE_LIBS "-larmadillo")
-#     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_ARMA")
 endif()
 
 
@@ -502,14 +478,6 @@ if (MORIS_USE_EIGEN)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
 endif()
 
-
-# -------------------------------------------------------------------------
-# ARPACK ------------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-#include(${MORIS_TPL_DIR}/arpack.cmake)
-
-
 # -------------------------------------------------------------------------
 # MORIS variable handling ------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -518,21 +486,6 @@ endif()
 set(CMAKE_C_COMPILER ${MORIS_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${MORIS_CXX_COMPILER})
 set(CMAKE_CXX_FLAGS ${MORIS_CXX_FLAGS})
-
-# Check compiler version.
-# Check for GCC version - earlier versions have insufficient C++11
-# support, or bugs. Version info is only available in CMake 2.8.0 and
-# later.
-# if (NOT CMAKE_VERSION VERSION_LESS 2.8.10)
-#     if (CMAKE_COMPILER_IS_GNUCXX)
-#         if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
-#             message(FATAL_ERROR "GCC version must be at least 4.8 (for sufficient C++11  support. You have version ${CMAKE_CXX_COMPILER_VERSION}" )
-#         endif()
-#     endif()
-# endif()
-
-# Linker directories.
-#link_directories(${MORIS_LDFLAGS})
 
 # Preprocessor definitions.
 add_definitions(${MORIS_DEFINITIONS})
@@ -546,8 +499,8 @@ set(EXECUTABLE "${MORIS}.exe")
 message(STATUS "MORIS recognized the C++ flags MORIS_CXX_FLAGS=${MORIS_CXX_FLAGS}.")
 message(STATUS "MORIS recognized the C++ linker libraries MORIS_BASE_LIBS=${MORIS_BASE_LIBS}.")
 message(STATUS "MORIS recognized the C++ definitions MORIS_DEFINITIONS=${MORIS_DEFINITIONS}.")
-#message(STATUS "MORIS recognized the C++ linker directories MORIS_LDFLAGS=${MORIS_LDFLAGS}.")
 message(STATUS "MORIS recognized the C++ include directories MORIS_INCDIRS=${MORIS_INCDIRS}.")
+#> make messages more accurate
 
 # Enable verbose output from Makefile builds.
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -590,10 +543,6 @@ if(BUILD_FEM)
     include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 endif()
 
-#if(BUILD_GE)
-#    include(${MORIS_DEPENDS_DIR}/GE_Depends.cmake)
-#endif()
-
 if(BUILD_GEN)
     include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
 endif()
@@ -617,10 +566,6 @@ endif()
 if(BUILD_MDL)
     include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 endif()
-
-#if(BUILD_MOD)
-#    include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
-#endif()
 
 if(BUILD_MSI)
     include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
@@ -646,10 +591,6 @@ if(BUILD_SDF)
     include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
 endif()
 
-# if(BUILD_TIN)
-#    include(${MORIS_DEPENDS_DIR}/TIN_Depends.cmake)
-# endif()
-
 if(BUILD_TOL)
     include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
 endif()
@@ -660,16 +601,6 @@ endif()
 
 if(BUILD_XTK)
     include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
-endif()
-
-##### Include LINALG Implementation
-
-if(MORIS_USE_ARMA)
-	#include(${MORIS_TPL_DIR}/armadillo_new.cmake)
-endif()
-
-if(MORIS_USE_EIGEN)
-	#include(${MORIS_TPL_DIR}/eigen.cmake)
 endif()
 
 # -------------------------------------------------------------------------

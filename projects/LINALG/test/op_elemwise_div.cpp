@@ -1,5 +1,5 @@
 #include <catch.hpp>
-#include <LINALG/src/op_elemwise_mult.hpp>
+#include <op_elemwise_mult.hpp>
 #include "fn_equal_to.hpp" //ALG
 
 #include "cl_Matrix.hpp"

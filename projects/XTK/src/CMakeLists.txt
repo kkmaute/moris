@@ -96,51 +96,30 @@ set(HEADERS
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"                                                                                                                                                                                                                                                                   
-    "containers"                                                                                                                                                                                                                                                               
-    "core"                                                                                                                                                                                                                                                                     
-    "geomeng"                                                                                                                                                                                                                                                                  
-    "geometry"                                                                                                                                                                                                                                                                 
-    "ios"                                                                                                                                                                                                                                                                      
-    "linalg"                                                                                                                                                                                                                                                                   
-    "mesh"                                                                                                                                                                                                                                                                     
-    "tools"                                                                                                                                                                                                                                                                    
-    "topology"                                                                                                                                                                                                                                                                 
-    "xtk"                                                                                                                                                                                                                                                                      
-    )                                                                                                                                                                                                                                                                          
-
-# Include depedency directories                                                                                                                                                                                                                                                
-foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
-endforeach()                                                                                                                                                                                                                                                                   
-
-include_directories(${MORIS_PACKAGE_DIR}/XTK/include)                                                                                                                                                                                                                          
-
-
-
-# List header dependencies
-set(XTK_INCLUDES
-    #${LINALG}
-    #${ALG}
-    #${FEM}          # necessary, added by Noah 
-    #${FEM}/${INT}   # necessary, added by Noah
-    #${MTK}
-    #${MTK}/stk_impl
-    #${MTK}/${MAP}
-    #${COM}
-    #${HMR}
+    "assert"
+    "containers"
+    "core"
+    "geomeng"
+    "geometry"
+    "ios"
+    "linalg"
+    "mesh"
+    "tools"
+    "topology"
+    "xtk"
     )
 
-
 # Include depedency directories
-foreach(XTK_INCLUDE ${XTK_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${XTK_INCLUDE}/src)
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})
 endforeach()
-     
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -                                                                                                                                                                                                    
-# XTK Library                                                                                                                                                                                                                                                                  
 
-# List source files                                                                                                                                                                                                                                                            
+include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
+     
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# XTK Library
+
+# List source files
 set(LIB_SOURCES
 xtk/cl_MTK_Cell_XTK_Impl.cpp
 xtk/cl_MTK_Mesh_XTK_Impl.cpp
@@ -161,14 +140,9 @@ xtk/cl_XTK_Vertex_Enrichment.cpp)
 # List library dependencies
 set(LIB_DEPENDENCIES 
 	${LINALG}-lib
-	#${COM}-lib
 	${MTK}-lib
 	${ALG}-lib
-	#${HMR}-lib
-    #${MORIS_BASE_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
+	${CHR}-lib
     )
 
 # Set the output path for library
@@ -213,10 +187,6 @@ set(PLATO_EXE_DEPENDENCIES
     ${COM}-lib
     ${ALG}-lib
 	${MORIS_BASE_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}	
     )    
  
 # Set the output path for executable
@@ -240,12 +210,7 @@ set(XTK_EXE_DEPENDENCIES
     ${COM}-lib
     ${IOS}-lib
     ${ALG}-lib
-    #${HMR}-lib
 	${MORIS_BASE_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}	
     )    
 
 add_executable(XTK_EXE ${XTK_EXE_SOURCES})
@@ -265,10 +230,6 @@ set(HOLE_EXE_DEPENDENCIES
     ${COM}-lib
     ${ALG}-lib
 	${MORIS_BASE_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}	
     )    
  
 # Set the output path for executable
@@ -284,24 +245,13 @@ if(BUILD_HMR)
 	# List executable dependencies
 	set(HMR_EXE_DEPENDENCIES
 	    ${XTK}-lib
-	    #${HMR}-lib
 	    ${MAP}-lib
-	    #${MTK}-lib
 	    ${MDL}-lib # for L2
-	    #${INT}-lib # for L2
 	    ${MSI}-lib # for L2
 	    ${NLA}-lib # for L2
-	    #${SDF}-lib # for SDF
-	    #${COM}-lib
 	    ${GEN}-lib
 	    ${ALG}-lib
 	    ${MORIS_BASE_LIBS}
-	    #${MORIS_ACML_LAPACK_MKL_LIBS}
-	    #${MORIS_ARMADILLO_EIGEN_LIBS}
-	    #${MORIS_SUPERLU_LIBS}
-	    #${MORIS_TRILINOS_LIBS}
-	    #${MORIS_ARPACK_LIBS}
-	    #${MORIS_BOOST_LIBS}  
 	    )    
 	 
 	# Set the output path for executable

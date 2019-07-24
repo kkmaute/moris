@@ -21,27 +21,23 @@ namespace moris
         public:
 //--------------------------------------------------------------------------------
 
-            Arguments(
-                    int  & argc,
-                    char * argv[] );
+            Arguments( int  & argc,
+                       char * argv[] );
 
 //---------------------------------------------------------------------------------
 
-            void
-            print_usage();
+            void print_usage();
 
 //---------------------------------------------------------------------------------
 
-            void
-            print_help();
+            void print_help();
 
 //---------------------------------------------------------------------------------
 
             /**
              * return the run state of the executable
              */
-            State
-            get_state() const
+            State get_state() const
             {
                 return mState;
             }
@@ -51,8 +47,7 @@ namespace moris
             /**
              * return the parameter path
              */
-            const std::string &
-            get_parameter_path() const
+            const std::string & get_parameter_path() const
             {
                 return mParameterPath;
             }
@@ -62,8 +57,7 @@ namespace moris
             /**
              * return the timestep that is written into the exodus file
              */
-            double
-            get_timestep() const
+            double get_timestep() const
             {
                 return mTimestep;
             }
@@ -73,8 +67,7 @@ namespace moris
             /**
              * returns true if user wants to call refinement and mapping at the same time
              */
-            bool
-            map_while_refine() const
+            bool map_while_refine() const
             {
                 return mMapWhileRefine;
             }

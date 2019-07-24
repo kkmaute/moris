@@ -10,28 +10,6 @@ set(HEADERS
     cl_MDL_Mesh_Model_Helper.hpp
     )
 
-# List header dependencies
-set(MDL_INCLUDES
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    #${SOL}/${TSA}
-    #${SOL}/${SOL_CORE}
-    #${LINALG}
-    #${IOS}
-    #${MTK}
-    #${COM}
-    #${HMR}  # for executable
-    #${ALG}
-    #${TOL}
-    #${FEM}/${INT}
-    #${FEM}/${MSI} 
-    )
-
-# Include depedency directories
-foreach(MDL_INCLUDE ${MDL_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${MDL_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fem/mdl Library
 
@@ -46,23 +24,10 @@ set(LIB_DEPENDENCIES
 	${INT}-lib
 	${MTK}-lib
     ${NLA}-lib
-    #${SOL_CORE}-lib
     ${TSA}-lib
-    #${MSI}-lib
     ${SDF}-lib
-    
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-  #  ${MORIS_BASE_LIBS}
     ${DLA}-lib
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE LIB_DEPENDENCIES)
-list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
-list(REVERSE LIB_DEPENDENCIES)
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

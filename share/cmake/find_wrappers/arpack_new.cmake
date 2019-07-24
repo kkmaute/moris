@@ -21,5 +21,14 @@ endif()
 
 if(NOT TARGET ${MORIS}::arpack)
 	add_library(${MORIS}::arpack INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(${MORIS}::arpack INTERFACE ${MORIS_ARPACK_LIBRARIES})
+	
+	set(MORIS_ARPACK_TPLS
+		)
+	
+	foreach(TPL ${MORIS_ARPACK_TPLS})
+		include(${TPL}_new)
+		list(APPEND MORIS_ARPACK_TPL_TARGETS ${MORIS}::${TPL})
+	endforeach()
+	
+	target_link_libraries(${MORIS}::arpack INTERFACE ${MORIS_ARPACK_LIBRARIES} ${MORIS_ARPACK_TPL_TARGETS})
 endif()

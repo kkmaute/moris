@@ -488,7 +488,6 @@ namespace moris
 
                 if( tMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
                 {
-
                     // add order to path
                     std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
                                               + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
@@ -629,145 +628,148 @@ namespace moris
             {
                 tMesh = mDatabase->get_bspline_mesh_by_index( Ik );
 
-                // add order to path
-                std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of("."))
-                                          + "_" + std::to_string( Ik )
-                +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
-
-                // make path parallel
-                tFilePath = parallelize_path( tFilePath );
-
-                // Create a new file using default properties
-                hid_t tFileID = H5Fcreate( tFilePath.c_str(),
-                                           H5F_ACC_TRUNC,
-                                           H5P_DEFAULT,
-                                           H5P_DEFAULT);
-
-                // error handler
-                herr_t tStatus;
-
-                // save mesh order
-                save_scalar_to_hdf5_file( tFileID,
-                                          "BSplineOrder",
-                                          tMesh->get_order(),
-                                          tStatus );
-
-                // get number of nodes of this mesh
-                uint tNumberOfBasis = tMesh->get_number_of_indexed_basis();
-
-                // allocate matrix with ids
-                Matrix< IdMat > tHMRDomainIDs( tNumberOfBasis, 1 );
-                Matrix< IdMat > tHMRIDs( tNumberOfBasis, 1 );
-                Matrix< IdMat > tHMRInds( tNumberOfBasis, 1 );
-
-                // populate matrix
-                for( uint k=0; k<tNumberOfBasis; ++k )
+                if( tMesh->get_activation_pattern() == mParameters->get_bspline_output_pattern() )
                 {
-                    tHMRDomainIDs( k ) = tMesh->get_basis_by_index( k )->get_hmr_id();
+                    // add order to path
+                    std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of("."))
+                                              + "_" + std::to_string( tMesh->get_order() )
+                    +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
-                    tHMRIDs( k ) = tMesh->get_basis_by_index( k )->get_id();
+                    // make path parallel
+                    tFilePath = parallelize_path( tFilePath );
 
-                    tHMRInds( k ) = tMesh->get_basis_by_index( k )->get_index();
-                }
+                    // Create a new file using default properties
+                    hid_t tFileID = H5Fcreate( tFilePath.c_str(),
+                                               H5F_ACC_TRUNC,
+                                               H5P_DEFAULT,
+                                               H5P_DEFAULT);
 
-                // save ids to file
-                save_matrix_to_hdf5_file( tFileID,
-                                          "Basis_HMR_Domain_ID",
-                                          tHMRDomainIDs,
-                                          tStatus );
+                    // error handler
+                    herr_t tStatus;
 
-                // save ids to file
-                save_matrix_to_hdf5_file( tFileID,
-                                          "Basis_HMR_ID",
-                                          tHMRIDs,
-                                          tStatus );
+                    // save mesh order
+                    save_scalar_to_hdf5_file( tFileID,
+                                              "BSplineOrder",
+                                              tMesh->get_order(),
+                                              tStatus );
 
-                // save ids to file
-                save_matrix_to_hdf5_file( tFileID,
-                                          "Basis_HMR_Ind",
-                                          tHMRInds,
-                                          tStatus );
+                    // get number of nodes of this mesh
+                    uint tNumberOfBasis = tMesh->get_number_of_indexed_basis();
 
-                Matrix< IdMat > tHMRLevel( tNumberOfBasis, 1 );
+                    // allocate matrix with ids
+                    Matrix< IdMat > tHMRDomainIDs( tNumberOfBasis, 1 );
+                    Matrix< IdMat > tHMRIDs( tNumberOfBasis, 1 );
+                    Matrix< IdMat > tHMRInds( tNumberOfBasis, 1 );
 
-                // populate matrix
-                for( uint k=0; k<tNumberOfBasis; ++k )
-                {
-                    tHMRLevel( k ) = tMesh->get_basis_by_index( k )->get_level();
-                }
-
-                // save ids to file
-                save_matrix_to_hdf5_file( tFileID,
-                                          "Basis_HMR_Level",
-                                          tHMRLevel,
-                                          tStatus );
-
-                // populate matrix
-                for( uint k=0; k<tNumberOfBasis; ++k )
-                {
-                    // Get vector with external fine indices
-                     moris::Matrix< DDSMat > tIndices = tMesh->get_children_ind_for_basis( k );
-                     // Get weights
-                     moris::Matrix< DDRMat > tWeights = tMesh->get_children_weights_for_parent( k );
-
-                     if ( tIndices.n_cols() == 0 )
-                     {
-                         tIndices.set_size( 1, 1, -1 );
-                     }
-
-                     if ( tWeights.n_cols() == 0 )
-                     {
-                         tWeights.set_size( 1, 1, -1 );
-                     }
-
-                     moris_id tID= tMesh->get_basis_by_index( k )->get_id();
-
-                     // save ids to file
-                     save_matrix_to_hdf5_file( tFileID,
-                                               "Children for Basis_HMR_Ind ID =" + std::to_string( tID ),
-                                               tIndices,
-                                               tStatus );
-
-                     // save ids to file
-                     save_matrix_to_hdf5_file( tFileID,
-                                               "Children for Basis_HMR_Weights ID =" + std::to_string( tID ),
-                                               tWeights,
-                                               tStatus );
-                }
-
-                // populate matrix
-                for( uint k=0; k<tNumberOfBasis; ++k )
-                {
-                    // get the number of carse adofs which are interpolating into this fine adof.
-                    moris:: uint tNumCoarseDofs = tMesh->get_basis_by_index( k )->get_number_of_parents();
-
-                    moris::Matrix< DDSMat > tIndices(1, tNumCoarseDofs, -1);
-
-                    // Loop over these coarse adofs
-                    for ( moris::uint Ia = 0; Ia < tNumCoarseDofs; Ia++ )
+                    // populate matrix
+                    for( uint k=0; k<tNumberOfBasis; ++k )
                     {
-                        // Get external index of coarse adof
-                        moris:: uint tCoarseDofIndex = tMesh->get_basis_by_index( k )->get_parent( Ia )->get_index();
+                        tHMRDomainIDs( k ) = tMesh->get_basis_by_index( k )->get_hmr_id();
 
-                        tIndices( 0, Ia ) = tCoarseDofIndex;
+                        tHMRIDs( k ) = tMesh->get_basis_by_index( k )->get_id();
+
+                        tHMRInds( k ) = tMesh->get_basis_by_index( k )->get_index();
                     }
 
-                     if ( tIndices.n_cols() == 0 )
-                     {
-                         tIndices.set_size( 1, 1, -1 );
-                     }
+                    // save ids to file
+                    save_matrix_to_hdf5_file( tFileID,
+                                              "Basis_HMR_Domain_ID",
+                                              tHMRDomainIDs,
+                                              tStatus );
 
-                     moris_id tID= tMesh->get_basis_by_index( k )->get_id();
+                    // save ids to file
+                    save_matrix_to_hdf5_file( tFileID,
+                                              "Basis_HMR_ID",
+                                              tHMRIDs,
+                                              tStatus );
 
-                     // save ids to file
-                     save_matrix_to_hdf5_file( tFileID,
-                                               "Parents for Basis_HMR_Ind ID =" + std::to_string( tID ),
-                                               tIndices,
-                                               tStatus );
+                    // save ids to file
+                    save_matrix_to_hdf5_file( tFileID,
+                                              "Basis_HMR_Ind",
+                                              tHMRInds,
+                                              tStatus );
+
+                    Matrix< IdMat > tHMRLevel( tNumberOfBasis, 1 );
+
+                    // populate matrix
+                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    {
+                        tHMRLevel( k ) = tMesh->get_basis_by_index( k )->get_level();
+                    }
+
+                    // save ids to file
+                    save_matrix_to_hdf5_file( tFileID,
+                                              "Basis_HMR_Level",
+                                              tHMRLevel,
+                                              tStatus );
+
+                    // populate matrix
+                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    {
+                        // Get vector with external fine indices
+                         moris::Matrix< DDSMat > tIndices = tMesh->get_children_ind_for_basis( k );
+                         // Get weights
+                         moris::Matrix< DDRMat > tWeights = tMesh->get_children_weights_for_parent( k );
+
+                         if ( tIndices.n_cols() == 0 )
+                         {
+                             tIndices.set_size( 1, 1, -1 );
+                         }
+
+                         if ( tWeights.n_cols() == 0 )
+                         {
+                             tWeights.set_size( 1, 1, -1 );
+                         }
+
+                         moris_id tID= tMesh->get_basis_by_index( k )->get_id();
+
+                         // save ids to file
+                         save_matrix_to_hdf5_file( tFileID,
+                                                   "Children for Basis_HMR_Ind ID =" + std::to_string( tID ),
+                                                   tIndices,
+                                                   tStatus );
+
+                         // save ids to file
+                         save_matrix_to_hdf5_file( tFileID,
+                                                   "Children for Basis_HMR_Weights ID =" + std::to_string( tID ),
+                                                   tWeights,
+                                                   tStatus );
+                    }
+
+                    // populate matrix
+                    for( uint k=0; k<tNumberOfBasis; ++k )
+                    {
+                        // get the number of carse adofs which are interpolating into this fine adof.
+                        moris:: uint tNumCoarseDofs = tMesh->get_basis_by_index( k )->get_number_of_parents();
+
+                        moris::Matrix< DDSMat > tIndices(1, tNumCoarseDofs, -1);
+
+                        // Loop over these coarse adofs
+                        for ( moris::uint Ia = 0; Ia < tNumCoarseDofs; Ia++ )
+                        {
+                            // Get external index of coarse adof
+                            moris:: uint tCoarseDofIndex = tMesh->get_basis_by_index( k )->get_parent( Ia )->get_index();
+
+                            tIndices( 0, Ia ) = tCoarseDofIndex;
+                        }
+
+                         if ( tIndices.n_cols() == 0 )
+                         {
+                             tIndices.set_size( 1, 1, -1 );
+                         }
+
+                         moris_id tID= tMesh->get_basis_by_index( k )->get_id();
+
+                         // save ids to file
+                         save_matrix_to_hdf5_file( tFileID,
+                                                   "Parents for Basis_HMR_Ind ID =" + std::to_string( tID ),
+                                                   tIndices,
+                                                   tStatus );
+                    }
+
+                     // close file
+                     tStatus = H5Fclose( tFileID );
                 }
-
-                // close file
-                tStatus = H5Fclose( tFileID );
             }
         }
 

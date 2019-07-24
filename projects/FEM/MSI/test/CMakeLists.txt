@@ -1,4 +1,4 @@
-# MSI ----------------------------------------
+# Model Solver Interface Tests --------------------------------------------
 # -------------------------------------------------------------------------
 
 # List source files
@@ -12,60 +12,15 @@ set(TEST_SOURCES
     cl_MSI_SpaceTime_Test.cpp
     )
 
-# List test includes
-set(TEST_INCLUDES
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    #${COM}
-    #${LINALG}
-    #${ALG}
-    #${MTK}
-    #${FEM}/${INT}
-    #${FEM}/${MSI}
-    #${FEM}/${MDL}
-    #${MTK}/${MAP}
-    #${HMR}
-)
-
-#include_directories(${MORIS_INCDIRS})
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additional includes
-
 # List test dependencies
-
 set(TEST_DEPENDENCIES
 	test-libs
 	${ALG}-lib
 	${NLA}-lib
 	${MSI}-lib
 	${MDL}-lib
-    #${HMR}-lib
-    #${MAP}-lib
-    #${MTK}-lib
-    #${MDL}-lib # for L2
-    #${INT}-lib # for L2
-    #${MSI}-lib # for L2
-    #${NLA}-lib # for L2
-#    ${SDF}-lib # for SDF
-    #${COM}-lib
     ${MORIS_BASE_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}
-    #${MORIS_BOOST_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
     
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

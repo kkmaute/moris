@@ -7,17 +7,6 @@ set(TEST_SOURCES
     fn_equal_to.cpp
     fn_num_digits.cpp)
 
-# List test includes
-set(TEST_INCLUDES
-    #${LINALG}
-    #${COM}
-    #${ALG}
-    )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
 # List snippet includes
 set(SNIPPET_INCLUDES
     algorithms )
@@ -31,12 +20,6 @@ set(TEST_DEPENDENCIES
 	test-libs
 	${ALG}-lib
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

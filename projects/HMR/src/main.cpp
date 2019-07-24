@@ -171,6 +171,11 @@ void state_refine_mesh( const Arguments & aArguments )
         dump_meshes( aArguments, tParams, tHMR );
     }
 
+    if (tHMR->get_parameters()->get_refinement_interrelation() )
+    {
+        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies.hdf5" );
+    }
+
     // delete HMR object
     delete tHMR;
 }
