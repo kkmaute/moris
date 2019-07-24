@@ -36,7 +36,7 @@ set_target_properties(${HMR_TEST} PROPERTIES OUTPUT_NAME ${HMR_TEST}${EXE_EXT})
 
 # Mark as test
 add_test(NAME ${HMR_TEST}
-    COMMAND $<TARGET_FILE:${HMR_TEST}> )
+    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${HMR_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -44,7 +44,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${HMR_TEST_PROCS})
 		set(HMR_PARALLEL_TEST ${HMR_TEST}-${PROCS}-procs)
 		add_test(NAME ${HMR_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${HMR_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${HMR_TEST}>)
 	endforeach()
 endif()
 

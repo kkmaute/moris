@@ -38,7 +38,7 @@ set_target_properties(${GEN_TEST} PROPERTIES OUTPUT_NAME ${GEN_TEST}${EXE_EXT})
 
 # Mark as test
 add_test(NAME ${GEN_TEST}
-    COMMAND $<TARGET_FILE:${GEN_TEST}> )
+    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${GEN_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -46,7 +46,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${GEN_TEST_PROCS})
 		set(GEN_PARALLEL_TEST ${GEN_TEST}-${PROCS}-procs)
 		add_test(NAME ${GEN_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${GEN_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${GEN_TEST}>)
 	endforeach()
 endif()
 

@@ -16,49 +16,14 @@ set(TEST_SOURCES
     matrix.mtx
     vector.mtx )
 
-# List test includes
-set(TEST_INCLUDES
-    #${LINALG}
-    #${COM}
-    #${SOL}/${DLA}
-    #${ALG}
-    #${HMR}
-    #${MTK}
-    #${SOL}/${NLA}
-    #${GEN}/${SDF}
-    #${MTK}/${MAP}
-    #${FEM}/${MSI}
-    #${FEM}/${INT}
-    )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additional includes
-
 # List test dependencies
 set(TEST_DEPENDENCIES
 	test-libs
 	${ALG}-lib
     ${DLA}-lib
     ${COM}-lib
-    #${HMR}-lib
-    #${MAP}-lib
     ${MTK}-lib
-    #${MDL}-lib 
-    #${INT}-lib 
-    #${MSI}-lib 
-    #${NLA}-lib 
-    #${SDF}-lib 
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -73,7 +38,7 @@ set_target_properties(${DLA_TEST} PROPERTIES OUTPUT_NAME ${DLA_TEST}${EXE_EXT})
 
 # Mark as test
 add_test(NAME ${DLA_TEST}
-    COMMAND $<TARGET_FILE:${DLA_TEST}> )
+    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${DLA_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -81,7 +46,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${DLA_TEST_PROCS})
 		set(DLA_PARALLEL_TEST ${DLA_TEST}-${PROCS}-procs)
 		add_test(NAME ${DLA_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${DLA_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${DLA_TEST}>)
 	endforeach()
 endif()
 

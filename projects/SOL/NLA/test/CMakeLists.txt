@@ -9,24 +9,8 @@ set(TEST_SOURCES
     cl_NLA_Newton_Solver_Test.cpp
     cl_NLA_NonlinearDatabase.cpp
     NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy.cpp
-    NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy2.cpp)
-
-# List test includes
-set(TEST_INCLUDES
-    #${SOL}/${DLA}
-    #${LINALG}
-    #${COM}
-    #${SOL}/${NLA}
-    #${SOL}/${SOL_CORE}
-    #${ALG}
-    #${FEM}/${MSI}
+    NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy2.cpp
     )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additional includes
 
 # List test dependencies
 set(TEST_DEPENDENCIES
@@ -36,12 +20,6 @@ set(TEST_DEPENDENCIES
     ${DLA}-lib
     ${NLA}-lib
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -56,7 +34,7 @@ set_target_properties(${NLA_TEST} PROPERTIES OUTPUT_NAME ${NLA_TEST}${EXE_EXT})
 
 # Mark as test
 add_test(NAME ${NLA_TEST}
-    COMMAND $<TARGET_FILE:${NLA_TEST}> )
+    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${NLA_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -64,7 +42,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${NLA_TEST_PROCS})
 		set(NLA_PARALLEL_TEST ${NLA_TEST}-${PROCS}-procs)
 		add_test(NAME ${NLA_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${NLA_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${NLA_TEST}>)
 	endforeach()
 endif()
 
