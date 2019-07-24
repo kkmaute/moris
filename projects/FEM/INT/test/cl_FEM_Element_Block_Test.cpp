@@ -2,6 +2,9 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Property.hpp" //FEM/INT/src
+#include "cl_FEM_Property_Factory.hpp" //FEM/INT/src
+#include "linalg_typedefs.hpp"
 
 #define protected public
 #define private   public
@@ -14,6 +17,69 @@ namespace moris
 {
     namespace fem
     {
+        TEST_CASE( "Property", "[moris],[fem],[Property]" )
+        {
+            // create a factory
+            Property_Factory tPropFactory;
+
+            // create a property object
+            Property * tProperty = tPropFactory.create_property( fem::Property_Type::TEMP_DIRICHLET );
+
+            // check property type
+            fem::Property_Type tPropertyType = tProperty->get_property_type();
+            CHECK( equal_to( static_cast< uint >( tPropertyType ), 1 ) );
+
+            // check val_coeff
+            Matrix< DDRMat > tCoeff;
+            tProperty->val_coeff( tCoeff );
+            print( tCoeff, "tCoeff" );
+
+            // create a field interpolator for the property
+            uint tNumberOfFields = 1;
+
+            //create a quad4 space element
+            Matrix< DDRMat > tXHat( 4, 2 );
+            tXHat( 0, 0 ) = 0.0; tXHat( 0, 1 ) = 0.0;
+            tXHat( 1, 0 ) = 3.0; tXHat( 1, 1 ) = 1.25;
+            tXHat( 2, 0 ) = 4.5; tXHat( 2, 1 ) = 4.0;
+            tXHat( 3, 0 ) = 1.0; tXHat( 3, 1 ) = 3.25;
+
+            //create a line time element
+            Matrix< DDRMat > tTHat( 2, 1 );
+            tTHat( 0 ) = 0.0;
+            tTHat( 1 ) = 5.0;
+
+            //create a space geometry interpolation rule
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR );
+
+            //create a space and a time geometry interpolator
+            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
+
+            //set the coefficients xHat, tHat
+            tGeomInterpolator->set_coeff( tXHat, tTHat );
+
+            Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+                                                    Interpolation_Type::LAGRANGE,
+                                                    mtk::Interpolation_Order::LINEAR,
+                                                    Interpolation_Type::LAGRANGE,
+                                                    mtk::Interpolation_Order::LINEAR );
+
+            Field_Interpolator* tFI = new Field_Interpolator ( tNumberOfFields,
+                                                               tInterpolationRule,
+                                                               tGeomInterpolator,
+                                                               tProperty,
+                                                               tPropertyType );
+
+            // clean up
+            delete tProperty;
+            delete tGeomInterpolator;
+            delete tFI;
+        }
+
         TEST_CASE( "Set", "[moris],[fem],[ElementBlock]" )
         {
             //MSI::Equation_Set* tElementBlock = new Set();
@@ -130,6 +196,16 @@ namespace moris
 //                CHECK( equal_to( static_cast< uint >( tElementBlock.mInterpDofAssemblyMap( 2, 0 ) ), 12 ) );
 //                CHECK( equal_to( static_cast< uint >( tElementBlock.mInterpDofAssemblyMap( 2, 1 ) ), 15 ) );
             };
+
+            // clean up
+            for ( uint i = 0; i < tIWGs.size(); i++ )
+            {
+                delete tIWGs( i );
+            }
+            for ( uint i = 0; i < tFieldInterpolators.size(); i++ )
+            {
+                delete tFieldInterpolators( i );
+            }
 
         }/* TEST_CASE */
     }/* namespace fem */

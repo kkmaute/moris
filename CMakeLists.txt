@@ -130,6 +130,9 @@ option(MORIS_HAVE_PARALLEL
 set(MORIS_MPI_LIBS "MPICH" "OPENMPI")
 set(MORIS_USE_MPI "OPENMPI" CACHE STRING "Set MPI package: ${MORIS_MPI_LIBS}")
 
+# MPI execution command
+set(MORIS_EXECUTE_COMMAND "mpirun" CACHE STRING "The command used to execute MORIS tests.")
+
 option(MORIS_USE_ARMA
     "Use the Armadillo library as the dense linear algebra package." ON )
 
@@ -170,8 +173,6 @@ option(MORIS_HAVE_PARALLEL_TESTS
 
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )
-    
-option(USE_TACC "USE TACC" OFF)
 
 # -------------------------------------------------------------------------
 # Package Options
@@ -270,14 +271,18 @@ message(STATUS "MORIS C compiler: ${MORIS_C_COMPILER}.")
 message(STATUS "MORIS C++ compiler: ${MORIS_CXX_COMPILER}.")
 
 # Check linker libraries
+# RESULT_VARIABLE gives the return code, which is 0 on a success. Since 0 is FALSE for CMake,
+# the if-statements have NOT in front of the return variable.
 execute_process(COMMAND ${MORIS_CXX_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/tes.cpp 
 	-o ${CMAKE_CURRENT_SOURCE_DIR}/tes -lmpi_mpifh -lgfortran 
-	RESULT_VARIABLE MPIFH_GFORTRAN)
+	RESULT_VARIABLE MPIFH_GFORTRAN
+	ERROR_QUIET)
 execute_process(COMMAND ${MORIS_CXX_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/tes.cpp 
 	-o ${CMAKE_CURRENT_SOURCE_DIR}/tes -lifcore
-	RESULT_VARIABLE IFCORE)
+	RESULT_VARIABLE IFCORE
+	ERROR_QUIET)
 
-if (NOT MPIFH_GFORTRAN)
+if(NOT MPIFH_GFORTRAN)
 	list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran")
 elseif(NOT IFCORE)#-lifcoremt -lrt
 	list(APPEND MORIS_BASE_LIBS "-lifcore")
@@ -295,9 +300,9 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 # -g Request that the compiler and linker generate 
 # and retain symbol information in the executable itself,
 # for debugging purposes.
-if (MORIS_HAVE_SYMBOLIC)
-    check_cxx_compiler_flag(-g HAVE_DEBUG)
-    if (HAVE_DEBUG)
+if (MORIS_HAVE_SYMBOLIC OR MORIS_HAVE_DEBUG)
+    check_cxx_compiler_flag(-g HAVE_G)
+    if (HAVE_G)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -g")
     endif()
 endif()
@@ -312,15 +317,16 @@ endif()
 if (NOT MORIS_HAVE_DEBUG)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
-        if (USE_TACC)
-	    	set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -march=core-avx2")
-        else()
-            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
-        endif()
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3")
     endif()
 else()
-#> redundant? see stuff starting at line 277
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -g -ggdb -m64")
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -ggdb")
+endif()
+
+# Build 64-bit binaries.
+check_cxx_compiler_flag(-m64 HAVE_M64)
+if (HAVE_M64)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -m64")
 endif()
 
 # Add some strict compiler checks.
@@ -354,13 +360,6 @@ else()
     if (HAVE_STD_CPP0x)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++0x")
     endif()
-endif()
-
-# Build 64-bit binaries.
-check_cxx_compiler_flag(-m64 HAVE_M64)
-if (HAVE_M64)
-#> may need to go earlier. check line 277.
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -m64")
 endif()
 
 # Add UTF-8 support for identifier names.

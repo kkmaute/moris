@@ -76,45 +76,53 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                 Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.numel() >= 3, "TRI3 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi( 3, 3, 0.0 );
-            tdNdXi( 0, 0 ) = 1.0;
-            tdNdXi( 1, 1 ) = 1.0;
-            tdNdXi( 2, 2 ) = 1.0;
-            return tdNdXi;
+            adNdXi.set_size( 3, 3 );
+            adNdXi( 0, 0 ) = 1.0;
+            adNdXi( 0, 1 ) = 0.0;
+            adNdXi( 0, 2 ) = 0.0;
+
+            adNdXi( 1, 0 ) = 0.0;
+            adNdXi( 1, 1 ) = 1.0;
+            adNdXi( 1, 2 ) = 0.0;
+
+            adNdXi( 2, 0 ) = 0.0;
+            adNdXi( 2, 1 ) = 0.0;
+            adNdXi( 2, 2 ) = 1.0;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                   Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "TRI3 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // populate output matrix
-            Matrix< DDRMat > td2NdXi2( 6, 3, 0.0);
-            return td2NdXi2;
+            ad2NdXi2.set_size( 6, 3, 0.0);
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 3 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                   Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( false, "TRI3 - eval_d2NdXi2: 3rd order derivatives not implemented for this element." );
 
-            Matrix< DDRMat > td3NdXi3(1,3,0.0);
-            return td3NdXi3;
+            ad3NdXi3.set_size( 1, 3, 0.0 );
         }
 
 //------------------------------------------------------------------------------

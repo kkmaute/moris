@@ -83,14 +83,14 @@ namespace moris
         template<>
         void
         Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_N(const Matrix< DDRMat > & aXi,
-                                                                                                              Matrix< DDRMat > & aNXi) const
+                                                                                                              Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             real a0 =  ( xi*( 1.0 + 9.0 * xi * ( 1.0 - xi ) ) - 1.0 )*0.0625;
             real a1 =  ( 9.0 - xi * ( 27.0 + xi*( 9.0 - 27.0*xi ) ) )*0.0625;
@@ -125,16 +125,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                   Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                    "QUAD16 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             // often used parameters
             real a0 =  ( xi*( 1.0 + 9.0 * xi * ( 1.0 - xi ) ) - 1.0 ) * 0.0625;
@@ -158,71 +158,70 @@ namespace moris
             real db3 = (  -1.0 + eta*( 18.0 + 27.0*eta )) * 0.0625;
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi(2,16);
-            tdNdXi( 0,  0 ) = da0*b0;
-            tdNdXi( 1,  0 ) = a0*db0;
+            adNdXi.set_size( 2, 16 );
+            adNdXi( 0,  0 ) = da0*b0;
+            adNdXi( 1,  0 ) = a0*db0;
 
-            tdNdXi( 0,  1 ) = da3*b0;
-            tdNdXi( 1,  1 ) = a3*db0;
+            adNdXi( 0,  1 ) = da3*b0;
+            adNdXi( 1,  1 ) = a3*db0;
 
-            tdNdXi( 0,  2 ) = da3*b3;
-            tdNdXi( 1,  2 ) = a3*db3;
+            adNdXi( 0,  2 ) = da3*b3;
+            adNdXi( 1,  2 ) = a3*db3;
 
-            tdNdXi( 0,  3 ) = da0*b3;
-            tdNdXi( 1,  3 ) = a0*db3;
+            adNdXi( 0,  3 ) = da0*b3;
+            adNdXi( 1,  3 ) = a0*db3;
 
-            tdNdXi( 0,  4 ) = da1*b0;
-            tdNdXi( 1,  4 ) = a1*db0;
+            adNdXi( 0,  4 ) = da1*b0;
+            adNdXi( 1,  4 ) = a1*db0;
 
-            tdNdXi( 0,  5 ) = da2*b0;
-            tdNdXi( 1,  5 ) = a2*db0;
+            adNdXi( 0,  5 ) = da2*b0;
+            adNdXi( 1,  5 ) = a2*db0;
 
-            tdNdXi( 0,  6 ) = da3*b1;
-            tdNdXi( 1,  6 ) = a3*db1;
+            adNdXi( 0,  6 ) = da3*b1;
+            adNdXi( 1,  6 ) = a3*db1;
 
-            tdNdXi( 0,  7 ) = da3*b2;
-            tdNdXi( 1,  7 ) = a3*db2;
+            adNdXi( 0,  7 ) = da3*b2;
+            adNdXi( 1,  7 ) = a3*db2;
 
-            tdNdXi( 0,  8 ) = da2*b3;
-            tdNdXi( 1,  8 ) = a2*db3;
+            adNdXi( 0,  8 ) = da2*b3;
+            adNdXi( 1,  8 ) = a2*db3;
 
-            tdNdXi( 0,  9 ) = da1*b3;
-            tdNdXi( 1,  9 ) = a1*db3;
+            adNdXi( 0,  9 ) = da1*b3;
+            adNdXi( 1,  9 ) = a1*db3;
 
-            tdNdXi( 0, 10 ) = da0*b2;
-            tdNdXi( 1, 10 ) = a0*db2;
+            adNdXi( 0, 10 ) = da0*b2;
+            adNdXi( 1, 10 ) = a0*db2;
 
-            tdNdXi( 0, 11 ) = da0*b1;
-            tdNdXi( 1, 11 ) = a0*db1;
+            adNdXi( 0, 11 ) = da0*b1;
+            adNdXi( 1, 11 ) = a0*db1;
 
-            tdNdXi( 0, 12 ) = da1*b1;
-            tdNdXi( 1, 12 ) = a1*db1;
+            adNdXi( 0, 12 ) = da1*b1;
+            adNdXi( 1, 12 ) = a1*db1;
 
-            tdNdXi( 0, 13 ) = da2*b1;
-            tdNdXi( 1, 13 ) = a2*db1;
+            adNdXi( 0, 13 ) = da2*b1;
+            adNdXi( 1, 13 ) = a2*db1;
 
-            tdNdXi( 0, 14 ) = da2*b2;
-            tdNdXi( 1, 14 ) = a2*db2;
+            adNdXi( 0, 14 ) = da2*b2;
+            adNdXi( 1, 14 ) = a2*db2;
 
-            tdNdXi( 0, 15 ) = da1*b2;
-            tdNdXi( 1, 15 ) = a1*db2;
-            return tdNdXi;
+            adNdXi( 0, 15 ) = da1*b2;
+            adNdXi( 1, 15 ) = a1*db2;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                     Matrix< DDRMat > & ad2NdXi2 ) const
         {
 
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                    "QUAD16 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             // often used parameters
             real a0 =  ( xi*( 1.0 + 9.0 * xi * ( 1.0 - xi ) ) - 1.0 ) * 0.0625;
@@ -255,88 +254,87 @@ namespace moris
             real ddb2 = ( - 162.0*eta - 18.0 ) * 0.0625;
             real ddb3 = ( 54.0*eta + 18.0 ) * 0.0625;
 
-            Matrix< DDRMat > td2NdXi2(3,16);
-            td2NdXi2( 0,   0 ) = dda0*b0;
-            td2NdXi2( 1,   0 ) = a0*ddb0;
-            td2NdXi2( 2,   0 ) = da0*db0;
+            ad2NdXi2.set_size( 3, 16 );
+            ad2NdXi2( 0,   0 ) = dda0*b0;
+            ad2NdXi2( 1,   0 ) = a0*ddb0;
+            ad2NdXi2( 2,   0 ) = da0*db0;
 
-            td2NdXi2( 0,   1 ) = dda3*b0;
-            td2NdXi2( 1,   1 ) = a3*ddb0;
-            td2NdXi2( 2,   1 ) = da3*db0;
+            ad2NdXi2( 0,   1 ) = dda3*b0;
+            ad2NdXi2( 1,   1 ) = a3*ddb0;
+            ad2NdXi2( 2,   1 ) = da3*db0;
 
-            td2NdXi2( 0,   2 ) = dda3*b3;
-            td2NdXi2( 1,   2 ) = a3*ddb3;
-            td2NdXi2( 2,   2 ) = da3*db3;
+            ad2NdXi2( 0,   2 ) = dda3*b3;
+            ad2NdXi2( 1,   2 ) = a3*ddb3;
+            ad2NdXi2( 2,   2 ) = da3*db3;
 
-            td2NdXi2( 0,   3 ) = dda0*b3;
-            td2NdXi2( 1,   3 ) = a0*ddb3;
-            td2NdXi2( 2,   3 ) = da0*db3;
+            ad2NdXi2( 0,   3 ) = dda0*b3;
+            ad2NdXi2( 1,   3 ) = a0*ddb3;
+            ad2NdXi2( 2,   3 ) = da0*db3;
 
-            td2NdXi2( 0,   4 ) = dda1*b0;
-            td2NdXi2( 1,   4 ) = a1*ddb0;
-            td2NdXi2( 2,   4 ) = da1*db0;
+            ad2NdXi2( 0,   4 ) = dda1*b0;
+            ad2NdXi2( 1,   4 ) = a1*ddb0;
+            ad2NdXi2( 2,   4 ) = da1*db0;
 
-            td2NdXi2( 0,   5 ) = dda2*b0;
-            td2NdXi2( 1,   5 ) = a2*ddb0;
-            td2NdXi2( 2,   5 ) = da2*db0;
+            ad2NdXi2( 0,   5 ) = dda2*b0;
+            ad2NdXi2( 1,   5 ) = a2*ddb0;
+            ad2NdXi2( 2,   5 ) = da2*db0;
 
-            td2NdXi2( 0,   6 ) = dda3*b1;
-            td2NdXi2( 1,   6 ) = a3*ddb1;
-            td2NdXi2( 2,   6 ) = da3*db1;
+            ad2NdXi2( 0,   6 ) = dda3*b1;
+            ad2NdXi2( 1,   6 ) = a3*ddb1;
+            ad2NdXi2( 2,   6 ) = da3*db1;
 
-            td2NdXi2( 0,   7 ) = dda3*b2;
-            td2NdXi2( 1,   7 ) = a3*ddb2;
-            td2NdXi2( 2,   7 ) = da3*db2;
+            ad2NdXi2( 0,   7 ) = dda3*b2;
+            ad2NdXi2( 1,   7 ) = a3*ddb2;
+            ad2NdXi2( 2,   7 ) = da3*db2;
 
-            td2NdXi2( 0,   8 ) = dda2*b3;
-            td2NdXi2( 1,   8 ) = a2*ddb3;
-            td2NdXi2( 2,   8 ) = da2*db3;
+            ad2NdXi2( 0,   8 ) = dda2*b3;
+            ad2NdXi2( 1,   8 ) = a2*ddb3;
+            ad2NdXi2( 2,   8 ) = da2*db3;
 
-            td2NdXi2( 0,   9 ) = dda1*b3;
-            td2NdXi2( 1,   9 ) = a1*ddb3;
-            td2NdXi2( 2,   9 ) = da1*db3;
+            ad2NdXi2( 0,   9 ) = dda1*b3;
+            ad2NdXi2( 1,   9 ) = a1*ddb3;
+            ad2NdXi2( 2,   9 ) = da1*db3;
 
-            td2NdXi2( 0,  10 ) = dda0*b2;
-            td2NdXi2( 1,  10 ) = a0*ddb2;
-            td2NdXi2( 2,  10 ) = da0*db2;
+            ad2NdXi2( 0,  10 ) = dda0*b2;
+            ad2NdXi2( 1,  10 ) = a0*ddb2;
+            ad2NdXi2( 2,  10 ) = da0*db2;
 
-            td2NdXi2( 0,  11 ) = dda0*b1;
-            td2NdXi2( 1,  11 ) = a0*ddb1;
-            td2NdXi2( 2,  11 ) = da0*db1;
+            ad2NdXi2( 0,  11 ) = dda0*b1;
+            ad2NdXi2( 1,  11 ) = a0*ddb1;
+            ad2NdXi2( 2,  11 ) = da0*db1;
 
-            td2NdXi2( 0,  12 ) = dda1*b1;
-            td2NdXi2( 1,  12 ) = a1*ddb1;
-            td2NdXi2( 2,  12 ) = da1*db1;
+            ad2NdXi2( 0,  12 ) = dda1*b1;
+            ad2NdXi2( 1,  12 ) = a1*ddb1;
+            ad2NdXi2( 2,  12 ) = da1*db1;
 
-            td2NdXi2( 0,  13 ) = dda2*b1;
-            td2NdXi2( 1,  13 ) = a2*ddb1;
-            td2NdXi2( 2,  13 ) = da2*db1;
+            ad2NdXi2( 0,  13 ) = dda2*b1;
+            ad2NdXi2( 1,  13 ) = a2*ddb1;
+            ad2NdXi2( 2,  13 ) = da2*db1;
 
-            td2NdXi2( 0,  14 ) = dda2*b2;
-            td2NdXi2( 1,  14 ) = a2*ddb2;
-            td2NdXi2( 2,  14 ) = da2*db2;
+            ad2NdXi2( 0,  14 ) = dda2*b2;
+            ad2NdXi2( 1,  14 ) = a2*ddb2;
+            ad2NdXi2( 2,  14 ) = da2*db2;
 
-            td2NdXi2( 0,  15 ) = dda1*b2;
-            td2NdXi2( 1,  15 ) = a1*ddb2;
-            td2NdXi2( 2,  15 ) = da1*db2;
-            return td2NdXi2;
+            ad2NdXi2( 0,  15 ) = dda1*b2;
+            ad2NdXi2( 1,  15 ) = a1*ddb2;
+            ad2NdXi2( 2,  15 ) = da1*db2;
 
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                     Matrix< DDRMat > & ad3NdXi3 ) const
         {
 
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                    "QUAD16 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD16 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             // often used parameters
             real a0 =  ( xi*( 1.0 + 9.0 * xi * ( 1.0 - xi ) ) - 1.0 ) * 0.0625;
@@ -380,106 +378,102 @@ namespace moris
             real dddb3 =    54.0 * 0.0625;
 
 
-            Matrix< DDRMat > td3NdXi3(4,16);
-
+            ad3NdXi3.set_size( 4, 16 );
 
             // 0th Node: (0,0)
-            td3NdXi3( 0,  0 ) = ddda0*   b0;
-            td3NdXi3( 1,  0 ) =    a0*dddb0;
-            td3NdXi3( 2,  0 ) =  dda0*  db0;
-            td3NdXi3( 3,  0 ) =   da0* ddb0;
+            ad3NdXi3( 1,  0 ) =    a0*dddb0;
+            ad3NdXi3( 2,  0 ) =  dda0*  db0;
+            ad3NdXi3( 3,  0 ) =   da0* ddb0;
 
             // 1th Node: (3,0)
-            td3NdXi3( 0,  1 ) = ddda3*   b0;
-            td3NdXi3( 1,  1 ) =    a3*dddb0;
-            td3NdXi3( 2,  1 ) =  dda3*  db0;
-            td3NdXi3( 3,  1 ) =   da3* ddb0;
+            ad3NdXi3( 0,  1 ) = ddda3*   b0;
+            ad3NdXi3( 1,  1 ) =    a3*dddb0;
+            ad3NdXi3( 2,  1 ) =  dda3*  db0;
+            ad3NdXi3( 3,  1 ) =   da3* ddb0;
 
             // 2th Node: (3,3)
-            td3NdXi3( 0,  2 ) = ddda3*   b3;
-            td3NdXi3( 1,  2 ) =    a3*dddb3;
-            td3NdXi3( 2,  2 ) =  dda3*  db3;
-            td3NdXi3( 3,  2 ) =   da3* ddb3;
+            ad3NdXi3( 0,  2 ) = ddda3*   b3;
+            ad3NdXi3( 1,  2 ) =    a3*dddb3;
+            ad3NdXi3( 2,  2 ) =  dda3*  db3;
+            ad3NdXi3( 3,  2 ) =   da3* ddb3;
 
             // 3th Node: (0,3)
-            td3NdXi3( 0,  3 ) = ddda0*   b3;
-            td3NdXi3( 1,  3 ) =    a0*dddb3;
-            td3NdXi3( 2,  3 ) =  dda0*  db3;
-            td3NdXi3( 3,  3 ) =   da0* ddb3;
+            ad3NdXi3( 0,  3 ) = ddda0*   b3;
+            ad3NdXi3( 1,  3 ) =    a0*dddb3;
+            ad3NdXi3( 2,  3 ) =  dda0*  db3;
+            ad3NdXi3( 3,  3 ) =   da0* ddb3;
 
             // 4th Node: (1,0)
-            td3NdXi3( 0,  4 ) = ddda1*   b0;
-            td3NdXi3( 1,  4 ) =    a1*dddb0;
-            td3NdXi3( 2,  4 ) =  dda1*  db0;
-            td3NdXi3( 3,  4 ) =   da1* ddb0;
+            ad3NdXi3( 0,  4 ) = ddda1*   b0;
+            ad3NdXi3( 1,  4 ) =    a1*dddb0;
+            ad3NdXi3( 2,  4 ) =  dda1*  db0;
+            ad3NdXi3( 3,  4 ) =   da1* ddb0;
 
             // 5th Node: (2,0)
-            td3NdXi3( 0,  5 ) = ddda2*   b0;
-            td3NdXi3( 1,  5 ) =    a2*dddb0;
-            td3NdXi3( 2,  5 ) =  dda2*  db0;
-            td3NdXi3( 3,  5 ) =   da2* ddb0;
+            ad3NdXi3( 0,  5 ) = ddda2*   b0;
+            ad3NdXi3( 1,  5 ) =    a2*dddb0;
+            ad3NdXi3( 2,  5 ) =  dda2*  db0;
+            ad3NdXi3( 3,  5 ) =   da2* ddb0;
 
             // 6th Node: (3,1)
-            td3NdXi3( 0,  6 ) = ddda3*   b1;
-            td3NdXi3( 1,  6 ) =    a3*dddb1;
-            td3NdXi3( 2,  6 ) =  dda3*  db1;
-            td3NdXi3( 3,  6 ) =   da3* ddb1;
+            ad3NdXi3( 0,  6 ) = ddda3*   b1;
+            ad3NdXi3( 1,  6 ) =    a3*dddb1;
+            ad3NdXi3( 2,  6 ) =  dda3*  db1;
+            ad3NdXi3( 3,  6 ) =   da3* ddb1;
 
             // 7th Node: (3,2)
-            td3NdXi3( 0,  7 ) = ddda3*   b2;
-            td3NdXi3( 1,  7 ) =    a3*dddb2;
-            td3NdXi3( 2,  7 ) =  dda3*  db2;
-            td3NdXi3( 3,  7 ) =   da3* ddb2;
+            ad3NdXi3( 0,  7 ) = ddda3*   b2;
+            ad3NdXi3( 1,  7 ) =    a3*dddb2;
+            ad3NdXi3( 2,  7 ) =  dda3*  db2;
+            ad3NdXi3( 3,  7 ) =   da3* ddb2;
 
             // 8th Node: (2,3)
-            td3NdXi3( 0,  8 ) = ddda2*   b3;
-            td3NdXi3( 1,  8 ) =    a2*dddb3;
-            td3NdXi3( 2,  8 ) =  dda2*  db3;
-            td3NdXi3( 3,  8 ) =   da2* ddb3;
+            ad3NdXi3( 0,  8 ) = ddda2*   b3;
+            ad3NdXi3( 1,  8 ) =    a2*dddb3;
+            ad3NdXi3( 2,  8 ) =  dda2*  db3;
+            ad3NdXi3( 3,  8 ) =   da2* ddb3;
 
             // 9th Node: (1,3)
-            td3NdXi3( 0,  9 ) = ddda1*   b3;
-            td3NdXi3( 1,  9 ) =    a1*dddb3;
-            td3NdXi3( 2,  9 ) =  dda1*  db3;
-            td3NdXi3( 3,  9 ) =   da1* ddb3;
+            ad3NdXi3( 0,  9 ) = ddda1*   b3;
+            ad3NdXi3( 1,  9 ) =    a1*dddb3;
+            ad3NdXi3( 2,  9 ) =  dda1*  db3;
+            ad3NdXi3( 3,  9 ) =   da1* ddb3;
 
             // 10th Node: (0,2)
-            td3NdXi3( 0, 10 ) = ddda0*   b2;
-            td3NdXi3( 1, 10 ) =    a0*dddb2;
-            td3NdXi3( 2, 10 ) =  dda0*  db2;
-            td3NdXi3( 3, 10 ) =   da0* ddb2;
+            ad3NdXi3( 0, 10 ) = ddda0*   b2;
+            ad3NdXi3( 1, 10 ) =    a0*dddb2;
+            ad3NdXi3( 2, 10 ) =  dda0*  db2;
+            ad3NdXi3( 3, 10 ) =   da0* ddb2;
 
             // 11th Node: (0,1)
-            td3NdXi3( 0, 11 ) = ddda0*   b1;
-            td3NdXi3( 1, 11 ) =    a0*dddb1;
-            td3NdXi3( 2, 11 ) =  dda0*  db1;
-            td3NdXi3( 3, 11 ) =   da0* ddb1;
+            ad3NdXi3( 0, 11 ) = ddda0*   b1;
+            ad3NdXi3( 1, 11 ) =    a0*dddb1;
+            ad3NdXi3( 2, 11 ) =  dda0*  db1;
+            ad3NdXi3( 3, 11 ) =   da0* ddb1;
 
             // 12th Node: (1,1)
-            td3NdXi3( 0, 12 ) = ddda1*   b1;
-            td3NdXi3( 1, 12 ) =    a1*dddb1;
-            td3NdXi3( 2, 12 ) =  dda1*  db1;
-            td3NdXi3( 3, 12 ) =   da1* ddb1;
+            ad3NdXi3( 0, 12 ) = ddda1*   b1;
+            ad3NdXi3( 1, 12 ) =    a1*dddb1;
+            ad3NdXi3( 2, 12 ) =  dda1*  db1;
+            ad3NdXi3( 3, 12 ) =   da1* ddb1;
 
             // 13th Node: (2,1)
-            td3NdXi3( 0, 13 ) = ddda2*   b1;
-            td3NdXi3( 1, 13 ) =    a2*dddb1;
-            td3NdXi3( 2, 13 ) =  dda2*  db1;
-            td3NdXi3( 3, 13 ) =   da2* ddb1;
+            ad3NdXi3( 0, 13 ) = ddda2*   b1;
+            ad3NdXi3( 1, 13 ) =    a2*dddb1;
+            ad3NdXi3( 2, 13 ) =  dda2*  db1;
+            ad3NdXi3( 3, 13 ) =   da2* ddb1;
 
             // 14th Node: (2,2)
-            td3NdXi3( 0, 14 ) = ddda2*   b2;
-            td3NdXi3( 1, 14 ) =    a2*dddb2;
-            td3NdXi3( 2, 14 ) =  dda2*  db2;
-            td3NdXi3( 3, 14 ) =   da2* ddb2;
+            ad3NdXi3( 0, 14 ) = ddda2*   b2;
+            ad3NdXi3( 1, 14 ) =    a2*dddb2;
+            ad3NdXi3( 2, 14 ) =  dda2*  db2;
+            ad3NdXi3( 3, 14 ) =   da2* ddb2;
 
             // 15th Node: (1,2)
-            td3NdXi3( 0, 15 ) = ddda1*   b2;
-            td3NdXi3( 1, 15 ) =    a1*dddb2;
-            td3NdXi3( 2, 15 ) =  dda1*  db2;
-            td3NdXi3( 3, 15 ) =   da1* ddb2;
-
-            return td3NdXi3;
+            ad3NdXi3( 0, 15 ) = ddda1*   b2;
+            ad3NdXi3( 1, 15 ) =    a1*dddb2;
+            ad3NdXi3( 2, 15 ) =  dda1*  db2;
+            ad3NdXi3( 3, 15 ) =   da1* ddb2;
 
         }
 

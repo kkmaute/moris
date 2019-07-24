@@ -129,7 +129,7 @@ TEST_CASE( "Lagrange QUAD8", "[moris],[fem],[Quad8LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tdNdXi = tFunction->eval_dNdXi( tXi.get_column(k ) );
+                tFunction->eval_dNdXi( tXi.get_column(k ), tdNdXi );
 
                 // test evaluated value
                 Matrix< DDRMat > tError = tdPhidXi.get_column( k );
@@ -150,7 +150,7 @@ TEST_CASE( "Lagrange QUAD8", "[moris],[fem],[Quad8LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                td2NdXi2 = tFunction->eval_d2NdXi2( tXi.get_column(k ) );
+                tFunction->eval_d2NdXi2( tXi.get_column( k ), td2NdXi2 );
 
                 // test evaluated valueN
 

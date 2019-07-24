@@ -52,7 +52,7 @@ namespace moris
              *                   ( <number of dimensions>  x 1 )
              */
             virtual void eval_N( const Matrix< DDRMat > & aXi,
-                                       Matrix< DDRMat > & aNXi) const = 0;
+                                       Matrix< DDRMat > & aNXi ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -60,13 +60,14 @@ namespace moris
              * calculates the first derivative of the shape function
              * in parameter space
              *
-             * @param[ out ] adNdXi ( <number of dimensions> x <number of nodes> )
+             * @param[ in ] adNdXi ( <number of dimensions> x <number of nodes> )
              *
              * @param[ in ] aXi    point where function is evaluated
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            virtual Matrix< DDRMat > eval_dNdXi( const Matrix< DDRMat > & aXi ) const = 0;
+            virtual void eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                           Matrix< DDRMat > & adNdXi ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -74,13 +75,14 @@ namespace moris
              * calculates the second derivative of the shape function
              * in parameter space
              *
-             * @param[ out ] ad2NdXi2 ( <number of dimensions> x <number of nodes> )
+             * @param[ in ] ad2NdXi2 ( <number of dimensions> x <number of nodes> )
              *
              * @param[ in ] aXi    point where function is evaluated
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            virtual Matrix< DDRMat > eval_d2NdXi2 ( const Matrix< DDRMat > & aXi ) const = 0;
+            virtual void eval_d2NdXi2 ( const Matrix< DDRMat > & aXi,
+                                              Matrix< DDRMat > & ad2NdXi2 ) const = 0;
 
 //------------------------------------------------------------------------------
 
@@ -94,7 +96,8 @@ namespace moris
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            virtual Matrix< DDRMat > eval_d3NdXi3 ( const Matrix< DDRMat > & aXi ) const = 0;
+            virtual void eval_d3NdXi3 ( const Matrix< DDRMat > & aXi,
+                                              Matrix< DDRMat > & ad3NdXi3 ) const = 0;
 
 //------------------------------------------------------------------------------
 

@@ -29,7 +29,7 @@ set_target_properties(${SDF_TEST} PROPERTIES OUTPUT_NAME ${SDF_TEST}${EXE_EXT})
 
 # Mark as test
 add_test(NAME ${SDF_TEST}
-    COMMAND $<TARGET_FILE:${SDF_TEST}> )
+    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${SDF_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -37,7 +37,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${SDF_TEST_PROCS})
 		set(SDF_PARALLEL_TEST ${SDF_TEST}-${PROCS}-procs)
 		add_test(NAME ${SDF_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${SDF_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${SDF_TEST}>)
 	endforeach()
 endif()
 

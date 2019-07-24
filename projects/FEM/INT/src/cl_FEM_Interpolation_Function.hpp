@@ -49,7 +49,7 @@ namespace moris
              *                   ( <number of dimensions>  x 1 )
              */
             void eval_N( const Matrix< DDRMat > & aXi,
-                               Matrix< DDRMat > & aNXi) const;
+                               Matrix< DDRMat > & aNXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -64,7 +64,8 @@ namespace moris
              *
              */
 
-            Matrix< DDRMat > eval_dNdXi( const Matrix< DDRMat > & aXi ) const;
+            void eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                   Matrix< DDRMat > & adNdXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -72,13 +73,14 @@ namespace moris
              * calculates the second derivative of the shape function
              * in parameter space
              *
-             * @param[ out ] ad2NdXi2 ( <number of dimensions> x <number of nodes> )
+             * @param[ in ] ad2NdXi2 ( <number of dimensions> x <number of nodes> )
              *
              * @param[ in ] aXi    point where function is evaluated
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            Matrix< DDRMat > eval_d2NdXi2 ( const Matrix< DDRMat > & aXi ) const;
+            void eval_d2NdXi2 ( const Matrix< DDRMat > & aXi,
+                                      Matrix< DDRMat > & ad2NdXi2 ) const;
 
 //------------------------------------------------------------------------------
 
@@ -86,13 +88,14 @@ namespace moris
              * calculates the third derivatives of the shape function
              * in parameter space
              *
-             * @param[ out ] ad2NdXi2 ( <number of dimensions> x <number of nodes> )
+             * @param[ in ] ad3NdXi3 ( <number of dimensions> x <number of nodes> )
              *
              * @param[ in ] aXi    point where function is evaluated
              *                     ( <number of dimensions>  x 1 )
              *
              */
-            Matrix< DDRMat > eval_d3NdXi3 ( const Matrix< DDRMat > & aXi ) const;
+            void eval_d3NdXi3 ( const Matrix< DDRMat > & aXi,
+                                      Matrix< DDRMat > & ad3NdXi3 ) const;
 
 //------------------------------------------------------------------------------
 
@@ -153,7 +156,7 @@ namespace moris
 
         template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
         void Interpolation_Function< G, T, N, B>::eval_N( const Matrix< DDRMat > & aXi,
-                                                                Matrix< DDRMat > & aNXi) const
+                                                                Matrix< DDRMat > & aNXi ) const
         {
             MORIS_ERROR( false, "eval_N not implemented for this interpolation function" );
         }
@@ -161,21 +164,28 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
-        Matrix< DDRMat > Interpolation_Function< G, T, N, B>::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void Interpolation_Function< G, T, N, B>::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                    Matrix< DDRMat > & adNdXi ) const
         {
             MORIS_ERROR( false, "eval_dNdXi not implemented for this interpolation function" );
-            Matrix< DDRMat > aEmpty;
-            return aEmpty;
         }
 
 //------------------------------------------------------------------------------
 
         template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
-        Matrix< DDRMat > Interpolation_Function< G, T, N, B>::eval_d2NdXi2 ( const Matrix< DDRMat > & aXi ) const
+        void Interpolation_Function< G, T, N, B>::eval_d2NdXi2 ( const Matrix< DDRMat > & aXi,
+                                                                       Matrix< DDRMat > & ad2NdXi2 ) const
         {
             MORIS_ERROR( false, "eval_d2NdXi2 not implemented for this interpolation function" );
-            Matrix< DDRMat > aEmpty;
-            return aEmpty;
+        }
+
+//------------------------------------------------------------------------------
+
+        template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
+        void Interpolation_Function< G, T, N, B>::eval_d3NdXi3 ( const Matrix< DDRMat > & aXi,
+                                                                       Matrix< DDRMat > & ad3NdXi3 ) const
+        {
+            MORIS_ERROR( false, "eval_d3NdXi3 not implemented for this interpolation function" );
         }
 
 //------------------------------------------------------------------------------

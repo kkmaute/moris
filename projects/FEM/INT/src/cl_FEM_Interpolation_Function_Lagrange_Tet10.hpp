@@ -60,7 +60,7 @@ namespace moris
         template<>
         void
         Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_N( const Matrix< DDRMat > & aXi,
-                                                                                                              Matrix< DDRMat > & aNXi) const
+                                                                                                              Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 3, "TET10 - eval_N: aXi not allocated or hat wrong size." );
@@ -88,8 +88,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 4, "TET10 - eval_dNdXi: aXi not allocated or hat wrong size." );
@@ -101,64 +102,63 @@ namespace moris
             real zeta4 = aXi( 3 );
 
             // populate output matrix
-            Matrix< DDRMat > tdNdXi( 4, 10, 0.0 );
-            tdNdXi( 0, 0 ) = 4.0*zeta1 - 1.0;
-            tdNdXi( 0, 4 ) = 4.0*zeta2;
-            tdNdXi( 0, 6 ) = 4.0*zeta3;
-            tdNdXi( 0, 7 ) = 4.0*zeta4;
+            adNdXi.set_size( 4, 10, 0.0 );
+            adNdXi( 0, 0 ) = 4.0*zeta1 - 1.0;
+            adNdXi( 0, 4 ) = 4.0*zeta2;
+            adNdXi( 0, 6 ) = 4.0*zeta3;
+            adNdXi( 0, 7 ) = 4.0*zeta4;
 
-            tdNdXi( 1, 1 ) = 4.0*zeta2 - 1.0;
-            tdNdXi( 1, 4 ) = 4.0*zeta1;
-            tdNdXi( 1, 5 ) = 4.0*zeta3;
-            tdNdXi( 1, 8 ) = 4.0*zeta4;
+            adNdXi( 1, 1 ) = 4.0*zeta2 - 1.0;
+            adNdXi( 1, 4 ) = 4.0*zeta1;
+            adNdXi( 1, 5 ) = 4.0*zeta3;
+            adNdXi( 1, 8 ) = 4.0*zeta4;
 
-            tdNdXi( 2, 2 ) = 4.0*zeta3 - 1.0;
-            tdNdXi( 2, 5 ) = 4.0*zeta2;
-            tdNdXi( 2, 6 ) = 4.0*zeta1;
-            tdNdXi( 2, 9 ) = 4.0*zeta4;
+            adNdXi( 2, 2 ) = 4.0*zeta3 - 1.0;
+            adNdXi( 2, 5 ) = 4.0*zeta2;
+            adNdXi( 2, 6 ) = 4.0*zeta1;
+            adNdXi( 2, 9 ) = 4.0*zeta4;
 
-            tdNdXi( 3, 3 ) = 4.0*zeta4 - 1.0;
-            tdNdXi( 3, 7 ) = 4.0*zeta1;
-            tdNdXi( 3, 8 ) = 4.0*zeta2;
-            tdNdXi( 3, 9 ) = 4.0*zeta3;
-            return tdNdXi;
+            adNdXi( 3, 3 ) = 4.0*zeta4 - 1.0;
+            adNdXi( 3, 7 ) = 4.0*zeta1;
+            adNdXi( 3, 8 ) = 4.0*zeta2;
+            adNdXi( 3, 9 ) = 4.0*zeta3;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 4, "TET10 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // populate output matrix
-            Matrix< DDRMat > td2NdXi2( 10, 10, 0.0 );
-            td2NdXi2( 0, 0 ) = 4.0;
-            td2NdXi2( 1, 1 ) = 4.0;
-            td2NdXi2( 2, 2 ) = 4.0;
-            td2NdXi2( 3, 3 ) = 4.0;
-            td2NdXi2( 4, 9 ) = 4.0;
-            td2NdXi2( 5, 8 ) = 4.0;
-            td2NdXi2( 6, 7 ) = 4.0;
-            td2NdXi2( 7, 5 ) = 4.0;
-            td2NdXi2( 8, 6 ) = 4.0;
-            td2NdXi2( 9, 4 ) = 4.0;
-            return td2NdXi2;
+            ad2NdXi2.set_size( 10, 10, 0.0 );
+            ad2NdXi2( 0, 0 ) = 4.0;
+            ad2NdXi2( 1, 1 ) = 4.0;
+            ad2NdXi2( 2, 2 ) = 4.0;
+            ad2NdXi2( 3, 3 ) = 4.0;
+            ad2NdXi2( 4, 9 ) = 4.0;
+            ad2NdXi2( 5, 8 ) = 4.0;
+            ad2NdXi2( 6, 7 ) = 4.0;
+            ad2NdXi2( 7, 5 ) = 4.0;
+            ad2NdXi2( 8, 6 ) = 4.0;
+            ad2NdXi2( 9, 4 ) = 4.0;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( false, "TET10 - eval_d3NdXi3: 3rd order derivatives not implemented for this element." );
 
-            Matrix< DDRMat > td3NdXi3(1,10,0.0);
-            return td3NdXi3;
+            ad3NdXi3.set_size( 1, 10, 0.0 );
         }
 //------------------------------------------------------------------------------
     } /* namespace fem */
