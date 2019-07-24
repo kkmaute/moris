@@ -50,7 +50,7 @@ set_target_properties(${INT_TEST} PROPERTIES OUTPUT_NAME ${INT_TEST}${EXE_EXT})
 
 # Mark as test
 add_test(NAME ${INT_TEST}
-    COMMAND $<TARGET_FILE:${INT_TEST}> )
+    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${INT_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -58,6 +58,6 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${INT_TEST_PROCS})
 		set(INT_PARALLEL_TEST ${INT_TEST}-${PROCS}-procs)
 		add_test(NAME ${INT_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${INT_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${INT_TEST}>)
 	endforeach()
 endif()

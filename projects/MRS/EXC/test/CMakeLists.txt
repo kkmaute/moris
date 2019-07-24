@@ -20,12 +20,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(EXC_TEST ${EXC}-test)
 
 # Create executable
-add_executable(${EXC_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${EXC_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
+add_executable(${EXC_TEST} ${TEST_SOURCES})
+target_link_libraries(${EXC_TEST} ${TEST_DEPENDENCIES})
+set_target_properties(${EXC_TEST} PROPERTIES OUTPUT_NAME ${EXC_TEST}${EXE_EXT})
 
 # Mark as test
 add_test(NAME ${EXC_TEST}
-    COMMAND ${EXC_TEST}${EXE_EXT} )
+    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${EXC_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -33,6 +34,6 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${EXC_TEST_PROCS})
 		set(EXC_PARALLEL_TEST ${EXC_TEST}-${PROCS}-procs)
 		add_test(NAME ${EXC_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${EXC_TEST}${EXE_EXT}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${EXC_TEST}>)
 	endforeach()
 endif()
