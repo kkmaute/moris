@@ -1539,9 +1539,9 @@ namespace mtk
                 Matrix<IdMat> tSharingProcs(1, tSharedProcs.size());
 
                 // Cell to vector conversion
-                for (uint i = 0; i < tSharedProcs.size(); i++)
+                for (uint j = 0; j < tSharedProcs.size(); j++)
                 {
-                    tSharingProcs(0, i) = tSharedProcs[i];
+                    tSharingProcs(0, j) = tSharedProcs[j];
                 }
 
                 mSTKMeshData->mCellSharingData(i) = tSharingProcs.copy();
