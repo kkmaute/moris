@@ -6,15 +6,6 @@ set(TEST_SOURCES
     test_main.cpp
     cl_Communication_Tools.cpp)
 
-# List test includes
-set(TEST_INCLUDES
-    ${LINALG}
-    ${COM} )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
 # List snippet includes
 set(SNIPPET_INCLUDES
     )
@@ -28,12 +19,6 @@ set(TEST_DEPENDENCIES
 	test-libs
     ${COM}-lib
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

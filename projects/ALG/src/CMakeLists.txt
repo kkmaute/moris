@@ -12,16 +12,6 @@ set(HEADERS
     fn_hash_value.hpp
     fn_num_digits.hpp )
 
-# List header dependencies
-set(ALG_INCLUDES
-    #${LINALG}
-    )
-
-# Include depedency directories
-foreach(ALG_INCLUDE ${ALG_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${ALG_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Algorithms Library
 
@@ -34,20 +24,14 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	)
 
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE LIB_DEPENDENCIES)
-list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
-list(REVERSE LIB_DEPENDENCIES)
-
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library and set properties
 add_library(${ALG}-lib STATIC ${LIB_SOURCES})
-target_include_directories(${ALG}-lib 
-	PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+target_include_directories(${ALG}-lib PUBLIC 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${ALG}_LIB_INSTALL_DIR}>
 	$<INSTALL_INTERFACE:${${ALG}_HEADER_INSTALL_DIR}>
 	)
@@ -71,8 +55,6 @@ foreach(TPL ${ALG_TPL_DEPENDENCIES})
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${ALG}-lib 
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    #target_link_libraries(${ALG}-lib
-    #	PUBLIC ${MORIS_${TPL}_LIBRARIES})
     target_compile_definitions(${ALG}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()

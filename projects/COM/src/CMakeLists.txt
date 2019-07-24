@@ -10,15 +10,6 @@ set(HEADERS
     cl_Communication_Manager.hpp
     cl_Communication_Tools.hpp )
 
-# List header dependencies
-set(COM_INCLUDES
-    #${LINALG}
-    "" )
-
-foreach(COM_INCLUDE ${COM_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${COM_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Communications Library
 

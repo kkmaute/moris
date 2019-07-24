@@ -1,5 +1,5 @@
 
-#include <GEN/SDF/src/cl_SDF_Object.hpp>
+#include <cl_SDF_Object.hpp>
 #include <fstream>
 #include <iostream>
 

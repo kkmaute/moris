@@ -8,21 +8,6 @@ set(${SOL_CORE}_VERSION ${MORIS_VERSION})
 set(HEADERS
     cl_SOL_Warehouse.hpp
  )
-    
-# List header dependencies
-set(SOL_CORE_INCLUDES
-    #${LINALG}
-    #${SOL}/${DLA}
-    #${IOS}
-    #${COM}
-    #${SOL}/${NLA}
-    #${FEM}/${MSI}
-    )
-
-# Include depedency directories
-foreach(SOL_CORE_INCLUDE ${SOL_CORE_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${SOL_CORE_INCLUDE}/src)
-endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sol Core Library
@@ -35,14 +20,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${DLA}-lib
-    #${COM}-lib
     ${MSI}-lib
-    #${NLA}-lib
-    #${MORIS_PETSC_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-  #  ${MORIS_BASE_LIBS}
-    #${MORIS_ARPACK_LIBS}
     )
 
 # Set the output path for library

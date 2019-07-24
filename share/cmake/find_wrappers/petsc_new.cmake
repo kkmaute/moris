@@ -61,6 +61,6 @@ if(NOT TARGET ${MORIS}::petsc)
 	
 	add_library(${MORIS}::petsc STATIC IMPORTED GLOBAL)
 	set_target_properties(${MORIS}::petsc PROPERTIES 
-		IMPORTED_LOCATION ${MORIS_PETSC_LIBRARIES} )
+		IMPORTED_LOCATION "${MORIS_PETSC_LIBRARIES}" )
 	target_link_libraries(${MORIS}::petsc INTERFACE ${MORIS_PETSC_TPLS_TARGETS})
 endif()

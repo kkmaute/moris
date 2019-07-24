@@ -11,20 +11,6 @@ set(HEADERS
     cl_SDF_Object.hpp
     )
 
-# List header dependencies
-set(SDF_INCLUDES
-    #${LINALG}
-    #${TOL}
-    #${IOS}
-    #${MTK}
-    #${COM}
-    )
-
-# Include depedency directories
-foreach(SDF_INCLUDE ${SDF_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${SDF_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # SDF Library
 
@@ -51,11 +37,6 @@ set(LIB_DEPENDENCIES
 	${COM}-lib
 	${CON}-lib
 	${MTK}-lib
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_BOOST_LIBS}
-    #${MORIS_BASE_LIBS}
     )
 
 # Set the output path for library
@@ -93,18 +74,10 @@ set(EXE_SOURCES
 # List executable dependencies
 set(EXE_DEPENDENCIES
 	${CHR}-lib
-#    ${GEN}-lib
     ${SDF}-lib
     ${MTK}-lib
-#    ${TOL}-lib why?
     ${COM}-lib
     ${MORIS_BASE_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}
-    #${MORIS_BOOST_LIBS}
     )
 
 # Set the output path for executable

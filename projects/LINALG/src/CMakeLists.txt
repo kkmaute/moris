@@ -207,11 +207,8 @@ if(BUILD_LINALG)
 	# List library dependencies
 	set(EXE_DEPENDENCIES 
 		${LINALG}-lib
-		#${MORIS_ARMADILLO_EIGEN_LIBS} 
 		${MORIS_BASE_LIBS}
 		${COM}-lib
-		#${MORIS_ACML_LAPACK_MKL_LIBS}
-	    #${MORIS_SUPERLU_LIBS}
 	    )
 		
 	# Set the output path for library
