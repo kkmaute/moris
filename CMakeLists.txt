@@ -269,17 +269,28 @@ endif()
 message(STATUS "MORIS C compiler: ${MORIS_C_COMPILER}.")
 message(STATUS "MORIS C++ compiler: ${MORIS_CXX_COMPILER}.")
 
+# Check linker libraries
+execute_process(COMMAND ${MORIS_CXX_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/tes.cpp 
+	-o ${CMAKE_CURRENT_SOURCE_DIR}/tes -lmpi_mpifh -lgfortran 
+	RESULT_VARIABLE MPIFH_GFORTRAN)
+execute_process(COMMAND ${MORIS_CXX_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/tes.cpp 
+	-o ${CMAKE_CURRENT_SOURCE_DIR}/tes -lifcore
+	RESULT_VARIABLE IFCORE)
+
+if (NOT MPIFH_GFORTRAN)
+	list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran")
+elseif(NOT IFCORE)#-lifcoremt -lrt
+	list(APPEND MORIS_BASE_LIBS "-lifcore")
+else()
+	message(FATAL_ERROR "MORIS requires either mpi_mpifh and gfortran, or ifcore. "
+		"If you have these libraries, add their locations to the $PATH environment variable.")
+endif()
+list(APPEND MORIS_BASE_LIBS "-ldl -lssl -lcrypto")
+
 # Check for compiler flags.
 include(CheckCXXCompilerFlag)
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
-
-if (USE_TACC)
-    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt")
-else()
-   list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran")
-endif()
-list(APPEND MORIS_BASE_LIBS "-ldl -lssl -lcrypto")
 
 # -g Request that the compiler and linker generate 
 # and retain symbol information in the executable itself,
