@@ -10,11 +10,8 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
-
-
 // This test creates a simple refinement pattern and makes sure that each B-Spline
 // is only generated once.
-
 
 TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 {
@@ -209,4 +206,65 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
 
         }
     }
+}
+
+TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_pattern]")
+{
+//-------------------------------------------------------------------------------
+
+ //   if(  moris::par_size() == 1 )
+//    {
+//            // create settings object
+//            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+//
+//            // set number of elements
+//            moris::Matrix< moris::DDLUMat > tNumberOfElements;
+//            tNumberOfElements.set_size( 2, 1, 3 );
+//
+//            tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+//
+//            // deactivate truncation
+//            tParameters->set_bspline_truncation( false );
+//
+//            // set buffer size to zero
+//            tParameters->set_refinement_buffer( 1 );
+//            tParameters->set_staircase_buffer( 1 );
+//
+//            // deactivate truncation
+//            tParameters->set_bspline_truncation( false );
+//
+//            // use simple patterns
+//            tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
+//
+//            // create factory
+//            moris::hmr::Factory tFactory;
+//
+//            // create background mesh object
+//            moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+//
+//            //----------------------------------------------------------------------------------------------------------
+//            // Work on activation pattern 0 mesh
+//            tBackgroundMesh->set_activation_pattern( 0 );
+//
+//            // element 0 is the element with ID 18
+//            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+//            tBackgroundMesh->perform_refinement( );
+//
+//            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+//            tBackgroundMesh->perform_refinement( );
+//
+//            //----------------------------------------------------------------------------------------------------------
+//            // Work on activation pattern 1 mesh
+//            tBackgroundMesh->set_activation_pattern( 1 );
+//
+//            // element 0 is the element with ID 18
+//            tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
+//            tBackgroundMesh->perform_refinement( );
+//
+//            tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
+//            tBackgroundMesh->perform_refinement( );
+//
+//
+//            delete tParameters;
+//    }
 }

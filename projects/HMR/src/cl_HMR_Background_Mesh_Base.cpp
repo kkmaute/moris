@@ -1924,7 +1924,6 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-
         void Background_Mesh_Base::unite_patterns( const uint & aSourceA,
                                                    const uint & aSourceB,
                                                    const uint & aTarget )
@@ -1955,6 +1954,54 @@ namespace moris
                 for( auto tElement : tElements )
                 {
                     if( tElement->is_refined( aSourceA ) || tElement->is_refined( aSourceB ) )
+                    {
+                        // flag this element for refinement
+                        tElement->put_on_refinement_queue();
+                    }
+                }
+
+                // perform refinement
+                this->perform_refinement();
+            }
+        }
+
+        // -----------------------------------------------------------------------------
+
+        void Background_Mesh_Base::unite_patterns( const moris::Cell< uint > & aSourcePattern,
+                                                   const uint                  aTarget )
+        {
+            for( uint Il = 0; Il < aSourcePattern.size(); ++Il )
+            {
+                MORIS_ERROR( aSourcePattern( Il ) < gNumberOfPatterns, "Source pattern %-5i invalid.", Il );
+            }
+
+            MORIS_ERROR( aTarget < gNumberOfPatterns, "Target pattern invalid.");
+
+            // reset target pattern
+            this->reset_pattern( aTarget );
+
+            this->set_activation_pattern( aTarget );
+
+            for( uint Ii=0; Ii<mMaxLevel; ++Ii )
+            {
+                // cell containing elements on current level
+                Cell< Background_Element_Base* > tElements;
+
+                // get elements from level that belong to myself
+                this->collect_elements_on_level( Ii, tElements );
+
+                // if this is the first level, activate all elements
+                for( auto tElement : tElements )
+                {
+                    bool tIsRefined = false;
+
+                    // check if one of the pattern is refined for this element
+                    for( uint Ia = 0; Ia < aSourcePattern.size(); ++Ia )
+                    {
+                        tIsRefined = tIsRefined || tElement->is_refined( aSourcePattern( Ia ) );
+                    }
+
+                    if( tIsRefined )
                     {
                         // flag this element for refinement
                         tElement->put_on_refinement_queue();

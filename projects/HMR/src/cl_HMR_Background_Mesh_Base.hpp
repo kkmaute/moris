@@ -798,6 +798,13 @@ namespace moris
                                  const uint & aSourceB,
                                  const uint & aTarget );
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates a union of two patterns
+             */
+            void unite_patterns( const moris::Cell< uint > & aSourcePattern,
+                                 const uint                  aTarget );
 
 // -----------------------------------------------------------------------------
 

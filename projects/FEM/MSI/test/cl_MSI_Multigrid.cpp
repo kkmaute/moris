@@ -116,7 +116,7 @@ namespace moris
 
 //              tHMR.save_bsplines_to_vtk("BSplines_for_matlab.vtk");
 
-              tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_matlab.hdf5" );
+              //tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_matlab.hdf5" );
 
              moris::map< moris::moris_id, moris::moris_index > tMap;
              tInterpolationMesh->get_adof_map( tOrder, tMap );
