@@ -91,12 +91,14 @@ namespace moris
                          = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                      // get global integration point  for the master integration cell
-                     Matrix< DDRMat > tMasterGlobalIntegPoint = mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterLocalIntegPoint );
-                     //print(tLeftGlobalIntegPoint,"tLeftGlobalIntegPoint");
+                     Matrix< DDRMat > tMasterGlobalIntegPoint;
+                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterLocalIntegPoint,
+                                                                                                             tMasterGlobalIntegPoint );
 
                      // get global integration point for the slave integration cell
-                     Matrix< DDRMat > tSlaveGlobalIntegPoint = mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveLocalIntegPoint );
-                     //print(tRightGlobalIntegPoint,"tRightGlobalIntegPoint");
+                     Matrix< DDRMat > tSlaveGlobalIntegPoint;
+                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveLocalIntegPoint,
+                                                                                                            tSlaveGlobalIntegPoint );
 
                      // set integration point for master and slave field interpolators
                      for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -202,10 +204,14 @@ namespace moris
                          = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
                      // get global integration point  for the master integration cell
-                     Matrix< DDRMat > tMasterGlobalIntegPoint = mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterLocalIntegPoint );
+                     Matrix< DDRMat > tMasterGlobalIntegPoint;
+                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterLocalIntegPoint,
+                                                                                                             tMasterGlobalIntegPoint );
 
                      // get global integration point for the slave integration cell
-                     Matrix< DDRMat > tSlaveGlobalIntegPoint = mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveLocalIntegPoint );
+                     Matrix< DDRMat > tSlaveGlobalIntegPoint;
+                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveLocalIntegPoint,
+                                                                                                            tSlaveGlobalIntegPoint );
 
                      // set integration point for master and slave field interpolators
                      for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )

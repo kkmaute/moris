@@ -213,8 +213,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad2NdXi2 ) const
         {
 
             // make sure that input is correct
@@ -227,72 +228,70 @@ namespace moris
             real zeta4 = aXi( 3 );
 
             // populate output matrix
-            Matrix< DDRMat > td2NdXi2( 10, 20, 0.0 );
-            td2NdXi2( 0, 0 )  = 9.0 * ( 3.0 * zeta1 - 1.0 );
-            td2NdXi2( 0, 4 )  = 27.0 * zeta2 ;
-            td2NdXi2( 0, 8 )  = 27.0 * zeta3;
-            td2NdXi2( 0, 10 ) = 27.0 * zeta4;
+            ad2NdXi2.set_size( 10, 20, 0.0 );
+            ad2NdXi2( 0, 0 )  = 9.0 * ( 3.0 * zeta1 - 1.0 );
+            ad2NdXi2( 0, 4 )  = 27.0 * zeta2 ;
+            ad2NdXi2( 0, 8 )  = 27.0 * zeta3;
+            ad2NdXi2( 0, 10 ) = 27.0 * zeta4;
 
-            td2NdXi2( 1, 1 )  = 9.0 * ( 3.0 * zeta2 - 1.0 );
-            td2NdXi2( 1, 5 )  = 27.0 * zeta1;
-            td2NdXi2( 1, 6 )  = 27.0 * zeta3;
-            td2NdXi2( 1, 12 ) = 27.0 * zeta4 ;
+            ad2NdXi2( 1, 1 )  = 9.0 * ( 3.0 * zeta2 - 1.0 );
+            ad2NdXi2( 1, 5 )  = 27.0 * zeta1;
+            ad2NdXi2( 1, 6 )  = 27.0 * zeta3;
+            ad2NdXi2( 1, 12 ) = 27.0 * zeta4 ;
 
-            td2NdXi2( 2, 2 )  = 9.0 * ( 3.0 * zeta3 - 1.0 );
-            td2NdXi2( 2, 7 )  = 27.0 * zeta2;
-            td2NdXi2( 2, 9 )  = 27.0 * zeta1;
-            td2NdXi2( 2, 14 ) = 27.0 * zeta4;
+            ad2NdXi2( 2, 2 )  = 9.0 * ( 3.0 * zeta3 - 1.0 );
+            ad2NdXi2( 2, 7 )  = 27.0 * zeta2;
+            ad2NdXi2( 2, 9 )  = 27.0 * zeta1;
+            ad2NdXi2( 2, 14 ) = 27.0 * zeta4;
 
-            td2NdXi2( 3, 3 )  = 9.0 * ( 3.0 * zeta4 - 1.0 );
-            td2NdXi2( 3, 11 ) = 27.0 * zeta1;
-            td2NdXi2( 3, 13 ) = 27.0 * zeta2;
-            td2NdXi2( 3, 15 ) = 27.0 * zeta3;
+            ad2NdXi2( 3, 3 )  = 9.0 * ( 3.0 * zeta4 - 1.0 );
+            ad2NdXi2( 3, 11 ) = 27.0 * zeta1;
+            ad2NdXi2( 3, 13 ) = 27.0 * zeta2;
+            ad2NdXi2( 3, 15 ) = 27.0 * zeta3;
 
-            td2NdXi2( 4, 14 ) = 4.5 * ( 6.0 * zeta3 - 1.0 );
-            td2NdXi2( 4, 15 ) = 4.5 * ( 6.0 * zeta4 - 1.0 );
-            td2NdXi2( 4, 18 ) = 27.0 * zeta2;
-            td2NdXi2( 4, 19 ) = 27.0 * zeta1;
+            ad2NdXi2( 4, 14 ) = 4.5 * ( 6.0 * zeta3 - 1.0 );
+            ad2NdXi2( 4, 15 ) = 4.5 * ( 6.0 * zeta4 - 1.0 );
+            ad2NdXi2( 4, 18 ) = 27.0 * zeta2;
+            ad2NdXi2( 4, 19 ) = 27.0 * zeta1;
 
-            td2NdXi2( 5, 12 ) = 4.5 * ( 6.0 * zeta2 - 1.0 );
-            td2NdXi2( 5, 13 ) = 4.5 * ( 6.0 * zeta4 - 1.0 );
-            td2NdXi2( 5, 17 ) = 27.0 * zeta1;
-            td2NdXi2( 5, 18 ) = 27.0 * zeta3;
+            ad2NdXi2( 5, 12 ) = 4.5 * ( 6.0 * zeta2 - 1.0 );
+            ad2NdXi2( 5, 13 ) = 4.5 * ( 6.0 * zeta4 - 1.0 );
+            ad2NdXi2( 5, 17 ) = 27.0 * zeta1;
+            ad2NdXi2( 5, 18 ) = 27.0 * zeta3;
 
-            td2NdXi2( 6, 10 ) = 4.5 * ( 6.0 * zeta1 - 1.0 );
-            td2NdXi2( 6, 11 ) = 4.5 * ( 6.0 * zeta4 - 1.0 );
-            td2NdXi2( 6, 17 ) = 27.0 * zeta2;
-            td2NdXi2( 6, 19 ) = 27.0 * zeta3;
+            ad2NdXi2( 6, 10 ) = 4.5 * ( 6.0 * zeta1 - 1.0 );
+            ad2NdXi2( 6, 11 ) = 4.5 * ( 6.0 * zeta4 - 1.0 );
+            ad2NdXi2( 6, 17 ) = 27.0 * zeta2;
+            ad2NdXi2( 6, 19 ) = 27.0 * zeta3;
 
-            td2NdXi2( 7, 6 )  = 4.5 * ( 6.0 * zeta2 - 1.0 );
-            td2NdXi2( 7, 7 )  = 4.5 * ( 6.0 * zeta3 - 1.0 );
-            td2NdXi2( 7, 16 ) = 27.0 * zeta1;
-            td2NdXi2( 7, 18 ) = 27.0 * zeta4;
+            ad2NdXi2( 7, 6 )  = 4.5 * ( 6.0 * zeta2 - 1.0 );
+            ad2NdXi2( 7, 7 )  = 4.5 * ( 6.0 * zeta3 - 1.0 );
+            ad2NdXi2( 7, 16 ) = 27.0 * zeta1;
+            ad2NdXi2( 7, 18 ) = 27.0 * zeta4;
 
-            td2NdXi2( 8, 8 )  = 4.5 * ( 6.0 * zeta1 - 1.0 );
-            td2NdXi2( 8, 9 )  = 4.5 * ( 6.0 * zeta3 - 1.0 );
-            td2NdXi2( 8, 16 ) = 27.0 * zeta2;
-            td2NdXi2( 8, 19 ) = 27.0 * zeta4;
+            ad2NdXi2( 8, 8 )  = 4.5 * ( 6.0 * zeta1 - 1.0 );
+            ad2NdXi2( 8, 9 )  = 4.5 * ( 6.0 * zeta3 - 1.0 );
+            ad2NdXi2( 8, 16 ) = 27.0 * zeta2;
+            ad2NdXi2( 8, 19 ) = 27.0 * zeta4;
 
-            td2NdXi2( 9, 4 )  = 4.5 * ( 6.0 * zeta1 - 1.0 );
-            td2NdXi2( 9, 5 )  = 4.5 * ( 6.0 * zeta2 - 1.0 );
-            td2NdXi2( 9, 16 ) = 27.0 * zeta3;
-            td2NdXi2( 9, 17 ) = 27.0 * zeta4;
-
-            return td2NdXi2;
+            ad2NdXi2( 9, 4 )  = 4.5 * ( 6.0 * zeta1 - 1.0 );
+            ad2NdXi2( 9, 5 )  = 4.5 * ( 6.0 * zeta2 - 1.0 );
+            ad2NdXi2( 9, 16 ) = 27.0 * zeta3;
+            ad2NdXi2( 9, 17 ) = 27.0 * zeta4;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 20 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad3NdXi3 ) const
         {
 
             // make sure that input is correct
             MORIS_ASSERT( false, "TET20 - eval_d3NdXi3: 3rd order derivatives not implemented for this element." );
 
-            Matrix< DDRMat > td3NdXi3(1,20,0.0);
-            return td3NdXi3;
+            ad3NdXi3.set_size( 1, 20, 0.0 );
         }
 
 //------------------------------------------------------------------------------

@@ -138,7 +138,7 @@ SECTION( "TRI3: test d2NdXi2" )
                  Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
                 // evaluation of the second order derivatives d2NdZeta2 at test point k
-                 td2NdXi2 = tFunction->eval_d2NdXi2( tTestPoint );
+                tFunction->eval_d2NdXi2( tTestPoint, td2NdXi2 );
 
                  for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                  {
@@ -341,8 +341,8 @@ SECTION( "TRI6: test d2NdXi2" )
                  // unpack the test point k
                  Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
-                // evaluation of the second order derivatives d2NdZeta2 at test point k
-                 td2NdXi2 = tFunction->eval_d2NdXi2( tTestPoint );
+                 // evaluation of the second order derivatives d2NdZeta2 at test point k
+                 tFunction->eval_d2NdXi2( tTestPoint, td2NdXi2 );
 
                  for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                  {
@@ -546,8 +546,8 @@ SECTION( "TRI10: test d2NdXi2" )
                  // unpack the test point k
                  Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
-                // evaluation of the second order derivatives d2NdZeta2 at test point k
-                 td2NdXi2 = tFunction->eval_d2NdXi2( tTestPoint );
+                 // evaluation of the second order derivatives d2NdZeta2 at test point k
+                 tFunction->eval_d2NdXi2( tTestPoint, td2NdXi2 );
 
                  for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                  {
@@ -749,8 +749,8 @@ SECTION( "TET4: test d2NdXi2" )
                  // unpack the test point k
                  Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
-                // evaluation of the second order derivatives d2NdZeta2 at test point k
-                 td2NdXi2 = tFunction->eval_d2NdXi2( tTestPoint );
+                 // evaluation of the second order derivatives d2NdZeta2 at test point k
+                 tFunction->eval_d2NdXi2( tTestPoint, td2NdXi2 );
 
                  for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                  {
@@ -963,8 +963,8 @@ SECTION( "TET10: test d2NdXi2" )
                  // unpack the test point k
                  Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
-                // evaluation of the second order derivatives d2NdZeta2 at test point k
-                 td2NdXi2 = tFunction->eval_d2NdXi2( tTestPoint );
+                 // evaluation of the second order derivatives d2NdZeta2 at test point k
+                 tFunction->eval_d2NdXi2( tTestPoint, td2NdXi2 );
 
                  for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                  {
@@ -1181,8 +1181,8 @@ SECTION( "TET20: test d2NdXi2" )
                  // unpack the test point k
                  Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
 
-                // evaluation of the second order derivatives d2NdZeta2 at test point k
-                 td2NdXi2 = tFunction->eval_d2NdXi2( tTestPoint );
+                 // evaluation of the second order derivatives d2NdZeta2 at test point k
+                 tFunction->eval_d2NdXi2( tTestPoint, td2NdXi2 );
 
                  for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
                  {

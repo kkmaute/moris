@@ -353,43 +353,47 @@ namespace moris
         /**
          * evaluates the second derivatives of the space shape functions
          *  wrt parametric coordinates at a given evaluation point
-         * @param[ out ] ad2NdXi2 second order derivatives
+         * @param[ in ] ad2NdXi2 second order derivatives
          *                        ( <1D:1, 2D:3, 3D:6> x <number of nodes> )
          * @param[ in ] aXi       evaluation point
          *                        ( <number of dimensions>  x 1 )
          */
-        Matrix< DDRMat > d2NdXi2 ( const Matrix< DDRMat > & aXi ) const;
+        void d2NdXi2 ( const Matrix< DDRMat > & aXi,
+                             Matrix< DDRMat > & ad2NdXi2 ) const;
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the third derivatives of the space shape functions
          *  wrt parametric coordinates at a given evaluation point
-         * @param[ out ] ad3NdXi3 third order derivatives
+         * @param[ in ] ad3NdXi3 third order derivatives
          *                        ( <1D:1, 2D:4, 3D: 10> x <number of nodes> )
          * @param[ in ] aXi       evaluation point
          *                        ( <number of dimensions>  x 1 )
          */
-        Matrix< DDRMat > d3NdXi3 ( const Matrix< DDRMat > & aXi ) const;
+        void d3NdXi3 ( const Matrix< DDRMat > & aXi,
+                             Matrix< DDRMat > & ad3NdXi3 ) const;
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the second derivatives of the time shape functions
          *  wrt parametric coordinates at a given evaluation point
-         * @param[ out ] ad2NdTau2 second order derivatives
+         * @param[ in ] ad2NdTau2 second order derivatives
          *                         ( <number of dimensions> x <number of nodes> )
          * @param[ in ] aTau       evaluation point
          *                         ( <number of dimensions>  x 1 )
          */
-        Matrix< DDRMat > d2NdTau2 ( const Matrix< DDRMat > & aTau ) const;
+        void d2NdTau2 ( const Matrix< DDRMat > & aTau,
+                              Matrix< DDRMat > & ad2NdTau2 ) const;
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the geometry Jacobian in space
-         * @param[ out ] tJt     transposed of geometry Jacobian in space
-         * @param[ in ]  adNdXi  first derivatives of space shape functions in
+         * @param[ in ] aJt     transposed of geometry Jacobian in space
+         * @param[ in ] adNdXi  first derivatives of space shape functions in
          *                       parameter space
          */
-        Matrix< DDRMat > space_jacobian( const Matrix< DDRMat > & adNdXi ) const;
+        void space_jacobian( const Matrix< DDRMat > & adNdXi,
+                                   Matrix< DDRMat > & aJt ) const;
 
 //------------------------------------------------------------------------------
         /**
@@ -515,10 +519,11 @@ namespace moris
 //------------------------------------------------------------------------------
         /**
          * map an integration point from local param coords to global param coords
-         * @param[ out ] aLocalParamPoint param coords in local parametric space
-         * @param[ in ]  aParamPoint      param coords in global parametric space
+         * @param[ in ] aLocalParamPoint  param coords in local parametric space
+         * @param[ in ] aGlobalParamPoint param coords in global parametric space
          */
-        Matrix< DDRMat > map_integration_point( const Matrix< DDRMat > & aLocalParamPoint );
+        void map_integration_point( const Matrix< DDRMat > & aLocalParamPoint,
+                                          Matrix< DDRMat > & aGlobalParamPoint );
 
 //------------------------------------------------------------------------------
     private:

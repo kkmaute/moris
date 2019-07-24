@@ -103,124 +103,62 @@ namespace moris
 
             // populate output matrix
             adNdXi.set_size( 4, 10, 0.0 );
-//            adNdXi( 0, 0 ) = 4.0*zeta1 - 1.0;
-//            adNdXi( 0, 1 ) = 0.0;
-//            adNdXi( 0, 2 ) = 0.0;
-//            adNdXi( 0, 3 ) = 0.0;
-//            adNdXi( 0, 4 ) = 4.0*zeta2;
-//            adNdXi( 0, 5 ) = 0.0;
-//            adNdXi( 0, 6 ) = 4.0*zeta3;
-//            adNdXi( 0, 7 ) = 4.0*zeta4;
-//            adNdXi( 0, 8 ) = 0.0;
-//            adNdXi( 0, 9 ) = 0.0;
-//
-//            adNdXi( 1, 0 ) = 0.0;
-//            adNdXi( 1, 1 ) = 4.0*zeta2 - 1.0;
-//            adNdXi( 1, 2 ) = 0.0;
-//            adNdXi( 1, 3 ) = 0.0;
-//            adNdXi( 1, 4 ) = 4.0*zeta1;
-//            adNdXi( 1, 5 ) = 4.0*zeta3;
-//            adNdXi( 1, 6 ) = 0.0;
-//            adNdXi( 1, 7 ) = 0.0;
-//            adNdXi( 1, 8 ) = 4.0*zeta4;
-//            adNdXi( 1, 9 ) = 0.0;
-//
-//            adNdXi( 2, 0 ) = 0.0;
-//            adNdXi( 2, 1 ) = 0.0;
-//            adNdXi( 2, 2 ) = 4.0*zeta3 - 1.0;
-//            adNdXi( 2, 3 ) = 0.0;
-//            adNdXi( 2, 4 ) = 0.0;
-//            adNdXi( 2, 5 ) = 4.0*zeta2;
-//            adNdXi( 2, 6 ) = 4.0*zeta1;
-//            adNdXi( 2, 7 ) = 0.0;
-//            adNdXi( 2, 8 ) = 0.0;
-//            adNdXi( 2, 9 ) = 4.0*zeta4;
-//
-//            adNdXi( 3, 0 ) = 0.0;
-//            adNdXi( 3, 1 ) = 0.0;
-//            adNdXi( 3, 2 ) = 0.0;
-//            adNdXi( 3, 3 ) = 4.0*zeta4 - 1.0;
-//            adNdXi( 3, 4 ) = 0.0;
-//            adNdXi( 3, 5 ) = 0.0;
-//            adNdXi( 3, 6 ) = 0.0;
-//            adNdXi( 3, 7 ) = 4.0*zeta1;
-//            adNdXi( 3, 8 ) = 4.0*zeta2;
-//            adNdXi( 3, 9 ) = 4.0*zeta3;
-
             adNdXi( 0, 0 ) = 4.0*zeta1 - 1.0;
-                        adNdXi( 0, 4 ) = 4.0*zeta2;
-                        adNdXi( 0, 6 ) = 4.0*zeta3;
-                        adNdXi( 0, 7 ) = 4.0*zeta4;
+            adNdXi( 0, 4 ) = 4.0*zeta2;
+            adNdXi( 0, 6 ) = 4.0*zeta3;
+            adNdXi( 0, 7 ) = 4.0*zeta4;
 
-                        adNdXi( 1, 0 ) = 0.0;
-                        adNdXi( 1, 1 ) = 4.0*zeta2 - 1.0;
-                        adNdXi( 1, 2 ) = 0.0;
-                        adNdXi( 1, 3 ) = 0.0;
-                        adNdXi( 1, 4 ) = 4.0*zeta1;
-                        adNdXi( 1, 5 ) = 4.0*zeta3;
-                        adNdXi( 1, 6 ) = 0.0;
-                        adNdXi( 1, 7 ) = 0.0;
-                        adNdXi( 1, 8 ) = 4.0*zeta4;
-                        adNdXi( 1, 9 ) = 0.0;
+            adNdXi( 1, 1 ) = 4.0*zeta2 - 1.0;
+            adNdXi( 1, 4 ) = 4.0*zeta1;
+            adNdXi( 1, 5 ) = 4.0*zeta3;
+            adNdXi( 1, 8 ) = 4.0*zeta4;
 
-                        adNdXi( 2, 0 ) = 0.0;
-                        adNdXi( 2, 1 ) = 0.0;
-                        adNdXi( 2, 2 ) = 4.0*zeta3 - 1.0;
-                        adNdXi( 2, 3 ) = 0.0;
-                        adNdXi( 2, 4 ) = 0.0;
-                        adNdXi( 2, 5 ) = 4.0*zeta2;
-                        adNdXi( 2, 6 ) = 4.0*zeta1;
-                        adNdXi( 2, 7 ) = 0.0;
-                        adNdXi( 2, 8 ) = 0.0;
-                        adNdXi( 2, 9 ) = 4.0*zeta4;
+            adNdXi( 2, 2 ) = 4.0*zeta3 - 1.0;
+            adNdXi( 2, 5 ) = 4.0*zeta2;
+            adNdXi( 2, 6 ) = 4.0*zeta1;
+            adNdXi( 2, 9 ) = 4.0*zeta4;
 
-                        adNdXi( 3, 0 ) = 0.0;
-                        adNdXi( 3, 1 ) = 0.0;
-                        adNdXi( 3, 2 ) = 0.0;
-                        adNdXi( 3, 3 ) = 4.0*zeta4 - 1.0;
-                        adNdXi( 3, 4 ) = 0.0;
-                        adNdXi( 3, 5 ) = 0.0;
-                        adNdXi( 3, 6 ) = 0.0;
-                        adNdXi( 3, 7 ) = 4.0*zeta1;
-                        adNdXi( 3, 8 ) = 4.0*zeta2;
-                        adNdXi( 3, 9 ) = 4.0*zeta3;
+            adNdXi( 3, 3 ) = 4.0*zeta4 - 1.0;
+            adNdXi( 3, 7 ) = 4.0*zeta1;
+            adNdXi( 3, 8 ) = 4.0*zeta2;
+            adNdXi( 3, 9 ) = 4.0*zeta3;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 4, "TET10 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // populate output matrix
-            Matrix< DDRMat > td2NdXi2( 10, 10, 0.0 );
-            td2NdXi2( 0, 0 ) = 4.0;
-            td2NdXi2( 1, 1 ) = 4.0;
-            td2NdXi2( 2, 2 ) = 4.0;
-            td2NdXi2( 3, 3 ) = 4.0;
-            td2NdXi2( 4, 9 ) = 4.0;
-            td2NdXi2( 5, 8 ) = 4.0;
-            td2NdXi2( 6, 7 ) = 4.0;
-            td2NdXi2( 7, 5 ) = 4.0;
-            td2NdXi2( 8, 6 ) = 4.0;
-            td2NdXi2( 9, 4 ) = 4.0;
-            return td2NdXi2;
+            ad2NdXi2.set_size( 10, 10, 0.0 );
+            ad2NdXi2( 0, 0 ) = 4.0;
+            ad2NdXi2( 1, 1 ) = 4.0;
+            ad2NdXi2( 2, 2 ) = 4.0;
+            ad2NdXi2( 3, 3 ) = 4.0;
+            ad2NdXi2( 4, 9 ) = 4.0;
+            ad2NdXi2( 5, 8 ) = 4.0;
+            ad2NdXi2( 6, 7 ) = 4.0;
+            ad2NdXi2( 7, 5 ) = 4.0;
+            ad2NdXi2( 8, 6 ) = 4.0;
+            ad2NdXi2( 9, 4 ) = 4.0;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TET, Interpolation_Type::LAGRANGE, 3, 10 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( false, "TET10 - eval_d3NdXi3: 3rd order derivatives not implemented for this element." );
 
-            Matrix< DDRMat > td3NdXi3(1,10,0.0);
-            return td3NdXi3;
+            ad3NdXi3.set_size( 1, 10, 0.0 );
         }
 //------------------------------------------------------------------------------
     } /* namespace fem */

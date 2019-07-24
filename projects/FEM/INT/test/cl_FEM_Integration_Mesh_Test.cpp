@@ -162,7 +162,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             Matrix< DDRMat > tRefIntegPointI = tInterpParamCoords * trans( tN );
 
             // compute the parametric coordinates of the SideParamPoint in the parent reference element
-            Matrix< DDRMat > tRefIntegPointI2 = tGeoInterpIG.map_integration_point( tIntegPointI );
+            Matrix< DDRMat > tRefIntegPointI2;
+            tGeoInterpIG.map_integration_point( tIntegPointI,
+                                                tRefIntegPointI2 );
             //print(tRefIntegPointI,"tRefIntegPointI");
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -367,7 +369,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                 Matrix< DDRMat > tRefIntegPointI = tInterpParamCoords * trans( tN );
 
                 // compute the parametric coordinates of the SideParamPoint in the parent reference element
-                Matrix< DDRMat > tRefIntegPointI2 = tGeoInterpIG.map_integration_point( tIntegPointI );
+                Matrix< DDRMat > tRefIntegPointI2;
+                tGeoInterpIG.map_integration_point( tIntegPointI,
+                                                    tRefIntegPointI2 );
                 //print(tRefIntegPointI,"tRefIntegPointI");
                 //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -591,7 +595,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             Matrix< DDRMat > tRefIntegPointI = tInterpParamCoords * trans( tN );
 
             // compute the parametric coordinates of the SideParamPoint in the parent reference element
-            Matrix< DDRMat > tRefIntegPointI2 = tGeoInterpIG.map_integration_point( tIntegPointI );
+            Matrix< DDRMat > tRefIntegPointI2;
+            tGeoInterpIG.map_integration_point( tIntegPointI,
+                                                tRefIntegPointI2 );
             //print(tRefIntegPointI,"tRefIntegPointI");
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -809,7 +815,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                 Matrix< DDRMat > tRefIntegPointI = tInterpParamCoords * trans( tN );
 
                 // compute the parametric coordinates of the SideParamPoint in the parent reference element
-                Matrix< DDRMat > tRefIntegPointI2 = tGeoInterpIG.map_integration_point( tIntegPointI );
+                Matrix< DDRMat > tRefIntegPointI2;
+                tGeoInterpIG.map_integration_point( tIntegPointI,
+                                                    tRefIntegPointI2 );
                 //print(tRefIntegPointI,"tRefIntegPointI");
                 //print(tRefIntegPointI2,"tRefIntegPointI2");
 

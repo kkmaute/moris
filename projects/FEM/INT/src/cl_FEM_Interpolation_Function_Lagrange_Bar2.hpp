@@ -83,31 +83,27 @@ namespace moris
 //------------------------------------------------------------------------------
 
     template<>
-    Matrix< DDRMat >
-    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+    void
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                Matrix< DDRMat > & ad2NdXi2 ) const
     {
         // make sure that input is correct
-        MORIS_ASSERT( aXi.length() >= 1,
-                      "LINE2 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+        MORIS_ASSERT( aXi.length() >= 1, "LINE2 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
-        Matrix< DDRMat > td2dXi2(1,2);
-        td2dXi2( 0 ) =  0.0;
-        td2dXi2( 1 ) =  0.0;
-        return td2dXi2;
+        ad2NdXi2.set_size( 1, 2, 0.0 );
     }
 
 //------------------------------------------------------------------------------
 
     template<>
-    Matrix< DDRMat >
-    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+    void
+    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 2 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                Matrix< DDRMat > & ad3NdXi3 ) const
     {
         // make sure that input is correct
-        MORIS_ASSERT( aXi.length() >= 1,
-                      "LINE2 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+        MORIS_ASSERT( aXi.length() >= 1, "LINE2 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
-        Matrix< DDRMat > td3dXi3(1,2,0.0);
-        return td3dXi3;
+        ad3NdXi3.set_size( 1, 2, 0.0 );
     }
 
 //------------------------------------------------------------------------------

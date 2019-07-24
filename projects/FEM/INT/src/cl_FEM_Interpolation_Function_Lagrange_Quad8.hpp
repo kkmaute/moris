@@ -70,19 +70,19 @@ namespace moris
         template<>
         void
         Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_N(const Matrix< DDRMat > & aXi,
-                                                                                                             Matrix< DDRMat > & aNXi) const
+                                                                                                             Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2,
                           "QUAD8 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             // often used constants
-            auto  xi2 = std::pow(  xi, 2 );
-            auto eta2 = std::pow( eta, 2 );
+            real  xi2 = std::pow(  xi, 2 );
+            real eta2 = std::pow( eta, 2 );
 
             // populate output matrix
             aNXi.set_size(1,8);
@@ -144,65 +144,63 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 2,
-                          "QUAD8 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "QUAD8 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
-            auto eta = aXi( 1 );
+            real  xi = aXi( 0 );
+            real eta = aXi( 1 );
 
             // populate output matrix
-            Matrix< DDRMat > td2NdXi2(3,8);
-            td2NdXi2( 0, 0 ) = 0.5 - eta * 0.5;
-            td2NdXi2( 1, 0 ) = 0.5 - xi * 0.5;
-            td2NdXi2( 2, 0 ) = 0.25 - 0.5 * ( xi + eta );
+            ad2NdXi2.set_size( 3, 8 );
+            ad2NdXi2( 0, 0 ) = 0.5 - eta * 0.5;
+            ad2NdXi2( 1, 0 ) = 0.5 - xi * 0.5;
+            ad2NdXi2( 2, 0 ) = 0.25 - 0.5 * ( xi + eta );
 
-            td2NdXi2( 0, 1 ) = 0.5 - eta * 0.5;
-            td2NdXi2( 1, 1 ) = xi * 0.5 + 0.5;
-            td2NdXi2( 2, 1 ) = 0.5 * ( eta - xi ) - 0.25;
+            ad2NdXi2( 0, 1 ) = 0.5 - eta * 0.5;
+            ad2NdXi2( 1, 1 ) = xi * 0.5 + 0.5;
+            ad2NdXi2( 2, 1 ) = 0.5 * ( eta - xi ) - 0.25;
 
-            td2NdXi2( 0, 2 ) = eta * 0.5 + 0.5;
-            td2NdXi2( 1, 2 ) = xi * 0.5 + 0.5;
-            td2NdXi2( 2, 2 ) = 0.5 * ( xi + eta ) + 0.25;
+            ad2NdXi2( 0, 2 ) = eta * 0.5 + 0.5;
+            ad2NdXi2( 1, 2 ) = xi * 0.5 + 0.5;
+            ad2NdXi2( 2, 2 ) = 0.5 * ( xi + eta ) + 0.25;
 
-            td2NdXi2( 0, 3 ) = eta * 0.5 + 0.5;
-            td2NdXi2( 1, 3 ) = 0.5 - xi * 0.5;
-            td2NdXi2( 2, 3 ) = 0.5 * ( xi - eta ) - 0.25;
+            ad2NdXi2( 0, 3 ) = eta * 0.5 + 0.5;
+            ad2NdXi2( 1, 3 ) = 0.5 - xi * 0.5;
+            ad2NdXi2( 2, 3 ) = 0.5 * ( xi - eta ) - 0.25;
 
-            td2NdXi2( 0, 4 ) = eta - 1.0;
-            td2NdXi2( 1, 4 ) = 0;
-            td2NdXi2( 2, 4 ) = xi;
+            ad2NdXi2( 0, 4 ) = eta - 1.0;
+            ad2NdXi2( 1, 4 ) = 0;
+            ad2NdXi2( 2, 4 ) = xi;
 
-            td2NdXi2( 0, 5 ) = 0.0;
-            td2NdXi2( 1, 5 ) =  - xi - 1.0;
-            td2NdXi2( 2, 5 ) =  - eta;
+            ad2NdXi2( 0, 5 ) = 0.0;
+            ad2NdXi2( 1, 5 ) =  - xi - 1.0;
+            ad2NdXi2( 2, 5 ) =  - eta;
 
-            td2NdXi2( 0, 6 ) =  - eta - 1.0;
-            td2NdXi2( 1, 6 ) = 0.0;
-            td2NdXi2( 2, 6 ) =  - xi;
+            ad2NdXi2( 0, 6 ) =  - eta - 1.0;
+            ad2NdXi2( 1, 6 ) = 0.0;
+            ad2NdXi2( 2, 6 ) =  - xi;
 
-            td2NdXi2( 0, 7 ) = 0.0;
-            td2NdXi2( 1, 7 ) = xi - 1.0;
-            td2NdXi2( 2, 7 ) = eta;
-            return td2NdXi2;
+            ad2NdXi2( 0, 7 ) = 0.0;
+            ad2NdXi2( 1, 7 ) = xi - 1.0;
+            ad2NdXi2( 2, 7 ) = eta;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 8 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( false,
-                          "QUAD8 - eval_d3NdXi3: 3rd order derivatives not implemented for this element." );
+            MORIS_ASSERT( false, "QUAD8 - eval_d3NdXi3: 3rd order derivatives not implemented for this element." );
 
-            Matrix<DDRMat> td3NXi3(4,8,0.0);
-            return td3NXi3;
+            ad3NdXi3.set_size( 4, 8, 0.0 );
         }
 
 //------------------------------------------------------------------------------

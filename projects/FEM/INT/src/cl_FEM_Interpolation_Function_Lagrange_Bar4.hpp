@@ -94,42 +94,40 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE4 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE4 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             real xi  = aXi( 0 );
             real t98 = 9.0 / 8.0;
 
-            Matrix< DDRMat > td2NdXi2(1,4);
-            td2NdXi2( 0 ) =  t98 * ( 1.0 - 3.0 * xi );
-            td2NdXi2( 1 ) =  t98 * ( 1.0 + 3.0 * xi );
-            td2NdXi2( 2 ) =  t98 * ( 9.0 * xi - 1.0 );
-            td2NdXi2( 2 ) = -t98 * ( 9.0 * xi + 1.0 );
-            return td2NdXi2;
+            ad2NdXi2.set_size( 1, 4 );
+            ad2NdXi2( 0 ) =  t98 * ( 1.0 - 3.0 * xi );
+            ad2NdXi2( 1 ) =  t98 * ( 1.0 + 3.0 * xi );
+            ad2NdXi2( 2 ) =  t98 * ( 9.0 * xi - 1.0 );
+            ad2NdXi2( 3 ) = -t98 * ( 9.0 * xi + 1.0 );
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE4 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE4 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
             real t98 = 9.0 / 8.0;
 
-            Matrix< DDRMat > td3NdXi3(1,4);
-            td3NdXi3( 0 ) =  t98 * ( - 3.0 );
-            td3NdXi3( 1 ) =  t98 * (  3.0 );
-            td3NdXi3( 2 ) =  t98 * ( 9.0 );
-            td3NdXi3( 2 ) = -t98 * ( 9.0  );
-            return td3NdXi3;
+            ad3NdXi3.set_size( 1, 4 );
+            ad3NdXi3( 0 ) = -t98 * 3.0;
+            ad3NdXi3( 1 ) =  t98 * 3.0;
+            ad3NdXi3( 2 ) =  t98 * 9.0;
+            ad3NdXi3( 3 ) = -t98 * 9.0;
         }
 //------------------------------------------------------------------------------
 

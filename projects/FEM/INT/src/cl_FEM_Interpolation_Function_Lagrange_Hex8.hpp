@@ -80,7 +80,7 @@ namespace moris
          template<>
          void
          Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_N( const Matrix< DDRMat > & aXi,
-                                                                                                              Matrix< DDRMat > & aNXi) const
+                                                                                                              Matrix< DDRMat > & aNXi ) const
          {
              // make sure that input is correct
              MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_N: aXi not allocated or hat wrong size." );
@@ -155,91 +155,89 @@ namespace moris
 //------------------------------------------------------------------------------
 
          template<>
-         Matrix< DDRMat >
-         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+         void
+         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad2NdXi2 ) const
          {
              // make sure that input is correct
-             MORIS_ASSERT( aXi.length() >= 3,
-                     "HEX8 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+             MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
              // unpack xi and eta from input vector
-             auto   xi = aXi( 0 );
-             auto  eta = aXi( 1 );
-             auto zeta = aXi( 2 );
+             real   xi = aXi( 0 );
+             real  eta = aXi( 1 );
+             real zeta = aXi( 2 );
 
              // populate output matrix
-             Matrix< DDRMat > td2NdXi2(6,8);
-             td2NdXi2( 0, 0 ) = 0.0;
-             td2NdXi2( 1, 0 ) = 0.0;
-             td2NdXi2( 2, 0 ) = 0.0;
-             td2NdXi2( 3, 0 ) = 0.125 * ( - xi + 1.0 );
-             td2NdXi2( 4, 0 ) = 0.125 * ( - eta + 1.0 );
-             td2NdXi2( 5, 0 ) = 0.125 * ( - zeta + 1.0 );
+             ad2NdXi2.set_size( 6, 8 );
+             ad2NdXi2( 0, 0 ) = 0.0;
+             ad2NdXi2( 1, 0 ) = 0.0;
+             ad2NdXi2( 2, 0 ) = 0.0;
+             ad2NdXi2( 3, 0 ) = 0.125 * ( - xi + 1.0 );
+             ad2NdXi2( 4, 0 ) = 0.125 * ( - eta + 1.0 );
+             ad2NdXi2( 5, 0 ) = 0.125 * ( - zeta + 1.0 );
 
-             td2NdXi2( 0, 1 ) = 0.0;
-             td2NdXi2( 1, 1 ) = 0.0;
-             td2NdXi2( 2, 1 ) = 0.0;
-             td2NdXi2( 3, 1 ) = 0.125 * ( xi + 1.0 );
-             td2NdXi2( 4, 1 ) = 0.125 * ( eta - 1.0 );
-             td2NdXi2( 5, 1 ) = 0.125 * ( zeta - 1.0 );
+             ad2NdXi2( 0, 1 ) = 0.0;
+             ad2NdXi2( 1, 1 ) = 0.0;
+             ad2NdXi2( 2, 1 ) = 0.0;
+             ad2NdXi2( 3, 1 ) = 0.125 * ( xi + 1.0 );
+             ad2NdXi2( 4, 1 ) = 0.125 * ( eta - 1.0 );
+             ad2NdXi2( 5, 1 ) = 0.125 * ( zeta - 1.0 );
 
-             td2NdXi2( 0, 2 ) = 0.0;
-             td2NdXi2( 1, 2 ) = 0.0;
-             td2NdXi2( 2, 2 ) = 0.0;
-             td2NdXi2( 3, 2 ) = 0.125 * ( - xi - 1.0 );
-             td2NdXi2( 4, 2 ) = 0.125 * ( - eta - 1.0 );
-             td2NdXi2( 5, 2 ) = 0.125 * ( - zeta + 1.0 );
+             ad2NdXi2( 0, 2 ) = 0.0;
+             ad2NdXi2( 1, 2 ) = 0.0;
+             ad2NdXi2( 2, 2 ) = 0.0;
+             ad2NdXi2( 3, 2 ) = 0.125 * ( - xi - 1.0 );
+             ad2NdXi2( 4, 2 ) = 0.125 * ( - eta - 1.0 );
+             ad2NdXi2( 5, 2 ) = 0.125 * ( - zeta + 1.0 );
 
-             td2NdXi2( 0, 3 ) = 0.0;
-             td2NdXi2( 1, 3 ) = 0.0;
-             td2NdXi2( 2, 3 ) = 0.0;
-             td2NdXi2( 3, 3 ) = 0.125 * ( xi - 1.0 );
-             td2NdXi2( 4, 3 ) = 0.125 * ( eta + 1.0 );
-             td2NdXi2( 5, 3 ) = 0.125 * ( zeta - 1.0 );
+             ad2NdXi2( 0, 3 ) = 0.0;
+             ad2NdXi2( 1, 3 ) = 0.0;
+             ad2NdXi2( 2, 3 ) = 0.0;
+             ad2NdXi2( 3, 3 ) = 0.125 * ( xi - 1.0 );
+             ad2NdXi2( 4, 3 ) = 0.125 * ( eta + 1.0 );
+             ad2NdXi2( 5, 3 ) = 0.125 * ( zeta - 1.0 );
 
-             td2NdXi2( 0, 4 ) = 0.0;
-             td2NdXi2( 1, 4 ) = 0.0;
-             td2NdXi2( 2, 4 ) = 0.0;
-             td2NdXi2( 3, 4 ) = 0.125 * ( xi - 1.0 );
-             td2NdXi2( 4, 4 ) = 0.125 * ( eta - 1.0 );
-             td2NdXi2( 5, 4 ) = 0.125 * ( zeta + 1.0 );
+             ad2NdXi2( 0, 4 ) = 0.0;
+             ad2NdXi2( 1, 4 ) = 0.0;
+             ad2NdXi2( 2, 4 ) = 0.0;
+             ad2NdXi2( 3, 4 ) = 0.125 * ( xi - 1.0 );
+             ad2NdXi2( 4, 4 ) = 0.125 * ( eta - 1.0 );
+             ad2NdXi2( 5, 4 ) = 0.125 * ( zeta + 1.0 );
 
-             td2NdXi2( 0, 5 ) = 0.0;
-             td2NdXi2( 1, 5 ) = 0.0;
-             td2NdXi2( 2, 5 ) = 0.0;
-             td2NdXi2( 3, 5 ) = 0.125 * ( - xi - 1.0 );
-             td2NdXi2( 4, 5 ) = 0.125 * ( - eta + 1.0 );
-             td2NdXi2( 5, 5 ) = 0.125 * ( - zeta - 1.0 );
+             ad2NdXi2( 0, 5 ) = 0.0;
+             ad2NdXi2( 1, 5 ) = 0.0;
+             ad2NdXi2( 2, 5 ) = 0.0;
+             ad2NdXi2( 3, 5 ) = 0.125 * ( - xi - 1.0 );
+             ad2NdXi2( 4, 5 ) = 0.125 * ( - eta + 1.0 );
+             ad2NdXi2( 5, 5 ) = 0.125 * ( - zeta - 1.0 );
 
-             td2NdXi2( 0, 6 ) = 0.0;
-             td2NdXi2( 1, 6 ) = 0.0;
-             td2NdXi2( 2, 6 ) = 0.0;
-             td2NdXi2( 3, 6 ) = 0.125 * ( xi + 1.0 );
-             td2NdXi2( 4, 6 ) = 0.125 * ( eta + 1.0 );
-             td2NdXi2( 5, 6 ) = 0.125 * ( zeta + 1.0 );
+             ad2NdXi2( 0, 6 ) = 0.0;
+             ad2NdXi2( 1, 6 ) = 0.0;
+             ad2NdXi2( 2, 6 ) = 0.0;
+             ad2NdXi2( 3, 6 ) = 0.125 * ( xi + 1.0 );
+             ad2NdXi2( 4, 6 ) = 0.125 * ( eta + 1.0 );
+             ad2NdXi2( 5, 6 ) = 0.125 * ( zeta + 1.0 );
 
-             td2NdXi2( 0, 7 ) = 0.0;
-             td2NdXi2( 1, 7 ) = 0.0;
-             td2NdXi2( 2, 7 ) = 0.0;
-             td2NdXi2( 3, 7 ) = 0.125 * ( - xi + 1.0 );
-             td2NdXi2( 4, 7 ) = 0.125 * ( - eta - 1.0 );
-             td2NdXi2( 5, 7 ) = 0.125 * ( - zeta - 1.0 );
-             return td2NdXi2;
+             ad2NdXi2( 0, 7 ) = 0.0;
+             ad2NdXi2( 1, 7 ) = 0.0;
+             ad2NdXi2( 2, 7 ) = 0.0;
+             ad2NdXi2( 3, 7 ) = 0.125 * ( - xi + 1.0 );
+             ad2NdXi2( 4, 7 ) = 0.125 * ( - eta - 1.0 );
+             ad2NdXi2( 5, 7 ) = 0.125 * ( - zeta - 1.0 );
          }
 
 //------------------------------------------------------------------------------
 
          template<>
-         Matrix< DDRMat >
-         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+         void
+         Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad3NdXi3 ) const
          {
              // make sure that input is correct
-             MORIS_ASSERT( aXi.length() >= 3,
-                     "HEX8 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+             MORIS_ASSERT( aXi.length() >= 3, "HEX8 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
              // populate output matrix
-             Matrix< DDRMat > td3NdXi3(10,8,0.0);
-             return td3NdXi3;
+             ad3NdXi3.set_size( 10, 8, 0.0 );
          }
 //------------------------------------------------------------------------------
 

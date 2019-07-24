@@ -150,7 +150,9 @@ TEST_CASE("Time_Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],
                 Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tTimeVolIntegPointI = tSideGeoInterp.map_integration_point( tTimeSideIntegPointI );
+                Matrix< DDRMat > tTimeVolIntegPointI;
+                tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
+                                                      tTimeVolIntegPointI );
 
                 // evaluate timesurfDetJ
                 real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );
@@ -286,7 +288,9 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[f
                Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
                // get the treated integration point location in the volume ref space
-               Matrix< DDRMat > tTimeVolIntegPointI = tSideGeoInterp.map_integration_point( tTimeSideIntegPointI );
+               Matrix< DDRMat > tTimeVolIntegPointI;
+               tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
+                                                     tTimeVolIntegPointI );
 
                // evaluate timesurfDetJ
                real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );
@@ -434,7 +438,9 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
                  Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
                  // get the treated integration point location in the volume ref space
-                 Matrix< DDRMat > tTimeVolIntegPointI = tSideGeoInterp.map_integration_point( tTimeSideIntegPointI );
+                 Matrix< DDRMat > tTimeVolIntegPointI;
+                 tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
+                                                       tTimeVolIntegPointI );
 
                  // evaluate timesurfDetJ
                  real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );
@@ -538,7 +544,9 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : HEX8", "[moris],[fem],[TimeSideGe
                 Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tTimeVolIntegPointI = tSideGeoInterp.map_integration_point( tTimeSideIntegPointI );
+                Matrix< DDRMat > tTimeVolIntegPointI;
+                tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
+                                                      tTimeVolIntegPointI );
 
                 // evaluate timesurfDetJ
                 real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );

@@ -185,7 +185,9 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
                 Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tGlobalSideIntegPoint = tSideGeoInterp.map_integration_point( tLocalSideIntegPoint );
+                Matrix< DDRMat > tGlobalSideIntegPoint;
+                tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
+                                                      tGlobalSideIntegPoint );
 
                 // evaluate surfDetJ
                 real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint );
@@ -436,7 +438,9 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
                 Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tGlobalIntegPoint = tSideGeoInterp.map_integration_point( tLocalSideIntegPoint );
+                Matrix< DDRMat > tGlobalIntegPoint;
+                tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
+                                                      tGlobalIntegPoint );
 
                 // evaluate surfDetJ and normal
                 real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint );
@@ -656,7 +660,9 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
                  Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
                  // get the treated integration point location in the volume ref space
-                 Matrix< DDRMat > tGlobalSideIntegPoint = tSideGeoInterp.map_integration_point( tLocalSideIntegPoint );
+                 Matrix< DDRMat > tGlobalSideIntegPoint;
+                 tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
+                                                       tGlobalSideIntegPoint );
 
                  // evaluate surfDetJ
                  real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint );
@@ -826,7 +832,9 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
                 Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
                 // get the treated integration point location in the volume ref space
-                Matrix< DDRMat > tGlobalSideIntegPoint = tSideGeoInterp.map_integration_point( tLocalSideIntegPoint );
+                Matrix< DDRMat > tGlobalSideIntegPoint;
+                tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
+                                                      tGlobalSideIntegPoint );
 
                 // evaluate surfDetJ
                 real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint);

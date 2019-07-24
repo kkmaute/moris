@@ -152,7 +152,7 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex20LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-            	td2NdXi2 = tFunction->eval_d2NdXi2( tXi.get_column( k ) );
+               tFunction->eval_d2NdXi2( tXi.get_column( k ), td2NdXi2 );
 
                 // test evaluated value
 
