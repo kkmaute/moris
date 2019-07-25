@@ -62,6 +62,7 @@ namespace moris
         {
             delete tEquationObj;
         }
+        mEquationObjList.clear();
     }
 
 //------------------------------------------------------------------------------
@@ -91,7 +92,16 @@ namespace moris
         }
 
         // delete the list of field interpolator pointers
+        for( auto tMasterFieldInterpolators : mMasterFieldInterpolators )
+        {
+            delete tMasterFieldInterpolators;        }
+
         mMasterFieldInterpolators.clear();
+
+        for( auto tSlaveFieldInterpolators : mSlaveFieldInterpolators )
+        {
+            delete tSlaveFieldInterpolators;
+        }
         mSlaveFieldInterpolators.clear();
     }
 

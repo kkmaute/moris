@@ -65,7 +65,7 @@ namespace moris
             bool             mUsedFlag = false;
 
             //  array containing connected elements
-            Element**        mElements;
+            moris::Cell< Element * > mElements;
 
             //! counts how many facets are connected to this basis
             uint             mNumberOfConnectedFacets = 0;
@@ -515,7 +515,10 @@ namespace moris
              void init_element_container()
              {
                  // assign memory to container
-                 mElements = new Element* [ mNumberOfConnectedElements ];
+                 if ( mNumberOfConnectedElements != 0 )
+                 {
+                     mElements.resize( mNumberOfConnectedElements, nullptr );
+                 }
 
                  // reset counter
                  mNumberOfConnectedElements = 0;
@@ -532,7 +535,7 @@ namespace moris
               */
              void insert_element( Element* aElement )
              {
-                 mElements[ mNumberOfConnectedElements++ ] = aElement;
+                 mElements( mNumberOfConnectedElements++ ) = aElement;
              }
 
 //------------------------------------------------------------------------------
@@ -546,7 +549,7 @@ namespace moris
               */
              Element * get_element( const uint& aIndex )
              {
-                 return mElements[ aIndex ];
+                 return mElements( aIndex );
              }
 
 //------------------------------------------------------------------------------
@@ -560,7 +563,7 @@ namespace moris
               */
              const Element * get_element( const uint& aIndex ) const
              {
-                 return mElements[ aIndex ];
+                 return mElements( aIndex );
              }
 
 //------------------------------------------------------------------------------

@@ -19,7 +19,11 @@ namespace moris
 
         Cluster::~Cluster()
         {
-          mElements.clear();
+            for( auto tElements : mElements )
+            {
+                delete tElements;
+            }
+            mElements.clear();
         }
 
 //------------------------------------------------------------------------------

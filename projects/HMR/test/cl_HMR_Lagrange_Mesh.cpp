@@ -133,8 +133,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
             moris::hmr::Factory tFactory;
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
 
             // set active pattern of output mesh
             tBackgroundMesh->set_activation_pattern( tPattern );
@@ -148,34 +147,29 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
             // refine a few elements in the mesh
             for( moris::uint l=0; l<tLevel; ++l  )
             {
-                auto tNumberOfElements
-                =  tBackgroundMesh->get_number_of_active_elements_on_proc();
+                auto tNumberOfElements =  tBackgroundMesh->get_number_of_active_elements_on_proc();
 
                 // refine every other element
                 for( moris::luint k=0; k<tNumberOfElements; k += 7 )
                 {
                     // get element
-                    moris::hmr::Background_Element_Base* tElement
-                    = tBackgroundMesh->get_element( k );
+                    moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element( k );
 
                     // flag element for refinement
                     tElement->put_on_refinement_queue();
                 }
                 // refine mesh
                 tBackgroundMesh->perform_refinement();
-
             }
 
             for ( uint p=1; p<=3; ++p )
             {
                 // create first order Lagrange mesh
-                moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh
-                =  tFactory.create_lagrange_mesh(
-                        tParameters,
-                        tBackgroundMesh,
-                        tBSplineMeshes,
-                        tPattern,
-                        p );
+                moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
+                                                                                                 tBackgroundMesh,
+                                                                                                 tBSplineMeshes,
+                                                                                                 tPattern,
+                                                                                                 p );
 
                 // test node uniqueness
                 REQUIRE ( tLagrangeMesh->test_for_double_nodes() );
