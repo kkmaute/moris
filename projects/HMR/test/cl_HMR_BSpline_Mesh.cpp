@@ -212,59 +212,86 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
 {
 //-------------------------------------------------------------------------------
 
- //   if(  moris::par_size() == 1 )
-//    {
-//            // create settings object
-//            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
-//
-//            // set number of elements
-//            moris::Matrix< moris::DDLUMat > tNumberOfElements;
-//            tNumberOfElements.set_size( 2, 1, 3 );
-//
-//            tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-//
-//            // deactivate truncation
-//            tParameters->set_bspline_truncation( false );
-//
-//            // set buffer size to zero
-//            tParameters->set_refinement_buffer( 1 );
-//            tParameters->set_staircase_buffer( 1 );
-//
-//            // deactivate truncation
-//            tParameters->set_bspline_truncation( false );
-//
-//            // use simple patterns
-//            tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
-//
-//            // create factory
-//            moris::hmr::Factory tFactory;
-//
-//            // create background mesh object
-//            moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
-//
-//            //----------------------------------------------------------------------------------------------------------
-//            // Work on activation pattern 0 mesh
-//            tBackgroundMesh->set_activation_pattern( 0 );
-//
-//            // element 0 is the element with ID 18
-//            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-//            tBackgroundMesh->perform_refinement( );
-//
-//            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-//            tBackgroundMesh->perform_refinement( );
-//
-//            //----------------------------------------------------------------------------------------------------------
-//            // Work on activation pattern 1 mesh
-//            tBackgroundMesh->set_activation_pattern( 1 );
-//
-//            // element 0 is the element with ID 18
-//            tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
-//            tBackgroundMesh->perform_refinement( );
-//
-//            tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
-//            tBackgroundMesh->perform_refinement( );
-//
-//
-//            delete tParameters;
-//    }
+    if(  moris::par_size() == 1 )
+    {
+            // create settings object
+            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+            // set number of elements
+            tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
+
+            // deactivate truncation
+            tParameters->set_bspline_truncation( false );
+
+            // set buffer size to zero
+            tParameters->set_refinement_buffer( 1 );
+            tParameters->set_staircase_buffer( 1 );
+
+            // use simple patterns
+            tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
+
+            // create factory
+            moris::hmr::Factory tFactory;
+
+            // create background mesh object
+            moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+            //----------------------------------------------------------------------------------------------------------
+            // Work on activation pattern 0 mesh
+            tBackgroundMesh->set_activation_pattern( 0 );
+
+            // element 0 is the element with ID 18
+            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+            tBackgroundMesh->perform_refinement( );
+
+            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+            tBackgroundMesh->perform_refinement( );
+
+            //----------------------------------------------------------------------------------------------------------
+            // Work on activation pattern 1 mesh
+            tBackgroundMesh->set_activation_pattern( 1 );
+
+            // element 0 is the element with ID 18
+            tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
+            tBackgroundMesh->perform_refinement( );
+
+            tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
+            tBackgroundMesh->perform_refinement( );
+
+            // create B-Spline mesh
+            //( Parameters, Backgroundmesh, Pattern, Order)
+            moris::hmr::BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, 1 );
+            moris::hmr::BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 1, 1 );
+
+            tBSplineMesh_1->test_sanity();
+            tBSplineMesh_2->test_sanity();
+
+            REQUIRE( tBSplineMesh_1->get_number_of_active_basis_on_proc()  == 37 );
+            REQUIRE( tBSplineMesh_2->get_number_of_active_basis_on_proc()  == 37 );
+
+            // Check some basis coordinates of B-Spline mesh 1
+            const moris::real* tXYZ_1 = tBSplineMesh_1->get_active_basis( 3 )->get_xyz( );
+            REQUIRE( tXYZ_1[0]  == 0.0625 );    REQUIRE( tXYZ_1[1]  == 0.0625 );
+            const moris::real* tXYZ_2 = tBSplineMesh_1->get_active_basis( 9 )->get_xyz( );
+            REQUIRE( tXYZ_2[0]  == 0.25 );    REQUIRE( tXYZ_2[1]  == 0.125 );
+            const moris::real* tXYZ_3 = tBSplineMesh_1->get_active_basis( 27 )->get_xyz( );
+            REQUIRE( tXYZ_3[0]  == 0.0 );    REQUIRE( tXYZ_3[1]  == 0.75 );
+            const moris::real* tXYZ_4 = tBSplineMesh_1->get_active_basis( 34 )->get_xyz( );
+            REQUIRE( tXYZ_4[0]  == 0.5 );    REQUIRE( tXYZ_4[1]  == 1.0 );
+
+            // Check some basis coordinates of B-Spline mesh 2
+            const moris::real* tXYZ_5 = tBSplineMesh_2->get_active_basis( 3 )->get_xyz( );
+            REQUIRE( tXYZ_5[0]  == 0.75 );    REQUIRE( tXYZ_5[1]  == 0.0 );
+            const moris::real* tXYZ_6 = tBSplineMesh_2->get_active_basis( 9 )->get_xyz( );
+            REQUIRE( tXYZ_6[0]  == 1.0 );    REQUIRE( tXYZ_6[1]  == 0.25 );
+            const moris::real* tXYZ_7 = tBSplineMesh_2->get_active_basis( 27 )->get_xyz( );
+            REQUIRE( tXYZ_7[0]  == 1.0 );    REQUIRE( tXYZ_7[1]  == 0.875 );
+            const moris::real* tXYZ_8 = tBSplineMesh_2->get_active_basis( 35 )->get_xyz( );
+            REQUIRE( tXYZ_8[0]  == 0.9375 );    REQUIRE( tXYZ_8[1]  == 1.0 );
+
+            delete tBSplineMesh_1;
+            delete tBSplineMesh_2;
+            delete tBackgroundMesh;
+            delete tParameters;
+    }
 }

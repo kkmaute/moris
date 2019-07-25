@@ -62,7 +62,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR( false, "Invalid Lagrange pattern passed to Lagrange mesh constructor" );
+                //MORIS_ERROR( false, "Invalid Lagrange pattern passed to Lagrange mesh constructor" );
                 tBSplinePattern = gNumberOfPatterns;
             }
 

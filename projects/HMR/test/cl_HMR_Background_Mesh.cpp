@@ -610,8 +610,7 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
         moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
         // set number of elements
-        moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
-        tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+        tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
 
         // set buffer size to zero
         tParameters->set_refinement_buffer( 1 );
@@ -709,8 +708,7 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
         moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
         // set number of elements
-        moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
-        tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+        tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
 
         // set buffer size to zero
         tParameters->set_refinement_buffer( 1 );
