@@ -94,8 +94,8 @@ namespace moris
         // delete the list of field interpolator pointers
         for( auto tMasterFieldInterpolators : mMasterFieldInterpolators )
         {
-            delete tMasterFieldInterpolators;        }
-
+            delete tMasterFieldInterpolators;
+        }
         mMasterFieldInterpolators.clear();
 
         for( auto tSlaveFieldInterpolators : mSlaveFieldInterpolators )

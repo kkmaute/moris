@@ -202,10 +202,10 @@ namespace moris
             {
                 delete tIWGs( i );
             }
-            for ( uint i = 0; i < tFieldInterpolators.size(); i++ )
-            {
-                delete tFieldInterpolators( i );
-            }
+//            for ( uint i = 0; i < tFieldInterpolators.size(); i++ )
+//            {
+//                delete tFieldInterpolators( i );
+//            }
 
         }/* TEST_CASE */
     }/* namespace fem */
