@@ -25,14 +25,12 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 
 TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 {
-
     // can only perform test for 1, 2 or 4 procs
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
         // do this test for 2 and 3 dimensions
         for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
         {
-
             // do this for first, second and third order
             //fixme: Needs to do order 3 but there are issue in hmr
             for( moris::uint tOrder=1; tOrder<=3; tOrder++ )

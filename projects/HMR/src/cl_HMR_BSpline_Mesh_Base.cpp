@@ -2545,7 +2545,7 @@ namespace moris
                 }
             }
 
-            print(mChildStencil,"mChildStencil");
+            //print(mChildStencil,"mChildStencil");
             //mChildStencil = mChildStencil / std::pow( 2, tOrder );
         }
 

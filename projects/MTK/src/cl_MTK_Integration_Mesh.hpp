@@ -31,6 +31,20 @@ public:
     Integration_Mesh(){};
     // Functions only valid for integration meshes
 
+    ~Integration_Mesh()
+    {
+        for( auto tListofBlocks : mListofBlocks )
+        {
+            delete tListofBlocks;
+        }
+        mListofBlocks.clear();
+
+        for( auto tListofSideSets : mListofSideSets )
+        {
+            delete tListofSideSets;
+        }
+        mListofSideSets.clear();
+    };
     //##############################################
     // Cell Cluster Access
     //##############################################

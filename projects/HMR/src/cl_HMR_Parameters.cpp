@@ -740,17 +740,13 @@ namespace moris
             unique( tCombinedOrders, tLagrangeOrders );
 
             // step 2: make sure that input is sane
-            MORIS_ERROR( tBSplineOrders.min() > 0,
-                    "Error in input, zero order B-Spline is not supported" );
+            MORIS_ERROR( tBSplineOrders.min() > 0, "Error in input, zero order B-Spline is not supported" );
 
-            MORIS_ERROR( tBSplineOrders.max() <= 3,
-                               "Error in input, B-Spline orders above 3 are not supported" );
+            MORIS_ERROR( tBSplineOrders.max() <= 3, "Error in input, B-Spline orders above 3 are not supported" );
 
-            MORIS_ERROR( tLagrangeOrders.min() > 0,
-                    "Error in input, zero order Lagrange is not supported" );
+            MORIS_ERROR( tLagrangeOrders.min() > 0, "Error in input, zero order Lagrange is not supported" );
 
-            MORIS_ERROR( tLagrangeOrders.max() <= 3,
-                    "Error in input, B-Lagrange orders above 3 are not supported" );
+            MORIS_ERROR( tLagrangeOrders.max() <= 3, "Error in input, B-Lagrange orders above 3 are not supported" );
 
             // special case for cubic output
             bool tHaveCubicLagrange = tLagrangeOrders.max() == 3;

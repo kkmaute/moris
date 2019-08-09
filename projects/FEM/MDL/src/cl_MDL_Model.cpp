@@ -399,12 +399,28 @@ namespace moris
             delete mModelSolverInterface;
 
             // delete IWGs
+            for( auto tIWGs : mIWGs )
+            {
+                for( auto tIWG : tIWGs )
+                {
+                    delete tIWG;
+                }
+                tIWGs.clear();
+            }
             mIWGs.clear();
 
             // delete fem nodes
+            for( auto tIPNodes : mIPNodes )
+            {
+                delete tIPNodes;
+            }
             mIPNodes.clear();
 
             // delete the fem sets
+            for( auto tFemSet : mFemSets )
+            {
+                delete tFemSet;
+            }
             mFemSets.clear();
 
             // delete the fem cluster

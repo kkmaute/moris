@@ -4,8 +4,6 @@
  *  Created on: May 31, 2019
  *      Author: doble
  */
-
-
 #include "catch.hpp"
 
 #include "cl_HMR.hpp"
@@ -15,9 +13,8 @@
 
 namespace moris
 {
-
 TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
-        {
+{
     if(par_size() == 1)
     {
         moris::uint tLagrangeOrder = 1;
@@ -68,7 +65,6 @@ TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
                 mtk::Vertex const * tRecVert = tVertsOnSide(j);
 
                 CHECK(tExpVert->get_id() == tRecVert->get_id());
-
             }
         }
 
@@ -130,7 +126,6 @@ TEST_CASE("Single Hex 27 Lagrange Mesh","[Lag_Hex27]")
                 mtk::Vertex const * tRecVert = tVertsOnSide(j);
 
                 CHECK(tExpVert->get_id() == tRecVert->get_id());
-
             }
         }
 
@@ -190,12 +185,13 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
                 mtk::Vertex const * tRecVert = tVertsOnSide(j);
 
                 CHECK(tExpVert->get_id() == tRecVert->get_id());
-
             }
         }
 
         tHMR.finalize();
     }
 }
+
+
 
 }

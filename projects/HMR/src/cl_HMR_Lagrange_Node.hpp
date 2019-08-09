@@ -75,7 +75,7 @@ namespace moris
                 // delete element container
                 if ( mNumberOfConnectedElements != 0 )
                 {
-                    delete [] mElements;
+                    mElements.clear();
                 }
 
                 // delete facet container
