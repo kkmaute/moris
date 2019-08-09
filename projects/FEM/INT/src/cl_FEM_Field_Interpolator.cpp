@@ -145,11 +145,36 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-         Matrix < DDRMat> Field_Interpolator::N()
+//         Matrix < DDRMat> Field_Interpolator::N()
+//         {
+//             // check that mXi and mTau are set
+//             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::N - mXi  is not set." );
+//             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::N - mTau is not set." );
+//
+//             //evaluate space and time SF at Xi, Tau
+//             Matrix < DDRMat > tNSpace;
+//             Matrix < DDRMat > tNTime;
+//             mSpaceInterpolation->eval_N( mXi, tNSpace );
+//             mTimeInterpolation ->eval_N( mTau, tNTime );
+//
+//             //evaluate space time SF by multiplying space and time SF
+//             return reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
+//         }
+
+        Matrix< DDRMat > Field_Interpolator::N()
+        {
+            // evaluate the shape functions
+            this->eval_N();
+
+            // return member value
+            return mN;
+        }
+
+         void Field_Interpolator::eval_N()
          {
              // check that mXi and mTau are set
-             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::N - mXi  is not set." );
-             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::N - mTau is not set." );
+             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::eval_N - mXi  is not set." );
+             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::eval_N - mTau is not set." );
 
              //evaluate space and time SF at Xi, Tau
              Matrix < DDRMat > tNSpace;
@@ -158,7 +183,7 @@ namespace moris
              mTimeInterpolation ->eval_N( mTau, tNTime );
 
              //evaluate space time SF by multiplying space and time SF
-             return reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
+             mN = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
          }
 
 //------------------------------------------------------------------------------

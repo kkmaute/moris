@@ -52,7 +52,7 @@ class Property;
             // space parametric dimensions
             uint mNSpaceParamDim;
 
-            // parametric point where field is interpolated
+            // parametric point where field is interpolatedctest
             Matrix< DDRMat > mXi;
             Matrix< DDRMat > mTau;
 
@@ -67,6 +67,9 @@ class Property;
 
             // field interpolator property type
             fem::Property_Type mPropertyType;
+
+            // storage
+            Matrix< DDRMat > mN;
 
 //------------------------------------------------------------------------------
         public:
@@ -203,6 +206,8 @@ class Property;
              */
             Matrix < DDRMat > N();
 
+            void eval_N();
+
 //------------------------------------------------------------------------------
             /**
              * evaluates the first derivatives of the space time shape functions
@@ -223,7 +228,7 @@ class Property;
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the thrid derivatives of the space time shape functions
+             * evaluates the third derivatives of the space time shape functions
              * wrt space x
              * @param[ out ] d3Ndx3
              *               ( < 1D:1, 2D:4, 3D:10 > x <number of space time basis > )
