@@ -28,6 +28,24 @@ namespace moris
             // pointer to time rule, if specified
             Integration_Coeffs_Base * mTimeCoeffs       = nullptr;
 
+            // number of points in space
+            uint mNumOfSpacePoints;
+
+            // number of points in time
+            uint mNumOfTimePoints;
+
+            // matrix with space points
+            Matrix< DDRMat > mSpacePoints;
+
+            // matrix with time points
+            Matrix< DDRMat > mTimePoints;
+
+            // matrix with space weights
+            Matrix< DDRMat > mSpaceWeights;
+
+            // matrix with time weights
+            Matrix< DDRMat > mTimeWeights;
+
 //------------------------------------------------------------------------------
         public :
 //------------------------------------------------------------------------------
@@ -43,12 +61,6 @@ namespace moris
             ~Integrator();
 
 //------------------------------------------------------------------------------
-//            /**
-//             * get the number of dimensions
-//             **/
-//            uint get_number_of_dimensions();
-
-//------------------------------------------------------------------------------
             /**
              * get the number of integration points
              **/
@@ -58,13 +70,13 @@ namespace moris
             /**
              * get the integration points
              **/
-            Matrix< DDRMat > get_points();
+            void get_points( Matrix< DDRMat > & aIntegrationPoints );
 
 //------------------------------------------------------------------------------
             /**
              * get the integration point weights
              **/
-            Matrix< DDRMat > get_weights();
+            void get_weights( Matrix< DDRMat > & aIntegrationWeights );
 
 //------------------------------------------------------------------------------
         };

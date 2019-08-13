@@ -42,12 +42,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
+        void
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TET_4>::get_points()
+                Integration_Order::TET_4>::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
-            Matrix< DDRMat > aIntegrationPoints =
+            aIntegrationPoints =
             {
                 {
                     0.585410196624968,
@@ -74,18 +74,17 @@ namespace moris
                     0.585410196624968
                 }
             };
-            return aIntegrationPoints;
           }
 
 //------------------------------------------------------------------------------
 
             template<>
-            Matrix< DDRMat >
+            void
             Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TET_4 >::get_weights()
+                Integration_Order::TET_4 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
             {
-                Matrix< DDRMat > aWeights =
+                aIntegrationWeights =
                 {
                     {
                         0.250000000000000,
@@ -94,8 +93,6 @@ namespace moris
                         0.250000000000000
                     }
                 };
-
-                return aWeights;
             }
 
 //------------------------------------------------------------------------------

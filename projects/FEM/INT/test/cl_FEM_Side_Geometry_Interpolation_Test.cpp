@@ -143,8 +143,10 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
 
         //get number of integration points, integration points and weights
         uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-        Matrix< DDRMat > tSideIntegPoints  = tSideIntegrator.get_points();
-        Matrix< DDRMat > tSideIntegWeights = tSideIntegrator.get_weights();
+        Matrix< DDRMat > tSideIntegPoints;
+        tSideIntegrator.get_points( tSideIntegPoints );
+        Matrix< DDRMat > tSideIntegWeights;
+        tSideIntegrator.get_weights( tSideIntegWeights );
 
         // booleans for checks
         bool tSideSurfaceCheck = true;
@@ -184,19 +186,22 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
                 // get the treated integration point location in the surface ref space
                 Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
+                // set the treated integration point location in the surface ref space for the geometry interp
+                tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
+
                 // get the treated integration point location in the volume ref space
                 Matrix< DDRMat > tGlobalSideIntegPoint;
-                tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
-                                                      tGlobalSideIntegPoint );
+                tSideGeoInterp.map_integration_point( tGlobalSideIntegPoint );
 
                 // evaluate surfDetJ
-                real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint );
+                real tSurfDetJ = tSideGeoInterp.det_J();
 
                 // add contribution to the surface
                 tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
 
                 // get normal
-                Matrix< DDRMat > tSideNormal = tSideGeoInterp.get_normal( tLocalSideIntegPoint );
+                Matrix< DDRMat > tSideNormal;
+                tSideGeoInterp.get_normal( tSideNormal );
 
                 // check the normal
                 bool tSideNormalCheck = true;
@@ -395,8 +400,10 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
 
         //get number of integration points, integration points and weights
         uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-        Matrix< DDRMat > tSideIntegPoints  = tSideIntegrator.get_points();
-        Matrix< DDRMat > tSideIntegWeights = tSideIntegrator.get_weights();
+        Matrix< DDRMat > tSideIntegPoints;
+        tSideIntegrator.get_points( tSideIntegPoints );
+        Matrix< DDRMat > tSideIntegWeights;
+        tSideIntegrator.get_weights( tSideIntegWeights );
 
         // booleans for checks
         bool tSideSurfaceCheck = true;
@@ -437,19 +444,22 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
                 // get the treated integration point location in the surface ref space
                 Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
+                // set the treated integration point location in the surface ref space for the geometry interp
+                tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
+
                 // get the treated integration point location in the volume ref space
                 Matrix< DDRMat > tGlobalIntegPoint;
-                tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
-                                                      tGlobalIntegPoint );
+                tSideGeoInterp.map_integration_point( tGlobalIntegPoint );
 
                 // evaluate surfDetJ and normal
-                real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint );
+                real tSurfDetJ = tSideGeoInterp.det_J();
 
                 // add contribution to the surface
                 tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
 
                 // get normal
-                Matrix< DDRMat > tSideNormal = tSideGeoInterp.get_normal( tLocalSideIntegPoint );
+                Matrix< DDRMat > tSideNormal;
+                tSideGeoInterp.get_normal( tSideNormal );
 
                 // check the normal
                 bool tSideNormalCheck = true;
@@ -617,8 +627,10 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
 
          //get number of integration points, integration points and weights
          uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-         Matrix< DDRMat > tSideIntegPoints  = tSideIntegrator.get_points();
-         Matrix< DDRMat > tSideIntegWeights = tSideIntegrator.get_weights();
+         Matrix< DDRMat > tSideIntegPoints;
+         tSideIntegrator.get_points( tSideIntegPoints );
+         Matrix< DDRMat > tSideIntegWeights;
+         tSideIntegrator.get_weights( tSideIntegWeights );
 
          // booleans for checks
          bool tSideSurfaceCheck = true;
@@ -659,19 +671,22 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
                  // get the treated integration point location in the surface ref space
                  Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
+                 // set the treated integration point location in the surface ref space for the geometry interp
+                 tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
+
                  // get the treated integration point location in the volume ref space
                  Matrix< DDRMat > tGlobalSideIntegPoint;
-                 tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
-                                                       tGlobalSideIntegPoint );
+                 tSideGeoInterp.map_integration_point( tGlobalSideIntegPoint );
 
                  // evaluate surfDetJ
-                 real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint );
+                 real tSurfDetJ = tSideGeoInterp.det_J();
 
                  // add contribution to the surface
                  tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
 
                  // get normal
-                 Matrix< DDRMat > tSideNormal = tSideGeoInterp.get_normal( tLocalSideIntegPoint );
+                 Matrix< DDRMat > tSideNormal;
+                 tSideGeoInterp.get_normal( tSideNormal );
 
                  // check the normal
                  bool tSideNormalCheck = true;
@@ -789,8 +804,10 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
 
         //get number of integration points, integration points and weights
         uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-        Matrix< DDRMat > tSideIntegPoints  = tSideIntegrator.get_points();
-        Matrix< DDRMat > tSideIntegWeights = tSideIntegrator.get_weights();
+        Matrix< DDRMat > tSideIntegPoints;
+        tSideIntegrator.get_points( tSideIntegPoints );
+        Matrix< DDRMat > tSideIntegWeights;
+        tSideIntegrator.get_weights( tSideIntegWeights );
 
         // booleans for checks
         bool tSideSurfaceCheck = true;
@@ -831,19 +848,22 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
                 // get the treated integration point location in the surface ref space
                 Matrix< DDRMat > tLocalSideIntegPoint = tSideIntegPoints.get_column( iGP );
 
+                // set the treated integration point location in the surface ref space for the geometry interp
+                tSideGeoInterp.set_space_time( tLocalSideIntegPoint );
+
                 // get the treated integration point location in the volume ref space
                 Matrix< DDRMat > tGlobalSideIntegPoint;
-                tSideGeoInterp.map_integration_point( tLocalSideIntegPoint,
-                                                      tGlobalSideIntegPoint );
+                tSideGeoInterp.map_integration_point( tGlobalSideIntegPoint );
 
                 // evaluate surfDetJ
-                real tSurfDetJ = tSideGeoInterp.det_J( tLocalSideIntegPoint);
+                real tSurfDetJ = tSideGeoInterp.det_J();
 
                 // add contribution to the surface
                 tSideSurface = tSideSurface + tSurfDetJ * tSideIntegWeights( iGP );
 
                 // get normal
-                Matrix< DDRMat > tSideNormal = tSideGeoInterp.get_normal( tLocalSideIntegPoint );
+                Matrix< DDRMat > tSideNormal;
+                tSideGeoInterp.get_normal( tSideNormal );
 
                 // check the normal
                 bool tSideNormalCheck = true;

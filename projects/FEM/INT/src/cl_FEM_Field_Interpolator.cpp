@@ -23,7 +23,7 @@ namespace moris
 //------------------------------------------------------------------------------
         Field_Interpolator::Field_Interpolator( const uint                   & aNumberOfFields,
                                                 const Interpolation_Rule     & aFieldInterpolationRule,
-                                                const Geometry_Interpolator*   aGeometryInterpolator,
+                                                      Geometry_Interpolator*   aGeometryInterpolator,
                                                 const MSI::Dof_Type            aDofType )
                                               : mNumberOfFields( aNumberOfFields ),
                                                 mGeometryInterpolator( aGeometryInterpolator ),
@@ -57,7 +57,7 @@ namespace moris
 
         Field_Interpolator::Field_Interpolator( const uint                   & aNumberOfFields,
                                                 const Interpolation_Rule     & aFieldInterpolationRule,
-                                                const Geometry_Interpolator*   aGeometryInterpolator,
+                                                      Geometry_Interpolator*   aGeometryInterpolator,
                                                 const Property *               aProperty,
                                                 const fem::Property_Type       aPropertyType )
                                               : mNumberOfFields( aNumberOfFields ),
@@ -111,8 +111,6 @@ namespace moris
 
         void Field_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
         {
-            //print(aParamPoint, "aParamPoint" );
-
             // check input size aParamPoint
             MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNSpaceParamDim + mNTimeDim )),
                          "Field_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");
@@ -129,6 +127,17 @@ namespace moris
             // set input values
             mXi.matrix_data()  = aParamPoint( { 0, mNSpaceParamDim-1 }, { 0, 0 } );
             mTau.matrix_data() = aParamPoint( mNSpaceParamDim );
+
+            // set input values for geometry interpolator
+            mGeometryInterpolator->set_space_time( aParamPoint );
+
+            // set bool for evaluation
+            mNEval      = true;
+            mBxEval     = true;
+            md2Ndx2Eval = true;
+            md3Ndx3Eval = true;
+            mBtEval     = true;
+            md2Ndt2Eval = true;
         }
 
 //------------------------------------------------------------------------------
@@ -144,27 +153,14 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
-//         Matrix < DDRMat> Field_Interpolator::N()
-//         {
-//             // check that mXi and mTau are set
-//             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::N - mXi  is not set." );
-//             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::N - mTau is not set." );
-//
-//             //evaluate space and time SF at Xi, Tau
-//             Matrix < DDRMat > tNSpace;
-//             Matrix < DDRMat > tNTime;
-//             mSpaceInterpolation->eval_N( mXi, tNSpace );
-//             mTimeInterpolation ->eval_N( mTau, tNTime );
-//
-//             //evaluate space time SF by multiplying space and time SF
-//             return reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
-//         }
-
-        Matrix< DDRMat > Field_Interpolator::N()
+        const Matrix< DDRMat > & Field_Interpolator::N()
         {
-            // evaluate the shape functions
-            this->eval_N();
+            // if shape functions need to be evaluated
+            if( mNEval )
+            {
+                // evaluate the shape functions
+                this->eval_N();
+            }
 
             // return member value
             return mN;
@@ -184,15 +180,27 @@ namespace moris
 
              //evaluate space time SF by multiplying space and time SF
              mN = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
+
+             // set bool for evaluation
+             mNEval = false;
          }
 
 //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Field_Interpolator::Bx()
+        {
+            if( mBxEval )
+            {
+                // evaluate Bx
+                this->eval_Bx();
+            }
+            return mBx;
+        }
 
-        Matrix< DDRMat > Field_Interpolator::Bx()
+        void Field_Interpolator::eval_Bx()
         {
             // check that mXi and mTau are set
-            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::Bx - mXi  is not set." );
-            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::Bx - mTau is not set." );
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_Bx - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_Bx - mTau is not set." );
 
             // evaluate dNSpacedXi for the field time interpolation and transpose
             Matrix< DDRMat> tdNSpacedXi;
@@ -214,17 +222,32 @@ namespace moris
 
             // evaluate the space Jacobian from the geometry interpolator
             Matrix< DDRMat > tdNGeodXi;
-            mGeometryInterpolator->dNdXi( mXi, tdNGeodXi );
+            mGeometryInterpolator->dNdXi( tdNGeodXi );
             Matrix< DDRMat > tJGeot;
             mGeometryInterpolator->space_jacobian( tdNGeodXi, tJGeot );
 
             // compute first derivative of the SF wrt x
-            return solve( tJGeot, tdNFielddXi );
+            mBx = solve( tJGeot, tdNFielddXi );
+
+            // set bool for evaluation
+            mBxEval = false;
         }
 
 //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Field_Interpolator::d2Ndx2()
+        {
+            // if d2Ndx2 needs to be evaluated
+            if( md2Ndx2Eval )
+            {
+                // evaluate the shape functions second order derivatives
+                this->eval_d2Ndx2();
+            }
 
-        Matrix< DDRMat > Field_Interpolator::eval_d2Ndx2()
+            // return member date
+            return md2Ndx2;
+        }
+
+        void Field_Interpolator::eval_d2Ndx2()
         {
             // check that mXi and mTau are set
             MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_d2Ndx2 - mXi  is not set." );
@@ -232,9 +255,9 @@ namespace moris
 
             // get first and second derivatives of space SF wrt xi
             Matrix< DDRMat > tdNGeodxi;
-            mGeometryInterpolator->dNdXi( mXi, tdNGeodxi );
+            mGeometryInterpolator->dNdXi( tdNGeodxi );
             Matrix< DDRMat > td2NGeodxi2;
-            mGeometryInterpolator->d2NdXi2( mXi, td2NGeodxi2 );
+            mGeometryInterpolator->d2NdXi2( td2NGeodxi2 );
 
             // get matrices for second space derivatives from geometry interpolator
             Matrix< DDRMat > tJGeot, tKGeot, tLGeot;
@@ -268,13 +291,29 @@ namespace moris
 
             //build the second derivatives of the space time SF wrt x
             Matrix< DDRMat > td2NFielddXi2 = td2NFielddxi2 - tKGeot * tdNFielddx;
-            return solve( tLGeot, td2NFielddXi2 );
+            md2Ndx2 = solve( tLGeot, td2NFielddXi2 );
+
+            // set bool for evaluation
+            md2Ndx2Eval = false;
         }
 
 //------------------------------------------------------------------------------
-//FIXME: Function not complete
 
-        Matrix< DDRMat > Field_Interpolator::eval_d3Ndx3()
+        const Matrix< DDRMat > & Field_Interpolator::d3Ndx3()
+        {
+            // if d3Ndx3 needs to be evaluated
+            if( md3Ndx3Eval )
+            {
+                // evaluate the shape functions third order derivatives
+                this->eval_d3Ndx3();
+            }
+
+            // return member date
+            return md3Ndx3;
+        }
+
+        //FIXME: Function not complete
+        void Field_Interpolator::eval_d3Ndx3()
         {
             // check that mXi and mTau are set
             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::eval_d3Ndx3 - mXi is not set." );
@@ -282,11 +321,11 @@ namespace moris
 
             // get first and second derivatives of space SF wrt xi
             Matrix< DDRMat > tdNGeodxi;
-            mGeometryInterpolator->dNdXi( mXi, tdNGeodxi );
+            mGeometryInterpolator->dNdXi( tdNGeodxi );
             Matrix< DDRMat > td2NGeodxi2;
-            mGeometryInterpolator->d2NdXi2( mXi, td2NGeodxi2 );
+            mGeometryInterpolator->d2NdXi2( td2NGeodxi2 );
             Matrix< DDRMat > td3NGeodxi3;
-            mGeometryInterpolator->d3NdXi3( mXi, td3NGeodxi3 );
+            mGeometryInterpolator->d3NdXi3( td3NGeodxi3 );
 
             // get matrices for second space derivatives from geometry interpolator
             Matrix< DDRMat > tJGeot, tJ2bGeot, tJ3aGeot, tJ3bGeot, tJ3cGeot;
@@ -300,8 +339,8 @@ namespace moris
                                                                                       td3NGeodxi3 );
 
             // get the derivatives of the space time SF wrt x
-            Matrix< DDRMat > tdNFielddx = this->Bx();
-            Matrix< DDRMat > td2NFielddx2 = this->eval_d2Ndx2();
+            Matrix< DDRMat > tdNFielddx   = this->Bx();
+            Matrix< DDRMat > td2NFielddx2 = this->d2Ndx2();
 
             Matrix< DDRMat > tNTime;
 
@@ -328,16 +367,31 @@ namespace moris
 
             //build the third derivatives of the space time SF wrt x
             Matrix< DDRMat > td3NFielddXi3 = td3NFielddxi3 - tJ3bGeot * td2NFielddx2 - tJ3cGeot * tdNFielddx;
-            return solve( tJ3aGeot, td3NFielddXi3 );
+            md3Ndx3 = solve( tJ3aGeot, td3NFielddXi3 );
+
+            // set bool for evaluation
+            md3Ndx3Eval = false;
         }
 
 //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Field_Interpolator::Bt()
+        {
+            // if Bt needs to be evaluated
+            if( mBtEval )
+            {
+                // evaluate the shape functions first order derivatives
+                this->eval_Bt();
+            }
 
-        Matrix< DDRMat > Field_Interpolator::Bt()
+            // return member date
+            return mBt;
+        }
+
+        void Field_Interpolator::eval_Bt()
         {
             // check that mXi and mTau are set
-            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::Bt - mXi  is not set." );
-            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::Bt - mTau is not set." );
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_Bt - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_Bt - mTau is not set." );
 
             // evaluate dNdTau for the field time interpolation
             Matrix< DDRMat > tdNTimedTau;
@@ -360,16 +414,32 @@ namespace moris
 
             // evaluate the Jacobian from the space geometry interpolator
             Matrix< DDRMat > tdNGeodTau;
-            mGeometryInterpolator->dNdTau( mTau, tdNGeodTau );
-            Matrix< DDRMat > tJGeot = mGeometryInterpolator->time_jacobian( tdNGeodTau );
+            mGeometryInterpolator->dNdTau( tdNGeodTau );
+            Matrix< DDRMat > tJGeot;
+            mGeometryInterpolator->time_jacobian( tdNGeodTau, tJGeot );
 
             // transform output matrix to dNdX
-            return solve( tJGeot, tdNFielddTau );
+            mBt = solve( tJGeot, tdNFielddTau );
+
+            // set bool for evaluation
+            mBtEval = false;
         }
 
 //------------------------------------------------------------------------------
+        const Matrix< DDRMat > & Field_Interpolator::d2Ndt2()
+        {
+            // if d2Ndt2 needs to be evaluated
+            if( md2Ndt2Eval )
+            {
+                // evaluate the shape functions second order derivatives
+                this->eval_d2Ndt2();
+            }
 
-        Matrix< DDRMat > Field_Interpolator::eval_d2Ndt2()
+            // return member date
+            return md2Ndt2;
+        }
+
+        void Field_Interpolator::eval_d2Ndt2()
         {
             // check that mXi and mTau are set
             MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_d2Ndt2 - mXi  is not set." );
@@ -377,9 +447,9 @@ namespace moris
 
             // get first and second derivatives of space SF wrt tau
             Matrix< DDRMat > tdNGeodtau;
-            mGeometryInterpolator->dNdTau( mTau, tdNGeodtau );
+            mGeometryInterpolator->dNdTau( tdNGeodtau );
             Matrix< DDRMat > td2NGeodtau2;
-            mGeometryInterpolator->d2NdTau2( mTau, td2NGeodtau2 );
+            mGeometryInterpolator->d2NdTau2( td2NGeodtau2 );
 
             // get matrices for second derivatives from space geometry interpolator
             Matrix< DDRMat > tJGeot, tKGeot, tLGeot;
@@ -415,7 +485,10 @@ namespace moris
 
             //build the second derivatives of the space time SF wrt t
             Matrix< DDRMat > td2NFielddTau2 = td2NFielddtau2 - tKGeot * tdNFielddt;
-            return solve( tLGeot, td2NFielddTau2 );
+            md2Ndt2 = solve( tLGeot, td2NFielddTau2 );
+
+            // set bool for evaluation
+            md2Ndt2Eval = false;
         }
 //------------------------------------------------------------------------------
 
@@ -444,12 +517,12 @@ namespace moris
 
                 case ( 2 ) :
                     //evaluate the field second space derivative
-                    return this->eval_d2Ndx2() * mUHat ;
+                    return this->d2Ndx2() * mUHat ;
                     break;
 
                 case ( 3 ) :
                     //evaluate the field second space derivative
-                    return this->eval_d3Ndx3() * mUHat ;
+                    return this->d3Ndx3() * mUHat ;
                     break;
 
                 default :
@@ -476,7 +549,7 @@ namespace moris
 
                 case ( 2 ) :
                     //evaluate the field second time derivative
-                    return this->eval_d2Ndt2() * mUHat ;
+                    return this->d2Ndt2() * mUHat ;
                     break;
 
                 default :

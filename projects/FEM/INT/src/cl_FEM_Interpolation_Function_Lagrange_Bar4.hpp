@@ -37,15 +37,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_param_coords() const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 4 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
-            Matrix< DDRMat > tXiHat(1,4);
-            tXiHat( 0 ) = -1.000000;
-            tXiHat( 1 ) =  1.000000;
-            tXiHat( 2 ) = -1.0/3.0;
-            tXiHat( 3 ) =  1.0/3.0;
-            return tXiHat;
+            aXiHat.set_size( 1, 4, 0.0 );
+            aXiHat( 0 ) = -1.000000;
+            aXiHat( 1 ) =  1.000000;
+            aXiHat( 2 ) = -1.0/3.0;
+            aXiHat( 3 ) =  1.0/3.0;
         }
 
 //------------------------------------------------------------------------------
@@ -61,7 +60,7 @@ namespace moris
             real xi = aXi( 0 );
             real t116 = 1.0 / 16.0;
 
-            aNXi.set_size( 1, 4 );
+            aNXi.set_size( 1, 4, 0.0 );
             aNXi( 0 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 - xi );
             aNXi( 1 ) = t116 * ( 3.0 * xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( 1.0 + xi );
             aNXi( 2 ) = 9.0 * t116 * ( xi + 1.0 ) * ( 3.0 * xi - 1.0 ) * ( xi - 1.0 );

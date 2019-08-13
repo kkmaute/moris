@@ -53,10 +53,6 @@ namespace moris
         //         but might need more memory
         moris::Matrix< IndexMat > mNodeIndices;
 
-        uint                      mNumOfIWGs;
-
-        moris::Matrix< DDSMat >   mInterpDofTypeMap;
-
         Set      * mSet     = nullptr;
         Cluster  * mCluster = nullptr;
 //------------------------------------------------------------------------------
@@ -84,11 +80,6 @@ namespace moris
 
             // set size of Weak BCs
             mCluster->get_weak_bcs().set_size( tNumOfNodes, 1 );             // FIXME
-
-            // get the number of IWGs
-            mNumOfIWGs = mSet->get_num_IWG();                //FIXME
-
-            mInterpDofTypeMap = mSet->get_interpolator_dof_type_map();          //Fixme
         };
 
         Element( const mtk::Cell  * aMasterCell,
@@ -104,11 +95,6 @@ namespace moris
             // fill the master and slave cell pointers
             mMasterCell = aMasterCell;
             mSlaveCell  = aSlaveCell;
-
-            // get the number of IWGs
-            mNumOfIWGs = mSet->get_num_IWG();                //FIXME
-
-            mInterpDofTypeMap = mSet->get_interpolator_dof_type_map();          //Fixme
         };
 //------------------------------------------------------------------------------
         /**
@@ -145,13 +131,16 @@ namespace moris
             // loop over integration points
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
+                // set integration point for geometry interpolator
+                aGeometryInterpolator->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+
                 // compute integration point weight x detJ
-                real tWStar = aGeometryInterpolator->det_J( mSet->get_integration_points().get_column( iGP ) )
+                real tWStar = aGeometryInterpolator->det_J()
                             * mSet->get_integration_weights()( iGP );
 
                 // add contribution to jacobian from evaluation point
                 //FIXME: include a thickness if 2D
-                tVolume = tVolume + tWStar;
+                tVolume += tWStar;
             }
 
             // FIXME: compute the element size + switch 1D, 2D, 3D

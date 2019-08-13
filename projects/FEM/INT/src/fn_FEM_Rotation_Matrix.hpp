@@ -18,35 +18,28 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-//        Matrix< DDRMat> rotation_matrix( mtk::Geometry_Type aGeometryType,
-//                                         moris_index        aMasterSideOrdinal,
-//                                         moris_index        aSlaveSideOrdinal,
-//                                         moris_index        aSlaveNode )
-        Matrix< DDRMat> rotation_matrix( mtk::Geometry_Type aGeometryType,
-                                         moris_index        aSlaveNode )
+        void rotation_matrix( mtk::Geometry_Type        aGeometryType,
+                              moris_index               aSlaveNode,
+                              moris::Matrix< DDRMat > & aRotationMatrix )
         {
-            // init the rotation matrix
-            Matrix < DDRMat > tR;
-
             // switch on geometry type
             switch( aGeometryType )
             {
-                //case( mtk::Geometry_Type::HEX ):
                 case( mtk::Geometry_Type::QUAD ):
                 {
                     switch( aSlaveNode )
                     {
                         case( 0 ):
-                            tR = {{ 0.0, 1.0 },{ 1.0, 0.0 }};
+                            aRotationMatrix = {{ 0.0, 1.0 },{ 1.0, 0.0 }};
                             break;
                         case( 1 ):
-                            tR = {{ -1.0, 0.0 },{ 0.0, 1.0 }};
+                            aRotationMatrix = {{ -1.0, 0.0 },{ 0.0, 1.0 }};
                             break;
                         case( 2 ):
-                            tR = {{ 0.0, -1.0 },{ -1.0, 0.0 }};
+                            aRotationMatrix = {{ 0.0, -1.0 },{ -1.0, 0.0 }};
                             break;
                         case( 3 ):
-                            tR = {{ 1.0, 0.0 },{ 0.0, -1.0 }};
+                            aRotationMatrix = {{ 1.0, 0.0 },{ 0.0, -1.0 }};
                             break;
                         default:
                             MORIS_ERROR( false, " rotation_matrix - unknown slave node ");
@@ -54,19 +47,19 @@ namespace moris
                     }
                     break;
                 }
-                //case( mtk::Geometry_Type::TET ):
+
                 case( mtk::Geometry_Type::TRI ):
                 {
                     switch( aSlaveNode )
                     {
                         case( 0 ):
-                            tR = {{ 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }, { 0.0, 1.0, 0.0 }};
+                            aRotationMatrix = {{ 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }, { 0.0, 1.0, 0.0 }};
                             break;
                         case( 1 ):
-                            tR = {{ 0.0, 1.0, 0.0 }, {1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }};
+                            aRotationMatrix = {{ 0.0, 1.0, 0.0 }, {1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }};
                             break;
                         case( 2 ):
-                            tR = {{ 0.0, 0.0, 1.0 }, { 0.0, 1.0, 0.0 }, { 1.0, 0.0, 0.0 }};
+                            aRotationMatrix = {{ 0.0, 0.0, 1.0 }, { 0.0, 1.0, 0.0 }, { 1.0, 0.0, 0.0 }};
                             break;
                         default:
                             MORIS_ASSERT( false, " rotation_matrix - unknown slave node " );
@@ -74,11 +67,10 @@ namespace moris
                     }
                     break;
                 }
-                //case( mtk::Geometry_Type::QUAD ):
-                //case( mtk::Geometry_Type::TRI ):
+
                 case( mtk::Geometry_Type::LINE ):
                 {
-                    tR = {{ -1.0 }};
+                    aRotationMatrix = {{ -1.0 }};
                     break;
                 }
                 default:
@@ -87,7 +79,6 @@ namespace moris
                     break;
                 }
             }
-            return tR;
         }
 
 //------------------------------------------------------------------------------

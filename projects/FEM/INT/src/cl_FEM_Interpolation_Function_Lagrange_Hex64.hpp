@@ -38,84 +38,83 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >::get_param_coords() const
+        void
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 64 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
-            Matrix< DDRMat > tXiHat( 3, 64 );
+            aXiHat.set_size( 3, 64, 0.0 );
             real c = 1.0/3.0;
-            tXiHat( 0,  0 ) = -1.0; tXiHat( 1,  0 ) = -1.0; tXiHat( 2,  0 ) = -1.0;
-            tXiHat( 0,  1 ) =  1.0; tXiHat( 1,  1 ) = -1.0; tXiHat( 2,  1 ) = -1.0;
-            tXiHat( 0,  2 ) =  1.0; tXiHat( 1,  2 ) =  1.0; tXiHat( 2,  2 ) = -1.0;
-            tXiHat( 0,  3 ) = -1.0; tXiHat( 1,  3 ) =  1.0; tXiHat( 2,  3 ) = -1.0;
-            tXiHat( 0,  4 ) = -1.0; tXiHat( 1,  4 ) = -1.0; tXiHat( 2,  4 ) =  1.0;
-            tXiHat( 0,  5 ) =  1.0; tXiHat( 1,  5 ) = -1.0; tXiHat( 2,  5 ) =  1.0;
-            tXiHat( 0,  6 ) =  1.0; tXiHat( 1,  6 ) =  1.0; tXiHat( 2,  6 ) =  1.0;
-            tXiHat( 0,  7 ) = -1.0; tXiHat( 1,  7 ) =  1.0; tXiHat( 2,  7 ) =  1.0;
+            aXiHat( 0,  0 ) = -1.0; aXiHat( 1,  0 ) = -1.0; aXiHat( 2,  0 ) = -1.0;
+            aXiHat( 0,  1 ) =  1.0; aXiHat( 1,  1 ) = -1.0; aXiHat( 2,  1 ) = -1.0;
+            aXiHat( 0,  2 ) =  1.0; aXiHat( 1,  2 ) =  1.0; aXiHat( 2,  2 ) = -1.0;
+            aXiHat( 0,  3 ) = -1.0; aXiHat( 1,  3 ) =  1.0; aXiHat( 2,  3 ) = -1.0;
+            aXiHat( 0,  4 ) = -1.0; aXiHat( 1,  4 ) = -1.0; aXiHat( 2,  4 ) =  1.0;
+            aXiHat( 0,  5 ) =  1.0; aXiHat( 1,  5 ) = -1.0; aXiHat( 2,  5 ) =  1.0;
+            aXiHat( 0,  6 ) =  1.0; aXiHat( 1,  6 ) =  1.0; aXiHat( 2,  6 ) =  1.0;
+            aXiHat( 0,  7 ) = -1.0; aXiHat( 1,  7 ) =  1.0; aXiHat( 2,  7 ) =  1.0;
 
-            tXiHat( 0,  8 ) = -c;   tXiHat( 1,  8 ) = -1.0; tXiHat( 2,  8 ) = -1.0;
-            tXiHat( 0,  9 ) =  c;   tXiHat( 1,  9 ) = -1.0; tXiHat( 2,  9 ) = -1.0;
-            tXiHat( 0, 10 ) = -1.0; tXiHat( 1, 10 ) = -c;   tXiHat( 2, 10 ) = -1.0;
-            tXiHat( 0, 11 ) = -1.0; tXiHat( 1, 11 ) =  c;   tXiHat( 2, 11 ) = -1.0;
-            tXiHat( 0, 12 ) = -1.0; tXiHat( 1, 12 ) = -1.0; tXiHat( 2, 12 ) = -c;
-            tXiHat( 0, 13 ) = -1.0; tXiHat( 1, 13 ) = -1.0; tXiHat( 2, 13 ) =  c;
-            tXiHat( 0, 14 ) =  1.0; tXiHat( 1, 14 ) = -c;   tXiHat( 2, 14 ) = -1.0;
-            tXiHat( 0, 15 ) =  1.0; tXiHat( 1, 15 ) =  c;   tXiHat( 2, 15 ) = -1.0;
-            tXiHat( 0, 16 ) =  1.0; tXiHat( 1, 16 ) = -1.0; tXiHat( 2, 16 ) = -c;
-            tXiHat( 0, 17 ) =  1.0; tXiHat( 1, 17 ) = -1.0; tXiHat( 2, 17 ) =  c;
-            tXiHat( 0, 18 ) =  c;   tXiHat( 1, 18 ) =  1.0; tXiHat( 2, 18 ) = -1.0;
-            tXiHat( 0, 19 ) = -c;   tXiHat( 1, 19 ) =  1.0; tXiHat( 2, 19 ) = -1.0;
-            tXiHat( 0, 20 ) =  1.0; tXiHat( 1, 20 ) =  1.0; tXiHat( 2, 20 ) = -c;
-            tXiHat( 0, 21 ) =  1.0; tXiHat( 1, 21 ) =  1.0; tXiHat( 2, 21 ) =  c;
-            tXiHat( 0, 22 ) = -1.0; tXiHat( 1, 22 ) =  1.0; tXiHat( 2, 22 ) = -c;
-            tXiHat( 0, 23 ) = -1.0; tXiHat( 1, 23 ) =  1.0; tXiHat( 2, 23 ) =  c;
-            tXiHat( 0, 24 ) = -c;   tXiHat( 1, 24 ) = -1.0; tXiHat( 2, 24 ) =  1.0;
-            tXiHat( 0, 25 ) =  c;   tXiHat( 1, 25 ) = -1.0; tXiHat( 2, 25 ) =  1.0;
-            tXiHat( 0, 26 ) = -1.0; tXiHat( 1, 26 ) = -c;   tXiHat( 2, 26 ) =  1.0;
-            tXiHat( 0, 27 ) = -1.0; tXiHat( 1, 27 ) =  c;   tXiHat( 2, 27 ) =  1.0;
-            tXiHat( 0, 28 ) =  1.0; tXiHat( 1, 28 ) = -c;   tXiHat( 2, 28 ) =  1.0;
-            tXiHat( 0, 29 ) =  1.0; tXiHat( 1, 29 ) =  c;   tXiHat( 2, 29 ) =  1.0;
-            tXiHat( 0, 30 ) =  c;   tXiHat( 1, 30 ) =  1.0; tXiHat( 2, 30 ) =  1.0;
-            tXiHat( 0, 31 ) = -c;   tXiHat( 1, 31 ) =  1.0; tXiHat( 2, 31 ) =  1.0;
+            aXiHat( 0,  8 ) = -c;   aXiHat( 1,  8 ) = -1.0; aXiHat( 2,  8 ) = -1.0;
+            aXiHat( 0,  9 ) =  c;   aXiHat( 1,  9 ) = -1.0; aXiHat( 2,  9 ) = -1.0;
+            aXiHat( 0, 10 ) = -1.0; aXiHat( 1, 10 ) = -c;   aXiHat( 2, 10 ) = -1.0;
+            aXiHat( 0, 11 ) = -1.0; aXiHat( 1, 11 ) =  c;   aXiHat( 2, 11 ) = -1.0;
+            aXiHat( 0, 12 ) = -1.0; aXiHat( 1, 12 ) = -1.0; aXiHat( 2, 12 ) = -c;
+            aXiHat( 0, 13 ) = -1.0; aXiHat( 1, 13 ) = -1.0; aXiHat( 2, 13 ) =  c;
+            aXiHat( 0, 14 ) =  1.0; aXiHat( 1, 14 ) = -c;   aXiHat( 2, 14 ) = -1.0;
+            aXiHat( 0, 15 ) =  1.0; aXiHat( 1, 15 ) =  c;   aXiHat( 2, 15 ) = -1.0;
+            aXiHat( 0, 16 ) =  1.0; aXiHat( 1, 16 ) = -1.0; aXiHat( 2, 16 ) = -c;
+            aXiHat( 0, 17 ) =  1.0; aXiHat( 1, 17 ) = -1.0; aXiHat( 2, 17 ) =  c;
+            aXiHat( 0, 18 ) =  c;   aXiHat( 1, 18 ) =  1.0; aXiHat( 2, 18 ) = -1.0;
+            aXiHat( 0, 19 ) = -c;   aXiHat( 1, 19 ) =  1.0; aXiHat( 2, 19 ) = -1.0;
+            aXiHat( 0, 20 ) =  1.0; aXiHat( 1, 20 ) =  1.0; aXiHat( 2, 20 ) = -c;
+            aXiHat( 0, 21 ) =  1.0; aXiHat( 1, 21 ) =  1.0; aXiHat( 2, 21 ) =  c;
+            aXiHat( 0, 22 ) = -1.0; aXiHat( 1, 22 ) =  1.0; aXiHat( 2, 22 ) = -c;
+            aXiHat( 0, 23 ) = -1.0; aXiHat( 1, 23 ) =  1.0; aXiHat( 2, 23 ) =  c;
+            aXiHat( 0, 24 ) = -c;   aXiHat( 1, 24 ) = -1.0; aXiHat( 2, 24 ) =  1.0;
+            aXiHat( 0, 25 ) =  c;   aXiHat( 1, 25 ) = -1.0; aXiHat( 2, 25 ) =  1.0;
+            aXiHat( 0, 26 ) = -1.0; aXiHat( 1, 26 ) = -c;   aXiHat( 2, 26 ) =  1.0;
+            aXiHat( 0, 27 ) = -1.0; aXiHat( 1, 27 ) =  c;   aXiHat( 2, 27 ) =  1.0;
+            aXiHat( 0, 28 ) =  1.0; aXiHat( 1, 28 ) = -c;   aXiHat( 2, 28 ) =  1.0;
+            aXiHat( 0, 29 ) =  1.0; aXiHat( 1, 29 ) =  c;   aXiHat( 2, 29 ) =  1.0;
+            aXiHat( 0, 30 ) =  c;   aXiHat( 1, 30 ) =  1.0; aXiHat( 2, 30 ) =  1.0;
+            aXiHat( 0, 31 ) = -c;   aXiHat( 1, 31 ) =  1.0; aXiHat( 2, 31 ) =  1.0;
 
-            tXiHat( 0, 32 ) = -c;   tXiHat( 1, 32 ) = -c;   tXiHat( 2, 32 ) = -1.0;
-            tXiHat( 0, 33 ) = -c;   tXiHat( 1, 33 ) =  c;   tXiHat( 2, 33 ) = -1.0;
-            tXiHat( 0, 34 ) =  c;   tXiHat( 1, 34 ) =  c;   tXiHat( 2, 34 ) = -1.0;
-            tXiHat( 0, 35 ) =  c;   tXiHat( 1, 35 ) = -c;   tXiHat( 2, 35 ) = -1.0;
+            aXiHat( 0, 32 ) = -c;   aXiHat( 1, 32 ) = -c;   aXiHat( 2, 32 ) = -1.0;
+            aXiHat( 0, 33 ) = -c;   aXiHat( 1, 33 ) =  c;   aXiHat( 2, 33 ) = -1.0;
+            aXiHat( 0, 34 ) =  c;   aXiHat( 1, 34 ) =  c;   aXiHat( 2, 34 ) = -1.0;
+            aXiHat( 0, 35 ) =  c;   aXiHat( 1, 35 ) = -c;   aXiHat( 2, 35 ) = -1.0;
 
-            tXiHat( 0, 36 ) = -c;   tXiHat( 1, 36 ) = -1.0; tXiHat( 2, 36 ) = -c;
-            tXiHat( 0, 37 ) =  c;   tXiHat( 1, 37 ) = -1.0; tXiHat( 2, 37 ) = -c;
-            tXiHat( 0, 38 ) =  c;   tXiHat( 1, 38 ) = -1.0; tXiHat( 2, 38 ) =  c;
-            tXiHat( 0, 39 ) = -c;   tXiHat( 1, 39 ) = -1.0; tXiHat( 2, 39 ) =  c;
+            aXiHat( 0, 36 ) = -c;   aXiHat( 1, 36 ) = -1.0; aXiHat( 2, 36 ) = -c;
+            aXiHat( 0, 37 ) =  c;   aXiHat( 1, 37 ) = -1.0; aXiHat( 2, 37 ) = -c;
+            aXiHat( 0, 38 ) =  c;   aXiHat( 1, 38 ) = -1.0; aXiHat( 2, 38 ) =  c;
+            aXiHat( 0, 39 ) = -c;   aXiHat( 1, 39 ) = -1.0; aXiHat( 2, 39 ) =  c;
 
-            tXiHat( 0, 40 ) = -1.0; tXiHat( 1, 40 ) = -c;   tXiHat( 2, 40 ) = -c;
-            tXiHat( 0, 41 ) = -1.0; tXiHat( 1, 41 ) = -c;   tXiHat( 2, 41 ) =  c;
-            tXiHat( 0, 42 ) = -1.0; tXiHat( 1, 42 ) =  c;   tXiHat( 2, 42 ) =  c;
-            tXiHat( 0, 43 ) = -1.0; tXiHat( 1, 43 ) =  c;   tXiHat( 2, 43 ) = -c;
+            aXiHat( 0, 40 ) = -1.0; aXiHat( 1, 40 ) = -c;   aXiHat( 2, 40 ) = -c;
+            aXiHat( 0, 41 ) = -1.0; aXiHat( 1, 41 ) = -c;   aXiHat( 2, 41 ) =  c;
+            aXiHat( 0, 42 ) = -1.0; aXiHat( 1, 42 ) =  c;   aXiHat( 2, 42 ) =  c;
+            aXiHat( 0, 43 ) = -1.0; aXiHat( 1, 43 ) =  c;   aXiHat( 2, 43 ) = -c;
 
-            tXiHat( 0, 44 ) =  1.0; tXiHat( 1, 44 ) = -c;   tXiHat( 2, 44 ) = -c;
-            tXiHat( 0, 45 ) =  1.0; tXiHat( 1, 45 ) =  c;   tXiHat( 2, 45 ) = -c;
-            tXiHat( 0, 46 ) =  1.0; tXiHat( 1, 46 ) =  c;   tXiHat( 2, 46 ) =  c;
-            tXiHat( 0, 47 ) =  1.0; tXiHat( 1, 47 ) = -c;   tXiHat( 2, 47 ) =  c;
+            aXiHat( 0, 44 ) =  1.0; aXiHat( 1, 44 ) = -c;   aXiHat( 2, 44 ) = -c;
+            aXiHat( 0, 45 ) =  1.0; aXiHat( 1, 45 ) =  c;   aXiHat( 2, 45 ) = -c;
+            aXiHat( 0, 46 ) =  1.0; aXiHat( 1, 46 ) =  c;   aXiHat( 2, 46 ) =  c;
+            aXiHat( 0, 47 ) =  1.0; aXiHat( 1, 47 ) = -c;   aXiHat( 2, 47 ) =  c;
 
-            tXiHat( 0, 48 ) =  c;   tXiHat( 1, 48 ) =  1.0; tXiHat( 2, 48 ) = -c;
-            tXiHat( 0, 49 ) = -c;   tXiHat( 1, 49 ) =  1.0; tXiHat( 2, 49 ) = -c;
-            tXiHat( 0, 50 ) = -c;   tXiHat( 1, 50 ) =  1.0; tXiHat( 2, 50 ) =  c;
-            tXiHat( 0, 51 ) =  c;   tXiHat( 1, 51 ) =  1.0; tXiHat( 2, 51 ) =  c;
+            aXiHat( 0, 48 ) =  c;   aXiHat( 1, 48 ) =  1.0; aXiHat( 2, 48 ) = -c;
+            aXiHat( 0, 49 ) = -c;   aXiHat( 1, 49 ) =  1.0; aXiHat( 2, 49 ) = -c;
+            aXiHat( 0, 50 ) = -c;   aXiHat( 1, 50 ) =  1.0; aXiHat( 2, 50 ) =  c;
+            aXiHat( 0, 51 ) =  c;   aXiHat( 1, 51 ) =  1.0; aXiHat( 2, 51 ) =  c;
 
-            tXiHat( 0, 52 ) = -c;   tXiHat( 1, 52 ) = -c;   tXiHat( 2, 52 ) =  1.0;
-            tXiHat( 0, 53 ) =  c;   tXiHat( 1, 53 ) = -c;   tXiHat( 2, 53 ) =  1.0;
-            tXiHat( 0, 54 ) =  c;   tXiHat( 1, 54 ) =  c;   tXiHat( 2, 54 ) =  1.0;
-            tXiHat( 0, 55 ) = -c;   tXiHat( 1, 55 ) =  c;   tXiHat( 2, 55 ) =  1.0;
+            aXiHat( 0, 52 ) = -c;   aXiHat( 1, 52 ) = -c;   aXiHat( 2, 52 ) =  1.0;
+            aXiHat( 0, 53 ) =  c;   aXiHat( 1, 53 ) = -c;   aXiHat( 2, 53 ) =  1.0;
+            aXiHat( 0, 54 ) =  c;   aXiHat( 1, 54 ) =  c;   aXiHat( 2, 54 ) =  1.0;
+            aXiHat( 0, 55 ) = -c;   aXiHat( 1, 55 ) =  c;   aXiHat( 2, 55 ) =  1.0;
 
-            tXiHat( 0, 56 ) = -c;   tXiHat( 1, 56 ) = -c;   tXiHat( 2, 56 ) = -c;
-            tXiHat( 0, 57 ) =  c;   tXiHat( 1, 57 ) = -c;   tXiHat( 2, 57 ) = -c;
-            tXiHat( 0, 58 ) =  c;   tXiHat( 1, 58 ) =  c;   tXiHat( 2, 58 ) = -c;
-            tXiHat( 0, 59 ) = -c;   tXiHat( 1, 59 ) =  c;   tXiHat( 2, 59 ) = -c;
-            tXiHat( 0, 60 ) = -c;   tXiHat( 1, 60 ) = -c;   tXiHat( 2, 60 ) =  c;
-            tXiHat( 0, 61 ) =  c;   tXiHat( 1, 61 ) = -c;   tXiHat( 2, 61 ) =  c;
-            tXiHat( 0, 62 ) =  c;   tXiHat( 1, 62 ) =  c;   tXiHat( 2, 62 ) =  c;
-            tXiHat( 0, 63 ) = -c;   tXiHat( 1, 63 ) =  c;   tXiHat( 2, 63 ) =  c;
-            return tXiHat;
+            aXiHat( 0, 56 ) = -c;   aXiHat( 1, 56 ) = -c;   aXiHat( 2, 56 ) = -c;
+            aXiHat( 0, 57 ) =  c;   aXiHat( 1, 57 ) = -c;   aXiHat( 2, 57 ) = -c;
+            aXiHat( 0, 58 ) =  c;   aXiHat( 1, 58 ) =  c;   aXiHat( 2, 58 ) = -c;
+            aXiHat( 0, 59 ) = -c;   aXiHat( 1, 59 ) =  c;   aXiHat( 2, 59 ) = -c;
+            aXiHat( 0, 60 ) = -c;   aXiHat( 1, 60 ) = -c;   aXiHat( 2, 60 ) =  c;
+            aXiHat( 0, 61 ) =  c;   aXiHat( 1, 61 ) = -c;   aXiHat( 2, 61 ) =  c;
+            aXiHat( 0, 62 ) =  c;   aXiHat( 1, 62 ) =  c;   aXiHat( 2, 62 ) =  c;
+            aXiHat( 0, 63 ) = -c;   aXiHat( 1, 63 ) =  c;   aXiHat( 2, 63 ) =  c;
         }
 
 //------------------------------------------------------------------------------

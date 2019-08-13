@@ -42,35 +42,31 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
+        void
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TRI_3>::get_points()
+                Integration_Order::TRI_3>::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
-            Matrix< DDRMat > aIntegrationPoints =
+            aIntegrationPoints =
             {
                 { 0.666666666666667, 0.166666666666667, 0.166666666666667 },
                 { 0.166666666666667, 0.666666666666667, 0.166666666666667 },
                 { 0.166666666666667, 0.166666666666667, 0.666666666666667 }
             };
-
-            return aIntegrationPoints;
           }
 
 //------------------------------------------------------------------------------
 
             template<>
-            Matrix< DDRMat >
+            void
             Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TRI_3 >::get_weights()
+                Integration_Order::TRI_3 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
             {
-                Matrix< DDRMat > aWeights =
+                aIntegrationWeights =
                 {
                     { 0.333333333333333, 0.333333333333333,0.333333333333333 }
                 };
-
-                return aWeights;
             }
 
 //------------------------------------------------------------------------------

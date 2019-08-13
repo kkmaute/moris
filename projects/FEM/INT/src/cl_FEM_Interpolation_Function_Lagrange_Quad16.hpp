@@ -38,44 +38,43 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::get_param_coords() const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
-            Matrix< DDRMat > tXiHat( 2, 16 );
+            aXiHat.set_size( 2, 16, 0.0 );
             real c = 1.0/3.0;
-            tXiHat( 0,  0 ) = -1.000000;
-            tXiHat( 1,  0 ) = -1.000000;
-            tXiHat( 0,  1 ) =  1.000000;
-            tXiHat( 1,  1 ) = -1.000000;
-            tXiHat( 0,  2 ) =  1.000000;
-            tXiHat( 1,  2 ) =  1.000000;
-            tXiHat( 0,  3 ) = -1.000000;
-            tXiHat( 1,  3 ) =  1.000000;
-            tXiHat( 0,  4 ) = -c;
-            tXiHat( 1,  4 ) = -1.000000;
-            tXiHat( 0,  5 ) =  c;
-            tXiHat( 1,  5 ) = -1.000000;
-            tXiHat( 0,  6 ) =  1.000000;
-            tXiHat( 1,  6 ) = -c;
-            tXiHat( 0,  7 ) =  1.000000;
-            tXiHat( 1,  7 ) =  c;
-            tXiHat( 0,  8 ) =  c;
-            tXiHat( 1,  8 ) =  1.000000;
-            tXiHat( 0,  9 ) = -c;
-            tXiHat( 1,  9 ) =  1.000000;
-            tXiHat( 0, 10 ) = -1.000000;
-            tXiHat( 1, 10 ) =  c;
-            tXiHat( 0, 11 ) = -1.000000;
-            tXiHat( 1, 11 ) = -c;
-            tXiHat( 0, 12 ) = -c;
-            tXiHat( 1, 12 ) = -c;
-            tXiHat( 0, 13 ) =  c;
-            tXiHat( 1, 13 ) = -c;
-            tXiHat( 0, 14 ) =  c;
-            tXiHat( 1, 14 ) =  c;
-            tXiHat( 0, 15 ) = -c;
-            tXiHat( 1, 15 ) =  c;
-            return tXiHat;
+            aXiHat( 0,  0 ) = -1.000000;
+            aXiHat( 1,  0 ) = -1.000000;
+            aXiHat( 0,  1 ) =  1.000000;
+            aXiHat( 1,  1 ) = -1.000000;
+            aXiHat( 0,  2 ) =  1.000000;
+            aXiHat( 1,  2 ) =  1.000000;
+            aXiHat( 0,  3 ) = -1.000000;
+            aXiHat( 1,  3 ) =  1.000000;
+            aXiHat( 0,  4 ) = -c;
+            aXiHat( 1,  4 ) = -1.000000;
+            aXiHat( 0,  5 ) =  c;
+            aXiHat( 1,  5 ) = -1.000000;
+            aXiHat( 0,  6 ) =  1.000000;
+            aXiHat( 1,  6 ) = -c;
+            aXiHat( 0,  7 ) =  1.000000;
+            aXiHat( 1,  7 ) =  c;
+            aXiHat( 0,  8 ) =  c;
+            aXiHat( 1,  8 ) =  1.000000;
+            aXiHat( 0,  9 ) = -c;
+            aXiHat( 1,  9 ) =  1.000000;
+            aXiHat( 0, 10 ) = -1.000000;
+            aXiHat( 1, 10 ) =  c;
+            aXiHat( 0, 11 ) = -1.000000;
+            aXiHat( 1, 11 ) = -c;
+            aXiHat( 0, 12 ) = -c;
+            aXiHat( 1, 12 ) = -c;
+            aXiHat( 0, 13 ) =  c;
+            aXiHat( 1, 13 ) = -c;
+            aXiHat( 0, 14 ) =  c;
+            aXiHat( 1, 14 ) =  c;
+            aXiHat( 0, 15 ) = -c;
+            aXiHat( 1, 15 ) =  c;
         }
 
 //------------------------------------------------------------------------------

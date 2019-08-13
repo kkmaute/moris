@@ -105,7 +105,7 @@ namespace moris
              * returns a matrix containing the parameter coordinates
              * < number of dimensions * number of basis >
              */
-            virtual Matrix< DDRMat > get_param_coords() const = 0;
+            virtual void get_param_coords( Matrix< DDRMat > & aXiHat ) const = 0;
 
 //------------------------------------------------------------------------------
 

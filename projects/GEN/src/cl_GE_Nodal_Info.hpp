@@ -152,7 +152,10 @@ namespace ge
                 if (tRes(0,0) == Approx(0.0))
                 {
                     aIntersectionObject->is_intersected();
-                    aIntersectionObject->set_intersection_point( aIntersectionObject->get_my_geom_interp()->valx(tParamPoint) );
+
+                    Matrix< DDRMat > tIntersection;
+                    aIntersectionObject->get_my_geom_interp()->valx( tIntersection );
+                    aIntersectionObject->set_intersection_point( tIntersection );
 std::cout<<"-2-2-2-2-2-2-2-2-2-2-2-2-22-2-2-2-2-2-2-2"<<std::endl;
                     break;
                 }

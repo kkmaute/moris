@@ -73,7 +73,7 @@ namespace moris
             }
             else if ( aSpaceDerivativeOrder == 2 && aTimeDerivativeOrder == 0 )
             {
-                tduduHat = mFieldInterpolator->eval_d2Ndx2();
+                tduduHat = mFieldInterpolator->d2Ndx2();
             }
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 1 )
             {
@@ -81,7 +81,7 @@ namespace moris
             }
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 2 )
             {
-                tduduHat = mFieldInterpolator->eval_d2Ndt2();
+                tduduHat = mFieldInterpolator->d2Ndt2();
             }
             else
             {
@@ -115,7 +115,7 @@ namespace moris
             else if ( aSpaceDerivativeOrder == 2 && aTimeDerivativeOrder == 0 )
             {
                 tu       = mFieldInterpolator->gradx( aSpaceDerivativeOrder );
-                tduduHat = mFieldInterpolator->eval_d2Ndx2();
+                tduduHat = mFieldInterpolator->d2Ndx2();
             }
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 1 )
             {
@@ -125,7 +125,7 @@ namespace moris
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 2 )
             {
                 tu       = mFieldInterpolator->gradt( aTimeDerivativeOrder );
-                tduduHat = mFieldInterpolator->eval_d2Ndt2();
+                tduduHat = mFieldInterpolator->d2Ndt2();
             }
             else
             {

@@ -309,8 +309,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > get_side_normal( const mtk::Cell        * aCell,
-                                          moris::moris_index aSideOrdinal,
-                                          Matrix< DDRMat > & aParamPoint )
+                                          moris::moris_index aSideOrdinal )
         {
             // init normal
             Matrix < DDRMat > tNormal;
@@ -318,14 +317,14 @@ namespace moris
             // if interpolation cell is linear
             if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
             {
-                // egt normal from the mesh
+                // get normal from the mesh
                 tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
             }
             // if integration cell is higher order
             else
             {
                 // get normal from the integration cell geometry interpolator
-                tNormal = mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->get_normal( aParamPoint );
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->get_normal( tNormal );
             }
 
             return tNormal;
@@ -412,13 +411,15 @@ namespace moris
             // loop over integration points
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
+                // set integration point for geometry interpolator
+                aGeometryInterpolator->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+
                 // compute integration point weight x detJ
-                real tWStar = aGeometryInterpolator->det_J( mSet->get_integration_points().get_column( iGP ) )
-                            * mSet->get_integration_weights()( iGP );
+                real tWStar = aGeometryInterpolator->det_J() * mSet->get_integration_weights()( iGP );
 
                 // add contribution to jacobian from evaluation point
                 //FIXME: include a thickness if 2D
-                tVolume = tVolume + tWStar;
+                tVolume += tWStar;
             }
 
             // FIXME: compute the element size + switch 1D, 2D, 3D

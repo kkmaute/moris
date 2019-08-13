@@ -50,6 +50,8 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         tXi( 0, 0 ) =   0.2;
         tXi( 1, 0 ) = - 0.6;
 
+        tGeomInterpolator.set_space( tXi );
+
         // set nominal values --------------------------------------------------------------
 
         // first help matrix
@@ -81,18 +83,19 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         // construct jacobian matrices
 
 		Matrix< DDRMat > tdNdXi;
-		tGeomInterpolator.dNdXi( tXi, tdNdXi );
+		tGeomInterpolator.dNdXi( tdNdXi );
 		Matrix< DDRMat > td2NdXi2;
-		tGeomInterpolator.d2NdXi2( tXi, td2NdXi2 );
+		tGeomInterpolator.d2NdXi2( td2NdXi2 );
 		Matrix< DDRMat > td3NdXi3;
-		tGeomInterpolator.d3NdXi3( tXi, td3NdXi3 );
+		tGeomInterpolator.d3NdXi3( td3NdXi3 );
 
 		Matrix< DDRMat > tJ3a;
 		Matrix< DDRMat > tJ3b;
 		Matrix< DDRMat > tJ3c;
 		Matrix< DDRMat > tJ;
 		tGeomInterpolator.space_jacobian( tdNdXi, tJ );
-		Matrix< DDRMat > tJ2b = tGeomInterpolator.second_space_jacobian( td2NdXi2 );
+		Matrix< DDRMat > tJ2b;
+		tGeomInterpolator.second_space_jacobian( td2NdXi2, tJ2b );
 
 		tGeomInterpolator.space_jacobian_and_matrices_for_third_derivatives(tJ,
                                                                             tJ2b,
@@ -198,6 +201,8 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         tXi( 1, 0 ) = - 0.6;
         tXi( 2, 0 ) =   0.3;
 
+        tGeomInterpolator.set_space( tXi );
+
         // set nominal values --------------------------------------------------------------
 
         // first help matrix
@@ -262,18 +267,19 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         // construct jacobian matrices
 
 		Matrix< DDRMat > tdNdXi;
-		tGeomInterpolator.dNdXi( tXi, tdNdXi );
+		tGeomInterpolator.dNdXi( tdNdXi );
 		Matrix< DDRMat > td2NdXi2;
-		tGeomInterpolator.d2NdXi2( tXi, td2NdXi2 );
+		tGeomInterpolator.d2NdXi2( td2NdXi2 );
 		Matrix< DDRMat > td3NdXi3;
-		tGeomInterpolator.d3NdXi3( tXi, td3NdXi3 );
+		tGeomInterpolator.d3NdXi3( td3NdXi3 );
 
 		Matrix< DDRMat > tJ3a;
 		Matrix< DDRMat > tJ3b;
 		Matrix< DDRMat > tJ3c;
 		Matrix< DDRMat > tJ;
 		tGeomInterpolator.space_jacobian( tdNdXi, tJ );
-		Matrix< DDRMat > tJ2b = tGeomInterpolator.second_space_jacobian( td2NdXi2 );
+		Matrix< DDRMat > tJ2b;
+		tGeomInterpolator.second_space_jacobian( td2NdXi2, tJ2b );
 
 		tGeomInterpolator.space_jacobian_and_matrices_for_third_derivatives(tJ,
                                                                             tJ2b,

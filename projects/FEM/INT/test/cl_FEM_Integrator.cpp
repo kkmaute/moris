@@ -48,10 +48,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
@@ -90,10 +92,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
@@ -132,10 +136,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
@@ -174,10 +180,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
@@ -216,10 +224,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
@@ -258,10 +268,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
@@ -300,10 +312,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
@@ -342,10 +356,12 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
         uint tNumberOfPoints = tIntegrator.get_number_of_points();
 
         // get points
-        auto tPoints = tIntegrator.get_points();
+        Matrix< DDRMat > tPoints;
+        tIntegrator.get_points( tPoints );
 
         // get weights
-        auto tWeights = tIntegrator.get_weights();
+        Matrix< DDRMat > tWeights;
+        tIntegrator.get_weights( tWeights );
 
         // initialize value
         real tValue = 0.0;
