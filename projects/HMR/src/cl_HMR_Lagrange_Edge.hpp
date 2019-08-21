@@ -24,10 +24,8 @@ namespace moris
         public :
 // ----------------------------------------------------------------------------
 
-            Lagrange_Edge(
-                    Mesh_Base       * aMesh,
-                    Background_Edge * aBackgroundEdge)
-                        : Edge( aMesh, aBackgroundEdge )
+            Lagrange_Edge( Mesh_Base       * aMesh,
+                           Background_Edge * aBackgroundEdge) : Edge( aMesh, aBackgroundEdge )
             {
                 this->copy_vertex_pointers();
             }
@@ -38,29 +36,25 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            uint
-            get_number_of_vertices() const
+            uint get_number_of_vertices() const
             {
                 return D;
             }
 
 // ----------------------------------------------------------------------------
 
-            mtk::Interpolation_Order
-            get_interpolation_order() const;
+            mtk::Interpolation_Order get_interpolation_order() const;
 
 // ----------------------------------------------------------------------------
 
-            const Basis *
-            get_basis( const uint aIndex ) const
+            const Basis * get_basis( const uint aIndex ) const
             {
                 return mVertices[ aIndex ];
             }
 
 // ----------------------------------------------------------------------------
 
-            Basis *
-            get_basis( const uint aIndex )
+            Basis * get_basis( const uint aIndex )
             {
                 return mVertices[ aIndex ];
             }
@@ -68,30 +62,25 @@ namespace moris
 // ----------------------------------------------------------------------------
         protected:
 // ----------------------------------------------------------------------------
-            void
-            copy_vertex_pointers();
+            void copy_vertex_pointers();
 
 // ----------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
 
         template< uint D >
-        mtk::Interpolation_Order
-        Lagrange_Edge< D >::get_interpolation_order() const
+        mtk::Interpolation_Order Lagrange_Edge< D >::get_interpolation_order() const
         {
-            MORIS_ERROR( false,
-                    "get_interpolation_order() not implemented for this Lagrange_Edge.");
+            MORIS_ERROR( false, "get_interpolation_order() not implemented for this Lagrange_Edge.");
             return mtk::Interpolation_Order::UNDEFINED;
         }
 
 //------------------------------------------------------------------------------
 
         template< uint D >
-        void
-        Lagrange_Edge< D >::copy_vertex_pointers()
+        void Lagrange_Edge< D >::copy_vertex_pointers()
         {
-            MORIS_ERROR( false,
-                    "copy_vertex_pointers() not implemented for this Lagrange_Edge.");
+            MORIS_ERROR( false, "copy_vertex_pointers() not implemented for this Lagrange_Edge.");
         }
 
 //------------------------------------------------------------------------------

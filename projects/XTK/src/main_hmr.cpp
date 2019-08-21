@@ -123,7 +123,7 @@ main(
 
             //tDatabase->flag_element( 0 );
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetFunction );
 //            tField2->evaluate_scalar_function( LevelSetFunction2 );

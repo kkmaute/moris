@@ -23,7 +23,6 @@
 
 TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
 {
-
     // these tests are only performed in serial. They have nothing to do with parallel.
     if( moris::par_size() == 1 )
     {

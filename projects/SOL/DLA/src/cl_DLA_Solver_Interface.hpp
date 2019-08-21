@@ -14,6 +14,10 @@
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
 
+#ifdef WITHGPERFTOOLS
+#include <gperftools/profiler.h>
+#endif
+
 namespace moris
 {
     class Dist_Vector;

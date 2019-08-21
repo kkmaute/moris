@@ -39,6 +39,9 @@ namespace moris
 
         const uint   gNumberOfPatterns    = 8;
 
+        // Maximal number of Lagrange or BSpline meshes. Lagrange and BSpline for themself
+        const uint   gNumberOfMeshes    = 8;
+
         // warning: 3 may still be hardcoded somewhere
         const uint   gMaxBSplineOrder     = 3;
 

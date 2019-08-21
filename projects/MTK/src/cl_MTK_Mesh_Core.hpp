@@ -746,10 +746,8 @@ public:
      * return the index of the field of this label
      * return gNoIndex if not found
      */
-    virtual moris_index
-    get_field_ind(
-            const std::string & aFieldLabel,
-            const enum EntityRank aEntityRank ) const
+    virtual moris_index get_field_ind( const std::string     & aFieldLabel,
+                                       const enum EntityRank   aEntityRank ) const
     {
         MORIS_ERROR( false ,"get_field_ind() not implemented" );
         return gNoIndex;
@@ -859,10 +857,10 @@ public:
     virtual Matrix<DDRMat> &
     get_field( const moris_index     aFieldIndex,
                const enum EntityRank aEntityRank )
-               {
+    {
         MORIS_ERROR( false ,"get_field() not implemented" );
         return mDummyMatrix;
-               }
+    }
 
     //------------------------------------------------------------------------------
 
@@ -938,7 +936,7 @@ public:
      * Get number of B-Spline coefficients
      */
     virtual uint
-    get_num_coeffs(const uint aOrder) const
+    get_num_coeffs(const uint aBSplineMeshIndex) const
     {
         MORIS_ERROR( false, "get_num_coeffs() not implemented for this mesh" );
         return 0;
@@ -979,7 +977,7 @@ public:
     //FIXME: Rename or use get loc entity id from global entity id
     void
     virtual
-    get_adof_map( const uint aOrder,
+    get_adof_map( const uint                     aBSplineIndex,
                   map< moris_id, moris_index > & aAdofMap ) const
     {
         MORIS_ERROR(0,"Entered virtual function in Mesh base class, (function is not implemented)");

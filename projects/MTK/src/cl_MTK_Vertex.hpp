@@ -91,8 +91,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            virtual Vertex_Interpolation *
-            get_interpolation( const uint aOrder )
+            virtual Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
             {
                 MORIS_ERROR( false,"Function not implemented in base vertex" );
                 return nullptr;
@@ -100,8 +99,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            virtual const Vertex_Interpolation *
-            get_interpolation( const uint aOrder ) const
+            virtual const Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
             {
                 MORIS_ERROR( false,"Function not implemented in base vertex" );
                 return nullptr;

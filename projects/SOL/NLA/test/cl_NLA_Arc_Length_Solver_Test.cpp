@@ -129,7 +129,7 @@ residual_mDOF( const moris::sint        aNX,
         tRes.set_size(1,1);
         tRes(0,0) = aLambda*tExternalForce(0,0) - tInternalForce(1,0);
     }
-    if (aEquationObjectInd==1)      // return the (2x1) residual for the 2nd element (2-DOF)
+    else if (aEquationObjectInd==1)      // return the (2x1) residual for the 2nd element (2-DOF)
     {
         Matrix< DDRMat > tEpsilon = tBMat*aMyValues;                                    // determine strain value (this is a scalar), no need to transpose aMyValues here
         real tSigma = tSigSat*(1-std::exp(-tBParam*tEpsilon(0,0)));                     // determine stess value from nonlinear relation
@@ -191,7 +191,7 @@ jacobian_mDOF( const moris::sint        aNX,
         tJacobian.set_size(1,1);
         tJacobian(0,0) = tTempJac(0,0);
     }
-    if (aEquationObjectInd==1)      // return the (2x2) jacobian for the 2nd element (2-DOF)
+    else if (aEquationObjectInd==1)      // return the (2x2) jacobian for the 2nd element (2-DOF)
     {
         Matrix< DDRMat > tEpsilon = tBMat*aMyValues;                        // determine strain value (this is a scalar), no need to transpose aMyValues here
         real tDSigDEps = tBParam*tSigSat*std::exp(-tBParam*tEpsilon(0,0));  // nonlinear material tangent
@@ -226,7 +226,7 @@ Matrix< DDSMat > test_topo_mDOF( const moris::sint aNX,
         tTopo.set_size(1,1);
         tTopo(0,0) = 0;
     }
-    if (aEquationObjectInd==1)
+    else if (aEquationObjectInd==1)
     {
         tTopo.set_size(2,1);
         tTopo(0,0) = 0;

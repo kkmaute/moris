@@ -18,8 +18,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template <>
-        mtk::Interpolation_Order
-        Lagrange_Edge< 4 >::get_interpolation_order() const
+        mtk::Interpolation_Order Lagrange_Edge< 4 >::get_interpolation_order() const
         {
             return mtk::Interpolation_Order::CUBIC;
         }
@@ -27,8 +26,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template <>
-        void
-        Lagrange_Edge< 4 >::copy_vertex_pointers()
+        void Lagrange_Edge< 4 >::copy_vertex_pointers()
         {
             // get pointer to master
             Element * tMaster = mElements( mIndexOfMaster );

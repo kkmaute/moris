@@ -125,6 +125,8 @@ namespace moris
              */
             Background_Element_Base * get_background_element()
             {
+                MORIS_ASSERT( mElement != nullptr, "Element::get_background_element(), Lagrange or B-spline element returns nullptr background element");
+
                 return mElement;
             }
 //------------------------------------------------------------------------------
@@ -136,6 +138,8 @@ namespace moris
              */
             const Background_Element_Base * get_background_element() const
             {
+                MORIS_ASSERT( mElement != nullptr, "Element::get_background_element(), Lagrange or B-spline element returne nullptr background element");
+
                 return mElement;
             }
 

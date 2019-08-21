@@ -62,9 +62,9 @@ namespace moris
             /**
              * returns the T-Matrix of this node
              */
-            const Matrix< DDRMat > * get_t_matrix( const uint aOrder ) const
+            const Matrix< DDRMat > * get_t_matrix( const uint aBSplineMeshIndex ) const
             {
-                return mVertex->get_interpolation( aOrder )->get_weights();
+                return mVertex->get_interpolation( aBSplineMeshIndex )->get_weights();
             }
 
 //------------------------------------------------------------------------------
@@ -72,9 +72,9 @@ namespace moris
             /**
              * returns the B-Spline IDs of this node
              */
-             Matrix< IdMat > get_adof_ids( const uint aOrder ) const
+             Matrix< IdMat > get_adof_ids( const uint aBSplineMeshIndex ) const
             {
-                return mVertex->get_interpolation( aOrder )->get_ids();
+                return mVertex->get_interpolation( aBSplineMeshIndex )->get_ids();
             }
 
  //------------------------------------------------------------------------------
@@ -82,18 +82,18 @@ namespace moris
             /**
              * returns the B-Spline IDs of this node
              */
-            Matrix< IndexMat > get_adof_indices( const uint aOrder ) const
+            Matrix< IndexMat > get_adof_indices( const uint aBSplineMeshIndex ) const
             {
-                return mVertex->get_interpolation( aOrder )->get_indices();
+                return mVertex->get_interpolation( aBSplineMeshIndex )->get_indices();
             }
 //------------------------------------------------------------------------------
 
             /**
              * returns the proc owners of the IDs of this node
              */
-            Matrix< IdMat > get_adof_owners( const uint aOrder ) const
+            Matrix< IdMat > get_adof_owners( const uint aBSplineMeshIndex ) const
             {
-                return mVertex->get_interpolation( aOrder )->get_owners();
+                return mVertex->get_interpolation( aBSplineMeshIndex )->get_owners();
             }
 
 

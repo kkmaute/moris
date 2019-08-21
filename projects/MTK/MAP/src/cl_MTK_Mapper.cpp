@@ -42,11 +42,10 @@ namespace moris
 
         Mapper::Mapper( mtk::Mesh_Manager* aMesh,
                         const moris_index  aMeshPairIndex,
-                        const uint         aBSplineOrder) :
-                                    mSourceMeshPairIndex( aMeshPairIndex ),
-                                    mTargetMeshPairIndex( aMeshPairIndex ),
-                                    mMeshManager( aMesh ),
-                                    mBSplineOrder( aBSplineOrder )
+                        const uint         aBSplineOrder ) : mSourceMeshPairIndex( aMeshPairIndex ),
+                                                             mTargetMeshPairIndex( aMeshPairIndex ),
+                                                             mMeshManager( aMesh ),
+                                                             mBSplineOrder( aBSplineOrder )
         {
             // Retrieve source mesh pair
             mMeshManager->get_mesh_pair(aMeshPairIndex,mSourceInterpMesh,mSourceIntegMesh);
@@ -64,19 +63,7 @@ namespace moris
             {
                 // delete the fem model
                 delete mModel;
-
-                // delete IWG object
-                //delete mIWG;
             }
-
-//            // delete nodes for the filter
-//            if( mHaveNodes )
-//            {
-//                for( Node * tNode : mNodes )
-//                {
-//                    delete tNode;
-//                }
-//            }
         }
 
 //------------------------------------------------------------------------------
@@ -103,9 +90,12 @@ namespace moris
                 Cell< moris_index >  tDoubleSidesetList;
 
                 // create model
-                mModel = new mdl::Model( mMeshManager, mBSplineOrder, tIWGTypeList,
+                mModel = new mdl::Model( mMeshManager,
+                                         mBSplineOrder,
+                                         tIWGTypeList,
                                          tBlocksetList,
-                                         tSidesetList, tSidesetBCTypeList,
+                                         tSidesetList,
+                                         tSidesetBCTypeList,
                                          tDoubleSidesetList,
                                          mTargetMeshPairIndex );
                 mHaveIwgAndModel = true;
@@ -209,11 +199,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Mapper::map_node_to_bspline_same_mesh(
-                const moris_index     aSourceIndex,
-                const moris_index     aTargetIndex,
-                const enum EntityRank aBSplineRank )
+        void Mapper::map_node_to_bspline_same_mesh( const moris_index     aSourceIndex,
+                                                    const moris_index     aTargetIndex,
+                                                    const enum EntityRank aBSplineRank )
         {
             // create the model if it has not been created yet
             this->create_iwg_and_model();
@@ -300,6 +288,8 @@ namespace moris
                 tTimeSolver.get_full_solution( mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank ) );
 
                 Matrix< DDUMat > tAdofMap = mModel->get_adof_map();
+
+                //print(tAdofMap,"tAdofMap");
 
                 // temporary array for solver
                 Matrix< DDRMat > tSolution = mTargetInterpMesh->get_field( aTargetIndex, aBSplineRank );

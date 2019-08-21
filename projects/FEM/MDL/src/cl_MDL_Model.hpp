@@ -82,7 +82,7 @@ namespace moris
 
             // by default, this value is set to the order of the
             // Lagrange modes
-            moris::uint                       mDofOrder = 0;
+            moris::uint                       mBSplineIndex = 0;
 
             MSI::Model_Solver_Interface                   * mModelSolverInterface;
             MSI::MSI_Solver_Interface                     * mSolverInterface;

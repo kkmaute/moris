@@ -182,6 +182,10 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
 
+#ifdef WITHGPERFTOOLS
+     ProfilerStart("~/temp/gprofmoris.log");
+#endif
+
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
@@ -207,6 +211,10 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
     }
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_assembly();
+
+#ifdef WITHGPERFTOOLS
+    ProfilerStop();
+#endif
 
 //    aMat->print();
 }

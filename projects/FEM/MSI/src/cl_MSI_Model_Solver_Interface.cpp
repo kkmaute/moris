@@ -16,25 +16,25 @@ namespace moris
 
     void Model_Solver_Interface::set_solver_parameters()
     {
-        mMSIParameterList.insert( "UX"    ,  1 );
-        mMSIParameterList.insert( "UY"    ,  1 );
-        mMSIParameterList.insert( "UZ"    ,  1 );
-        mMSIParameterList.insert( "TEMP"  ,  1 );
-        mMSIParameterList.insert( "L2"    ,  1 );
-        mMSIParameterList.insert( "MAPPING_DOF"    ,  1 );
-        mMSIParameterList.insert( "LS1",     1 );
-        mMSIParameterList.insert( "LS2",     1 );
-        mMSIParameterList.insert( "NLSX",    1 );
-        mMSIParameterList.insert( "NLSY",    1 );
-        mMSIParameterList.insert( "NLSZ",    1 );
-        mMSIParameterList.insert( "VX",      1 );
-        mMSIParameterList.insert( "VY",      1 );
-        mMSIParameterList.insert( "VZ",      1 );
+        mMSIParameterList.insert( "UX"    ,  0 );
+        mMSIParameterList.insert( "UY"    ,  0 );
+        mMSIParameterList.insert( "UZ"    ,  0 );
+        mMSIParameterList.insert( "TEMP"  ,  0 );
+        mMSIParameterList.insert( "L2"    ,  0 );
+        mMSIParameterList.insert( "MAPPING_DOF"    ,  0 );
+        mMSIParameterList.insert( "LS1",     0 );
+        mMSIParameterList.insert( "LS2",     0 );
+        mMSIParameterList.insert( "NLSX",    0 );
+        mMSIParameterList.insert( "NLSY",    0 );
+        mMSIParameterList.insert( "NLSZ",    0 );
+        mMSIParameterList.insert( "VX",      0 );
+        mMSIParameterList.insert( "VY",      0 );
+        mMSIParameterList.insert( "VZ",      0 );
     }
 
 //------------------------------------------------------------------------------
 
-    moris::sint Model_Solver_Interface::get_adof_order_for_type( moris::uint aDofType )
+    moris::sint Model_Solver_Interface::get_adof_index_for_type( moris::uint aDofType )
     {
        // Get dof type enum
        enum Dof_Type tDofType = mDofMgn.get_dof_type_enum( aDofType );
@@ -56,7 +56,7 @@ namespace moris
 
        else
        {
-           MORIS_ERROR( false, "Model_Solver_Interface::get_adof_order_for_type(): Dof type does not exist. Check dof type enums");
+           MORIS_ERROR( false, "Model_Solver_Interface::get_adof_index_for_type(): Dof type does not exist. Check dof type enums");
            return 0;
        }
     }

@@ -9,10 +9,9 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Element::Element(
-                Background_Element_Base  *  aElement,
-                const uint               & aActivationPattern ) : mElement( aElement ),
-                                                                  mActivationPattern( aActivationPattern )
+        Element::Element( Background_Element_Base  * aElement,
+                          const uint               & aActivationPattern ) : mElement( aElement ),
+                                                                            mActivationPattern( aActivationPattern )
         {
         }
 

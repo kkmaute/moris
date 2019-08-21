@@ -80,7 +80,7 @@ namespace moris
           */
          Mapper( mtk::Mesh_Manager* aMesh,
                  const moris_index aMeshPairIndex,
-                 const uint aBSplineOrder=0 );
+                 const uint aBSplineMeshIndex = 0 );
 
 //------------------------------------------------------------------------------
 

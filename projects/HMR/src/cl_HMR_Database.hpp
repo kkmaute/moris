@@ -68,6 +68,10 @@ namespace moris
             bool mHaveInputTMatrix = false;
 
 // -----------------------------------------------------------------------------
+
+
+
+// -----------------------------------------------------------------------------
         public:
 // -----------------------------------------------------------------------------
 
@@ -135,6 +139,7 @@ namespace moris
              * returns true if at least one element has been refined
              */
             void perform_refinement( const enum RefinementMode aRefinementMode,
+                                     const uint                aActivePattern = 0,
                                      const bool                aResetPattern = true );
 
 // -----------------------------------------------------------------------------
@@ -170,6 +175,12 @@ namespace moris
             {
                 return mLagrangeMeshes( aIndex );
             }
+
+            void add_lagrange_mesh( Lagrange_Mesh_Base * aLagrangeMesh)
+            {
+                 mLagrangeMeshes.push_back( aLagrangeMesh );
+            }
+
 // -----------------------------------------------------------------------------
 
             /**
@@ -184,6 +195,10 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             Background_Mesh_Base * get_background_mesh();
+
+// -----------------------------------------------------------------------------
+
+            Matrix< DDUMat > create_output_pattern_list();
 
 // -----------------------------------------------------------------------------
 
@@ -379,6 +394,15 @@ namespace moris
                                       mParameters->get_union_pattern() );
             }
 
+            void create_union_pattern( const uint aSourceA,
+                                       const uint aSourceB,
+                                       const uint aTarget )
+            {
+                this->unite_patterns( aSourceA,
+                                      aSourceB,
+                                      aTarget );
+            }
+
 // -----------------------------------------------------------------------------
         private:
 // -----------------------------------------------------------------------------
@@ -390,6 +414,17 @@ namespace moris
              * @return void
              */
             void create_meshes();
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * checks if this mesh index belongs to an output mesh
+             */
+            bool is_output_mesh( const uint aMeshIndex );
+
+            bool is_lagrange_input_mesh( const uint aMeshIndex );
+
+            bool is_bspline_input_mesh( const uint aMeshIndex );
 
 // -----------------------------------------------------------------------------
 

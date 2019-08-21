@@ -89,7 +89,7 @@ namespace moris
 
         Lagrange_Mesh_Base * Factory::create_lagrange_mesh( const Parameters                  * aParameters,
                                                                   Background_Mesh_Base        * aBackgroundMesh,
-                                                                  Cell< BSpline_Mesh_Base * > & aBSplineMeshes,
+                                                                  Cell< BSpline_Mesh_Base * >   aBSplineMeshes,
                                                             const uint                        & aActivationPattern,
                                                             const luint                       & aPolynomialDegree )
         {

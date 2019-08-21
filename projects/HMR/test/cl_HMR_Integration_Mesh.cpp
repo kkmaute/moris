@@ -23,46 +23,58 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
 {
     //------------------------------------------------------------------------------
 
-    moris::uint tLagrangeOrder = 1;
+    moris::uint tLagrangeMeshIndex = 0;
+    moris::uint tBSplineMeshIndex = 0;
 
-    hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    moris::hmr::Parameters tParameters;
 
-    tParameters.set( "number_of_elements_per_dimension", "10, 4, 4" );
-    tParameters.set( "domain_dimensions", "10, 4, 4" );
-    tParameters.set( "domain_offset", "-10.0, -2.0, -2.0" );
-    tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
+    tParameters.set_number_of_elements_per_dimension( { {10}, {4}, {4} } );
+    tParameters.set_domain_dimensions({ {10}, {4}, {4} });
+    tParameters.set_domain_offset({ {-10.0}, {-2.0}, {-2.0} });
+    tParameters.set_bspline_truncation( true );
+    tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
 
-    tParameters.set( "truncate_bsplines", 1 );
-    tParameters.set( "bspline_orders", "1" );
-    tParameters.set( "lagrange_orders", "1" );
+    tParameters.set_output_meshes( { {0} } );
 
-    tParameters.set( "use_multigrid", 0 );
+    tParameters.set_lagrange_orders  ( { {1} });
+    tParameters.set_lagrange_patterns({ {0} });
 
-    tParameters.set( "refinement_buffer", 1 );
-    tParameters.set( "staircase_buffer", 1 );
+    tParameters.set_bspline_orders   ( { {1} } );
+    tParameters.set_bspline_patterns ( { {0} } );
+
+    tParameters.set_union_pattern( 2 );
+    tParameters.set_working_pattern( 3 );
+
+    tParameters.set_refinement_buffer( 1 );
+    tParameters.set_staircase_buffer( 1 );
+
+    Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+    tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+    tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
     hmr::HMR tHMR( tParameters );
 
-    std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+    std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
     // create field
-    std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeOrder );
+    std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tBSplineMeshIndex );
 
     for( uint k=0; k<3; ++k )
     {
         tField->evaluate_scalar_function( LevelSetFunction );
         tHMR.flag_surface_elements( tField );
         tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-        tHMR.update_refinement_pattern();
+        tHMR.update_refinement_pattern( 0 );
     }
 
     tHMR.finalize();
 
     // create pointer to output mesh
-    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern() );
+    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
     // create pointer to output mesh
-    std::shared_ptr< hmr::Integration_Mesh_HMR > tOutputIntegMesh = tHMR.create_integration_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern(), *tOutputInterpMesh );
+    std::shared_ptr< hmr::Integration_Mesh_HMR > tOutputIntegMesh = tHMR.create_integration_mesh( 1, 0, *tOutputInterpMesh );
 
     moris::Cell<std::string> tBlockNames = tOutputIntegMesh->get_block_set_names();
 
@@ -74,8 +86,8 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
     CHECK(tOutputInterpMesh->get_num_elems() == tOutputIntegMesh->get_num_elems());
 
     uint tSideNames = tOutputIntegMesh->get_num_side_sets();
-    CHECK(tSideNames == 6);
 
+    CHECK(tSideNames == 6);
 }
 }
 
