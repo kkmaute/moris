@@ -495,7 +495,6 @@ namespace moris
         mTotalDof = tDofCounter;
     }
 
-
 //------------------------------------------------------------------------------
 
     mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint        aNumVertices,
@@ -628,7 +627,7 @@ namespace moris
     void Set::create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
         // cell of field interpolators
-        mMasterFieldInterpolators.resize( mInterpDofTypeList.size() + mPropertyTypeList.size(), nullptr );
+        mMasterFieldInterpolators.resize( mInterpDofTypeList.size(), nullptr );
 
         // create a field interpolator for each dof type
         for( uint i = 0; i < mInterpDofTypeList.size(); i++ )
@@ -653,31 +652,6 @@ namespace moris
             mMasterFieldInterpolators( i ) = new Field_Interpolator( tNumOfFields,
                                                                      tFieldInterpolationRule,
                                                                      mMasterIPGeometryInterpolator );
-        }
-
-        // create a field interpolator for each property type
-        for( uint i = 0; i < mPropertyTypeList.size(); i++ )
-        {
-            // get the ith property type
-            // fem::Property_Type tPropertyType = mPropertyTypeList( i );
-
-            //moris::uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( tPropertyType );
-
-            // create the field interpolation rule for the ith dof type group
-            Interpolation_Rule tFieldInterpolationRule( mIPGeometryType,
-                                                        Interpolation_Type::LAGRANGE,
-                                                        mIPSpaceInterpolationOrder,
-                                                        this->get_auto_time_interpolation_type( 2 ), // fixme
-                                                        // If interpolation type CONSTANT, iInterpolation order is not used
-                                                        this->get_auto_interpolation_order( 2, mtk::Geometry_Type::LINE ) ); //fixme
-
-            // get number of field interpolated by the ith field interpolator
-            uint tNumOfFields = 1; // fixme
-
-            // create an interpolator for the ith dof type group
-            mMasterFieldInterpolators( mInterpDofTypeList.size() + i ) = new Field_Interpolator( tNumOfFields,
-                                                                                                 tFieldInterpolationRule,
-                                                                                                 mMasterIPGeometryInterpolator );
         }
     }
 
@@ -713,6 +687,32 @@ namespace moris
             mSlaveFieldInterpolators( i )  = new Field_Interpolator( tNumOfFields,
                                                                      tFieldInterpolationRule,
                                                                      mSlaveIPGeometryInterpolator );
+        }
+    }
+
+//------------------------------------------------------------------------------
+
+    void Set::create_properties()
+    {
+        // cell of properties
+        mMasterProperties.resize( mPropertyTypeList.size(), nullptr );
+
+        // create a field interpolator for each dof type
+        for( uint i = 0; i < mPropertyTypeList.size(); i++ )
+        {
+            // fixme create/get property active dof type list
+            Cell< Cell< MSI::Dof_Type > >  tActiveDofTypes;
+
+            // fixme create/get property val function
+            std::function< Matrix< DDRMat > ( Cell< Matrix< DDRMat > >    & aCoeff,
+                                              Cell< Field_Interpolator* > & aFieldInterpolator ) > tValFunction;
+
+            // fixme create/get property derivatives
+            Cell< std::function< Matrix< DDRMat > ( Cell< Matrix< DDRMat > >    & aCoeff,
+                                                    Cell< Field_Interpolator* > & aFieldInterpolator ) > > tDerFunctions( 0 );
+
+            // create an property for the ith property type
+            mMasterProperties( i ) = new Property( mPropertyTypeList( i ), tActiveDofTypes, tValFunction, tDerFunctions );
         }
     }
 
@@ -791,6 +791,9 @@ namespace moris
                 mIWGDofAssemblyMap( iIWG )( iDOF, 2 ) = startJDof;
                 mIWGDofAssemblyMap( iIWG )( iDOF, 3 ) = stopJDof;
             }
+
+            // set IWG field interpolators
+            tIWG->set_field_interpolators( mIWGMasterFieldInterpolators( iIWG ) );
         }
     }
 
@@ -848,6 +851,13 @@ namespace moris
                     mIWGDofAssemblyMap( iIWG )( iDOF, 2 ) = startJDof;
                     mIWGDofAssemblyMap( iIWG )( iDOF, 3 ) = stopJDof;
                 }
+
+                // set IWG field interpolators
+                tIWG->set_field_interpolators( mIWGMasterFieldInterpolators( iIWG ),
+                                               mtk::Master_Slave::MASTER );
+                tIWG->set_field_interpolators( mIWGSlaveFieldInterpolators( iIWG ),
+                                               mtk::Master_Slave::SLAVE );
+
             }
         }
 

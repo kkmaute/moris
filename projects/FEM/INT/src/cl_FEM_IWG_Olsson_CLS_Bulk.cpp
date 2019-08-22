@@ -36,12 +36,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Olsson_CLS_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Olsson_CLS_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* phi  = aFieldInterpolators( 0 );
-            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
+            Field_Interpolator* phi  = mMasterFI( 0 );
+            Field_Interpolator* nPhi = mMasterFI( 1 );
 
             // compute residual
             aResidual = trans( phi->N() ) * phi->gradt( 1 )
@@ -52,12 +54,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Olsson_CLS_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Olsson_CLS_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* phi  = aFieldInterpolators( 0 );
-            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
+            Field_Interpolator* phi  = mMasterFI( 0 );
+            Field_Interpolator* nPhi = mMasterFI( 1 );
 
             // set the jacobian size
             aJacobians.resize( 2 );
@@ -87,12 +91,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void IWG_Olsson_CLS_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                 Matrix< DDRMat >                   & aResidual,
-                                                                 moris::Cell< Field_Interpolator* > & aFieldInterpolators  )
+                                                                 Matrix< DDRMat >                   & aResidual )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* phi  = aFieldInterpolators( 0 );
-            Field_Interpolator* nPhi = aFieldInterpolators( 1 );
+            Field_Interpolator* phi  = mMasterFI( 0 );
+            Field_Interpolator* nPhi = mMasterFI( 1 );
 
             // compute the residual
             aResidual = trans( phi->N() ) * phi->gradt( 1 )

@@ -34,16 +34,13 @@ namespace moris
 
             void
             ( IWG_L2:: * mComputeFunction )( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                             Matrix< DDRMat >                   & aResidual,
-                                             moris::Cell< Field_Interpolator* > & aFieldInterpolators);
+                                             Matrix< DDRMat >                   & aResidual );
 
             void
-            ( IWG_L2:: * mComputeJacFunction )( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                moris::Cell< Field_Interpolator* > & aFielInterpolators );
+            ( IWG_L2:: * mComputeJacFunction )( moris::Cell< Matrix< DDRMat > >    & aJacobians );
 
             void
-            ( IWG_L2:: * mComputeResFunction )( Matrix< DDRMat >                   & aResidual,
-                                                moris::Cell< Field_Interpolator* > & aFielInterpolators );
+            ( IWG_L2:: * mComputeResFunction )( Matrix< DDRMat >                   & aResidual );
 
 //------------------------------------------------------------------------------
         public:
@@ -76,22 +73,19 @@ namespace moris
              * compute jacobian and residual
              */
             void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobian,
-                                                Matrix< DDRMat >                   & aResidual,
-                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+                                                Matrix< DDRMat >                   & aResidual );
 
 //------------------------------------------------------------------------------
             /**
              * compute jacobian
              */
-            void compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                   moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
              * compute residual
              */
-            void compute_residual( Matrix< DDRMat >                   & aResidual,
-                                   moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_residual( Matrix< DDRMat >                   & aResidual );
 
 //------------------------------------------------------------------------------
 //            /**
@@ -109,39 +103,33 @@ namespace moris
              * j = N'*N, r =
              */
             void compute_jacobian_and_residual_without_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                              Matrix< DDRMat >                   & aResidual,
-                                                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+                                                              Matrix< DDRMat >                   & aResidual );
 //------------------------------------------------------------------------------
             /**
              * j = N'*N + alpha * B'*B
              */
             void compute_jacobian_and_residual_with_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                           Matrix< DDRMat >                   & aResidual,
-                                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+                                                           Matrix< DDRMat >                   & aResidual );
 
 //------------------------------------------------------------------------------
             /**
              * j = N'*N
              */
-            void compute_jacobian_without_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                 moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_jacobian_without_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
              * j = N'*N + alpha * B'*B
              */
-            void compute_jacobian_with_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_jacobian_with_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians );
 
 //------------------------------------------------------------------------------
 
-            void compute_residual_without_alpha( Matrix< DDRMat >                   & aResidual,
-                                                 moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_residual_without_alpha( Matrix< DDRMat >                   & aResidual );
 
 //------------------------------------------------------------------------------
 
-            void compute_residual_with_alpha( Matrix< DDRMat >                   & aResidual,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_residual_with_alpha( Matrix< DDRMat >                   & aResidual );
 
 //------------------------------------------------------------------------------
 //            real

@@ -21,11 +21,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk_Test::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Hamilton_Jacobi_Bulk_Test::compute_residual( Matrix< DDRMat > & aResidual )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
+            Field_Interpolator* phi = mMasterFI( 0 );
 
             // velocity field value
             Matrix< DDRMat > aVN( 1, 3, 1.0 );
@@ -36,11 +35,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
+            Field_Interpolator* phi = mMasterFI( 0 );
 
             // velocity field value
             Matrix< DDRMat > aVN( 1, 3, 1.0 );
@@ -56,11 +54,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                           Matrix< DDRMat >                   & aResidual,
-                                                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+                                                                           Matrix< DDRMat >                   & aResidual )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
+            Field_Interpolator* phi = mMasterFI( 0 );
 
             // velocity field value
             Matrix< DDRMat > aVN( 1, 3, 1.0 );

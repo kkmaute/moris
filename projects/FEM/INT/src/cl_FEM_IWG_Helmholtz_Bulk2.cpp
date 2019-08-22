@@ -30,12 +30,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk2::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Helmholtz_Bulk2::compute_residual( Matrix< DDRMat >                   & aResidual )
         {
             // set field interpolator
-            Field_Interpolator* vN  = aFieldInterpolators( 0 );
-            Field_Interpolator* phi = aFieldInterpolators( 1 );
+            Field_Interpolator* vN  = mMasterFI( 0 );
+            Field_Interpolator* phi = mMasterFI( 1 );
 
             //FIXME set unfiltered velocity value
             uint tVNBases = vN->get_number_of_space_time_bases();
@@ -64,12 +63,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk2::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Helmholtz_Bulk2::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
             // set field interpolator
-            Field_Interpolator* vN  = aFieldInterpolators( 0 );
-            Field_Interpolator* phi = aFieldInterpolators( 1 );
+            Field_Interpolator* vN  = mMasterFI( 0 );
+            Field_Interpolator* phi = mMasterFI( 1 );
 
             //FIXME set unfiltered velocity value
             uint tVNBases = vN->get_number_of_space_time_bases();
@@ -113,12 +111,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void IWG_Helmholtz_Bulk2::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                 Matrix< DDRMat >                   & aResidual,
-                                                                 moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+                                                                 Matrix< DDRMat >                   & aResidual )
         {
             // set field interpolator
-            Field_Interpolator* vN  = aFieldInterpolators( 0 );
-            Field_Interpolator* phi = aFieldInterpolators( 1 );
+            Field_Interpolator* vN  = mMasterFI( 0 );
+            Field_Interpolator* phi = mMasterFI( 1 );
 
             //FIXME set unfiltered velocity value
             uint tVNBases = vN->get_number_of_space_time_bases();

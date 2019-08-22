@@ -19,8 +19,9 @@ namespace moris
             // set the active dof types
             mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
 
-            // set the active mp type
-            mActivePropertyTypes = { fem::Property_Type::TEMP_DIRICHLET };
+            // set the active property types
+            mActivePropertyTypes = { fem::Property_Type::CONDUCTIVITY,
+                                     fem::Property_Type::TEMP_DIRICHLET };
 
             // FIXME set a penalty
             mGamma = 1.0;
@@ -33,66 +34,60 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual
-            ( Matrix< DDRMat >                   & aResidual,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( Matrix< DDRMat > & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators();
 
-            // interpolated TBar from nodal values
-            Matrix< DDRMat > tTBar = tTemp->N() * mNodalWeakBCs;
+            // fixme interpolated TBar from nodal values
+            Matrix< DDRMat > tTBar = mMasterFI( 0 )->N() * mNodalWeakBCs;
 
             // compute the residual r_T
-            aResidual = - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal )
-                        + trans( mKappa * tTemp->Bx() ) * mNormal * ( tTemp->val()( 0 ) - tTBar( 0 ) )
-                        + mGamma * trans( tTemp->N() ) * ( tTemp->val()( 0 ) - tTBar( 0 ) );
+            aResidual = - trans( mMasterFI( 0 )->N() ) * dot( mKappa * mMasterFI( 0 )->gradx( 1 ), mNormal )
+                        + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) )
+                        + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian
-            ( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( moris::Cell< Matrix< DDRMat > > & aJacobians )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators();
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = - trans( tTemp->N() ) * trans( mNormal ) * mKappa * tTemp->Bx()
-                              + trans( mKappa * tTemp->Bx() ) * mNormal * tTemp->N()
-                              + mGamma * trans( tTemp->N() ) * tTemp->N();
+            aJacobians( 0 ) = - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * mKappa * mMasterFI( 0 )->Bx()
+                              + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * mMasterFI( 0 )->N()
+                              + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual
-            ( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-              Matrix< DDRMat >                   & aResidual,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > > & aJacobians,
+                                                                                       Matrix< DDRMat >                & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators();
 
             // interpolated TBar from nodal values
-            Matrix< DDRMat > tTBar = tTemp->N() * mNodalWeakBCs;
+            Matrix< DDRMat > tTBar = mMasterFI( 0 )->N() * mNodalWeakBCs;
 
             // compute the residual r_T
-            aResidual = - trans( tTemp->N() ) * dot( mKappa * tTemp->gradx( 1 ), mNormal )
-                        + trans( mKappa * tTemp->Bx() ) * mNormal * ( tTemp->val()( 0 ) - tTBar( 0 ) )
-                        + mGamma * trans( tTemp->N() ) * ( tTemp->val()( 0 ) - tTBar( 0 ) );
+            aResidual = - trans( mMasterFI( 0 )->N() ) * dot( mKappa * mMasterFI( 0 )->gradx( 1 ), mNormal )
+                        + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) )
+                        + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) );
 
             // set the jacobian size
-                       aJacobians.resize( 1 );
+            aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = - trans( tTemp->N() ) * trans( mNormal ) * mKappa * tTemp->Bx()
-                              + trans( mKappa * tTemp->Bx() ) * mNormal * tTemp->N()
-                              + mGamma * trans( tTemp->N() ) * tTemp->N();
+            aJacobians( 0 ) = - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * mKappa * mMasterFI( 0 )->Bx()
+                              + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * mMasterFI( 0 )->N()
+                              + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
         }
 
 //------------------------------------------------------------------------------

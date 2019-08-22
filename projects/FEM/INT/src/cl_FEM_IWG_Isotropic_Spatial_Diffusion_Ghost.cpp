@@ -37,16 +37,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( Matrix< DDRMat >            & aResidual,
-                                                                      Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                                                                      Cell< Field_Interpolator* > & aRightFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( Matrix< DDRMat > & aResidual)
         {
             // check, if order of shape functions is supported
             MORIS_ERROR( mOrder < 4, " Ghost stabilization for this order of shape fncts. not supported yet. " );
 
+            // check master and slave field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+
             // set field interpolators for left and right
-            Field_Interpolator* tTemp_Left  = aLeftFieldInterpolators( 0 );
-            Field_Interpolator* tTemp_Right = aRightFieldInterpolators( 0 );
+            Field_Interpolator* tTemp_Left  = mMasterFI( 0 );
+            Field_Interpolator* tTemp_Right = mSlaveFI( 0 );
 
             // compute the residual r_T
             uint tResSize_Left  = tTemp_Left ->get_number_of_space_time_coefficients();
@@ -199,16 +201,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                      Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                                                                      Cell< Field_Interpolator* > & aRightFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian( Cell< Matrix< DDRMat > >    & aJacobians )
         {
             // check, if order of shape functions is supported
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian - Ghost stabilization for this order of shape fncts. not supported yet. " );
 
+            // check master and slave field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+
             // set field interpolators for left and right
-            Field_Interpolator* tTemp_Left  = aLeftFieldInterpolators( 0 );
-            Field_Interpolator* tTemp_Right = aRightFieldInterpolators( 0 );
+            Field_Interpolator* tTemp_Left  = mMasterFI( 0 );
+            Field_Interpolator* tTemp_Right = mSlaveFI( 0 );
 
             // set the jacobian size
             aJacobians.resize( 1 );
@@ -354,9 +358,7 @@ namespace moris
 
         void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual
             ( Cell< Matrix< DDRMat > >    & aJacobians,
-              Matrix< DDRMat >            & aResidual,
-              Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-              Cell< Field_Interpolator* > & aRightFieldInterpolators )
+              Matrix< DDRMat >            & aResidual )
         {
             MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual - Not supported." );
         }
@@ -364,7 +366,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix<DDRMat> IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix (uint aOrderGhost)
+        Matrix<DDRMat> IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix ( uint aOrderGhost )
         {
             // init the normal matrix
             Matrix< DDRMat > tNormalMatrix;

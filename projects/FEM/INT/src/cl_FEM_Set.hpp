@@ -13,6 +13,7 @@
 #include "cl_MSI_Equation_Set.hpp"     //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"            //FEM/INT/src
 #include "cl_FEM_Node_Base.hpp"        //FEM/INT/src
+#include "cl_FEM_Property.hpp"             //FEM/INT/src
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_MTK_Cell_Cluster.hpp"
@@ -98,8 +99,11 @@ namespace MSI
         uint                                      mTotalDof;
         uint                                      mNumOfInterp;
 
-        // list of model parameter type for the set
+        // list of property type for the set
         moris::Cell< fem::Property_Type > mPropertyTypeList;
+
+        // list of property pointers for the set
+        moris::Cell< Property* >  mMasterProperties;
 
         // number of integration points
         uint mNumOfIntegPoints;
@@ -253,15 +257,13 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        enum fem::Element_Type
-        get_set_element_type() const
+        enum fem::Element_Type get_set_element_type() const
         {
             return mElementType;
         }
 
 
-        moris::Cell< mtk::Cluster const* > const &
-        get_clusters_on_set() const
+        moris::Cell< mtk::Cluster const* > const & get_clusters_on_set() const
         {
             return mMeshClusterList;
         }
@@ -401,8 +403,7 @@ namespace MSI
         /**
          * get the field interpolators for a dof type
          */
-         Field_Interpolator*
-         get_dof_type_field_interpolators ( enum MSI::Dof_Type aDofType);
+         Field_Interpolator* get_dof_type_field_interpolators ( enum MSI::Dof_Type aDofType);
 
 //------------------------------------------------------------------------------
 
@@ -422,6 +423,10 @@ namespace MSI
         void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
 
         void create_field_interpolators_double( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+//------------------------------------------------------------------------------
+
+        void create_properties();
 
 //------------------------------------------------------------------------------
 

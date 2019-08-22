@@ -24,11 +24,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Interface::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                        moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Helmholtz_Interface::compute_residual( Matrix< DDRMat >                   & aResidual )
         {
             // set the field interpolator
-            Field_Interpolator* vN = aFieldInterpolators( 0 );
+            Field_Interpolator* vN = mMasterFI( 0 );
 
             //FIXME set the interface normal
             Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
@@ -39,11 +38,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Interface::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                        moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Helmholtz_Interface::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
             // set the field interpolator
-            Field_Interpolator* vN = aFieldInterpolators( 0 );
+            Field_Interpolator* vN = mMasterFI( 0 );
 
             //FIXME set the interface normal
             Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
@@ -58,11 +56,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void IWG_Helmholtz_Interface::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                     Matrix< DDRMat >                   & aResidual,
-                                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators)
+                                                                     Matrix< DDRMat >                   & aResidual )
         {
             // set the field interpolator
-            Field_Interpolator* vN = aFieldInterpolators( 0 );
+            Field_Interpolator* vN = mMasterFI( 0 );
 
             //FIXME set the interface normal
             Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );

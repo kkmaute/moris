@@ -60,14 +60,13 @@ namespace moris
                       const moris::Cell< moris_index >                  aDoubleSidesetList,
                       const moris_index                                 aMeshPairIndex,
                       const bool                                        aUseMultigrid) : mMeshManager( aMeshManager ),
-                                                                                          mMeshPairIndex( aMeshPairIndex ),
-                                                                                          mUseMultigrid(aUseMultigrid)
+                                                                                         mMeshPairIndex( aMeshPairIndex ),
+                                                                                         mUseMultigrid(aUseMultigrid)
         {
             // start timer
             tic tTimer1;
 
             mDofOrder = aBSplineOrder;
-
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: initialize

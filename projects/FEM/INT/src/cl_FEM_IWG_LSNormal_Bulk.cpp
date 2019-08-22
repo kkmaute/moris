@@ -33,12 +33,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_LSNormal_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* nPhi = aFieldInterpolators( 0 );
-            Field_Interpolator* phi  = aFieldInterpolators( 1 );
+            Field_Interpolator* nPhi = mMasterFI( 0 );
+            Field_Interpolator* phi  = mMasterFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
@@ -62,12 +64,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* nPhi = aFieldInterpolators( 0 );
-            Field_Interpolator* phi  = aFieldInterpolators( 1 );
+            Field_Interpolator* nPhi = mMasterFI( 0 );
+            Field_Interpolator* phi  = mMasterFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
@@ -104,12 +108,14 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                               Matrix< DDRMat >                   & aResidual,
-                                                               moris::Cell< Field_Interpolator* > & aFieldInterpolators)
+                                                               Matrix< DDRMat >                   & aResidual )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* nPhi = aFieldInterpolators( 0 );
-            Field_Interpolator* phi  = aFieldInterpolators( 1 );
+            Field_Interpolator* nPhi = mMasterFI( 0 );
+            Field_Interpolator* phi  = mMasterFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();

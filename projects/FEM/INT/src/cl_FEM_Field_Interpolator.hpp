@@ -62,12 +62,6 @@ class Property;
             // field interpolator dof type
             MSI::Dof_Type mDofType;
 
-            // field interpolator property
-            const moris::fem::Property* mProperty = nullptr;
-
-            // field interpolator property type
-            fem::Property_Type mPropertyType;
-
             // flag for evaluation
             bool mNEval      = true;
             bool mBxEval     = true;
@@ -100,13 +94,8 @@ class Property;
                                       Geometry_Interpolator*   aGeometryInterpolator,
                                 const MSI::Dof_Type            aDofType = MSI::Dof_Type::UNDEFINED );
 
-            Field_Interpolator( const uint                   & aNumberOfFields,
-                                const Interpolation_Rule     & aFieldInterpolationRule,
-                                      Geometry_Interpolator*   aGeometryInterpolator,
-                                const fem::Property*           aProperty,
-                                const fem::Property_Type       aPropertyType = fem::Property_Type::UNDEFINED );
             /**
-             * trivial constructor
+             * trivial constructor for unit test
              */
             Field_Interpolator( const uint & aNumberOfFields) : mNumberOfFields( aNumberOfFields )
             {

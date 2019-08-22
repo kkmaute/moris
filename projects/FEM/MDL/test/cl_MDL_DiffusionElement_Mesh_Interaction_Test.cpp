@@ -131,7 +131,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
 		moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		// STEP 1: create linear solver and algorithm
+		// STEP 1: create linear solver and algorimUseMultigridthm
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		dla::Solver_Factory  tSolFactory;
@@ -337,7 +337,6 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
 		std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
 
 		tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
-
 		tsa::Time_Solver tTimeSolver;
 
 		tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );

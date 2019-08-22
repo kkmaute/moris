@@ -90,7 +90,6 @@ set(HEADERS
     fn_FEM_Rotation_Matrix.hpp
     cl_FEM_Property.hpp
     cl_FEM_Property_Factory.hpp
-    cl_FEM_Property_Temp_Dirichlet.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -107,7 +106,7 @@ set(LIB_SOURCES
     cl_FEM_Element_Time_Sideset.cpp
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp
+        cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.cpp
@@ -116,7 +115,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_Helmholtz_Interface.cpp
     cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
     cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
-    cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
     cl_FEM_IWG_LSNormal_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Interface.cpp
@@ -129,7 +127,6 @@ set(LIB_SOURCES
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
     cl_FEM_Property_Factory.cpp
-    cl_FEM_Property_Temp_Dirichlet.cpp
     )
 
 # List library dependencies

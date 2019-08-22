@@ -22,12 +22,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Hamilton_Jacobi_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
-            Field_Interpolator* vN  = aFieldInterpolators( 1 );
+            Field_Interpolator* phi = mMasterFI( 0 );
+            Field_Interpolator* vN  = mMasterFI( 1 );
 
            //compute the residual
            aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );
@@ -35,12 +34,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
-            Field_Interpolator* vN  = aFieldInterpolators( 1 );
+            Field_Interpolator* phi = mMasterFI( 0 );
+            Field_Interpolator* vN  = mMasterFI( 1 );
 
             // set the jacobian size
             aJacobians.resize( 2 );
@@ -56,12 +54,11 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void IWG_Hamilton_Jacobi_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                      Matrix< DDRMat >                   & aResidual,
-                                                                      moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+                                                                      Matrix< DDRMat >                   & aResidual )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
-            Field_Interpolator* vN  = aFieldInterpolators( 1 );
+            Field_Interpolator* phi = mMasterFI( 0 );
+            Field_Interpolator* vN  = mMasterFI( 1 );
 
             //compute the residual
             aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );

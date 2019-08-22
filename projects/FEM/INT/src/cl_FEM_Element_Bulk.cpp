@@ -63,15 +63,13 @@ namespace moris
 
                     // compute jacobian at evaluation point
                     moris::Cell< Matrix< DDRMat > > tJacobians;
-                    mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians, mSet->get_IWG_field_interpolators()( iIWG ) );
+                    mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians );
 //                    print( tJacobians(0), "tJacobians" );
 //
 //                    // check with finite difference
 //                    real tPerturbation = 1E-6;
 //                    Cell< Matrix< DDRMat > > tJacobiansFD;
-//                    mSet->get_IWGs()( iIWG )->compute_jacobian_FD( tJacobiansFD,
-//                                                                   mSet->get_IWG_field_interpolators()( iIWG ),
-//                                                                   tPerturbation );
+//                    mSet->get_IWGs()( iIWG )->compute_jacobian_FD( tJacobiansFD, tPerturbation );
 //                    print(tJacobiansFD(0),"tJacobiansFD");
 
                     // loop over the IWG active dof types
@@ -131,7 +129,7 @@ namespace moris
 
                     // compute residual at evaluation point
                     Matrix< DDRMat > tResidual;
-                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual, mSet->get_IWG_field_interpolators()( iIWG ) );
+                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual );
 
                     // add contribution to residual from evaluation point
                     mSet->mResidual( { mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 1 ) },

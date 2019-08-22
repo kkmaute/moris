@@ -128,19 +128,20 @@ TEST_CASE( "IWG_Olsson_CLS", "[moris],[fem],[IWG_OCLS]" )
         // create an IWG Olsson CLS Bulk
         IWG_Olsson_CLS_Bulk tIWGOCLSBulk;
 
+        // set field interpolators
+        tIWGOCLSBulk.set_field_interpolators( tFieldInterpolators );
+
         // check evaluation of the residual for IWG Olsson CLS Bulk ?
         //------------------------------------------------------------------------------
         // evaluate the residual from IWG_Olsson_CLS_Bulk
         Matrix< DDRMat > tResidualOCLSBulk;
-        tIWGOCLSBulk.compute_residual( tResidualOCLSBulk,
-                                       tFieldInterpolators );
+        tIWGOCLSBulk.compute_residual( tResidualOCLSBulk );
 
         // check evaluation of the jacobian for IWG Olsson CLS Bulk by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian from IWG_Olsson_CLS_Bulk
         Cell< Matrix< DDRMat > > tJacobiansOCLSBulk( 2 );
-        tIWGOCLSBulk.compute_jacobian( tJacobiansOCLSBulk,
-                                       tFieldInterpolators );
+        tIWGOCLSBulk.compute_jacobian( tJacobiansOCLSBulk );
 
         //define a boolean for check
         bool tJacobianBulk = true;
@@ -161,8 +162,7 @@ TEST_CASE( "IWG_Olsson_CLS", "[moris],[fem],[IWG_OCLS]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualOCLSBulkPert;
-            tIWGOCLSBulk.compute_residual( tResidualOCLSBulkPert,
-                                           tFieldInterpolators );
+            tIWGOCLSBulk.compute_residual( tResidualOCLSBulkPert );
 
             // compute the jacobian by FD for the kth phiHat
             Matrix< DDRMat > tJacobianRow;
@@ -207,8 +207,7 @@ TEST_CASE( "IWG_Olsson_CLS", "[moris],[fem],[IWG_OCLS]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualOCLSBulkPert;
-            tIWGOCLSBulk.compute_residual( tResidualOCLSBulkPert,
-                                           tFieldInterpolators );
+            tIWGOCLSBulk.compute_residual( tResidualOCLSBulkPert );
 
             // compute the jacobian by FD for the kth phiHat
             Matrix< DDRMat > tJacobianRow;

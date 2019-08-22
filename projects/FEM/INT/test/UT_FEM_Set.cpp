@@ -2,8 +2,6 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Property.hpp" //FEM/INT/src
-#include "cl_FEM_Property_Factory.hpp" //FEM/INT/src
 #include "linalg_typedefs.hpp"
 
 #define protected public
@@ -17,68 +15,6 @@ namespace moris
 {
     namespace fem
     {
-//        TEST_CASE( "Property", "[moris],[fem],[Property]" )
-//        {
-//            // create a factory
-//            Property_Factory tPropFactory;
-//
-//            // create a property object
-//            Property * tProperty = tPropFactory.create_property( fem::Property_Type::TEMP_DIRICHLET );
-//
-//            // check property type
-//            fem::Property_Type tPropertyType = tProperty->get_property_type();
-//            CHECK( equal_to( static_cast< uint >( tPropertyType ), 1 ) );
-//
-//            // check val_coeff
-//            Matrix< DDRMat > tCoeff;
-//            tProperty->val_coeff( tCoeff );
-//            print( tCoeff, "tCoeff" );
-//
-//            // create a field interpolator for the property
-//            uint tNumberOfFields = 1;
-//
-//            //create a quad4 space element
-//            Matrix< DDRMat > tXHat( 4, 2 );
-//            tXHat( 0, 0 ) = 0.0; tXHat( 0, 1 ) = 0.0;
-//            tXHat( 1, 0 ) = 3.0; tXHat( 1, 1 ) = 1.25;
-//            tXHat( 2, 0 ) = 4.5; tXHat( 2, 1 ) = 4.0;
-//            tXHat( 3, 0 ) = 1.0; tXHat( 3, 1 ) = 3.25;
-//
-//            //create a line time element
-//            Matrix< DDRMat > tTHat( 2, 1 );
-//            tTHat( 0 ) = 0.0;
-//            tTHat( 1 ) = 5.0;
-//
-//            //create a space geometry interpolation rule
-//            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
-//                                                Interpolation_Type::LAGRANGE,
-//                                                mtk::Interpolation_Order::LINEAR,
-//                                                Interpolation_Type::LAGRANGE,
-//                                                mtk::Interpolation_Order::LINEAR );
-//
-//            //create a space and a time geometry interpolator
-//            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
-//
-//            //set the coefficients xHat, tHat
-//            tGeomInterpolator->set_coeff( tXHat, tTHat );
-//
-//            Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
-//                                                    Interpolation_Type::LAGRANGE,
-//                                                    mtk::Interpolation_Order::LINEAR,
-//                                                    Interpolation_Type::LAGRANGE,
-//                                                    mtk::Interpolation_Order::LINEAR );
-//
-//            Field_Interpolator* tFI = new Field_Interpolator ( tNumberOfFields,
-//                                                               tInterpolationRule,
-//                                                               tGeomInterpolator,
-//                                                               tProperty,
-//                                                               tPropertyType );
-//
-//            // clean up
-//            delete tProperty;
-//            delete tGeomInterpolator;
-//            delete tFI;
-//        }
 
         TEST_CASE( "Set", "[moris],[fem],[FEMSet]" )
         {
@@ -127,7 +63,7 @@ namespace moris
                 CHECK( equal_to( static_cast< uint >( tSet.mEqnObjDofTypeList( 5 ) ), 6 ) ); //LS1
 
 
-            std::cout<<"Test create_unique_dof_type_lists"<<std::endl;
+            std::cout<<"Test create_dof_type_lists"<<std::endl;
             //------------------------------------------------------------------------------
 
                 // call create_uniaue_dof_type_lists
@@ -135,7 +71,6 @@ namespace moris
 
                 // check the size of mInterpDofTypeList
                 CHECK( equal_to( tSet.mInterpDofTypeList.size(), 4 ) );
-
 
                 // check the content of mInterpDofTypeList
                 CHECK( equal_to( static_cast< uint >( tSet.mInterpDofTypeList( 0 )( 0 ) ), 3 ) );
@@ -198,6 +133,19 @@ namespace moris
                 CHECK( equal_to( static_cast< uint >( tSet.mInterpDofAssemblyMap( 2, 1 ) ), 4 ) );
                 CHECK( equal_to( static_cast< uint >( tSet.mInterpDofAssemblyMap( 3, 0 ) ), 5 ) );
                 CHECK( equal_to( static_cast< uint >( tSet.mInterpDofAssemblyMap( 3, 1 ) ), 5 ) );
+
+            std::cout<<"Test create_unique_property_type_list"<<std::endl;
+            //------------------------------------------------------------------------------
+
+                // create unique list of property type
+                tSet.create_unique_property_type_list();
+
+                // check mPropertyTypeList size
+                CHECK( equal_to( tSet.mPropertyTypeList.size(), 2 ) );
+
+                // check mInterpDofAssemblyMap content
+                CHECK( equal_to( static_cast< uint >( tSet.mPropertyTypeList( 0 ) ), 3 ) );
+                CHECK( equal_to( static_cast< uint >( tSet.mPropertyTypeList( 1 ) ), 1 ) );
 
             std::cout<<"Test create_IWG_set_info"<<std::endl;
             //------------------------------------------------------------------------------

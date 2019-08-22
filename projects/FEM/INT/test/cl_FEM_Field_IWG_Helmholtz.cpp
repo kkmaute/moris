@@ -98,19 +98,20 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_Helmholtz]" )
         // create an IWG Helmholtz Bulk
         IWG_Helmholtz_Bulk tIWGHelmBulk;
 
+        // set field interpolators
+        tIWGHelmBulk.set_field_interpolators( tFieldInterpolators );
+
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------
         // evaluate the residual from IWG_Helmholtz_Bulk
         Matrix< DDRMat > tResidualHelmBulk;
-        tIWGHelmBulk.compute_residual( tResidualHelmBulk,
-                                       tFieldInterpolators );
+        tIWGHelmBulk.compute_residual( tResidualHelmBulk );
 
         // check evaluation of the jacobian for IWG Helmholtz Bulk by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian from IWG_Helmholtz_Bulk
         Cell< Matrix< DDRMat > > tJacobiansHelmBulk( 1 );
-        tIWGHelmBulk.compute_jacobian( tJacobiansHelmBulk,
-                                       tFieldInterpolators );
+        tIWGHelmBulk.compute_jacobian( tJacobiansHelmBulk );
 
         //define a boolean for check
         bool tCheckJacobianBulk = true;
@@ -129,8 +130,7 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_Helmholtz]" )
             tFieldInterpolators( 0 )->set_coeff( tUHatPert );
 
             // compute the perturbed residual
-            tIWGHelmBulk.compute_residual( tResidualHelmBulkPert,
-                                           tFieldInterpolators );
+            tIWGHelmBulk.compute_residual( tResidualHelmBulkPert );
 
             // compute the jacobian by FD for the kth uHat
             tJacobianRow = ( tResidualHelmBulkPert - tResidualHelmBulk ) / tPert;

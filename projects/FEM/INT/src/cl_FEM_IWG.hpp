@@ -12,6 +12,7 @@
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_Matrix.hpp"                    //LNA/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Property.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"        //FEM/MSI/src
 
@@ -40,8 +41,18 @@ namespace moris
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mActiveDofTypes;
 
+            // field interpolators
+            moris::Cell< Field_Interpolator* > mMasterFI;
+            moris::Cell< Field_Interpolator* > mSlaveFI;
+
             // active property type
             moris::Cell< fem::Property_Type > mActivePropertyTypes;
+
+            // properties
+            moris::Cell< Property* > mMasterProp;
+
+            // global active dof types
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mActiveDofTypesGlobal;
 
             // FIXME temporary until other way
             uint mSpaceDim = 3;
@@ -71,6 +82,8 @@ namespace moris
                 mNodalWeakBCs = aNodalWeakBCs;
             }
 
+//------------------------------------------------------------------------------
+
             /**
              * set normal
              * @param[ in ] aNormal normal vector
@@ -79,6 +92,160 @@ namespace moris
             {
                 mNormal = aNormal;
             }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * set field interpolators
+             * @param[ in ] aFieldInterpolators cell of field interpolator pointers
+             */
+            void set_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators,
+                                          mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                // check input size
+                MORIS_ASSERT( aFieldInterpolators.size() == mActiveDofTypes.size(), "IWG::set_field_interpolators - wrong input size. " );
+
+                // set field interpolators
+                if ( aIsMaster == mtk::Master_Slave::MASTER )
+                {
+                    // set master field interpolators
+                    mMasterFI = aFieldInterpolators;
+                }
+                else
+                {
+                    // set slave field interpolators
+                    mSlaveFI = aFieldInterpolators;
+                }
+
+            }
+
+            /**
+              * check that field interpolators were assigned
+              */
+             void check_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+             {
+                 // master field interpolators
+                 if ( aIsMaster == mtk::Master_Slave::MASTER )
+                 {
+                     // check master field interpolators cell size
+                     MORIS_ASSERT( mMasterFI.size() == mActiveDofTypes.size(), "IWG::check_field_interpolators - wrong master FI size. " );
+
+                     // loop over all master FI and check that they are assigned
+                     for( uint iFI = 0; iFI < mActiveDofTypes.size(); iFI++ )
+                     {
+                         MORIS_ASSERT( mMasterFI( iFI ) != nullptr, "IWG::check_field_interpolators - master FI missing. " );
+                     }
+                 }
+                 // slave field interpolators
+                 else
+                 {
+                    // check slave field interpolators cell size
+                    MORIS_ASSERT( mSlaveFI.size() == mActiveDofTypes.size(), "IWG::check_field_interpolators - wrong slave FI size. " );
+
+                    // loop over all slave FI and check that they are assigned
+                    for( uint iFI = 0; iFI < mActiveDofTypes.size(); iFI++ )
+                    {
+                        MORIS_ASSERT( mSlaveFI( iFI ) != nullptr, "IWG::check_field_interpolators - slave FI missing. " );
+                    }
+                 }
+             }
+
+//------------------------------------------------------------------------------
+             /**
+              * set properties
+              * @param[ in ] aProperties cell of property pointers
+              */
+             void set_properties( moris::Cell< Property* > & aProperties,
+                                  mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+             {
+                 // check input size
+                 MORIS_ASSERT( aProperties.size() == mActivePropertyTypes.size(), "IWG::set_properties - wrong input size. " );
+
+                 // fixme check we pass in the right properties
+
+                 // set properties
+                 mMasterProp = aProperties;
+
+                 // create a global dof type list
+                 this->create_global_dof_types_list();
+             }
+
+             /**
+               * check that properties were assigned
+               */
+              void check_properties( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+              {
+                  // master properties
+                  if ( aIsMaster == mtk::Master_Slave::MASTER )
+                  {
+                      // check master field interpolators cell size
+                      MORIS_ASSERT( mMasterProp.size() == mActivePropertyTypes.size(), "IWG::check_properties - wrong master Prop size. " );
+
+                      // loop over all master FI and check that they are assigned
+                      for( uint iProp = 0; iProp < mActivePropertyTypes.size(); iProp++ )
+                      {
+                          MORIS_ASSERT( mMasterProp( iProp ) != nullptr, "IWG::check_properties - master property missing. " );
+                      }
+                  }
+              }
+
+//------------------------------------------------------------------------------
+
+              void create_global_dof_types_list()
+              {
+                  // set the size of the active dof type list
+                  uint tCounterMax = this->get_active_dof_types().size();
+
+                  for ( Property* tProperty : mMasterProp )
+                  {
+                      tCounterMax += tProperty->get_active_dof_types().size();
+                  }
+                  mActiveDofTypesGlobal.resize( tCounterMax );
+                  moris::Cell< sint > tCheckList( tCounterMax, -1 );
+
+                  // init total dof counter
+                  uint tCounter = 0;
+
+                  // get active dof type for IWG
+                  for ( uint iDOF = 0; iDOF < mActiveDofTypes.size(); iDOF++ )
+                  {
+                      tCheckList( tCounter ) = static_cast< uint >( mActiveDofTypes( iDOF )( 0 ) );
+                      mActiveDofTypesGlobal( tCounter ) = mActiveDofTypes( iDOF );
+                      tCounter++;
+                  }
+
+                  for ( Property* tProperty : mMasterProp )
+                  {
+                      // get active dof type
+                      moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_active_dof_types();
+
+                      for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                      {
+                          // check enum is not already in the list
+                          bool tCheck = false;
+                          for( uint i = 0; i < tCounter; i++ )
+                          {
+                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                          }
+
+                          // if dof enum not in the list
+                          if ( !tCheck )
+                          {
+                              tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                              mActiveDofTypesGlobal( tCounter ) = tActiveDofType( iDOF );
+                              tCounter++;
+                          }
+                      }
+                  }
+
+                  // get the number of unique dof type groups, i.e. the number of interpolators
+                  mActiveDofTypesGlobal.resize( tCounter );
+              };
+
+              const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_types_list() const
+              {
+                  return mActiveDofTypesGlobal;
+              };
 
 //------------------------------------------------------------------------------
             /**
@@ -113,15 +280,7 @@ namespace moris
             /**
              * evaluates the residual
              */
-            virtual void compute_residual( Matrix< DDRMat >                   & aResidual,
-                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators)
-            {
-                MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
-            }
-
-            virtual void compute_residual( Matrix< DDRMat >                   & aResidual,
-                                           moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                                           moris::Cell< Field_Interpolator* > & aRightFieldInterpolators )
+            virtual void compute_residual( Matrix< DDRMat > & aResidual )
             {
                 MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
             }
@@ -130,181 +289,119 @@ namespace moris
             /**
              * evaluates the Jacobian
              */
-            virtual void compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators)
+            virtual void compute_jacobian( moris::Cell< Matrix< DDRMat > > & aJacobians )
             {
                 MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
             }
 
-            virtual void compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                           moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                                           moris::Cell< Field_Interpolator* > & aRightFieldInterpolators )
-            {
-                MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
-            }
 //------------------------------------------------------------------------------
             /**
              * evaluates the residual and the Jacobian
              */
-            virtual void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                        Matrix< DDRMat >                   & aResidual,
-                                                        moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+            virtual void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > > & aJacobians,
+                                                        Matrix< DDRMat >                & aResidual )
             {
                 MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
             }
-
-            virtual void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                        Matrix< DDRMat >                   & aResidual,
-                                                        moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                                                        moris::Cell< Field_Interpolator* > & aRightFieldInterpolators)
-            {
-                MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
-            }
-
 
 //------------------------------------------------------------------------------
             /**
              * evaluates the Jacobian by finite difference
              */
-            virtual void compute_jacobian_FD( moris::Cell< Matrix< DDRMat > >    & aJacobiansFD,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolators,
-                                              real                                 aPerturbation )
+            virtual void compute_jacobian_FD( moris::Cell< Matrix< DDRMat > > & aJacobiansFD,
+                                              real                              aPerturbation,
+                                              mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // set the jacobian size
-                aJacobiansFD.resize( aFieldInterpolators.size() );
-
-                // loop over the left field interpolator
-                for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
+                if( aIsMaster == mtk::Master_Slave::MASTER )
                 {
-                    aJacobiansFD( iFI ).set_size( aFieldInterpolators( 0 )->get_number_of_space_time_coefficients(),
-                                                  aFieldInterpolators( iFI )->get_number_of_space_time_coefficients(),
-                                                  0.0 );
+                    // set the jacobian size
+                    aJacobiansFD.resize( mMasterFI.size() );
 
-                    // get field interpolator coefficients
-                    Matrix< DDRMat > tCoeff = aFieldInterpolators( iFI )->get_coeff();
-
-                    for( uint iCoeff = 0; iCoeff< aFieldInterpolators( iFI )->get_number_of_space_time_coefficients(); iCoeff++ )
+                    // loop over the left field interpolator
+                    for( uint iFI = 0; iFI < mMasterFI.size(); iFI++ )
                     {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;
+                        aJacobiansFD( iFI ).set_size( mMasterFI( 0 )->get_number_of_space_time_coefficients(),
+                                                      mMasterFI( iFI )->get_number_of_space_time_coefficients(),
+                                                      0.0 );
 
-                        // setting the perturbed coefficients
-                        aFieldInterpolators( iFI )->set_coeff( tCoeffPert );
+                        // get field interpolator coefficients
+                        Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
 
-                        // evaluate the residual
-                        Matrix< DDRMat > tResidual_Plus;
-                        this->compute_residual( tResidual_Plus, aFieldInterpolators);
+                        for( uint iCoeff = 0; iCoeff< mMasterFI( iFI )->get_number_of_space_time_coefficients(); iCoeff++ )
+                        {
+                            // perturbation of the coefficent
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;
 
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation;
+                            // setting the perturbed coefficients
+                            mMasterFI( iFI )->set_coeff( tCoeffPert );
 
-                        // setting the perturbed coefficients
-                        aFieldInterpolators( iFI )->set_coeff( tCoeffPert );
+                            // evaluate the residual
+                            Matrix< DDRMat > tResidual_Plus;
+                            this->compute_residual( tResidual_Plus);
 
-                        // evaluate the residual
-                        Matrix< DDRMat > tResidual_Minus;
-                        this->compute_residual( tResidual_Minus, aFieldInterpolators );
+                            // perturbation of the coefficent
+                            tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation;
 
-                        // evaluate Jacobian
-                        aJacobiansFD( iFI ).get_column( iCoeff ) = ( tResidual_Plus - tResidual_Minus )/ ( 2.0 * aPerturbation );
+                            // setting the perturbed coefficients
+                            mMasterFI( iFI )->set_coeff( tCoeffPert );
 
+                            // evaluate the residual
+                            Matrix< DDRMat > tResidual_Minus;
+                            this->compute_residual( tResidual_Minus );
+
+                            // evaluate Jacobian
+                            aJacobiansFD( iFI ).get_column( iCoeff ) = ( tResidual_Plus - tResidual_Minus )/ ( 2.0 * aPerturbation );
+
+                        }
+                        // reset the coefficients values
+                        mMasterFI( iFI )->set_coeff( tCoeff );
                     }
-                    // reset the coefficients values
-                    aFieldInterpolators( iFI )->set_coeff( tCoeff );
                 }
-            }
-
-            virtual void compute_jacobian_FD( moris::Cell< Matrix< DDRMat > >    & aJacobiansFD,
-                                              moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                                              moris::Cell< Field_Interpolator* > & aRightFieldInterpolators,
-                                              real                                 aPerturbation )
-            {
-                // set the jacobian size
-                aJacobiansFD.resize( aLeftFieldInterpolators.size() );
-
-                // loop over the left field interpolator
-                for( uint iLeftFI = 0; iLeftFI < aLeftFieldInterpolators.size(); iLeftFI++ )
+                else
                 {
-                    aJacobiansFD( iLeftFI ).set_size(   aLeftFieldInterpolators( 0 )->get_number_of_space_time_coefficients()
-                                                      + aRightFieldInterpolators( 0 )->get_number_of_space_time_coefficients(),
-                                                        aLeftFieldInterpolators( iLeftFI )->get_number_of_space_time_coefficients()
-                                                      + aRightFieldInterpolators( iLeftFI )->get_number_of_space_time_coefficients(),
-                                                        0.0 );
+                    // set the jacobian size
+                    aJacobiansFD.resize( mSlaveFI.size() );
 
-                    // get field interpolator coefficients
-                    Matrix< DDRMat > tCoeff = aLeftFieldInterpolators( iLeftFI )->get_coeff();
-
-                    for( uint iCoeff = 0; iCoeff< aLeftFieldInterpolators( iLeftFI )->get_number_of_space_time_coefficients(); iCoeff++ )
+                    // loop over the right field interpolators
+                    for( uint iRightFI = 0; iRightFI < mSlaveFI.size(); iRightFI++ )
                     {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;
+                        // get field interpolator coefficients
+                        Matrix< DDRMat > tCoeff = mSlaveFI( iRightFI )->get_coeff();
 
-                        // setting the perturbed coefficients
-                        aLeftFieldInterpolators( iLeftFI )->set_coeff( tCoeffPert );
+                        for( uint iCoeff = 0; iCoeff< mSlaveFI( iRightFI )->get_number_of_space_time_coefficients(); iCoeff++ )
+                        {
+                            // perturbation of the coefficent
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;
 
-                        // evaluate the residual
-                        Matrix< DDRMat > tResidual_Plus;
-                        this->compute_residual( tResidual_Plus, aLeftFieldInterpolators, aRightFieldInterpolators);
+                            // setting the perturbed coefficients
+                            mSlaveFI( iRightFI )->set_coeff( tCoeffPert );
 
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation;
+                            // evaluate the residual
+                            Matrix< DDRMat > tResidual_Plus;
+                            this->compute_residual( tResidual_Plus );
 
-                        // setting the perturbed coefficients
-                        aLeftFieldInterpolators( iLeftFI )->set_coeff( tCoeffPert );
+                            // perturbation of the coefficent
+                            tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation;
 
-                        // evaluate the residual
-                        Matrix< DDRMat > tResidual_Minus;
-                        this->compute_residual( tResidual_Minus, aLeftFieldInterpolators, aRightFieldInterpolators);
+                            // setting the perturbed coefficients
+                            mSlaveFI( iRightFI )->set_coeff( tCoeffPert );
 
-                        // evaluate Jacobian
-                        aJacobiansFD( iLeftFI ).get_column( iCoeff ) = ( tResidual_Plus - tResidual_Minus )/ ( 2.0 * aPerturbation );
+                            // evaluate the residual
+                            Matrix< DDRMat > tResidual_Minus;
+                            this->compute_residual( tResidual_Minus );
 
+                            // evaluate Jacobian
+                            aJacobiansFD( iRightFI ).get_column( mMasterFI( iRightFI )->get_number_of_space_time_coefficients() + iCoeff )
+                                = ( tResidual_Plus - tResidual_Minus )/ ( 2.0 * aPerturbation );
+
+                        }
+                        // reset the coefficients values
+                        mSlaveFI( iRightFI )->set_coeff( tCoeff );
                     }
-                    // reset the coefficients values
-                    aLeftFieldInterpolators( iLeftFI )->set_coeff( tCoeff );
-                }
-
-                // loop over the right field interpolators
-                for( uint iRightFI = 0; iRightFI < aRightFieldInterpolators.size(); iRightFI++ )
-                {
-                    // get field interpolator coefficients
-                    Matrix< DDRMat > tCoeff = aRightFieldInterpolators( iRightFI )->get_coeff();
-
-                    for( uint iCoeff = 0; iCoeff< aRightFieldInterpolators( iRightFI )->get_number_of_space_time_coefficients(); iCoeff++ )
-                    {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;
-
-                        // setting the perturbed coefficients
-                        aRightFieldInterpolators( iRightFI )->set_coeff( tCoeffPert );
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tResidual_Plus;
-                        this->compute_residual( tResidual_Plus, aLeftFieldInterpolators, aRightFieldInterpolators);
-
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation;
-
-                        // setting the perturbed coefficients
-                        aRightFieldInterpolators( iRightFI )->set_coeff( tCoeffPert );
-
-                        // evaluate the residual
-                        Matrix< DDRMat > tResidual_Minus;
-                        this->compute_residual( tResidual_Minus, aLeftFieldInterpolators, aRightFieldInterpolators);
-
-                        // evaluate Jacobian
-                        aJacobiansFD( iRightFI ).get_column( aLeftFieldInterpolators( iRightFI )->get_number_of_space_time_coefficients() + iCoeff )
-                            = ( tResidual_Plus - tResidual_Minus )/ ( 2.0 * aPerturbation );
-
-                    }
-                    // reset the coefficients values
-                    aRightFieldInterpolators( iRightFI )->set_coeff( tCoeff );
                 }
             }
 

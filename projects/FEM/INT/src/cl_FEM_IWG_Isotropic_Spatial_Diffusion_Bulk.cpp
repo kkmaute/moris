@@ -23,63 +23,63 @@ namespace moris
 
             // set the active dof type
             mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
+
+            // set the active property type
+            mActivePropertyTypes = { fem::Property_Type::CONDUCTIVITY };
         }
 
 //------------------------------------------------------------------------------
 
         void
-        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( Matrix< DDRMat > & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
-
             //fixme heat load enforced
             Matrix< DDRMat > tQ( 1, 1, 0.0 );
 
+            // check master field interpolators
+            this->check_field_interpolators();
+
             // compute the residual r_T
-            aResidual = trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 )
-                      - trans( tTemp->N() ) * tQ;
+            aResidual = trans( mMasterFI( 0 )->Bx() ) * mKappa * mMasterFI( 0 )->gradx( 1 )
+                      - trans( mMasterFI( 0 )->N() ) * tQ;
         }
 
 //------------------------------------------------------------------------------
 
         void
-        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp  = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators();
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
+            aJacobians( 0 ) = trans( mMasterFI( 0 )->Bx() ) * mKappa * mMasterFI( 0 )->Bx();
         }
 
 //------------------------------------------------------------------------------
 
         void
         IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                             Matrix< DDRMat >                   & aResidual,
-                                                                             moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+                                                                             Matrix< DDRMat >                   & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
-
             //fixme heat load enforced
             Matrix< DDRMat > tQ( 1, 1, 0.0 );
 
+            // check master field interpolators
+            this->check_field_interpolators();
+
             // compute the residual r_T
-            aResidual = trans( tTemp->Bx() ) * mKappa * tTemp->gradx( 1 )
-                      + trans( tTemp->N() ) * tQ;
+            aResidual = trans( mMasterFI( 0 )->Bx() ) * mKappa * mMasterFI( 0 )->gradx( 1 )
+                      + trans( mMasterFI( 0 )->N() ) * tQ;
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute the jacobian j_T_T
-            aJacobians( 0 ) = trans( tTemp->Bx() ) * mKappa * tTemp->Bx();
+            aJacobians( 0 ) = trans( mMasterFI( 0 )->Bx() ) * mKappa * mMasterFI( 0 )->Bx();
         }
 
 //------------------------------------------------------------------------------

@@ -13,7 +13,6 @@
 #include "op_greater_equal.hpp"
 
 #include "cl_FEM_Field_Interpolator.hpp" //FEM/INT/src
-#include "cl_FEM_Property.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -28,42 +27,6 @@ namespace moris
                                               : mNumberOfFields( aNumberOfFields ),
                                                 mGeometryInterpolator( aGeometryInterpolator ),
                                                 mDofType( aDofType )
-        {
-            // create space and time interpolation function
-            mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
-            mTimeInterpolation  = aFieldInterpolationRule.create_time_interpolation_function();
-
-            // get number of space, time dimensions
-            mNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
-            mNTimeDim  = mTimeInterpolation ->get_number_of_dimensions();
-
-            // get number of space parametric dimensions
-            mNSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
-
-            // check dimensions consistency
-            MORIS_ERROR( ( mNSpaceDim == mGeometryInterpolator->get_number_of_space_dimensions() ) ,
-                         "Field_Interpolator - Space dimension inconsistency." );
-            MORIS_ERROR( ( mNTimeDim  == mGeometryInterpolator->get_number_of_time_dimensions() ),
-                         "Field_Interpolator - Time dimension inconsistency.");
-
-            // get number of space, time, and space time basis
-            mNSpaceBases = mSpaceInterpolation->get_number_of_bases();
-            mNTimeBases  = mTimeInterpolation->get_number_of_bases();
-            mNFieldBases = mNSpaceBases * mNTimeBases;
-
-            // get number of coefficients
-            mNFieldCoeff = mNFieldBases * mNumberOfFields;
-        }
-
-        Field_Interpolator::Field_Interpolator( const uint                   & aNumberOfFields,
-                                                const Interpolation_Rule     & aFieldInterpolationRule,
-                                                      Geometry_Interpolator*   aGeometryInterpolator,
-                                                const Property *               aProperty,
-                                                const fem::Property_Type       aPropertyType )
-                                              : mNumberOfFields( aNumberOfFields ),
-                                                mGeometryInterpolator( aGeometryInterpolator ),
-                                                mProperty( aProperty ),
-                                                mPropertyType( aPropertyType )
         {
             // create space and time interpolation function
             mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
@@ -153,6 +116,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Field_Interpolator::N()
         {
             // if shape functions need to be evaluated
@@ -186,6 +150,7 @@ namespace moris
          }
 
 //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Field_Interpolator::Bx()
         {
             if( mBxEval )
@@ -234,6 +199,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Field_Interpolator::d2Ndx2()
         {
             // if d2Ndx2 needs to be evaluated
@@ -374,6 +340,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Field_Interpolator::Bt()
         {
             // if Bt needs to be evaluated
@@ -426,6 +393,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
         const Matrix< DDRMat > & Field_Interpolator::d2Ndt2()
         {
             // if d2Ndt2 needs to be evaluated
@@ -490,6 +458,7 @@ namespace moris
             // set bool for evaluation
             md2Ndt2Eval = false;
         }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Field_Interpolator::val()

@@ -23,14 +23,13 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                   moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Helmholtz_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual )
         {
             //FIXME set unfiltered velocity values at nodes
             Matrix< DDRMat > tVHat  = mNodalWeakBCs;
 
             // set field interpolator
-            Field_Interpolator* vN = aFieldInterpolators( 0 );
+            Field_Interpolator* vN = mMasterFI( 0 );
 
             // compute the residual
             aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
@@ -39,11 +38,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                   moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Helmholtz_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
         {
             // set field interpolator
-            Field_Interpolator* vN = aFieldInterpolators( 0 );
+            Field_Interpolator* vN = mMasterFI( 0 );
 
             // set the jacobian size
             aJacobians.resize( 1 );
@@ -56,14 +54,13 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                Matrix< DDRMat >                   & aResidual,
-                                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+                                                                Matrix< DDRMat >                   & aResidual )
         {
             //FIXME set unfiltered velocity values at nodes
             Matrix< DDRMat > tVHat  = mNodalWeakBCs;
 
             // set field interpolator
-            Field_Interpolator* vN = aFieldInterpolators( 0 );
+            Field_Interpolator* vN = mMasterFI( 0 );
 
             // compute the residual
             aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
