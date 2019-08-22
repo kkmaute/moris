@@ -191,26 +191,52 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 {
     if(  moris::par_size() == 1 )
     {
-        moris::uint tBplineOrder = 1;
-        moris::uint tLagrangeOrder = 1;
-        moris::uint tMyCoeff = 1;
+        moris::uint tBplineMeshIndex = 0;
+        moris::uint tLagrangeMeshInex = 0;
 
-        ParameterList tParameters = create_hmr_parameter_list();
+//        ParameterList tParameters = create_hmr_parameter_list();
+//
+//        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
+//        tParameters.set( "domain_dimensions", "3, 3" );
+//        tParameters.set( "domain_offset", "-1.5, -1.5" );
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "bspline_orders", "1" );
+//        tParameters.set( "lagrange_orders", "1" );
+//
+//        tParameters.set( "use_multigrid", 1 );
+//
+//        tParameters.set( "refinement_buffer", 3 );
+//        tParameters.set( "staircase_buffer", 1 );
+//
+//        tParameters.set("domain_sidesets", "1, 2, 3, 4" );
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
-        tParameters.set( "domain_dimensions", "3, 3" );
-        tParameters.set( "domain_offset", "-1.5, -1.5" );
+        // The parameter object controls the behavior of HMR.
+        moris::hmr::Parameters tParameters;
 
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set_domain_dimensions({ {3}, {3} });
+        tParameters.set_domain_offset({ {-1.5}, {-1.5} });
+        tParameters.set_bspline_truncation( true );
 
-        tParameters.set( "use_multigrid", 1 );
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set( "refinement_buffer", 3 );
-        tParameters.set( "staircase_buffer", 1 );
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
 
-        tParameters.set("domain_sidesets", "1, 2, 3, 4" );
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 3 );
+        tParameters.set_staircase_buffer( 1 );
+
+        //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         HMR tHMR( tParameters );
 
@@ -218,38 +244,38 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         auto tDatabase = tHMR.get_database();
 
         // manually select output pattern
-        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+        tDatabase->get_background_mesh()->set_activation_pattern( 0 );
 
-        tHMR.perform_initial_refinement();
+        tHMR.perform_initial_refinement();          //FIXME
 
         // refine the first element three times
         for( uint tLevel = 0; tLevel < 4; ++tLevel )          // 4
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
         }
 
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
 
         tHMR.finalize();
 
 //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
 //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
 
-        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
-        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+        auto tMesh = tHMR.create_mesh( tLagrangeMeshInex );
+        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
 
         for( uint k=0; k<tNumCoeffs; ++k )
         {
             std::string tLabel = "BSPline_" + std::to_string( k );
 
-            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineOrder );
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineMeshIndex );
 
             Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
 
             tCoeffs( k ) = 1.0;
 
@@ -289,26 +315,34 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 {
     if(  moris::par_size() == 1 )
     {
-        moris::uint tBplineOrder = 2;
-        moris::uint tLagrangeOrder = 2;
-        moris::uint tMyCoeff = 1;
+        moris::uint tBplineMeshIndex = 0;
+        moris::uint tLagrangeMeshInex = 0;
 
-        ParameterList tParameters = create_hmr_parameter_list();
+        moris::hmr::Parameters tParameters;
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
-        tParameters.set( "domain_dimensions", "3, 3" );
-        tParameters.set( "domain_offset", "-1.5, -1.5" );
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set_domain_dimensions({ {3}, {3} });
+        tParameters.set_domain_offset({ {-1.5}, {-1.5} });
+        tParameters.set_bspline_truncation( true );
 
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "2" );
-        tParameters.set( "lagrange_orders", "2" );
+        tParameters.set_lagrange_orders  ( { {2} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set( "use_multigrid", 1 );
+        tParameters.set_bspline_orders   ( { {2} } );
+        tParameters.set_bspline_patterns ( { {0} } );
 
-        tParameters.set( "refinement_buffer", 3 );
-        tParameters.set( "staircase_buffer", 1 );
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
 
-        //tParameters.set( "additional_lagrange_refinement", 2 );
+        tParameters.set_refinement_buffer( 3 );
+        tParameters.set_staircase_buffer( 1 );
+
+        //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         HMR tHMR( tParameters );
 
@@ -329,13 +363,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         {
             tDatabase->flag_element( 0 );
 
-            // manually refine, do not reset pattern
-            // tDatabase->get_background_mesh()->perform_refinement();
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
         }
 
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
 
         //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
         //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
@@ -348,21 +380,19 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
         tHMR.finalize();
 
-        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
+        auto tMesh = tHMR.create_mesh( tLagrangeMeshInex );
 
-        std::cout<<tMesh->get_num_elems()<<std::endl;
-
-        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
 
         for( uint k=0; k<tNumCoeffs; ++k )
         {
             std::string tLabel = "BSPline_" + std::to_string( k );
 
-            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineOrder );
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineMeshIndex );
 
             Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
 
             tCoeffs( k ) = 1.0;
 
@@ -389,13 +419,13 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
             MORIS_ERROR( tStatus == 0, "HMR_T_Matrix_Perturb: Status returned != 0, Error in reading reference values");
 
-//            CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
+            CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
         //tHMR.flag_volume_and_surface_elements( tField );
 
         //tHMR.perform_refinement_and_map_fields();
 
-        tHMR.save_to_exodus( "Mesh1.exo" );
+        //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh1.exo" );
         //tHMR.save_bsplines_to_vtk("Basis.vtk");
         //tHMR.save_last_step_to_exodus( "LastStep.exo" );
         //tHMR.save_to_hdf5( "Database.hdf5" );
@@ -407,24 +437,34 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 {
     if(  moris::par_size() == 1 )
     {
-        moris::uint tBplineOrder = 3;
-        moris::uint tLagrangeOrder = 3;
-        moris::uint tMyCoeff = 1;
+        moris::uint tBplineMeshIndex = 0;
+        moris::uint tLagrangeMeshInex = 0;
 
-        ParameterList tParameters = create_hmr_parameter_list();
+        moris::hmr::Parameters tParameters;
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
-        tParameters.set( "domain_dimensions", "3, 3" );
-        tParameters.set( "domain_offset", "-1.5, -1.5" );
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set_domain_dimensions({ {3}, {3} });
+        tParameters.set_domain_offset({ {-1.5}, {-1.5} });
+        tParameters.set_bspline_truncation( true );
 
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "3" );
-        tParameters.set( "lagrange_orders", "3" );
+        tParameters.set_lagrange_orders  ( { {3} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set( "use_multigrid", 1 );
+        tParameters.set_bspline_orders   ( { {3} } );
+        tParameters.set_bspline_patterns ( { {0} } );
 
-        tParameters.set( "refinement_buffer", 3 );
-        tParameters.set( "staircase_buffer", 1 );
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 3 );
+        tParameters.set_staircase_buffer( 1 );
+
+        //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         HMR tHMR( tParameters );
 
@@ -432,7 +472,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         auto tDatabase = tHMR.get_database();
 
         // manually select output pattern
-        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+        tDatabase->get_background_mesh()->set_activation_pattern( 0 );
 
         tHMR.perform_initial_refinement();
 
@@ -441,31 +481,31 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
         }
 
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
 
         tHMR.finalize();
 
         std::cout<<"create mesh"<<std::endl;
 //        auto tMesh = tHMR.create_mesh( tLagrangeOrder );
 
-        std::shared_ptr< Interpolation_Mesh_HMR > tMesh =  tHMR.create_interpolation_mesh(
-                tLagrangeOrder, tHMR.get_parameters()->get_lagrange_output_pattern() );
+        std::shared_ptr< Interpolation_Mesh_HMR > tMesh =  tHMR.create_interpolation_mesh( 3,
+                                                                                           0 );
 
-        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineOrder );
+        uint tNumCoeffs = tMesh->get_num_coeffs( tBplineMeshIndex );
 
         for( uint k=0; k<tNumCoeffs; ++k )
         {
             std::string tLabel = "BSPline_" + std::to_string( k );
 
-            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineOrder );
+            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tLabel, tBplineMeshIndex );
 
             Matrix<DDRMat> & tCoeffs = tField->get_coefficients();
 
-            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineOrder ), 1, 0.0 );
+            tCoeffs.set_size( tMesh->get_num_coeffs( tBplineMeshIndex ), 1, 0.0 );
 
             tCoeffs( k ) = 1.0;
 

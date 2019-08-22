@@ -91,16 +91,14 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
-            Vertex_Interpolation *
-            get_interpolation( const uint aOrder )
+            Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
             {
                 //MORIS_ERROR(0," Vertex interpolation not implemented");
                 return mVertexInterpolation;
             }
 
 //------------------------------------------------------------------------------
-            const Vertex_Interpolation *
-            get_interpolation( const uint aOrder ) const
+            const Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
             {
                 //MORIS_ERROR(0," Vertex interpolation not implemented - const");
                 return mVertexInterpolation;

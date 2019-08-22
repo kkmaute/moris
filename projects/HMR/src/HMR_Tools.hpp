@@ -138,10 +138,8 @@ namespace moris
             tLowerString[ i ] = std::tolower( aString[i] );
         }
 
-        return ( tLowerString == "true"
-              || tLowerString == "on"
-              || tLowerString == "yes"
-              || tLowerString == "1" ) ;
+        return ( tLowerString == "true" || tLowerString == "on"
+              || tLowerString == "yes"  || tLowerString == "1" ) ;
     }
 
 // -----------------------------------------------------------------------------
@@ -168,7 +166,7 @@ namespace moris
         /**
          * returns the binominalcoefficient of n over k as real
          */
-    	inline
+        inline
         real nchoosek( const uint & aN, const uint aK )
         {
             real aResult = 1.0;
@@ -229,9 +227,8 @@ namespace moris
 // -----------------------------------------------------------------------------
 
         template < typename T >
-        void mat_to_string(
-                const Matrix< T > & aMat,
-                std::string & aString )
+        void mat_to_string( const Matrix< T > & aMat,
+                                  std::string & aString )
         {
             aString = "";
 

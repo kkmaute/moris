@@ -198,8 +198,7 @@ namespace moris
          *
          * @return const Element*   pointer to node
          */
-        Element*
-        get_element_by_memory_index( const luint & aMemoryIndex )
+        Element * get_element_by_memory_index( const luint & aMemoryIndex )
         {
             return mAllElementsOnProc( aMemoryIndex );
         }
@@ -225,8 +224,7 @@ namespace moris
          * returns the maximum number of elements on this proc, including
          * aura, refined and deactive
          */
-        luint
-        get_number_of_all_elements_on_proc() const
+        luint get_number_of_all_elements_on_proc() const
         {
             return mAllElementsOnProc.size();
         }
@@ -248,8 +246,7 @@ namespace moris
         /**
          * returns the polynomial degree of the mesh
          */
-        auto
-        get_order() const -> decltype ( mOrder )
+        auto get_order() const -> decltype ( mOrder )
         {
             return mOrder;
         }
@@ -341,12 +338,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        Background_Mesh_Base *
-        get_background_mesh()
+        Background_Mesh_Base * get_background_mesh()
         {
             return  mBackgroundMesh;
         }
-
 
 // ----------------------------------------------------------------------------
 
@@ -363,8 +358,7 @@ namespace moris
          *
          * @ return void
          */
-        void
-        delete_pointers();
+        void delete_pointers();
 
 // ----------------------------------------------------------------------------
 
@@ -373,8 +367,7 @@ namespace moris
          *
          * @return void
          */
-        void
-        create_elements();
+        void create_elements();
 
 // ----------------------------------------------------------------------------
 
@@ -384,8 +377,7 @@ namespace moris
          *
          * @return void
          */
-        void
-        determine_elements_connected_to_basis();
+        void determine_elements_connected_to_basis();
 
 // ----------------------------------------------------------------------------
     public:
@@ -401,11 +393,9 @@ namespace moris
          *
          *  @param[out]  aNodeList     cell with node pointers on aura
          */
-        void
-        collect_basis_from_aura(
-                const uint     & aProcNeighborIndex,
-                const bool     & aUseInverseAura,
-                Cell<Basis*>   & aNodeList);
+        void collect_basis_from_aura( const uint            & aProcNeighborIndex,
+                                      const bool            & aUseInverseAura,
+                                            Cell< Basis * > & aNodeList);
 
     protected:
 
@@ -417,8 +407,7 @@ namespace moris
          *
          * @return void
          */
-        void
-        guess_basis_ownership();
+        void guess_basis_ownership();
 
 // ----------------------------------------------------------------------------
 
@@ -426,25 +415,20 @@ namespace moris
          * Make sure that neighbor proc agrees with assumed ownership.
          * Correct otherwise
          */
-        void
-        confirm_basis_ownership();
-
+        void confirm_basis_ownership();
 
 // ----------------------------------------------------------------------------
 
-        void
-        get_reference_element_of_basis(
-                Basis                   * aBasis,
-                luint                   & aElementMemoryIndex,
-                uint                    & aElementLocalBasisIndex );
+        void get_reference_element_of_basis( Basis * aBasis,
+                                             luint & aElementMemoryIndex,
+                                             uint  & aElementLocalBasisIndex );
 // ----------------------------------------------------------------------------
 
         /**
          * this funciton updates the indices for the Elements
          * and is called during the mesh update
          */
-        void
-        update_element_indices();
+        void update_element_indices();
 
 // ----------------------------------------------------------------------------
     private:
@@ -455,19 +439,15 @@ namespace moris
          *
          * @return void
          */
-        void
-        collect_coarsest_elements();
+        void collect_coarsest_elements();
 
 // ----------------------------------------------------------------------------
 
-        void
-        encode_foreign_basis_path(
-                           Cell< Basis* > & aBasis,
-                           const moris_id     & aOwner,
-                           Matrix< DDLUMat >   & aElementAncestors,
-                           Matrix< DDUMat >   & aElementPedigree,
-                           Matrix< DDUMat >   & aElementLocalIndex );
-
+        void encode_foreign_basis_path(       Cell< Basis* >    & aBasis,
+                                        const moris_id          & aOwner,
+                                              Matrix< DDLUMat > & aElementAncestors,
+                                              Matrix< DDUMat >  & aElementPedigree,
+                                              Matrix< DDUMat >  & aElementLocalIndex );
 
         /**
          * returns the number of basis if this element is serendipity
@@ -475,7 +455,6 @@ namespace moris
          */
         //uint
         //get_number_of_serendipity_basis();
-
 
 // ----------------------------------------------------------------------------
     };

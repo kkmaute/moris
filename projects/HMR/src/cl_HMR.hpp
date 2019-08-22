@@ -37,10 +37,11 @@ namespace moris
             bool mUpdateRefinementCalled  = false;
 
             //! mesh which points to input pattern
+            Cell< std::shared_ptr< Mesh > > mMeshes;
             Cell< std::shared_ptr< Mesh > > mInputMeshes;
 
             //! mesh which points to output pattern
-            Cell< std::shared_ptr< Mesh > > mOutputMeshes;
+            //Cell< std::shared_ptr< Mesh > > mOutputMeshes;
 
             //! container with field objects
             Cell< std::shared_ptr< Field > > mFields;
@@ -112,8 +113,8 @@ namespace moris
              * save the mesh to an exodus file
              */
             void save_to_exodus( const std::string & aPath,
-                                 const double        aTimeStep = 0.0,
-                                 const uint          aOutputOrder = 0 );
+                                 const uint          aOutputOrder = 0,
+                                 const double        aTimeStep = 0.0 );
 
 // -----------------------------------------------------------------------------
 
@@ -147,7 +148,7 @@ namespace moris
              */
             void save_coeffs_to_hdf5_file( const std::string & aFilePath );
 
-            // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
             void renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath );
 
@@ -211,14 +212,25 @@ namespace moris
             /**
              * runs the refinement scheme
              */
-            void perform_refinement( const enum RefinementMode aRefinementMode );
+            void perform_refinement( const enum RefinementMode aRefinementMode,
+                                     const uint                aPattern = 0);                // FIXME get rid of default
 
 // -----------------------------------------------------------------------------
 
             /**
              * copy output pattern to input pattern
              */
-            void update_refinement_pattern();
+            void update_refinement_pattern( const uint aPattern) ;
+
+// -----------------------------------------------------------------------------
+
+            /**
+             * set activation pattern
+             */
+            void set_activation_pattern( const uint & aActivationPattern )
+            {
+                this->get_database()->set_activation_pattern( aActivationPattern );
+            };
 
 // -----------------------------------------------------------------------------
 
@@ -238,11 +250,23 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Mesh > create_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+            std::shared_ptr< Mesh > create_mesh( const uint & aLagrangeOrder,
+                                                 const uint & aPattern );
+
+            std::shared_ptr< Mesh > create_mesh( const uint & aLagrangeOrder,
+                                                 const uint & aLagrangePattern,
+                                                 const uint & aBsplinePattern );
 
 // -----------------------------------------------------------------------------
 
-            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aLagrangeOrder, const uint & aPattern );
+            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aLagrangeMeshIndex );
+
+            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aLagrangeOrder,
+                                                                                 const uint & aPattern );
+
+            std::shared_ptr< Interpolation_Mesh_HMR > create_interpolation_mesh( const uint & aOrder,
+                                                                                 const uint & aLagrangePattern,
+                                                                                 const uint & aBsplinePattern);
 
 // -----------------------------------------------------------------------------
 
@@ -291,6 +315,7 @@ namespace moris
              * for flagging
              */
             void get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
+                                                const uint                 aPattern,
                                                 const uint                 aMaxLevel=gMaxNumberOfLevels );
 
 
@@ -320,7 +345,12 @@ namespace moris
             /**
              * funciton for L2 test
              */
-            void map_field_to_output( std::shared_ptr< Field > aField );
+            void map_field_to_output(       std::shared_ptr< Field > aField,
+                                      const uint                     aMesh_Index,
+                                      const uint                     aBsplineMeshIndex);
+
+            void map_field_to_output_union(        std::shared_ptr< Field > aField,
+                                             const uint                     aUnionOrder );
 
 // -----------------------------------------------------------------------------
 

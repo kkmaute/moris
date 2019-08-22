@@ -23,7 +23,7 @@ namespace dla
                                                                                       mMesh( mSolverInterface->get_mesh_pointer_for_multigrid() )
     {
         //FIXME Inser AdofOrderHack
-        moris::uint tAdofOrderHack = 1;
+        moris::uint tAdofOrderHack = 0;
 
         // Get the number of dofs per level which equal the current multigrid level or are coarser.
         moris::Matrix< DDUMat > tRemainingOldDofsOnLevel = mSolverInterface->get_number_remaining_dofs();

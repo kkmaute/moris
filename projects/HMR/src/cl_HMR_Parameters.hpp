@@ -85,6 +85,9 @@ namespace moris
            //! defines which B-Spline mesh is associated with which refinement pattern
            Matrix< DDUMat > mBSplinePatterns = { { 0 } };
 
+           //! defines which B-Spline mesh is associated with which lagrange mesh
+           Cell< Matrix< DDUMat > > mLagrangeToBSplineMesh;
+
            //! maps input orders with B-Splines
            Matrix< DDUMat> mBSplineInputMap;
            Matrix< DDUMat> mBSplineOutputMap;
@@ -98,13 +101,13 @@ namespace moris
            const      uint mLagrangeOutputPattern = 3;
 
            //! default union pattern
-           const      uint mUnionPattern = 4;
+           uint mUnionPattern = 4;
 
            //! default pattern for output refinement
            const      uint mRefinedOutputPattern = 5;
 
            //! default pattern for iterative refinement
-           const      uint mWorkingPattern = 6;
+                 uint mWorkingPattern = 6;
 
            //! Map Lagrange Meshes that are used for the unity meshes
            //! position 0: first order,
@@ -113,7 +116,11 @@ namespace moris
            Matrix< DDUMat >     mUnionMeshes;
 
            //! Lagrange Meshes that are used for the output meshes
-           Matrix< DDUMat >     mOutputMeshes;
+           Matrix< DDUMat >     mOutputMeshes = { { 0 } };
+
+           Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
+
+           Matrix< DDUMat >     mBSplineInputMeshes = { { } };
 
            //! Lagrange Mesh that is used for the refined output
            uint             mRefinedOutputMesh = 7;
@@ -373,6 +380,21 @@ namespace moris
 //--------------------------------------------------------------------------------
 
            /**
+            * returns an entry of mBSplineOrders
+            */
+           void set_lagrange_to_bspline_mesh( const Cell< Matrix< DDUMat > > aLagrangeToBSplineMesh )
+           {
+               mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
+           }
+
+           Matrix< DDUMat > get_lagrange_to_bspline_mesh( const uint & aLagrangeMeshIndex ) const
+           {
+               return mLagrangeToBSplineMesh( aLagrangeMeshIndex );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
             * returns the number of B-Spline meshes
             */
            uint get_number_of_bspline_meshes() const
@@ -404,10 +426,69 @@ namespace moris
            /**
             * returns the index of the defined Lagrange output mesh for a specified order
             */
-           uint get_output_mesh( const uint & aOrder ) const
+           const Matrix< DDUMat > & get_output_mesh() const
            {
-               return mOutputMeshes( aOrder-1 );
+               return mOutputMeshes;
            }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * set which lagrange meshes are used for an output
+            */
+           void set_output_meshes( const Matrix< DDUMat > & aOutputMeshes )
+           {
+               // test if calling this function is allowed
+               this->error_if_locked("set_output_meshes");
+
+               mOutputMeshes = aOutputMeshes;
+           };
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns lagrange input mesh index
+            */
+           const Matrix< DDUMat > & get_lagrange_input_mesh() const
+           {
+               return mLagrangeInputMeshes;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * set lagrange input mesh index
+            */
+           void set_lagrange_input_mesh( const Matrix< DDUMat > & aLagrangeInputMeshes )
+           {
+               // test if calling this function is allowed
+               this->error_if_locked("set_output_meshes");
+
+               mLagrangeInputMeshes = aLagrangeInputMeshes;
+           };
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns lagrange input mesh index
+            */
+           const Matrix< DDUMat > & get_bspline_input_mesh() const
+           {
+               return mBSplineInputMeshes;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * set lagrange input mesh index
+            */
+           void set_bspline_input_mesh( const Matrix< DDUMat > & aBSplineInputMeshes )
+           {
+               // test if calling this function is allowed
+               this->error_if_locked("set_output_meshes");
+
+               mBSplineInputMeshes = aBSplineInputMeshes;
+           };
 
 //--------------------------------------------------------------------------------
 
@@ -716,6 +797,15 @@ namespace moris
                return mLagrangeOutputPattern;
            }
 
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for union meshes
+            */
+           void set_union_pattern( const uint aUsedUnionPattern)
+           {
+               mUnionPattern = aUsedUnionPattern;
+           }
 
 //-------------------------------------------------------------------------------
 
@@ -745,6 +835,11 @@ namespace moris
            uint get_working_pattern() const
            {
                return mWorkingPattern;
+           }
+
+           void set_working_pattern( const uint aWorkingPattern )
+           {
+               mWorkingPattern = aWorkingPattern;
            }
 
 //-------------------------------------------------------------------------------

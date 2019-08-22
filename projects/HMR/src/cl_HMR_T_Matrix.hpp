@@ -1,8 +1,8 @@
 /*
  * cl_HMR_T_Matrix.hpp
  *
- *  Created on: Jun 23, 2018
- *      Author: messe
+ *  Created on: Jun 23, 2019
+ *      Author: schmidt
  */
 
 #ifndef SRC_HMR_CL_HMR_T_MATRIX_HPP_
@@ -113,9 +113,12 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             // constructor
-            T_Matrix( const Parameters   * aParameters,
-                      BSpline_Mesh_Base  * aBSplineMesh,
-                      Lagrange_Mesh_Base * aLagrangeMesh );
+            T_Matrix( const Parameters         * aParameters,
+                            BSpline_Mesh_Base  * aBSplineMesh,
+                            Lagrange_Mesh_Base * aLagrangeMesh );
+
+            T_Matrix( const Parameters         * aParameters,
+                            Lagrange_Mesh_Base * aLagrangeMesh );
 
 //-------------------------------------------------------------------------------
 
@@ -169,7 +172,8 @@ namespace moris
             }
 
 //-------------------------------------------------------------------------------
-            void evaluate( const bool aBool =true);
+            void evaluate( const uint aBSplineMeshIndex,
+                           const bool aBool = true);
 
 //-------------------------------------------------------------------------------
        private:

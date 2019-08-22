@@ -29,8 +29,7 @@ namespace moris
     {
 // -----------------------------------------------------------------------------
 
-    void
-    check_for_forbidden_fields( Cell< std::shared_ptr< Field > > & aInputFields )
+    void check_for_forbidden_fields( Cell< std::shared_ptr< Field > > & aInputFields )
     {
         for( auto tField : aInputFields )
         {
@@ -54,13 +53,11 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void
-        perform_mapping(
-                const Arguments                  & aArguments,
-                const Paramfile                  & aParamfile,
-                HMR                              * aHMR,
-                Cell< std::shared_ptr< Field > > & aInputFields,
-                Cell< std::shared_ptr< Field > > & aOutputFields )
+        void perform_mapping( const Arguments                        & aArguments,
+                              const Paramfile                        & aParamfile,
+                                    HMR                              * aHMR,
+                                    Cell< std::shared_ptr< Field > > & aInputFields,
+                                    Cell< std::shared_ptr< Field > > & aOutputFields )
         {
             // make sure that we only map allowed fields
 
@@ -77,12 +74,12 @@ namespace moris
             uint tCount = 0;
 
             // container for orders of fields
-            Matrix< DDUMat > tInputFieldOrders( 3*tNumberOfFields
-                    + aParamfile.get_number_of_meshes(), 1 );
+            Matrix< DDUMat > tInputFieldOrders( 3 * tNumberOfFields + aParamfile.get_number_of_meshes(), 1 );
 
             // loop over all fields
             for( uint f=0; f<tNumberOfFields; ++f )
             {
+                MORIS_ASSERT(false, "potentialy problematic");
                 tInputFieldOrders( tCount++ ) = aInputFields( f )->get_bspline_order();
                 tInputFieldOrders( tCount++ ) = aInputFields( f )->get_bspline_output_order();
                 tInputFieldOrders( tCount++ ) = aInputFields( f )->get_lagrange_order();
@@ -91,7 +88,7 @@ namespace moris
             // loop over all defined meshes
             for( uint m=0; m< aParamfile.get_number_of_meshes(); ++m )
             {
-                tInputFieldOrders( tCount++ ) =  aParamfile.get_mesh_order( m );
+                tInputFieldOrders( tCount++ ) = aParamfile.get_mesh_order( m );
             }
 
             // make orders unique
@@ -101,7 +98,7 @@ namespace moris
             uint tNumberOfMappers = tMeshOrders.length();
 
             // create map for mappers
-            Matrix< DDUMat > tMapperIndex( gMaxBSplineOrder+1, 1, MORIS_UINT_MAX );
+            Matrix< DDUMat > tMapperIndex( gMaxBSplineOrder + 1, 1, MORIS_UINT_MAX );
 
             // flag telling if we have a linear and quadratic mesh
             bool tHaveLinearMesh = false;
@@ -231,8 +228,7 @@ namespace moris
 
                 // get pointer to output mesh
                 std::shared_ptr< Mesh >  tOutputMesh = aHMR->create_mesh( tLagrangeOrder,
-                                                                          aHMR->get_parameters()
-                                                                              ->get_lagrange_output_pattern() );
+                                                                          aHMR->get_parameters()->get_lagrange_output_pattern() );
 
                 // create output field
                 std::shared_ptr< Field >  tOutputField = tOutputMesh->create_field( tInputField->get_label(),

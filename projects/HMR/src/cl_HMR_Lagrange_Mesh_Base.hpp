@@ -50,6 +50,8 @@ namespace moris
         {
             Cell< BSpline_Mesh_Base *  > mBSplineMeshes;
 
+            moris::uint mNumBSplineMeshes = 0;
+
             // @fixme: confirm that this is not identical to mAllNodesOnProc
             //! Cell containing used Nodes
             Cell< Basis * >     mNodes;
@@ -339,16 +341,17 @@ namespace moris
             /**
              * returns the number of active basis for the linked B-Spline mesh
              */
-            luint get_number_of_bsplines_on_proc( const uint & aOrder ) const
+            luint get_number_of_bsplines_on_proc( const uint & aMeshIndex ) const                       //FIXME
             {
-                return mBSplineMeshes( aOrder )->get_number_of_active_basis_on_proc();
+                return mBSplineMeshes( aMeshIndex )->get_number_of_active_basis_on_proc();
             }
 
 // ----------------------------------------------------------------------------
 
-            Basis * get_bspline( const uint aOrder, const uint & aBasisIndex )
+            Basis * get_bspline( const uint aMeshIndex,
+                                 const uint & aBasisIndex )                      //FIXME
             {
-                return mBSplineMeshes( aOrder )->get_active_basis( aBasisIndex );
+                return mBSplineMeshes( aMeshIndex )->get_active_basis( aBasisIndex );
             }
 
 // ----------------------------------------------------------------------------
@@ -469,18 +472,18 @@ namespace moris
             /**
              * return the underlying bspline mesh
              */
-            BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshOrder )
+            BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshIndex )
             {
-                return mBSplineMeshes( aMeshOrder );
+                return mBSplineMeshes( aMeshIndex );
             }
 // ----------------------------------------------------------------------------
 
             /**
              * return the underlying bspline mesh ( const version )
              */
-            const BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshOrder ) const
+            const BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshIndex ) const
             {
-                return mBSplineMeshes( aMeshOrder );
+                return mBSplineMeshes( aMeshIndex );
             }
 
 // ----------------------------------------------------------------------------
@@ -504,18 +507,18 @@ namespace moris
             /**
              * return a T-Matrix object
              */
-            T_Matrix * get_t_matrix( const uint aOrder )
+            T_Matrix * get_t_matrix( const uint aMeshIndex )
             {
-                return mTMatrix( aOrder );
+                return mTMatrix( aMeshIndex );
             }
 // ----------------------------------------------------------------------------
 
             /**
              * return a T-Matrix object ( const version )
              */
-            const T_Matrix * get_t_matrix( const uint aOrder ) const
+            const T_Matrix * get_t_matrix( const uint aMeshIndex ) const
             {
-                return mTMatrix( aOrder );
+                return mTMatrix( aMeshIndex );
             }
 
 // -----------------------------------------------------------------------------
@@ -530,7 +533,7 @@ namespace moris
             /**
              * evaluate one specific T-Matrix
              */
-            void calculate_t_matrix( const uint aBSplineOrder );
+            void calculate_t_matrix( const uint aBSplineMeshIndex );
 
 // ----------------------------------------------------------------------------
 

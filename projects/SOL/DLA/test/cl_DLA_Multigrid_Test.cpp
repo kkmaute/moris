@@ -68,12 +68,36 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         moris::uint tOrder = 1;
 
         // create parameter object
+
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
+
+        // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
 
+        tParameters.set_severity_level( 0 );
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( tOrder );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         // create HMR object
         moris::hmr::HMR tHMR( tParameters );
@@ -81,21 +105,19 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         // flag first element for refinement
         tHMR.flag_element( 0 );
         tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-        tHMR.update_refinement_pattern();
 
         tHMR.flag_element( 0 );
         tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-        tHMR.update_refinement_pattern();
 
         tHMR.finalize();
 
         // grab pointer to output field
         //std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpolationMesh =  tHMR.create_interpolation_mesh( tOrder, tHMR.get_parameters()->get_lagrange_output_pattern() );
-        std::shared_ptr< hmr::Integration_Mesh_HMR > tIntegrationMesh =  tHMR.create_integration_mesh( tOrder, tHMR.get_parameters()->get_lagrange_output_pattern(), *tInterpolationMesh );
+        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpolationMesh =  tHMR.create_interpolation_mesh( tLagrangeMeshIndex);
+        std::shared_ptr< hmr::Integration_Mesh_HMR > tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
 
         // create field
-        std::shared_ptr< moris::hmr::Field > tField = tInterpolationMesh->create_field( "Circle", tOrder );
+        std::shared_ptr< moris::hmr::Field > tField = tInterpolationMesh->create_field( "Circle", tLagrangeMeshIndex );
 
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
@@ -103,7 +125,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 //        tHMR.save_bsplines_to_vtk("DLA_BSplines.vtk");
 
         moris::map< moris::moris_id, moris::moris_index > tMap;
-        tInterpolationMesh->get_adof_map( tOrder, tMap );
+        tInterpolationMesh->get_adof_map( tBSplineMeshIndex, tMap );
         //tMap.print("Adof Map");
 
          //-------------------------------------------------------------------------------------------
@@ -122,7 +144,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         Cell< MSI::Equation_Object* >  tElements;
 
         // get map from mesh
-        tInterpolationMesh->get_adof_map( tOrder, tCoefficientsMap );
+        tInterpolationMesh->get_adof_map( tBSplineMeshIndex, tCoefficientsMap );
 
         // ask mesh about number of nodes on proc
         luint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
@@ -188,10 +210,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                                                      tInterpolationMesh->get_communication_table(),
                                                                                      tCoefficientsMap,
-                                                                                     tInterpolationMesh->get_num_coeffs( tOrder ),
+                                                                                     tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),
                                                                                      tInterpolationMesh.get() );
 
-        tMSI->set_param("L2")= (sint)tOrder;
+        tMSI->set_param("L2")= (sint)tBSplineMeshIndex;
 
         tElementBlocks( 0 )->finalize( tMSI );
 
@@ -266,12 +288,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          CHECK( equal_to( tSolution( 7, 0 ), -0.3992520178, 1.0e+08 ) );
          CHECK( equal_to( tSolution( 8, 0 ), -0.14904048484, 1.0e+08 ) );
 
-         // get index of mesh
-         uint tMeshIndex = tHMR.get_mesh_index( tOrder,
-                                                tHMR.get_parameters()->get_lagrange_output_pattern() );
-
          // dump mesh
-         tHMR.save_to_exodus ( tMeshIndex,  // index in database
+         tHMR.save_to_exodus ( 0,  // index in database
                                "Mesh.exo",  // path
                                0.0 );       // timestep
 
@@ -324,7 +342,7 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
             tField->evaluate_scalar_function( LevelSetFunction );
             tHMR.flag_surface_elements( tField );
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
         }
 
         tHMR.finalize();
@@ -508,7 +526,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
             tField->evaluate_scalar_function( LevelSetFunction );
             tHMR.flag_surface_elements( tField );
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
         }
 
         tHMR.finalize();
@@ -710,7 +728,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
 
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
         }
 
         tHMR.finalize();

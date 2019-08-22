@@ -1,8 +1,8 @@
 /*
  * cl_HMR_T_Matrix.cpp
  *
- *  Created on: Jun 23, 2018
- *      Author: messe
+ *  Created on: Jun 23, 2019
+ *      Author: schmidt
  */
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 
@@ -78,6 +78,41 @@ namespace moris
             {
                 mTMatrixFunction = & T_Matrix::calculate_untruncated_t_matrix;
             }
+        }
+
+        T_Matrix::T_Matrix( const Parameters         * aParameters,
+                                  Lagrange_Mesh_Base * aLagrangeMesh ) : mParameters ( aParameters ),
+                                                                         mLagrangeMesh( aLagrangeMesh )
+        {
+            this->init_lagrange_parameter_coordinates();
+            this->init_lagrange_coefficients();
+
+            switch( mParameters->get_number_of_dimensions() )
+            {
+                case( 2 ) :
+                {
+                    mEvalNGeo   = & this->N_quad4;
+                    mEvalN      = & T_Matrix :: lagrange_shape_2d;
+                    mGetCorners = & this->get_child_corner_nodes_2d;
+
+                    break;
+                }
+                case( 3 ) :
+                {
+                    mEvalNGeo   = & this->N_hex8;
+                    mEvalN      = & T_Matrix :: lagrange_shape_3d;
+                    mGetCorners = & this->get_child_corner_nodes_3d;
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "unknown number of dimensions");
+                    break;
+                }
+            }
+
+            this->init_lagrange_refinement_matrices();
+            this->init_lagrange_change_order_matrices();
         }
 
 //-------------------------------------------------------------------------------
@@ -1269,22 +1304,6 @@ namespace moris
 
             // invert the Vandermonde matrix and store coefficients
             mLagrangeCoefficients = inv( tVandermonde );
-
-//            mLagrangeCoefficients.set_size( tNumberOfNodes, tNumberOfNodes, 1 );
-//
-//            Matrix< DDRMat > tIV = inv( tVandermonde );
-//
-//            // FIXME is this needed? mLagrangeCoefficients = tIV
-//            for( uint k=0; k<tNumberOfNodes; ++k )
-//            {
-//                // help vector
-//                Matrix< DDRMat > tRHS( tNumberOfNodes, 1, 0.0 );
-//                tRHS( k ) = 1.0;
-//                Matrix< DDRMat > tLHS = tIV * tRHS;
-//
-//                mLagrangeCoefficients.set_column( k, tLHS.get_column( 0 ) );
-//            }
-//            print(mLagrangeCoefficients,"mLagrangeCoefficients");
         }
 
 //-------------------------------------------------------------------------------
@@ -1363,7 +1382,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        void T_Matrix::evaluate( const bool aBool  )
+        void T_Matrix::evaluate( const uint aBSplineMeshIndex,
+                                 const bool aBool  )
         {
             // get B-Spline pattern of this mesh
             auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
@@ -1382,15 +1402,12 @@ namespace moris
 
             // unity matrix
             Matrix< DDRMat > tEye;
-            eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye);
+            eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
 
             // calculate transposed Lagrange T-Matrix
             Matrix< DDRMat > tL( this->get_lagrange_matrix() );
 
 //            print(tL,"tL");
-
-            // get order of B-Spline mesh
-            uint tOrder = mBSplineMesh->get_order();
 
             /*if( mLagrangeMesh->get_activation_pattern()
                     == mParameters->get_lagrange_output_pattern() )
@@ -1505,13 +1522,13 @@ namespace moris
                             if ( aBool == true )
                             {
                                 // init interpolation container for this node
-                                tNode->init_interpolation( tOrder );
+                                tNode->init_interpolation( aBSplineMeshIndex );
 
                                 // store the coefficients
-                                tNode->set_weights( tOrder, tCoefficients );
+                                tNode->set_weights( aBSplineMeshIndex, tCoefficients );
 
                                 // store pointers to the DOFs
-                                tNode->set_coefficients( tOrder, tNodeDOFs );
+                                tNode->set_coefficients( aBSplineMeshIndex, tNodeDOFs );
                             }
                             // flag this node as processed
                             tNode->flag();

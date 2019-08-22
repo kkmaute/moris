@@ -72,8 +72,7 @@ namespace moris
              *
              * @return moris_id ID
              */
-            moris_id
-            get_id() const;
+            moris_id get_id() const;
 
 // ----------------------------------------------------------------------------
 
@@ -82,16 +81,14 @@ namespace moris
              *
              * @return moris_index ID
              */
-            moris_index
-            get_index() const;
+            moris_index get_index() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * tells how many vertices are connected to this edge
              */
-            virtual uint
-            get_number_of_vertices() const = 0;
+            virtual uint get_number_of_vertices() const = 0;
 
 // ----------------------------------------------------------------------------
 
@@ -99,40 +96,35 @@ namespace moris
              * returns the proc id of the owner of this edge
              * ( this information is needed for STK )
              */
-            moris_id
-            get_owner() const;
+            moris_id get_owner() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * explicitly sets the owner of the edge
              */
-            void
-            set_owner( const moris_id & aOwner );
+            void set_owner( const moris_id & aOwner );
 
 // ----------------------------------------------------------------------------
 
             /**
              * fills a moris::cell with pointers to connected vertices
              */
-            moris::Cell< mtk::Vertex* >
-            get_vertex_pointers() const;
+            moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns a Mat with IDs of connected vertices
              */
-            Matrix< IdMat >
-            get_vertex_ids() const;
+            Matrix< IdMat > get_vertex_ids() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns a Mat with indices of connected vertices
              */
-            virtual Matrix< IndexMat >
-            get_vertex_inds() const;
+            virtual Matrix< IndexMat > get_vertex_inds() const;
 
 // ----------------------------------------------------------------------------
 
@@ -140,32 +132,26 @@ namespace moris
              * returns a Mat of dimension
              * < number of vertices * number of dimensions >
              */
-            Matrix< DDRMat >
-            get_vertex_coords() const;
+            Matrix< DDRMat > get_vertex_coords() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * an edge is always a line
              */
-            mtk::Geometry_Type
-            get_geometry_type() const;
+            mtk::Geometry_Type get_geometry_type() const;
 
 // ----------------------------------------------------------------------------
 
-            virtual
-            mtk::Interpolation_Order
-            get_interpolation_order() const = 0;
+            virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
 
 // ----------------------------------------------------------------------------
 
-            void
-            set_index( const moris_index & aIndex );
+            void set_index( const moris_index & aIndex );
 
 // ----------------------------------------------------------------------------
 
-            void
-            set_id( const moris_id & aID );
+            void set_id( const moris_id & aID );
 
 // ----------------------------------------------------------------------------
 
@@ -203,10 +189,8 @@ namespace moris
         private:
 // ----------------------------------------------------------------------------
 
-            void
-            find_master(
-                    Mesh_Base       * aMesh,
-                    Background_Edge * aBackgroundEdge );
+            void find_master( Mesh_Base       * aMesh,
+                              Background_Edge * aBackgroundEdge );
 
 // ----------------------------------------------------------------------------
 

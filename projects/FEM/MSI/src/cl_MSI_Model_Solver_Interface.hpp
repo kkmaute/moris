@@ -247,7 +247,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        moris::sint get_adof_order_for_type( moris::uint aDofType );
+        moris::sint get_adof_index_for_type( moris::uint aDofType );
 
 //------------------------------------------------------------------------------
 

@@ -129,7 +129,7 @@ main(
         tField->evaluate_scalar_function( SphereFunction );
         tHMR.flag_surface_elements( tField );
         tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-        tHMR.update_refinement_pattern();
+        tHMR.update_refinement_pattern( 0 );
     }
 
     /*!
