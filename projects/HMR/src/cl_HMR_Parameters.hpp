@@ -264,7 +264,6 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-
            /**
             * sets the mesh orders according to given matrix
             */
@@ -1028,8 +1027,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
-                                 const Matrix< DDUMat > & aLagrangeOrders );
+//           void set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
+//                                 const Matrix< DDUMat > & aLagrangeOrders );
 
 //-------------------------------------------------------------------------------
         }; /* Parameters */

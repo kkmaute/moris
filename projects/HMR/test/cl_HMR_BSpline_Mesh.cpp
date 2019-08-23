@@ -41,7 +41,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             else if ( moris::par_size() == 4 )
             {
                 tNumberOfElements.set_size( 2, 1, 10 );
-
             }
 
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
@@ -62,7 +61,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // loop over several orders
             for( uint tOrder=1; tOrder<=3; tOrder++ )
             {
-
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( tOrder );
                 tParameters->set_staircase_buffer( tOrder );
@@ -74,21 +72,18 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                 tParameters->set_mesh_orders_simple( tOrder );
 
                 // create background mesh object
-                moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+                moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
 
                 // refine a few elements in the mesh
                 for( moris::uint l=0; l<tMaxLevel; ++l  )
                 {
-                    auto tNumberOfElements
-                    =  tBackgroundMesh->get_number_of_active_elements_on_proc();
+                    auto tNumberOfElements =  tBackgroundMesh->get_number_of_active_elements_on_proc();
 
                     // refine every other element
                     for( moris::luint k=0; k<tNumberOfElements; k += 3 )
                     {
                         // get element
-                        moris::hmr::Background_Element_Base* tElement
-                        = tBackgroundMesh->get_element( k );
+                        moris::hmr::Background_Element_Base* tElement = tBackgroundMesh->get_element( k );
 
                         // flag element for refinement
                         tElement->put_on_refinement_queue();
@@ -172,8 +167,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                 // refine a few elements in the mesh
                 for( moris::uint l=0; l<tMaxLevel; ++l  )
                 {
-                    auto tNumberOfElements
-                    =  tBackgroundMesh->get_number_of_active_elements_on_proc();
+                    auto tNumberOfElements =  tBackgroundMesh->get_number_of_active_elements_on_proc();
 
                     // refine every other element
                     for( moris::luint k=0; k<tNumberOfElements; k += 3 )

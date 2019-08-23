@@ -40,9 +40,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // use only one linear pattern
-            tParameters->set_mesh_orders_simple( 2 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -110,9 +107,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // use a simple pattern
-            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -189,9 +183,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // use a simple pattern
-            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -389,9 +380,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
-
-                // use a simple pattern
-                tParameters->set_mesh_orders_simple( 1 );
 
                 // create factory
                 moris::hmr::Factory tFactory;
@@ -629,9 +617,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // use a simple pattern
-            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;

@@ -271,7 +271,6 @@ namespace moris
 //                 tParameters.set_domain_offset( 0, 0 );
 //
 //                 uint tOrder = 2;
-//                 tParameters.set_mesh_orders_simple( tOrder );
 //
 //                 tParameters.set_multigrid( true );
 //

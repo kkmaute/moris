@@ -326,7 +326,6 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
 
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( tOrder );
         tParameters.set_refinement_buffer( 3 );
 
         // create HMR object
@@ -695,7 +694,6 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( tOrder );
         tParameters.set_refinement_buffer( 3 );
 
         std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
