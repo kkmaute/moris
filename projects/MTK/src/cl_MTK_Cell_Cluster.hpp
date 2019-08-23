@@ -22,6 +22,9 @@ class Cell_Cluster : public Cluster
 public:
     Cell_Cluster(){};
 
+    virtual
+    ~Cell_Cluster(){};
+
     //##############################################
     // Characteristic functions
     //##############################################

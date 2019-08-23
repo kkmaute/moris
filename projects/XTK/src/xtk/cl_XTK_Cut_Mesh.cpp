@@ -461,8 +461,10 @@ Cut_Mesh::pack_cut_mesh_by_phase(moris::size_t const & aMeshIndex,
 }
 // ----------------------------------------------------------------------------------
 moris::Matrix< moris::IdMat >
-Cut_Mesh::pack_interface_sides(bool aIndexFlag,
-                               moris_index aPhaseIndex) const
+Cut_Mesh::pack_interface_sides(moris_index aGeometryIndex,
+                               moris_index aPhaseIndex0,
+                               moris_index aPhaseIndex1,
+                               moris_index aIndexFlag) const
 {
     uint tNumElem = this->get_num_entities(EntityRank::ELEMENT);
 
@@ -472,7 +474,7 @@ Cut_Mesh::pack_interface_sides(bool aIndexFlag,
     uint tNumElemsFromCM = 0;
     for(uint i = 0; i <this->get_num_child_meshes(); i++)
     {
-       moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides(aIndexFlag,aPhaseIndex);
+       moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides(aGeometryIndex,aPhaseIndex0,aPhaseIndex1,aIndexFlag);
 
        tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
        if(tNumElemsFromCM!=0)

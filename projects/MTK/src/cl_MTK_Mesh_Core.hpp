@@ -1018,7 +1018,7 @@ public:
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const
                              {
-        MORIS_ERROR(0," get_set_entity_ids has no base implementation");
+        MORIS_ERROR(0," get_set_entity_loc_inds has no base implementation");
         return Matrix< IndexMat >(0,0);
                              }
 
@@ -1107,6 +1107,7 @@ public:
     /*
      * returns the number of faces in a side set.
      */
+    virtual
     uint get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const
     {
         moris::uint tNumSideSetFaces = 0;

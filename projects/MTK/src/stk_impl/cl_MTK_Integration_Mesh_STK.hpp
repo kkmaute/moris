@@ -75,6 +75,10 @@ public:
     Integration_Mesh_STK(Interpolation_Mesh & aInterpMesh,
                          Cell_Cluster_Input * aCellClusterInput);
 
+    // ----------------------------------------------------------------------------
+
+    ~Integration_Mesh_STK();
+
     //##############################################
     // Cell Cluster Access
     //##############################################
@@ -112,6 +116,20 @@ public:
 
     moris::Cell<Cluster const *>
     get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const;
+
+    /*!
+     * Returns the label
+     */
+    std::string
+    get_block_set_label(moris_index aBlockSetOrdinal) const;
+
+    // ----------------------------------------------------------------------------
+
+    /*!
+     * Returns the index given a label
+     */
+    moris_index
+    get_block_set_index(std::string aBlockSetLabel) const;
 
     // ----------------------------------------------------------------------------
 
@@ -179,6 +197,7 @@ private:
     moris::Cell<Cell_Cluster_STK> mCellClusters;
 
     // Block sets containing Cell Clusters
+    std::unordered_map<std::string, moris_index> mBlockSetLabelToOrd;
     moris::Cell<std::string>                     mPrimaryBlockSetNames;
     moris::Cell<moris::Cell<moris::moris_index>> mPrimaryBlockSetClusters;
 

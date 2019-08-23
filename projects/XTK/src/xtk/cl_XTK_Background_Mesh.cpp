@@ -136,11 +136,27 @@ Background_Mesh::get_vertices_sharing(moris::Matrix<moris::IndexMat> const & aVe
     }
 
     return tVerticesSharing;
+}
+// ----------------------------------------------------------------------------------
 
+moris::Cell<moris::mtk::Vertex_XTK> const &
+Background_Mesh::get_all_vertices()
+{
+    return mXtkMtkVertices;
 }
 
 // ----------------------------------------------------------------------------------
-
+Cell<moris::mtk::Vertex const *>
+Background_Mesh::get_mtk_vertices(Matrix<IndexMat> const & aVertexIndices)
+{
+    Cell<moris::mtk::Vertex const *> tVertices(aVertexIndices.numel());
+    for(moris::uint i = 0; i < aVertexIndices.numel(); i++)
+    {
+        tVertices(i) = & this->get_mtk_vertex(aVertexIndices(i));
+    }
+    return tVertices;
+}
+// ----------------------------------------------------------------------------------
 moris::mtk::Vertex &
 Background_Mesh::get_mtk_vertex(moris::moris_index aVertexIndex)
 {
@@ -169,7 +185,7 @@ moris::mtk::Cell &
 Background_Mesh::get_mtk_cell(moris::moris_index aCellIndex)
 {
 
-    if(!this->is_background_cell(aCellIndex) || entity_has_children(aCellIndex,EntityRank::ELEMENT))
+    if(!this->is_background_cell(aCellIndex) )
     {
         return get_child_element_mtk_cell(aCellIndex);
     }
@@ -184,8 +200,7 @@ Background_Mesh::get_mtk_cell(moris::moris_index aCellIndex)
 moris::mtk::Cell const &
 Background_Mesh::get_mtk_cell(moris::moris_index aCellIndex) const
 {
-
-    if(!this->is_background_cell(aCellIndex) || entity_has_children(aCellIndex,EntityRank::ELEMENT))
+    if(!this->is_background_cell(aCellIndex) )
     {
         return get_child_element_mtk_cell(aCellIndex);
     }
@@ -450,9 +465,15 @@ Background_Mesh::is_background_node(moris::moris_index aNodeIndex)
 
 // ----------------------------------------------------------------------------------
 bool
-Background_Mesh::is_background_cell(moris::moris_index aNodeIndex) const
+Background_Mesh::is_background_cell(moris::moris_index aCellIndex) const
 {
-    return !mExternalMeshData.is_external_entity(aNodeIndex,EntityRank::ELEMENT);
+    if(aCellIndex < (moris_index)mMeshData->get_num_elems())
+    {
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 // ----------------------------------------------------------------------------------

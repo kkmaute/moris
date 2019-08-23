@@ -52,7 +52,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         bool tOutputEnrichmentFields = true;
 
         // Generate mesh from string
-        std::string tMeshFileName     = "generated:1x1x3";
+        std::string tMeshFileName     = "generated:1x1x3|sideset:XzZ";
 
         // Add level set field to add onto file
 
@@ -114,7 +114,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         tXTKModel.decompose(tDecompositionMethods);
 
         // unzip
-        tXTKModel.unzip_interface();
+//        tXTKModel.unzip_interface();
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
@@ -261,11 +261,17 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
          * Decompose
          */
         tXTKModel.decompose(tDecompositionMethods);
-        tXTKModel.unzip_interface();
+//        tXTKModel.unzip_interface();
 
 
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment();
+
+        // get the enriched interpolation mesh
+        Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+
+        tEnrInterpMesh.print();
+
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 

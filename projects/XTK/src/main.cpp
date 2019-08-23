@@ -28,6 +28,7 @@
 #include "cl_XTK_Output_Options.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_Sphere.hpp"
+#include "cl_SphereBox.hpp"
 #include "cl_Plane.hpp"
 #include "cl_Discrete_Level_Set.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
@@ -129,7 +130,43 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
         tGeometry = new Plane(tXc,tYc,tZc,tXn,tYn,tZn);
 
         break;
+    }
 
+    case Geometry_Type::SPHERE_BOX:
+    {
+
+        std::string tStr = "sx";
+        moris_index tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tSx =aXTKProblemParams.mRealGeomParams(tPos);
+
+        tStr = "sy";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tSy = aXTKProblemParams.mRealGeomParams(tPos);
+
+        tStr = "sz";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tSz =aXTKProblemParams.mRealGeomParams(tPos);
+
+        tStr = "xc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tXc = aXTKProblemParams.mRealGeomParams(tPos);
+
+        tStr = "yc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tYc = aXTKProblemParams.mRealGeomParams(tPos);
+
+        tStr = "zc";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tZc = aXTKProblemParams.mRealGeomParams(tPos);
+
+        // exponent
+        tStr = "n";
+        tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
+        moris::real tNexp = aXTKProblemParams.mRealGeomParams(tPos);
+
+        tGeometry = new Sphere_Box( tSx, tSy, tSz, tXc, tYc,tZc, tNexp);
+
+        break;
     }
 
     default:
@@ -202,6 +239,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
 
           // setup the XTK model
           Model tXTKModel(3,tMeshData,tGeometryEngine);
+          tXTKModel.mVerbose = true;
 
           // decompose the mesh
           tOpTimer = std::clock();

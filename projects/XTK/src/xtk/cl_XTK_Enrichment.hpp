@@ -357,6 +357,9 @@ private:
     construct_enriched_interpolation_mesh();
 
     void
+    construct_enriched_integration_mesh();
+
+    void
     allocate_interpolation_cells();
 
     //FIXME: this needs to be done in parallel

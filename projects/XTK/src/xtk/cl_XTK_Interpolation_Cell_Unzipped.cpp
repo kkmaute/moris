@@ -14,6 +14,7 @@ namespace xtk
 //------------------------------------------------------------------------------
 Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*        aBaseCell,
                                                          moris_index              aSubphaseIndex,
+                                                         moris_index              aBulkPhaseIndex,
                                                          moris_id                 aCellId,
                                                          moris_index              aCellIndex,
                                                          moris_id                 aCellOwner,
@@ -21,7 +22,8 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*      
                                                          mtk::Interpolation_Order aInterpOrder):
                 Interpolation_Cell(aCellId,aCellIndex,aCellOwner,aGeometryType,aInterpOrder),
                 mBaseCell(aBaseCell),
-                mSubPhaseIndex(aSubphaseIndex)
+                mSubPhaseIndex(aSubphaseIndex),
+                mBulkPhaseIndex(aBulkPhaseIndex)
 {
 }
 //------------------------------------------------------------------------------
@@ -50,9 +52,7 @@ Interpolation_Cell_Unzipped::get_vertex_pointers() const
 Matrix< DDRMat >
 Interpolation_Cell_Unzipped::get_vertex_coords() const
 {
-    std::cout<<"TODO VERTEX COORDS"<<std::endl;
-    MORIS_ERROR(0,"TODO");
-    return Matrix<DDRMat>(0,0);
+    return mBaseCell->get_vertex_coords();
 }
 //------------------------------------------------------------------------------
 
@@ -75,6 +75,11 @@ Interpolation_Cell_Unzipped::get_subphase_index() const
     return mSubPhaseIndex;
 }
 //------------------------------------------------------------------------------
+moris_index
+Interpolation_Cell_Unzipped::get_bulkphase_index() const
+{
+    return mBulkPhaseIndex;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

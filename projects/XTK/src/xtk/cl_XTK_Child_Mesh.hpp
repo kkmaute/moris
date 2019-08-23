@@ -39,6 +39,14 @@
 
 using namespace moris;
 
+namespace moris
+{
+namespace mtk
+{
+class Vertex;
+}
+}
+
 namespace xtk
 {
 
@@ -233,6 +241,9 @@ public:
     moris::Matrix< moris::IdMat > const &
     get_node_ids() const;
 
+    moris::Cell<moris::mtk::Vertex const *> const &
+    get_vertices() const;
+
     moris::Matrix< moris::IdMat > const &
     get_element_ids() const;
 
@@ -268,6 +279,45 @@ public:
                                                 moris::Matrix< moris::IndexMat > & aChildElemsCMIndOnFace,
                                                 moris::Matrix< moris::IndexMat > & aChildElemOnFaceOrdinal) const;
 
+    moris::moris_index
+    get_cm_local_node_index(moris::moris_index aNodeProcIndex) const
+    {
+        auto tIter = mNodeIndsToCMInd.find(aNodeProcIndex);
+
+        MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(),"Node not in map, conversion to local indices failed");
+
+        return tIter->second;
+    }
+
+    bool
+    has_interface_along_geometry(moris_index aGeomIndex) const
+    {
+       uint tNumGeoms = mGeometryIndex.size();
+       for(uint iG = 0; iG < tNumGeoms; iG++)
+       {
+           if(mGeometryIndex(iG) == aGeomIndex)
+           {
+               return true;
+           }
+       }
+
+       return false;
+    }
+
+    moris_index
+    get_local_geom_index(moris_index aGeomIndex) const
+    {
+        uint tNumGeoms = mGeometryIndex.size();
+        for(uint iG = 0; iG < tNumGeoms; iG++)
+        {
+            if(mGeometryIndex(iG) == aGeomIndex)
+            {
+                return (moris_index)iG;
+            }
+        }
+
+        return MORIS_INDEX_MAX;
+    }
     // --------------------------------------------------------------
     // Functions to modify the mesh
     // --------------------------------------------------------------
@@ -294,7 +344,7 @@ public:
     unzip_child_mesh_interface_get_interface_element_pairs(moris::uint aGeometryIndex,
                                                            bool & aNoPairFoundFlag,
                                                            moris::Matrix<moris::IndexMat> & aInterfaceElementPairs,
-                                                           moris::Matrix<moris::IndexMat> & aInterfacePairSideOrds);
+                                                           moris::Matrix<moris::IndexMat> & aInterfacePairSideOrds) const;
 
     void
     unzip_child_mesh_interface(moris::moris_index                       aGeometryIndex,
@@ -319,6 +369,9 @@ public:
      */
     void
     add_node_ids(moris::Matrix< moris::IdMat > const & aNewNodeIds);
+
+    void
+    add_vertices(moris::Cell<moris::mtk::Vertex const *> const & aVertices);
 
 
     /*
@@ -380,6 +433,7 @@ public:
     void
     replace_element(moris::size_t                    const & aElementIndexToReplace,
                     moris::size_t                    const & aRowIndex,
+                    moris::size_t                  const & aGeomIndex,
                     moris::Matrix< moris::IndexMat > const & aElementToNode,
                     moris::Matrix< moris::IndexMat > const & aElementEdgeParentInds,
                     moris::Matrix< moris::DDSTMat >  const & aElementEdgeParentRanks,
@@ -391,13 +445,14 @@ public:
      * Replace the information associated with an element
      */
     void
-    add_element(moris::size_t                     const & aRowIndex,
+    add_element(moris::size_t                    const & aRowIndex,
+                moris::size_t                    const & aGeomIndex,
                 moris::Matrix< moris::IndexMat > const & aElementToNode,
                 moris::Matrix< moris::IndexMat > const & aElementEdgeParentInds,
-                moris::Matrix< moris::DDSTMat > const & aElementEdgeParentRanks,
+                moris::Matrix< moris::DDSTMat >  const & aElementEdgeParentRanks,
                 moris::Matrix< moris::IndexMat > const & aElementFaceParentInds,
-                moris::Matrix< moris::DDSTMat > const & aElementFaceParentRanks,
-                moris::Matrix< moris::DDSTMat> const & aElementInterfaceFaces);
+                moris::Matrix< moris::DDSTMat >  const & aElementFaceParentRanks,
+                moris::Matrix< moris::DDSTMat>   const & aElementInterfaceFaces);
 
 
     /*!
@@ -421,7 +476,8 @@ public:
                             bool aGenerateEdgeConn,
                             bool aGenerateElemToElem);
 
-
+    void
+    add_new_geometry_interface(moris_index aChildIndex);
 
 
     /**
@@ -464,6 +520,9 @@ public:
       moris::size_t
       get_element_phase_index( moris::size_t const & aEntityIndex) const;
 
+      moris_index
+      get_element_subphase_index(moris::size_t const & aEntityIndex) const;
+
 
       moris::Matrix< moris::IndexMat > const &
       get_element_phase_indices() const
@@ -484,7 +543,11 @@ public:
           return mBinBulkPhase;
       }
 
-
+      Cell<moris::Matrix< moris::IndexMat >> const &
+      get_subphase_groups() const
+      {
+          return mSubPhaseBins;
+      }
 
       /*
        * Sets the elemental subphase value in this child mesh
@@ -579,46 +642,102 @@ public:
       }
 
 
-
-
       moris::Matrix< moris::IdMat >
-      pack_interface_sides( bool aIndexFlag = false,
-                            moris::moris_index aPhaseIndex = MORIS_INDEX_MAX) const
+      pack_interface_sides( moris_index aGeometryIndex,
+                            moris_index aPhaseIndex0,
+                            moris_index aPhaseIndex1,
+                            moris_index aIndexFlag              = 0) const
       {
+          MORIS_ASSERT(this->has_interface_along_geometry(aGeometryIndex),"Geometry index does not appear in this child mesh");
+
           // Loop bound and sizing
           moris::size_t tNumElem = get_num_entities(EntityRank::ELEMENT);
 
-          moris::Matrix< moris::IdMat > tInterfaceSideSetInfo(tNumElem,2);
+          // local geometry index
+          moris_index tGeomIndex = this->get_local_geom_index(aGeometryIndex);
+
+          moris::Matrix< moris::IdMat > tInterfaceCMInfo(tNumElem,2);
 
           // Keep track of the number of interface sides
           moris::size_t tCount = 0;
+
+          // construct a membership map in interface side set
+          Matrix<IndexMat> tCellsIndexInSet(this->get_num_entities(EntityRank::ELEMENT),1,MORIS_INDEX_MAX);
 
          // Iterate over each element and if the element has an interface side it will be in mElementInferfaceSides vector
          for(moris::size_t iEl =0 ; iEl<tNumElem; iEl++)
          {
 
-             if(mElementInterfaceSides(iEl) != std::numeric_limits<moris::size_t>::max())
+             if(mElementInterfaceSides(iEl,tGeomIndex) != std::numeric_limits<moris::size_t>::max())
              {
-                 if((moris_index)this->get_element_phase_index(iEl) == aPhaseIndex || aPhaseIndex == MORIS_INDEX_MAX)
+                 if((moris_index)this->get_element_phase_index(iEl) == aPhaseIndex0 || (moris_index)this->get_element_phase_index(iEl) == aPhaseIndex1)
                  {
-                     if( aIndexFlag )
-                     {
-                         tInterfaceSideSetInfo(tCount,0) = mChildElementInds(iEl);
-                     }
-                     else
-                     {
-                         tInterfaceSideSetInfo(tCount,0) = mChildElementIds(iEl);
-                     }
-                     tInterfaceSideSetInfo(tCount,1) = mElementInterfaceSides(iEl);
+                     tInterfaceCMInfo(tCount,0) = iEl;
+
+                     tCellsIndexInSet(iEl) = tCount;
+
+                     tInterfaceCMInfo(tCount,1) = mElementInterfaceSides(iEl,tGeomIndex);
                      tCount++;
                  }
              }
          }
 
          // Size out space
-         tInterfaceSideSetInfo.resize(tCount,2);
+         tInterfaceCMInfo.resize(tCount,2);
 
-         return tInterfaceSideSetInfo;
+         // get the interface pairs with respect to this geometry
+         bool tNoPair = true;
+         moris::Matrix<moris::IndexMat> tInterfaceElementPairs;
+         moris::Matrix<moris::IndexMat> tInterfacePairSideOrds;
+         unzip_child_mesh_interface_get_interface_element_pairs(aGeometryIndex,tNoPair,tInterfaceElementPairs,tInterfacePairSideOrds);
+
+         MORIS_ASSERT(!tNoPair,"No pair found");
+
+         Matrix<IndexMat> tCellsToKeepInSet(this->get_num_entities(EntityRank::ELEMENT),1,MORIS_INDEX_MAX);
+
+         // iterate through element pairs
+         uint tKeepCount = 0;
+         for(moris::uint i = 0; i < tInterfaceElementPairs.n_cols(); i ++)
+         {
+             moris_index tCell0 = tInterfaceElementPairs(0,i);
+             moris_index tCell1 = tInterfaceElementPairs(1,i);
+
+             if(tCellsIndexInSet(tCell0) != MORIS_INDEX_MAX && tCellsIndexInSet(tCell1) != MORIS_INDEX_MAX )
+             {
+                 tCellsToKeepInSet(tCell0) = 1;
+                 tCellsToKeepInSet(tCell1) = 1;
+                 tKeepCount = tKeepCount+2;
+             }
+         }
+
+         moris::Matrix< moris::IdMat > tInterfaceInfo(tKeepCount,2);
+         tCount = 0;
+         for(moris::size_t iEl =0 ; iEl<tNumElem; iEl++)
+         {
+             if(tCellsToKeepInSet(iEl) == 1 && (moris_index)get_element_phase_index(iEl) == aPhaseIndex0)
+             {
+                 moris_index tIndexInSet = tCellsIndexInSet(iEl);
+                 tInterfaceInfo(tCount,1) = tInterfaceCMInfo(tIndexInSet,1);
+
+                 if(aIndexFlag == 1)
+                 {
+                     tInterfaceInfo(tCount,0) = mChildElementInds(tInterfaceCMInfo(tIndexInSet,0));
+                 }
+                 else if (aIndexFlag == 0)
+                 {
+                     tInterfaceInfo(tCount,0) = mChildElementIds(tInterfaceCMInfo(tIndexInSet,0));
+                 }
+                 else
+                 {
+                     tInterfaceInfo(tCount,0) = tInterfaceCMInfo(tIndexInSet,0);
+                 }
+                 tCount++;
+             }
+         }
+
+         // convert to procs indices or global ids
+         tInterfaceInfo.resize(tCount,2);
+         return tInterfaceInfo;
       }
 
       moris::Matrix< moris::IdMat >
@@ -666,6 +785,10 @@ private:
     moris::Matrix< moris::DDSTMat  > mElementFaceParentRanks;
     moris::Matrix< moris::DDSTMat  > mElementInterfaceSides;
 
+    // Geometries which intersect this child mesh
+    Cell<moris_index> mGeometryIndex;
+
+
     // Child element information ---------------------------
     moris::Matrix< moris::IdMat >    mChildElementIds;
     moris::Matrix< moris::IndexMat > mChildElementInds;
@@ -674,10 +797,11 @@ private:
     // child mesh.
 
     // Node information ------------------------------------
-    moris::Matrix< moris::IdMat >   mNodeIds;
-    moris::Matrix< moris::IndexMat> mNodeInds;
-    moris::Matrix< moris::DDSTMat > mNodeParentRank;
-    moris::Matrix< moris::IndexMat> mNodeParentInds;
+    moris::Cell<moris::mtk::Vertex const *> mVertices;
+    moris::Matrix< moris::IdMat >           mNodeIds;
+    moris::Matrix< moris::IndexMat>         mNodeInds;
+    moris::Matrix< moris::DDSTMat >         mNodeParentRank;
+    moris::Matrix< moris::IndexMat>         mNodeParentInds;
 
     // Map where  key - proc local ind, val - local child mesh index
     std::unordered_map<moris::size_t, moris::size_t> mNodeIndsToCMInd;
@@ -903,16 +1027,6 @@ private:
         }
 
         return tLocalEntityRankToNode;
-    }
-
-    moris::moris_index
-    get_cm_local_node_index(moris::moris_index aNodeProcIndex) const
-    {
-        auto tIter = mNodeIndsToCMInd.find(aNodeProcIndex);
-
-        MORIS_ASSERT(tIter != mNodeIndsToCMInd.end(),"Node not in map, conversion to local indices failed");
-
-        return tIter->second;
     }
 
 
