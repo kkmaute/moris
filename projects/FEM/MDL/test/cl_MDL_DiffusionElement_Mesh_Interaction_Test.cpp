@@ -1007,7 +1007,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
 
-        print(tSolution11,"tSolution11");
+//        print(tSolution11,"tSolution11");
 
         tModel->output_solution( "Circle" );
 

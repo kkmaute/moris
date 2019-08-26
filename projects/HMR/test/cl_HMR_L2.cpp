@@ -334,32 +334,24 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 //------------------------------------------------------------------------------
 
         // The parameter object controls the behavior of HMR.
-        moris::hmr::Parameters tParameters;
+        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        moris::Matrix< moris::DDLUMat > tNumberOfElements;
+        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
 
-        // set values to parameters
-        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "lagrange_orders", "1, 1" );
+        tParameters.set( "lagrange_pattern", "0, 1" );
+        tParameters.set( "bspline_orders", "1, 1, 1, 2" );
+        tParameters.set( "bspline_pattern", "0, 0, 1, 1" );
 
-        // B-Spline truncation is turned on by default.
-        // It is recommended to leave this setting as is.
-        tParameters.set_bspline_truncation( true );
+        tParameters.set( "union_pattern", 2 );
 
-        tParameters.set_lagrange_orders  ( { {1}, {1} });
-        tParameters.set_lagrange_patterns({ {0}, {1} });
+        tParameters.set( "lagrange_to_bspline", "0, 1; 2, 3" );
 
-        tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {2} } );
-        tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+        tParameters.set( "use_multigrid", 0 );
 
-        tParameters.set_union_pattern( 2 );
-
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 2 );
-        tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-        tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
-
-        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-        //FIXME assign bspline to lagrange mesh
+        tParameters.set( "refinement_buffer", 1 );
+        tParameters.set( "staircase_buffer", 1 );
 
 //------------------------------------------------------------------------------
 //  HMR Initialization
@@ -449,7 +441,6 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 
          // perform test
          REQUIRE( tR2 > 0.99 );
-
     }
 }
 

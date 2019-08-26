@@ -1,8 +1,8 @@
 /*
  * cl_HMR_Parameters.cpp
  *
- *  Created on: May 5, 2018
- *      Author: messe
+ *  Created on: Aug 20, 2019
+ *      Author: schmidt
  */
 
 #include "cl_HMR_Parameters.hpp" //HMR/src
@@ -173,12 +173,6 @@ namespace moris
         this->set_refinement_buffer( aParameterList.get< sint >("refinement_buffer") );
         this->set_staircase_buffer ( aParameterList.get< sint >("staircase_buffer") );
 
-        // set interpolation orders
-//        Matrix< DDUMat > tBSplineOrders;
-//        Matrix< DDUMat > tLagrangeOrders;
-//        string_to_mat( aParameterList.get< std::string >("bspline_orders"), tBSplineOrders );
-//        string_to_mat( aParameterList.get< std::string >("lagrange_orders"), tLagrangeOrders );
-
         string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
 
         string_to_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
@@ -191,9 +185,6 @@ namespace moris
         this->set_working_pattern( aParameterList.get< sint >( "working_pattern" ) );
 
         string_to_cell_mat( aParameterList.get< std::string >("lagrange_to_bspline"), mLagrangeToBSplineMesh );
-
-        // set B-Spline and Lagrange orders and create mesh maps
-        //this->set_mesh_orders( tBSplineOrders, tLagrangeOrders );
 
         if( aParameterList.get< sint >("severity_level") != 1 )
         {
