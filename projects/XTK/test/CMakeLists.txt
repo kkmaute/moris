@@ -46,15 +46,17 @@ set(TEST_SOURCES
 	xtk/UT_XTK_Ghost_Stabilization.cpp
 	#xtk/cl_XTK_Multigrid.cpp
 	xtk/UT_XTK_Model.cpp
-	xtk/UT_XTK_Model_Coincidence.cpp
-	xtk/UT_XTK_Model_Recursion.cpp
+	#xtk/UT_XTK_Model_Coincidence.cpp
+	#xtk/UT_XTK_Model_Recursion.cpp
 	xtk/UT_XTK_Sensitivity.cpp
 	#xtk/cl_XTK_Tetra4_Connectivity.cpp
+	xtk/UT_FRF_Matching.cpp
 	xtk/UT_MTK_Cell_Cluster_XTK_Impl.cpp
-	xtk/UT_XTK_Model_Unzip.cpp
+	#xtk/UT_XTK_Model_Unzip.cpp
 	xtk/UT_XTK_Model_Export.cpp
-	xtk/UT_XTK_Model_Extract_Surf_Mesh.cpp
-	xtk/UT_XTK_Model_Mesh_Clusters.cpp
+	#xtk/UT_XTK_Model_Extract_Surf_Mesh.cpp
+	#xtk/UT_XTK_Model_Mesh_Clusters.cpp
+	xtk/UT_AD_Scratch.cpp
 	)
 
 # List additional includes
@@ -101,10 +103,6 @@ set(XTK_TEST ${XTK}-test)
 add_executable(${XTK_TEST} ${TEST_SOURCES})
 target_link_libraries(${XTK_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${XTK_TEST} PROPERTIES OUTPUT_NAME ${XTK_TEST}${EXE_EXT})
-
-# Mark as test
-add_test(NAME ${XTK_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${XTK_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)

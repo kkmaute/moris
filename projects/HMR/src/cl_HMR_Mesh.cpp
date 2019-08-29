@@ -55,10 +55,7 @@ namespace moris
             // copy database pointer
             mDatabase = aDatabase;
 
-            // get number of meshes
-            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
-
-            MORIS_ASSERT( aLagrangeMeshIndex <= tNumberOfMeshes, "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes.", aLagrangeMeshIndex );
+            MORIS_ASSERT( aLagrangeMeshIndex <= mDatabase->get_number_of_lagrange_meshes(), "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes.", aLagrangeMeshIndex );
 
             mMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 

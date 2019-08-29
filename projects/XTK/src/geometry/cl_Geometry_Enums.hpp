@@ -15,6 +15,7 @@ enum class Geometry_Type
 {
     SPHERE,
     PLANE,
+    SPHERE_BOX,
     INVALID
 };
 }

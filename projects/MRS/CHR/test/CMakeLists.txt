@@ -25,10 +25,6 @@ add_executable(${CHR_TEST} ${TEST_SOURCES})
 target_link_libraries(${CHR_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${CHR_TEST} PROPERTIES OUTPUT_NAME ${CHR_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${CHR_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${CHR_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(CHR_TEST_PROCS ${MORIS_TEST_PROCS})

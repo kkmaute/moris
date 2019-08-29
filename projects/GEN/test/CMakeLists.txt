@@ -37,10 +37,6 @@ add_executable(${GEN_TEST} ${TEST_SOURCES})
 target_link_libraries(${GEN_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${GEN_TEST} PROPERTIES OUTPUT_NAME ${GEN_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${GEN_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${GEN_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(GEN_TEST_PROCS ${MORIS_TEST_PROCS})

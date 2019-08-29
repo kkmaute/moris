@@ -175,10 +175,6 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
 
     xtk::Output_Options tOutputOptions;
     tOutputOptions.mAddParallelFields = true;
-    moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-    std::string tMeshOutputFile = "./xtk_exo/volume_check_rs.e";
-    tCutMeshData->create_output_mesh(tMeshOutputFile);
-
 
     verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
                                tXTKModel.get_cut_mesh());
@@ -205,7 +201,6 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
      */
 
     delete tMeshData;
-    delete tCutMeshData;
 
 }
 
@@ -262,7 +257,6 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     /*
      * Check surface area
      */
-
     delete tMeshData;
     delete tCutMeshData;
 

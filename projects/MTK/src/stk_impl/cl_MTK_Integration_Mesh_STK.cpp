@@ -39,6 +39,29 @@ Integration_Mesh_STK::Integration_Mesh_STK(
 
 }
 
+Integration_Mesh_STK::~Integration_Mesh_STK()
+{
+
+    for(auto p : mListofBlocks)
+    {
+        delete p;
+    }
+    mListofBlocks.clear();
+
+
+    for(auto p:mListofSideSets)
+    {
+        delete p;
+    }
+    mListofSideSets.clear();
+
+    for(auto p:mListofDoubleSideSets)
+    {
+        delete p;
+    }
+    mListofDoubleSideSets.clear();
+}
+
 // ----------------------------------------------------------------------------
 
 Integration_Mesh_STK::Integration_Mesh_STK( MtkMeshData & aMeshData ):
@@ -51,11 +74,11 @@ Integration_Mesh_STK::Integration_Mesh_STK( MtkMeshData &       aMeshData,
         Mesh_Core_STK(aMeshData)
 {
     // setup cells and cell clusters
-        this->setup_cell_clusters(*aInterpMesh,aMeshData.CellClusterInput);
-        this->setup_blockset_with_cell_clusters();
+    this->setup_cell_clusters(*aInterpMesh,aMeshData.CellClusterInput);
+    this->setup_blockset_with_cell_clusters();
 
     // setup side set clusters
-        this->setup_side_set_clusters(*aInterpMesh,aMeshData.SideClusterInput);
+    this->setup_side_set_clusters(*aInterpMesh,aMeshData.SideClusterInput);
 
     if(aMeshData.DoubleSideClusterInput != nullptr)
     {
@@ -95,7 +118,7 @@ Integration_Mesh_STK::get_cell_cluster(Cell const & aInterpCell) const
 
 // ----------------------------------------------------------------------------
 
-Cell_Cluster const &                    // FIXME
+Cell_Cluster const &
 Integration_Mesh_STK::get_cell_cluster(moris_index aInterpCellIndex) const
 {
    MORIS_ASSERT(aInterpCellIndex<(moris_index)mCellClusters.size(),"Interpolation Cell index out of bounds");
@@ -127,7 +150,21 @@ Integration_Mesh_STK::get_cell_clusters_in_set(moris_index aBlockSetOrdinal) con
     return tClusterInSet;
 
 }
+std::string
+Integration_Mesh_STK::get_block_set_label(moris_index aBlockSetOrdinal) const
+{
+        MORIS_ASSERT(aBlockSetOrdinal<(moris_index)mSideSetLabels.size(),"Block set ordinal out of bounds");
+        return mPrimaryBlockSetNames(aBlockSetOrdinal);
+}
+moris_index
+Integration_Mesh_STK::get_block_set_index(std::string aBlockSetLabel) const
+{
+    auto tIter = mBlockSetLabelToOrd.find(aBlockSetLabel);
 
+    MORIS_ERROR(tIter != mBlockSetLabelToOrd.end(),"block side set label not found");
+
+    return tIter->second;
+}
 // ----------------------------------------------------------------------------
 
 moris::Cell<Cluster const *>
@@ -362,6 +399,7 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
 //         mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
      }
 
+     // iterate and create map
      mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
      moris::Cell<std::string> tBSNames = this->get_block_set_names();
@@ -369,8 +407,10 @@ Integration_Mesh_STK::setup_blockset_with_cell_clusters( )
      for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
      {
          mListofBlocks( Ik ) = new moris::mtk::Block( this->get_cell_clusters_in_set( Ik ));
-     }
+         MORIS_ASSERT(mBlockSetLabelToOrd.find(mPrimaryBlockSetNames(Ik)) ==  mBlockSetLabelToOrd.end(),"Duplicate block set in mesh");
+         mBlockSetLabelToOrd[mPrimaryBlockSetNames(Ik)] = Ik ;
 
+     }
 }
 
 void
@@ -395,7 +435,6 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
     // iterate through block sets
     for(moris::uint i = 0;  i < aSideSetNames.size(); i++)
     {
-        std::cout<<aSideSetNames(i)<<std::endl;
         // get the cells and side ordinals from the mesh for this side set
         moris::Cell< mtk::Cell const * > tCellsInSet(0);
         moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);
@@ -510,6 +549,8 @@ Integration_Mesh_STK::setup_side_set_clusters(Interpolation_Mesh & aInterpMesh,
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
+        std::cout<<aSideSetNames(Ik)<<std::endl;
+
         mListofSideSets( Ik ) = new moris::mtk::Side_Set( this->get_side_set_cluster( Ik ));
     }
 

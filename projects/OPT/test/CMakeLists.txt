@@ -24,10 +24,6 @@ add_executable(${OPT_TEST} ${TEST_SOURCES})
 target_link_libraries(${OPT_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${MOPT_TEST} PROPERTIES OUTPUT_NAME ${OPT_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${OPT_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${OPT_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(OPT_TEST_PROCS ${MORIS_TEST_PROCS})

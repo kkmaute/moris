@@ -268,10 +268,15 @@ public:
 
     /*!
      * pack interface side sets, if phase index not provided all are packaged
+     * flag  = 0 - ids
+     * flag  = 1- indices
+     * flag  = other - cm indices
      */
     moris::Matrix< moris::IdMat >
-    pack_interface_sides(bool aIndexFlag = false,
-                         moris::moris_index aPhaseIndex = MORIS_INDEX_MAX) const;
+    pack_interface_sides(moris_index aGeometryIndex,
+                         moris_index aPhaseIndex0,
+                         moris_index aPhaseIndex1,
+                         moris_index aIndexFlag              = 0) const;
     moris::Matrix< moris::IndexMat >
     pack_interface_sides_loc_inds() const;
 

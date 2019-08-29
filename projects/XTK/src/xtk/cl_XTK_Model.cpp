@@ -10,6 +10,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
@@ -24,16 +25,10 @@ namespace xtk
 // ----------------------------------------------------------------------------------
 Model::~Model()
 {
-    if(mEnriched)
-    {
-        delete mEnrichment;
-        delete mEnrichedInterpMesh;
-    }
-
-    if(mGhost)
-    {
-        delete mGhostStabilization;
-    }
+        if(mEnrichment         != nullptr ) { delete mEnrichment;         }
+        if(mEnrichedInterpMesh != nullptr ) { delete mEnrichedInterpMesh; }
+        if(mEnrichedIntegMesh  != nullptr ) { delete mEnrichedIntegMesh;  }
+        if(mGhostStabilization != nullptr ) { delete mGhostStabilization; }
 }
 
 Model::Model(uint aModelDimension,
@@ -45,6 +40,10 @@ Model::Model(uint aModelDimension,
                                   mBackgroundMesh(aMeshData,aGeometryEngine),
                                   mCutMesh(mModelDimension),
                                   mGeometryEngine(aGeometryEngine),
+                                  mEnrichment(nullptr),
+                                  mGhostStabilization(nullptr),
+                                  mEnrichedInterpMesh(nullptr),
+                                  mEnrichedIntegMesh(nullptr),
                                   mConvertedToTet10s(false)
 {
     MORIS_ASSERT(mModelDimension == 3,"Currently, XTK only supports 3D model dimensions");
@@ -110,7 +109,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
             std::clock_t start = std::clock();
 
             // Perform subdivision
-            this->decompose_internal(aMethods(iDecomp), tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
+            this->decompose_internal(aMethods(iDecomp), iDecomp, tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
 
             // Change the first subdivision flag as false
             tFirstSubdivisionFlag = false;
@@ -141,6 +140,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
 
 void
 Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
+                          moris::uint                        aGeomIndex,
                           moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                           bool const &                       aFirstSubdivision,
                           bool const &                       aSetIds)
@@ -155,7 +155,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
 
             // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones dont
             moris::Matrix< moris::IndexMat > tNewPairBool;
-            run_first_cut_routine(TemplateType::HEX_8, 8,  aActiveChildMeshIndices,tNewPairBool);
+            run_first_cut_routine(TemplateType::HEX_8, aGeomIndex, 8,  aActiveChildMeshIndices,tNewPairBool);
 
 
             // initialize a struct of all the data we are keeping track of in this decomposition
@@ -178,11 +178,11 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             // Allocate interface flag space in XTK mesh even though these are not interface nodes
             mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
 
-            // add nodes to child mesh
-            this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool,tDecompData);
-
             // add nodes to the background mesh
             mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex, tDecompData.tNewNodeOwner,tDecompData.tNewNodeSharing,tDecompData.tNewNodeCoordinate);
+
+            // add nodes to child mesh
+            this->decompose_internal_set_new_nodes_in_child_mesh_reg_sub(aActiveChildMeshIndices,tNewPairBool,tDecompData);
 
             // associate new nodes with geometry objects
             create_new_node_association_with_geometry(tDecompData);
@@ -205,7 +205,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             if(aFirstSubdivision)
             {
                 moris::Matrix< moris::IndexMat > tNewPairBool;
-                run_first_cut_routine(TemplateType::TET_4, 4, aActiveChildMeshIndices,tNewPairBool);
+                run_first_cut_routine(TemplateType::TET_4, aGeomIndex, 4, aActiveChildMeshIndices,tNewPairBool);
 
                 for(moris::size_t i = 0; i<aActiveChildMeshIndices.n_cols(); i++)
                 {
@@ -224,12 +224,14 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
                 tDimParamCoord = 4;
             }
 
+            std::cout<<"tDimParamCoord = "<<tDimParamCoord<<std::endl;
             // initialize a struct of all the data we are keeping track of in this decomposition
             // intended to reduce the clutter of function inputs etc
             Decomposition_Data tDecompData;
             tDecompData.mSubdivisionMethod = Subdivision_Method::C_HIERARCHY_TET4;
             tDecompData.mConformalDecomp = true;
             tDecompData.mHasSecondaryIdentifier = true;
+            tDecompData.mFirstSubdivision = aFirstSubdivision;
 
             // Initialize
             moris::size_t tEdgeInd = INTEGER_MAX;
@@ -357,6 +359,7 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
 
                     else if(tGeoObjects(k).all_parent_nodes_on_interface())
                     {
+                        std::cout<<"all parent nodes on interface"<<std::endl;
                         moris::moris_index tParentIndex = tGeoObjects(k).get_parent_entity_index();
 
                         // Tell the child mesh this edge is actually on the interface already
@@ -377,11 +380,11 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             // Allocate interface flag space in XTK mesh even though these are not interface nodes
             mBackgroundMesh.allocate_space_in_interface_node_flags(tDecompData.tNewNodeIndex.size(),mGeometryEngine.get_num_geometries());
 
-            // add nodes to child mesh
-            this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
-
             // add nodes to the background mesh
             mBackgroundMesh.batch_create_new_nodes(tDecompData.tNewNodeId,tDecompData.tNewNodeIndex,tDecompData.tNewNodeOwner, tDecompData.tNewNodeSharing,tDecompData.tNewNodeCoordinate);
+
+            // add nodes to child mesh
+            this->decompose_internal_set_new_nodes_in_child_mesh_nh(aActiveChildMeshIndices,tDecompData);
 
             // associate new nodes with geometry objects
             create_new_node_association_with_geometry(tDecompData);
@@ -619,10 +622,13 @@ Model::decompose_internal_set_new_nodes_in_child_mesh_reg_sub(moris::Matrix< mor
             // retrieve child mesh
             Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
 
+            // get vertex
+            Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tCMNewNodeInds);
 
-            // add node indices and ids to child mesh
+            // add node indices, ids, and vertices to child mesh
             tChildMesh.add_node_indices(tCMNewNodeInds);
             tChildMesh.add_node_ids(tCMNewNodeIds);
+            tChildMesh.add_vertices(tVertices);
 
             // allocate space for parametric coordinates
             tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,3);
@@ -672,12 +678,27 @@ Model::decompose_internal_set_new_nodes_in_child_mesh_nh(moris::Matrix< moris::I
         // retrieve child mesh
         Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
 
-        // add node indices and ids to child mesh
+        // get vertex
+        Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tCMNewNodeInds);
+
+        // add node indices, ids, and vertices to child mesh
         tChildMesh.add_node_indices(tCMNewNodeInds);
         tChildMesh.add_node_ids(tCMNewNodeIds);
+        tChildMesh.add_vertices(tVertices);
 
-        // allocate space for parametric coordinates
-        tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,3);
+        // allocate space for parametric coordinate
+
+        // For hex background meshes we have a three dimension parametric coordinate
+        moris::size_t tDimParamCoord = 3;
+
+        // For tet background meshes we have a 4-d parametric coordinate
+        if(tDecompData.mFirstSubdivision)
+        {
+            tDimParamCoord = 4;
+        }
+
+
+        tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,tDimParamCoord);
 
         // iterate through nods and add parametric coordinate
         for(moris::uint iN =0; iN< tNumNewNodesForCM; iN++)
@@ -1681,7 +1702,7 @@ Model::perform_basis_enrichment()
 
 
     MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
-    MORIS_ERROR(mUnzipped,"Prior to computing basis enrichment, the interface unzipping process must be called");
+//    MORIS_ERROR(mUnzipped,"Prior to computing basis enrichment, the interface unzipping process must be called");
     MORIS_ERROR(!mEnriched,"Calling perform_basis_enrichment twice is not supported");
     perform_basis_enrichment_internal();
 
@@ -1701,12 +1722,19 @@ Model::get_basis_enrichment()
     MORIS_ASSERT(mEnriched,"Cannot get basis enrichment from an XTK model which has not called perform_basis_enrichment ");
     return *mEnrichment;
 }
-Enriched_Interpolation_Mesh const &
+Enriched_Interpolation_Mesh &
 Model::get_enriched_interp_mesh()
 {
     MORIS_ASSERT(mEnriched,"Cannot get enriched interpolation mesh from an XTK model which has not called perform_basis_enrichment ");
     return *mEnrichedInterpMesh;
 }
+Enriched_Integration_Mesh &
+Model::get_enriched_integ_mesh()
+{
+    MORIS_ASSERT(mEnriched,"Cannot get enriched integration mesh from an XTK model which has not called perform_basis_enrichment ");
+    return *mEnrichedIntegMesh;
+}
+
 
 void
 Model::perform_basis_enrichment_internal()
@@ -1875,7 +1903,7 @@ Model::extract_surface_mesh_to_obj_internal(std::string                      aOu
     Cell<moris::Matrix<moris::IndexMat>> tInterfaceNodes = mBackgroundMesh.get_interface_nodes_glob_ids();
 
     // interface sides
-    moris::Matrix<moris::IdMat> tInterfaceElemIndandSideOrd = mCutMesh.pack_interface_sides(true,aPhaseIndex);
+    moris::Matrix<moris::IdMat> tInterfaceElemIndandSideOrd = mCutMesh.pack_interface_sides(0,aPhaseIndex,1);
 
 
     // tri 3s
@@ -2198,7 +2226,7 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     moris::Cell < enum moris::EntityRank > tFieldRanks =  assign_geometry_data_field_ranks();
 
     // Get the packaged interface side sets from the cut mesh
-    moris::Matrix<moris::IdMat> tInterfaceElemIdandSideOrd = mCutMesh.pack_interface_sides();
+    moris::Matrix<moris::IdMat> tInterfaceElemIdandSideOrd = mCutMesh.pack_interface_sides(0,0,1);
 
     // number of phases being output
     moris::uint tNumPhasesOutput = get_num_phases_to_output(aOutputOptions);
@@ -3322,7 +3350,7 @@ Model::setup_interface_side_cluster(std::string                      aInterfaceS
                 Child_Mesh const & tChildMesh = mCutMesh.get_child_mesh(iC);
 
                 // package this child element by bulk phase
-                moris::Matrix< moris::IdMat > tInterfaceElementIdsAndSideOrd = tChildMesh.pack_interface_sides( false, iP );
+                moris::Matrix< moris::IdMat > tInterfaceElementIdsAndSideOrd = tChildMesh.pack_interface_sides( 0, 0, 1 );
 
                 // add to data which will stay in scope
                 aCellIdsandSideOrds.push_back(tInterfaceElementIdsAndSideOrd);

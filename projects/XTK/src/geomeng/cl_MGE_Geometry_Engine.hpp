@@ -882,7 +882,7 @@ private:
         moris::uint tMinLocCol = 0;
 
         moris::size_t tNodeInd  = 0;
-        moris::size_t tNumNodes = aEntityNodeInds.n_cols();
+        moris::size_t tNumNodes = aEntityNodeInds.numel();
         moris::Matrix< moris::DDRMat > tEntityNodeVars(tNumNodes, 1);
         moris::Matrix< moris::DDRMat > tInterpLocationCoords(1,1);
 
@@ -890,11 +890,11 @@ private:
         // Loop through nodes and get levelset values from precomputed values in aNodeVars or in the levelset mesh
         for(moris::size_t n = 0; n < tNumNodes; n++)
         {   //Get node id n
-            tNodeInd = aEntityNodeInds(0, n);
+            tNodeInd = aEntityNodeInds(n);
 
             Geometry_Object & tGeoObj = get_geometry_object(tNodeInd);
             moris::size_t tPhaseValRowIndex = tGeoObj.get_phase_val_row();
-            tEntityNodeVars(n, 0) = mNodePhaseVals(tPhaseValRowIndex, mActiveGeometryIndex);
+            tEntityNodeVars(n) = mNodePhaseVals(tPhaseValRowIndex, mActiveGeometryIndex);
         }
 
         //get the max and minimum levelset value for the entity
@@ -908,7 +908,7 @@ private:
 
         moris::real tErrorFactor = 1;
         // If the max is also the threshold value, figure out which node is on the interface
-        // If both are the interface, the location may not be correct (sincent
+
         if( approximate(tMin, mThresholdValue,tErrorFactor) && approximate(tMax, mThresholdValue,tErrorFactor))
         {
             aGeometryObject.set_parent_entity_index(aEntityIndex);

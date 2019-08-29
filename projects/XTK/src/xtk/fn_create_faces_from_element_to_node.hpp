@@ -14,6 +14,7 @@
 #include "cl_MTK_Tetra4_Connectivity.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_MTK_Tetra4_Connectivity.hpp"
 namespace xtk
 {
 

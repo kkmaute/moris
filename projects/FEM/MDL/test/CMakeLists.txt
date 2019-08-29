@@ -58,10 +58,6 @@ add_executable(${MDL_TEST} ${TEST_SOURCES})
 target_link_libraries(${MDL_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${MDL_TEST} PROPERTIES OUTPUT_NAME ${MDL_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${MDL_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${MDL_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     set(MDL_TEST_PROCS ${MORIS_TEST_PROCS})

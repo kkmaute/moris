@@ -149,10 +149,11 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
 
 
         // Delete because vertices were created with new call
-        for(size_t i =0; i<tNodeIndices.numel(); i++)
+        for (auto iT : tElementVertices)
         {
-            delete tElementVertices(i);
+          delete iT;
         }
+        tElementVertices.clear();
 
     }
 }
@@ -258,10 +259,12 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
 
 
         // Delete because vertices were created with new call
-        for(size_t i =0; i<tNodeIndices.numel(); i++)
+        for (auto iT : tElementVertices)
         {
-            delete tElementVertices(i);
+          delete iT;
         }
+        tElementVertices.clear();
+
 
         delete tMesh1;
 

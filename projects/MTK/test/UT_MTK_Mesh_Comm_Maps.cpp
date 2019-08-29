@@ -284,6 +284,8 @@ TEST_CASE("MTK Cell Communication Tables","[CELL_COMM_TABLES]")
 
     barrier("lll");
 
+    delete tMesh;
+
 }
 
 }

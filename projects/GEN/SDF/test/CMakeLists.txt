@@ -27,10 +27,6 @@ add_executable(${SDF_TEST} ${TEST_SOURCES})
 target_link_libraries(${SDF_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${SDF_TEST} PROPERTIES OUTPUT_NAME ${SDF_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${SDF_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${SDF_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(SDF_TEST_PROCS ${MORIS_TEST_PROCS})
