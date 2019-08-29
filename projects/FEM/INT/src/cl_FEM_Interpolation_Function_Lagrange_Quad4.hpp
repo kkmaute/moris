@@ -38,19 +38,18 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::get_param_coords() const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 4 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
-            Matrix< DDRMat > tXiHat( 2, 4 );
-            tXiHat( 0, 0 ) = -1.000000;
-            tXiHat( 1, 0 ) = -1.000000;
-            tXiHat( 0, 1 ) =  1.000000;
-            tXiHat( 1, 1 ) = -1.000000;
-            tXiHat( 0, 2 ) =  1.000000;
-            tXiHat( 1, 2 ) =  1.000000;
-            tXiHat( 0, 3 ) = -1.000000;
-            tXiHat( 1, 3 ) =  1.000000;
-            return tXiHat;
+            aXiHat.set_size( 2, 4, 0.0 );
+            aXiHat( 0, 0 ) = -1.000000;
+            aXiHat( 1, 0 ) = -1.000000;
+            aXiHat( 0, 1 ) =  1.000000;
+            aXiHat( 1, 1 ) = -1.000000;
+            aXiHat( 0, 2 ) =  1.000000;
+            aXiHat( 1, 2 ) =  1.000000;
+            aXiHat( 0, 3 ) = -1.000000;
+            aXiHat( 1, 3 ) =  1.000000;
         }
 
 //------------------------------------------------------------------------------

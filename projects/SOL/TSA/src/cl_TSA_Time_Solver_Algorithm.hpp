@@ -122,6 +122,19 @@ namespace tsa
         {
             return mParameterListTimeSolver( aKey );
         }
+
+        //-------------------------------------------------------------------------------
+        // arc-length functions
+        virtual void set_lambda_increment( moris::real aLambdaInc )
+        {
+            MORIS_ASSERT(false, "Time_Solver_Algorithm:set_lambda_increment(): arc-length uses the monolithic time solver");
+        };
+
+        virtual moris::real get_new_lambda()
+        {
+            MORIS_ASSERT(false, "Time_Solver_Algorithm:get_new_lambda(): arc-length uses the monolithic time solver");
+            return 0;
+        };
     };
 }
 }

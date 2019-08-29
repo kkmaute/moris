@@ -54,86 +54,72 @@ namespace moris
                                                                                                                                                             mtk::Master_Slave::SLAVE ) );
             mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
-            // loop over the IWGs
-             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
-             {
-                 // get the treated IWG
-                 IWG* tTreatedIWG = mSet->get_IWGs()( iIWG );
+            // get first corresponding node from master to slave
+            //FIXME not sure it works, seems right
+            moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
 
-                 // get the number of active Dof_type for the IWG
-                 uint tNumOfIWGActiveDof = tTreatedIWG->get_active_dof_types().size();
+            // get rotation matrix from left to right
+            Matrix< DDRMat> tR;
+            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode, tR );
 
-                 // get the active field interpolators for the IWG for the master interpolation cell
-                 Cell< Field_Interpolator* > tMasterIWGInterpolators  = mSet->get_IWG_field_interpolators( tTreatedIWG,
-                                                                                                           mSet->get_field_interpolator( mtk::Master_Slave::MASTER ) );
-                 // get the active field interpolators for the IWG for the slave interpolation cell
-                 Cell< Field_Interpolator* > tSlaveIWGInterpolators = mSet->get_IWG_field_interpolators( tTreatedIWG,
-                                                                                                         mSet->get_field_interpolator( mtk::Master_Slave::SLAVE ) );
-                 //get number of integration points
-                 uint tNumOfIntegPoints = mSet->get_num_integration_points();
+            // loop over the integration points
+            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
+            {
+                // get local integration point for the master integration cell
+                Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                 for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-                 {
-                     // get local integration point for the master integration cell
-                     Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                // set the ith integration point in the IG param space for IG geometry interpolator
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_time( tMasterLocalIntegPoint );
 
-                     // get first corresponding node from master to slave
-                     //FIXME not sure it works, seems right
-                     moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
-                     //std::cout<<tSlaveNode<<std::endl;
+                // get local integration point for the slave integration cell
+                Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
+                tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0})
+                    = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
-                     // get rotation matrix from left to right
-                     Matrix< DDRMat> tR = rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode );
+                // set the ith integration point in the IG param space for slave IG geometry interpolator
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_time( tSlaveLocalIntegPoint );
 
-                     // get local integration point for the slave integration cell
-                     Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
-                     tSlaveLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0})
-                         = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+                // get global integration point  for the master integration cell
+                Matrix< DDRMat > tMasterGlobalIntegPoint;
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterGlobalIntegPoint );
 
-                     // get global integration point  for the master integration cell
-                     Matrix< DDRMat > tMasterGlobalIntegPoint;
-                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterLocalIntegPoint,
-                                                                                                             tMasterGlobalIntegPoint );
+                // get global integration point for the slave integration cell
+                Matrix< DDRMat > tSlaveGlobalIntegPoint;
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveGlobalIntegPoint );
 
-                     // get global integration point for the slave integration cell
-                     Matrix< DDRMat > tSlaveGlobalIntegPoint;
-                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveLocalIntegPoint,
-                                                                                                            tSlaveGlobalIntegPoint );
+                // set evaluation point for field interpolator
+                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
+                {
+                    mSet->get_field_interpolator( mtk::Master_Slave::MASTER )( iInterp )->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->get_field_interpolator( mtk::Master_Slave::SLAVE  )( iInterp )->set_space_time( tSlaveGlobalIntegPoint );
+                }
 
-                     // set integration point for master and slave field interpolators
-                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
-                     {
-                         tMasterIWGInterpolators( iIWGFI )->set_space_time( tMasterGlobalIntegPoint );
-                         tSlaveIWGInterpolators( iIWGFI )->set_space_time( tSlaveGlobalIntegPoint );
-                     }
+                // compute the integration point weight // fixme both side?
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->det_J();
 
-                     // compute the integration point weight // fixme both side?
-                     real tWStar = mSet->get_integration_weights()( iGP )
-                                 * mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->det_J( tMasterLocalIntegPoint );
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
 
-                     // get the normal from mesh and set if for the IWG
-                     Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd, tMasterLocalIntegPoint );
-                     tTreatedIWG->set_normal( tNormal );
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                {
+                    // set the normal for the IWG
+                    mSet->get_IWGs()( iIWG )->set_normal( tNormal );
 
-                     // compute residual at integration point
-                     Matrix< DDRMat > tResidual;
-                     tTreatedIWG->compute_residual( tResidual, tMasterIWGInterpolators, tSlaveIWGInterpolators );
+                    // compute residual at integration point
+                    Matrix< DDRMat > tResidual;
+                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual,
+                                                                mSet->get_IWG_field_interpolators( mtk::Master_Slave::MASTER )( iIWG ),
+                                                                mSet->get_IWG_field_interpolators( mtk::Master_Slave::SLAVE )( iIWG ) );
 
-                     // fixme does it work as is?
-                     // get the index of the residual dof type for the ith IWG in the list of element dof type
-                     uint tIWGResDofIndex = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
-
-                     // get location of computed residual in global element residual
-                     uint startDof = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
-                     uint stopDof  = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
-
-                     // add contribution to jacobian from evaluation point
-                     mSet->mResidual( { startDof, stopDof }, { 0, 0 } )
-                         = mSet->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
-                 }
+                    // add contribution to jacobian from evaluation point
+                    mSet->mResidual( { mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 1 ) },
+                                     { 0, 0 } ) += tWStar * tResidual;
+                }
             }
 //            // print residual for check
-            print( mSet->mResidual, " mResidual " );
+//            print( mSet->mResidual, " mResidual " );
         }
 
 //------------------------------------------------------------------------------
@@ -164,101 +150,81 @@ namespace moris
                                                                                                                                                             mtk::Master_Slave::SLAVE ) );
             mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
-            // loop over the IWGs
-             for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
-             {
-                 // get the treated IWG
-                 IWG* tTreatedIWG = mSet->get_IWGs()( iIWG );
+            // get first corresponding node from master to slave
+            //FIXME not sure it works or provide the right thing
+            moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
 
-                 // get the index of the residual dof type for the ith IWG in the list of element dof type
-                 uint tIWGResDofIndex = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
+            // get rotation matrix from left to right
+            Matrix< DDRMat> tR;
+            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode, tR );
 
-                 // get the number of active Dof_type for the IWG
-                 Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = tTreatedIWG->get_active_dof_types();
-                 uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
+            // loop over the integration points
+            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
+            {
+                // get local integration point for the master integration cell
+                Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                 // get the active field interpolators for the IWG for the master interpolation cell
-                 Cell< Field_Interpolator* > tMasterIWGInterpolators  = mSet->get_IWG_field_interpolators( tTreatedIWG,
-                                                                                                           mSet->get_field_interpolator( mtk::Master_Slave::MASTER ) );
-                 // get the active field interpolators for the IWG for the slave interpolation cell
-                 Cell< Field_Interpolator* > tSlaveIWGInterpolators = mSet->get_IWG_field_interpolators( tTreatedIWG,
-                                                                                                         mSet->get_field_interpolator( mtk::Master_Slave::SLAVE ) );
-                 //get number of integration points
-                 uint tNumOfIntegPoints = mSet->get_num_integration_points();
+                // set the ith integration point in the IG param space for IG geometry interpolator
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_time( tMasterLocalIntegPoint );
 
-                 for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-                 {
-                     // get local integration point for the master integration cell
-                     Matrix< DDRMat > tMasterLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                // get local integration point for the slave integration cell
+                Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
+                tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0})
+                    = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
 
-                     // get first corresponding node from master to slave
-                     //FIXME not sure it works or provide the right thing
-                     moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+                // set the ith integration point in the IG param space for slave IG geometry interpolator
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_time( tSlaveLocalIntegPoint );
 
-                     // get rotation matrix from left to right
-                     Matrix< DDRMat> tR = rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode );
+                // get global integration point  for the master integration cell
+                Matrix< DDRMat > tMasterGlobalIntegPoint;
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterGlobalIntegPoint );
 
-                     // get local integration point for the slave integration cell
-                     Matrix< DDRMat > tSlaveLocalIntegPoint = tMasterLocalIntegPoint;
-                     tSlaveLocalIntegPoint({0,tMasterLocalIntegPoint.numel()-2},{0,0})
-                         = tR * tMasterLocalIntegPoint({0,tSlaveLocalIntegPoint.numel()-2},{0,0}); //fixme better way?
+                // get global integration point for the slave integration cell
+                Matrix< DDRMat > tSlaveGlobalIntegPoint;
+                mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveGlobalIntegPoint );
 
-                     // get global integration point  for the master integration cell
-                     Matrix< DDRMat > tMasterGlobalIntegPoint;
-                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->map_integration_point( tMasterLocalIntegPoint,
-                                                                                                             tMasterGlobalIntegPoint );
+                // set evaluation point for field interpolator
+                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
+                {
+                    mSet->get_field_interpolator( mtk::Master_Slave::MASTER )( iInterp )->set_space_time( tMasterGlobalIntegPoint );
+                    mSet->get_field_interpolator( mtk::Master_Slave::SLAVE  )( iInterp )->set_space_time( tSlaveGlobalIntegPoint );
+                }
 
-                     // get global integration point for the slave integration cell
-                     Matrix< DDRMat > tSlaveGlobalIntegPoint;
-                     mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveLocalIntegPoint,
-                                                                                                            tSlaveGlobalIntegPoint );
+                // compute the integration point weight // fixme both side?
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->det_J();
 
-                     // set integration point for master and slave field interpolators
-                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
-                     {
-                         tMasterIWGInterpolators( iIWGFI )->set_space_time( tMasterGlobalIntegPoint );
-                         tSlaveIWGInterpolators( iIWGFI )->set_space_time( tSlaveGlobalIntegPoint );
-                     }
+                // get the normal from mesh and set if for the IWG
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd );
 
-                     // compute the integration point weight // fixme both side?
-                     real tWStar = mSet->get_integration_weights()( iGP )
-                                 * mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->det_J( tMasterLocalIntegPoint );
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                {
+                    // set the normal for the IWG
+                    mSet->get_IWGs()( iIWG )->set_normal( tNormal );
 
-                     // get the normal from mesh and set if for the IWG
-                     Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tMasterSideOrd, tMasterLocalIntegPoint );
-                     tTreatedIWG->set_normal( tNormal );
+                    // compute residual at integration point
+                    Cell< Matrix< DDRMat > > tJacobians;
+                    mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians,
+                                                                mSet->get_IWG_field_interpolators( mtk::Master_Slave::MASTER )( iIWG ),
+                                                                mSet->get_IWG_field_interpolators( mtk::Master_Slave::SLAVE )( iIWG ) );
+//                    print( tJacobians(0), "tJacobians" );
 
-                     // compute residual at integration point
-                     Cell< Matrix< DDRMat > > tJacobians;
-                     tTreatedIWG->compute_jacobian( tJacobians, tMasterIWGInterpolators, tSlaveIWGInterpolators );
-//                     print(tJacobians(0),"tJacobians");
+//                    real tPerturbation = 1E-6;
+//                    Cell< Matrix< DDRMat > > tJacobiansFD;
+//                    mSet->get_IWGs()( iIWG )->compute_jacobian_FD( tJacobiansFD,
+//                                                                   mSet->get_IWG_field_interpolators( mtk::Master_Slave::MASTER )( iIWG ),
+//                                                                   mSet->get_IWG_field_interpolators( mtk::Master_Slave::SLAVE )( iIWG ),
+//                                                                   tPerturbation );
+//                    print( tJacobiansFD(0), "tJacobiansFD" );
 
-//                     real tPerturbation = 1E-6;
-//                     Cell< Matrix< DDRMat > > tJacobiansFD;
-//                     tTreatedIWG->compute_jacobian_FD( tJacobiansFD,
-//                                                       tLeftIWGInterpolators, tRightIWGInterpolators,
-//                                                       tPerturbation );
-//                     print(tJacobiansFD(0),"tJacobiansFD");
-
-                     // fixme does it work as is?
-                     // get location of computed jacobian in global element residual rows
-                     uint startIDof = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
-                     uint stopIDof  = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
-
-                     // loop over the IWG active dof types
-                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++)
-                     {
-                         // get the index of the active dof type
-                         uint tIWGActiveDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDofType( iIWGFI )( 0 ) ) );
-
-                         // get location of computed jacobian in global element residual columns
-                         uint startJDof = mSet->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 0 );
-                         uint stopJDof  = mSet->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 1 );
-
-                         // add contribution to jacobian from evaluation point
-                         mSet->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                             = mSet->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                             + tWStar * tJacobians( iIWGFI );
+                    // loop over the IWG active dof types
+                    for ( uint iIWGFI = 0; iIWGFI < mSet->get_IWG_num_active_dof()( iIWG ); iIWGFI++)
+                    {
+                        // add contribution to jacobian from evaluation point
+                        mSet->mJacobian( { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 1 ) },
+                                         { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 2 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 3 ) } )
+                                       += tWStar * tJacobians( iIWGFI );
                     }
                 }
             }

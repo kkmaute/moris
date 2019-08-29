@@ -42,12 +42,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
+        void
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TET_15>::get_points()
+                Integration_Order::TET_15>::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
-            Matrix< DDRMat > aIntegrationPoints =
+            aIntegrationPoints =
             {
                 { 0.2500000000000000, 0.0000000000000000, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333,
                   0.7272727272727273, 0.0909090909090909, 0.0909090909090909, 0.0909090909090909, 0.4334498464263357,
@@ -62,24 +62,22 @@ namespace moris
                   0.0909090909090910, 0.7272727272727273, 0.0909090909090913, 0.0909090909090910, 0.4334498464263360,
                   0.4334498464263360, 0.4334498464263360, 0.0665501535736640, 0.0665501535736640, 0.0665501535736640 },
             };
-            return aIntegrationPoints;
           }
 
 //------------------------------------------------------------------------------
 
             template<>
-            Matrix< DDRMat >
+            void
             Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TET_15>::get_weights()
+                Integration_Order::TET_15>::get_weights( Matrix< DDRMat > & aIntegrationWeights )
             {
-                Matrix< DDRMat > aWeights =
+                aIntegrationWeights =
                 {
                     { 0.1817020685825351, 0.0361607142857143, 0.0361607142857143, 0.0361607142857143, 0.0361607142857143,
                       0.0698714945161738, 0.0698714945161738, 0.0698714945161738, 0.0698714945161738, 0.0656948493683187,
                       0.0656948493683187, 0.0656948493683187, 0.0656948493683187, 0.0656948493683187, 0.0656948493683187 }
                 };
-                return aWeights;
             }
 
 //------------------------------------------------------------------------------

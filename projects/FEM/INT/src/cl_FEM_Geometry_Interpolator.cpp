@@ -165,10 +165,10 @@ namespace moris
         {
             // default implementation
             //set space and time param coords
-            mXiHat  = mSpaceInterpolation->get_param_coords();
+            mSpaceInterpolation->get_param_coords( mXiHat );
             mXiHat = trans( mXiHat );
 
-            mTauHat = mTimeInterpolation->get_param_coords();
+            mTimeInterpolation->get_param_coords( mTauHat );
             mTauHat = trans( mTauHat );
         }
 
@@ -212,6 +212,65 @@ namespace moris
             mTauHat = aTauHat;
         }
 
+
+        void Geometry_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
+        {
+            // check input size aParamPoint
+            MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNumSpaceParamDim + mNumTimeDim )),
+                         "Geometry_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");
+
+            // check input values are between -1 and 1
+            // fixme what about TRI and TET
+            for ( uint Ik = 0; Ik < mNumSpaceParamDim + mNumTimeDim; Ik++ )
+            {
+
+                MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
+                             "Geometry_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
+            }
+
+            // set input values
+            mXiLocal.matrix_data()  = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
+            mTauLocal.matrix_data() = aParamPoint( mNumSpaceParamDim );
+        }
+
+        void Geometry_Interpolator::set_space( const Matrix< DDRMat > & aSpaceParamPoint )
+        {
+            // check input size aParamPoint
+            MORIS_ASSERT( ( ( aSpaceParamPoint.n_cols() == 1 ) && ( aSpaceParamPoint.n_rows() == mNumSpaceParamDim )),
+                         "Geometry_Interpolator::set_space - Wrong input size ( aSpaceParamPoint ).");
+
+            // check input values are between -1 and 1
+            // fixme what about TRI and TET
+            for ( uint Ik = 0; Ik < mNumSpaceParamDim; Ik++ )
+            {
+
+                MORIS_ASSERT( ( ( aSpaceParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aSpaceParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
+                             "Geometry_Interpolator::set_space - Wrong input value ( aSpaceParamPoint ).");
+            }
+
+            // set input values
+            mXiLocal  = aSpaceParamPoint;
+        }
+
+        void Geometry_Interpolator::set_time( const Matrix< DDRMat > & aTimeParamPoint )
+        {
+            // check input size aParamPoint
+            MORIS_ASSERT( ( ( aTimeParamPoint.n_cols() == 1 ) && ( aTimeParamPoint.n_rows() == mNumTimeDim )),
+                         "Geometry_Interpolator::set_space - Wrong input size ( aTimeParamPoint ).");
+
+            // check input values are between -1 and 1
+            // fixme what about TRI and TET
+            for ( uint Ik = 0; Ik < mNumTimeDim; Ik++ )
+            {
+
+                MORIS_ASSERT( ( ( aTimeParamPoint( Ik ) <= 1.0 + 1E-12 ) && ( aTimeParamPoint( Ik ) >= -1.0 - 1E-12 ) ),
+                             "Geometry_Interpolator::set_time - Wrong input value ( aTimeParamPoint ).");
+            }
+
+            // set input values
+            mTauLocal  = aTimeParamPoint;
+        }
+
 //------------------------------------------------------------------------------
 
         Matrix< DDRMat > Geometry_Interpolator::extract_space_side_space_param_coeff( moris_index aSpaceOrdinal,
@@ -226,7 +285,8 @@ namespace moris
             if( tIPInterpolationOrder == aInterpolationOrder )
             {
                 // get the parametric coordinated of the parent for extraction
-                tXiForExtraction = trans( mSpaceInterpolation->get_param_coords() );
+                mSpaceInterpolation->get_param_coords( tXiForExtraction );
+                tXiForExtraction = trans( tXiForExtraction );
 
                 // get the number of bases
                 tNumSpaceBases = mNumSpaceBases;
@@ -244,7 +304,8 @@ namespace moris
                 Interpolation_Function_Base * tIGSpaceInterpolation = tIGInterpolationRule.create_space_interpolation_function();
 
                 // get the parametric coordinated of the parent for extraction
-                tXiForExtraction = trans( tIGSpaceInterpolation->get_param_coords() );
+                tIGSpaceInterpolation->get_param_coords( tXiForExtraction );
+                tXiForExtraction = trans( tXiForExtraction );
 
                 // get the number of bases
                 tNumSpaceBases = tIGSpaceInterpolation->get_number_of_bases();
@@ -293,7 +354,8 @@ namespace moris
             if( tIPInterpolationOrder == aInterpolationOrder )
             {
                 // get the parametric coordinated of the parent for extraction
-                tXi = trans( mSpaceInterpolation->get_param_coords() );
+                mSpaceInterpolation->get_param_coords( tXi );
+                tXi = trans( tXi );
             }
             else
             {
@@ -308,7 +370,8 @@ namespace moris
                 Interpolation_Function_Base * tIGSpaceInterpolation = tIGInterpolationRule.create_space_interpolation_function();
 
                 // get the parametric coordinated of the parent for extraction
-                tXi = trans( tIGSpaceInterpolation->get_param_coords() );
+                tIGSpaceInterpolation->get_param_coords( tXi );
+                tXi = trans( tXi );
 
                 // clean up
                 delete tIGSpaceInterpolation;
@@ -318,65 +381,79 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::NXi( const Matrix< DDRMat > & aXi,
-                                               Matrix< DDRMat > & aNXi) const
+        void Geometry_Interpolator::NXi( Matrix< DDRMat > & aNXi ) const
         {
+            // check that mXiLocal is set
+            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::NXi - mXiLocal is not set." );
+
             // pass data through interpolation function
-            mSpaceInterpolation->eval_N( aXi, aNXi );
+            mSpaceInterpolation->eval_N( mXiLocal, aNXi );
          }
 
 //------------------------------------------------------------------------------
 
-         void Geometry_Interpolator::NTau( const Matrix< DDRMat > & aTau,
-                                                 Matrix< DDRMat > & aNTau ) const
+         void Geometry_Interpolator::NTau( Matrix< DDRMat > & aNTau ) const
          {
+             // check that mXiLocal is set
+             MORIS_ASSERT( mTauLocal.numel() > 0, "Geometry_Interpolator::NTau - mTauLocal is not set." );
+
              // pass data through interpolation function
-             mTimeInterpolation->eval_N( aTau, aNTau );
+             mTimeInterpolation->eval_N( mTauLocal, aNTau );
          }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::dNdXi( const Matrix< DDRMat > & aXi,
-                                                 Matrix< DDRMat > & adNdXi ) const
+        void Geometry_Interpolator::dNdXi( Matrix< DDRMat > & adNdXi ) const
         {
+            // check that mXiLocal is set
+            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::dNdXi - mXiLocal is not set." );
+
             // pass data through interpolation function
-            mSpaceInterpolation->eval_dNdXi( aXi, adNdXi );
+            mSpaceInterpolation->eval_dNdXi( mXiLocal, adNdXi );
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::dNdTau( const Matrix< DDRMat > & aTau,
-                                                  Matrix< DDRMat > & adNdTau ) const
+        void Geometry_Interpolator::dNdTau( Matrix< DDRMat > & adNdTau ) const
         {
+            // check that mXiLocal is set
+            MORIS_ASSERT( mTauLocal.numel() > 0, "Geometry_Interpolator::dNdTau - mTauLocal is not set." );
+
             // pass data through interpolation function
-            mTimeInterpolation->eval_dNdXi( aTau, adNdTau );
+            mTimeInterpolation->eval_dNdXi( mTauLocal, adNdTau );
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::d2NdXi2( const Matrix< DDRMat > & aXi,
-                                                   Matrix< DDRMat > & ad2NdXi2 ) const
+        void Geometry_Interpolator::d2NdXi2( Matrix< DDRMat > & ad2NdXi2 ) const
         {
+            // check that mXiLocal is set
+            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::d2NdXi2 - mXiLocal is not set." );
+
             // pass data through interpolation function
-            mSpaceInterpolation->eval_d2NdXi2( aXi, ad2NdXi2 );
+            mSpaceInterpolation->eval_d2NdXi2( mXiLocal, ad2NdXi2 );
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::d3NdXi3( const Matrix< DDRMat > & aXi,
-                                                   Matrix< DDRMat > & ad3NdXi3 ) const
+        void Geometry_Interpolator::d3NdXi3( Matrix< DDRMat > & ad3NdXi3 ) const
         {
+            // check that mXiLocal is set
+            MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::d3NdXi3 - mXiLocal is not set." );
+
             // pass data through interpolation function
-            mSpaceInterpolation->eval_d3NdXi3( aXi, ad3NdXi3 );
+            mSpaceInterpolation->eval_d3NdXi3( mXiLocal, ad3NdXi3 );
         }
 
 //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::d2NdTau2( const Matrix< DDRMat > & aTau,
-                                                    Matrix< DDRMat > & ad2NdTau2 ) const
+        void Geometry_Interpolator::d2NdTau2( Matrix< DDRMat > & ad2NdTau2 ) const
         {
+            // check that mXiLocal is set
+            MORIS_ASSERT( mTauLocal.numel() > 0, "Geometry_Interpolator::d2NdTau2 - mTauLocal is not set." );
+
             // pass data through interpolation function
-            mTimeInterpolation->eval_d2NdXi2( aTau, ad2NdTau2 );
+            mTimeInterpolation->eval_d2NdXi2( mTauLocal, ad2NdTau2 );
         }
 //------------------------------------------------------------------------------
 
@@ -392,48 +469,47 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::second_space_jacobian( const Matrix< DDRMat > & ad2NdXi2 ) const
+        void Geometry_Interpolator::second_space_jacobian( const Matrix< DDRMat > & ad2NdXi2,
+                                                                 Matrix< DDRMat > & aJ2bt ) const
         {
             // check that mXHat is set
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::second_space_jacobian - mXHat is not set." );
 
-//            Matrix< DDRMat > tJ2bt = ad2NdXi2 * mXHat ;
-            return ad2NdXi2 * mXHat;
+            // compute the second order Jacobian
+            aJ2bt = ad2NdXi2 * mXHat;
         }
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::third_space_jacobian( const Matrix< DDRMat > & ad3NdXi3 ) const
+        void Geometry_Interpolator::third_space_jacobian( const Matrix< DDRMat > & ad3NdXi3,
+                                                                Matrix< DDRMat > & aJ3ct ) const
         {
             // check that mXHat is set
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::third_space_jacobian - mXHat is not set." );
 
-//            Matrix< DDRMat > tJ3ct = ad3NdXi3 * mXHat ;
-            return ad3NdXi3 * mXHat;
+            // compute the third order Jacobian
+            aJ3ct = ad3NdXi3 * mXHat;
         }
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::time_jacobian( const Matrix< DDRMat > & adNdTau ) const
+        void Geometry_Interpolator::time_jacobian( const Matrix< DDRMat > & adNdTau,
+                                                         Matrix< DDRMat > & aJt ) const
         {
             // check that mTHat is set
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
             // compute the Jacobian
-            return adNdTau * mTHat;
+            aJt = adNdTau * mTHat;
         }
 
 //------------------------------------------------------------------------------
 
-        real Geometry_Interpolator::det_J( const Matrix< DDRMat > & aParamPoint )
+        real Geometry_Interpolator::det_J()
         {
-            // get tXi and tTau
-            Matrix< DDRMat > tXi = aParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
-            Matrix< DDRMat > tTau( 1, 1, aParamPoint( mNumSpaceParamDim ) );
-
             // get the space jacobian
             Matrix< DDRMat > tdNSpacedXi;
-            this->dNdXi( tXi, tdNSpacedXi );
+            this->dNdXi( tdNSpacedXi );
             Matrix< DDRMat > tSpaceJt;
             this->space_jacobian( tdNSpacedXi, tSpaceJt );
 
@@ -504,8 +580,9 @@ namespace moris
 
             // get the time Jacobian
             Matrix< DDRMat > tdNTimedTau;
-            this->dNdTau( tTau, tdNTimedTau );
-            Matrix< DDRMat > tTimeJt     = this->time_jacobian( tdNTimedTau );
+            this->dNdTau( tdNTimedTau );
+            Matrix< DDRMat > tTimeJt;
+            this->time_jacobian( tdNTimedTau, tTimeJt );
 
             // switch Geometry_Type
             real detJTime = -1.0;
@@ -535,25 +612,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::get_normal( const Matrix< DDRMat > & aSideParamPoint )
+        void Geometry_Interpolator::get_normal( Matrix< DDRMat > & aNormal )
          {
-             // fixme check aSideParamPoint
-
              // check that there is a side interpolation
              MORIS_ASSERT( mSpaceSideset, "Geometry_Interpolator::normal - not a side." );
 
-             // unpack the space and time param coords of the side param point
-             Matrix< DDRMat > tXi = aSideParamPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } );
+             // check that mXiLocal is set
+             MORIS_ASSERT( mXiLocal.numel() > 0, "Geometry_Interpolator::normal - mXiLocal is not set." );
 
              // evaluate side space interpolation shape functions first parametric derivatives at aParamPoint
              Matrix< DDRMat > tdNSpacedXi;
-             mSpaceInterpolation->eval_dNdXi( tXi, tdNSpacedXi );
+             mSpaceInterpolation->eval_dNdXi( mXiLocal, tdNSpacedXi );
 
              // evaluation of tangent vectors to the space side in the physical space
              Matrix< DDRMat > tRealTangents = trans( tdNSpacedXi * mXHat );
-
-             // init the normal
-             Matrix< DDRMat > tNormal;
 
              // switch on geometry type
              switch ( mGeometryType )
@@ -561,36 +633,32 @@ namespace moris
                  case ( mtk::Geometry_Type::LINE ):
                  {
                      // computing the normal from the real tangent vectors
-                     tNormal = {{  tRealTangents( 1 ) },
+                     aNormal = {{  tRealTangents( 1 ) },
                                 { -tRealTangents( 0 ) }};
-                     tNormal = tNormal / norm( tNormal );
-                     return tNormal;
+                     aNormal = aNormal / norm( aNormal );
                      break;
                  }
 
                  case ( mtk::Geometry_Type::QUAD ):
                  {
                      // compute the normal from the real tangent vectors
-                     tNormal = cross( tRealTangents.get_column( 0 ), tRealTangents.get_column( 1 ) );
-                     tNormal = tNormal / norm( tNormal );
-                     return tNormal;
+                     aNormal = cross( tRealTangents.get_column( 0 ), tRealTangents.get_column( 1 ) );
+                     aNormal = aNormal / norm( aNormal );
                      break;
                  }
 
                  case ( mtk::Geometry_Type::TRI ):
                  {
                      // computing the normal from the tangent vector in the physical space
-                     tNormal = cross( tRealTangents.get_column( 0 ) - tRealTangents.get_column( 2 ),
+                     aNormal = cross( tRealTangents.get_column( 0 ) - tRealTangents.get_column( 2 ),
                                       tRealTangents.get_column( 1 ) - tRealTangents.get_column( 2 ) );
-                     tNormal = tNormal / norm( tNormal );
-                     return tNormal;
+                     aNormal = aNormal / norm( aNormal );
                      break;
                  }
 
                  default:
                  {
                      MORIS_ERROR( false, "Geometry_Interpolator::get_normal - wrong geometry type or geometry type not implemented");
-                     return tNormal;
                      break;
                  }
              }
@@ -598,52 +666,46 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::valx( const Matrix< DDRMat > & aXi )
+        void Geometry_Interpolator::valx( Matrix< DDRMat > & aX )
         {
             // check that mTHat is set
-            MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::time_jacobian - mXHat is not set." );
+            MORIS_ASSERT( mXHat.numel() > 0, "Geometry_Interpolator::time_jacobian - mXHat is not set." );
 
             Matrix< DDRMat > tNXi;
-
-            this->NXi( aXi, tNXi );
+            this->NXi( tNXi );
 
             //evaluate the field
-            return tNXi * mXHat ;
+            aX = tNXi * mXHat ;
         }
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Geometry_Interpolator::valt( const Matrix< DDRMat > & aTau )
+        void Geometry_Interpolator::valt( Matrix< DDRMat > & aT )
         {
             // check that mTHat is set
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
             Matrix< DDRMat > tNtTau;
-            this->NTau( aTau, tNtTau );
+            this->NTau( tNtTau );
 
             //evaluate the field
-            return tNtTau * mTHat ;
+            aT = tNtTau * mTHat ;
         }
 
 //------------------------------------------------------------------------------
-        void Geometry_Interpolator::map_integration_point( const Matrix< DDRMat > & aLocalParamPoint,
-                                                                 Matrix< DDRMat > & aGlobalParamPoint )
+        void Geometry_Interpolator::map_integration_point( Matrix< DDRMat > & aGlobalParamPoint )
         {
             // check that mXiHat and mTauHat are set
             MORIS_ASSERT( mXiHat.numel()>0, "Geometry_Interpolator::map_integration_point - mXiHat is not set." );
             MORIS_ASSERT( mTauHat.numel()>0, "Geometry_Interpolator::map_integration_point - mTauHat is not set." );
-
-            // unpack the coords of the local param point
-            Matrix< DDRMat > aLocalXi  = aLocalParamPoint( { 0, mNumSpaceParamDim-1 }, {0,0} );
-            Matrix< DDRMat > aLocalTau = aLocalParamPoint( { mNumSpaceParamDim, mNumSpaceParamDim }  , {0,0} );
 
             // evaluate the coords of the mapped param point
             uint tNumSpaceCoords = mXiHat.n_cols();
 
             Matrix< DDRMat > tNXi;
             Matrix< DDRMat > tNTau;
-            this->NXi( aLocalXi, tNXi );
-            this->NTau( aLocalTau,tNTau ),
+            this->NTau( tNTau );
+            this->NXi( tNXi );
 
             aGlobalParamPoint.set_size( tNumSpaceCoords + 1, 1 );
             aGlobalParamPoint( {0, tNumSpaceCoords-1 }, {0,0} )            = trans( tNXi  * mXiHat );
@@ -690,7 +752,7 @@ namespace moris
 
             // evaluate geometry Jacobians
             this->space_jacobian( adNdXi, aJt );
-            aJ2bt = this->second_space_jacobian( ad2NdXi2 );
+            this->second_space_jacobian( ad2NdXi2, aJ2bt );
 
             // call calculator for second derivatives
             this->mThirdDerivativeMatricesSpace( aJt,
@@ -716,7 +778,8 @@ namespace moris
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives - mTHat is not set." );
 
             // evaluate transposed of geometry Jacobian
-            aJt = this->time_jacobian( adNdTau );
+            this->time_jacobian( adNdTau,
+                                 aJt );
 
             // call calculator for second derivatives
             this->mSecondDerivativeMatricesTime( aJt,

@@ -33,7 +33,7 @@ namespace moris
             Field_Interpolator* mFieldInterpolator = nullptr;
 
             // geometry interpolator associated with the model parameter
-            const Geometry_Interpolator* mGeometryInterpolator = nullptr;
+            Geometry_Interpolator* mGeometryInterpolator = nullptr;
 
             // field interpolator type
             fem::Property_Type mPropertyType;
@@ -74,7 +74,7 @@ namespace moris
 
             Model_Parameter_Interpolator( const uint                    aNumberOfFields,
                                           const Interpolation_Rule    & aFieldInterpolationRule,
-                                          const Geometry_Interpolator * aGeometryInterpolator,
+                                                Geometry_Interpolator * aGeometryInterpolator,
                                           fem::Property_Type            aPropertyType,
                                           real ( *aFunc)( Matrix< DDRMat > aSpacePhysPoint,
                                                           Matrix< DDRMat > aTimePhysPoint ) )

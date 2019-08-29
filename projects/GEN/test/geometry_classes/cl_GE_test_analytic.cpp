@@ -162,7 +162,7 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             tGeometryEngine.add_vertex_and_value( tNewNode, tMyGeomIndex );
 
             Matrix< DDRMat > tNodeVal = tGeometryEngine.get_field_vals( tMyGeomIndex,tNewNode.get_index() );
-            REQUIRE( tNodeVal(0,0) == Approx(0.1071 ) );
+            REQUIRE( tNodeVal(0,0) == Approx( 0.1071 ) );
 
             //------------------------------------------------------------------------------
             /*
@@ -171,17 +171,32 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
              * ------------------------------------------------------------
              */
 
-            Matrix< DDRMat > tGlobalPos = {{0},{1}};
+            // edge [1]:
+            Matrix< DDRMat > tGlobalPos = {{0},{1}};    // edge [1] goes form x=0 to x=1
             Matrix< DDRMat > tTHat = {{0},{1}};
             Matrix< DDRMat > tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(1)(0,0) }};
 
             Intersection_Object_Line tIntersectionObject;
 
             tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
-            tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
+            moris_index tXInd = tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
 
-            Matrix< F31RMat > tIntersectionAlongX = tIntersectionObject.get_intersection_point();
+            Matrix< F31RMat > tIntersectionAlongX = tGeometryEngine.get_intersection_point( tMyGeomIndex, &tIntersectionObject, tXInd );
 
+            // edge [4]:
+            tGlobalPos = {{0},{1}};     // edge [2] goes from y=0 to y=1
+            tTHat = {{0},{1}};
+            tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(3)(0,0) }};
+
+            tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
+            moris_index tYInd = tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
+
+            Matrix< F31RMat > tIntersectionAlongY = tGeometryEngine.get_intersection_point( tMyGeomIndex, &tIntersectionObject, tYInd );
+            //------------------------------------------------------------------------------
+
+//            tIntersectionObject.compute_intersection_sensitivity();
+//
+//            Matrix< DDRMat > tTemp = tIntersectionObject.get_field_sensitivity_vals( 0 );
             //------------------------------------------------------------------------------
             /*
              * --------------------------------------------------------
@@ -194,12 +209,9 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             CHECK( equal_to( tLSVals(3)(0,0),  0.40 ) );
 
             Matrix< DDRMat > tCheckMat(3,2);
-            tCheckMat(0,0) = 1.0;
-            tCheckMat(0,1) = 1.0;
-            tCheckMat(1,0) = 1.0;
-            tCheckMat(1,1) = 0.0;
-            tCheckMat(2,0) = 0.0;
-            tCheckMat(2,1) = 1.0;
+            tCheckMat(0,0) = 1.0;            tCheckMat(0,1) = 1.0;
+            tCheckMat(1,0) = 1.0;            tCheckMat(1,1) = 0.0;
+            tCheckMat(2,0) = 0.0;            tCheckMat(2,1) = 1.0;
 
             bool tMatrixMatch = all_true( tSensitivities(0) == tCheckMat );
             CHECK( tMatrixMatch );
@@ -209,7 +221,8 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             REQUIRE( tSensitivities(2)(0,1) == Approx(-0.75));
             REQUIRE( tSensitivities(3)(0,0) == Approx(-0.75));
 
-            CHECK( equal_to( tIntersectionAlongX(0,0), 0.6 ) );
+            CHECK( equal_to( tIntersectionAlongX(0,0), 0.2 ) );
+            CHECK( equal_to( tIntersectionAlongY(0,0), 0.2 ) );
             //------------------------------------------------------------------------------
 //            std::string tOutputFile = "./analytic_functionalities_2D.exo";
 //            tInterpMesh1->create_output_mesh(tOutputFile);

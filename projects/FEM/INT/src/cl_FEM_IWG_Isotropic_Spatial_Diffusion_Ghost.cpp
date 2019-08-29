@@ -96,10 +96,10 @@ namespace moris
                 // assemble matrix containing both left and right shape functions and their 2nd derivatives wrt. (x,y,z)
 
                 // get derivatives from left and right shape functions
-                Matrix <DDRMat> tB2x_Left = tTemp_Left->eval_d2Ndx2();
+                Matrix <DDRMat> tB2x_Left = tTemp_Left->d2Ndx2();
                 uint tNumOfShapeFunctions_Left = tB2x_Left.n_cols();
 
-                Matrix <DDRMat> tB2x_Right = tTemp_Right->eval_d2Ndx2();
+                Matrix <DDRMat> tB2x_Right = tTemp_Right->d2Ndx2();
                 uint tNumOfShapeFunctions_Right = tB2x_Right.n_cols();
 
                 // create combined B-Matrix, put left and right B2x*n next to each other B2x_comined = [B2x_L, -B2x_R]
@@ -145,10 +145,10 @@ namespace moris
                 // assemble matrix containing both left and right shape functions and their 3nd derivatives wrt. (x,y,z)
 
                 // get derivatives from left and right shape functions
-                Matrix <DDRMat> tB3x_Left = tTemp_Left->eval_d3Ndx3();
+                Matrix <DDRMat> tB3x_Left = tTemp_Left->d3Ndx3();
                 uint tNumOfShapeFunctions_Left = tB3x_Left.n_cols();
 
-                Matrix <DDRMat> tB3x_Right = tTemp_Right->eval_d3Ndx3();
+                Matrix <DDRMat> tB3x_Right = tTemp_Right->d3Ndx3();
                 uint tNumOfShapeFunctions_Right = tB3x_Right.n_cols();
 
                 // create combined B-Matrix, put left and right B2x*n next to each other B3x_comined = [B3x_L, -B3x_R]
@@ -255,10 +255,10 @@ namespace moris
                 // assemble matrix containing both left and right shape functions and their 2nd derivatives wrt. (x,y,z)
 
                 // get derivatives from left and right shape functions
-                Matrix <DDRMat> tB2x_Left = tTemp_Left->eval_d2Ndx2();
+                Matrix <DDRMat> tB2x_Left = tTemp_Left->d2Ndx2();
                 uint tNumOfShapeFunctions_Left = tB2x_Left.n_cols();
 
-                Matrix <DDRMat> tB2x_Right = tTemp_Right->eval_d2Ndx2();
+                Matrix <DDRMat> tB2x_Right = tTemp_Right->d2Ndx2();
                 uint tNumOfShapeFunctions_Right = tB2x_Right.n_cols();
 
                 // create combined B-Matrix, put left and right B2x*n next to each other B2x_comined = [B2x_L, -B2x_R]
@@ -301,10 +301,10 @@ namespace moris
                 // assemble matrix containing both left and right shape functions and their 2nd derivatives wrt. (x,y,z)
 
                 // get derivatives from left and right shape functions
-                Matrix <DDRMat> tB3x_Left = tTemp_Left->eval_d3Ndx3();
+                Matrix <DDRMat> tB3x_Left = tTemp_Left->d3Ndx3();
                 uint tNumOfShapeFunctions_Left = tB3x_Left.n_cols();
 
-                Matrix <DDRMat> tB3x_Right = tTemp_Right->eval_d3Ndx3();
+                Matrix <DDRMat> tB3x_Right = tTemp_Right->d3Ndx3();
                 uint tNumOfShapeFunctions_Right = tB3x_Right.n_cols();
 
                 // create combined B-Matrix, put left and right B2x*n next to each other B3x_comined = [B3x_L, -B3x_R]

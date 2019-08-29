@@ -120,8 +120,10 @@ TEST_CASE("Time_Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],
 
         //get number of integration points, integration points and weights
         uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
-        Matrix< DDRMat > tTimeSideIntegPoints  = tTimeSideIntegrator.get_points();
-        Matrix< DDRMat > tTimeSideIntegWeights = tTimeSideIntegrator.get_weights();
+        Matrix< DDRMat > tTimeSideIntegPoints;
+        tTimeSideIntegrator.get_points( tTimeSideIntegPoints );
+        Matrix< DDRMat > tTimeSideIntegWeights;
+        tTimeSideIntegrator.get_weights( tTimeSideIntegWeights );
 
         // boolean for surface check
         bool tTimeSurfaceCheck = true;
@@ -149,13 +151,15 @@ TEST_CASE("Time_Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],
                 // get the treated integration point location in the surface ref space
                 Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
+                // set the treated integration point location in the surface ref space for the geometry interp
+                tSideGeoInterp.set_space_time( tTimeSideIntegPointI );
+
                 // get the treated integration point location in the volume ref space
                 Matrix< DDRMat > tTimeVolIntegPointI;
-                tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
-                                                      tTimeVolIntegPointI );
+                tSideGeoInterp.map_integration_point( tTimeVolIntegPointI );
 
                 // evaluate timesurfDetJ
-                real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );
+                real tSurfDetJ = tSideGeoInterp.det_J();
 
                 // add contribution to the surface
                 tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );
@@ -258,8 +262,10 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[f
 
        //get number of integration points, integration points and weights
        uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
-       Matrix< DDRMat > tTimeSideIntegPoints  = tTimeSideIntegrator.get_points();
-       Matrix< DDRMat > tTimeSideIntegWeights = tTimeSideIntegrator.get_weights();
+       Matrix< DDRMat > tTimeSideIntegPoints;
+       tTimeSideIntegrator.get_points( tTimeSideIntegPoints );
+       Matrix< DDRMat > tTimeSideIntegWeights;
+       tTimeSideIntegrator.get_weights( tTimeSideIntegWeights );
 
        // boolean for surface check
        bool tTimeSurfaceCheck = true;
@@ -287,13 +293,15 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[f
                // get the treated integration point location in the surface ref space
                Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
+               // set the treated integration point location in the surface ref space for the geometry interp
+               tSideGeoInterp.set_space_time( tTimeSideIntegPointI );
+
                // get the treated integration point location in the volume ref space
                Matrix< DDRMat > tTimeVolIntegPointI;
-               tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
-                                                     tTimeVolIntegPointI );
+               tSideGeoInterp.map_integration_point( tTimeVolIntegPointI );
 
                // evaluate timesurfDetJ
-               real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );
+               real tSurfDetJ = tSideGeoInterp.det_J();
 
                // add contribution to the surface
                tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );
@@ -408,8 +416,10 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
 
          //get number of integration points, integration points and weights
          uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
-         Matrix< DDRMat > tTimeSideIntegPoints  = tTimeSideIntegrator.get_points();
-         Matrix< DDRMat > tTimeSideIntegWeights = tTimeSideIntegrator.get_weights();
+         Matrix< DDRMat > tTimeSideIntegPoints;
+         tTimeSideIntegrator.get_points( tTimeSideIntegPoints );
+         Matrix< DDRMat > tTimeSideIntegWeights;
+         tTimeSideIntegrator.get_weights( tTimeSideIntegWeights );
 
          // loop over the time side
          for ( uint iTimeSide = 0; iTimeSide < tListOfTimeOrdinals.size(); iTimeSide++ )
@@ -437,13 +447,15 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
                  // get the treated integration point location in the surface ref space
                  Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
+                 // set the treated integration point location in the surface ref space for the geometry interp
+                 tSideGeoInterp.set_space_time( tTimeSideIntegPointI );
+
                  // get the treated integration point location in the volume ref space
                  Matrix< DDRMat > tTimeVolIntegPointI;
-                 tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
-                                                       tTimeVolIntegPointI );
+                 tSideGeoInterp.map_integration_point( tTimeVolIntegPointI );
 
                  // evaluate timesurfDetJ
-                 real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );
+                 real tSurfDetJ = tSideGeoInterp.det_J();
 
                  // add contribution to the surface
                  tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );
@@ -514,8 +526,10 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : HEX8", "[moris],[fem],[TimeSideGe
 
         //get number of integration points, integration points and weights
         uint             tNumOfTimeIntegPoints = tTimeSideIntegrator.get_number_of_points();
-        Matrix< DDRMat > tTimeSideIntegPoints  = tTimeSideIntegrator.get_points();
-        Matrix< DDRMat > tTimeSideIntegWeights = tTimeSideIntegrator.get_weights();
+        Matrix< DDRMat > tTimeSideIntegPoints;
+        tTimeSideIntegrator.get_points( tTimeSideIntegPoints );
+        Matrix< DDRMat > tTimeSideIntegWeights;
+        tTimeSideIntegrator.get_weights( tTimeSideIntegWeights );
 
         // boolean for surface check
         bool tTimeSurfaceCheck = true;
@@ -543,13 +557,15 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : HEX8", "[moris],[fem],[TimeSideGe
                 // get the treated integration point location in the surface ref space
                 Matrix< DDRMat > tTimeSideIntegPointI = tTimeSideIntegPoints.get_column( iGP );
 
+                // set the treated integration point location in the surface ref space for the geometry interp
+                tSideGeoInterp.set_space_time( tTimeSideIntegPointI );
+
                 // get the treated integration point location in the volume ref space
                 Matrix< DDRMat > tTimeVolIntegPointI;
-                tSideGeoInterp.map_integration_point( tTimeSideIntegPointI,
-                                                      tTimeVolIntegPointI );
+                tSideGeoInterp.map_integration_point( tTimeVolIntegPointI );
 
                 // evaluate timesurfDetJ
-                real tSurfDetJ = tSideGeoInterp.det_J( tTimeSideIntegPointI );
+                real tSurfDetJ = tSideGeoInterp.det_J();
 
                 // add contribution to the surface
                 tTimeSideSurface = tTimeSideSurface + tSurfDetJ * tTimeSideIntegWeights( iGP );

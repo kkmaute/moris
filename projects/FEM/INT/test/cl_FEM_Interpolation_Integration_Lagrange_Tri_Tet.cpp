@@ -49,7 +49,8 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
         Integrator tIntegrator( tIntegrationRule );
 
         // get integration points
-        Matrix< DDRMat > tZeta = tIntegrator.get_points();
+        Matrix< DDRMat > tZeta;
+        tIntegrator.get_points( tZeta );
 
         // get number of points to test
         uint tNumOfTestPoints = tZeta.n_cols();
@@ -187,7 +188,8 @@ SECTION( "TRI3: test param coords" )
 {
 
     // get the param points
-    Matrix< DDRMat > tZetaCoords = tFunction->get_param_coords();
+    Matrix< DDRMat > tZetaCoords;
+    tFunction->get_param_coords( tZetaCoords );
 
     // number of param points
     uint tNumOfParamPoints = tZetaCoords.n_cols();
@@ -253,7 +255,8 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
         Integrator tIntegrator( tIntegrationRule );
 
         // get integration points
-        Matrix< DDRMat > tZeta = tIntegrator.get_points();
+        Matrix< DDRMat > tZeta;
+        tIntegrator.get_points( tZeta );
 
         // get number of points to test
         uint tNumOfTestPoints = tZeta.n_cols();
@@ -391,7 +394,8 @@ SECTION( "TRI6: test param coords" )
 {
 
     // get the param points
-    Matrix< DDRMat > tZetaCoords = tFunction->get_param_coords();
+    Matrix< DDRMat > tZetaCoords;
+    tFunction->get_param_coords( tZetaCoords );
 
     // number of param points
     uint tNumOfParamPoints = tZetaCoords.n_cols();
@@ -458,7 +462,8 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
         Integrator tIntegrator( tIntegrationRule );
 
         // get integration points
-        Matrix< DDRMat > tZeta = tIntegrator.get_points();
+        Matrix< DDRMat > tZeta;
+        tIntegrator.get_points( tZeta );
 
         // get number of points to test
         uint tNumOfTestPoints = tZeta.n_cols();
@@ -596,7 +601,8 @@ SECTION( "TRI10: test param coords" )
 {
 
     // get the param points
-    Matrix< DDRMat > tZetaCoords = tFunction->get_param_coords();
+    Matrix< DDRMat > tZetaCoords;
+    tFunction->get_param_coords( tZetaCoords );
 
     // number of param points
     uint tNumOfParamPoints = tZetaCoords.n_cols();
@@ -662,7 +668,8 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
         Integrator tIntegrator( tIntegrationRule );
 
         // get integration points
-        Matrix< DDRMat > tZeta = tIntegrator.get_points();
+        Matrix< DDRMat > tZeta;
+        tIntegrator.get_points( tZeta );
 
         // get number of points to test
         uint tNumOfTestPoints = tZeta.n_cols();
@@ -809,7 +816,8 @@ SECTION( "TET4: test param coords" )
 {
 
     // get the param points
-    Matrix< DDRMat > tZetaCoords = tFunction->get_param_coords();
+    Matrix< DDRMat > tZetaCoords;
+    tFunction->get_param_coords( tZetaCoords );
 
     // number of param points
     uint tNumOfParamPoints = tZetaCoords.n_cols();
@@ -875,7 +883,8 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
         Integrator tIntegrator( tIntegrationRule );
 
         // get integration points
-        Matrix< DDRMat > tZeta = tIntegrator.get_points();
+        Matrix< DDRMat > tZeta;
+        tIntegrator.get_points( tZeta );
 
         // get number of points to test
         uint tNumOfTestPoints = tZeta.n_cols();
@@ -1023,7 +1032,8 @@ SECTION( "TET10: test param coords" )
 {
 
     // get the param points
-    Matrix< DDRMat > tZetaCoords = tFunction->get_param_coords();
+    Matrix< DDRMat > tZetaCoords;
+    tFunction->get_param_coords( tZetaCoords );
 
     // number of param points
     uint tNumOfParamPoints = tZetaCoords.n_cols();
@@ -1093,7 +1103,8 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
         Integrator tIntegrator( tIntegrationRule );
 
         // get integration points
-        Matrix< DDRMat > tZeta = tIntegrator.get_points();
+        Matrix< DDRMat > tZeta;
+        tIntegrator.get_points( tZeta );
 
         // get number of points to test
         uint tNumOfTestPoints = tZeta.n_cols();
@@ -1241,7 +1252,8 @@ SECTION( "TET20: test param coords" )
 {
 
     // get the param points
-    Matrix< DDRMat > tZetaCoords = tFunction->get_param_coords();
+    Matrix< DDRMat > tZetaCoords;
+    tFunction->get_param_coords( tZetaCoords );
 
     // number of param points
     uint tNumOfParamPoints = tZetaCoords.n_cols();
@@ -1316,10 +1328,12 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
-    Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+    Matrix< DDRMat > tIntegPoints;
+    tIntegrator.get_points( tIntegPoints );
 
     // get integration weights
-    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+    Matrix< DDRMat > tIntegWeights;
+    tIntegrator.get_weights( tIntegWeights );
 
     // init volume
     real tVolume = 0;
@@ -1327,9 +1341,11 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
     // loop over integration points
     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
+        // set integration point for geometry interpolator
+        tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
+
         // compute integration point weight x detJ
-        real tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
-                    * tIntegWeights( iGP );
+        real tWStar = tGeoInterpolator.det_J() * tIntegWeights( iGP );
 
         // add contribution to jacobian from evaluation point
         tVolume = tVolume + tWStar;
@@ -1385,10 +1401,12 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
-    Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+    Matrix< DDRMat > tIntegPoints;
+    tIntegrator.get_points( tIntegPoints );
 
     // get integration weights
-    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+    Matrix< DDRMat > tIntegWeights;
+    tIntegrator.get_weights( tIntegWeights );
 
     // init volume
     real tVolume = 0.0;
@@ -1397,9 +1415,11 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     // loop over integration points
     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
+        // set integration point for geometry interpolator
+        tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
+
         // compute integration point weight x detJ
-        tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
-               * tIntegWeights( iGP );
+        tWStar = tGeoInterpolator.det_J() * tIntegWeights( iGP );
 
         // add contribution to jacobian from evaluation point
         tVolume = tVolume + tWStar;
@@ -1470,10 +1490,12 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
-    Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+    Matrix< DDRMat > tIntegPoints;
+    tIntegrator.get_points( tIntegPoints );
 
     // get integration weights
-    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+    Matrix< DDRMat > tIntegWeights;
+    tIntegrator.get_weights( tIntegWeights );
 
     // init volume
     real tVolume = 0;
@@ -1481,9 +1503,11 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
     // loop over integration points
     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
+        // set integration point for geometry interpolator
+        tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
+
         // compute integration point weight x detJ
-        real tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
-                    * tIntegWeights( iGP );
+        real tWStar = tGeoInterpolator.det_J() * tIntegWeights( iGP );
 
         // add contribution to jacobian from evaluation point
         tVolume = tVolume + tWStar;
@@ -1531,10 +1555,12 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
-    Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+    Matrix< DDRMat > tIntegPoints;
+    tIntegrator.get_points( tIntegPoints );
 
     // get integration weights
-    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+    Matrix< DDRMat > tIntegWeights;
+	tIntegrator.get_weights( tIntegWeights );
 
     // init volume
     real tVolume = 0;
@@ -1542,9 +1568,11 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
     // loop over integration points
     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
+        // set integration point for geometry interpolator
+        tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
+
         // compute integration point weight x detJ
-        real tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
-                    * tIntegWeights( iGP );
+        real tWStar = tGeoInterpolator.det_J() * tIntegWeights( iGP );
 
         // add contribution to jacobian from evaluation point
         tVolume = tVolume + tWStar;
@@ -1596,10 +1624,12 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
-    Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+    Matrix< DDRMat > tIntegPoints;
+    tIntegrator.get_points( tIntegPoints );
 
     // get integration weights
-    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+    Matrix< DDRMat > tIntegWeights;
+    tIntegrator.get_weights( tIntegWeights );
 
     // init volume
     real tVolume = 0;
@@ -1607,9 +1637,11 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
     // loop over integration points
     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
+        // set integration point for geometry interpolator
+        tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
+
         // compute integration point weight x detJ
-        real tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
-                    * tIntegWeights( iGP );
+        real tWStar = tGeoInterpolator.det_J() * tIntegWeights( iGP );
 
         // add contribution to jacobian from evaluation point
         tVolume = tVolume + tWStar;
@@ -1665,10 +1697,12 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
-    Matrix< DDRMat > tIntegPoints = tIntegrator.get_points();
+    Matrix< DDRMat > tIntegPoints;
+    tIntegrator.get_points( tIntegPoints );
 
     // get integration weights
-    Matrix< DDRMat > tIntegWeights = tIntegrator.get_weights();
+    Matrix< DDRMat > tIntegWeights;
+    tIntegrator.get_weights( tIntegWeights );
 
     // init volume
     real tVolume = 0;
@@ -1676,9 +1710,11 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     // loop over integration points
     for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
+        // set integration point for geometry interpolator
+        tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
+
         // compute integration point weight x detJ
-        real tWStar = tGeoInterpolator.det_J( tIntegPoints.get_column( iGP ) )
-                    * tIntegWeights( iGP );
+        real tWStar = tGeoInterpolator.det_J() * tIntegWeights( iGP );
 
         // add contribution to jacobian from evaluation point
         tVolume = tVolume + tWStar;

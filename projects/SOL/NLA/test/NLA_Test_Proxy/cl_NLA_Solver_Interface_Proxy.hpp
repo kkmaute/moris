@@ -44,7 +44,12 @@ namespace NLA
         moris::sint mNX;
         moris::sint mNY;
 
-        moris::real mLambda;
+        Matrix<DDRMat> mTime;
+
+        Matrix< DDSMat > mTimeLevelIdsMinus;
+        Matrix< DDSMat > mTimeLevelIdsPlus;
+
+        Dist_Vector * mSolutionVectorPrev;
 
         moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
 
@@ -65,8 +70,11 @@ namespace NLA
         ~NLA_Solver_Interface_Proxy(){};
 
         // ----------------------------------------------------------------------------------------------
-
-        void set_lambda_value( const moris::real & aLambda );
+        void set_time_value( const moris::real & aLambda,
+                                   moris::uint   aPos = 1 );
+        void set_time( const Matrix< DDRMat> & aTime );
+        void set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector );
+        void perform_mapping();
 
         // ----------------------------------------------------------------------------------------------
 
@@ -95,6 +103,9 @@ namespace NLA
 
             return tMaxNumGlobalDofs;
         };
+
+        moris::Matrix< DDSMat > & get_time_level_Ids_minus();
+        moris::Matrix< DDSMat > & get_time_level_Ids_plus();
 
         // ----------------------------------------------------------------------------------------------
         // local-to-global map
@@ -145,14 +156,14 @@ namespace NLA
         void get_element_rhs( const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS )
         {
-            aElementRHS = mFunctionRes( mNX, mNY, mLambda, mMySolVec, aMyElementInd );
+            aElementRHS = mFunctionRes( mNX, mNY, mTime(1), mMySolVec, aMyElementInd );
         };
 
         void get_element_rhs( const uint             & aMyBlockInd,
                               const uint             & aMyElementInd,
                                     Matrix< DDRMat > & aElementRHS )
         {
-            aElementRHS = mFunctionRes( mNX, mNY, mLambda, mMySolVec, aMyElementInd );
+            aElementRHS = mFunctionRes( mNX, mNY, mTime(1), mMySolVec, aMyElementInd );
         };
 
         // ----------------------------------------------------------------------------------------------

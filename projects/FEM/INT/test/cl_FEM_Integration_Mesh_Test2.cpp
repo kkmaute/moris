@@ -97,8 +97,10 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
     Cell< moris_index > tAllSideOrdinals = { 0, 1, 2, 3 };
@@ -295,8 +297,10 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ", "[moris],[fem],[I
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
     Cell< moris_index > tAllSideOrdinals = { 0, 1, 2 };
@@ -494,8 +498,10 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ", "[moris],[fem],[I
 
     //get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
     Cell< moris_index > tAllSideOrdinals = { 0, 1, 2, 3 };
@@ -709,8 +715,10 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ", "[moris],[fem],[I
 
     //get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
     Cell< moris_index > tAllSideOrdinals = { 0, 1, 2, 3, 4, 5 };

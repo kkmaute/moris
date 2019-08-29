@@ -14,8 +14,7 @@ namespace moris
                                     Set              * aSet,
                                     Cluster          * aCluster,
                                     moris::moris_index aCellIndexInCluster ) : Element( aCell, aSet, aCluster, aCellIndexInCluster )
-        {
-        }
+        {}
 
 //------------------------------------------------------------------------------
 
@@ -33,82 +32,55 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
 
-            // loop over the IWGs
-            for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
+            // loop over integration points
+            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
             {
-                // get the treated IWG
-                IWG* tTreatedIWG = mSet->get_IWGs()( iIWG );
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // FIXME set nodal weak BCs
-                tTreatedIWG->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
+                // set the ith integration point in the IG param space for IG geometry interpolator
+                mSet->get_IG_geometry_interpolator()->set_space_time( tLocalIntegPoint );
 
-                // get the index of the residual dof type for the ith IWG
-                // in the list of element dof type
-                uint tIWGResDofIndex = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
+                // bring the ith integration point in the IP param space
+                Matrix< DDRMat > tGlobalIntegPoint;
+                mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
 
-                Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = tTreatedIWG->get_active_dof_types();
-                uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
-
-                // get the field interpolators for the ith IWG
-                // in the list of element dof type
-                Cell< Field_Interpolator* > tIWGInterpolators
-                    = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_field_interpolator() );
-
-                // get number of integration points
-                uint tNumOfIntegPoints = mSet->get_num_integration_points();
-
-                // loop over integration points
-                for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+                // set evaluation point for field interpolator
+                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
                 {
-                    // get the ith integration point in the IG param space
-                    Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                    mSet->get_field_interpolator()( iInterp )->set_space_time( tGlobalIntegPoint );
+                }
 
-                    // bring the ith integration point in the IP param space
-                    Matrix< DDRMat > tGlobalIntegPoint;
-                    mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint,
-                                                                                 tGlobalIntegPoint );
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_IG_geometry_interpolator()->det_J();
 
-                    // set evaluation point
-                    for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
-                    {
-                        tIWGInterpolators( iIWGFI )->set_space_time( tGlobalIntegPoint );
-                    }
-
-                    // compute integration point weight
-                    real tWStar = mSet->get_integration_weights()( iGP )
-                                * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                {
+                    // FIXME set nodal weak BCs
+                    mSet->get_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
 
                     // compute jacobian at evaluation point
                     moris::Cell< Matrix< DDRMat > > tJacobians;
-                    tTreatedIWG->compute_jacobian( tJacobians, tIWGInterpolators );
-//                    print(tJacobians(0),"tJacobians");
+                    mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians, mSet->get_IWG_field_interpolators()( iIWG ) );
+//                    print( tJacobians(0), "tJacobians" );
 //
 //                    // check with finite difference
 //                    real tPerturbation = 1E-6;
 //                    Cell< Matrix< DDRMat > > tJacobiansFD;
-//                    tTreatedIWG->compute_jacobian_FD( tJacobiansFD,
-//                                                      tIWGInterpolators,
-//                                                      tPerturbation );
+//                    mSet->get_IWGs()( iIWG )->compute_jacobian_FD( tJacobiansFD,
+//                                                                   mSet->get_IWG_field_interpolators()( iIWG ),
+//                                                                   tPerturbation );
 //                    print(tJacobiansFD(0),"tJacobiansFD");
 
-                    // get location of computed jacobian in global element residual rows
-                    uint startIDof = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
-                    uint stopIDof  = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
-
                     // loop over the IWG active dof types
-                    for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++)
+                    for ( uint iIWGFI = 0; iIWGFI < mSet->get_IWG_num_active_dof()( iIWG ); iIWGFI++)
                     {
-                        // get the index of the active dof type
-                        uint tIWGActiveDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDofType( iIWGFI )( 0 ) ) );
-
-                        // get location of computed jacobian in global element residual columns
-                        uint startJDof = mSet->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 0 );
-                        uint stopJDof  = mSet->get_interpolator_dof_assembly_map()( tIWGActiveDofIndex, 1 );
-
                         // add contribution to jacobian from evaluation point
-                        mSet->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                            = mSet->mJacobian( { startIDof, stopIDof }, { startJDof, stopJDof } )
-                            + tWStar * tJacobians( iIWGFI );
+                        mSet->mJacobian( { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 1 ) },
+                                         { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 2 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 3 ) } )
+                                       += tWStar * tJacobians( iIWGFI );
                     }
                 }
             }
@@ -128,65 +100,42 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
-            // loop over the IWGs
-            for( uint iIWG = 0; iIWG < mNumOfIWGs; iIWG++ )
+            // loop over integration points
+            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
             {
-                // get the treated IWG
-                IWG* tTreatedIWG = mSet->get_IWGs()( iIWG );
+                // get the ith integration point in the IG param space
+                Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // FIXME: enforced nodal weak bcs
-                tTreatedIWG->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
+                // set the ith integration point in the IG param space for IG geometry interpolator
+                mSet->get_IG_geometry_interpolator()->set_space_time( tLocalIntegPoint );
 
-                // get the index of the residual dof type for the ith IWG
-                // in the list of element dof type
-                uint tIWGResDofIndex = mInterpDofTypeMap( static_cast< int >( tTreatedIWG->get_residual_dof_type()( 0 ) ) );
+                // bring the ith integration point in the IP param space
+                Matrix< DDRMat > tGlobalIntegPoint;
+                mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
 
-                Cell< Cell< MSI::Dof_Type > > tIWGActiveDofType = tTreatedIWG->get_active_dof_types();
-                uint tNumOfIWGActiveDof = tIWGActiveDofType.size();
-
-                // get the field interpolators for the ith IWG in the list of element dof type
-                Cell< Field_Interpolator* > tIWGInterpolators
-                    = mSet->get_IWG_field_interpolators( tTreatedIWG, mSet->get_field_interpolator() );
-
-                //get number of integration points
-                uint tNumOfIntegPoints = mSet->get_num_integration_points();
-
-                // loop over integration points
-                for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+                // set evaluation point for field interpolator
+                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
                 {
-                    // get the ith integration point in the IG param space
-                    Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+                    mSet->get_field_interpolator()( iInterp )->set_space_time( tGlobalIntegPoint );
+                }
 
-                    // bring the ith integration point in the IP param space
-                    Matrix< DDRMat > tGlobalIntegPoint;
-                    mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint,
-                                                                                 tGlobalIntegPoint );
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP )
+                            * mSet->get_IG_geometry_interpolator()->det_J();
 
-                    // set evaluation point
-                    for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
-                    {
-                        tIWGInterpolators( iIWGFI )->set_space_time( tGlobalIntegPoint );
-                    }
+                // loop over the IWGs
+                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                {
+                    // FIXME: enforced nodal weak bcs
+                    mSet->get_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
 
-                    // compute integration point weight
-                    real tWStar = mSet->get_integration_weights()( iGP )
-                                * mSet->get_IG_geometry_interpolator()->det_J( tLocalIntegPoint );
-
-                    // compute jacobian at evaluation point
+                    // compute residual at evaluation point
                     Matrix< DDRMat > tResidual;
-
-                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual, tIWGInterpolators );
-
-//                    // option1 = add contribution to jacobian from evaluation point
-//                    mCluster->mResidualElement( tIWGResDofIndex ) = mCluster->mResidualElement( tIWGResDofIndex ) + tResidual * tWStar;
-
-                    // get location of computed residual in global element residual
-                    uint startDof = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 0 );
-                    uint stopDof  = mSet->get_interpolator_dof_assembly_map()( tIWGResDofIndex, 1 );
+                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual, mSet->get_IWG_field_interpolators()( iIWG ) );
 
                     // add contribution to residual from evaluation point
-                    mSet->mResidual( { startDof, stopDof }, { 0, 0 } )
-                        = mSet->mResidual( { startDof, stopDof }, { 0, 0 } ) + tResidual * tWStar;
+                    mSet->mResidual( { mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 1 ) },
+                                     { 0, 0 } ) += tWStar * tResidual;
                 }
             }
 //            // print residual for check

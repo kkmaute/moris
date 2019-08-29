@@ -39,10 +39,10 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 6 >::get_param_coords() const
+        void
+        Interpolation_Function< mtk::Geometry_Type::TRI, Interpolation_Type::LAGRANGE, 2, 6 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
-            Matrix< DDRMat > tXiHat =
+            aXiHat =
             {
                 { 1.000000000000000, 0.000000000000000, 0.000000000000000,
                   0.500000000000000, 0.000000000000000, 0.500000000000000 },
@@ -51,7 +51,6 @@ namespace moris
                 { 0.000000000000000, 0.000000000000000, 1.000000000000000,
                   0.000000000000000, 0.500000000000000, 0.500000000000000 }
             };
-            return tXiHat;
         }
 
 //------------------------------------------------------------------------------

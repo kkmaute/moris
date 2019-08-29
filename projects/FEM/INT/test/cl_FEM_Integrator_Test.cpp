@@ -43,8 +43,10 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
 
         // switch points and their weights, since they are in a different order in space time
-        Matrix< DDRMat > tSpaceIntegPoints   = tSpaceIntegrator.get_points();
-        Matrix< DDRMat > tSpaceIntegWeights  = tSpaceIntegrator.get_weights();
+        Matrix< DDRMat > tSpaceIntegPoints;
+        tSpaceIntegrator.get_points( tSpaceIntegPoints );
+        Matrix< DDRMat > tSpaceIntegWeights;
+        tSpaceIntegrator.get_weights( tSpaceIntegWeights );
         Matrix< DDRMat > tSpaceIntegPoints2  = tSpaceIntegPoints;
         Matrix< DDRMat > tSpaceIntegWeights2 = tSpaceIntegWeights;
         switch ( tSpaceIntOrder )
@@ -103,7 +105,8 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         // check the points coordinates
         bool tCheckPoints = true;
-        Matrix< DDRMat > tFieldIntegPoints = tFieldIntegrator.get_points();
+        Matrix< DDRMat > tFieldIntegPoints;
+        tFieldIntegrator.get_points( tFieldIntegPoints );
 
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
@@ -116,7 +119,8 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         // check the points weights
         bool tCheckWeights = true;
-        Matrix< DDRMat > tFieldIntegWeights = tFieldIntegrator.get_weights();
+        Matrix< DDRMat > tFieldIntegWeights;
+        tFieldIntegrator.get_weights( tFieldIntegWeights );
 
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
@@ -161,8 +165,10 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         // check the points coordinates
         bool tCheckPoints = true;
-        Matrix< DDRMat > tFieldIntegPoints = tFieldIntegrator.get_points();
-        Matrix< DDRMat > tSpaceIntegPoints = tSpaceIntegrator.get_points();
+        Matrix< DDRMat > tFieldIntegPoints;
+        tFieldIntegrator.get_points( tFieldIntegPoints );
+        Matrix< DDRMat > tSpaceIntegPoints;
+        tSpaceIntegrator.get_points( tSpaceIntegPoints );
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
             for( uint j = 0; j < 3; j++ )
@@ -174,8 +180,10 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         // check the points weights
         bool tCheckWeights = true;
-        Matrix< DDRMat > tFieldIntegWeights = tFieldIntegrator.get_weights();
-        Matrix< DDRMat > tSpaceIntegWeights = tSpaceIntegrator.get_weights();
+        Matrix< DDRMat > tFieldIntegWeights;
+        tFieldIntegrator.get_weights( tFieldIntegWeights );
+        Matrix< DDRMat > tSpaceIntegWeights;
+        tSpaceIntegrator.get_weights( tSpaceIntegWeights );
         for ( uint i = 0; i < tFieldIntegrator.get_number_of_points(); i++)
         {
             tCheckWeights = tCheckWeights && ( std::abs( tFieldIntegWeights( i ) - tSpaceIntegWeights( i )/2 ) < tEpsilon );
@@ -205,10 +213,12 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         REQUIRE( tFieldIntegrator.get_number_of_points() == 16);
 
         // check the points coords?
-        Matrix< DDRMat > tFieldIntegPoints = tFieldIntegrator.get_points();
+        Matrix< DDRMat > tFieldIntegPoints;
+        tFieldIntegrator.get_points( tFieldIntegPoints );
 
         // check the points weights?
-        Matrix< DDRMat > tFieldIntegWeights = tFieldIntegrator.get_weights();
+        Matrix< DDRMat > tFieldIntegWeights;
+        tFieldIntegrator.get_weights( tFieldIntegWeights );
     }
 }
 
