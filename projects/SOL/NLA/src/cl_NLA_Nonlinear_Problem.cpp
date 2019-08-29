@@ -65,6 +65,33 @@ Nonlinear_Problem::Nonlinear_Problem(       SOL_Warehouse      * aNonlinDatabase
                                                            mMapFull,
                                                            mMapType );
     }
+
+    //---------------------------arc-length vectors---------------------------------
+    mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+
+    mJacVals       = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mJacVals0      = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+
+    mDTildeVec     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDTilde0Vec    = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+
+    mDK            = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDSolve        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDSolveNMinus1 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDSolveNMinus2 = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+
+    mGlobalRHS     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+
+    mDFArcDDeltaD  = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+
+    mDelLamNum     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FREE );
+    //---------------------------arc-length matrices--------------------------------
+    mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
+
+    //------------------------------------------------------------------------------
 }
 
 Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
@@ -116,7 +143,6 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     mDelLamDen     = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
     mDeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
     mdeltaD        = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
-    //------------------------------------------------------------------------------
     //---------------------------arc-length matrices--------------------------------
     mJacobian  = tMatFactory.create_matrix( aSolverInterface, mMap );
 
@@ -278,10 +304,8 @@ void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 }
 
 //--------------------------------------------------------------------------------------------------
-void Nonlinear_Problem::set_lambda_value( const moris::real & aLambda)
+void Nonlinear_Problem::set_time_value( const moris::real & aLambda,
+                                              moris::uint   aPos )
 {
-    mSolverInterface->set_lambda_value( aLambda );
+    mSolverInterface->set_time_value( aLambda, aPos );
 }
-
-
-

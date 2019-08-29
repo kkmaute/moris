@@ -26,7 +26,7 @@ class Intersection_Object_Line : public Intersection_Object
      *        intersection object as member data.
      *
      *        The line type in space and time is defaulted to:
-     *                                  Interpolation_Type: Legrange
+     *                                  Interpolation_Type: Lagrange
      *                                  Interpolation_Rule: Linear
      */
 public:
@@ -50,10 +50,61 @@ public:
     };
 
     //------------------------------------------------------------------------------
-    void is_intersected()
+    void flag_as_intersected()
     {
         mMyIntersectionFlag = true;
     }
+    //------------------------------------------------------------------------------
+    void compute_intersection(  )
+    {
+        mMyIntersectionPoints.push_back({{(mMyFieldVals(0) + mMyFieldVals(1))/(mMyFieldVals(0) - mMyFieldVals(1))}});
+    }
+    //------------------------------------------------------------------------------
+    /*
+     * @brief - compute the sensitivity at an intersection point
+     *
+     * @param[in] aMyIndex - index to the intersection point from the cell of intersection points
+     */
+    void compute_intersection_sensitivity( moris_index aMyIndex )
+    {
+        //fixme: decide where to allocate sensitivity
+
+//        MORIS_ASSERT(mMyIntersSensVal.size() == mMyIntersectionPoints.size(),"Sensitivity information not allocated");
+//        MORIS_ASSERT(mMyIntersSensInd.size() == mMyIntersectionPoints.size(),"Sensitivity information not allocated");
+
+        // Local Coordinate of edge
+        moris::real tZeta = mMyIntersectionPoints(aMyIndex)(0);
+
+        moris::real const & tPhiA = mMyFieldVals(0);
+        moris::real const & tPhiB = mMyFieldVals(1);
+
+        // linear shape function along edge
+        Matrix<moris::DDRMat> tN = {{0.5 * (1-tZeta)},
+                                    {0.5 * (1+tZeta)}};
+
+        // Derivatives of shape functions wrt global coordinate
+        Matrix<moris::DDRMat> tdN_dzeta = {{-0.5},
+                                           {0.5}};
+
+        // denominator (used throughout)
+        moris::real tDenom = 1/std::pow((tPhiA-tPhiB),2);
+
+        // partial derivatives of the interface change wrt change
+        moris::real tdzetagamma_dphiA = -2*tPhiB*tDenom;
+        moris::real tdzetagamma_dphiB =  2*tPhiA*tDenom;
+
+        // derivative of x_gamma wrt p (of edge node 0)
+        Matrix<moris::DDRMat> tdxgamma_dphiA = moris::trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiA;
+        Matrix<moris::DDRMat> tdxgamma_dphiB = moris::trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiB;
+
+        // Compute dx/dp
+        mMyIntersFieldSensVal(aMyIndex).resize(2,3);
+        mMyIntersFieldSensVal(aMyIndex).get_row(0) = tdxgamma_dphiA.get_row(0);
+        mMyIntersFieldSensVal(aMyIndex).get_row(1) = tdxgamma_dphiB.get_row(0);
+
+        //fixme: add field value indexes for sparse storage
+    }
+
     //******************************* set functions ********************************
     //------------------------------------------------------------------------------
     void set_coords_and_param_point( std::shared_ptr< Geometry > & aGeomPointer,
@@ -81,11 +132,11 @@ public:
         mMyFieldInterp->set_coeff( mMyFieldVals );
     }
     //------------------------------------------------------------------------------
-    void set_intersection_point( Matrix< DDRMat > aPoint )
+    void set_intersection( Matrix< DDRMat > aPoint,
+                           moris_index      aMyIndex )
     {
-        mMyIntersectionPoints = aPoint;  // currently only set up for one intersection point
+        mMyIntersectionPoints(aMyIndex) = aPoint;
     }
-
     //******************************* get functions ********************************
     //------------------------------------------------------------------------------
     mtk::Geometry_Type
@@ -137,11 +188,23 @@ public:
     }
     //------------------------------------------------------------------------------
     Matrix< DDRMat >
-    get_intersection_point()
+    get_intersection_point( moris_index aMyIndex )
     {
-        return mMyIntersectionPoints;    // currently only set for a single intersection point
+        return mMyIntersectionPoints(aMyIndex);
     }
-
+    //------------------------------------------------------------------------------
+    uint
+    get_num_intersection_point( )
+    {
+        return mMyIntersectionPoints.size();
+    }
+    //------------------------------------------------------------------------------
+    Matrix< DDRMat >
+    get_field_sensitivity_vals( moris_index aMyIndex )
+    {
+        MORIS_ASSERT( mMyIntersFieldSensVal( aMyIndex )( 0 ) >= 0.0, "get_field_sensitivity_vals() - value at given index is not set " );
+        return mMyIntersFieldSensVal( aMyIndex );
+    }
 //------------------------------------------------------------------------------
 private:
     //------------------------------------------------------------------------------
@@ -156,7 +219,10 @@ private:
 
     bool mMyIntersectionFlag;
 
-    Matrix< DDRMat > mMyIntersectionPoints;
+    moris::Cell< Matrix< DDRMat > >   mMyIntersectionPoints;
+    moris::Cell< Matrix< DDRMat > >   mMyIntersFieldSensVal;    // dxgamma/dp
+    moris::Cell< Matrix< DDRMat > >   mMyIntersSensVal;
+    moris::Cell< Matrix< IndexMat > > mMyIntersSensInd;
 //------------------------------------------------------------------------------
 protected:
 

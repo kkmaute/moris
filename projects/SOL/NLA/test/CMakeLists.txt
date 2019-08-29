@@ -1,6 +1,8 @@
 # Non Linear Algebra Tests ----------------------------------------
 # -------------------------------------------------------------------------
-    include_directories(NLA_Test_Proxy)
+    include_directories(${MORIS_PACKAGE_DIR}/SOL/NLA/test/NLA_Test_Proxy)   
+    include_directories(${MORIS_PACKAGE_DIR}/SOL/TSA/test/TSA_Test_Proxy)                                                                                                                                                                                                           
+    
     
 # List source files
 set(TEST_SOURCES
@@ -10,6 +12,7 @@ set(TEST_SOURCES
     cl_NLA_NonlinearDatabase.cpp
     NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy.cpp
     NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy2.cpp
+    ${MORIS_PACKAGE_DIR}/SOL/TSA/test/TSA_Test_Proxy/cl_TSA_Solver_Interface_Proxy2.cpp
     )
 
 # List test dependencies

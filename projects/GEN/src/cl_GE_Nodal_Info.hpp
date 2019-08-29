@@ -20,7 +20,7 @@ namespace moris
 namespace ge
 {
 /*
- * @brief this class contains all the relevant nodal information associated with a {geom_rep,mesh} pair
+ * @brief this class contains all the relevant node information associated with a {geom_rep,mesh} pair
  */
     class Nodal_Info
     {
@@ -33,7 +33,7 @@ namespace ge
                    moris_index aMyMeshIndex )
         {
             mMyMeshIndex = aMyMeshIndex;
-            mMyGeomRep = aGeomPointer;
+            mMyGeomRep   = aGeomPointer;
 
             this->initialize_data_tables( aGeomPointer );
         };
@@ -52,13 +52,14 @@ namespace ge
          */
         Matrix< DDRMat > get_field_vals( moris_index aNodeIndex )
         {
-            auto tRowInd = mMyMap.find(aNodeIndex);
-            return mMyNodalFieldVals.get_row( tRowInd->second );
+            auto tRowItt = mMyMap.find(aNodeIndex);
+            MORIS_ASSERT( tRowItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
+            return mMyNodalFieldVals.get_row( tRowItt->second );
         };
 
         //------------------------------------------------------------------------------
         /*
-         * @brief returns the nodal sensitivities of the specified node
+         * @brief returns the nodal sensitivities of the specified node index
          *
          *@param[in] aNodeIndex - index to the node whose information you want
          *
@@ -66,8 +67,9 @@ namespace ge
          */
         Matrix< DDRMat > get_sensitivity_vals( moris_index aNodeIndex )
         {
-            auto tCellInd = mMyMap.find(aNodeIndex);
-            return mMyNodalSensitivities( tCellInd->second );
+            auto tCellItt = mMyMap.find(aNodeIndex);
+            MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
+            return mMyNodalSensitivities( tCellItt->second );
         };
 
         //------------------------------------------------------------------------------
@@ -80,24 +82,25 @@ namespace ge
          */
         Matrix< DDRMat > get_normal( moris_index aNodeIndex )
         {
-            auto tCellInd = mMyMap.find(aNodeIndex);
-            return mMyNodalNormals( tCellInd->second );
+            auto tCellItt = mMyMap.find(aNodeIndex);
+            MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
+            return mMyNodalNormals( tCellItt->second );
         };
 
         //------------------------------------------------------------------------------
         /*
-         * @brief add node and values
+         * @brief add node and values to the tables
          *
          */
         void add_vertex_and_value( mtk::Vertex & aVertex )
         {
-            MORIS_ASSERT( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC, "ge::Nodal_Info::add_vertex_and_value(): currently only set up for analytic geometry type" );
+            MORIS_ASSERT( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC, "ge::Nodal_Info::add_vertex_and_value(): currently only set up for analytic geometry type " );
 
+            //fixme tNewInd == end of map
             moris_index tNewInd = aVertex.get_index();
             uint tSize = mMyNodalSensitivities.size();
 
             mMyMap[tNewInd] = tSize;
-
             mMyNodalFieldVals.resize(tSize+1,1);  // need to know number of fields to set this size, assuming only one for now
 
             switch(mMyGeomRep->get_geom_type())
@@ -132,35 +135,9 @@ namespace ge
         /*
          * @brief determines the intersection point of a geometry representation with a geometric primitive
          */
-        void compute_intersection( Intersection_Object_Line* aIntersectionObject )
+        void compute_intersection( Intersection_Object* aIntersectionObject )
         {
-            MORIS_ASSERT( aIntersectionObject->get_my_global_coord().n_cols() != 0, "ge::Nodal_Info::determine_intersection(): global coordinates of Intersection_Object not set" );
-            MORIS_ASSERT( aIntersectionObject->get_my_time_coord().n_cols() != 0, "ge::Nodal_Info::determine_intersection(): time coordinates of Intersection_Object not set" );
-            MORIS_ASSERT( aIntersectionObject->get_my_field_vals().n_cols() != 0, "ge::Nodal_Info::determine_intersection(): field values of Intersection_Object not set" );
-
-            Matrix< DDRMat > tParamPoint = aIntersectionObject->get_my_param_point();
-            for(uint k=0; k<201; ++k)
-            {
-                if (k == 200)
-                {
-                    std::cout<<"no intersection point found"<<std::endl;
-                    break;
-                }
-                aIntersectionObject->get_my_field_interp()->set_space_time( tParamPoint );
-
-                Matrix< DDRMat > tRes = aIntersectionObject->get_my_field_interp()->val();     // R = phi - 0
-                if (tRes(0,0) == Approx(0.0))
-                {
-                    aIntersectionObject->is_intersected();
-
-                    Matrix< DDRMat > tIntersection;
-                    aIntersectionObject->get_my_geom_interp()->valx( tIntersection );
-                    aIntersectionObject->set_intersection_point( tIntersection );
-std::cout<<"-2-2-2-2-2-2-2-2-2-2-2-2-22-2-2-2-2-2-2-2"<<std::endl;
-                    break;
-                }
-                tParamPoint(0) += 0.01;
-            };
+            aIntersectionObject->compute_intersection();
         }
         //------------------------------------------------------------------------------
         /*
@@ -311,12 +288,12 @@ std::cout<<"-2-2-2-2-2-2-2-2-2-2-2-2-22-2-2-2-2-2-2-2"<<std::endl;
         /*
          * @brief compute the nodal normals and create table
          *        * compute normals at nodes (geometric and facet) - store in table, register table
-         *        * is the implementation is dependent on geom_rep type?
+         *        * is the implementation dependent on geom_rep type?
          */
         //fixme needs to be implemented
         void create_node_normals_table()
         {
-            MORIS_ASSERT(false, "ge::Nodal_Info::create_nodal_normals_table(): not yet implemented");
+            MORIS_ASSERT(false, "ge::Nodal_Info::create_nodal_normals_table(): not implemented...yet ");
         };
         //------------------------------------------------------------------------------
         std::shared_ptr< Geometry > mMyGeomRep;

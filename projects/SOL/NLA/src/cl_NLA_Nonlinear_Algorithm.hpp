@@ -22,6 +22,10 @@ namespace moris
 class Map_Class;
 class Dist_Vector;
 class Solver_Interface;
+namespace tsa
+{
+    class Time_Solver_Algorithm;
+}
 namespace dla
 {
     class Linear_Solver_Algorithm;
@@ -70,7 +74,11 @@ namespace NLA
         /**
          * @brief Constructor
          */
-        Nonlinear_Algorithm(){};
+        Nonlinear_Algorithm()
+        {
+            // Set default parameters in parameter list for nonlinear solver
+            this->set_nonlinear_solver_parameters();
+        };
 
         //--------------------------------------------------------------------------------------------------
 
@@ -113,6 +121,19 @@ namespace NLA
 
         virtual boost::variant< bool, sint, real, const char* > & set_param( char const* aKey ) = 0;
 
+        //--------------------------------------------------------------------------------------------------
+
+        Nonlinear_Solver* get_my_nonlin_solver();
+
+        virtual void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm )
+        {
+            MORIS_ASSERT(false, "set_my_time_solver_algorithm(): function not implemented");
+        }
+
+        virtual void initialize_variables( Nonlinear_Problem *  aNonlinearProblem )
+        {
+            MORIS_ASSERT( false, "initialize_variables(): this function is to be used for the arc length algorithm" );
+        }
 
     };
 }

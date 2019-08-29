@@ -19,6 +19,10 @@
 
 namespace moris
 {
+namespace tsa
+{
+class Time_Solver_Algorithm;
+}
 namespace NLA
 {
     class Nonlinear_Problem;
@@ -65,6 +69,11 @@ namespace NLA
         moris::uint mCallCounterNonlinearSolver = 0;
 
         moris::sint mLevel = 0;
+
+        moris::sint mTimeIter = 0;
+
+        tsa::Time_Solver_Algorithm* mMyTimeSolverAlgorithm = nullptr;
+//        enum NonlinearSolverType mMyNonLinSolverType = NonlinearSolverType::END_ENUM;
 
     protected:
 
@@ -214,6 +223,18 @@ namespace NLA
          * @param[in] rSolverDatabase Poiner to the solver database
          */
         void set_solver_warehouse( SOL_Warehouse * aSolverWarehouse );
+        //--------------------------------------------------------------------------------------------------
+        /**
+         * @brief sets the time iteration
+         *
+         * @param[in] aTimeIter time iteration number
+         */
+        void set_time_step_iter( const sint aTimeIter );
+        //--------------------------------------------------------------------------------------------------
+        /**
+         * @brief returns the time iteration value
+         */
+        moris::sint get_time_step_iter(  );
 
         //--------------------------------------------------------------------------------------------------
 
@@ -257,11 +278,22 @@ namespace NLA
         void set_nonlinear_solver_manager_parameters();
 
         //--------------------------------------------------------------------------------------------------
+        Nonlinear_Problem* get_my_nonlin_problem();
+
+        void set_nonlin_solver_type( enum NonlinearSolverType aNonLinSolverType );
+
+        enum NonlinearSolverType get_nonlin_solver_type();
+
+        void set_time_solver_type( tsa::Time_Solver_Algorithm* aTimeSolverAlgorithm );
+
+        //--------------------------------------------------------------------------------------------------
 
         boost::variant< bool, sint, real > & set_param( char const* aKey )
         {
+
             return mParameterListNonLinearSolver( aKey );
         }
+
     };
 }
 }

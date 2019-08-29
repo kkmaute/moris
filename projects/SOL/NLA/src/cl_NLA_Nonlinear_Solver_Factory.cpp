@@ -58,6 +58,8 @@ std::shared_ptr< Nonlinear_Algorithm > Nonlinear_Solver_Factory::create_nonlinea
         break;
     }
 
+//    tNonLinSys->get_my_nonlin_solver()->set_nonlin_solver_type( aNonLinSolverType );
+
     return tNonLinSys;
 }
 

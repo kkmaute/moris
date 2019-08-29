@@ -130,9 +130,10 @@ public:
                                        moris::Matrix< DDRMat > & aElementRHS ) =0;
 
     //------------------------------------------------------------
-    virtual void set_lambda_value( const moris::real & aLambda )
+    virtual void set_time_value( const moris::real & aLambda,
+                                       moris::uint   aPos )
     {
-        MORIS_ERROR( false, "Solver_Interface::set_lambda_value: not set.");
+        MORIS_ERROR( false, "Solver_Interface::set_time_value: not set.");
     }
     //------------------------------------------------------------
 

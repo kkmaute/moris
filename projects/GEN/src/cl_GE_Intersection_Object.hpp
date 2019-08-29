@@ -39,6 +39,14 @@ class Intersection_Object
 
         ~Intersection_Object(){};
 
+        virtual void compute_intersection(  )
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::compute_intersection() - not implemented " );
+        }
+        virtual void compute_intersection_sensitivity( moris_index aMyIndex )
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::compute_intersection_sensitivity() - not implemented " );
+        }
         //------------------------------------------------------------------------------
         /*
          * @brief set the global coordinates and the time coordinates for the interpolators
@@ -49,57 +57,89 @@ class Intersection_Object
                                                  Matrix<DDRMat> const & aFieldVals,     // LS field vals need to come from the geometry engine
                                                  Matrix<DDRMat> const & aParamPoint = Matrix< DDRMat >({{-1},{0}}) )  // start at the beginning of the line(local coordinate xi=-1) and at t=0        {
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::set_coords_and_param_point(): not implemented" );
+            MORIS_ASSERT( false, "ge::Intersection_Object::set_coords_and_param_point() - not implemented" );
+        }
+        //------------------------------------------------------------------------------
+        virtual void set_intersection( Matrix< DDRMat > aPoint )
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::set_intersection() - not implemented " );
         }
         //******************************* get functions ********************************
         //------------------------------------------------------------------------------
         virtual mtk::Geometry_Type
         get_my_geom_type()
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::get_my_geom_type(): not implemented " );
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_my_geom_type() - not implemented " );
             return mtk::Geometry_Type::LINE;
         }
         //------------------------------------------------------------------------------
         virtual fem::Geometry_Interpolator*
         get_my_geom_interp()
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::get_my_geom_interp(): not implemented " );
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_my_geom_interp() - not implemented " );
             return mDummyGeomInterp;
         }
         //------------------------------------------------------------------------------
         virtual fem::Field_Interpolator*
         get_my_field_interp()
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::get_my_field_interp(): not implemented " );
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_my_field_interp() - not implemented " );
             return mDummmyFieldInterp;
         }
         //------------------------------------------------------------------------------
         virtual Matrix<DDRMat>
         get_my_param_point()
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::get_my_param_point(): not implemented " );
-            return mDummyParamPoint;
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_my_param_point() - not implemented " );
+            return mDummyMat;
         }
         //------------------------------------------------------------------------------
         virtual Matrix<DDRMat>
         get_my_global_coord()
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::get_my_global_coord(): not implemented " );
-            return mDummyGlobalCoords;
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_my_global_coord() - not implemented " );
+            return mDummyMat;
         }
         //------------------------------------------------------------------------------
         virtual Matrix<DDRMat>
         get_my_time_coord()
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::get_my_time_coord(): not implemented " );
-            return mDummyTimeCoords;
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_my_time_coord() - not implemented " );
+            return mDummyMat;
         }
         //------------------------------------------------------------------------------
         virtual Matrix<DDRMat>
         get_my_field_vals()
         {
-            MORIS_ERROR( false, "ge::Intersection_Object::get_my_field_vals(): not implemented " );
-            return mDummyFieldVals;
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_my_field_vals() - not implemented " );
+            return mDummyMat;
+        }
+        //------------------------------------------------------------------------------
+        virtual bool
+        get_intersection_flag()
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_intersection_flag() - not implemented " );
+            return false;
+        }
+        //------------------------------------------------------------------------------
+        virtual Matrix< DDRMat >
+        get_intersection_point( moris_index aMyIndex )
+        {
+            return mDummyMat;
+        }
+        //------------------------------------------------------------------------------
+        virtual uint
+        get_num_intersection_point( )
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_num_intersection_point() - not implemented " );
+            return 0;
+        }
+        //------------------------------------------------------------------------------
+        Matrix< DDRMat >
+        get_field_sensitivity_vals( moris_index aMyIndex )
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_field_sensitivity_vals() - not implemented " );
+            return mDummyMat;
         }
 //------------------------------------------------------------------------------
     private:
@@ -107,10 +147,7 @@ class Intersection_Object
         fem::Geometry_Interpolator* mDummyGeomInterp  = nullptr;
         fem::Field_Interpolator*    mDummmyFieldInterp = nullptr;
 
-        Matrix<DDRMat> mDummyGlobalCoords;
-        Matrix<DDRMat> mDummyTimeCoords;
-        Matrix<DDRMat> mDummyFieldVals;
-        Matrix<DDRMat> mDummyParamPoint;
+        Matrix<DDRMat> mDummyMat;
 //------------------------------------------------------------------------------
     protected:
 

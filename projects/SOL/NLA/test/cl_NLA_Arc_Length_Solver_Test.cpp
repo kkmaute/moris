@@ -22,6 +22,12 @@
 #include "cl_DLA_Linear_Solver.hpp"
 #include "cl_Vector.hpp"
 
+//TSA includes
+#include "cl_TSA_Time_Solver_Factory.hpp"
+#include "cl_TSA_Monolithic_Time_Solver.hpp"
+#include "cl_TSA_Time_Solver.hpp"
+#include "cl_TSA_Solver_Interface_Proxy2.hpp"
+
 #define protected public
 #define private   public
 #include "cl_NLA_Nonlinear_Solver.hpp"
@@ -74,7 +80,7 @@ return tTopo;
 }
 //------------------------------------------------------------------------------
 // mDOF functions
-// these are being created/used to verify the solver against a previously completed problems using MATLAB
+// these are being created/used to verify the solver against a previously completed problem using MATLAB
 
 /*
  * @brief residual function for the mDOF case, this will be used independently on each DOF
@@ -95,7 +101,7 @@ residual_mDOF( const moris::sint        aNX,
                const moris::uint        aEquationObjectInd )
 {
     Matrix< DDRMat > tRes;
-    // note: aMyValues are the displacement solutions
+    // note: aMyValues are the displacement solutions,
     //       vector is passed in as a (2x1) so no need to transpose
     /*----------------------------------
      * material and elemental parameters
@@ -123,16 +129,15 @@ residual_mDOF( const moris::sint        aNX,
         tNewVals(1,0) = aMyValues(1,0);
 
         Matrix< DDRMat > tEpsilon = (0.5)*tBMat*tNewVals;                               // determine strain value (this is a scalar), no need to transpose aMyValues here
-        real tSigma = tSigSat*(1-std::exp(-tBParam*tEpsilon(0,0)));                     // determine stess value from nonlinear relation
+        real tSigma = tSigSat*(1-std::exp(-tBParam*tEpsilon(0,0)));                     // determine stress value from nonlinear relation
         Matrix< DDRMat > tInternalForce = trans(tBMat)*tSigma*tArea*tJac*tWeight;       // define internal force vector
-
         tRes.set_size(1,1);
         tRes(0,0) = aLambda*tExternalForce(0,0) - tInternalForce(1,0);
     }
-    if (aEquationObjectInd==1)      // return the (2x1) residual for the 2nd element (2-DOF)
+    else if (aEquationObjectInd==1)      // return the (2x1) residual for the 2nd element (2-DOF)
     {
         Matrix< DDRMat > tEpsilon = tBMat*aMyValues;                                    // determine strain value (this is a scalar), no need to transpose aMyValues here
-        real tSigma = tSigSat*(1-std::exp(-tBParam*tEpsilon(0,0)));                     // determine stess value from nonlinear relation
+        real tSigma = tSigSat*(1-std::exp(-tBParam*tEpsilon(0,0)));                     // determine stress value from nonlinear relation
         Matrix< DDRMat > tInternalForce = trans(tBMat)*tSigma*tArea*tJac*tWeight;       // define internal force vector
 
         tRes.set_size(2,1);
@@ -191,7 +196,7 @@ jacobian_mDOF( const moris::sint        aNX,
         tJacobian.set_size(1,1);
         tJacobian(0,0) = tTempJac(0,0);
     }
-    if (aEquationObjectInd==1)      // return the (2x2) jacobian for the 2nd element (2-DOF)
+    else if (aEquationObjectInd==1)      // return the (2x2) jacobian for the 2nd element (2-DOF)
     {
         Matrix< DDRMat > tEpsilon = tBMat*aMyValues;                        // determine strain value (this is a scalar), no need to transpose aMyValues here
         real tDSigDEps = tBParam*tSigSat*std::exp(-tBParam*tEpsilon(0,0));  // nonlinear material tangent
@@ -226,7 +231,7 @@ Matrix< DDSMat > test_topo_mDOF( const moris::sint aNX,
         tTopo.set_size(1,1);
         tTopo(0,0) = 0;
     }
-    if (aEquationObjectInd==1)
+    else if (aEquationObjectInd==1)
     {
         tTopo.set_size(2,1);
         tTopo(0,0) = 0;
@@ -246,64 +251,64 @@ namespace NLA
 {
     TEST_CASE("Arc_Length_Solver_sDOF","[NLA],[NLA_Arc_Length_sDOF]")
     {
-        if ( par_size() == 1 )
-        {
-            // Inputs are NLA_Solver_Interface_Proxy( Number of Dofs,
-            //                                        Number of elements,
-            //                                        Dummy,
-            //                                        Dummy,
-            //                                        Residual function pointer,
-            //                                        Jacobian function pointer,
-            //                                        Topology function pointer );
-
-            Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 1, 1, 1, 1, cubic_residual, cubic_jacobian, test_topo_sDOF );
-
-            // specify the linear solver and create the linear solver manager
-            dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
-            Nonlinear_Solver  tNonLinSolManager;
-
-            // create nonlinear problem class
-            Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
-
-            // create nonlinear solver factory. Build nonlinear solver.
-            Nonlinear_Solver_Factory tNonlinFactory;
-            std::shared_ptr< Nonlinear_Algorithm > tNonLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::ARC_LENGTH_SOLVER );
-
-            // set nonlinear solver parameters
-            tNonLinSolverAlgorithm->set_linear_solver( tLinSolManager );
-
-            tNonLinSolverAlgorithm->set_param("NLA_max_iter")   = 5;
-            tNonLinSolverAlgorithm->set_param("NLA_hard_break") = false;
-            tNonLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-
-            tNonLinSolManager.set_nonlinear_algorithm( tNonLinSolverAlgorithm, 0 );
-
-            // build linear solver factory and linear solvers
-            dla::Solver_Factory  tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-
-            // set linear solver options
-            tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
-            tLinSolver1->set_param("AZ_output") = AZ_none;
-            tLinSolver2->set_param("AZ_solver") = AZ_gmres;
-            tLinSolver2->set_param("AZ_precond") = AZ_dom_decomp;
-
-            // set linear solver to linear solver manager
-            tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
-            tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
-
-            // solve nonlinear system, passing in the nonlinear problem
-            tNonLinSolManager.solve( tNonlinearProblem );
-
-            // get solution
-            Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
-            tGlobalIndExtract( 0, 0 ) = 1;
-            Matrix< DDRMat > tMyValues;
-
-            tNonLinSolverAlgorithm->get_full_solution( tMyValues );
-            print(tMyValues, "tMyValues");
-        }
+//        if ( par_size() == 1 )
+//        {
+//            // Inputs are NLA_Solver_Interface_Proxy( Number of Dofs,
+//            //                                        Number of elements,
+//            //                                        Dummy,
+//            //                                        Dummy,
+//            //                                        Residual function pointer,
+//            //                                        Jacobian function pointer,
+//            //                                        Topology function pointer );
+//
+//            Solver_Interface * tSolverInput = new NLA_Solver_Interface_Proxy( 1, 1, 1, 1, cubic_residual, cubic_jacobian, test_topo_sDOF );
+//
+//            // specify the linear solver and create the linear solver manager
+//            dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+//            Nonlinear_Solver  tNonLinSolManager;
+//
+//            // create nonlinear problem class
+//            Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
+//
+//            // create nonlinear solver factory. Build nonlinear solver.
+//            Nonlinear_Solver_Factory tNonlinFactory;
+//            std::shared_ptr< Nonlinear_Algorithm > tNonLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NonlinearSolverType::ARC_LENGTH_SOLVER );
+//
+//            // set nonlinear solver parameters
+//            tNonLinSolverAlgorithm->set_linear_solver( tLinSolManager );
+//
+//            tNonLinSolverAlgorithm->set_param("NLA_max_iter")   = 5;
+//            tNonLinSolverAlgorithm->set_param("NLA_hard_break") = false;
+//            tNonLinSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+//
+//            tNonLinSolManager.set_nonlinear_algorithm( tNonLinSolverAlgorithm, 0 );
+//
+//            // build linear solver factory and linear solvers
+//            dla::Solver_Factory  tSolFactory;
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+//
+//            // set linear solver options
+//            tLinSolver1->set_param("AZ_diagnostics") = AZ_none;
+//            tLinSolver1->set_param("AZ_output") = AZ_none;
+//            tLinSolver2->set_param("AZ_solver") = AZ_gmres;
+//            tLinSolver2->set_param("AZ_precond") = AZ_dom_decomp;
+//
+//            // set linear solver to linear solver manager
+//            tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
+//            tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
+//
+//            // solve nonlinear system, passing in the nonlinear problem
+//            tNonLinSolManager.solve( tNonlinearProblem );
+//
+//            // get solution
+//            Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
+//            tGlobalIndExtract( 0, 0 ) = 1;
+//            Matrix< DDRMat > tMyValues;
+//
+//            tNonLinSolverAlgorithm->get_full_solution( tMyValues );
+//            print(tMyValues, "tMyValues");
+//        }
     } // end arc-length solver test case sDOF
 
 //------------------------------------------------------------------------------
@@ -323,10 +328,11 @@ namespace NLA
 
             // specify the linear solver and create the linear solver manager
             dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
-            Nonlinear_Solver  tNonLinSolManager;
+//            Nonlinear_Solver  tNonLinSolManager;
+            Nonlinear_Solver  tNonLinSolManager(NonlinearSolverType::ARC_LENGTH_SOLVER);
 
             // create nonlinear problem class
-            Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
+//            Nonlinear_Problem * tNonlinearProblem = new Nonlinear_Problem( tSolverInput );
 
             // create nonlinear solver factory. Build nonlinear solver.
             Nonlinear_Solver_Factory tNonlinFactory;
@@ -356,16 +362,47 @@ namespace NLA
             tLinSolManager->set_linear_algorithm( 0, tLinSolver1 );
             tLinSolManager->set_linear_algorithm( 1, tLinSolver2 );
 
-            // solve nonlinear system, passing in the nonlinear problem
-            tNonLinSolManager.solve( tNonlinearProblem );
+            //------------------------------------------------------------------------------
+            tsa::Time_Solver_Factory tTimeSolverFactory;
+            std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
 
-            // get solution
-            Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
-            tGlobalIndExtract( 0, 0 ) = 1;
-            Matrix< DDRMat > tMyValues;
+            tTimeSolverAlgorithm->set_param("TSA_Num_Time_Steps") = 50;
 
-            tNonLinSolverAlgorithm->get_full_solution( tMyValues );
-            print(tMyValues, "tMyValues");
+            tTimeSolverAlgorithm->set_nonlinear_solver( & tNonLinSolManager );
+
+            // before solving the arc-length, the time solver algorithm must be set
+            tNonLinSolverAlgorithm->set_my_time_solver_algorithm( tTimeSolverAlgorithm );
+
+            tsa::Time_Solver tTimeSolver;
+
+            tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+
+            NLA::SOL_Warehouse tSolverWarehouse;
+
+            tSolverWarehouse.set_solver_interface(tSolverInput);
+
+            tNonLinSolManager.set_solver_warehouse( &tSolverWarehouse );
+            tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+
+            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );
+            tDofTypes1( 0 ) = MSI::Dof_Type::UX;
+
+            tNonLinSolManager.set_dof_type_list( tDofTypes1 );
+            tTimeSolver.set_dof_type_list( tDofTypes1 );
+
+            tTimeSolver.solve();
+            //------------------------------------------------------------------------------
+
+//            // solve nonlinear system, passing in the nonlinear problem
+//            tNonLinSolManager.solve( tNonlinearProblem );
+//
+//            // get solution
+//            Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0);
+//            tGlobalIndExtract( 0, 0 ) = 1;
+//            Matrix< DDRMat > tMyValues;
+//
+//            tNonLinSolverAlgorithm->get_full_solution( tMyValues );
+//            print(tMyValues, "tMyValues");
 
         }
     } // end arc-length solver test case mDOF

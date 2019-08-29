@@ -9,10 +9,16 @@
 
 #include "typedefs.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
+#include "cl_TSA_Time_Solver_Algorithm.hpp"
 
 namespace moris
 {
 class Dist_Vector;
+
+namespace tsa
+{
+class Time_Solver_Algorithm;
+}
 namespace dla
 {
     class Linear_Solver_Algorithm;
@@ -50,6 +56,15 @@ namespace NLA
                                 const moris::uint             & aBlockRowOffsets,
                                       moris::Matrix< DDRMat > & LHSValues );
 
+        void set_arc_params( moris::real aBParam      = 0.5,
+                             moris::real aDeltaAParam = 0.1,
+                             moris::real aForTol      = 1e-8,
+                             moris::real aResTol      = 1e-8 );
+
+        void initialize_variables( Nonlinear_Problem *  aNonlinearProblem );
+
+        void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm );
+
         /**
          * @brief Accessor to set a value in the parameter list of the Arc Length solver
          *
@@ -65,12 +80,71 @@ namespace NLA
         /**
          * @brief Call for solve of linear system
          *
-         * @param[in] aIter       Number of newton iterations
-         * @param[in] aHardBreak  Flag for HartBreak
+         * @param[in] aIter       Number of iterations
+         * @param[in] aHardBreak  Flag for HardBreak
          */
         void solve_linear_system( moris::sint & aIter,
                                   bool        & aHardBreak);
 
+        //------------------------------------------------------------------------------
+        // temporary vectors for printing solutions (this is being used only for debugging purposes)
+        moris::Matrix<DDRMat> mDis;
+        moris::Matrix<DDRMat> mFor;
+
+        Dist_Vector* mFext;
+        //------------------------------------------------------------------------------
+
+        moris::real mB;
+        moris::real mDeltaA;
+        moris::real mForTol;
+        moris::real mResTol;
+
+        moris::real mR0;
+
+        moris::real mArcNumer;
+        moris::real mArcDenom;
+        moris::real mF_tilde;
+        moris::real mFArc;
+
+        moris::real mDeltaLambda;
+        moris::real mLambdaK;
+
+        moris::real mLambdaSolveNMinus1;
+        moris::real mLambdaSolveNMinus2;
+
+        moris::real mDFArcDDeltaLambda;
+
+        moris::real mDelLambdaNum;
+        moris::real mDelLambdaDen;
+        moris::real mdeltaLambda;
+
+        //------------------------------------------------------------------------------
+        //--------------------------- vectors and matrices -----------------------------
+        //------------------------------------------------------------------------------
+        Sparse_Matrix* mJac;
+
+        Dist_Vector* mJacVal;
+        Dist_Vector* mD_tilde;
+
+        Dist_Vector* mJacVal0;
+        Dist_Vector* mD_tilde0;
+        Dist_Vector* mDK;
+
+        Dist_Vector* mDSolve;
+        Dist_Vector* mDSolveNMinus1;
+        Dist_Vector* mDSolveNMinus2;
+
+        Dist_Vector* mGlobalRHS;
+
+        Dist_Vector* mDFArcDDeltaD;
+
+        Dist_Vector* mDelLamNum;
+        Dist_Vector* mDelLamDen;
+        Dist_Vector* mDeltaD;
+        Dist_Vector* mdeltaD;
+        //------------------------------------------------------------------------------
+
+        std::shared_ptr< tsa::Time_Solver_Algorithm > mMyTimeSolverAlgorithm = nullptr;
 
     protected:
 
