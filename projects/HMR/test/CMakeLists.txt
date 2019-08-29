@@ -15,72 +15,13 @@ set(TEST_SOURCES
     cl_HMR_L2.cpp
     cl_HMR_Integration_Mesh.cpp
     cl_HMR_Lagrange_Elements.cpp )
-  
-# List test includes
-set(TEST_INCLUDES
-    #${LINALG}
-    #${COM}
-    #${FEM}
-    #${FEM}/${INT}
-    #${HMR}
-    #${MTK}
-    #${MTK}/${MAP}
-    #${ALG} #MTK
-    #${TOL} #MTK
-    #${XTK} #MTK
-    )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additional includes
-
-# List test dependencies
-#set(TEST_DEPENDENCIES
-#    ${MORIS_ARMADILLO_EIGEN_LIBS}
-#    ${MORIS_SUPERLU_LIBS}
-#    ${MORIS_TRILINOS_LIBS}
-#    ${MORIS_BASE_LIBS}
-#    ${MORIS_ARPACK_LIBS}
-#    ${MORIS_BOOST_LIBS}
-#    ${COM}-lib
-#    ${HMR}-lib
-#    ${MDL}-lib
-#    ${MSI}-lib
-#    ${INT}-lib
-#    ${MAP}-lib
-#    ${MTK}-lib
-#    ${GEN}-lib
-#    ${TOL}-lib
-#    )
 
 set(TEST_DEPENDENCIES
 	test-libs
     ${HMR}-lib
     ${ALG}-lib
-    #${MAP}-lib
-    #${MTK}-lib
-    #${MDL}-lib # for L2
-    #${INT}-lib # for L2
-    #${MSI}-lib # for L2
-    #${NLA}-lib # for L2
-    #${SDF}-lib # for SDF
     ${MORIS_BASE_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}
-    #${MORIS_BOOST_LIBS}
-    #${DLA}-lib #> reeeeeee
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
     
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -93,9 +34,6 @@ add_executable(${HMR_TEST} ${TEST_SOURCES})
 target_link_libraries(${HMR_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${HMR_TEST} PROPERTIES OUTPUT_NAME ${HMR_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${HMR_TEST}
-    COMMAND $<TARGET_FILE:${HMR_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -103,7 +41,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${HMR_TEST_PROCS})
 		set(HMR_PARALLEL_TEST ${HMR_TEST}-${PROCS}-procs)
 		add_test(NAME ${HMR_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${HMR_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${HMR_TEST}>)
 	endforeach()
 endif()
 

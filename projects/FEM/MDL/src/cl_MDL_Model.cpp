@@ -42,10 +42,8 @@
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
 #include "fn_sum.hpp" // for check
-#include "fn_print.hpp" // for check
 #include "fn_iscol.hpp"
 #include "fn_trans.hpp"
-
 
 namespace moris
 {
@@ -54,19 +52,21 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(       mtk::Mesh_Manager*                          aMeshManager,
-                      const uint                                        aBSplineOrder,
+                      const uint                                        aBSplineIndex,
                             moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
                       const moris::Cell< moris_index >                  & aBlocksetList,
                       const moris::Cell< moris_index >                  aSidesetList,
                       const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
                       const moris::Cell< moris_index >                  aDoubleSidesetList,
-                      const moris_index                                 aMeshPairIndex) : mMeshManager( aMeshManager ),
-                                                                                          mMeshPairIndex( aMeshPairIndex )
+                      const moris_index                                 aMeshPairIndex,
+                      const bool                                        aUseMultigrid) : mMeshManager( aMeshManager ),
+                                                                                          mMeshPairIndex( aMeshPairIndex ),
+                                                                                          mUseMultigrid(aUseMultigrid)
         {
             // start timer
             tic tTimer1;
 
-            mDofOrder = aBSplineOrder;
+            mBSplineIndex = aBSplineIndex;
 
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -190,14 +190,23 @@ namespace moris
             {
                 // create a list of side clusters
                 moris::mtk::Set * tSideSet = tIntegrationMesh->get_side_set_by_index( aSidesetList( Ik ) );
-//                moris::Cell<mtk::Cluster const*> tSideSetClusterList = tIntegrationMesh->get_side_set_by_index( aSidesetList( Ik ) )
-//                                                                                        ->get_clusters_on_set();
 
-                // create a new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
-                                                           fem::Element_Type::SIDESET,
-                                                           mIWGs( Ik + 1 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
-                                                           mIPNodes );
+                if (aSidesetBCTypeList(Ik) ==fem::BC_Type::DIRICHLET)
+                {
+                    // create a new fem set
+                    mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
+                                                               fem::Element_Type::SIDESET,
+                                                               mIWGs( 1 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
+                                                               mIPNodes );
+                }
+                if (aSidesetBCTypeList(Ik) ==fem::BC_Type::NEUMANN)
+                {
+                    // create a new fem set
+                    mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
+                                                               fem::Element_Type::SIDESET,
+                                                               mIWGs( 2 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
+                                                               mIPNodes );
+                }
 
                 // collect equation objects associated with the side-set
                 mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
@@ -258,17 +267,17 @@ namespace moris
 
             if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
-                if ( mDofOrder == 0 )
-                {
-                    mDofOrder  = this->get_lagrange_order_from_mesh();
-                }
+//                if ( mBSplineIndex == 0 )
+//                {
+//                    mBSplineIndex  = this->get_lagrange_order_from_mesh();   // FIXME this function is absolutely wrong
+//                }
 
                 // get map from mesh
-                tInterpolationMesh->get_adof_map( mDofOrder, mCoefficientsMap );
+                tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
 
                 tCommTable   = tInterpolationMesh->get_communication_table();
                 tIdToIndMap  = mCoefficientsMap;
-                tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mDofOrder );
+                tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mBSplineIndex );
             }
             else
             {
@@ -293,8 +302,8 @@ namespace moris
 
             if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
-                mModelSolverInterface->set_param("L2")= (sint)mDofOrder;
-                mModelSolverInterface->set_param("TEMP")= (sint)mDofOrder;
+                mModelSolverInterface->set_param("L2")= (sint)mBSplineIndex;
+                mModelSolverInterface->set_param("TEMP")= (sint)mBSplineIndex;
             }
 
             //------------------------------------------------------------------------------
@@ -318,6 +327,8 @@ namespace moris
             {
                 // get the treated sideset name
                 std::string tTreatedSidesetName = tSidesetNames( aSidesetList( Ik ) );
+
+                std::cout<<tSidesetNames( aSidesetList( Ik ) )<<std::endl;
 
                 // get the sideset ordinal
                 moris_index tSideSetOrd = tIntegrationMesh->get_side_set_index( tTreatedSidesetName );
@@ -355,7 +366,7 @@ namespace moris
 
             //------------------------------------------------------------------------------------------
 
-            mModelSolverInterface->finalize();
+            mModelSolverInterface->finalize( mUseMultigrid );
 
             // calculate AdofMap
             mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
@@ -388,12 +399,28 @@ namespace moris
             delete mModelSolverInterface;
 
             // delete IWGs
+            for( auto tIWGs : mIWGs )
+            {
+                for( auto tIWG : tIWGs )
+                {
+                    delete tIWG;
+                }
+                tIWGs.clear();
+            }
             mIWGs.clear();
 
             // delete fem nodes
+            for( auto tIPNodes : mIPNodes )
+            {
+                delete tIPNodes;
+            }
             mIPNodes.clear();
 
             // delete the fem sets
+            for( auto tFemSet : mFemSets )
+            {
+                delete tFemSet;
+            }
             mFemSets.clear();
 
             // delete the fem cluster
@@ -458,23 +485,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        uint
-        Model::get_lagrange_order_from_mesh()
+        uint Model::get_lagrange_order_from_mesh()
         {
 
             // set order of this model according to Lagrange order
             // of first element on mesh
-           return mtk::interpolation_order_to_uint(
-            mMeshManager->get_interpolation_mesh(0)->get_mtk_cell( 0 ).get_interpolation_order() );
+           return mtk::interpolation_order_to_uint( mMeshManager->get_interpolation_mesh(0)
+                                                                ->get_mtk_cell( 0 ).get_interpolation_order() );
         }
 
 //------------------------------------------------------------------------------
 
         void
-        Model::set_dof_order( const uint aOrder )
+        Model::set_dof_order( const uint aBSplineIndex )
         {
-            mDofOrder = aOrder;
-//            MORIS_ASSERT( aOrder == mDofOrder,
+            mBSplineIndex = aBSplineIndex;
+//            MORIS_ASSERT( aOrder == mBSplineIndex,
 //                    "Model: the functionality to change the order of the model has nor been implemented yet" );
         }
 

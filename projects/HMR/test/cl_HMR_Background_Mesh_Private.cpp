@@ -33,9 +33,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer sizes to zero
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -99,16 +96,13 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 //-------------------------------------------------------------------------------
 
      SECTION( "Background mesh 3D: test calc_child_index() function")
-        {
+     {
             // create settings object
             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {6}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
@@ -143,8 +137,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             }
 
             // get first active element on proc
-            moris::hmr::Background_Element_Base*
-                tElement = tBackgroundMesh->get_element( 0 );
+            moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element( 0 );
 
             // refine element up to max possible level
             for( moris::uint l=0; l<moris::hmr::gMaxNumberOfLevels-1; ++l )
@@ -190,9 +183,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -218,7 +208,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             // refine the whole mesh two times
             for( moris::uint l=0; l<tLevel; ++l  )
             {
-                auto tNumberOfElements =  tBackgroundMesh->get_number_of_active_elements_on_proc();
+                auto tNumberOfElements = tBackgroundMesh->get_number_of_active_elements_on_proc();
 
                 // refine all 16 elements
                 for( moris::luint k=0; k<tNumberOfElements; ++k )
@@ -361,13 +351,12 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 for( moris::uint e=0; e<8; ++e )
                 {
                     // get neighbor of element
-                    moris::hmr::Background_Element_Base* tNeighbor
-                        = tElement->get_neighbor( e );
+                    moris::hmr::Background_Element_Base * tNeighbor = tElement->get_neighbor( e );
 
                     // calculate expected id of element
-                    moris::luint tDomainID =
-                            tBackgroundMesh->calc_domain_id_of_element( tLevel,
-                                    tIJ( 0 , e ), tIJ( 1 , e ) );
+                    moris::luint tDomainID = tBackgroundMesh->calc_domain_id_of_element( tLevel,
+                                                                                         tIJ( 0 , e ),
+                                                                                         tIJ( 1 , e ) );
 
                     // test if domain ID is correct
                     REQUIRE( tDomainID == tNeighbor->get_hmr_id() );
@@ -385,7 +374,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
 //-------------------------------------------------------------------------------
 
        SECTION( "Background mesh 3D: test neighborhood calculation")
-        {
+       {
                 // create settings object
                 moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
 
@@ -393,9 +382,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {2}, {3} };
 
                 tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-                // do not print debug information during test
-                tParameters->set_verbose( false );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
@@ -411,8 +397,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 moris::hmr::Factory tFactory;
 
                 // create background mesh object
-                moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                    = tFactory.create_background_mesh( tParameters );
+                moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
 
                 // update element table
                 tBackgroundMesh->collect_active_elements();
@@ -424,15 +409,13 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 for( moris::uint l=0; l<tLevel; ++l  )
                 {
                     // ask background mesh for number of elements
-                    auto tNumberOfElements
-                           =  tBackgroundMesh->get_number_of_active_elements_on_proc();
+                    auto tNumberOfElements =  tBackgroundMesh->get_number_of_active_elements_on_proc();
 
                     // refine every element
                     for( moris::luint k=0; k<tNumberOfElements; ++k )
                     {
                         // get element
-                        moris::hmr::Background_Element_Base* tElement
-                            = tBackgroundMesh->get_element( k );
+                        moris::hmr::Background_Element_Base* tElement = tBackgroundMesh->get_element( k );
 
                         //flag element for refinement
                         tElement->put_on_refinement_queue();
@@ -443,12 +426,10 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 }
 
                 // ask background mesh for number of elements on proc
-                auto tNumberOfElementsOnProc
-                    = tBackgroundMesh->get_number_of_active_elements_on_proc_including_aura();
+                auto tNumberOfElementsOnProc = tBackgroundMesh->get_number_of_active_elements_on_proc_including_aura();
 
                 // pointer to element that is to be tested
-                moris::hmr::Background_Element_Base* tElement
-                    = tBackgroundMesh->get_element_from_proc_domain_including_aura( 0 );
+                moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element_from_proc_domain_including_aura( 0 );
 
                 // find element 40271 ( this is a bit brute force, but for the test, it is fast enough )
                 // in parallel, this element has neighbors in the aura.
@@ -608,13 +589,13 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 for ( moris::uint e = 0; e<26; ++e )
                 {
                    // get neighbor of element
-                   moris::hmr::Background_Element_Base* tNeighbor
-                       = tElement->get_neighbor( e );
+                   moris::hmr::Background_Element_Base * tNeighbor = tElement->get_neighbor( e );
 
                     // calculate expected id of element
-                    moris::luint tDomainID =
-                            tBackgroundMesh->calc_domain_id_of_element( tLevel,
-                                    tIJK( 0, e ), tIJK( 1, e ), tIJK( 2, e ) );
+                    moris::luint tDomainID = tBackgroundMesh->calc_domain_id_of_element( tLevel,
+                                                                                         tIJK( 0, e ),
+                                                                                         tIJK( 1, e ),
+                                                                                         tIJK( 2, e ) );
 
                     // test if domain ID is correct
                     REQUIRE( tDomainID == tNeighbor->get_hmr_id() );
@@ -641,9 +622,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
-
-            // do not print debug information during test
-            tParameters->set_verbose( false );
 
             // set buffer size to one
             tParameters->set_refinement_buffer( 0 );
@@ -679,14 +657,12 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             // pick element in the middle
             moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element( 81 );
 
-            moris::Cell< moris::hmr::Background_Element_Base *  > tNeighbors;
+            moris::Cell< moris::hmr::Background_Element_Base * > tNeighbors;
 
             for( uint tOrder=1; tOrder<=2; ++tOrder )
             {
-
                 // number of expected neighbors
-                moris::luint tNumberOfNeighbors
-                = std::pow( 2*tOrder+1, tParameters->get_number_of_dimensions() ) - 1;
+                moris::luint tNumberOfNeighbors = std::pow( 2*tOrder+1, tParameters->get_number_of_dimensions() ) - 1;
 
                 // get IJK of this element
                 const moris::luint* tIJK = tElement->get_ijk();
@@ -703,8 +679,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                     {
                         if( !( i == tIJK[ 0 ] && j == tIJK[ 1 ] ) )
                         {
-                            tExpectedIDs( tCount++ )
-                                    = tBackgroundMesh->calc_domain_id_of_element( 1, i, j );
+                            tExpectedIDs( tCount++ ) = tBackgroundMesh->calc_domain_id_of_element( 1, i, j );
                         }
                     }
                 }
@@ -761,9 +736,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6}, {6} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer size to one
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -779,9 +751,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             = tFactory.create_background_mesh( tParameters );
 
             // get number of elements
-            moris::luint tNumberOfActiveElements
-                = tBackgroundMesh->get_number_of_active_elements_on_proc();
-
+            moris::luint tNumberOfActiveElements = tBackgroundMesh->get_number_of_active_elements_on_proc();
 
             // refine all elements on first level
             for( moris::luint k=0; k<tNumberOfActiveElements; ++k )
@@ -793,18 +763,14 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tBackgroundMesh->perform_refinement();
 
             // pick an element in the middle
-            moris::hmr::Background_Element_Base * tElement
-                = tBackgroundMesh->get_element( 1025 );
-
+            moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element( 1025 );
 
             moris::Cell< moris::hmr::Background_Element_Base *  > tNeighbors;
 
             for( uint tOrder=1; tOrder<=2; ++tOrder )
             {
-
                 // number of expected neighbors
-                moris::luint tNumberOfNeighbors
-                = std::pow( 2*tOrder+1, tParameters->get_number_of_dimensions() ) - 1;
+                moris::luint tNumberOfNeighbors = std::pow( 2*tOrder+1, tParameters->get_number_of_dimensions() ) - 1;
 
                 // get IJK of this element
                 const moris::luint* tIJK = tElement->get_ijk();
@@ -823,8 +789,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                         {
                             if( !( i == tIJK[ 0 ] && j == tIJK[ 1 ] && k == tIJK[ 2 ] ) )
                             {
-                                tExpectedIDs( tCount++ )
-                                        = tBackgroundMesh->calc_domain_id_of_element( 1, i, j, k );
+                                tExpectedIDs( tCount++ ) = tBackgroundMesh->calc_domain_id_of_element( 1, i, j, k );
                             }
                         }
                     }

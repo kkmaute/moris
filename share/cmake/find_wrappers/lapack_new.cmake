@@ -12,7 +12,8 @@ set(LAPACK_ENV_VARS
     $ENV{LAPACK_PATH}
     $ENV{lapack_PATH} )
     
-    find_package(LAPACK HINTS ${LAPACK_ENV_VARS})
+    #find_package(LAPACK REQUIRED PATHS ${LAPACK_ENV_VARS})
+    find_package(LAPACK REQUIRED)
     if(LAPACK_FOUND)
         set(LAPACK_FOUND_ONCE TRUE)
         

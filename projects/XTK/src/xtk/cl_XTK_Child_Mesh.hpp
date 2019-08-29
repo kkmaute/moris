@@ -656,7 +656,7 @@ public:
           // local geometry index
           moris_index tGeomIndex = this->get_local_geom_index(aGeometryIndex);
 
-          moris::Matrix< moris::IdMat > tInterfaceCMInfo(tNumElem,2);
+          moris::Matrix< moris::IdMat > tInterfaceCMInfo(tNumElem,2,MORIS_ID_MAX);
 
           // Keep track of the number of interface sides
           moris::size_t tCount = 0;
@@ -682,7 +682,7 @@ public:
              }
          }
 
-         // Size out space
+         // Size out extra space
          tInterfaceCMInfo.resize(tCount,2);
 
          // get the interface pairs with respect to this geometry
@@ -690,6 +690,9 @@ public:
          moris::Matrix<moris::IndexMat> tInterfaceElementPairs;
          moris::Matrix<moris::IndexMat> tInterfacePairSideOrds;
          unzip_child_mesh_interface_get_interface_element_pairs(aGeometryIndex,tNoPair,tInterfaceElementPairs,tInterfacePairSideOrds);
+
+         moris::print(tInterfaceElementPairs,"tInterfaceElementPairs");
+         moris::print(tInterfacePairSideOrds,"tInterfacePairSideOrds");
 
          MORIS_ASSERT(!tNoPair,"No pair found");
 

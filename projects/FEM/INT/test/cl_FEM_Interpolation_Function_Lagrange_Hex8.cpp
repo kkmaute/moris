@@ -92,7 +92,7 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tXi.get_column(k ) );
+                tFunction->eval_N( tXi.get_column(k ), tN );
 
                 // test unity
                 tCheck = tCheck && ( std::abs( sum(tN) - 1.0 ) < tEpsilon );
@@ -109,7 +109,7 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-                tN = tFunction->eval_N( tXi.get_column( k ) );
+                tFunction->eval_N( tXi.get_column( k ), tN );
 
                 // test evaluated value
                 Matrix< DDRMat > tError  = tN * tPhiHat ;
@@ -130,7 +130,7 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-            	tdNdXi = tFunction->eval_dNdXi( tXi.get_column(k ) );
+                tFunction->eval_dNdXi( tXi.get_column(k ), tdNdXi );
 
                 // test evaluated value
                 Matrix< DDRMat > tError = tdPhidXi.get_column( k );
@@ -151,7 +151,7 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
             for( uint k=0; k<tNumberOfTestPoints; ++k )
             {
                 // evaluate shape function at point k
-            	td2NdXi2 = tFunction->eval_d2NdXi2( tXi.get_column(k ) );
+                tFunction->eval_d2NdXi2( tXi.get_column(k ), td2NdXi2 );
 
                 // test evaluated valueN
                 Matrix< DDRMat > tError = td2PhidXi2.get_column( k );

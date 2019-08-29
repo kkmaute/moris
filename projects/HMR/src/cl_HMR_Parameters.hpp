@@ -23,7 +23,6 @@
 
 #include "cl_XML_Parser.hpp"
 
-
 namespace moris
 {
     namespace hmr
@@ -33,10 +32,8 @@ namespace moris
 
         // fixme: to be deleted soon
         // creates a parameter list with default inputs
-        void
-        load_hmr_parameter_list_from_xml(
-                const std::string & aFilePath,
-                ParameterList     & aParameterList );
+        void load_hmr_parameter_list_from_xml( const std::string   & aFilePath,
+                                                     ParameterList & aParameterList );
 
 //--------------------------------------------------------------------------------
 
@@ -65,9 +62,6 @@ namespace moris
            //! max polynomial to be supported
            luint        mMaxPolynomial           = 1;
 
-           //! tells if debug flags are to be printed
-           bool         mVerbose                 = true ;
-
            //! scale factor for gmsh output
            real         mGmshScale = 1;
 
@@ -91,6 +85,9 @@ namespace moris
            //! defines which B-Spline mesh is associated with which refinement pattern
            Matrix< DDUMat > mBSplinePatterns = { { 0 } };
 
+           //! defines which B-Spline mesh is associated with which lagrange mesh
+           Cell< Matrix< DDUMat > > mLagrangeToBSplineMesh;
+
            //! maps input orders with B-Splines
            Matrix< DDUMat> mBSplineInputMap;
            Matrix< DDUMat> mBSplineOutputMap;
@@ -104,13 +101,13 @@ namespace moris
            const      uint mLagrangeOutputPattern = 3;
 
            //! default union pattern
-           const      uint mUnionPattern = 4;
+           uint mUnionPattern = 4;
 
            //! default pattern for output refinement
            const      uint mRefinedOutputPattern = 5;
 
            //! default pattern for iterative refinement
-           const      uint mWorkingPattern = 6;
+                 uint mWorkingPattern = 6;
 
            //! Map Lagrange Meshes that are used for the unity meshes
            //! position 0: first order,
@@ -119,7 +116,11 @@ namespace moris
            Matrix< DDUMat >     mUnionMeshes;
 
            //! Lagrange Meshes that are used for the output meshes
-           Matrix< DDUMat >     mOutputMeshes;
+           Matrix< DDUMat >     mOutputMeshes = { { 0 } };
+
+           Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
+
+           Matrix< DDUMat >     mBSplineInputMeshes = { { } };
 
            //! Lagrange Mesh that is used for the refined output
            uint             mRefinedOutputMesh = 7;
@@ -174,28 +175,22 @@ namespace moris
 //--------------------------------------------------------------------------------
 
            /**
-            * returns verbosity switch
-            *
-            * @return bool
-            */
-           auto is_verbose() const
-               -> decltype ( mVerbose )
-           {
-               return mVerbose;
-           }
-
-//--------------------------------------------------------------------------------
-
-           /**
             * sets verbosity switch
             *
             * @param[in] aSwitch    true or false
             * @return void
             */
-           void set_verbose( const bool aSwitch )
+           void set_severity_level( const sint aSwitch )
            {
-               mVerbose = aSwitch;
+               gLogger.set_severity_level( aSwitch );
            }
+
+//--------------------------------------------------------------------------------
+
+           sint get_severity_level() const
+           {
+               return gLogger.get_severity_level( );
+           };
 
 //--------------------------------------------------------------------------------
 
@@ -385,6 +380,21 @@ namespace moris
 //--------------------------------------------------------------------------------
 
            /**
+            * returns an entry of mBSplineOrders
+            */
+           void set_lagrange_to_bspline_mesh( const Cell< Matrix< DDUMat > > aLagrangeToBSplineMesh )
+           {
+               mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
+           }
+
+           Matrix< DDUMat > get_lagrange_to_bspline_mesh( const uint & aLagrangeMeshIndex ) const
+           {
+               return mLagrangeToBSplineMesh( aLagrangeMeshIndex );
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
             * returns the number of B-Spline meshes
             */
            uint get_number_of_bspline_meshes() const
@@ -416,10 +426,69 @@ namespace moris
            /**
             * returns the index of the defined Lagrange output mesh for a specified order
             */
-           uint get_output_mesh( const uint & aOrder ) const
+           const Matrix< DDUMat > & get_output_mesh() const
            {
-               return mOutputMeshes( aOrder-1 );
+               return mOutputMeshes;
            }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * set which lagrange meshes are used for an output
+            */
+           void set_output_meshes( const Matrix< DDUMat > & aOutputMeshes )
+           {
+               // test if calling this function is allowed
+               this->error_if_locked("set_output_meshes");
+
+               mOutputMeshes = aOutputMeshes;
+           };
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns lagrange input mesh index
+            */
+           const Matrix< DDUMat > & get_lagrange_input_mesh() const
+           {
+               return mLagrangeInputMeshes;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * set lagrange input mesh index
+            */
+           void set_lagrange_input_mesh( const Matrix< DDUMat > & aLagrangeInputMeshes )
+           {
+               // test if calling this function is allowed
+               this->error_if_locked("set_output_meshes");
+
+               mLagrangeInputMeshes = aLagrangeInputMeshes;
+           };
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * returns lagrange input mesh index
+            */
+           const Matrix< DDUMat > & get_bspline_input_mesh() const
+           {
+               return mBSplineInputMeshes;
+           }
+
+//--------------------------------------------------------------------------------
+
+           /**
+            * set lagrange input mesh index
+            */
+           void set_bspline_input_mesh( const Matrix< DDUMat > & aBSplineInputMeshes )
+           {
+               // test if calling this function is allowed
+               this->error_if_locked("set_output_meshes");
+
+               mBSplineInputMeshes = aBSplineInputMeshes;
+           };
 
 //--------------------------------------------------------------------------------
 
@@ -504,10 +573,9 @@ namespace moris
             * @param[in] aElementsZ
             * @return void
             */
-           void set_number_of_elements_per_dimension(
-                   const luint & aElementsX,
-                   const luint & aElementsY,
-                   const luint & aElementsZ );
+           void set_number_of_elements_per_dimension( const luint & aElementsX,
+                                                      const luint & aElementsY,
+                                                      const luint & aElementsZ );
 
 //-------------------------------------------------------------------------------
 
@@ -541,9 +609,8 @@ namespace moris
             * @param[in] real dimension in Y-Direction
             * @return void
             */
-           void set_domain_dimensions(
-                   const real & aDomainDimensionsX,
-                   const real & aDomainDimensionsY );
+           void set_domain_dimensions( const real & aDomainDimensionsX,
+                                       const real & aDomainDimensionsY );
 
 //-------------------------------------------------------------------------------
 
@@ -555,10 +622,9 @@ namespace moris
             * @param[in] real dimension in Z-Direction
             * @return void
             */
-           void set_domain_dimensions(
-                   const real & aDomainDimensionsX,
-                   const real & aDomainDimensionsY,
-                   const real & aDomainDimensionsZ);
+           void set_domain_dimensions( const real & aDomainDimensionsX,
+                                       const real & aDomainDimensionsY,
+                                       const real & aDomainDimensionsZ);
 
 //-------------------------------------------------------------------------------
 
@@ -590,9 +656,8 @@ namespace moris
             *
             * @return void
             */
-           void set_domain_offset(
-                   const real & aDomainOffsetX,
-                   const real & aDomainOffsetY );
+           void set_domain_offset( const real & aDomainOffsetX,
+                                   const real & aDomainOffsetY );
 
 //-------------------------------------------------------------------------------
 
@@ -605,10 +670,9 @@ namespace moris
             *
             * @return void
             */
-           void set_domain_offset(
-                   const real & aDomainOffsetX,
-                   const real & aDomainOffsetY,
-                   const real & aDomainOffsetZ );
+           void set_domain_offset( const real & aDomainOffsetX,
+                                   const real & aDomainOffsetY,
+                                   const real & aDomainOffsetZ );
 
 //-------------------------------------------------------------------------------
            /**
@@ -630,8 +694,7 @@ namespace moris
             *
             * return Matrix< DDLUMat >
             */
-           Matrix< DDLUMat >
-           get_domain_ijk() const;
+           Matrix< DDLUMat > get_domain_ijk() const;
 
 //-------------------------------------------------------------------------------
 
@@ -734,6 +797,15 @@ namespace moris
                return mLagrangeOutputPattern;
            }
 
+//-------------------------------------------------------------------------------
+
+           /**
+            * returns the default pattern for union meshes
+            */
+           void set_union_pattern( const uint aUsedUnionPattern)
+           {
+               mUnionPattern = aUsedUnionPattern;
+           }
 
 //-------------------------------------------------------------------------------
 
@@ -763,6 +835,11 @@ namespace moris
            uint get_working_pattern() const
            {
                return mWorkingPattern;
+           }
+
+           void set_working_pattern( const uint aWorkingPattern )
+           {
+               mWorkingPattern = aWorkingPattern;
            }
 
 //-------------------------------------------------------------------------------
@@ -951,9 +1028,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void set_mesh_orders(
-                   const Matrix< DDUMat > & aBSplineOrders,
-                   const Matrix< DDUMat > & aLagrangeOrders );
+           void set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
+                                 const Matrix< DDUMat > & aLagrangeOrders );
 
 //-------------------------------------------------------------------------------
         }; /* Parameters */

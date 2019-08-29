@@ -31,7 +31,6 @@ set(LAPACK_LIBRARIES
     ${LAPACK_blas}
     CACHE FILEPATH "List of library paths." )
 
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LAPACK DEFAULT_MSG LAPACK_LIBRARIES)
 

@@ -10,22 +10,18 @@ namespace moris
     {
 // ----------------------------------------------------------------------------
 
-        Facet::Facet(
-                Mesh_Base * aMesh,
-                Background_Facet * aBackgroundFacet ) :
-                mFacet( aBackgroundFacet )
+        Facet::Facet( Mesh_Base        * aMesh,
+                      Background_Facet * aBackgroundFacet ) :  mFacet( aBackgroundFacet )
         {
             // set pointer to master element
-            mMaster = aMesh->get_element_by_memory_index(
-                     aBackgroundFacet->get_master()->get_memory_index() );
+            mMaster = aMesh->get_element_by_memory_index( aBackgroundFacet->get_master()->get_memory_index() );
 
             mIndexOnMaster = aBackgroundFacet->get_index_on_master();
 
             // set pointer to slave if background slave exists
             if( aBackgroundFacet->get_slave() != NULL )
             {
-                mSlave =  aMesh->get_element_by_memory_index(
-                        aBackgroundFacet->get_slave()->get_memory_index() );
+                mSlave =  aMesh->get_element_by_memory_index( aBackgroundFacet->get_slave()->get_memory_index() );
 
                 // fixme: this is not clean
                 if( mMaster->get_basis( 0 ) == NULL )

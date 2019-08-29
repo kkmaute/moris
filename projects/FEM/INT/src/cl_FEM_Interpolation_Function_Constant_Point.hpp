@@ -48,54 +48,53 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix < DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_N(
-                const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                                Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "POINT - eval_N: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > tN( 1, 1, 1.0 );
-            return tN;
+            aNXi.set_size( 1, 1, 1.0 );
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix < DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                   Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "POINT - eval_dNdXi: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > tdNdXi( 1, 1, 0.0 );
-            return tdNdXi;
+            adNdXi.set_size( 1, 1, 0.0 );
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                      Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "POINT - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > td2NdXi2( 1, 1, 0.0 );
-            return td2NdXi2;
+            ad2NdXi2.set_size( 1, 1, 0.0 );
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::POINT, Interpolation_Type::CONSTANT, 1, 1  >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                      Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "POINT - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > td3NdXi3( 1, 1, 0.0 );
-            return td3NdXi3;
+            ad3NdXi3.set_size( 1, 1, 0.0 );
         }
 
 //------------------------------------------------------------------------------

@@ -13,7 +13,6 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-// #include "cl_MTK_Field.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mapper_Node.hpp"
@@ -62,15 +61,15 @@ namespace moris
          moris::moris_index             mSourceMeshPairIndex;
          moris::moris_index             mTargetMeshPairIndex;
          mtk::Mesh_Manager            * mMeshManager;
-         fem::IWG_L2                  * mIWG;
+//         fem::IWG_L2                  * mIWG;
          mdl::Model                   * mModel;
          const uint                     mBSplineOrder;
 
-         moris::Cell< Node* >                  mNodes;
+//         moris::Cell< Node* >                  mNodes;
 
          bool mHaveIwgAndModel = false;
-         bool mHaveNodes       = false;
-         real mFilterRadius = 0;
+//         bool mHaveNodes       = false;
+//         real mFilterRadius = 0;
 
 //------------------------------------------------------------------------------
      public:
@@ -81,7 +80,7 @@ namespace moris
           */
          Mapper( mtk::Mesh_Manager* aMesh,
                  const moris_index aMeshPairIndex,
-                 const uint aBSplineOrder=0 );
+                 const uint aBSplineMeshIndex = 0 );
 
 //------------------------------------------------------------------------------
 

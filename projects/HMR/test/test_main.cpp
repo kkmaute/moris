@@ -21,7 +21,7 @@ main(
     gMorisComm.initialize(&argc, &argv);
 
     // Severity level 0 - all outputs
-    gLogger.initialize( 0 );
+    gLogger.initialize( 2 );
 
     // Run Tests
     int result = Catch::Session().run( argc, argv );

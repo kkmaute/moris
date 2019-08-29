@@ -25,12 +25,12 @@ TEST_CASE("Box problem","[Box_FRF]")
     moris::real slot_w = 0.75;
 
     // bottom  back left corner off set
-    moris::real tXOff = 1.31;
-    moris::real tYOff = 1.31;
-    moris::real tZOff = 1.31;
+    moris::real tXOff = 2.0;
+    moris::real tYOff = 2.0;
+    moris::real tZOff = 4.02;
 
     // box sphere exponent
-    moris::real tNExp = 50;
+    moris::real tNExp = 10;
 
     // Bottom Plate
     moris::real tSx = Depth/2;
@@ -90,18 +90,16 @@ TEST_CASE("Box problem","[Box_FRF]")
     tGeometryEngine.mThresholdValue = 0.0;
     tGeometryEngine.mComputeDxDp = false;
 
-    std::string tMeshFileName = "generated:40x40x40|bbox:0.0,0.0,0.0,8.0,8.0,8.0";
+    std::string tPrefix = std::getenv("MORISROOT");
+    std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/frf_background.exo";
 
 
     // fill in the parallel fields
     moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, nullptr  );
 
-    std::string tBackgroundfile = "./xtk_exo/frf_box_bm.e";
-    tMeshData->create_output_mesh(tBackgroundfile);
-
 
     size_t tModelDimension = 3;
-    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
 
     Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
     tXTKModel.mVerbose = true;

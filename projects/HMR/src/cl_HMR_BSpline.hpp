@@ -107,7 +107,7 @@ namespace moris
                 // test if basis has elements
                 if ( mNumberOfConnectedElements != 0 )
                 {
-                    delete [] mElements;
+                    mElements.clear();
                 }
 
                 // test if this basis has neighbors

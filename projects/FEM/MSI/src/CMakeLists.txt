@@ -19,27 +19,6 @@ set(HEADERS
     cl_MSI_Multigrid.hpp
     )
 
-# List header dependencies
-set(MSI_INCLUDES
-      #${LINALG}
-      #${COM}
-#     ${SOL}/${DLA}
-      #${HMR}
-      #${FEM}/${INT}
-    )
-
-foreach(MSI_INLCUDE ${MSI_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${MSI_INCLUDE}/src)
-endforeach()
-
-#include_directories(${MORIS_PACKAGE_DIR}/LINALG/src)
-#include_directories(${MORIS_PACKAGE_DIR}/IOS/src)
-#include_directories(${MORIS_PACKAGE_DIR}/SOL/DLA/src)
-#include_directories(${MORIS_PACKAGE_DIR}/COM/src)
-#include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
-#include_directories(${MORIS_PACKAGE_DIR}/HMR/src)
-#include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src)
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Model Solver Interface Library
 
@@ -59,17 +38,7 @@ set(LIB_DEPENDENCIES
     ${INT}-lib
     ${DLA}-lib
     ${HMR}-lib
-#     ${MSI}-lib
-#     ${MORIS_BASE_LIBS}
-#     ${MORIS_PETSC_LIBS}
-#      ${MORIS_T_LIBS}
    )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE LIB_DEPENDENCIES)
-list(REMOVE_DUPLICATES LIB_DEPENDENCIES)
-list(REVERSE LIB_DEPENDENCIES)
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})

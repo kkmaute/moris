@@ -23,25 +23,6 @@ set(HEADERS
 	cl_GE_SDF.hpp
     )
 
-# List header dependencies
-set(GEN_INCLUDES
-    #${GEN}
-    #${COM}
-    #${FEM}
-    #${FEM}/${INT}  
-    #${HMR}
-    #${IOS}
-    #${LINALG}
-    #${MTK}
-    #${MTK}/${MAP} 
-    #${SDF}
-    #${TOL}
-    )
-
-foreach(GEN_INCLUDE ${GEN_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${GEN_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 
@@ -57,13 +38,6 @@ set(LIB_DEPENDENCIES
 	${INT}-lib
 	${MAP}-lib
 	${SDF}-lib
-	#${CHR}-lib
-    #${MTK}-lib
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_BOOST_LIBS}
-  #  ${MORIS_BASE_LIBS}
     )
 
 # Set the output path for library

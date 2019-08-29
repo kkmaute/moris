@@ -181,7 +181,7 @@ perform_calculation(
             tObjectParameters );
 
     // get verbose flag
-    bool tVerbose = tGlobalParameters.get< sint >("verbose") == 1;
+    bool tVerbose = true;
 
     tic tTimer1;
 

@@ -136,7 +136,7 @@ namespace moris
                                                             ->get_typetime_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( Ii, 0 ), 0 );
 
                 // Get order of this dof type
-                moris::sint tDofOrder = mModelSolverInterface->get_adof_order_for_type(tDofType);
+                moris::sint tDofOrder = mModelSolverInterface->get_adof_index_for_type(tDofType);
 
                 // Get mesh index for this dof type
                 moris::sint tMeshIndex = mMeshOrderIndexMap( tDofOrder, 0 );
@@ -181,7 +181,7 @@ namespace moris
                                                             ->get_typetime_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ), 0 );
 
                 // Get order of this dof type
-                moris::sint tDofOrder = mModelSolverInterface->get_adof_order_for_type(tDofType);
+                moris::sint tDofOrder = mModelSolverInterface->get_adof_index_for_type(tDofType);
 
                 // Get mesh index for this dof type
                 moris::sint tMeshIndex = mMeshOrderIndexMap( tDofOrder, 0 );
@@ -320,19 +320,13 @@ namespace moris
         // Get number of meshes
         moris::uint tNumMeshes = mMesh->get_HMR_database()->get_number_of_bspline_meshes();
 
-        // HMR creates one input and one output mesh. These meshes are ordered in: first input mehses, then output meshes
-        moris::uint tFirstOutputMeshIndexs = tNumMeshes/2;
-
         // Set size of order to index map to 4. We only have maximal 3 orders in HMR
         mMeshOrderIndexMap.set_size( 4, 1 , -1);
 
         // Loop over all meshes. Ask for the order of each index and create map.
-        for ( moris::uint Ik = tFirstOutputMeshIndexs; Ik < tNumMeshes; Ik++ )
+        for ( moris::uint Ik = 0; Ik < tNumMeshes; Ik++ )
         {
-            moris::uint tMeshOrder = mMesh->get_HMR_database()->get_bspline_mesh_by_index( Ik )
-                                                              ->get_order();
-
-            mMeshOrderIndexMap( tMeshOrder, 0 ) = Ik;
+            mMeshOrderIndexMap( Ik, 0 ) = Ik;                         //FIXME  useless map
         }
     }
 

@@ -6,15 +6,6 @@ set(TEST_SOURCES
     test_main.cpp
     cl_Communication_Tools.cpp)
 
-# List test includes
-set(TEST_INCLUDES
-    ${LINALG}
-    ${COM} )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
 # List snippet includes
 set(SNIPPET_INCLUDES
     )
@@ -29,12 +20,6 @@ set(TEST_DEPENDENCIES
     ${COM}-lib
     )
 
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
-
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
@@ -42,12 +27,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(COM_TEST ${COM}-test)
 
 # Create executable
-add_executable(${COM_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${COM_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
-
-# Mark as test
-add_test(NAME ${COM_TEST}
-    COMMAND ${COM_TEST}${EXE_EXT} )
+add_executable(${COM_TEST} ${TEST_SOURCES})
+target_link_libraries(${COM_TEST} ${TEST_DEPENDENCIES})
+set_target_properties(${COM_TEST} PROPERTIES OUTPUT_NAME ${COM_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -55,7 +37,7 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${COM_TEST_PROCS})
 		set(COM_PARALLEL_TEST ${COM_TEST}-${PROCS}-procs)
 		add_test(NAME ${COM_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${COM_TEST}${EXE_EXT}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${COM_TEST}>)
 	endforeach()
 endif()
 

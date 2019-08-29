@@ -11,9 +11,7 @@
 #include <exodusII.h>
 #include <ne_nemesisI.h>
 #include "cl_Matrix.hpp"
-#include "fn_print.hpp"
 #include "cl_Communication_Tools.hpp"
-
 
 namespace moris
 {
@@ -25,44 +23,42 @@ namespace mtk
 
       Exodus_IO_Helper(const char * aExodusFile)
       {
-
-          mTitle = new char[MAX_LINE_LENGTH+1];
-          int   io_ws = 0;
-          int   cpu_ws = 0;
-          float version;
-
-          get_file_name(aExodusFile, NULL, mTitle);
-
-          mExoFileId = ex_open(mTitle,
-                               EX_WRITE,
-                               &cpu_ws,
-                               &io_ws,
-                               &version);
-
-          MORIS_ASSERT(mExoFileId!=-1,"Exo open failure");
-
-
-          mVerbose = false;
-
-          get_init_mesh_data();
-          get_init_global();
-          get_eb_info_global();
-          get_ns_param_global();
-          get_load_bal_parameters();
-          get_cmap_params();
-          get_node_map();
-          get_node_cmap();
-          get_node_id_map();
-          get_node_coords();
-          get_elem_id_map();
-          get_set_information();
-          get_nodal_fields();
+//          mTitle = new char[MAX_LINE_LENGTH+1];
+//          int   io_ws = 0;
+//          int   cpu_ws = 0;
+//          float version;
+//
+//          get_file_name(aExodusFile, NULL, mTitle);
+//
+//          mExoFileId = ex_open(mTitle,
+//                               EX_WRITE,
+//                               &cpu_ws,
+//                               &io_ws,
+//                               &version);
+//
+//          MORIS_ASSERT(mExoFileId!=-1,"Exo open failure");
+//
+//          mVerbose = false;
+//
+//          get_init_mesh_data();
+//          get_init_global();
+//          get_eb_info_global();
+//          get_ns_param_global();
+//          get_load_bal_parameters();
+//          get_cmap_params();
+//          get_node_map();
+//          get_node_cmap();
+//          get_node_id_map();
+//          get_node_coords();
+//          get_elem_id_map();
+//          get_set_information();
+//          get_nodal_fields();
       }
-
 
       ~Exodus_IO_Helper()
       {
-          delete mTitle;
+//          ex_close(mExoFileId);
+//          delete mTitle;
       }
 
       /*
@@ -78,162 +74,156 @@ namespace mtk
                                                        Matrix<IdMat>  & aElementSideOrds,
                                                        Matrix<IdMat>  & aSharedProcIds)
       {
-          // retrieve initialization parameters from existing exodus file
-          ex_init_params init_params;
-          ex_get_init_ext(mExoFileId, &init_params);
-
-          if (mVerbose)
-          {
-            std::cout << " init params:\n";
-            std::cout << " Exodus ID: "     << mExoFileId << '\n';
-            std::cout << " Title: "         << init_params.title << '\n';
-            std::cout << " num_dim: "       << init_params.num_dim << '\n';
-            std::cout << " num_nodes: "     << init_params.num_nodes << '\n';
-            std::cout << " num_elem: "      << init_params.num_elem << '\n';
-            std::cout << " num_elem_blk: "  << init_params.num_elem_blk << '\n';
-            std::cout << " num_node_sets: " << init_params.num_node_sets << '\n';
-            std::cout << " num_side_sets: " << init_params.num_side_sets << '\n';
-          }
-
-          // Word sizes
-          int   io_ws  = 0;
-          int   cpu_ws = 0;
-
-          // Create a new exodus
-          char * tNewTitle = new char[MAX_LINE_LENGTH+1];
-
-          // Create the file name
-          get_file_name(aFileName.c_str(), NULL, tNewTitle);
-
-          // Create a new exodus file (clobber if already there)
-          int tNewExoFileId = ex_create(tNewTitle,
-                                        EX_CLOBBER,
-                                        &cpu_ws,
-                                        &io_ws);
-
-          // Put file initialization information
-          mErrFlag = ex_put_init_info(tNewExoFileId,
-                                      par_size(),
-                                      1,
-                                      const_cast<char *>("p"));
-          MORIS_ASSERT(!mErrFlag,"ex_put_init_info failed");
-
-
-          // Put global information on the file
-          mErrFlag = ex_put_init_global( tNewExoFileId,
-                              mNumNodesGlobal,
-                              mNumElemsGlobal,
-                              mNumElemBlksGlobal, /* I.   */
-                              mNumNodeSetsGlobal, /* II.  */
-                              mNumSideSetsGlobal );
-          MORIS_ASSERT(!mErrFlag,"ex_put_init_global failed");
-
-          // Initialize information about the mesh (local information)
-          mErrFlag = ex_put_init(tNewExoFileId,
-                                 init_params.title,
-                                 init_params.num_dim,
-                                 init_params.num_nodes,
-                                 init_params.num_elem,
-                                 init_params.num_elem_blk,
-                                 init_params.num_node_sets,
-                                 init_params.num_side_sets);
-          MORIS_ASSERT(!mErrFlag,"ex_put_init failed");
-
-
-
-          // Put information about global blk ids and blk counts
-          mErrFlag = ex_put_eb_info_global(tNewExoFileId,
-                                           this->mGlobalElemBlkIds.data(),
-                                           this->mGlobalElemBlkCnts.data());
-          MORIS_ASSERT(!mErrFlag,"ex_put_eb_info_global failed");
-
-          // Put the global node sets on the new file
-          if (mGlobalNodesetIds.size())
-          {
-          mErrFlag = ex_put_ns_param_global(tNewExoFileId,
-                                            this->mGlobalNodesetIds.data(),
-                                            this->mNumGlobalNodeCounts.data(),
-                                            this->mNumGlobalNodeDfCounts.data());
-          MORIS_ASSERT(!mErrFlag,"ex_put_ns_param_global failed");
-          }
-
-          // TODO: SIDE SETS and BLOCKSET copying
-
-
-          // Specify new load balance parameters but add the num_elem_cmaps of 1
-          mNumElemCmaps = 1;
-          mErrFlag = ex_put_loadbal_param( tNewExoFileId,
-                                           this->mNumInternalNodes,
-                                           this->mNumBorderNodes,
-                                           this->mNumExternalNodes,
-                                           this->mNumInternalElems,
-                                           this->mNumBorderElems,
-                                           this->mNumNodeCmaps,
-                                           this->mNumElemCmaps,
-                                           par_rank());
-
-          MORIS_ASSERT(!mErrFlag,"ex_put_loadbal_param failed");
-
-          mElemCmapIds.resize(1,1);
-          mElemCmapIds(0,0) = 2;
-
-          mElemCmapElemCnts.resize(1,1);
-          mElemCmapElemCnts(0,0) = aElementIds.numel();
-
-          // Put communication map parameters
-          mErrFlag = ex_put_cmap_params(tNewExoFileId,
-                                        mNodeCmapIds.data(),
-                                        mNodeCmapNodeCnts.data(),
-                                        mElemCmapIds.data(),
-                                        mElemCmapElemCnts.data(),
-                                        par_rank());
-          // Put node communication map
-          mErrFlag = ex_put_node_cmap(tNewExoFileId,
-                                      mNodeCmapIds(0),
-                                      mNodeCmapNodeIds(0).data(),
-                                      mNodeCmapProcIds(0).data(),
-                                      par_rank());
-
-          // put node map
-          mErrFlag =ne_put_node_map(tNewExoFileId,
-                                    mNodeMapi.data(),
-                                    mNodeMapb.data(),
-                                    mNodeMape.data(),
-                                      par_rank());
-
-          // put node id map
-          mErrFlag = ex_put_id_map(tNewExoFileId,EX_NODE_MAP, mNodeNumMap.data());
-
-          // put the element communication maps
-          mErrFlag = ex_put_elem_cmap(tNewExoFileId,
-                                      2,
-                                      aElementIds.data(),
-                                      aElementSideOrds.data(),
-                                      aSharedProcIds.data(),
-                                      par_rank());
-
-          // put the element id map
-          mErrFlag = ex_put_id_map(tNewExoFileId,EX_ELEM_MAP, mElemNumMap.data());
-
-          // Coordinates
-          copy_coordinates(tNewExoFileId);
-
-          // Copy sets
-          copy_node_sets( tNewExoFileId );
-          copy_side_sets( tNewExoFileId );
-          copy_block_sets(tNewExoFileId );
-
-          // Copy fields
-          copy_nodal_fields(tNewExoFileId,  init_params);
-
-          ex_close(tNewExoFileId);
-
+//          // retrieve initialization parameters from existing exodus file
+//          ex_init_params init_params;
+//          ex_get_init_ext(mExoFileId, &init_params);
+//
+//          if (mVerbose)
+//          {
+//            std::cout << " init params:\n";
+//            std::cout << " Exodus ID: "     << mExoFileId << '\n';
+//            std::cout << " Title: "         << init_params.title << '\n';
+//            std::cout << " num_dim: "       << init_params.num_dim << '\n';
+//            std::cout << " num_nodes: "     << init_params.num_nodes << '\n';
+//            std::cout << " num_elem: "      << init_params.num_elem << '\n';
+//            std::cout << " num_elem_blk: "  << init_params.num_elem_blk << '\n';
+//            std::cout << " num_node_sets: " << init_params.num_node_sets << '\n';
+//            std::cout << " num_side_sets: " << init_params.num_side_sets << '\n';
+//          }
+//
+//          // Word sizes
+//          int   io_ws  = 0;
+//          int   cpu_ws = 0;
+//
+//          // Create a new exodus
+//          std::string tNewTitle ="";
+//
+//          // Create the file name
+//          get_file_name(aFileName.c_str(), NULL, tNewTitle);
+//
+//          // Create a new exodus file (clobber if already there)
+//          int tNewExoFileId = ex_create(tNewTitle,
+//                                        EX_CLOBBER,
+//                                        &cpu_ws,
+//                                        &io_ws);
+//
+//          // Put file initialization information
+//          mErrFlag = ex_put_init_info(tNewExoFileId,
+//                                      par_size(),
+//                                      1,
+//                                      const_cast<char *>("p"));
+//          MORIS_ASSERT(!mErrFlag,"ex_put_init_info failed");
+//
+//          // Put global information on the file
+//          mErrFlag = ex_put_init_global( tNewExoFileId,
+//                              mNumNodesGlobal,
+//                              mNumElemsGlobal,
+//                              mNumElemBlksGlobal, /* I.   */
+//                              mNumNodeSetsGlobal, /* II.  */
+//                              mNumSideSetsGlobal );
+//          MORIS_ASSERT(!mErrFlag,"ex_put_init_global failed");
+//
+//          // Initialize information about the mesh (local information)
+//          mErrFlag = ex_put_init(tNewExoFileId,
+//                                 init_params.title,
+//                                 init_params.num_dim,
+//                                 init_params.num_nodes,
+//                                 init_params.num_elem,
+//                                 init_params.num_elem_blk,
+//                                 init_params.num_node_sets,
+//                                 init_params.num_side_sets);
+//          MORIS_ASSERT(!mErrFlag,"ex_put_init failed");
+//
+//          // Put information about global blk ids and blk counts
+//          mErrFlag = ex_put_eb_info_global(tNewExoFileId,
+//                                           this->mGlobalElemBlkIds.data(),
+//                                           this->mGlobalElemBlkCnts.data());
+//          MORIS_ASSERT(!mErrFlag,"ex_put_eb_info_global failed");
+//
+//          // Put the global node sets on the new file
+//          if (mGlobalNodesetIds.size())
+//          {
+//          mErrFlag = ex_put_ns_param_global(tNewExoFileId,
+//                                            this->mGlobalNodesetIds.data(),
+//                                            this->mNumGlobalNodeCounts.data(),
+//                                            this->mNumGlobalNodeDfCounts.data());
+//          MORIS_ASSERT(!mErrFlag,"ex_put_ns_param_global failed");
+//          }
+//
+//          // TODO: SIDE SETS and BLOCKSET copying
+//
+//          // Specify new load balance parameters but add the num_elem_cmaps of 1
+//          mNumElemCmaps = 1;
+//          mErrFlag = ex_put_loadbal_param( tNewExoFileId,
+//                                           this->mNumInternalNodes,
+//                                           this->mNumBorderNodes,
+//                                           this->mNumExternalNodes,
+//                                           this->mNumInternalElems,
+//                                           this->mNumBorderElems,
+//                                           this->mNumNodeCmaps,
+//                                           this->mNumElemCmaps,
+//                                           par_rank());
+//
+//          MORIS_ASSERT(!mErrFlag,"ex_put_loadbal_param failed");
+//
+//          mElemCmapIds.resize(1,1);
+//          mElemCmapIds(0,0) = 2;
+//
+//          mElemCmapElemCnts.resize(1,1);
+//          mElemCmapElemCnts(0,0) = aElementIds.numel();
+//
+//          // Put communication map parameters
+//          mErrFlag = ex_put_cmap_params(tNewExoFileId,
+//                                        mNodeCmapIds.data(),
+//                                        mNodeCmapNodeCnts.data(),
+//                                        mElemCmapIds.data(),
+//                                        mElemCmapElemCnts.data(),
+//                                        par_rank());
+//          // Put node communication map
+//          mErrFlag = ex_put_node_cmap(tNewExoFileId,
+//                                      mNodeCmapIds(0),
+//                                      mNodeCmapNodeIds(0).data(),
+//                                      mNodeCmapProcIds(0).data(),
+//                                      par_rank());
+//
+//          // put node map
+//          mErrFlag =ne_put_node_map(tNewExoFileId,
+//                                    mNodeMapi.data(),
+//                                    mNodeMapb.data(),
+//                                    mNodeMape.data(),
+//                                      par_rank());
+//
+//          // put node id map
+//          mErrFlag = ex_put_id_map(tNewExoFileId,EX_NODE_MAP, mNodeNumMap.data());
+//
+//          // put the element communication maps
+//          mErrFlag = ex_put_elem_cmap(tNewExoFileId,
+//                                      2,
+//                                      aElementIds.data(),
+//                                      aElementSideOrds.data(),
+//                                      aSharedProcIds.data(),
+//                                      par_rank());
+//
+//          // put the element id map
+//          mErrFlag = ex_put_id_map(tNewExoFileId,EX_ELEM_MAP, mElemNumMap.data());
+//
+//          // Coordinates
+//          copy_coordinates(tNewExoFileId);
+//
+//          // Copy sets
+//          copy_node_sets( tNewExoFileId );
+//          copy_side_sets( tNewExoFileId );
+//          copy_block_sets(tNewExoFileId );
+//
+//          // Copy fields
+//          copy_nodal_fields(tNewExoFileId,  init_params);
+//
+//          ex_close(tNewExoFileId);
+//
+//          delete tNewTitle;
       }
 
-
-
   private:
-
       int  mErrFlag;
       bool mVerbose;
 
@@ -281,7 +271,6 @@ namespace mtk
       std::vector<int> mNumGlobalNodeCounts;
       std::vector<int> mNumGlobalNodeDfCounts;
 
-
       Matrix<IdMat> mElemMapi;
       Matrix<IdMat> mElemMapb;
       Matrix<IdMat> mNodeMapi;
@@ -289,7 +278,6 @@ namespace mtk
       Matrix<IdMat> mNodeMape;
       Matrix<IdMat> mNodeNumMap;
       Matrix<IdMat> mElemNumMap;
-
 
       // Node Sets
       std::vector<int>              mNodeSetIds;
@@ -331,7 +319,6 @@ namespace mtk
 
       void get_init_mesh_data()
       {
-
           mErrFlag = ex_get_init(mExoFileId,
                                  mTitle,
                                  &mNumDim,
@@ -354,9 +341,7 @@ namespace mtk
           }
       }
 
-
-      void
-      get_load_bal_parameters()
+      void get_load_bal_parameters()
       {
           mErrFlag =ex_get_loadbal_param(mExoFileId,
                                          &mNumInternalNodes,
@@ -401,7 +386,6 @@ namespace mtk
                                           par_rank());
            MORIS_ERROR(!mErrFlag, "Error reading cmap parameters!");
 
-
            if (mVerbose)
              {
 //               print(node_cmap_ids,"node_cmap_ids");
@@ -410,7 +394,6 @@ namespace mtk
 //               print(elem_cmap_elem_cnts,"elem_cmap_elem_cnts");
              }
       }
-
 
       void
       get_node_cmap()
@@ -462,7 +445,6 @@ namespace mtk
             std::cout << "[" << par_rank() << "] " << "num_side_sets_global=" << mNumSideSetsGlobal << std::endl;
           }
       }
-
 
       void get_eb_info_global()
       {
@@ -547,7 +529,6 @@ namespace mtk
           MORIS_ERROR(!mErrFlag, "ne_get_node_map failed!");
       }
 
-
       void
       get_node_id_map()
       {
@@ -585,7 +566,6 @@ namespace mtk
               mNodeSetNodeIds[i] = Matrix<IndexMat>(1,mNodeSetNEntries[i]);
               ex_get_set(mExoFileId, EX_NODE_SET, mNodeSetIds[i],
                          mNodeSetNodeIds[i].data(), nullptr);
-
           }
 
           // Copy over the side sets
@@ -617,7 +597,6 @@ namespace mtk
               ex_get_set(mExoFileId, EX_SIDE_SET, mSideSetIds[i],
                          mSideSetElemIds[i].data(), mSideSetSideOrd[i].data());
           }
-
 
           mBlockIds.resize(mNumElemBlk);
           ex_get_ids(mExoFileId, EX_ELEM_BLOCK, mBlockIds.data());
@@ -663,13 +642,9 @@ namespace mtk
                           mBlockSetEdgeConn[i].data(),
                           mBlockSetFaceConn[i].data());
 
-
               MORIS_ASSERT(!mErrFlag,"ex_put_conn failed");
           }
-
-
       }
-
 
       void
       get_nodal_fields()
@@ -693,10 +668,8 @@ namespace mtk
             mFieldsNodalVars[i] = Matrix<DDRMat>(mNumNodes, 1);
             ex_get_var(mExoFileId, time_step + 1, EX_NODAL, i + 1, /*obj_id*/ 0,
                        mNumNodes, mFieldsNodalVars[i].data());
-
         }
       }
-
 
       void
       copy_coordinates(int tNewExoFileId)
@@ -715,7 +688,6 @@ namespace mtk
       void
       copy_node_sets(int              aNewExoFileId)
       {
-
           // Put the names onto the new file
           ex_put_names(aNewExoFileId,EX_NODE_SET, mNodeSetNamePtrs.data());
 
@@ -750,10 +722,8 @@ namespace mtk
 
               ex_put_set(aNewExoFileId, EX_SIDE_SET, mSideSetIds[i],
                          mSideSetElemIds[i].data(), mSideSetSideOrd[i].data());
-
           }
       }
-
 
       void
       copy_block_sets(int              aNewExoFileId)
@@ -762,8 +732,6 @@ namespace mtk
 
           for (size_t i = 0; i < mBlockIds.size(); ++i)
           {
-
-
               mErrFlag = ex_put_block(aNewExoFileId,
                                       EX_ELEM_BLOCK,
                                       mBlockIds[i],
@@ -781,7 +749,6 @@ namespace mtk
                                      mBlockSetNodeConn[i].data(),
                                      mBlockSetEdgeConn[i].data(),
                                      mBlockSetFaceConn[i].data());
-
           }
       }
 
@@ -795,7 +762,6 @@ namespace mtk
           ex_put_variable_param(aNewExoFileId, EX_NODAL, mNumNodalVars);
           ex_put_variable_names(aNewExoFileId, EX_NODAL, mNumNodalVars, mNodeFieldNamePtrs.data());
 
-
           for (int i = 0; i < mNumNodalVars; ++i) {
             auto name = mNodeFieldNamePtrs[std::size_t(i)];
             if (mVerbose)
@@ -805,9 +771,7 @@ namespace mtk
             }
             ex_put_var(aNewExoFileId, time_step + 1, EX_NODAL, i + 1, /*obj_id*/ 0,
                        mNumNodes, mFieldsNodalVars[i].data());
-
         }
-
       }
 
       /*
@@ -881,8 +845,5 @@ namespace mtk
   };
 }
 }
-
-
-
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_EXODUS_IO_HELPER_HPP_ */

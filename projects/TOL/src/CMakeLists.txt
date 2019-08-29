@@ -10,17 +10,6 @@ set(HEADERS
     cl_Enums.hpp
     cl_Geometry.hpp )
 
-# List header dependencies
-set(TOL_INCLUDES
-    #${LINALG}
-    #${ALG}
-    )
-
-# Include depedency directories
-foreach(TOL_INCLUDE ${TOL_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TOL_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Tools Library
 

@@ -62,9 +62,6 @@ main(
                 moris::Matrix< moris::DDRMat > tOffset = { {-1}, {-1}, {-1} };
                 tParameters->set_domain_offset( tOffset );
 
-                // do not print debug information during test
-                tParameters->set_verbose( false );
-
                 for( uint tOrder=1; tOrder<=3; ++tOrder )
                 {
                     // set buffer size

@@ -50,8 +50,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_N( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_N( const Matrix< DDRMat > & aXi,
+                                                                                                              Matrix< DDRMat > & aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_N: aXi not allocated or hat wrong size." );
@@ -59,61 +60,57 @@ namespace moris
             real xi = aXi( 0 );
             real xi2 = std::pow( xi , 2 );
 
-            Matrix< DDRMat > tN(1,3);
-            tN( 0 ) = 0.5 * ( xi2 - xi );
-            tN( 1 ) = 0.5 * ( xi2 + xi );
-            tN( 2 ) = 1.0 - xi2;
-            return tN;
+            aNXi.set_size( 1, 3 );
+            aNXi( 0 ) = 0.5 * ( xi2 - xi );
+            aNXi( 1 ) = 0.5 * ( xi2 + xi );
+            aNXi( 2 ) = 1.0 - xi2;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_dNdXi( const Matrix< DDRMat > & aXi,
+                                                                                                                  Matrix< DDRMat > & adNdXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE3 - eval_dNdXi: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_dNdXi: aXi not allocated or hat wrong size." );
 
+            // set adNdXi
             real xi = aXi( 0 );
-            Matrix< DDRMat > tdNdXi(1,3);
-            tdNdXi( 0 ) =   xi - 0.5;
-            tdNdXi( 1 ) =   xi + 0.5;
-            tdNdXi( 2 ) = - 2.0 * xi;
-            return tdNdXi;
-
+            adNdXi.set_size( 1, 3 );
+            adNdXi( 0 ) =   xi - 0.5;
+            adNdXi( 1 ) =   xi + 0.5;
+            adNdXi( 2 ) = - 2.0 * xi;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_d2NdXi2( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad2NdXi2 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE3 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > td2NdXi2(1,3);
-            td2NdXi2( 0 ) =   1.0;
-            td2NdXi2( 1 ) =   1.0;
-            td2NdXi2( 2 ) =  -2.0;
-            return td2NdXi2;
+            ad2NdXi2.set_size( 1, 3 );
+            ad2NdXi2( 0 ) =   1.0;
+            ad2NdXi2( 1 ) =   1.0;
+            ad2NdXi2( 2 ) =  -2.0;
         }
 
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi ) const
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 3 >::eval_d3NdXi3( const Matrix< DDRMat > & aXi,
+                                                                                                                    Matrix< DDRMat > & ad3NdXi3 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 1,
-                          "LINE3 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 1, "LINE3 - eval_d3NdXi3: aXi not allocated or hat wrong size." );
 
-            Matrix< DDRMat > td3NdXi3(1,3,0.0);
-            return td3NdXi3;
+            ad3NdXi3.set_size( 1, 3, 0.0 );
         }
 
 //------------------------------------------------------------------------------

@@ -403,6 +403,8 @@ namespace moris
              */
             Background_Element_Base * get_parent()
             {
+                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel);
+
                 return mParent;
             }
 //--------------------------------------------------------------------------------
@@ -415,6 +417,8 @@ namespace moris
              */
             const Background_Element_Base * get_parent() const
             {
+                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel);
+
                 return mParent;
             }
 

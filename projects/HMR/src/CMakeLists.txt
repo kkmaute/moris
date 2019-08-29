@@ -88,26 +88,6 @@ set(HEADERS
 	HMR_Tools.hpp
 	)
 
-# List header dependencies
-set(HMR_INCLUDES
-    #${COM}
-    #${LINALG}
-    #${MTK}
-    #${MTK}/${MAP}
-#    ${ALG} #MTK
-#    ${TOL} #MTK
-    #${XTK} #MTK
-#    ${STK} #MTK
-    #${FEM}/${INT} # for L2
-    #${FEM}/${MSI} # for L2
-    #${FEM}/${MDL} # for L2
-    )
-
-# Include depedency directories
-foreach(HMR_INCLUDE ${HMR_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${HMR_INCLUDE}/src)
-endforeach()
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Library
 
@@ -146,13 +126,7 @@ set(LIB_DEPENDENCIES
 	${ALG}-lib
 	${MTK}-lib
 	${GEN}-lib
-	#${MDL}-lib
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
-    #${MORIS_ARPACK_LIBS}
-    #${MORIS_BOOST_LIBS}
     )
 
 # Set the output path for library
@@ -196,25 +170,7 @@ set(EXE_DEPENDENCIES
 	${CON}-lib
 	${IOS}-lib
     ${HMR}-lib
-    #${MAP}-lib
     ${MTK}-lib
-#    ${MDL}-lib # for L2
-#    ${INT}-lib # for L2
-#    ${MSI}-lib # for L2
-#    ${NLA}-lib # for L2
-##    ${ALG}-lib #MTK
-##    ${TOL}-lib #MTK
-#    ${SDF}-lib # for SDF
-##    ${XTK}-lib #MTK
-##    ${STK}-lib #MTKz
-#    ${COM}-lib
-#    ${MORIS_BASE_LIBS}
-#    ${MORIS_ACML_LAPACK_MKL_LIBS}
-#    ${MORIS_ARMADILLO_EIGEN_LIBS}
-#    ${MORIS_SUPERLU_LIBS}
-#    ${MORIS_TRILINOS_LIBS}
-#    ${MORIS_ARPACK_LIBS}
-#    ${MORIS_BOOST_LIBS}
 	${DLA}-lib
     )
     

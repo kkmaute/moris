@@ -79,14 +79,6 @@ main(
     tParameters.set( "domain_dimensions",                "2, 2, 2" );
     tParameters.set( "domain_offset",                    "0, 0, 0" );
 
-
-    /*!
-     * Make HMR talkative
-     * \code{.cpp}
-     * tParameters.set( "verbose", 1 );
-     * \endcode
-     */
-    tParameters.set( "verbose", 1 );
 //------------------------------------------------------------------------------
 
     /*!
@@ -137,7 +129,7 @@ main(
         tField->evaluate_scalar_function( SphereFunction );
         tHMR.flag_surface_elements( tField );
         tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-        tHMR.update_refinement_pattern();
+        tHMR.update_refinement_pattern( 0 );
     }
 
     /*!

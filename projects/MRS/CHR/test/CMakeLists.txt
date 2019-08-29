@@ -7,28 +7,12 @@ set(TEST_SOURCES
     cl_Stopwatch.cpp
     cl_Waitbar.cpp )
 
-# List test includes
-set(TEST_INCLUDES
-    ${COM} )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additonal includes
-
 # List test dependencies
 set(TEST_DEPENDENCIES
 	test-libs
 	${CHR}-lib
     ${MORIS_BASE_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -37,12 +21,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(CHR_TEST ${CHR}-test)
 
 # Create executable
-add_executable(${CHR_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${CHR_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
-
-# Mark as test
-add_test(NAME ${CHR_TEST}
-    COMMAND ${CHR_TEST}${EXE_EXT} )
+add_executable(${CHR_TEST} ${TEST_SOURCES})
+target_link_libraries(${CHR_TEST} ${TEST_DEPENDENCIES})
+set_target_properties(${CHR_TEST} PROPERTIES OUTPUT_NAME ${CHR_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -50,6 +31,6 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${CHR_TEST_PROCS})
 		set(CHR_PARALLEL_TEST ${CHR_TEST}-${PROCS}-procs)
 		add_test(NAME ${CHR_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${CHR_TEST}${EXE_EXT}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${CHR_TEST}>)
 	endforeach()
 endif()

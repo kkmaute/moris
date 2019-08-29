@@ -92,6 +92,8 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
 {
     this->set_solution_vector( aFullSolutionVector );
 
+//    aFullSolutionVector->print();
+
 //    // Get local number of elements
 //    moris::uint numLocElements = this->get_num_my_elements();
 //
@@ -147,6 +149,8 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
 
     // global assembly to switch entries to the right proceccor
     aVectorRHS->vector_global_asembly();
+
+//    aVectorRHS->print();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -178,6 +182,10 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
 
+#ifdef WITHGPERFTOOLS
+     ProfilerStart("~/temp/gprofmoris.log");
+#endif
+
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
@@ -198,11 +206,17 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
                                tElementMatrix,
                                tElementTopology );
         }
-
+        aMat->matrix_global_assembly();
         this->free_block_memory( Ii );
     }
     // global assembly to switch entries to the right proceccor
     aMat->matrix_global_assembly();
+
+#ifdef WITHGPERFTOOLS
+    ProfilerStop();
+#endif
+
+//    aMat->print();
 }
 
 //---------------------------------------------------------------------------------------------------------

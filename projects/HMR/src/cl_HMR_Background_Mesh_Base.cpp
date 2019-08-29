@@ -13,9 +13,6 @@
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
-#include "fn_print.hpp"
-
-
 
 namespace moris
 {
@@ -24,16 +21,14 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-    Background_Mesh_Base::Background_Mesh_Base( const Parameters * aParameters ):
-                            mParameters   ( aParameters ),
-                            mNumberOfDimensions( aParameters->get_number_of_dimensions() ),
-                            mMaxPolynomial( aParameters->get_max_polynomial() ),
-                            mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
-                            mPaddingSize( aParameters->get_padding_size() ),
-                            mBufferSize ( aParameters->get_staircase_buffer() ),
-                            mNumberOfChildrenPerElement( pow( 2,
-                                    aParameters->get_number_of_dimensions() ) ),
-                            mMyRank( par_rank() )
+    Background_Mesh_Base::Background_Mesh_Base( const Parameters * aParameters ) :  mParameters( aParameters ),
+                                                                                    mNumberOfDimensions( aParameters->get_number_of_dimensions() ),
+                                                                                    mMaxPolynomial( aParameters->get_max_polynomial() ),
+                                                                                    mPaddingRefinement( ceil( 0.5*( real) aParameters->get_max_polynomial() ) ),
+                                                                                    mPaddingSize( aParameters->get_padding_size() ),
+                                                                                    mBufferSize( aParameters->get_staircase_buffer() ),
+                                                                                    mNumberOfChildrenPerElement( pow( 2, aParameters->get_number_of_dimensions() ) ),
+                                                                                    mMyRank( par_rank() )
     {
         // make sure that settings are OK
         aParameters->check_sanity();
@@ -317,27 +312,23 @@ namespace moris
                 mCoarsestElements( k )->collect_active_descendants( mActivePattern, mActiveElements, tCount );
             }
 
-            // print output if verbose level is set
-            /*if ( mParameters->is_verbose() )
-            {
-                // stop timer
+            /*  // stop timer
                 real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
                 if ( tCount == 1 )
                 {
-                    std::fprintf( stdout,"%s Updated list of active elements.\n               Found 1 active element, took %5.3f seconds.\n\n",
+                MORIS_LOG_INFO("%s Updated list of active elements.\n               Found 1 active element, took %5.3f seconds.\n\n",
                             proc_string().c_str(),
                             ( double ) tElapsedTime / 1000 );
                 }
                 else
                 {
-                    std::fprintf( stdout,"%s Updated list of active elements.\n               Found %lu active elements, took %5.3f seconds.\n\n",
+                MORIS_LOG_INFO("%s Updated list of active elements.\n               Found %lu active elements, took %5.3f seconds.\n\n",
                             proc_string().c_str(),
                             ( long unsigned int ) tCount,
                             ( double ) tElapsedTime / 1000 );
-                }
-            }*/
+                }*/
         }
 
 //-------------------------------------------------------------------------------
@@ -702,26 +693,25 @@ namespace moris
             // empty queue
             mRefinementQueue.clear();
 
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                if ( tNumberOfElements == 1)
-                {
-                    std::fprintf( stdout,"%s Performed hierarchical mesh refinement.\n               Refined 1 element, took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-                }
-                else
-                {
-                    std::fprintf( stdout,"%s Performed hierarchical mesh refinement.\n               Refined %lu elements, took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tNumberOfElements,
-                        ( double ) tElapsedTime / 1000 );
-                }
-              }
+           // stop timer
+           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+           // print output
+           if ( tNumberOfElements == 1)
+           {
+               MORIS_LOG_INFO( "%s Performed hierarchical mesh refinement.\n               Refined 1 element, took %5.3f seconds.\n\n",
+                       proc_string().c_str(),
+                       ( double ) tElapsedTime / 1000);
+           }
+           else
+           {
+               MORIS_LOG_INFO("%s Performed hierarchical mesh refinement.\n               Refined %lu elements, took %5.3f seconds.\n\n",
+                       proc_string().c_str(),
+                       ( long unsigned int ) tNumberOfElements,
+                       ( double ) tElapsedTime / 1000);
+           }
+
 
             // update database
             this->update_database();
@@ -1107,16 +1097,14 @@ namespace moris
                     }
                 }
             }
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Updated neighbors for active or refined elements.\n               Took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        //( long unsigned int ) tCount,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+            MORIS_LOG_INFO("%s Updated neighbors for active or refined elements.\n               Took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    //( long unsigned int ) tCount,
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //--------------------------------------------------------------------------------
@@ -1473,27 +1461,24 @@ namespace moris
                                                                tHalfBuffer );
                 }
 
-                if ( mParameters->is_verbose() )
-                {
-                    // stop timer
-                    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                    // print output
-                    if ( tElementCounter == 1)
-                    {
-                        std::fprintf( stdout,"%s Created staircase buffer of width %u.\n               Flagged 1 additional element for refinement,\n               took %5.3f seconds.\n\n",
-                                proc_string().c_str(),
-                                ( unsigned int ) mBufferSize,
-                                ( double ) tElapsedTime / 1000 );
-                    }
-                    else
-                    {
-                        std::fprintf( stdout,"%s Created staircase buffer  of width %u.\n               Flagged %lu additional elements for refinement,\n               took %5.3f seconds.\n\n",
-                                proc_string().c_str(),
-                                ( unsigned int ) mBufferSize,
-                                ( long unsigned int ) tElementCounter,
-                                ( double ) tElapsedTime / 1000 );
-                    }
+                // print output
+                if ( tElementCounter == 1)
+                {
+                    MORIS_LOG_INFO("%s Created staircase buffer of width %u.\n               Flagged 1 additional element for refinement,\n               took %5.3f seconds.\n\n",
+                            proc_string().c_str(),
+                            ( unsigned int ) mBufferSize,
+                            ( double ) tElapsedTime / 1000);
+                }
+                else
+                {
+                    MORIS_LOG_INFO("%s Created staircase buffer  of width %u.\n               Flagged %lu additional elements for refinement,\n               took %5.3f seconds.\n\n",
+                            proc_string().c_str(),
+                            ( unsigned int ) mBufferSize,
+                            ( long unsigned int ) tElementCounter,
+                            ( double ) tElapsedTime / 1000 );
                 }
             }
         }
@@ -1826,18 +1811,14 @@ namespace moris
                 // close the output file
                 tFile.close();
 
-                if ( mParameters->is_verbose() )
-                {
-                    // stop timer
-                    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                    // print output
-                    std::fprintf( stdout,"%s Created VTK debug file.\n               Mesh has %lu Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
-                            proc_string().c_str(),
-                            ( long unsigned int ) tNumberOfElements,
-                            ( long unsigned int ) tNumberOfNodes,
-                            ( double ) tElapsedTime / 1000 );
-                }
+                MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) tNumberOfElements,
+                        ( long unsigned int ) tNumberOfNodes,
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 
@@ -1931,20 +1912,17 @@ namespace moris
             // get back to old pattern
             mActivePattern = tOldPattern;
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Cloned refinement pattern.\n               Cloning took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+            MORIS_LOG_INFO("%s Cloned refinement pattern.\n               Cloning took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( double ) tElapsedTime / 1000 );
+
         }
 
 // -----------------------------------------------------------------------------
-
 
         void Background_Mesh_Base::unite_patterns( const uint & aSourceA,
                                                    const uint & aSourceB,
@@ -1976,6 +1954,54 @@ namespace moris
                 for( auto tElement : tElements )
                 {
                     if( tElement->is_refined( aSourceA ) || tElement->is_refined( aSourceB ) )
+                    {
+                        // flag this element for refinement
+                        tElement->put_on_refinement_queue();
+                    }
+                }
+
+                // perform refinement
+                this->perform_refinement();
+            }
+        }
+
+        // -----------------------------------------------------------------------------
+
+        void Background_Mesh_Base::unite_patterns( const moris::Cell< uint > & aSourcePattern,
+                                                   const uint                  aTarget )
+        {
+            for( uint Il = 0; Il < aSourcePattern.size(); ++Il )
+            {
+                MORIS_ERROR( aSourcePattern( Il ) < gNumberOfPatterns, "Source pattern %-5i invalid.", Il );
+            }
+
+            MORIS_ERROR( aTarget < gNumberOfPatterns, "Target pattern invalid.");
+
+            // reset target pattern
+            this->reset_pattern( aTarget );
+
+            this->set_activation_pattern( aTarget );
+
+            for( uint Ii=0; Ii<mMaxLevel; ++Ii )
+            {
+                // cell containing elements on current level
+                Cell< Background_Element_Base* > tElements;
+
+                // get elements from level that belong to myself
+                this->collect_elements_on_level( Ii, tElements );
+
+                // if this is the first level, activate all elements
+                for( auto tElement : tElements )
+                {
+                    bool tIsRefined = false;
+
+                    // check if one of the pattern is refined for this element
+                    for( uint Ia = 0; Ia < aSourcePattern.size(); ++Ia )
+                    {
+                        tIsRefined = tIsRefined || tElement->is_refined( aSourcePattern( Ia ) );
+                    }
+
+                    if( tIsRefined )
                     {
                         // flag this element for refinement
                         tElement->put_on_refinement_queue();
@@ -2027,8 +2053,8 @@ namespace moris
         void Background_Mesh_Base::create_facets()
         {
             tic tTimer;
-            uint tPattern = mParameters->get_lagrange_output_pattern();
-            this->set_activation_pattern( tPattern );
+//            uint tPattern = mParameters->get_lagrange_output_pattern();
+//            this->set_activation_pattern( tPattern );
 
             // loop over all levels
             for( uint l=0; l<=mMaxLevel; ++l )
@@ -2047,16 +2073,13 @@ namespace moris
                 }
             }
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+           // stop timer
+           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created Faces on Background Mesh.\n               Creation %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+           MORIS_LOG_INFO( "%s Created Faces on Background Mesh.\n               Creation %5.3f seconds.\n\n",
+                   proc_string().c_str(),
+                   ( double ) tElapsedTime / 1000 );
+
         }
 
 // -----------------------------------------------------------------------------
@@ -2066,8 +2089,8 @@ namespace moris
             tic tTimer;
 
             // select output pattern
-            uint tPattern = mParameters->get_lagrange_output_pattern();
-            this->set_activation_pattern( tPattern );
+//            uint tPattern = mParameters->get_lagrange_output_pattern();
+//            this->set_activation_pattern( tPattern );
 
             // loop over all levels
             for( uint l=0; l<=mMaxLevel; ++l )
@@ -2089,16 +2112,12 @@ namespace moris
                 }
             }
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created Faces and Edges on Background Mesh.\n               Creation %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created Faces and Edges on Background Mesh.\n               Creation %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( double ) tElapsedTime / 1000 );
         }
 
 // -----------------------------------------------------------------------------

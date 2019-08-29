@@ -7,7 +7,6 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "typedefs.hpp" // COR/src
 
-
 namespace moris
 {
     namespace hmr
@@ -34,23 +33,19 @@ namespace moris
                 // loop over all arguments
                 for( int k=0; k<argc; ++k )
                 {
-                    if (   std::string( argv[ k ] ) == "--version"
-                        || std::string( argv[ k ] ) == "-v" )
+                    if ( std::string( argv[ k ] ) == "--version" || std::string( argv[ k ] ) == "-v" )
                     {
                         mState = State::PRINT_VERSION;
                         break;
                     }
-                    else if ( ( std::string( argv[ k ] ) == "--help" )
-                             || std::string( argv[ k ] ) == "-h" )
+                    else if ( ( std::string( argv[ k ] ) == "--help" ) || std::string( argv[ k ] ) == "-h" )
                     {
                         mState = State::PRINT_HELP;
                         break;
                     }
-                    else if (
-                            std::string( argv[ k ] ) == "--parameters"
-                         || std::string( argv[ k ] ) == "-p" )
+                    else if ( std::string( argv[ k ] ) == "--parameters" || std::string( argv[ k ] ) == "-p" )
                     {
-                        if( k<argc-1 )
+                        if( k < argc-1 )
                         {
                             // return parameter path as output
                             mParameterPath = std::string( argv[ k+1 ] );
@@ -65,9 +60,7 @@ namespace moris
                             }
                         }
                     }
-                    else if
-                    (   std::string( argv[ k ] ) == "--init"
-                            || std::string( argv[ k ] ) == "-i" )
+                    else if( std::string( argv[ k ] ) == "--init" || std::string( argv[ k ] ) == "-i" )
                     {
                         if( mState == State::MAP_FIELDS || mState == State::REFINE_MESH )
                         {
@@ -78,8 +71,7 @@ namespace moris
                             mState = State::INITIALIZE_MESH;
                         }
                     }
-                    else if (   std::string( argv[ k ] ) == "--timestep"
-                             || std::string( argv[ k ] ) == "-t" )
+                    else if ( std::string( argv[ k ] ) == "--timestep" || std::string( argv[ k ] ) == "-t" )
                     {
                         if( k<argc-1 )
                         {
@@ -96,9 +88,7 @@ namespace moris
                             }
                         }
                     }
-                    else if
-                    (   std::string( argv[ k ] ) == "--map"
-                            || std::string( argv[ k ] ) == "-m" )
+                    else if(  std::string( argv[ k ] ) == "--map" || std::string( argv[ k ] ) == "-m" )
                     {
                         if( mState == State::INITIALIZE_MESH )
                         {
@@ -109,9 +99,7 @@ namespace moris
                             tMapFlag = true;
                         }
                     }
-                    else if
-                    (   std::string( argv[ k ] ) == "--refine"
-                            || std::string( argv[ k ] ) == "-r" )
+                    else if( std::string( argv[ k ] ) == "--refine" || std::string( argv[ k ] ) == "-r" )
                     {
                         if( mState == State::INITIALIZE_MESH )
                         {
@@ -135,9 +123,8 @@ namespace moris
                 }
 
                 // detect invalid input
-                if
-                ( (   ( mState == State::REFINE_MESH || mState == State::INITIALIZE_MESH )
-                  && ( mParameterPath.size() == 0 ) ) || tArgumentsError )
+                if( (   ( mState == State::REFINE_MESH || mState == State::INITIALIZE_MESH )
+                     && ( mParameterPath.size() == 0 ) ) || tArgumentsError )
                 {
                     mState = State::PRINT_USAGE;
                 }

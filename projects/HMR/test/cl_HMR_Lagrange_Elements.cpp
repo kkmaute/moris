@@ -4,8 +4,6 @@
  *  Created on: May 31, 2019
  *      Author: doble
  */
-
-
 #include "catch.hpp"
 
 #include "cl_HMR.hpp"
@@ -15,34 +13,42 @@
 
 namespace moris
 {
-
 TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
-        {
+{
     if(par_size() == 1)
     {
-        moris::uint tLagrangeOrder = 1;
+        moris::uint tLagrangeMeshIndex = 0;
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::hmr::Parameters tParameters;
 
-        tParameters.set( "number_of_elements_per_dimension", "1, 1, 1" );
-        tParameters.set( "domain_dimensions", "1, 1, 1" );
-        tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-        tParameters.set( "verbose", 0 );
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "2" );
-        tParameters.set( "lagrange_orders", "1" );
+        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {1} } );
+        tParameters.set_domain_dimensions({ {1}, {1}, {1} });
+        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-1.0} });
+        tParameters.set_bspline_truncation( true );
+//        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
-        tParameters.set( "use_multigrid", 0 );
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set( "refinement_buffer", 2 );
-        tParameters.set( "staircase_buffer", 1 );
+        tParameters.set_bspline_orders   ( { {2} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 2 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        tHMR.save_to_exodus( "hex8_hmr.exo", 0, tLagrangeOrder );
+        tHMR.save_to_exodus( tLagrangeMeshIndex, "hex8_hmr.exo" );
 
         // get the cells
         moris::mtk::Cell & tCell = tMesh->get_mtk_cell(0);
@@ -68,7 +74,6 @@ TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
                 mtk::Vertex const * tRecVert = tVertsOnSide(j);
 
                 CHECK(tExpVert->get_id() == tRecVert->get_id());
-
             }
         }
 
@@ -80,29 +85,38 @@ TEST_CASE("Single Hex 27 Lagrange Mesh","[Lag_Hex27]")
 {
     if(par_size() == 1)
     {
-        moris::uint tLagrangeOrder = 2;
+        moris::uint tLagrangeMeshIndex = 0;
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::hmr::Parameters tParameters;
 
-        tParameters.set( "number_of_elements_per_dimension", "1, 1, 1" );
-        tParameters.set( "domain_dimensions", "1, 1, 1" );
-        tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-        tParameters.set( "verbose", 0 );
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "2" );
-        tParameters.set( "lagrange_orders", "2" );
+        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {1} } );
+        tParameters.set_domain_dimensions({ {1}, {1}, {1} });
+        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-1.0} });
+        tParameters.set_bspline_truncation( true );
+//        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
-        tParameters.set( "use_multigrid", 0 );
+        tParameters.set_lagrange_orders  ( { {2} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set( "refinement_buffer", 2 );
-        tParameters.set( "staircase_buffer", 1 );
+        tParameters.set_bspline_orders   ( { {2} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 2 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        tHMR.save_to_exodus( "hex27_hmr.exo", 0, tLagrangeOrder );
+        tHMR.save_to_exodus( tLagrangeMeshIndex, "hex27_hmr.exo" );
 
         // get the cells
         moris::mtk::Cell & tCell = tMesh->get_mtk_cell(0);
@@ -130,7 +144,6 @@ TEST_CASE("Single Hex 27 Lagrange Mesh","[Lag_Hex27]")
                 mtk::Vertex const * tRecVert = tVertsOnSide(j);
 
                 CHECK(tExpVert->get_id() == tRecVert->get_id());
-
             }
         }
 
@@ -142,27 +155,36 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
 {
     if(par_size() == 1)
     {
-        moris::uint tLagrangeOrder = 3;
+        moris::uint tLagrangeMeshIndex = 0;
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        moris::hmr::Parameters tParameters;
 
-        tParameters.set( "number_of_elements_per_dimension", "1, 1, 1" );
-        tParameters.set( "domain_dimensions", "1, 1, 1" );
-        tParameters.set( "domain_offset", "-1.0, -1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-        tParameters.set( "verbose", 0 );
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "2" );
-        tParameters.set( "lagrange_orders", "3" );
+        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {1} } );
+        tParameters.set_domain_dimensions({ {1}, {1}, {1} });
+        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-1.0} });
+        tParameters.set_bspline_truncation( true );
+//        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
 
-        tParameters.set( "use_multigrid", 0 );
+        tParameters.set_lagrange_orders  ( { {3} });
+        tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set( "refinement_buffer", 2 );
-        tParameters.set( "staircase_buffer", 1 );
+        tParameters.set_bspline_orders   ( { {2} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 2 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
         // get the cells
         moris::mtk::Cell & tCell = tMesh->get_mtk_cell(0);
@@ -190,7 +212,6 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
                 mtk::Vertex const * tRecVert = tVertsOnSide(j);
 
                 CHECK(tExpVert->get_id() == tRecVert->get_id());
-
             }
         }
 

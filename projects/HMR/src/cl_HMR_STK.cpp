@@ -11,7 +11,6 @@
 #include "HMR_Tools.hpp" //HMR/src
 #include "fn_trans.hpp"
 #include "fn_sort.hpp" //LINALG/src
-#include "fn_print.hpp" //LINALG/src
 #include "cl_MTK_Mesh.hpp" //MTK/src
 #include "HMR_Tools.hpp" //HMR/src
 #include "stk_impl/cl_MTK_Mesh_STK.hpp"
@@ -23,17 +22,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    STK::STK( Lagrange_Mesh_Base * aMesh ) :
-            mParameters( aMesh->get_parameters() ),
-            mMesh( aMesh ),
-            mNumberOfDimensions( aMesh->get_parameters()->get_number_of_dimensions() )
+    STK::STK( Lagrange_Mesh_Base * aMesh ) : mParameters( aMesh->get_parameters() ),
+                                             mMesh( aMesh ),
+                                             mNumberOfDimensions( aMesh->get_parameters()->get_number_of_dimensions() )
     {
-
     }
 
 // ----------------------------------------------------------------------------
-    void
-    STK::create_mesh_data( const double aTimeStep )
+    void STK::create_mesh_data( const double aTimeStep )
     {
         // start timer
         tic tTimer;
@@ -232,18 +228,15 @@ namespace moris
             mSetsInfo.SideSetsInfo.push_back( &tInfo );
         }
 
-        if ( mParameters->is_verbose() )
-        {
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+        // stop timer
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            // print output
-            std::fprintf( stdout,"%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
-                    proc_string().c_str(),
-                    ( long unsigned int ) tNumberOfElements,
-                    ( long unsigned int ) tNumberOfNodes,
-                    ( double ) tElapsedTime / 1000);
-        }
+        // print output
+        MORIS_LOG_INFO( "%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+                proc_string().c_str(),
+                ( long unsigned int ) tNumberOfElements,
+                ( long unsigned int ) tNumberOfNodes,
+                ( double ) tElapsedTime / 1000);
     }
 
 // ----------------------------------------------------------------------------
@@ -266,17 +259,14 @@ namespace moris
         // save file
         tMesh.create_output_mesh( tFilePath, tAddElemCmap );
 
-        if ( mParameters->is_verbose() )
-        {
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+        // stop timer
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            // print output
-            std::fprintf( stdout,"%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
-                    proc_string().c_str(),
-                    aFilePath.c_str(),
-                    ( double ) tElapsedTime / 1000 );
-        }
+        // print output
+        MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
+                proc_string().c_str(),
+                aFilePath.c_str(),
+                ( double ) tElapsedTime / 1000 );
     }
 
 // ----------------------------------------------------------------------------

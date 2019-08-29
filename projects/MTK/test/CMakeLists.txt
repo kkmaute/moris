@@ -18,42 +18,16 @@ set(TEST_SOURCES
 	cl_MTK_Double_Side_Cluster.cpp
 	UT_MTK_Mesh_Comm_Maps.cpp)
 
-# List test includes
-set(TEST_INCLUDES
-    #${LINALG}
-    #${COM}
-    #${ALG}
-    #${SOL}/${DLA}
-    #${MTK}
-    #${TOL}
-    )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
 # List additional includes
 include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
 
 # List test dependencies
 set(TEST_DEPENDENCIES
     test-libs
-    
     ${ALG}-lib
     ${MORIS_BASE_LIBS}
     ${MTK}-lib
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
-    #${MORIS_ARPACK_LIBS}
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -66,16 +40,12 @@ add_executable(${MTK_TEST} ${TEST_SOURCES})
 target_link_libraries(${MTK_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${MTK_TEST} PROPERTIES OUTPUT_NAME ${MTK_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${MTK_TEST}
-    COMMAND $<TARGET_FILE:${MTK_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(MTK_TEST_PROCS ${MORIS_TEST_PROCS})
 	foreach(PROCS ${MTK_TEST_PROCS})
 		set(MTK_PARALLEL_TEST ${MTK_TEST}-${PROCS}-procs)
 		add_test(NAME ${MTK_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${MTK_TEST}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${MTK_TEST}>)
 	endforeach()
 endif()

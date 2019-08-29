@@ -22,7 +22,7 @@
 #undef private
 
 
-TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr]")
+TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private]")
 {
 //-------------------------------------------------------------------------------
 
@@ -32,20 +32,16 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr]")
 
         SECTION("B-Spline Mesh test basis numbering")
         {
-
             std::string tMorisRoot = std::getenv("MORISROOT");
 
             // do this for first and second dimension
             for( uint tDimension=2; tDimension<=3; ++tDimension )
             {
-
                 // do this for first second and third order
                 for( uint tOrder=1; tOrder<3; ++tOrder )
                 {
-
                     for( uint tMultigrid = 0; tMultigrid<2; ++tMultigrid )
                     {
-
                         // The parameter object controls the behavior of HMR.
                         moris::hmr::Parameters tParameters;
 
@@ -57,14 +53,20 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr]")
                         moris::Matrix< moris::DDRMat > tDomainOffset( tDimension, 1, 0.0 );
                         tParameters.set_domain_offset( tDomainOffset );
 
-                        // set order of B-Splines
-                        tParameters.set_mesh_orders_simple( tOrder );
+                        tParameters.set_lagrange_orders  ( { {1} });
+                        tParameters.set_lagrange_patterns({ {0} });
+
+                        tParameters.set_bspline_orders   ( { {tOrder} } );
+                        tParameters.set_bspline_patterns ( { {0} } );
 
                         // set buffer
                         tParameters.set_refinement_buffer( tOrder );
                         tParameters.set_staircase_buffer( tOrder );
 
-                        tParameters.set_verbose( false );
+                        moris::Cell< moris::Matrix< moris::DDUMat > > tLagrangeToBSplineMesh( 1 );
+                        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+                        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
                         // create HMR Object
                         moris::hmr::HMR tHMR( tParameters );
@@ -86,7 +88,7 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr]")
                         // reset counter
                         moris::uint tCount = 0;
 
-                        moris::hmr::BSpline_Mesh_Base * tMesh = tHMR.mDatabase->mBSplineMeshes( 1 );
+                        moris::hmr::BSpline_Mesh_Base * tMesh = tHMR.mDatabase->mBSplineMeshes( 0 );
 
                         moris::Cell< moris::hmr::Basis *  > & mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
 
@@ -142,7 +144,6 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr]")
                         }
 
                         moris::close_hdf5_file( tFile );
-
                     }
                 }
             }

@@ -65,7 +65,7 @@ namespace moris
             bool             mUsedFlag = false;
 
             //  array containing connected elements
-            Element**        mElements;
+            moris::Cell< Element * > mElements;
 
             //! counts how many facets are connected to this basis
             uint             mNumberOfConnectedFacets = 0;
@@ -382,8 +382,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            set_domain_index( const luint & aIndex )
+            void set_domain_index( const luint & aIndex )
             {
                 mDomainIndex = aIndex;
             }
@@ -393,8 +392,7 @@ namespace moris
             /**
              * sets the local index that is needed for MTK
              */
-            void
-            set_local_index( const luint & aIndex )
+            void set_local_index( const luint & aIndex )
             {
                 mLocalIndex = aIndex;
             }
@@ -515,7 +513,10 @@ namespace moris
              void init_element_container()
              {
                  // assign memory to container
-                 mElements = new Element* [ mNumberOfConnectedElements ];
+                 if ( mNumberOfConnectedElements != 0 )
+                 {
+                     mElements.resize( mNumberOfConnectedElements, nullptr );
+                 }
 
                  // reset counter
                  mNumberOfConnectedElements = 0;
@@ -532,7 +533,7 @@ namespace moris
               */
              void insert_element( Element* aElement )
              {
-                 mElements[ mNumberOfConnectedElements++ ] = aElement;
+                 mElements( mNumberOfConnectedElements++ ) = aElement;
              }
 
 //------------------------------------------------------------------------------
@@ -546,7 +547,7 @@ namespace moris
               */
              Element * get_element( const uint& aIndex )
              {
-                 return mElements[ aIndex ];
+                 return mElements( aIndex );
              }
 
 //------------------------------------------------------------------------------
@@ -560,7 +561,7 @@ namespace moris
               */
              const Element * get_element( const uint& aIndex ) const
              {
-                 return mElements[ aIndex ];
+                 return mElements( aIndex );
              }
 
 //------------------------------------------------------------------------------
@@ -916,7 +917,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual mtk::Vertex_Interpolation * get_interpolation( const uint aOrder )
+             virtual mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
              {
                  MORIS_ERROR( false, "get_interpolation() not available for for selected basis type.");
                  return nullptr;
@@ -924,8 +925,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual bool
-             has_interpolation( const uint aOrder )
+             virtual bool has_interpolation( const uint aBSplineMeshIndex )
              {
                  MORIS_ERROR( false, "has_interpolation() not available for for selected basis type.");
                  return false;
@@ -933,8 +933,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-             virtual const mtk::Vertex_Interpolation *
-             get_interpolation(  const uint aOrder ) const
+             virtual const mtk::Vertex_Interpolation * get_interpolation(  const uint aBSplineMeshIndex ) const
              {
                  MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type.");
                  return nullptr;
@@ -946,7 +945,7 @@ namespace moris
              /**
               * set the DOFs
               */
-             virtual void set_coefficients( const uint                   aOrder,
+             virtual void set_coefficients( const uint                   aBSplineMeshIndex,
                                                   Cell< mtk::Vertex* > & aDOFs )
              {
                  MORIS_ERROR( false, "set_coefficients() not available for for selected basis type.");
@@ -957,7 +956,7 @@ namespace moris
              /**
               * set the T-Matrix coefficients
               */
-             virtual void set_weights( const uint               aOrder,
+             virtual void set_weights( const uint               aBSplineMeshIndex,
                                        const Matrix< DDRMat > & aTMatrix )
              {
                  MORIS_ERROR( false, "set_weights() not available for for selected basis type.");

@@ -60,7 +60,9 @@ namespace moris
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // get integration point location in the reference volume
-                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
+                    Matrix< DDRMat > tGlobalIntegPoint;
+                    mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint,
+                                                                                 tGlobalIntegPoint );
 
                     // set integration point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -138,11 +140,11 @@ namespace moris
                 {
                     // get integration point location in the reference surface
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
-                    //print(tLocalIntegPoint,"tLocalIntegPoint");
 
                     // get integration point location in the reference volume
-                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
-                    //print(tGlobalIntegPoint,"tGlobalIntegPoint");
+                    Matrix< DDRMat > tGlobalIntegPoint;
+                    mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint,
+                                                                                 tGlobalIntegPoint );
 
                     // set integration point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )

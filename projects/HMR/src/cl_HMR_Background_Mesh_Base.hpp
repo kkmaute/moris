@@ -760,13 +760,11 @@ namespace moris
                 if( mActivePattern != aPattern )
                 {
                     MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index.");
-                    if ( mParameters->is_verbose() )
-                    {
-                        // print output
-                        std::fprintf( stdout,"-------------------------------------------------------------------------------\n%s Select activation pattern %u.\n-------------------------------------------------------------------------------\n",
-                                proc_string().c_str(),
-                                ( unsigned int ) aPattern );
-                    }
+
+                    MORIS_LOG_INFO( "-------------------------------------------------------------------------------\n%s Select activation pattern %u.\n-------------------------------------------------------------------------------\n",
+                             proc_string().c_str(),
+                             ( unsigned int ) aPattern );
+
                     mActivePattern = aPattern;
 
                     this->update_database();
@@ -800,6 +798,13 @@ namespace moris
                                  const uint & aSourceB,
                                  const uint & aTarget );
 
+// -----------------------------------------------------------------------------
+
+            /**
+             * creates a union of two patterns
+             */
+            void unite_patterns( const moris::Cell< uint > & aSourcePattern,
+                                 const uint                  aTarget );
 
 // -----------------------------------------------------------------------------
 

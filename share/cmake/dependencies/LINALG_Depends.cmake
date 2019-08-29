@@ -32,6 +32,10 @@ elseif(${ARMADILLO_EIGEN} STREQUAL "eigen")
         )
 endif()
 
+if(USE_GPERFTOOLS) #> TEMPORARY SOLUTION
+	list(APPEND LINALG_TPL_DEPENDENCIES "gperftools")
+endif()
+
 foreach(TPL ${LINALG_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

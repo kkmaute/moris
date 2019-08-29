@@ -32,53 +32,55 @@ namespace moris
                                                        Background_Mesh_Base         * aBackgroundMesh,
                                                        Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
                                                  const uint                         & aOrder,
-                                                 const uint                         & aActivationPattern ) :
-                                                                                          Mesh_Base( aParameters,
-                                                                                                     aBackgroundMesh,
-                                                                                                     aOrder,
-                                                                                                     aActivationPattern )
+                                                 const uint                         & aActivationPattern ) : Mesh_Base( aParameters,
+                                                                                                                        aBackgroundMesh,
+                                                                                                                        aOrder,
+                                                                                                                        aActivationPattern ),
+                                                                                                             mBSplineMeshes( aBSplineMeshes )
         {
-            // reset B-Spline container
-            mBSplineMeshes.resize( gMaxBSplineOrder+1, nullptr );
-
-            // set B-Spline pattern
-            uint tBSplinePattern;
-
-            if( aActivationPattern == aParameters->get_lagrange_output_pattern() )
-            {
-                tBSplinePattern = aParameters->get_bspline_output_pattern();
-            }
-            else if ( aActivationPattern ==  aParameters->get_union_pattern() )
-            {
-                tBSplinePattern = aParameters->get_bspline_output_pattern();
-            }
-            else if ( aActivationPattern ==  aParameters->get_lagrange_input_pattern() )
-            {
-                tBSplinePattern = aParameters->get_bspline_input_pattern();
-            }
-            else if( aActivationPattern ==  aParameters->get_refined_output_pattern() )
-            {
-                tBSplinePattern = aParameters->get_bspline_output_pattern();
-            }
-            else
-            {
-                MORIS_ERROR( false, "Invalid Lagrange pattern passed to Lagrange mesh constructor" );
-                tBSplinePattern = gNumberOfPatterns;
-            }
-
-            // link B-Spline meshes
-            for( BSpline_Mesh_Base * tMesh : aBSplineMeshes )
-            {
-                // test if pattern is the same
-                if( tMesh->get_activation_pattern() == tBSplinePattern )
-                {
-                    // add mesh to stack
-                    mBSplineMeshes( tMesh->get_order() ) = tMesh;
-                }
-            }
+            mNumBSplineMeshes = mBSplineMeshes.size();
+//            // reset B-Spline container
+//            mBSplineMeshes.resize( gMaxBSplineOrder+1, nullptr );
+//
+//            // set B-Spline pattern
+//            uint tBSplinePattern;
+//
+//            if( aActivationPattern == aParameters->get_lagrange_output_pattern() )
+//            {
+//                tBSplinePattern = aParameters->get_bspline_output_pattern();
+//            }
+//            else if ( aActivationPattern ==  aParameters->get_union_pattern() )
+//            {
+//                tBSplinePattern = aParameters->get_bspline_output_pattern();
+//            }
+//            else if ( aActivationPattern ==  aParameters->get_lagrange_input_pattern() )
+//            {
+//                tBSplinePattern = aParameters->get_bspline_input_pattern();
+//            }
+//            else if( aActivationPattern ==  aParameters->get_refined_output_pattern() )
+//            {
+//                tBSplinePattern = aParameters->get_bspline_output_pattern();
+//            }
+//            else
+//            {
+//                //MORIS_ERROR( false, "Invalid Lagrange pattern passed to Lagrange mesh constructor" );
+//                tBSplinePattern = gNumberOfPatterns;
+//            }
+//
+//            // link B-Spline meshes
+//            for( BSpline_Mesh_Base * tMesh : aBSplineMeshes )
+//            {
+//                // test if pattern is the same
+//                if( tMesh->get_activation_pattern() == tBSplinePattern )
+//                {
+//                    // add mesh to stack
+//                    mBSplineMeshes( tMesh->get_order() ) = tMesh;
+//                }
+//            }
 
             // allocate T-Matrix cell
-            mTMatrix.resize( gMaxBSplineOrder+1, nullptr );
+//            mTMatrix.resize( gMaxBSplineOrder+1, nullptr );
+            mTMatrix.resize( mBSplineMeshes.size(), nullptr );
 
             this->reset_fields();
         }
@@ -115,21 +117,17 @@ namespace moris
                 this->link_twins();
             }
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created Lagrange mesh of order %u on pattern %u.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( unsigned int ) mOrder,
-                        ( unsigned int ) mActivationPattern,
-                        ( long unsigned int ) this->get_number_of_elements(),
-                        ( long unsigned int ) this->get_number_of_nodes_on_proc(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Created Lagrange mesh of order %u on pattern %u.\n               Mesh has %lu active and refined elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( unsigned int ) mOrder,
+                    ( unsigned int ) mActivationPattern,
+                    ( long unsigned int ) this->get_number_of_elements(),
+                    ( long unsigned int ) this->get_number_of_nodes_on_proc(),
+                    ( double ) tElapsedTime / 1000 );
         }
 
 // ----------------------------------------------------------------------------
@@ -1190,18 +1188,15 @@ namespace moris
             // close file
             std::fclose( tFile );
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created GMSH File: %s\n               Writing took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        tFilePath.c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Created GMSH File: %s\n               Writing took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    tFilePath.c_str(),
+                    ( double ) tElapsedTime / 1000 );
+
         }
 
 //------------------------------------------------------------------------------
@@ -1212,7 +1207,7 @@ namespace moris
             auto tNumberOfElements = this->get_number_of_elements();
 
             // get number of meshes
-            uint tNumberOfTwins = mParameters->get_bspline_orders().max() + 1;
+            uint tNumberOfTwins = mBSplineMeshes.size();
 
             // allocate twin container
             for( uint e=0; e<tNumberOfElements; ++e )
@@ -1503,18 +1498,15 @@ namespace moris
             // close the output file
             tFile.close();
 
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created VTK debug file.\n               Mesh has %lu active and refined Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tNumberOfElements,
-                        ( long unsigned int ) tNumberOfNodes,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu active and refined Elements and %lu Nodes.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( long unsigned int ) tNumberOfElements,
+                    ( long unsigned int ) tNumberOfNodes,
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -1724,16 +1716,14 @@ namespace moris
                 Element * tSlave = tFacet->get_hmr_slave();
 
                 // master is always active
-                tMaster->set_hmr_facet(
-                        tFacet,
-                        tFacet->get_index_on_master() );
+                tMaster->set_hmr_facet( tFacet,
+                                        tFacet->get_index_on_master() );
 
                 if( tSlave != NULL )
                 {
                     // insert element into slave
-                    tSlave->set_hmr_facet(
-                            tFacet,
-                            tFacet->get_index_on_slave() );
+                    tSlave->set_hmr_facet( tFacet,
+                                           tFacet->get_index_on_slave() );
                 }
             }
 
@@ -1804,16 +1794,12 @@ namespace moris
             }
             std::cout << par_rank() << " flag 2" << std::endl; */
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( double ) tElapsedTime / 1000 );
         }
 //------------------------------------------------------------------------------
 
@@ -1996,16 +1982,12 @@ namespace moris
                 }
             }
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created Edges for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created Edges for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -3339,17 +3321,16 @@ namespace moris
                 tOutput( tCount++ ) = tNode->get_id();
 
                 // get number of coeffs
-                uint tNumberOfCoeffs = tNode
-                        ->get_interpolation( aOrder )->get_number_of_coefficients();
+                uint tNumberOfCoeffs = tNode ->get_interpolation( aOrder )->get_number_of_coefficients();
 
                 // write number of coeffs to matrix
                 tOutput( tCount++ ) = tNumberOfCoeffs;
 
                 // get IDs
-                Matrix< IdMat >  tIDs = tNode ->get_interpolation( aOrder )->get_ids();
+                Matrix< IdMat > tIDs = tNode ->get_interpolation( aOrder )->get_ids();
 
                 // get weights
-                const Matrix< DDRMat > & tWeights = *tNode->get_interpolation( aOrder )->get_weights();
+                const Matrix< DDRMat > & tWeights = * tNode->get_interpolation( aOrder )->get_weights();
 
                 // loop over all coeffs and write dof ids
                 for( uint i=0; i<tNumberOfCoeffs; ++i )
@@ -3369,30 +3350,29 @@ namespace moris
             // step 3: store output matrix into file
             save_matrix_to_binary_file( tOutput, tFilePath );
 
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        tFilePath.c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    tFilePath.c_str(),
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
 
         void Lagrange_Mesh_Base::init_t_matrices()
         {
-            for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
+            for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
             {
+                BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
+
                 if( tMesh != NULL )
                 {
-                    mTMatrix( tMesh->get_order() ) = new T_Matrix( mParameters,
-                                                                   tMesh,
-                                                                   this );
+                    mTMatrix( Ik ) = new T_Matrix( mParameters,
+                                                   tMesh,
+                                                   this );
                 }
             }
         }
@@ -3403,41 +3383,39 @@ namespace moris
         {
             tic tTimer;
 
-            for( BSpline_Mesh_Base * tMesh : mBSplineMeshes )
+            for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
             {
+                BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
+
                 if( tMesh != NULL )
                 {
-                    mTMatrix( tMesh->get_order() )->evaluate(aBool);
+                    mTMatrix( Ik )->evaluate( Ik, aBool );
                 }
             }
 
-            // print output if verbose level is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                std::fprintf( stdout,"%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( unsigned int ) mOrder,
-                        ( unsigned int ) mActivationPattern,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( unsigned int ) mOrder,
+                    ( unsigned int ) mActivationPattern,
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
 
-        void Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineOrder )
+        void Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineMeshIndex )
         {
-            MORIS_ASSERT( mBSplineMeshes( aBSplineOrder  ) != NULL, "B-Spline Mesh does not exist" );
+            MORIS_ASSERT( mBSplineMeshes( aBSplineMeshIndex ) != NULL, "B-Spline Mesh does not exist" );
 
             // create matrix object if it does not exist
-            if( mTMatrix( aBSplineOrder ) == NULL )
+            if( mTMatrix( aBSplineMeshIndex ) == NULL )
             {
                 // get pointer to mesh
-                BSpline_Mesh_Base * tMesh = mBSplineMeshes( aBSplineOrder  );
+                BSpline_Mesh_Base * tMesh = mBSplineMeshes( aBSplineMeshIndex  );
 
-                mTMatrix( aBSplineOrder ) = new T_Matrix( mParameters,
+                mTMatrix( aBSplineMeshIndex ) = new T_Matrix( mParameters,
                                                           tMesh,
                                                           this );
             }
@@ -3445,7 +3423,7 @@ namespace moris
             std::cout << "Evaluate T-Matrix" << std::endl;
 
             // evaluate the T-Matrices of this B-Spline mesh
-            mTMatrix( aBSplineOrder )->evaluate();
+            mTMatrix( aBSplineMeshIndex )->evaluate( aBSplineMeshIndex );
 
             std::cout << "End evaluate T-Matrix" << std::endl;
         }

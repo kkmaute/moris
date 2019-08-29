@@ -64,7 +64,9 @@ namespace moris
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // bring the ith integration point in the IP param space
-                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
+                    Matrix< DDRMat > tGlobalIntegPoint;
+                    mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint,
+                                                                                 tGlobalIntegPoint );
 
                     // set evaluation point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )
@@ -156,7 +158,9 @@ namespace moris
                     Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
                     // bring the ith integration point in the IP param space
-                    Matrix< DDRMat > tGlobalIntegPoint = mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint );
+                    Matrix< DDRMat > tGlobalIntegPoint;
+                    mSet->get_IG_geometry_interpolator()->map_integration_point( tLocalIntegPoint,
+                                                                                 tGlobalIntegPoint );
 
                     // set evaluation point
                     for ( uint iIWGFI = 0; iIWGFI < tNumOfIWGActiveDof; iIWGFI++ )

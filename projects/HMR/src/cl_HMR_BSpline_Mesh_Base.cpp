@@ -12,7 +12,6 @@
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "fn_unique.hpp" //LINALG/src
-#include "fn_print.hpp"
 #include "cl_Map.hpp"
 #include "fn_sum.hpp"
 
@@ -44,7 +43,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
 
         void BSpline_Mesh_Base::update_mesh()
         {
@@ -78,28 +76,23 @@ namespace moris
 
             // determine indices of active and flagged basis
             // fixme: try Lagrange to B-Spline distance > 1 works if this is uncommented
-            //this->calculate_basis_indices();
+//            this->calculate_basis_indices();
 
             // update element indices ( not needed so far )
             // this->update_element_indices();
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                std::fprintf( stdout,"%s Created B-Spline mesh of order %u on pattern %u.\n               Mesh has %lu  Elements and %lu basis in total.\n               Mesh uses %lu basis on proc.\n               Mesh has %lu active basis on proc.\n               Creation took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( unsigned int )      mOrder,
-                        ( unsigned int )      mActivationPattern,
-                        ( long unsigned int ) mNumberOfAllElementsOnProc,
-                        ( long unsigned int ) mNumberOfAllBasis,
-                        ( long unsigned int ) mNumberOfBasis,
-                        ( long unsigned int ) mNumberOfActiveBasisOnProc,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u.\n               Mesh has %lu  Elements and %lu basis in total.\n               Mesh uses %lu basis on proc.\n               Mesh has %lu active basis on proc.\n               Creation took %5.3f seconds.\n\n",
+                    proc_string().c_str(),
+                    ( unsigned int )      mOrder,
+                    ( unsigned int )      mActivationPattern,
+                    ( long unsigned int ) mNumberOfAllElementsOnProc,
+                    ( long unsigned int ) mNumberOfAllBasis,
+                    ( long unsigned int ) mNumberOfBasis,
+                    ( long unsigned int ) mNumberOfActiveBasisOnProc,
+                    ( double ) tElapsedTime / 1000 );
         }
 
 //------------------------------------------------------------------------------
@@ -193,7 +186,6 @@ namespace moris
             // loop over all basis
             for( auto tBasis : mAllBasisOnProc )
             {
-
                 // the statements
                 if ( tBasis->is_active() && tBasis->is_refined() )
                 {
@@ -217,7 +209,6 @@ namespace moris
                                     << tBasis->get_level() << "] "
                                     << tBasis->is_active()  << " " << tBasis->is_refined() << " "
                                    << tBasis->get_memory_index() << std::endl;
-
                         } */
                     }
                     else
@@ -326,34 +317,29 @@ namespace moris
                                tDeactiveTest &&
                                tRefinedHasActiveChild ;
 
-            // print a debug statement if verbosity is set
-            if ( mParameters->is_verbose() )
-            {
-                // stop timer
-                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+           // stop timer
+           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                if ( aPassedTest )
-                {
-                    // print output
-                    std::fprintf( stdout,"%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               All tests passed.\n\n",
-                        proc_string().c_str(),
+           if ( aPassedTest )
+           {
+               MORIS_LOG_INFO( "%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               All tests passed.\n\n",
+                       proc_string().c_str(),
+                       ( double ) tElapsedTime / 1000 );
+
+           }
+           else
+           {
+               MORIS_LOG_INFO("%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               AT LEAST ONE TEST FAILED.\n\n",
+                       proc_string().c_str(),
                         ( double ) tElapsedTime / 1000 );
-                }
-                else
-                {
-                        // print output
-                        std::fprintf( stdout,"%s Tested basis activation sanity.\n               Test took %5.3f seconds.\n               AT LEAST ONE TEST FAILED.\n\n",
-                        proc_string().c_str(),
-                                ( double ) tElapsedTime / 1000 );
 
-                        std::cout << "Test result: "
-                                  <<  tTestForStateContratiction << " "
-                                  << tTestTopLevelState << " "
-                                  << tHaveRefinedParent << " "
-                                  << tDeactiveTest << " "
-                                  << tRefinedHasActiveChild  << std::endl;
-                }
-            }
+                   std::cout << "Test result: "
+                             <<  tTestForStateContratiction << " "
+                             << tTestTopLevelState << " "
+                             << tHaveRefinedParent << " "
+                             << tDeactiveTest << " "
+                             << tRefinedHasActiveChild  << std::endl;
+           }
 
             return aPassedTest;
         }
@@ -893,19 +879,16 @@ namespace moris
                 aBasis.clear();
                 aBasis = std::move( tBasisOut );
 
-                if ( mParameters->is_verbose() )
-                {
-                    // stop timer
-                    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+                // stop timer
+                real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-                    // print output
-                    std::fprintf( stdout,"%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
-                            proc_string().c_str(),
-                            ( long unsigned int ) tDeleteCount,
-                            ( long unsigned int ) tNumberOfAllBasis,
-                            ( unsigned int )      aLevel,
-                            ( double ) tElapsedTime / 1000 );
-                }
+                // print output
+                MORIS_LOG_INFO( "%s Deleted %lu unused basis of %lu total on level %u.\n               Deleting took %5.3f seconds.\n\n",
+                        proc_string().c_str(),
+                        ( long unsigned int ) tDeleteCount,
+                        ( long unsigned int ) tNumberOfAllBasis,
+                        ( unsigned int )      aLevel,
+                        ( double ) tElapsedTime / 1000 );
             }
         }
 
@@ -1926,11 +1909,10 @@ namespace moris
                 // matrix to check if communication table makes sense
                 Matrix< DDUMat > tBasisCommCheck( tBasisCount );
 
-
                 // make sure that communication table is sane
-                for( uint k=0; k<tCommLength; ++k )
+                for( uint Ik = 0; Ik < tCommLength; ++Ik )
                 {
-                    tBasisCommCheck( aCommTable( k ) ) = 0;
+                    tBasisCommCheck( aCommTable( Ik ) ) = 0;
                 }
 
                 // reset my own counter
@@ -1938,6 +1920,7 @@ namespace moris
 
                 if( tBasisCommCheck.max() != 0 )
                 {
+                    std::cout<< "Processor "<< par_rank()<<std::endl;
                     print( aCommTable, "CommTable" );
                     print( tBasisCommCheck, "CommCheck" );
                 }
@@ -2500,17 +2483,14 @@ namespace moris
            // unflag all bases
            this->unflag_all_basis();
 
-           if ( mParameters->is_verbose() )
-           {
-               // stop timer
-               real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+           // stop timer
+           real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-               // print output
-               std::fprintf( stdout,"%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
-                       proc_string().c_str(),
-                       ( long unsigned int ) tNumberOfBasis,
-                       ( double ) tElapsedTime / 1000 );
-           }
+           // print output
+           MORIS_LOG_INFO( "%s Created VTK debug file.\n               Mesh has %lu basis.\n               Creation took %5.3f seconds.\n\n",
+                   proc_string().c_str(),
+                   ( long unsigned int ) tNumberOfBasis,
+                   ( double ) tElapsedTime / 1000 );
         }
 //------------------------------------------------------------------------------
 
@@ -2537,7 +2517,7 @@ namespace moris
                     {
                         for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
                         {
-                            mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) / std::pow( 2, tOrder ) / std::pow( 2, tOrder );
+                            mChildStencil( tChild++ ) =  nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) / std::pow( 2, tOrder ) / std::pow( 2, tOrder );
                         }
                     }
                     break;
@@ -2565,6 +2545,7 @@ namespace moris
                 }
             }
 
+            //print(mChildStencil,"mChildStencil");
             //mChildStencil = mChildStencil / std::pow( 2, tOrder );
         }
 

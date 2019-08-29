@@ -14,6 +14,10 @@
 
 #include "cl_DLA_Geometric_Multigrid.hpp"
 
+#ifdef WITHGPERFTOOLS
+#include <gperftools/profiler.h>
+#endif
+
 namespace moris
 {
     class Dist_Vector;
@@ -32,7 +36,7 @@ namespace moris
     class Solver_Interface
 {
 private:
-        dla::Geometric_Multigrid * mGeoMultigrid;
+        dla::Geometric_Multigrid * mGeoMultigrid = nullptr;
 
         // Dummy member variable
         moris::Matrix< DDUMat >                        mMat1;
@@ -44,6 +48,14 @@ private:
 public:
     /** Destructor */
     virtual ~Solver_Interface(){};
+
+    void delete_multigrid()
+    {
+        if ( mGeoMultigrid != nullptr )
+        {
+            delete(mGeoMultigrid);
+        }
+    };
 
     virtual void set_solution_vector( Dist_Vector * aSolutionVector )
     { MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set."); };

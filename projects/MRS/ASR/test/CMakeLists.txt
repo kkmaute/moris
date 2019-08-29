@@ -6,27 +6,10 @@ set(TEST_SOURCES
     test_main.cpp
     assert.cpp)
 
-# List test includes
-set(TEST_INCLUDES
-    ${LINALG}
-    ${COM} )
-
-foreach(TEST_INCLUDE ${TEST_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TEST_INCLUDE}/src)
-endforeach()
-
-# List additional includes
-
 # List test dependencies
 set(TEST_DEPENDENCIES
     test-libs
     )
-
-# Remove duplicate dependencies
-# REVERSE is required to maintain proper linking order
-list(REVERSE TEST_DEPENDENCIES)
-list(REMOVE_DUPLICATES TEST_DEPENDENCIES)
-list(REVERSE TEST_DEPENDENCIES)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -35,12 +18,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(ASR_TEST ${ASR}-test)
 
 # Create executable
-add_executable(${ASR_TEST}${EXE_EXT} ${TEST_SOURCES})
-target_link_libraries(${ASR_TEST}${EXE_EXT} ${TEST_DEPENDENCIES})
-
-# Mark as test
-add_test(NAME ${ASR_TEST}
-    COMMAND ${ASR_TEST}${EXE_EXT} )
+add_executable(${ASR_TEST} ${TEST_SOURCES})
+target_link_libraries(${ASR_TEST} ${TEST_DEPENDENCIES})
+set_target_properties(${ASR_TEST} PROPERTIES OUTPUT_NAME ${ASR_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
@@ -48,6 +28,6 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	foreach(PROCS ${ASR_TEST_PROCS})
 		set(ASR_PARALLEL_TEST ${ASR_TEST}-${PROCS}-procs)
 		add_test(NAME ${ASR_PARALLEL_TEST} 
-			COMMAND mpirun -n ${PROCS} $<TARGET_FILE:${ASR_TEST}${EXE_EXT}>)
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} $<TARGET_FILE:${ASR_TEST}>)
 	endforeach()
 endif()

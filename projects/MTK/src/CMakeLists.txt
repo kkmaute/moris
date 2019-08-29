@@ -58,24 +58,6 @@ stk_impl/cl_MTK_Mesh_STK.hpp
 stk_impl/cl_MTK_Vertex_Interpolation_STK.hpp
 stk_impl/cl_MTK_Vertex_STK.hpp )
 
-# List header dependencies
-set(MTK_INCLUDES
-    #${LINALG}
-    #${COM}
-    #${TOL}
-    #${ALG}
-    )
-
-# Include depedency directories
-foreach(MTK_INCLUDE ${MTK_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${MTK_INCLUDE}/src)
-endforeach()
-
-# additional includes
-#include_directories(${MORIS_PACKAGE_DIR}/MTK/src/stk_impl)
-#include_directories(${MORIS_PACKAGE_DIR}/MTK/src)
-
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Library
 
@@ -93,9 +75,6 @@ cl_MTK_Block.cpp)
 set(LIB_DEPENDENCIES
 	${COM}-lib
 	${LINALG}-lib
-	#${MORIS_TRILINOS_LIBS}
-	#${MORIS_ACML_LAPACK_MKL_LIBS}
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
     )
 
 # Set the output path for library

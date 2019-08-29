@@ -1,8 +1,8 @@
 /*
  * cl_HMR_T_Matrix.hpp
  *
- *  Created on: Jun 23, 2018
- *      Author: messe
+ *  Created on: Jun 23, 2019
+ *      Author: schmidt
  */
 
 #ifndef SRC_HMR_CL_HMR_T_MATRIX_HPP_
@@ -14,7 +14,6 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Cell.hpp" //CON/src
-//#include "cl_HMR_STK.hpp" //HMR/src
 
 namespace moris
 {
@@ -39,7 +38,7 @@ namespace moris
             //! matrix containing the ijk positions of reference element
             Matrix< DDUMat > mBSplineIJK;
 
-            //! matrix containing the ijk positions of reference element
+            //! matrix containing the ijk positions of reference element / ijk position of nodes an element
             Matrix< DDUMat > mLagrangeIJK;
 
             //! ordering scheme for Elements
@@ -48,10 +47,15 @@ namespace moris
             // unity matrix
             Matrix< DDRMat > mEye;
 
+            // zero vector
+            Matrix< DDRMat > mZero;
+
             // cell containing child matrices ( transposed )
             Cell< Matrix< DDRMat > > mChild;
 
-            //! parameter coordinates for lagrange element
+            Cell< Cell< Matrix< DDRMat > > >mChild_2;
+
+            //! parameter coordinates for lagrange element / natural coordinates
             Matrix< DDRMat > mLagrangeParam;
 
             //! T-Matrix for B-Spline to Lagrange conversion
@@ -91,11 +95,9 @@ namespace moris
             //! pointer to T-Matrix calculation function
             //! points to either calculate_untruncated_t_matrix
             //! or calculate_truncated_t_matrix
-            void
-            ( T_Matrix:: * mTMatrixFunction )(
-                    const luint      & aMemoryIndex,
-                    Matrix< DDRMat > & aTMatrixTransposed,
-                    Cell< Basis* >   & aDOFs );
+            void ( T_Matrix:: * mTMatrixFunction )( const luint            & aMemoryIndex,
+                                                           Matrix< DDRMat > & aTMatrixTransposed,
+                                                           Cell< Basis* >   & aDOFs );
 
             //! pointer to function for geometry interpolation
             void ( * mEvalNGeo )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
@@ -111,9 +113,12 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             // constructor
-            T_Matrix( const Parameters   * aParameters,
-                      BSpline_Mesh_Base  * aBSplineMesh,
-                      Lagrange_Mesh_Base * aLagrangeMesh );
+            T_Matrix( const Parameters         * aParameters,
+                            BSpline_Mesh_Base  * aBSplineMesh,
+                            Lagrange_Mesh_Base * aLagrangeMesh );
+
+            T_Matrix( const Parameters         * aParameters,
+                            Lagrange_Mesh_Base * aLagrangeMesh );
 
 //-------------------------------------------------------------------------------
 
@@ -143,25 +148,21 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            void calculate_t_matrix(
-                    const luint      & aMemoryIndex,
-                    Matrix< DDRMat > & aTMatrixTransposed,
-                    Cell< Basis* >   & aDOFs );
+            void calculate_t_matrix( const luint            & aMemoryIndex,
+                                           Matrix< DDRMat > & aTMatrixTransposed,
+                                           Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
 
-            void calculate_untruncated_t_matrix(
-                    const luint    & aMemoryIndex,
-                    Matrix< DDRMat >    & aTMatrixTransposed,
-                    Cell< Basis* > & aDOFs );
+            void calculate_untruncated_t_matrix( const luint            & aMemoryIndex,
+                                                       Matrix< DDRMat > & aTMatrixTransposed,
+                                                       Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
 
-            void
-            calculate_truncated_t_matrix(
-                    const luint    & aMemoryIndex,
-                    Matrix< DDRMat >    & aTMatrixTransposed,
-                    Cell< Basis* > & aDOFs );
+            void calculate_truncated_t_matrix( const luint            & aMemoryIndex,
+                                                     Matrix< DDRMat > & aTMatrixTransposed,
+                                                     Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
 
@@ -171,7 +172,8 @@ namespace moris
             }
 
 //-------------------------------------------------------------------------------
-            void evaluate( const bool aBool =true);
+            void evaluate( const uint aBSplineMeshIndex,
+                           const bool aBool = true);
 
 //-------------------------------------------------------------------------------
        private:
@@ -195,6 +197,14 @@ namespace moris
              */
             void init_child_matrices();
 
+//-------------------------------------------------------------------------------
+
+            void child_multiplication();
+
+//-------------------------------------------------------------------------------
+
+            const Matrix< DDRMat> & get_child_matrix_1( const Cell< uint > & aChildIndices );
+
 //------------------------------------------------------------------------------
 
             void init_truncation_weights();
@@ -206,8 +216,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
             /**
-             * calculates the matrix that converts B-Spline DOFs per element
-             * to Lagrange DOFs.
+             * calculates the matrix that converts B-Spline DOFs per element to Lagrange DOFs.
              */
             void init_lagrange_matrix();
 
@@ -251,58 +260,52 @@ namespace moris
             /**
              * 1D shape function
              */
-            real b_spline_shape_1d(
-                    const uint & aOrder,
-                    const uint & aK,
-                    const real & aXi ) const;
+            real b_spline_shape_1d( const uint & aOrder,
+                                    const uint & aK,
+                                    const real & aXi ) const;
 
 //------------------------------------------------------------------------------
 
             /**
              * 2D shape function
              */
-            void b_spline_shape(
-                    const real        & aXi,
-                    const real        & aEta,
-                    Matrix< DDRMat >  & aN ) const;
+            void b_spline_shape( const real             & aXi,
+                                 const real             & aEta,
+                                       Matrix< DDRMat > & aN ) const;
 
 //------------------------------------------------------------------------------
 
             /**
              * 3D shape function
              */
-            void b_spline_shape(
-                    const real        & aXi,
-                    const real        & aEta,
-                    const real        & aZeta,
-                    Matrix< DDRMat >  & aN ) const;
+            void b_spline_shape( const real             & aXi,
+                                 const real             & aEta,
+                                 const real             & aZeta,
+                                       Matrix< DDRMat > & aN ) const;
 
 //------------------------------------------------------------------------------
 
             /**
              * 1D shape function
              */
-            real lagrange_shape_1d(
-                    const uint        & aBasisNumber,
-                    const real        & aXi ) const;
+            real lagrange_shape_1d( const uint & aBasisNumber,
+                                    const real & aXi ) const;
 
 //------------------------------------------------------------------------------
 
             /**
              * 2D shape function
              */
-            void lagrange_shape_2d(
-                    const Matrix< DDRMat > & aXi,
-                    Matrix< DDRMat >       & aN ) const;
+            void lagrange_shape_2d( const Matrix< DDRMat > & aXi,
+                                          Matrix< DDRMat > & aN ) const;
 
 //------------------------------------------------------------------------------
 
             /**
              * 3D shape function
              */
-            void lagrange_shape_3d(
-                    const Matrix< DDRMat > & aXi,
-                    Matrix< DDRMat >       & aN ) const;
+            void lagrange_shape_3d( const Matrix< DDRMat > & aXi,
+                                          Matrix< DDRMat > & aN ) const;
 
 //------------------------------------------------------------------------------
 
@@ -314,11 +317,10 @@ namespace moris
              * @param[ in ] value of polynomial
              * @param[ in ] first derivative of polynomial
              */
-            void legendre(
-                    const uint         & aIndex,
-                    const long double  & aX,
-                    long double        & aP,
-                    long double        & adPdX ) const;
+            void legendre( const uint         & aIndex,
+                           const long double  & aX,
+                                 long double  & aP,
+                                 long double  & adPdX ) const;
 
 //------------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
 
-#include <GEN/SDF/src/cl_SDF_Triangle_Vertex.hpp>
+#include <cl_SDF_Triangle_Vertex.hpp>
 #include <string>
 
 #include "typedefs.hpp"

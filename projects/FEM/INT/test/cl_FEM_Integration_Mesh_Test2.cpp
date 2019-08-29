@@ -177,7 +177,9 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ", "[moris],[fem],
             // get the integration point in the IP parametric space
             // via the side shape functions
             Matrix< DDRMat > tRefIntegPointI2( 3, 1, 0.0 );
-            tRefIntegPointI2( { 0, 1 }, { 0, 0 } ) = trans( tSideSpaceInterp->eval_N( tIntegPointI ) * tSideParamCoords );
+            Matrix< DDRMat > tN;
+            tSideSpaceInterp->eval_N( tIntegPointI, tN );
+            tRefIntegPointI2( { 0, 1 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
             tRefIntegPointI2( 2 ) = tIntegPointI( 1 );
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -370,7 +372,9 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ", "[moris],[fem],[I
             // get the integration point in the IP parametric space
             // via the side shape functions
             Matrix< DDRMat > tRefIntegPointI2( 4, 1, 0.0 );
-            tRefIntegPointI2( { 0, 2 }, { 0, 0 } ) = trans( tSideSpaceInterp->eval_N( tIntegPointI ) * tSideParamCoords );
+            Matrix< DDRMat > tN;
+            tSideSpaceInterp->eval_N( tIntegPointI, tN );
+            tRefIntegPointI2( { 0, 2 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
             tRefIntegPointI2( 3 ) = tIntegPointI( 1 );
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -571,7 +575,9 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ", "[moris],[fem],[I
             // get the integration point in the IP parametric space
             // via the side shape functions
             Matrix< DDRMat > tRefIntegPointI2( 5, 1, 0.0 );
-            tRefIntegPointI2( { 0, 3 }, { 0, 0 } ) = trans( tSideSpaceInterp->eval_N( tIntegPointI ) * tSideParamCoords );
+            Matrix< DDRMat > tN;
+            tSideSpaceInterp->eval_N( tIntegPointI, tN );
+            tRefIntegPointI2( { 0, 3 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
             tRefIntegPointI2( 4 ) = tIntegPointI( 3 );
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -792,7 +798,9 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ", "[moris],[fem],[I
             // get the integration point in the IP parametric space
             // via the side shape functions
             Matrix< DDRMat > tRefIntegPointI2( 4, 1, 0.0 );
-            tRefIntegPointI2( { 0, 2 }, { 0, 0 } ) = trans( tSideSpaceInterp->eval_N( tIntegPointI ) * tSideParamCoords );
+            Matrix< DDRMat > tN;
+            tSideSpaceInterp->eval_N( tIntegPointI, tN );
+            tRefIntegPointI2( { 0, 2 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
             tRefIntegPointI2( 3 ) = tIntegPointI( 2 );
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 

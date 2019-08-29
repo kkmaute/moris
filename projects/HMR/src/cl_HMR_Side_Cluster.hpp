@@ -13,7 +13,6 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_Matrix.hpp"
 
-
 namespace moris
 {
 namespace hmr

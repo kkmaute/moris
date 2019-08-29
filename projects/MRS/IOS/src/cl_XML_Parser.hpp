@@ -72,8 +72,7 @@ namespace moris
          * gets a key from the tree and writes the value into aValue
          */
         template < typename T >
-        void
-        get( const std::string aKey, T & aValue ) const
+        void get( const std::string aKey, T & aValue ) const
         {
             aValue = mTree.get< T >( aKey );
         }
@@ -84,8 +83,7 @@ namespace moris
          * sets a value in the tree
          */
         template < typename T >
-        void
-        set( const std::string aKey, const T & aValue )
+        void set( const std::string aKey, const T & aValue )
         {
             mTree.put( aKey, aValue );
         }
@@ -95,16 +93,14 @@ namespace moris
         /**
          * writes the data into a file
          */
-        void
-        save( const std::string & aFilePath )
+        void save( const std::string & aFilePath )
         {
             boost::property_tree::write_xml( aFilePath, mTree );
         }
 
 // -----------------------------------------------------------------------------
 
-        void
-        save()
+        void save()
         {
             this->save( mFilePath );
         }
@@ -114,17 +110,15 @@ namespace moris
         /**
          * counts number of entries in a subtree
          */
-        moris::size_t
-        count_keys_in_subtree(
-                const std::string & aSubTree,
-                const std::string & aLabel )
+        moris::size_t count_keys_in_subtree( const std::string & aSubTree,
+                                             const std::string & aLabel )
         {
             // initialize counter
             moris::size_t aCount = 0;
 
             // loop over all entries in this tag
             BOOST_FOREACH( boost::property_tree::ptree::value_type &v,
-                    mTree.get_child( aSubTree ) )
+                           mTree.get_child( aSubTree ) )
             {
                 if( v.first.data() == aLabel )
                 {
@@ -142,13 +136,11 @@ namespace moris
         /**
          * returns entries from a subtree, assuming that the subtree is flat
          */
-        void
-        get_keys_from_subtree(
-                const std::string   & aSubTree,
-                const std::string   & aLabel,
-                const moris::size_t & aIndex,
-                Cell< std::string > & aFirst,
-                Cell< std::string > & aSecond )
+        void get_keys_from_subtree( const std::string         & aSubTree,
+                                    const std::string         & aLabel,
+                                    const moris::size_t       & aIndex,
+                                          Cell< std::string > & aFirst,
+                                          Cell< std::string > & aSecond )
         {
             // tidy up output data
             aFirst.clear();
@@ -159,13 +151,12 @@ namespace moris
 
             // loop over all entries in this tag
             BOOST_FOREACH( boost::property_tree::ptree::value_type &v,
-                    mTree.get_child( aSubTree ) )
+                           mTree.get_child( aSubTree ) )
             {
                 if( v.first.data() == aLabel )
                 {
                     if ( tCount == aIndex )
                     {
-
                         if( ! v.second.empty() )
                         {
                             BOOST_FOREACH( boost::property_tree::ptree::value_type &w,
@@ -187,8 +178,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        bool
-        to_bool(std::string const & aStr)
+        bool to_bool(std::string const & aStr)
         {
             if(aStr == "true" || aStr == "1")
             {
@@ -203,8 +193,6 @@ namespace moris
                 MORIS_ERROR(0,"Unrecognized string passed into to_bool. Needs to be true or 1 for bool = true or false or 0 for bool = false, be sure to check for extraneous spaces");
                 return false;
             };
-
-
         }
 // -----------------------------------------------------------------------------
     };

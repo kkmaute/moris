@@ -82,7 +82,7 @@ namespace moris
 
             // by default, this value is set to the order of the
             // Lagrange modes
-            moris::uint                       mDofOrder = 0;
+            moris::uint                       mBSplineIndex = 0;
 
             MSI::Model_Solver_Interface                   * mModelSolverInterface;
             MSI::MSI_Solver_Interface                     * mSolverInterface;
@@ -94,6 +94,8 @@ namespace moris
             Matrix< DDRMat> mSolHMR;
 
             tsa::Time_Solver * mTimeSolver;
+
+            bool mUseMultigrid = false;
 
 
 
@@ -113,7 +115,8 @@ namespace moris
                    const moris::Cell< moris_index >                  aSidesetList,
                    const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
                    const moris::Cell< moris_index >                  aDoubleSidesetList,
-                   const moris_index                                 aMeshPairIndex = 0 );
+                   const moris_index                                 aMeshPairIndex = 0,
+                   const bool                                        aUseMultigrid = false );
 
 //------------------------------------------------------------------------------
 
@@ -121,6 +124,7 @@ namespace moris
             {
                 return mSolHMR;
             };
+
 
 //------------------------------------------------------------------------------
 

@@ -8,10 +8,9 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Background_Facet::Background_Facet(
-                Background_Element_Base * aElementA,
-                Background_Element_Base * aElementB,
-                const  uint             & aIndexOnElementA  )
+        Background_Facet::Background_Facet(       Background_Element_Base * aElementA,
+                                                  Background_Element_Base * aElementB,
+                                            const uint                    & aIndexOnElementA )
         {
             if ( aElementA->is_padding() )
             {
@@ -43,9 +42,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Background_Facet::Background_Facet(
-                        Background_Element_Base * aElement,
-                        const  uint             & aIndexOnElement )
+        Background_Facet::Background_Facet(       Background_Element_Base * aElement,
+                                            const uint                    & aIndexOnElement )
         {
             mMasterElement = aElement;
             mSlaveElement  = nullptr;

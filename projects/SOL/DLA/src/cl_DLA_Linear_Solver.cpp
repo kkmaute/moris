@@ -10,6 +10,8 @@
 
 #include "cl_Logger.hpp"
 
+#include "cl_Stopwatch.hpp" //CHR/src
+
 using namespace moris;
 using namespace dla;
 
@@ -76,6 +78,8 @@ void Linear_Solver::set_linear_algorithm( const moris::uint                     
 //-------------------------------------------------------------------------------------------------------
 void Linear_Solver::solver_linear_system( dla::Linear_Problem * aLinearProblem, const moris::sint aIter )
 {
+    tic tTimer;
+
     moris::sint tErrorStatus = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;
@@ -117,6 +121,13 @@ void Linear_Solver::solver_linear_system( dla::Linear_Problem * aLinearProblem, 
             MORIS_LOG( "\n Linear Solver status absolute value = %i\n", tErrorStatus );
             MORIS_LOG( "Linear Solver did not exit with status 0!\n" );
         }
+    }
+
+    real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+    if( par_rank() == 0)
+    {
+        MORIS_LOG_INFO( " Solve of linear system took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
     }
 
 //    if ( tErrorStatus != 0 && mParameterListLinearSolver.get< bool >( "DLA_hard_break" ) )

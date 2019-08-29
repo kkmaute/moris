@@ -135,8 +135,6 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
      */
     tXTKModel.decompose(tDecompositionMethods);
 
-    tXTKModel.unzip_interface();
-
     // Perform the enrichment
     tXTKModel.perform_basis_enrichment();
 

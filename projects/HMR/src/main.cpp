@@ -64,8 +64,7 @@ void state_initialize_mesh( const Arguments & aArguments )
     HMR * tHMR = new HMR( tParams.get_parameter_list() );
 
     // if there is no initial refinement, copy initial tensor mesh to output
-    if(        tHMR->get_parameters()->get_initial_bspline_refinement()  == 0
-            && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
+    if( tHMR->get_parameters()->get_initial_bspline_refinement()  == 0 && tHMR->get_parameters()->get_additional_lagrange_refinement() == 0 )
     {
         // test if max polynomial is 3
         if ( tHMR->get_parameters()->get_max_polynomial() > 2 )
@@ -139,10 +138,9 @@ void state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // call user defined refinement function
-    tHMR->user_defined_flagging(
-            user_refinement,
-            tInputFields,
-            tParams.get_parameter_list() );
+    tHMR->user_defined_flagging( user_refinement,
+                                 tInputFields,
+                                 tParams.get_parameter_list() );
 
     // perform refinement
     tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );
@@ -171,6 +169,11 @@ void state_refine_mesh( const Arguments & aArguments )
     {
         //write meshes
         dump_meshes( aArguments, tParams, tHMR );
+    }
+
+    if (tHMR->get_parameters()->get_refinement_interrelation() )
+    {
+        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies.hdf5" );
     }
 
     // delete HMR object
@@ -237,7 +240,7 @@ main(
     gMorisComm = moris::Comm_Manager( &argc, &argv );
 
     // Severity level 0 - all outputs
-    gLogger.initialize( 0 );
+    gLogger.initialize( 1 );
 
     // create arguments object
     Arguments tArguments( argc, argv );

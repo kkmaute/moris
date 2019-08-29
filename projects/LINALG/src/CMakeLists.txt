@@ -207,11 +207,8 @@ if(BUILD_LINALG)
 	# List library dependencies
 	set(EXE_DEPENDENCIES 
 		${LINALG}-lib
-		#${MORIS_ARMADILLO_EIGEN_LIBS} 
 		${MORIS_BASE_LIBS}
 		${COM}-lib
-		#${MORIS_ACML_LAPACK_MKL_LIBS}
-	    #${MORIS_SUPERLU_LIBS}
 	    )
 		
 	# Set the output path for library
@@ -234,6 +231,12 @@ endforeach()
 
 # Makes sure all moris library dependencies are included in the config file
 foreach(LIB_TARGET ${LIB_DEPENDENCIES})
+	# skip if -lfoo format
+	string(FIND ${LIB_TARGET} "-" pos)
+	if(pos EQUAL "0")
+		continue()
+	endif()
+	
 	string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
 	string(APPEND LINALG_CONFIG_MORIS_DEPENDENCIES
 		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )

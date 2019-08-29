@@ -12,7 +12,6 @@
 #include "fn_norm.hpp"
 #include "fn_load_matrix_from_binary_file.hpp"
 #include "fn_save_matrix_to_binary_file.hpp"
-#include "fn_print.hpp"
 
 //------------------------------------------------------------------------------
 // from MTK
@@ -85,9 +84,6 @@ main(
     // we do not need a buffer if there is no truncation
     tParameters->set_refinement_buffer( 0 );
     tParameters->set_staircase_buffer( 0 );
-
-    // do not print debug information during test
-    tParameters.set_verbose( false );
 
 //------------------------------------------------------------------------------
 

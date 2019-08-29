@@ -224,12 +224,14 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
                 tDimParamCoord = 4;
             }
 
+            std::cout<<"tDimParamCoord = "<<tDimParamCoord<<std::endl;
             // initialize a struct of all the data we are keeping track of in this decomposition
             // intended to reduce the clutter of function inputs etc
             Decomposition_Data tDecompData;
             tDecompData.mSubdivisionMethod = Subdivision_Method::C_HIERARCHY_TET4;
             tDecompData.mConformalDecomp = true;
             tDecompData.mHasSecondaryIdentifier = true;
+            tDecompData.mFirstSubdivision = aFirstSubdivision;
 
             // Initialize
             moris::size_t tEdgeInd = INTEGER_MAX;
@@ -684,8 +686,19 @@ Model::decompose_internal_set_new_nodes_in_child_mesh_nh(moris::Matrix< moris::I
         tChildMesh.add_node_ids(tCMNewNodeIds);
         tChildMesh.add_vertices(tVertices);
 
-        // allocate space for parametric coordinates
-        tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,3);
+        // allocate space for parametric coordinate
+
+        // For hex background meshes we have a three dimension parametric coordinate
+        moris::size_t tDimParamCoord = 3;
+
+        // For tet background meshes we have a 4-d parametric coordinate
+        if(tDecompData.mFirstSubdivision)
+        {
+            tDimParamCoord = 4;
+        }
+
+
+        tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,tDimParamCoord);
 
         // iterate through nods and add parametric coordinate
         for(moris::uint iN =0; iN< tNumNewNodesForCM; iN++)

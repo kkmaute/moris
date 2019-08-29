@@ -18,8 +18,6 @@
 #include "HDF5_Tools.hpp"
 
 #include "cl_MTK_Mesh.hpp"
-#include "cl_MDL_Model.hpp"
-#include "cl_FEM_IWG_L2.hpp"
 #include "fn_dot.hpp"
 
 namespace moris
@@ -30,28 +28,29 @@ namespace moris
 
         Field::Field( const std::string                  & aLabel,
                             std::shared_ptr< mtk::Mesh >   aMesh,
-                      const uint                         & aBSplineOrder,
+                      const uint                         & aBSplineMeshIndex,
                             std::shared_ptr< Database >    aDatabase,
-                            Lagrange_Mesh_Base *           aLagrangeMesh ) :
-                                           mMesh( aMesh ),
-                                           mDatabase( aDatabase ),
-                                           mLagrangeMesh( aLagrangeMesh ),
-                                           mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
+                            Lagrange_Mesh_Base *           aLagrangeMesh ) : mMesh( aMesh ),
+                                                                             mDatabase( aDatabase ),
+                                                                             mLagrangeMesh( aLagrangeMesh ),
+                                                                             mFieldIndex( aLagrangeMesh->create_real_scalar_field_data( aLabel ) )
         {
             this->set_label( aLabel );
-            mInputBSplineOrder = aBSplineOrder;
+            mInputBSplineIndex = aBSplineMeshIndex;         //FIXME Index not order
 
             // assume input and output order are the same
-            mOutputBSplineOrder = mInputBSplineOrder;
+            mOutputBSplineOrder = mInputBSplineIndex;
 
-            aLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, aBSplineOrder );
+            //get lagrange mesh than bspline order
+            uint tBSplineOrder = mLagrangeMesh->get_bspline_order( aBSplineMeshIndex );
+
+            aLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, tBSplineOrder );
         }
 //------------------------------------------------------------------------------
 
-        Field::Field( const std::string       & aLabel,
-                std::shared_ptr< Mesh >         aMesh,
-                const std::string             & aHdf5FilePath  ) :
-                 mMesh( aMesh )
+        Field::Field( const std::string             & aLabel,
+                            std::shared_ptr< Mesh >   aMesh,
+                      const std::string             & aHdf5FilePath  ) : mMesh( aMesh )
         {
             // link to database
             mDatabase = aMesh->get_database();
@@ -74,24 +73,24 @@ namespace moris
             uint tNumberOfBSplines = this->get_coefficients().length();
 
             // find out order
-            mInputBSplineOrder = 0;
+            mInputBSplineIndex = 0;
             for( uint k=1; k<=3; ++k )
             {
                 if( aMesh->get_num_coeffs( k ) == tNumberOfBSplines )
                 {
-                    mInputBSplineOrder = k;
+                    mInputBSplineIndex = k;
                     break;
                 }
             }
 
             // assume input and output order are the same
-            mOutputBSplineOrder = mInputBSplineOrder;
+            mOutputBSplineOrder = mInputBSplineIndex;
 
             // make sure that we have found an order
-            MORIS_ERROR( mInputBSplineOrder != 0, "Could not find corresponding B-Spline mesh for passed coefficients" );
+            MORIS_ERROR( mInputBSplineIndex != 0, "Could not find corresponding B-Spline mesh for passed coefficients" );
 
             // set order of this field
-            mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, mInputBSplineOrder );
+            mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, mInputBSplineIndex );
 
             this->evaluate_node_values();
         }
@@ -208,6 +207,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        // change field to the mesh which is deliverd as an input
         void Field::change_mesh(       Lagrange_Mesh_Base * aMesh,
                                  const uint                 aFieldIndex )
         {
@@ -223,9 +223,8 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-        void Field::get_element_local_node_values(
-                const moris_index  aElementIndex,
-                Matrix< DDRMat > & aValues )
+        void Field::get_element_local_node_values( const moris_index        aElementIndex,
+                                                         Matrix< DDRMat > & aValues )
         {
             // get pointer to element
             Element * tElement = mLagrangeMesh->get_element( aElementIndex );
@@ -257,18 +256,16 @@ namespace moris
 
             MORIS_ERROR( mNumberOfDimensions == 1, "currently, only scalar fields are supported" );
 
-            uint tOrder = this->get_bspline_order();
-
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 // get pointer to node
                 auto tNode = &mMesh->get_mtk_vertex( k );
 
                 // get PDOFs from node
-                auto tBSplines = tNode->get_interpolation( tOrder )->get_coefficients();
+                auto tBSplines = tNode->get_interpolation( mInputBSplineIndex )->get_coefficients();
 
                 // get T-Matrix
-                const Matrix< DDRMat > & tTMatrix = *tNode->get_interpolation( tOrder )->get_weights();
+                const Matrix< DDRMat > & tTMatrix = *tNode->get_interpolation( mInputBSplineIndex )->get_weights();
 
                 // get number of coefficients
                 uint tNumberOfCoeffs = tTMatrix.length();
@@ -277,7 +274,7 @@ namespace moris
 
                 // fill coeffs vector
                 Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
-                for( uint i=0; i<tNumberOfCoeffs; ++i )
+                for( uint i = 0; i < tNumberOfCoeffs; ++i )
                 {
                     tCoeffs( i ) = aCoefficients( tBSplines( i )->get_index() );
                 }
@@ -296,8 +293,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Field::evaluate_scalar_function(
-                real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
+        void Field::evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             // get pointer to node values
             Matrix< DDRMat > & tNodeValues = this->get_node_values();
@@ -376,11 +372,10 @@ namespace moris
 
            herr_t tStatus;
 
-           save_matrix_to_hdf5_file(
-                   tFileID,
-                   this->get_label(),
-                   this->get_coefficients(),
-                   tStatus );
+           save_matrix_to_hdf5_file( tFileID,
+                                     this->get_label(),
+                                     this->get_coefficients(),
+                                     tStatus );
 
            // close file
            tStatus = close_hdf5_file( tFileID );
@@ -428,11 +423,10 @@ namespace moris
 
            herr_t tStatus;
 
-           save_matrix_to_hdf5_file(
-                   tFileID,
-                   this->get_label(),
-                   this->get_node_values(),
-                   tStatus );
+           save_matrix_to_hdf5_file( tFileID,
+                                     this->get_label(),
+                                     this->get_node_values(),
+                                     tStatus );
 
            // close file
            tStatus = close_hdf5_file( tFileID );
@@ -440,17 +434,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void Field::load_field_from_hdf5(
-                const std::string & aFilePath,
-                const uint          aBSplineOrder )
+        void Field::load_field_from_hdf5( const std::string & aFilePath,
+                                          const uint          aBSplineOrder )
         {
             hid_t tFile    = open_hdf5_file( aFilePath );
             herr_t tStatus = 0;
-            load_matrix_from_hdf5_file(
-                    tFile,
-                    this->get_label(),
-                    this->get_coefficients(),
-                    tStatus );
+            load_matrix_from_hdf5_file( tFile,
+                                        this->get_label(),
+                                        this->get_coefficients(),
+                                        tStatus );
 
             tStatus = close_hdf5_file( tFile );
         }

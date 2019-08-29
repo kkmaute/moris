@@ -88,23 +88,10 @@ set(HEADERS
     cl_FEM_Field_Interpolator.hpp
     cl_FEM_Model_Parameter_Interpolator.hpp
     fn_FEM_Rotation_Matrix.hpp
+    cl_FEM_Property.hpp
+    cl_FEM_Property_Factory.hpp
+    cl_FEM_Property_Temp_Dirichlet.hpp
     )
-
-# List header dependencies
-set(INT_INCLUDES
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    #${LINALG}
-    #${MTK}
-    #${COM}
-    #${FEM}/${MSI}
-    #${FEM}/${MDL}
-    )
-
-# Include depedency directories
-foreach(INT_INCLUDE ${INT_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${INT_INCLUDE}/src)
-endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fem/int Library
@@ -141,6 +128,8 @@ set(LIB_SOURCES
     cl_FEM_Integration_Rule.cpp
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
+    cl_FEM_Property_Factory.cpp
+    cl_FEM_Property_Temp_Dirichlet.cpp
     )
 
 # List library dependencies
@@ -148,13 +137,6 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${MTK}-lib
 	${MSI}-lib
-    #${MORIS_ARMADILLO_EIGEN_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_ACML_LAPACK_MKL_LIBS}
- #   ${MORIS_BASE_LIBS}
-    #${MORIS_ARPACK_LIBS}
-    #${MSI}-lib
-    #${MDL}-lib
     )
 
 # Set the output path for library

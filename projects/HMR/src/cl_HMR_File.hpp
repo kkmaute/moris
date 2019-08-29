@@ -54,8 +54,7 @@ namespace moris
              *
              * @param[ in ] aPath   path to file
              */
-            void
-            create( const std::string & aPath );
+            void create( const std::string & aPath );
 
 //-------------------------------------------------------------------------------
 
@@ -64,8 +63,7 @@ namespace moris
              *
              * @param[ in ] aPath   path to file
              */
-            void
-            open( const std::string & aPath );
+            void open( const std::string & aPath );
 
 //-------------------------------------------------------------------------------
 
@@ -74,17 +72,14 @@ namespace moris
              *
              * @param[ in ] aParameters   settings object
              */
-
-            void
-            save_settings( const Parameters * aParameters );
+            void save_settings( const Parameters * aParameters );
 
 //-------------------------------------------------------------------------------
 
             /**
              * reads the settings from the file and writes them into the object
              */
-            void
-            load_settings( Parameters * aParameters );
+            void load_settings( Parameters * aParameters );
 
 //-------------------------------------------------------------------------------
 
@@ -93,8 +88,7 @@ namespace moris
              *
              * @param[ in ]  aMesh     pointer to background mesh
              */
-            void
-            save_refinement_pattern( Background_Mesh_Base * aMesh );
+            void save_refinement_pattern( Background_Mesh_Base * aMesh );
 
 //-------------------------------------------------------------------------------
 
@@ -106,18 +100,15 @@ namespace moris
              * @param[ in ]    aMode           false: input, true: output
              *
              */
-            void
-            load_refinement_pattern(
-                    Background_Mesh_Base * aMesh,
-                    const bool             aMode );
+            void load_refinement_pattern(       Background_Mesh_Base * aMesh,
+                                          const bool                   aMode );
 
 //-------------------------------------------------------------------------------
 
             /**
              * closes the interface to the file
              */
-            void
-            close();
+            void close();
 
 //-------------------------------------------------------------------------------
         private:
@@ -126,8 +117,7 @@ namespace moris
             /**
              * adds the proc number to the filename
              */
-            std::string
-            parralize_filename( const std::string & aPath );
+            std::string parralize_filename( const std::string & aPath );
 
 //-------------------------------------------------------------------------------
         };
@@ -137,12 +127,10 @@ namespace moris
         /**
          * free function needed by loading constructor
          */
-        Parameters *
-        create_hmr_parameters_from_hdf5_file( const std::string & aPath );
+        Parameters * create_hmr_parameters_from_hdf5_file( const std::string & aPath );
 
 //-------------------------------------------------------------------------------
     } /* namespace hmr */
-
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_FILE_HPP_ */

@@ -13,23 +13,6 @@ set(HEADERS
     cl_TSA_Time_Solver_Enums.hpp
     cl_TSA_Time_Solver.hpp
  )
-    
-# List header dependencies
-set(TSA_INCLUDES
-    #${LINALG}
-    #${SOL}/${SOL_CORE}
-    #${SOL}/${DLA}
-    #${SOL}/${NLA}
-    #${SOL}/${TSA}
-    #${IOS}
-    #${COM}
-    #${FEM}/${MSI}
-    )
-
-# Include depedency directories
-foreach(TSA_INCLUDE ${TSA_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/${TSA_INCLUDE}/src)
-endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Time Solver Library
@@ -48,13 +31,7 @@ set(LIB_DEPENDENCIES
     ${SOL_CORE}-lib
     ${DLA}-lib
     ${NLA}-lib
-    #${COM}-lib
     ${MSI}-lib
-    #${MORIS_PETSC_LIBS}
-    #${MORIS_SUPERLU_LIBS}
-    #${MORIS_TRILINOS_LIBS}
- #   ${MORIS_BASE_LIBS}
-    #${MORIS_ARPACK_LIBS}
     )
 
 # Set the output path for library

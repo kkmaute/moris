@@ -15,6 +15,7 @@
 
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
+//#include "cl_FEM_Property.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"     //FEM/MSI/src
 
 namespace moris
@@ -22,6 +23,7 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
+class Property;
 
         class Field_Interpolator
         {
@@ -60,6 +62,9 @@ namespace moris
             // field interpolator dof type
             MSI::Dof_Type mDofType;
 
+            // field interpolator property
+            const moris::fem::Property* mProperty = nullptr;
+
             // field interpolator property type
             fem::Property_Type mPropertyType;
 
@@ -77,14 +82,17 @@ namespace moris
             Field_Interpolator( const uint                   & aNumberOfFields,
                                 const Interpolation_Rule     & aFieldInterpolationRule,
                                 const Geometry_Interpolator*   aGeometryInterpolator,
-                                const MSI::Dof_Type            aDofType = MSI::Dof_Type::UNDEFINED,
-                                const fem::Property_Type       aPropertyType = fem::Property_Type::UNDEFINED );
+                                const MSI::Dof_Type            aDofType = MSI::Dof_Type::UNDEFINED );
 
+            Field_Interpolator( const uint                   & aNumberOfFields,
+                                const Interpolation_Rule     & aFieldInterpolationRule,
+                                const Geometry_Interpolator*   aGeometryInterpolator,
+                                const fem::Property*           aProperty,
+                                const fem::Property_Type       aPropertyType = fem::Property_Type::UNDEFINED );
             /**
              * trivial constructor
              */
-            Field_Interpolator( const uint          & aNumberOfFields) : mNumberOfFields( aNumberOfFields )
-            {};
+            Field_Interpolator( const uint & aNumberOfFields) : mNumberOfFields( aNumberOfFields ){};
 
 //------------------------------------------------------------------------------
             /**

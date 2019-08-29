@@ -82,8 +82,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void
-            init_basis_container()
+            void init_basis_container()
             {
                 MORIS_ASSERT( ! mHaveBasis,
                         "Basis container of element already initiated" );
@@ -98,8 +97,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void
-            delete_basis_container()
+            void delete_basis_container()
             {
                 if( mHaveBasis )
                 {
@@ -114,8 +112,7 @@ namespace moris
              * MTK Interface: returns the number of vertices connected to this
              *                element
              */
-            uint
-            get_number_of_vertices() const
+            uint get_number_of_vertices() const
             {
                 return D;
             }
@@ -126,8 +123,7 @@ namespace moris
              * MTK Interface: returns a cell with the vertex pointers of this
              * element
              */
-            moris::Cell< mtk::Vertex* >
-            get_vertex_pointers() const
+            moris::Cell< mtk::Vertex* > get_vertex_pointers() const
             {
                 moris::Cell< mtk::Vertex* > aVertices( D );
                 for( uint k = 0; k<D; ++k )
@@ -143,8 +139,7 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Matrix< IdMat >
-            get_vertex_ids() const
+            Matrix< IdMat > get_vertex_ids() const
             {
                 Matrix< IdMat > aIDs( D, 1 );
                 for( uint k = 0; k<D; ++k )
@@ -161,8 +156,7 @@ namespace moris
             /**
              * MTK Interface: returns a mat with the vertex IDs
              */
-            Matrix< IndexMat >
-            get_vertex_inds() const
+            Matrix< IndexMat > get_vertex_inds() const
             {
                 Matrix< IndexMat > aIndices( 1, D );  // FIXME was originally a column vector
                 for( uint k = 0; k<D; ++k )
@@ -180,8 +174,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            print_connectivity()
+            void print_connectivity()
             {
                 std::fprintf( stdout,
                         "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
@@ -213,8 +206,7 @@ namespace moris
              * @return    Basis* pointer to Lagrange node
              *
              */
-            Basis*
-            get_basis( const uint& aIndex )
+            Basis* get_basis( const uint& aIndex )
             {
                 if( mHaveBasis )
                 {
@@ -226,9 +218,9 @@ namespace moris
                 }
             }
 
-            const Basis*
-            get_basis( const uint& aIndex ) const
-            {   if( mHaveBasis )
+            const Basis* get_basis( const uint& aIndex ) const
+            {
+                if( mHaveBasis )
                 {
                     return mNodes[ aIndex ];
                 }
@@ -249,10 +241,8 @@ namespace moris
              * @return void
              *
              */
-            void
-            insert_basis(
-                    const  uint  & aIndex,
-                    Basis        * aBasis )
+            void insert_basis( const uint  & aIndex,
+                                     Basis * aBasis )
             {
                 mNodes[ aIndex ] = aBasis;
             }
@@ -265,8 +255,7 @@ namespace moris
              * @return std::string
              *
              */
-           std::string
-           get_gmsh_string();
+           std::string get_gmsh_string();
 
 //------------------------------------------------------------------------------
 
@@ -275,8 +264,7 @@ namespace moris
             *
             * @return uint
             */
-           uint
-           get_vtk_type();
+           uint get_vtk_type();
 
 //------------------------------------------------------------------------------
 
@@ -288,8 +276,7 @@ namespace moris
             * @return void
             *
             */
-           void
-           get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
+           void get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
 
 //------------------------------------------------------------------------------
 
@@ -303,10 +290,8 @@ namespace moris
             *                                    how many nodes were generated
             * @return void
             */
-           void
-           create_basis_on_level_zero(
-                   moris::Cell< Element * > & aAllElementsOnProc,
-                   luint             & aNodeCounter );
+           void create_basis_on_level_zero( moris::Cell< Element * > & aAllElementsOnProc,
+                                            luint                    & aNodeCounter );
 
 //------------------------------------------------------------------------------
 
@@ -320,10 +305,8 @@ namespace moris
             *                                    how many nodes were generated
             * @return void
             */
-           void
-           create_basis_for_children(
-                   moris::Cell< Element * > & aAllElementsOnProc,
-                       luint             & aBasisCounter );
+           void create_basis_for_children( moris::Cell< Element * > & aAllElementsOnProc,
+                                           luint                    & aBasisCounter );
 
 //------------------------------------------------------------------------------
 
@@ -336,18 +319,15 @@ namespace moris
             * @return void
             *
             */
-           void
-           get_ijk_of_basis(
-                   const uint & aBasisNumber,
-                   luint      * aIJK );
+           void get_ijk_of_basis( const uint  & aBasisNumber,
+                                        luint * aIJK );
 
 //------------------------------------------------------------------------------
 
            /**
             * reserve memory for twin container
             */
-           void
-           allocate_twin_container( const uint aSize )
+           void allocate_twin_container( const uint aSize )
            {
                mTwins.resize( aSize, nullptr );
            }
@@ -357,8 +337,7 @@ namespace moris
            /**
             * set twin on corresponding B-Spline mesh
             */
-           void
-           set_twin( const uint aIndex, Element* aTwin )
+           void set_twin( const uint aIndex, Element* aTwin )
            {
                mTwins( aIndex ) = aTwin;
            }
@@ -369,77 +348,67 @@ namespace moris
            /**
             * returns the mtk geometry type of this element
             */
-           mtk::Geometry_Type
-           get_geometry_type() const ;
+           mtk::Geometry_Type get_geometry_type() const ;
 
 //------------------------------------------------------------------------------
 
            /**
             * returns a Mat with the node coords
             */
-           Matrix< DDRMat >
-           get_vertex_coords() const;
+           Matrix< DDRMat > get_vertex_coords() const;
 
 //------------------------------------------------------------------------------
 
            /*!
             * Returns the vertices on a given side ordinal
             */
-           moris::Cell<moris::mtk::Vertex const *>
-           get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+           moris::Cell<moris::mtk::Vertex const *> get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
 
 //------------------------------------------------------------------------------
 
            /*!
             * Returns the outward normal on a side ordinal
             */
-           moris::Matrix<moris::DDRMat>
-           compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
+           moris::Matrix<moris::DDRMat> compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
 
 //------------------------------------------------------------------------------
 
            /**
             * returns the interpolation order of this element
             */
-           mtk::Interpolation_Order
-           get_interpolation_order() const;
+           mtk::Interpolation_Order get_interpolation_order() const;
 
 //------------------------------------------------------------------------------
 
-           Facet *
-           get_hmr_facet( const uint & aIndex )
+           Facet * get_hmr_facet( const uint & aIndex )
            {
                return mFacets( aIndex );
            }
 
 //------------------------------------------------------------------------------
 
-           void
-           set_hmr_facet( Facet* aFacet, const uint & aIndex )
+           void set_hmr_facet( Facet* aFacet, const uint & aIndex )
            {
                mFacets( aIndex ) = aFacet;
            }
 
 //------------------------------------------------------------------------------
 
-           Edge *
-           get_hmr_edge( const uint & aIndex )
+           Edge * get_hmr_edge( const uint & aIndex )
            {
                return mEdges( aIndex );
            }
 
 //------------------------------------------------------------------------------
 
-           const Edge *
-           get_hmr_edge( const uint & aIndex ) const
+           const Edge * get_hmr_edge( const uint & aIndex ) const
            {
                return mEdges( aIndex );
            }
 
 //------------------------------------------------------------------------------
 
-           void
-           set_hmr_edge( Edge * aEdge, const uint & aIndex )
+           void set_hmr_edge( Edge * aEdge, const uint & aIndex )
            {
                mEdges( aIndex ) = aEdge;
            }
@@ -455,8 +424,7 @@ namespace moris
             *
             * @return void
             */
-           void
-           create_basis( const uint & aBasisNumber )
+           void create_basis( const uint & aBasisNumber )
            {
                // container for basis position
                luint tIJK[ N ];
@@ -465,11 +433,9 @@ namespace moris
                this->get_ijk_of_basis( aBasisNumber, tIJK );
 
                // create new Lagrange node
-               mNodes[ aBasisNumber ]
-                       = new Lagrange_Node< N >(
-                            tIJK,
-                            mElement->get_level(),
-                            mElement->get_owner() );
+               mNodes[ aBasisNumber ] = new Lagrange_Node< N >( tIJK,
+                                                                mElement->get_level(),
+                                                                mElement->get_owner() );
            }
 
 //------------------------------------------------------------------------------
@@ -477,8 +443,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        void
-        Lagrange_Element< N, D >::create_basis_on_level_zero(
+        void Lagrange_Element< N, D >::create_basis_on_level_zero(
                 moris::Cell< Element * > & aAllElementsOnProc,
                 luint             & aBasisCounter )
         {
@@ -488,8 +453,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        void
-        Lagrange_Element< N, D >::create_basis_for_children(
+        void Lagrange_Element< N, D >::create_basis_for_children(
                 moris::Cell< Element * > & aAllElementsOnProc,
                 luint             & aBasisCounter )
         {
@@ -499,8 +463,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        std::string
-        Lagrange_Element< N, D >::get_gmsh_string()
+        std::string Lagrange_Element< N, D >::get_gmsh_string()
         {
             std::string aString = "GMSH not implemented for this element";
             return aString;
@@ -509,8 +472,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        uint
-        Lagrange_Element< N, D >::get_vtk_type()
+        uint Lagrange_Element< N, D >::get_vtk_type()
         {
             // this element has no VTK id
             return 2;
@@ -519,8 +481,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        void
-        Lagrange_Element< N, D >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
+        void Lagrange_Element< N, D >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
         {
             // do nothing
         }
@@ -528,8 +489,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        void
-        Lagrange_Element< N, D >::get_ijk_of_basis(
+        void Lagrange_Element< N, D >::get_ijk_of_basis(
                 const uint & aBasisNumber,
                 luint      * aIJK )
         {
@@ -539,8 +499,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        Matrix< DDRMat >
-        Lagrange_Element< N, D >::get_vertex_coords() const
+        Matrix< DDRMat > Lagrange_Element< N, D >::get_vertex_coords() const
         {
             Matrix< DDRMat > aCoords( D, N );
             for( uint k=0; k<D; ++k )
@@ -558,8 +517,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        mtk::Geometry_Type
-        Lagrange_Element< N, D >::get_geometry_type() const
+        mtk::Geometry_Type Lagrange_Element< N, D >::get_geometry_type() const
         {
             MORIS_ERROR( false, "get_geometry_type() not available for this element.");
             return mtk::Geometry_Type::UNDEFINED;
@@ -568,8 +526,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< uint N, uint D >
-        mtk::Interpolation_Order
-        Lagrange_Element< N, D >::get_interpolation_order() const
+        mtk::Interpolation_Order Lagrange_Element< N, D >::get_interpolation_order() const
         {
             MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
             return mtk::Interpolation_Order::UNDEFINED;
@@ -585,8 +542,7 @@ namespace moris
         }
 
         template< uint N, uint D >
-        moris::Matrix<moris::DDRMat>
-        Lagrange_Element< N, D >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+        moris::Matrix<moris::DDRMat> Lagrange_Element< N, D >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
 		{
         	MORIS_ERROR( false, "compute_outward_side_normal() not available for this element.");
         	return moris::Matrix<moris::DDRMat>(0,0);

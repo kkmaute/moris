@@ -1,5 +1,5 @@
 /*
- * cl_HMR_Domaon.hpp
+ * cl_HMR_Domain.hpp
  *
  *  Created on: May 7, 2018
  *      Author: messe
@@ -12,13 +12,10 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
-
 namespace moris
 {
-
     namespace hmr
     {
-
         /**
          * the Domain struct contains basic information needed for
          * mesh generation and calculation of IDs.

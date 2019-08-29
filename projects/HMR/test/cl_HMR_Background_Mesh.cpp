@@ -29,7 +29,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
-            tParameters->set_verbose( true );
+//            tParameters->set_verbose( true );
+            tParameters->set_severity_level( 0 );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
@@ -57,7 +58,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
 
             if ( moris::par_size() == 1 )
             {
-
                 // element pointer for tests
                 moris::hmr::Background_Element_Base* tElement = nullptr;
 
@@ -90,8 +90,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
 
                 // must be true
                 REQUIRE(  tElement->is_padding() );
-
-
             }
             else if ( moris::par_size() == 2 )
             {
@@ -225,7 +223,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 7 ) );
                     REQUIRE( tElement->get_hmr_id() == 45 );
-
                 }
             }
             else if ( moris::par_size() == 4 )
@@ -332,9 +329,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
                     // must be
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tInverseAuraElements( 3 ) );
                     REQUIRE( tElement->get_hmr_id() == 29 );
-
-
-
                 }
             }
 
@@ -357,9 +351,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {4} };
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // do not print debug information during test
-            tParameters->set_verbose( false );
-
             // set buffer size to zero
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
@@ -374,8 +365,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             moris::hmr::Factory tFactory;
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
 
             // update element table
 //            tBackgroundMesh->collect_active_elements();
@@ -433,7 +423,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
                 REQUIRE( tElementIDs( 19 ) ==  43 );
                 REQUIRE( tElementIDs( 20 ) ==  44 );
                 REQUIRE( tElementIDs( 21 ) ==  45 );
-
             }
             else if ( moris::par_size() == 2 )
             {
@@ -613,6 +602,214 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
     }
 }
 
+TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Background_Mesh_Activation_Pattern]")
+{
+    if( moris::par_size() == 1 )
+    {
+        // create settings object
+        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+        // set number of elements
+        tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
+
+        // set buffer size to zero
+        tParameters->set_refinement_buffer( 1 );
+        tParameters->set_staircase_buffer( 1 );
+
+        // deactivate truncation
+        tParameters->set_bspline_truncation( false );
+
+        // use simple patterns
+        tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
+
+        // create factory
+        moris::hmr::Factory tFactory;
+
+        // create background mesh object
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+        //----------------------------------------------------------------------------------------------------------
+        // Work on activation pattern 0 mesh
+
+        tBackgroundMesh->set_activation_pattern( 0 );
+
+        // element 0 is the element with ID 18
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+//        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref1.vtk");
+
+        //----------------------------------------------------------------------------------------------------------
+        // Work on activation pattern 1 mesh
+
+        tBackgroundMesh->set_activation_pattern( 1 );
+
+        // element 0 is the element with ID 18
+        tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+        tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+//        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref2.vtk");
+
+        //----------------------------------------------------------------------------------------------------------
+        // check elements on pattern 0
+
+        tBackgroundMesh->set_activation_pattern( 0 );
+
+        // list of active elements on proc
+        moris::Matrix< moris::DDLUMat > tElementIDs_1;
+
+        // get hmr ids of active elements
+        tBackgroundMesh->get_active_elements_on_proc( tElementIDs_1 );
+
+        REQUIRE( tElementIDs_1.length()  == 28 );
+
+        REQUIRE( tElementIDs_1(  0 ) == 584 );        REQUIRE( tElementIDs_1(  2 ) == 616 );
+        REQUIRE( tElementIDs_1(  4 ) == 133 );        REQUIRE( tElementIDs_1( 10 ) == 151 );
+        REQUIRE( tElementIDs_1( 11 ) ==  20 );        REQUIRE( tElementIDs_1( 16 ) == 181 );
+        REQUIRE( tElementIDs_1( 17 ) ==  27 );        REQUIRE( tElementIDs_1( 27 ) ==  45 );
+
+        //----------------------------------------------------------------------------------------------------------
+        // check elements on pattern 1
+
+        tBackgroundMesh->set_activation_pattern( 1 );
+
+        // list of active elements on proc
+        moris::Matrix< moris::DDLUMat > tElementIDs_2;
+
+        // get hmr ids of active elements
+        tBackgroundMesh->get_active_elements_on_proc( tElementIDs_2 );
+
+        REQUIRE( tElementIDs_2.length()  == 28 );
+
+        REQUIRE( tElementIDs_2(  0 ) ==  18 );        REQUIRE( tElementIDs_2(  2 ) ==  20 );
+        REQUIRE( tElementIDs_2(  4 ) ==  26 );        REQUIRE( tElementIDs_2( 10 ) ==  36 );
+        REQUIRE( tElementIDs_2( 11 ) == 202 );        REQUIRE( tElementIDs_2( 16 ) ==  43 );
+        REQUIRE( tElementIDs_2( 17 ) == 232 );        REQUIRE( tElementIDs_2( 27 ) == 1079 );
+
+        // delete background mesh
+        delete tBackgroundMesh;
+
+        // delete settings object
+        delete tParameters;
+    }
+}
+
+TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background_Mesh_Unite_Pattern]")
+{
+    if( moris::par_size() == 1 )
+    {
+        // create settings object
+        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+        // set number of elements
+        tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
+
+        // set buffer size to zero
+        tParameters->set_refinement_buffer( 1 );
+        tParameters->set_staircase_buffer( 1 );
+
+        // deactivate truncation
+        tParameters->set_bspline_truncation( false );
+
+        // use simple patterns
+        tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
+
+        // create factory
+        moris::hmr::Factory tFactory;
+
+        // create background mesh object
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+        //----------------------------------------------------------------------------------------------------------
+        // Work on activation pattern 0 mesh
+        tBackgroundMesh->set_activation_pattern( 0 );
+
+        // element 0 is the element with ID 18
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+//        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref1.vtk");
+
+        //----------------------------------------------------------------------------------------------------------
+        // Work on activation pattern 1 mesh
+        tBackgroundMesh->set_activation_pattern( 1 );
+
+        // element 0 is the element with ID 18
+        tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+        tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( );
+
+//        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref2.vtk");
+
+        //----------------------------------------------------------------------------------------------------------
+        // unite pattern 0 and 1 on pattern 2
+        tBackgroundMesh->unite_patterns( 0, 1, 2 );
+
+        //----------------------------------------------------------------------------------------------------------
+        // check pattern 2
+        tBackgroundMesh->set_activation_pattern( 2 );
+
+        // list of active elements on proc
+        moris::Matrix< moris::DDLUMat > tElementIDs;
+
+        // get hmr ids of active elements
+        tBackgroundMesh->get_active_elements_on_proc( tElementIDs );
+
+        REQUIRE( tElementIDs.length()  == 40 );
+
+        REQUIRE( tElementIDs(  0 ) == 584 );        REQUIRE( tElementIDs(  2 ) == 616 );
+        REQUIRE( tElementIDs(  4 ) == 133 );        REQUIRE( tElementIDs( 10 ) == 151 );
+        REQUIRE( tElementIDs( 11 ) ==  20 );        REQUIRE( tElementIDs( 16 ) == 181 );
+        REQUIRE( tElementIDs( 17 ) ==  27 );        REQUIRE( tElementIDs( 26 ) == 219 );
+        REQUIRE( tElementIDs( 27 ) ==  42 );        REQUIRE( tElementIDs( 28 ) ==  43 );
+        REQUIRE( tElementIDs( 29 ) == 232 );        REQUIRE( tElementIDs( 35 ) == 250 );
+        REQUIRE( tElementIDs( 36 ) == 1046 );       REQUIRE( tElementIDs( 39 ) == 1079 );
+
+        //----------------------------------------------------------------------------------------------------------
+        // unite pattern 0 and 1 on pattern 3
+        moris::Cell< uint > tSourcePattern( 2, 0 );
+        tSourcePattern( 1 ) = 1;
+        tBackgroundMesh->unite_patterns( tSourcePattern, 3 );
+
+        //----------------------------------------------------------------------------------------------------------
+        // check pattern 2
+        tBackgroundMesh->set_activation_pattern( 3 );
+
+        // list of active elements on proc
+        moris::Matrix< moris::DDLUMat > tElementIDs_1;
+
+        // get hmr ids of active elements
+        tBackgroundMesh->get_active_elements_on_proc( tElementIDs_1 );
+
+        REQUIRE( tElementIDs_1.length()  == 40 );
+
+        REQUIRE( tElementIDs_1(  0 ) == 584 );        REQUIRE( tElementIDs_1(  2 ) == 616 );
+        REQUIRE( tElementIDs_1(  4 ) == 133 );        REQUIRE( tElementIDs_1( 10 ) == 151 );
+        REQUIRE( tElementIDs_1( 11 ) ==  20 );        REQUIRE( tElementIDs_1( 16 ) == 181 );
+        REQUIRE( tElementIDs_1( 17 ) ==  27 );        REQUIRE( tElementIDs_1( 26 ) == 219 );
+        REQUIRE( tElementIDs_1( 27 ) ==  42 );        REQUIRE( tElementIDs_1( 28 ) ==  43 );
+        REQUIRE( tElementIDs_1( 29 ) == 232 );        REQUIRE( tElementIDs_1( 35 ) == 250 );
+        REQUIRE( tElementIDs_1( 36 ) == 1046 );       REQUIRE( tElementIDs_1( 39 ) == 1079 );
+
+        // delete background mesh
+        delete tBackgroundMesh;
+
+        // delete settings object
+        delete tParameters;
+    }
+}
+
 TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_refine]")
 {
     if( moris::par_size() == 1 )
@@ -620,10 +817,21 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
-        tParameters.set_verbose( true );
+//        tParameters.set_verbose( true );
+        tParameters.set_severity_level( 0 );
         tParameters.set_multigrid( false );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( 1 );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        moris::Cell< moris::Matrix< moris::DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         // create HMR object
         moris::hmr::HMR tHMR( tParameters );
@@ -638,7 +846,7 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
                 tHMR.flag_element( Ik );
             }
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
         }
 
         tHMR.finalize();

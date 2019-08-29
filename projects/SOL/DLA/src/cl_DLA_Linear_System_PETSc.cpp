@@ -104,6 +104,8 @@ Linear_System_PETSc::~Linear_System_PETSc()
     delete( mFullVectorLHS );
     delete( mMap );
 
+//    mInput->delete_multigrid();
+
     //KSPDestroy( &mPetscProblem );
     //( &mpc );
 

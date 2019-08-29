@@ -86,7 +86,6 @@ main(
      */
     tParameters.set( "bspline_orders", "2" );
     tParameters.set( "lagrange_orders", "2" );
-    tParameters.set( "verbose", 1 );
 
     /*!
      * if no dimensions are set, HMR assumes that a 1x1 block is to be built,

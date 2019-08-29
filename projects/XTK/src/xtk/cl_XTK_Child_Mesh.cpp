@@ -820,6 +820,8 @@ Child_Mesh::unzip_child_mesh_interface_get_interface_element_pairs(moris::uint a
             else
             {
                 aNoPairFoundFlag = true;
+                aInterfaceElementPairs(iEl,iF) = MORIS_INDEX_MAX;
+                aInterfacePairSideOrds(iEl,iF) = MORIS_INDEX_MAX;
             }
         }
     }

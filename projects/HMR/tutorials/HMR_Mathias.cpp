@@ -17,7 +17,6 @@
 #include "fn_norm.hpp"
 #include "fn_load_matrix_from_binary_file.hpp"
 #include "fn_save_matrix_to_binary_file.hpp"
-#include "fn_print.hpp"
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"
 #include "HDF5_Tools.hpp"
@@ -86,7 +85,6 @@ main(
     // create parameter object
     moris::hmr::Parameters tParameters;
     tParameters.set_number_of_elements_per_dimension( { { 1 }, { 1 } } );
-    tParameters.set_verbose( false );
     tParameters.set_multigrid( true );
     tParameters.set_bspline_truncation( true );
     tParameters.set_mesh_orders_simple( tOrder );

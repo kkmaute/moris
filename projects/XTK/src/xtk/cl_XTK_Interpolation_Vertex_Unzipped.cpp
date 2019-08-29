@@ -57,14 +57,12 @@ Interpolation_Vertex_Unzipped::get_owner() const
 mtk::Vertex_Interpolation *
 Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder )
 {
-    MORIS_ERROR(mOrder == aOrder,"Invalid interpolation order specified");
     return mInterpolation;
 }
 //------------------------------------------------------------------------------
 const mtk::Vertex_Interpolation *
 Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder ) const
 {
-    MORIS_ERROR(mOrder == aOrder,"Invalid interpolation order specified");
     return mInterpolation;
 }
 //------------------------------------------------------------------------------
