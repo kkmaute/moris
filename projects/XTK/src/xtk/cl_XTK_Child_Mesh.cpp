@@ -157,6 +157,8 @@ Child_Mesh::Child_Mesh(Mesh_Modification_Template & aMeshModTemplate):
 
     set_up_proc_local_to_cm_local_node_map();
 
+    add_new_geometry_interface(0);
+
     generate_connectivities(true,true,true);
 
 }
@@ -1163,11 +1165,12 @@ Child_Mesh::insert_child_mesh_template(Mesh_Modification_Template & aMeshModTemp
       MORIS_ASSERT(aMeshModTemplate.mIsReindexed,"Prior to inserting the template, reindexing must occur, in insert_child_mesh_template.");
 
       // index of current geometry
-      moris_index tGeomIndex = mGeometryIndex.size()-1;
+      moris_index tGeomIndex = *(mGeometryIndex.end() - 1);
 
 
       // Replace the element which is marked as replaceable (if in the future multiple elements are replaced at one time then this could be a for loop)
       // But for now only one element is replaced
+
       replace_element(aMeshModTemplate.mElemIndToReplace,
                       0,
                       tGeomIndex,

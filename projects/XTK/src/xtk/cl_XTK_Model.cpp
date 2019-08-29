@@ -3350,7 +3350,7 @@ Model::setup_interface_side_cluster(std::string                      aInterfaceS
                 Child_Mesh const & tChildMesh = mCutMesh.get_child_mesh(iC);
 
                 // package this child element by bulk phase
-                moris::Matrix< moris::IdMat > tInterfaceElementIdsAndSideOrd = tChildMesh.pack_interface_sides( 0, 0, iP );
+                moris::Matrix< moris::IdMat > tInterfaceElementIdsAndSideOrd = tChildMesh.pack_interface_sides( 0, 0, 1 );
 
                 // add to data which will stay in scope
                 aCellIdsandSideOrds.push_back(tInterfaceElementIdsAndSideOrd);

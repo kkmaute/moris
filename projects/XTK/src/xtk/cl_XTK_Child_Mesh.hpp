@@ -691,9 +691,6 @@ public:
          moris::Matrix<moris::IndexMat> tInterfacePairSideOrds;
          unzip_child_mesh_interface_get_interface_element_pairs(aGeometryIndex,tNoPair,tInterfaceElementPairs,tInterfacePairSideOrds);
 
-         moris::print(tInterfaceElementPairs,"tInterfaceElementPairs");
-         moris::print(tInterfacePairSideOrds,"tInterfacePairSideOrds");
-
          MORIS_ASSERT(!tNoPair,"No pair found");
 
          Matrix<IndexMat> tCellsToKeepInSet(this->get_num_entities(EntityRank::ELEMENT),1,MORIS_INDEX_MAX);
