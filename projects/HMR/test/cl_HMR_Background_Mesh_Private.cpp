@@ -37,11 +37,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
 
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0} });
+
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // use only one linear pattern
-            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -108,11 +108,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
 
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0} });
+
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // use a simple pattern
-            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -187,11 +187,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
 
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0} });
+
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // use a simple pattern
-            tParameters->set_mesh_orders_simple( 2 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -220,7 +220,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                     tElement->put_on_refinement_queue();
                 }
                 // refine mesh
-                tBackgroundMesh->perform_refinement();
+                tBackgroundMesh->perform_refinement( 0 );
             }
 
             // collect neighbors
@@ -390,9 +390,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
 
-                // use a simple pattern
-                tParameters->set_mesh_orders_simple( 1 );
-
                 // create factory
                 moris::hmr::Factory tFactory;
 
@@ -422,7 +419,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                     }
 
                     // refine mesh
-                    tBackgroundMesh->perform_refinement();
+                    tBackgroundMesh->perform_refinement( 0 );
                 }
 
                 // ask background mesh for number of elements on proc
@@ -630,9 +627,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // use a simple pattern
-            tParameters->set_mesh_orders_simple( 2 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -652,7 +646,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             }
 
             // perform refinement
-            tBackgroundMesh->perform_refinement();
+            tBackgroundMesh->perform_refinement( 0 );
 
             // pick element in the middle
             moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element( 81 );
@@ -760,7 +754,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             }
 
             // perform refinement
-            tBackgroundMesh->perform_refinement();
+            tBackgroundMesh->perform_refinement( 0 );
 
             // pick an element in the middle
             moris::hmr::Background_Element_Base * tElement = tBackgroundMesh->get_element( 1025 );

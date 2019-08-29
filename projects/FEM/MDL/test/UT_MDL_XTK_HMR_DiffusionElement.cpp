@@ -134,31 +134,61 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 {
     if(par_size() == 1)
     {
-        moris::uint tBplineOrder = 2;
-        moris::uint tLagrangeOrder = 2;
-        moris::uint tMyCoeff = 1;
+//        moris::uint tBplineOrder = 2;
+//        moris::uint tLagrangeOrder = 2;
+//        moris::uint tMyCoeff = 1;
         std::string tFieldName = "Cylinder";
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+//
+//        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
+//        tParameters.set( "domain_dimensions", "2, 2, 4" );
+//        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
+//        tParameters.set( "domain_sidesets", "5,6");
+//
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "bspline_orders", "2" );
+//        tParameters.set( "lagrange_orders", "2" );
+//        tParameters.set( "use_multigrid", 0 );
+//        tParameters.set( "refinement_buffer", 2 );
+//        tParameters.set( "staircase_buffer", 2 );
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
-        tParameters.set( "domain_dimensions", "2, 2, 4" );
-        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
-        tParameters.set( "domain_sidesets", "5,6");
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
 
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "2" );
-        tParameters.set( "lagrange_orders", "2" );
-        tParameters.set( "use_multigrid", 0 );
-        tParameters.set( "refinement_buffer", 2 );
-        tParameters.set( "staircase_buffer", 2 );
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {4} } );
+        tParameters.set_domain_dimensions({ {2}, {2}, {4} });
+        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
+        tParameters.set_bspline_truncation( true );
+        tParameters.set_side_sets({ {5}, {6} });
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {2} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {2} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 2 );
+        tParameters.set_staircase_buffer( 2);
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
         // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tBplineOrder );
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
         tField->evaluate_scalar_function( LevelSetSphereCylinder );
 
@@ -166,16 +196,16 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         {
             tHMR.flag_surface_elements( tField );
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );
         }
 
         tHMR.finalize();
 
-        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
+        tHMR.save_to_exodus( 0, "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
+        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         xtk::Geom_Field tFieldAsGeom(tField);
 
@@ -233,7 +263,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         moris::Cell< moris_index >  tDoubleSidesetList = {  };
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBplineOrder, tIWGTypeList,
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex, tIWGTypeList,
                                               tBlocksetList, tSidesetList,
                                               tSidesetBCTypeList,
                                               tDoubleSidesetList );
@@ -316,7 +346,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 //        print_fancy(tFullSol,"Full Solution");
 
         // verify solution
-        //    CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
+//        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 
         // output solution and meshes
         std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
@@ -334,30 +364,62 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
     {
         gLogger.set_severity_level( 0 );
 
-        moris::uint tBplineOrder = 1;
-        moris::uint tLagrangeOrder = 1;
-        moris::uint tMyCoeff = 1;
+//        moris::uint tBplineOrder = 1;
+//        moris::uint tLagrangeOrder = 1;
+//        moris::uint tMyCoeff = 1;
         std::string tFieldName = "Cylinder";
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+//
+//        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
+//        tParameters.set( "domain_dimensions", "2, 2, 4" );
+//        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
+//        tParameters.set( "domain_sidesets", "5,6");
+//        tParameters.set( "truncate_bsplines", 1 );
+//        tParameters.set( "bspline_orders", "1" );
+//        tParameters.set( "lagrange_orders", "1" );
+//        tParameters.set( "use_multigrid", 1 );
+//        tParameters.set( "refinement_buffer", 2 );
+//        tParameters.set( "staircase_buffer", 2 );
 
-        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
-        tParameters.set( "domain_dimensions", "2, 2, 4" );
-        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
-        tParameters.set( "domain_sidesets", "5,6");
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "use_multigrid", 1 );
-        tParameters.set( "refinement_buffer", 2 );
-        tParameters.set( "staircase_buffer", 2 );
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
+
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {4} } );
+        tParameters.set_domain_dimensions({ {2}, {2}, {4} });
+        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
+        tParameters.set_bspline_truncation( true );
+        tParameters.set_side_sets({ {5}, {6} });
+
+        tParameters.set_multigrid( true );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
+        tParameters.set_refinement_buffer( 2 );
+        tParameters.set_staircase_buffer( 2 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         hmr::HMR tHMR( tParameters );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeOrder );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
         // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tBplineOrder );
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
         tField->evaluate_scalar_function( LevelSetSphereCylinder );
 
@@ -365,7 +427,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         {
             tHMR.flag_surface_elements( tField );
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );
         }
@@ -374,7 +436,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
 //        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
+        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
         xtk::Geom_Field tFieldAsGeom(tField);
 
@@ -435,7 +497,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                              tBplineOrder,
+                                              tBSplineMeshIndex,
                                               tIWGTypeList,
                                               tBlocksetList, tSidesetList,
                                               tSidesetBCTypeList,

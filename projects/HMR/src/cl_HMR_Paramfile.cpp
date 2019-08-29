@@ -6,6 +6,7 @@
 #include "HMR_Tools.hpp"
 #include "assert.hpp"
 
+#include "fn_Parsing_Tools.hpp"
 #include "cl_XML_Parser.hpp"
 
 #include "cl_Matrix.hpp"

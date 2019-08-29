@@ -58,16 +58,29 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 
 //------------------------------------------------------------------------------
 
+            uint tLagrangeMeshIndex = 0;
 
-            ParameterList tParameters = create_hmr_parameter_list();
+            moris::hmr::Parameters tParameters;
 
-            tParameters.set( "number_of_elements_per_dimension", "4, 6" );
+            tParameters.set_number_of_elements_per_dimension( { {4}, {6} } );
+            tParameters.set_domain_dimensions({ {4}, {6} });
+            tParameters.set_domain_offset({ {0.0}, {0.0} });
+            tParameters.set_bspline_truncation( true );
 
-            tParameters.set( "domain_offset", "0, 0" );
-            tParameters.set( "domain_dimensions", "4, 6" );
-            tParameters.set( "domain_sidesets", "1, 2, 3, 4" );
-            tParameters.set( "bspline_orders", "1" );
-            tParameters.set( "lagrange_orders", "1" );
+            tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
+
+            tParameters.set_output_meshes( { {0} });
+
+            tParameters.set_lagrange_orders  ( { {1} });
+            tParameters.set_lagrange_patterns({ {0} });
+
+            tParameters.set_bspline_orders   ( { {1} } );
+            tParameters.set_bspline_patterns ( { {0} } );
+
+            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
 //------------------------------------------------------------------------------
 
@@ -79,7 +92,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 
             std::shared_ptr< Database > tDatabase = tHMR.get_database();
 
-            tDatabase->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+            tDatabase->set_activation_pattern( tLagrangeMeshIndex );
 
             for( uint tLevel = 0; tLevel < 4; ++tLevel )
             {
@@ -87,15 +100,11 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
                 tDatabase->flag_element( 0 );
 
                 // flag last element
-                tDatabase->flag_element(
-                        tDatabase->get_number_of_elements_on_proc()-1 );
+                tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
 
                 // manually refine, do not reset pattern
-                tDatabase->perform_refinement(  moris::hmr::RefinementMode::SIMPLE, false );
-
+                tDatabase->perform_refinement(  moris::hmr::RefinementMode::SIMPLE, 0, false );
             }
-
-            //tHMR.perform_refinement();
 
             // finish mesh
             tHMR.finalize();
@@ -105,7 +114,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 //------------------------------------------------------------------------------
 
             // create MTK mesh
-            std::shared_ptr< Mesh > tMesh = tHMR.create_mesh();
+            std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
             Matrix<IndexMat> tElements;
             Matrix<IndexMat> tElementsSolution;
@@ -139,7 +148,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
                   close_hdf5_file( tFileID );
 
                   // save exodus file for visual inspection
-                  tHMR.save_to_exodus( "Mesh.exo" ); */
+                  tHMR.save_to_exodus( tLagrangeMeshIndex, "Mesh.exo" ); */
 
 //------------------------------------------------------------------------------
 //    open solution
@@ -184,16 +193,29 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 
 //------------------------------------------------------------------------------
 
+          uint tLagrangeMeshIndex = 0;
 
-          ParameterList tParameters = create_hmr_parameter_list();
+          moris::hmr::Parameters tParameters;
 
-          tParameters.set( "number_of_elements_per_dimension", "4, 6, 10" );
+          tParameters.set_number_of_elements_per_dimension( { {4}, {6}, {10} } );
+          tParameters.set_domain_dimensions({ {4}, {6}, {10} });
+          tParameters.set_domain_offset({ {0.0}, {0.0}, {0.0} });
+          tParameters.set_bspline_truncation( true );
 
-          tParameters.set( "domain_offset", "0, 0, 0" );
-          tParameters.set( "domain_dimensions", "4, 6, 10" );
-          tParameters.set( "domain_sidesets", "1, 2, 3, 4, 5, 6" );
-          tParameters.set( "bspline_orders", "1" );
-          tParameters.set( "lagrange_orders", "1" );
+          tParameters.set_side_sets({ {1}, {2}, {3}, {4}, {5}, {6} });
+
+          tParameters.set_output_meshes( { {0} });
+
+          tParameters.set_lagrange_orders  ( { {1} });
+          tParameters.set_lagrange_patterns({ {0} });
+
+          tParameters.set_bspline_orders   ( { {1} } );
+          tParameters.set_bspline_patterns ( { {0} } );
+
+          Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+          tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+          tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
 //------------------------------------------------------------------------------
 
@@ -205,7 +227,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 
           std::shared_ptr< Database > tDatabase = tHMR.get_database();
 
-          tDatabase->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+          tDatabase->set_activation_pattern( tLagrangeMeshIndex );
 
           for( uint tLevel = 0; tLevel < 4; ++tLevel )
           {
@@ -213,11 +235,10 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
               tDatabase->flag_element( 0 );
 
               // flag last element
-              tDatabase->flag_element(
-                      tDatabase->get_number_of_elements_on_proc()-1 );
+              tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
 
               // manually refine, do not reset pattern
-              tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
+              tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE ,tLagrangeMeshIndex,false );
           }
 
           // finish mesh
@@ -228,7 +249,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 //------------------------------------------------------------------------------
 
           // create MTK mesh
-          std::shared_ptr< Mesh > tMesh = tHMR.create_mesh();
+          std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
           Matrix<IndexMat> tElements;
           Matrix<IndexMat> tElementsSolution;

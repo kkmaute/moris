@@ -99,8 +99,7 @@ public:
 
     //----------------------------------------------------------------
 
-    moris::mtk::Cell const &
-    get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+    moris::mtk::Cell const & get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //----------------------------------------------------------------
 

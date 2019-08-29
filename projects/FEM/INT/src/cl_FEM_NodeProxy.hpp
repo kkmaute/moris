@@ -61,14 +61,14 @@ namespace fem
         };
 
     //------------------------------------------------------------------------------
-        mtk::Vertex_Interpolation * get_interpolation( const uint aOrder )
+        mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex )
         {
             MORIS_ERROR( false," NodeProxy - get_interpolation - Function not implemented. " );
             return nullptr;
         }
 
     //------------------------------------------------------------------------------
-        mtk::Vertex_Interpolation * get_interpolation( const uint aOrder ) const
+        mtk::Vertex_Interpolation * get_interpolation( const uint aBSplineMeshIndex ) const
         {
             MORIS_ERROR( false," NodeProxy - get_interpolation - Function not implemented. " );
             return nullptr;

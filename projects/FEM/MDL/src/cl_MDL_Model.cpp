@@ -52,7 +52,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
         Model::Model(       mtk::Mesh_Manager*                          aMeshManager,
-                      const uint                                        aBSplineOrder,
+                      const uint                                        aBSplineIndex,
                             moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
                       const moris::Cell< moris_index >                  & aBlocksetList,
                       const moris::Cell< moris_index >                  aSidesetList,
@@ -66,7 +66,7 @@ namespace moris
             // start timer
             tic tTimer1;
 
-            mDofOrder = aBSplineOrder;
+            mBSplineIndex = aBSplineIndex;
 
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -267,17 +267,17 @@ namespace moris
 
             if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
-                if ( mDofOrder == 0 )
-                {
-                    mDofOrder  = this->get_lagrange_order_from_mesh();
-                }
+//                if ( mBSplineIndex == 0 )
+//                {
+//                    mBSplineIndex  = this->get_lagrange_order_from_mesh();   // FIXME this function is absolutely wrong
+//                }
 
                 // get map from mesh
-                tInterpolationMesh->get_adof_map( mDofOrder, mCoefficientsMap );
+                tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
 
                 tCommTable   = tInterpolationMesh->get_communication_table();
                 tIdToIndMap  = mCoefficientsMap;
-                tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mDofOrder );
+                tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mBSplineIndex );
             }
             else
             {
@@ -302,8 +302,8 @@ namespace moris
 
             if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
             {
-                mModelSolverInterface->set_param("L2")= (sint)mDofOrder;
-                mModelSolverInterface->set_param("TEMP")= (sint)mDofOrder;
+                mModelSolverInterface->set_param("L2")= (sint)mBSplineIndex;
+                mModelSolverInterface->set_param("TEMP")= (sint)mBSplineIndex;
             }
 
             //------------------------------------------------------------------------------
@@ -485,23 +485,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        uint
-        Model::get_lagrange_order_from_mesh()
+        uint Model::get_lagrange_order_from_mesh()
         {
 
             // set order of this model according to Lagrange order
             // of first element on mesh
-           return mtk::interpolation_order_to_uint(
-            mMeshManager->get_interpolation_mesh(0)->get_mtk_cell( 0 ).get_interpolation_order() );
+           return mtk::interpolation_order_to_uint( mMeshManager->get_interpolation_mesh(0)
+                                                                ->get_mtk_cell( 0 ).get_interpolation_order() );
         }
 
 //------------------------------------------------------------------------------
 
         void
-        Model::set_dof_order( const uint aOrder )
+        Model::set_dof_order( const uint aBSplineIndex )
         {
-            mDofOrder = aOrder;
-//            MORIS_ASSERT( aOrder == mDofOrder,
+            mBSplineIndex = aBSplineIndex;
+//            MORIS_ASSERT( aOrder == mBSplineIndex,
 //                    "Model: the functionality to change the order of the model has nor been implemented yet" );
         }
 

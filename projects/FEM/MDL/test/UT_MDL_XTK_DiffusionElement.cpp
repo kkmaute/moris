@@ -254,9 +254,8 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                 {+5.00e+00},
                 {+5.00e+00}};
 
-        moris::print(tSolution11,"tSolution11");
+//        moris::print(tSolution11,"tSolution11");
 
-        std::cout<<"Min = "<<tSolution11.min()<<std::endl;
         // verify solution
         //        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 

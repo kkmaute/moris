@@ -108,7 +108,7 @@ namespace MSI
         for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
         {
             // Ask for adof order for this dof type
-            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_order_for_type( Ii );
+            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_index_for_type( Ii );
 
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
@@ -292,7 +292,7 @@ namespace MSI
         for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
         {
             // Ask for adof order for this dof type
-            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_order_for_type( Ii );
+            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_index_for_type( Ii );
 
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {

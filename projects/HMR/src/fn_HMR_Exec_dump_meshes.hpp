@@ -48,16 +48,15 @@ namespace moris
 
                     uint tIndex;
 
+                    MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
                     // get index of mesh order
                     if( tOrder <= 2 )
                     {
-                        tIndex = aHMR->get_mesh_index( tOrder,
-                                                       aHMR->get_parameters()->get_lagrange_output_pattern() );
+//                        tIndex = aHMR->get_mesh_index( tOrder, aHMR->get_parameters()->get_lagrange_output_pattern() );
                     }
                     else
                     {
-                        tIndex = aHMR->get_mesh_index( tOrder,
-                                                       aHMR->get_parameters()->get_refined_output_pattern() );
+//                        tIndex = aHMR->get_mesh_index( tOrder, aHMR->get_parameters()->get_refined_output_pattern() );
                     }
 
                     // dump mesh
@@ -77,8 +76,8 @@ namespace moris
                                 + "_last_step" +
                                 tOrgPath.substr( tOrgPath.find_last_of("."), tOrgPath.length() ); // file extension
 
-                        tIndex = aHMR->get_mesh_index( tOrder,
-                                                       aHMR->get_parameters()->get_lagrange_input_pattern() );
+                        MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
+//                        tIndex = aHMR->get_mesh_index( tOrder, aHMR->get_parameters()->get_lagrange_input_pattern() );
 
 
                         // dump mesh

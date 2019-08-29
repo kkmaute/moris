@@ -20,8 +20,6 @@ namespace moris
     {
         class Lagrange_Node_Interpolation : public mtk::Vertex_Interpolation
         {
-//            Cell< mtk::Vertex* > mCoefficients;
-//            Matrix< DDRMat >          mWeights;
 
 // ----------------------------------------------------------------------------
     public:
@@ -37,16 +35,14 @@ namespace moris
             /**
              * sets the values of the T-Matrix
              */
-            void
-            set_weights( const Matrix< DDRMat > & aWeights );
+            void set_weights( const Matrix< DDRMat > & aWeights );
 
 // ----------------------------------------------------------------------------
 
             /**
              * return the interpolation weights
              */
-            const Matrix< DDRMat > *
-            get_weights() const;
+            const Matrix< DDRMat > * get_weights() const;
 
 // ----------------------------------------------------------------------------
 
@@ -61,8 +57,7 @@ namespace moris
             /**
              * returns the coefficients of this basis
              */
-            moris::Cell< mtk::Vertex* > &
-            get_coefficients();
+            moris::Cell< mtk::Vertex* > & get_coefficients();
 
 
 // ----------------------------------------------------------------------------
@@ -70,41 +65,35 @@ namespace moris
             /**
              * returns the coefficients of this basis ( const version )
              */
-            const moris::Cell< mtk::Vertex* > &
-            get_coefficients() const;
-
+            const moris::Cell< mtk::Vertex* > & get_coefficients() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns the number of coefficients attributed to this basis
              */
-            uint
-            get_number_of_coefficients() const;
+            uint get_number_of_coefficients() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns the IDs of the interpolation coefficients
              */
-            Matrix< IdMat >
-            get_ids() const;
+            Matrix< IdMat > get_ids() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns the Indices of the interpolation coefficients
              */
-            Matrix< IndexMat >
-            get_indices() const;
+            Matrix< IndexMat > get_indices() const;
 
 // ----------------------------------------------------------------------------
 
             /**
              * returns the owners of the interpolation coefficients
              */
-            Matrix< IdMat >
-            get_owners() const;
+            Matrix< IdMat > get_owners() const;
 
 // ----------------------------------------------------------------------------
         };

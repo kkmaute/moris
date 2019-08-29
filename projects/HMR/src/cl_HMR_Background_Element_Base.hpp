@@ -163,7 +163,7 @@ namespace moris
                 // an active element is not a padding element
                 mPaddingFlag = false;
 
-                // refine parents ( this is safe but not necessary )
+                // refine parents ( this is safe but not necessary )    FIXME
                 if( mLevel > 0 )
                 {
                     if( ! mParent->is_refined( aPattern ) )
@@ -395,6 +395,22 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+            void check_refinement_queue_for_pattern( const uint aPattern )
+            {
+                if( this->is_deactive( aPattern ) )
+                {
+                    mRefinementQueueFlag = false;
+
+                    mParent->check_refinement_queue_for_pattern( aPattern );
+                }
+                else
+                {
+                    mRefinementQueueFlag = true;
+                }
+            }
+
+//--------------------------------------------------------------------------------
+
             /**
              * Returns a pointer to the parent of an element. If the element
              * is on level zero, a null pointer will be returned.
@@ -403,6 +419,8 @@ namespace moris
              */
             Background_Element_Base * get_parent()
             {
+                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel);
+
                 return mParent;
             }
 //--------------------------------------------------------------------------------
@@ -415,6 +433,8 @@ namespace moris
              */
             const Background_Element_Base * get_parent() const
             {
+                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel);
+
                 return mParent;
             }
 

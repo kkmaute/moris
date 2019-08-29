@@ -23,8 +23,7 @@ namespace moris
         * @return mtk::Geometry_Type
         */
         template<>
-        mtk::Geometry_Type
-        Lagrange_Element< 3, 27 >::get_geometry_type() const
+        mtk::Geometry_Type Lagrange_Element< 3, 27 >::get_geometry_type() const
         {
             return mtk::Geometry_Type::HEX;
         }
@@ -37,8 +36,7 @@ namespace moris
         * @return mtk::Interpolation_Order
         */
         template<>
-        mtk::Interpolation_Order
-        Lagrange_Element< 3, 27 >::get_interpolation_order() const
+        mtk::Interpolation_Order Lagrange_Element< 3, 27 >::get_interpolation_order() const
         {
             return mtk::Interpolation_Order::QUADRATIC;
         }
@@ -52,8 +50,7 @@ namespace moris
          *
          */
         template<>
-        std::string
-        Lagrange_Element< 3, 27 >::get_gmsh_string()
+        std::string Lagrange_Element< 3, 27 >::get_gmsh_string()
         {
             // gmsh type - number of tags - physical tag - geometry tag
             std::string aString = "12 2 0 1";
@@ -168,9 +165,7 @@ namespace moris
          *
          */
         template<>
-        void
-        Lagrange_Element< 3, 27 >::get_basis_indices_for_vtk(
-            Matrix< DDLUMat > & aBasis )
+        void Lagrange_Element< 3, 27 >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
         {
             // assemble nodes in correct order
            aBasis(  0 ) =  mNodes[  0 ]->get_memory_index();
@@ -205,8 +200,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         template<>
-        moris::Cell<moris::mtk::Vertex const *>
-        Lagrange_Element< 3, 27 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        moris::Cell<moris::mtk::Vertex const *> Lagrange_Element< 3, 27 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
             MORIS_ASSERT(aSideOrdinal<6,"Side ordinal out of bounds for cell type hex");
             moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Hex27::get_node_to_face_map(aSideOrdinal);
@@ -228,9 +222,8 @@ namespace moris
 
         template<>
         inline
-        moris::Matrix<moris::DDRMat>
-        Lagrange_Element< 3, 27 >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-		{
+        moris::Matrix<moris::DDRMat> Lagrange_Element< 3, 27 >::compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+        {
         MORIS_ERROR(aSideOrdinal<6,"Side ordinal out of bounds.");
 
 #ifdef DEBUG
@@ -257,7 +250,7 @@ namespace moris
         Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
 
         return tUnitOutwardNormal;
-		}
+        }
 
 // ----------------------------------------------------------------------------
 
@@ -271,10 +264,8 @@ namespace moris
          *
          */
         template<>
-        void
-        Lagrange_Element< 3, 27 >::get_ijk_of_basis(
-            const uint & aBasisNumber, 
-            luint      * aIJK ) 
+        void Lagrange_Element< 3, 27 >::get_ijk_of_basis( const uint   & aBasisNumber,
+                                                                 luint * aIJK )
         {
             // get element local coordinate
             switch ( aBasisNumber )
@@ -492,17 +483,14 @@ namespace moris
         * @return void
         */
         template<>
-        void
-        Lagrange_Element< 3, 27 >::create_basis_on_level_zero(
-              moris::Cell< Element * > & aAllElementsOnProc,
-              luint                           & aBasisCounter )
+        void Lagrange_Element< 3, 27 >::create_basis_on_level_zero( moris::Cell< Element * > & aAllElementsOnProc,
+                                                                    luint                    & aBasisCounter )
         {
              // initialize container for nodes
              this->init_basis_container();
 
              // get pointer to neighbor 4
-             Element* tNeighbor
-                 = this->get_neighbor( aAllElementsOnProc, 4 );
+             Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 4 );
 
              // test if neighbor 4 exists 
              if ( tNeighbor != NULL )
@@ -583,10 +571,8 @@ namespace moris
         * @return void
         */
         template<>
-        void
-        Lagrange_Element< 3, 27 >::create_basis_for_children(
-            moris::Cell< Element * > & aAllElementsOnProc,
-            luint             & aBasisCounter )
+        void Lagrange_Element< 3, 27 >::create_basis_for_children( moris::Cell< Element * > & aAllElementsOnProc,
+                                                                   luint                    & aBasisCounter )
         {
             // create temporary array containing all nodes
             Basis* tNodes[ 125 ] = { nullptr };
@@ -630,8 +616,7 @@ namespace moris
                 if ( tNeighbor->children_have_basis() )
                 {
                     // get pointer to background element
-                    Background_Element_Base* tBackNeighbor
-                        = tNeighbor->get_background_element();
+                    Background_Element_Base* tBackNeighbor = tNeighbor->get_background_element();
 
                     // get pointer to child 2
                     Element* tChild = aAllElementsOnProc(

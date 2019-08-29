@@ -37,6 +37,8 @@ namespace moris
 
             Lagrange_Mesh_Base * mMesh = nullptr;
 
+            moris::Cell< moris::hmr::BSpline_Mesh_Base* > mDummyBSplineMeshes;
+
             // give access to the member data to stk based interpolation and integration meshes
             friend class Interpolation_Mesh_HMR;
             friend class Integration_Mesh_HMR;
@@ -59,6 +61,15 @@ namespace moris
             Mesh(       std::shared_ptr< Database >   aDatabase,
                   const uint                        & aLagrangeOrder,
                   const uint                        & aLagrangePattern );
+
+
+            Mesh(       std::shared_ptr< Database >   aDatabase,
+                  const uint                        & aOrder,
+                  const uint                        & aLagrangePattern,
+                  const uint                        & aBsplinePattern);
+
+            Mesh(       std::shared_ptr< Database >   aDatabase,
+                  const uint                        & aLagrangeMeshIndex );
 
 //-------------------------------------------------------------------------------
 
@@ -144,7 +155,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            uint get_num_coeffs( const uint aOrder ) const;
+            uint get_num_coeffs( const uint aBSplineMeshIndex ) const;
 
 //-------------------------------------------------------------------------------
 
@@ -245,8 +256,8 @@ namespace moris
 //           Entity Ownership Functions
 //-------------------------------------------------------------------------------
 
-            moris_id get_entity_owner(  moris_index     aEntityIndex,
-                    enum EntityRank aEntityRank ) const;
+            moris_id get_entity_owner( moris_index     aEntityIndex,
+                                       enum EntityRank aEntityRank ) const;
 
             //FIXME Needs parallel implementation
             void
@@ -320,7 +331,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            void get_adof_map( const uint aOrder,
+            void get_adof_map( const uint                           aBSplineIndex,
                                      map< moris_id, moris_index > & aAdofMap ) const;
 
 //-------------------------------------------------------------------------------
@@ -383,10 +394,8 @@ public:
                     const moris_index aNodeIndex,
                     const enum EntityRank  aBSplineRank )
             {
-                return *mMesh->get_node_by_index(
-                            aNodeIndex )->get_interpolation(
-                                mtk::entity_rank_to_order( aBSplineRank ) )
-                                ->get_weights();
+                return *mMesh->get_node_by_index( aNodeIndex )->get_interpolation( mtk::entity_rank_to_order( aBSplineRank ) )
+                                                              ->get_weights();
             }
 private:
 

@@ -82,7 +82,7 @@ namespace xtk
             // flag first element for refinement
             //tHMR.flag_element( 0 );
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern();
+            tHMR.update_refinement_pattern( 0 );
 
 //            tNumberOfElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
 //

@@ -1909,11 +1909,10 @@ namespace moris
                 // matrix to check if communication table makes sense
                 Matrix< DDUMat > tBasisCommCheck( tBasisCount );
 
-
                 // make sure that communication table is sane
-                for( uint k=0; k<tCommLength; ++k )
+                for( uint Ik = 0; Ik < tCommLength; ++Ik )
                 {
-                    tBasisCommCheck( aCommTable( k ) ) = 0;
+                    tBasisCommCheck( aCommTable( Ik ) ) = 0;
                 }
 
                 // reset my own counter
@@ -1921,6 +1920,7 @@ namespace moris
 
                 if( tBasisCommCheck.max() != 0 )
                 {
+                    std::cout<< "Processor "<< par_rank()<<std::endl;
                     print( aCommTable, "CommTable" );
                     print( tBasisCommCheck, "CommCheck" );
                 }

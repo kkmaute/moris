@@ -36,7 +36,7 @@ namespace moris
             //! mesh that holds data
             Lagrange_Mesh_Base * mLagrangeMesh;
 
-            uint mInputBSplineOrder = 0;
+            uint mInputBSplineIndex = 0;
             uint mOutputBSplineOrder = 0;
 
             // index of field in mesh
@@ -64,16 +64,16 @@ namespace moris
         public :
 //------------------------------------------------------------------------------
 
-            Field(  const std::string             & aLabel,
-                    std::shared_ptr< mtk::Mesh >    aMesh,
-                    const uint                    & aBSplineOrder,
-                    std::shared_ptr< Database >     aDatabase,
-                    Lagrange_Mesh_Base *            aLagrangeMesh );
+            Field( const std::string                  & aLabel,
+                         std::shared_ptr< mtk::Mesh >   aMesh,
+                   const uint                         & aBSplineIndex,
+                         std::shared_ptr< Database >    aDatabase,
+                         Lagrange_Mesh_Base           * aLagrangeMesh );
 
 //------------------------------------------------------------------------------
 
             Field( const std::string             & aLabel,
-                   std::shared_ptr< Mesh >         aMesh,
+                         std::shared_ptr< Mesh >   aMesh,
                    const std::string             & aHdf5FilePath );
 
 //------------------------------------------------------------------------------
@@ -85,18 +85,17 @@ namespace moris
             /**
              * returns the dimensionality of the field
              */
-            uint
-            get_number_of_dimensions() const
+            uint get_number_of_dimensions() const
             {
                 return mNumberOfDimensions;
             }
 
 //------------------------------------------------------------------------------
+
             /**
              * returns the interpolation order of the Lagrange Mesh
              */
-            uint
-            get_lagrange_order() const
+            uint get_lagrange_order() const
             {
                 return mLagrangeMesh->get_order();
             }
@@ -105,39 +104,65 @@ namespace moris
             /**
              * returns the interpolation order of the B-Splines
              */
-            uint
-            get_bspline_order() const
+            uint get_bspline_order() const
             {
                 return mLagrangeMesh->get_real_scalar_field_bspline_order( mFieldIndex );
             }
 
 //------------------------------------------------------------------------------
-            uint
-            get_bspline_output_order() const
+
+            /**
+             * returns the interpolation order of the Lagrange Mesh
+             */
+            uint get_lagrange_pattern() const
+            {
+                return mLagrangeMesh->get_activation_pattern();
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the mesh index of the Lagrange Mesh
+             */
+            uint get_lagrange_mesh_index() const
+            {
+                return mLagrangeMesh->get_index();
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns the interpolation order of the B-Splines
+             */
+            uint get_bspline_pattern() const
+            {
+                MORIS_ASSERT( false, "does not retun pattern, returns order");
+                return mLagrangeMesh->get_real_scalar_field_bspline_order( mFieldIndex );
+            }
+
+//------------------------------------------------------------------------------
+
+            uint get_bspline_output_order() const
             {
                 return mOutputBSplineOrder;
             }
 
 //------------------------------------------------------------------------------
 
-            void
-            set_bspline_output_order( const uint & aOrder )
+            void set_bspline_output_order( const uint & aOrder )
             {
                 mOutputBSplineOrder = aOrder;
             }
 
 //------------------------------------------------------------------------------
 
-            void
-            set_id( const moris_id & aID )
+            void set_id( const moris_id & aID )
             {
                 mID = aID;
             }
 
 //------------------------------------------------------------------------------
 
-            moris_id
-            get_id() const
+            moris_id get_id() const
             {
                 return mID;
             }
@@ -145,54 +170,45 @@ namespace moris
 //------------------------------------------------------------------------------
 
             // parameter copied from input settings
-            void
-            set_min_surface_level( const uint & aLevel );
+            void set_min_surface_level( const uint & aLevel );
 
 //------------------------------------------------------------------------------
 
             // parameter copied from input settings
-            void
-            set_min_volume_level( const uint & aLevel );
+            void set_min_volume_level( const uint & aLevel );
 
 //------------------------------------------------------------------------------
 
             // parameter copied from input settings
-            void
-            set_max_surface_level( const uint & aLevel );
+            void set_max_surface_level( const uint & aLevel );
 
 //------------------------------------------------------------------------------
 
             // parameter copied from input settings
-            void
-            set_max_volume_level( const uint & aLevel );
+            void set_max_volume_level( const uint & aLevel );
 
 //------------------------------------------------------------------------------
 
-            uint
-            get_min_surface_level() const;
-
-//------------------------------------------------------------------------------
-
-            // parameter copied from input settings
-            uint
-            get_min_volume_level() const;
+            uint get_min_surface_level() const;
 
 //------------------------------------------------------------------------------
 
             // parameter copied from input settings
-            uint
-            get_max_surface_level() const;
+            uint get_min_volume_level() const;
 
 //------------------------------------------------------------------------------
 
             // parameter copied from input settings
-            uint
-            get_max_volume_level() const;
+            uint get_max_surface_level() const;
 
 //------------------------------------------------------------------------------
 
-            const std::string &
-            get_label() const;
+            // parameter copied from input settings
+            uint get_max_volume_level() const;
+
+//------------------------------------------------------------------------------
+
+            const std::string & get_label() const;
 
 //------------------------------------------------------------------------------
 
@@ -219,8 +235,7 @@ namespace moris
              * sets the pointer of the mesh to another mesh
              * this is needed by the mapper
              */
-            void
-            change_mesh( Lagrange_Mesh_Base * aMesh, const uint aFieldIndex );
+            void change_mesh( Lagrange_Mesh_Base * aMesh, const uint aFieldIndex );
 
 //------------------------------------------------------------------------------
 
@@ -228,40 +243,34 @@ namespace moris
              * returns the pointer of the underlying mesh
              */
 
-            Lagrange_Mesh_Base *
-            get_mesh()
+            Lagrange_Mesh_Base * get_mesh()
             {
                 return mLagrangeMesh;
             }
 
-            const Lagrange_Mesh_Base *
-            get_mesh() const
+            const Lagrange_Mesh_Base * get_mesh() const
             {
                 return mLagrangeMesh;
             }
 
 //------------------------------------------------------------------------------
 
-            void
-            get_element_local_node_values(
-                    const moris_index  aElementIndex,
-                    Matrix< DDRMat > & aValues );
+            void get_element_local_node_values( const moris_index  aElementIndex,
+                                                      Matrix< DDRMat > & aValues );
 
 //------------------------------------------------------------------------------
 
             /**
              * return the field index on the linked mesh
              */
-            uint
-            get_field_index() const
+            uint get_field_index() const
             {
                 return mFieldIndex;
             }
 
 //------------------------------------------------------------------------------
 
-            mtk::Interpolation_Order
-            get_interpolation_order() const
+            mtk::Interpolation_Order get_interpolation_order() const
             {
                 // assume that all elements on mesh have same order
                 return mMesh->get_mtk_cell( 0 ).get_interpolation_order();
@@ -272,14 +281,11 @@ namespace moris
             /**
              * returns the rank of the B-Spline interpolation
              */
-            EntityRank
-            get_bspline_rank() const;
+            EntityRank get_bspline_rank() const;
 
 //------------------------------------------------------------------------------
 
-            void
-            evaluate_scalar_function(
-                    real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
+            void evaluate_scalar_function( real (*aFunction)( const Matrix< DDRMat > & aPoint ) );
 
 //------------------------------------------------------------------------------
 
@@ -287,45 +293,36 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void
-            evaluate_node_values();
+            void evaluate_node_values();
 
 //------------------------------------------------------------------------------
 
-            void
-            evaluate_node_values( const Matrix< DDRMat > & aCoefficients );
+            void evaluate_node_values( const Matrix< DDRMat > & aCoefficients );
 
 //------------------------------------------------------------------------------
 
-            void
-            save_field_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
+            void save_field_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
 
 //------------------------------------------------------------------------------
 
-            void
-            save_node_values_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
+            void save_node_values_to_hdf5( const std::string & aFilePath, const bool aCreateNewFile=true );
 
 //------------------------------------------------------------------------------
 
-            void
-            load_field_from_hdf5(
-                    const std::string & aFilePath,
-                    const uint          aBSplineOrder=0 );
+            void load_field_from_hdf5( const std::string & aFilePath,
+                                       const uint          aBSplineOrder=0 );
 
 //------------------------------------------------------------------------------
 
-            void
-            save_bspline_coeffs_to_binary( const std::string & aFilePath );
+            void save_bspline_coeffs_to_binary( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
 
-            void
-            save_node_values_to_binary( const std::string & aFilePath );
+            void save_node_values_to_binary( const std::string & aFilePath );
 
 //------------------------------------------------------------------------------
 
-            void
-            set_bspline_order( const uint & aOrder );
+            void set_bspline_order( const uint & aOrder );
 
 //------------------------------------------------------------------------------
         };

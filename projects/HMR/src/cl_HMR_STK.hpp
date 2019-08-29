@@ -109,8 +109,7 @@ namespace moris
              *
              * @return void
              */
-            void
-            create_mesh_data( const double aTimeStep = 0.0 ) ;
+            void create_mesh_data( const double aTimeStep = 0.0 ) ;
 
 // ----------------------------------------------------------------------------
 
@@ -133,16 +132,14 @@ namespace moris
              *
              * @return void
              */
-            void
-            save_to_file( const std::string & aFilePath );
+            void save_to_file( const std::string & aFilePath );
 
 // ----------------------------------------------------------------------------
 
             /**
              * Return node sharing data. Needed for unit test
              */
-            Matrix< IdMat > const &
-            get_node_sharing_data()
+            Matrix< IdMat > const & get_node_sharing_data()
             {
                 return mNodeSharing;
             }
@@ -150,8 +147,7 @@ namespace moris
 // ----------------------------------------------------------------------------
     private:
 // ----------------------------------------------------------------------------
-            void
-            flag_old_and_new_elements();
+            void flag_old_and_new_elements();
 
 // ----------------------------------------------------------------------------
     };

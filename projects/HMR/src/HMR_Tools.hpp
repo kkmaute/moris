@@ -138,10 +138,8 @@ namespace moris
             tLowerString[ i ] = std::tolower( aString[i] );
         }
 
-        return ( tLowerString == "true"
-              || tLowerString == "on"
-              || tLowerString == "yes"
-              || tLowerString == "1" ) ;
+        return ( tLowerString == "true" || tLowerString == "on"
+              || tLowerString == "yes"  || tLowerString == "1" ) ;
     }
 
 // -----------------------------------------------------------------------------
@@ -168,7 +166,7 @@ namespace moris
         /**
          * returns the binominalcoefficient of n over k as real
          */
-    	inline
+        inline
         real nchoosek( const uint & aN, const uint aK )
         {
             real aResult = 1.0;
@@ -179,72 +177,6 @@ namespace moris
             }
 
             return aResult;
-        }
-
-// -----------------------------------------------------------------------------
-
-        template < typename T >
-        void string_to_mat( const std::string & aString, Matrix< T > & aMat )
-        {
-            if( aString.size() > 0 )
-            {
-                uint tCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-                std::string tString( aString );
-
-                // allocate memory
-                aMat.set_size( tCount, 1 );
-
-                // reset counter
-                tCount = 0;
-
-                // reset position
-                size_t tPos = 0;
-
-                // reset string
-                tString = aString;
-
-                while( tPos < tString.size() )
-                {
-                    // find string
-                    tPos = tString.find( "," );
-
-                    // copy value into output matrix
-                    if( tPos <  tString.size() )
-                    {
-                        aMat( tCount++ ) = stod(  tString.substr( 0, tPos ) );
-                        tString =  tString.substr( tPos+1, tString.size() );
-                    }
-                }
-
-                // copy value into output matrix
-                aMat( tCount++ ) = stod( tString );
-            }
-            else
-            {
-                aMat.set_size( 0, 1 );
-            }
-        }
-
-// -----------------------------------------------------------------------------
-
-        template < typename T >
-        void mat_to_string(
-                const Matrix< T > & aMat,
-                std::string & aString )
-        {
-            aString = "";
-
-            uint tLength = aMat.length();
-
-            for( uint k=0; k<tLength; ++k )
-            {
-                if( k > 0 )
-                {
-                    aString = aString + ", ";
-                }
-                aString = aString + std::to_string( aMat( k ) );
-            }
         }
 
 // -----------------------------------------------------------------------------

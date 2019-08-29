@@ -22,17 +22,14 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    STK::STK( Lagrange_Mesh_Base * aMesh ) :
-            mParameters( aMesh->get_parameters() ),
-            mMesh( aMesh ),
-            mNumberOfDimensions( aMesh->get_parameters()->get_number_of_dimensions() )
+    STK::STK( Lagrange_Mesh_Base * aMesh ) : mParameters( aMesh->get_parameters() ),
+                                             mMesh( aMesh ),
+                                             mNumberOfDimensions( aMesh->get_parameters()->get_number_of_dimensions() )
     {
-
     }
 
 // ----------------------------------------------------------------------------
-    void
-    STK::create_mesh_data( const double aTimeStep )
+    void STK::create_mesh_data( const double aTimeStep )
     {
         // start timer
         tic tTimer;

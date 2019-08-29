@@ -56,6 +56,9 @@ namespace moris
             // order for this example
             moris::uint tOrder = 1;
 
+            moris::uint tLagrangeMeshIndex = 0;
+            moris::uint tBSplineMeshIndex = 0;
+
             // create parameter object
             moris::hmr::Parameters tParameters;
             tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
@@ -63,7 +66,25 @@ namespace moris
             tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_mesh_orders_simple( tOrder );
+
+            tParameters.set_output_meshes( { {0} } );
+
+            tParameters.set_lagrange_orders  ( { {1} });
+            tParameters.set_lagrange_patterns({ {0} });
+
+            tParameters.set_bspline_orders   ( { {1} } );
+            tParameters.set_bspline_patterns ( { {0} } );
+
+            tParameters.set_union_pattern( 2 );
+            tParameters.set_working_pattern( 3 );
+
+            tParameters.set_refinement_buffer( 1 );
+            tParameters.set_staircase_buffer( 1 );
+
+            Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+            tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
             // create HMR object
             moris::hmr::HMR tHMR( tParameters );
@@ -81,8 +102,8 @@ namespace moris
 
              // grab pointer to output field
              //std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
-             std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpolationMesh =  tHMR.create_interpolation_mesh( tOrder, tHMR.get_parameters()->get_lagrange_output_pattern() );
-             std::shared_ptr< hmr::Integration_Mesh_HMR >   tIntegrationMesh =  tHMR.create_integration_mesh( tOrder, tHMR.get_parameters()->get_lagrange_output_pattern(), *tInterpolationMesh );
+             std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpolationMesh =  tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+             std::shared_ptr< hmr::Integration_Mesh_HMR >   tIntegrationMesh =  tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
 
 //             std::cout << std::endl;
 //             // List of B-Spline Meshes
@@ -118,10 +139,6 @@ namespace moris
 
               //tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_matlab.hdf5" );
 
-             moris::map< moris::moris_id, moris::moris_index > tMap;
-             tInterpolationMesh->get_adof_map( tOrder, tMap );
-             //tMap.print("Adof Map");
-
              //-------------------------------------------------------------------------------------------
 
              // create IWG object
@@ -133,7 +150,7 @@ namespace moris
              Cell< MSI::Equation_Object* >  tElements;
 
              // get map from mesh
-             tInterpolationMesh->get_adof_map( tOrder, tCoefficientsMap );
+             tInterpolationMesh->get_adof_map( tBSplineMeshIndex, tCoefficientsMap );
 
              // ask mesh about number of nodes on proc
              luint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
@@ -199,10 +216,10 @@ namespace moris
              MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                                                           tInterpolationMesh->get_communication_table(),
                                                                                           tCoefficientsMap,
-                                                                                          tInterpolationMesh->get_num_coeffs( tOrder ),
+                                                                                          tInterpolationMesh->get_num_coeffs( tBSplineMeshIndex ),
                                                                                           tInterpolationMesh.get() );
 
-             tMSI->set_param("L2")= 1;
+             tMSI->set_param("L2")= 0;
 
              tElementBlocks( 0 )->finalize( tMSI );
 
@@ -254,7 +271,6 @@ namespace moris
 //                 tParameters.set_domain_offset( 0, 0 );
 //
 //                 uint tOrder = 2;
-//                 tParameters.set_mesh_orders_simple( tOrder );
 //
 //                 tParameters.set_multigrid( true );
 //

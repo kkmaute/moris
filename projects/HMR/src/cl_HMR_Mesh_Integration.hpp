@@ -25,19 +25,35 @@ namespace hmr
 
 class Integration_Mesh_HMR : public Mesh, public mtk::Integration_Mesh
 {
+private:
+    mtk::Cell_Cluster * mDummyCluster  = nullptr;
+
+    // cell clusters
+    moris::Cell<Cell_Cluster_HMR> mCellClusters;
+
+    // Block sets containing Cell Clusters
+    moris::Cell<std::string>                     mPrimaryBlockSetNames;
+    moris::Cell<moris::Cell<moris::moris_index>> mPrimaryBlockSetClusters;
+
+    // side sets
+    std::unordered_map<std::string, moris_index> mSideSideSetLabelToOrd;
+    moris::Cell<std::string>                     mSideSetLabels;
+    moris::Cell<moris::Cell<Side_Cluster_HMR>>   mSideSets;
+
 public:
     Integration_Mesh_HMR(std::shared_ptr< Database > aDatabase,
                          const uint & aLagrangeOrder,
                          const uint & aLagrangePattern,
-                         Interpolation_Mesh_HMR & aInterpolationMesh  ):
-        Mesh( aDatabase, aLagrangeOrder, aLagrangePattern )
+                         Interpolation_Mesh_HMR & aInterpolationMesh  ) : Mesh( aDatabase,
+                                                                                aLagrangeOrder,
+                                                                                aLagrangePattern )
     {
-        if( aLagrangePattern == mMesh->get_parameters()->get_lagrange_output_pattern() || aLagrangePattern== mMesh->get_parameters()->get_union_pattern())
-        {
-            this->setup_cell_clusters(aInterpolationMesh);
+//        if( aLagrangePattern == mMesh->get_parameters()->get_lagrange_output_pattern() || aLagrangePattern== mMesh->get_parameters()->get_union_pattern())
+//        {
+            this->setup_cell_clusters( aInterpolationMesh );
             this->setup_blockset_with_cell_clusters();
-            this->setup_side_set_clusters(aInterpolationMesh);
-        }
+            this->setup_side_set_clusters( aInterpolationMesh );
+//        }
     }
 
     mtk::Cell_Cluster const &
@@ -56,7 +72,6 @@ public:
        MORIS_ASSERT(aInterpCellIndex<(moris_index)mCellClusters.size(),"Interpolation Cell index out of bounds");
        return mCellClusters(aInterpCellIndex);
     }
-
 
     /*
      * Get block set names
@@ -90,8 +105,7 @@ public:
     /*!
      * get number of side sets
      */
-    uint
-    get_num_side_sets() const
+    uint get_num_side_sets() const
     {
         return mSideSets.size();
     }
@@ -175,22 +189,6 @@ public:
         MORIS_ERROR(0,"get_double_side_set_cluster not implemented in HMR Integration mesh");
         return moris::Cell<moris::mtk::Cluster const *>(0);
     }
-
-private:
-    mtk::Cell_Cluster * mDummyCluster     = nullptr;
-
-    // cell clusters
-    moris::Cell<Cell_Cluster_HMR> mCellClusters;
-
-
-    // Block sets containing Cell Clusters
-    moris::Cell<std::string>                     mPrimaryBlockSetNames;
-    moris::Cell<moris::Cell<moris::moris_index>> mPrimaryBlockSetClusters;
-
-    // side sets
-    std::unordered_map<std::string, moris_index> mSideSideSetLabelToOrd;
-    moris::Cell<std::string>                     mSideSetLabels;
-    moris::Cell<moris::Cell<Side_Cluster_HMR>>   mSideSets;
 
     /*
      * Construct HMR Cell Clustering
@@ -305,10 +303,9 @@ private:
     /*
      *  setup the side set cluster interface
      */
-    void
-    setup_side_set_clusters(Interpolation_Mesh_HMR & aInterpMesh)
+    void setup_side_set_clusters( Interpolation_Mesh_HMR & aInterpMesh )
     {
-        moris::Cell<std::string> aSideSetNames = this->get_set_names(EntityRank::FACE);
+        moris::Cell<std::string> aSideSetNames = this->get_set_names( EntityRank::FACE );
 
         mSideSets.resize(aSideSetNames.size());
 
@@ -322,7 +319,6 @@ private:
             mSideSideSetLabelToOrd[mSideSetLabels(i)] = i;
         }
 
-
         // iterate through block sets
         for(moris::uint i = 0;  i < aSideSetNames.size(); i++)
         {
@@ -330,7 +326,6 @@ private:
             moris::Cell< mtk::Cell const * > tCellsInSet(0);
             moris::Matrix<moris::IndexMat>   tSideOrdsInSet(0,0);
             this->get_sideset_cells_and_ords(aSideSetNames(i), tCellsInSet, tSideOrdsInSet);
-
 
             // figure out which integration cells are in the side cluster input. these are assumed
             // the only non-trivial ones, all others will be marked as trivial
@@ -377,10 +372,8 @@ private:
             return EntityRank::INVALID;
         }
     }
-
 };
 }
 }
-
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTEGRATION_HPP_ */

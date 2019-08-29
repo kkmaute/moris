@@ -5,7 +5,8 @@
 set(TEST_SOURCES
     test_main.cpp
     cl_Logger.cpp
-    fn_to_stdio.cpp )
+    fn_to_stdio.cpp
+    UT_IOS_Parsing_Tool.cpp )
 
 # List additional includes
 include_directories(${MORIS_DIR}/snippets/ios)
