@@ -50,14 +50,15 @@ public:
     };
 
     //------------------------------------------------------------------------------
-    void flag_as_intersected()
+    void flag_as_intersected( )
     {
         mMyIntersectionFlag = true;
     }
     //------------------------------------------------------------------------------
-    void compute_intersection(  )
+    moris_index compute_intersection( )
     {
         mMyIntersectionPoints.push_back({{(mMyFieldVals(0) + mMyFieldVals(1))/(mMyFieldVals(0) - mMyFieldVals(1))}});
+        return mMyIntersectionPoints.size()-1;
     }
     //------------------------------------------------------------------------------
     /*
@@ -68,7 +69,6 @@ public:
     void compute_intersection_sensitivity( moris_index aMyIndex )
     {
         //fixme: decide where to allocate sensitivity
-
 //        MORIS_ASSERT(mMyIntersSensVal.size() == mMyIntersectionPoints.size(),"Sensitivity information not allocated");
 //        MORIS_ASSERT(mMyIntersSensInd.size() == mMyIntersectionPoints.size(),"Sensitivity information not allocated");
 
@@ -135,7 +135,7 @@ public:
     void set_intersection( Matrix< DDRMat > aPoint,
                            moris_index      aMyIndex )
     {
-        mMyIntersectionPoints(aMyIndex) = aPoint;
+        mMyIntersectionPoints( aMyIndex ) = aPoint;
     }
     //******************************* get functions ********************************
     //------------------------------------------------------------------------------

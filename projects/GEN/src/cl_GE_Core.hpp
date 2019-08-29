@@ -128,16 +128,35 @@ namespace ge
             /*
              * @brief determine if there is an intersection
              *
-             * @param[in] aWhichGeom - Which geometry representation are we checking for intersection with?
-             * @param[in] aPrimitive - geometric primitive
+             * @param[in] aWhichGeom          - Which geometry representation are we checking for intersection with?
+             * @param[in] aIntersectionObject - intersection object to check with
+             *
+             * @param[out] index of the intersection point (if it exists)
              */
             //fixme this is currently giving the intersection of a single dimension, should this loop over all dimensions and
                  // determine the full intersection point (x,y,z,t) or just return the local coordinates?
-            void compute_intersection( moris_index aWhichGeom,
-                                       Intersection_Object_Line*  aIntersectionObject )
+            moris_index compute_intersection( moris_index aWhichGeom,
+                                              Intersection_Object*  aIntersectionObject )
             {
                 return mListOfNodalInfoObjects( aWhichGeom ).compute_intersection( aIntersectionObject );
             };
+            //------------------------------------------------------------------------------
+            /*
+             * @brief returns the intersection point
+             *
+             * @param[in] aWhichGeom          - Which geometry representation are we checking for intersection with?
+             * @param[in] aIntersectionObject - intersection object to check with
+             * @param[in] aWhichIntersection  - index of the intersection point to obtain
+             *
+             * @param[out] intersection point
+             */
+            Matrix< DDRMat > get_intersection_point( moris_index aWhichGeom,
+                                                     Intersection_Object*  aIntersectionObject,
+                                                     moris_index aWhichIntersection )
+            {
+                return mListOfNodalInfoObjects( aWhichGeom ).get_intersection_point( aIntersectionObject,
+                                                                                     aWhichIntersection );
+            }
             //------------------------------------------------------------------------------
             /*
              * @brief compute the LS value of a specified geometry representation at a specific coordinate

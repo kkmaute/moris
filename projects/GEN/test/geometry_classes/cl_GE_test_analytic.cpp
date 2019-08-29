@@ -179,22 +179,24 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             Intersection_Object_Line tIntersectionObject;
 
             tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
-            tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
+            moris_index tXInd = tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
 
-            tIntersectionObject.compute_intersection();
-            Matrix< F31RMat > tIntersectionAlongX = tIntersectionObject.get_intersection_point( 0 );
+            Matrix< F31RMat > tIntersectionAlongX = tGeometryEngine.get_intersection_point( tMyGeomIndex, &tIntersectionObject, tXInd );
 
             // edge [4]:
             tGlobalPos = {{0},{1}};     // edge [2] goes from y=0 to y=1
             tTHat = {{0},{1}};
-            tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(2)(0,0) }};
+            tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(3)(0,0) }};
 
             tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
-            tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
+            moris_index tYInd = tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
 
-            tIntersectionObject.compute_intersection();
-            Matrix< F31RMat > tIntersectionAlongY = tIntersectionObject.get_intersection_point( 0 );
+            Matrix< F31RMat > tIntersectionAlongY = tGeometryEngine.get_intersection_point( tMyGeomIndex, &tIntersectionObject, tYInd );
+            //------------------------------------------------------------------------------
 
+//            tIntersectionObject.compute_intersection_sensitivity();
+//
+//            Matrix< DDRMat > tTemp = tIntersectionObject.get_field_sensitivity_vals( 0 );
             //------------------------------------------------------------------------------
             /*
              * --------------------------------------------------------

@@ -39,9 +39,10 @@ class Intersection_Object
 
         ~Intersection_Object(){};
 
-        virtual void compute_intersection(  )
+        virtual moris_index compute_intersection(  )
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::compute_intersection() - not implemented " );
+            return 0;
         }
         virtual void compute_intersection_sensitivity( moris_index aMyIndex )
         {

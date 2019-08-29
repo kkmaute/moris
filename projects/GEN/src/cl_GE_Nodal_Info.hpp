@@ -135,9 +135,18 @@ namespace ge
         /*
          * @brief determines the intersection point of a geometry representation with a geometric primitive
          */
-        void compute_intersection( Intersection_Object* aIntersectionObject )
+        moris_index compute_intersection( Intersection_Object* aIntersectionObject )
         {
-            aIntersectionObject->compute_intersection();
+            return aIntersectionObject->compute_intersection(  );
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief returns the intersection point of a geometry representation with a geometric primitive
+         */
+        Matrix< DDRMat > get_intersection_point( Intersection_Object* aIntersectionObject,
+                                            moris_index          aWhichIntersection )
+        {
+            return aIntersectionObject->get_intersection_point( aWhichIntersection );
         }
         //------------------------------------------------------------------------------
         /*
