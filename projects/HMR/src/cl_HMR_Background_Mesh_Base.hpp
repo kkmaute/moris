@@ -445,12 +445,24 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
+             * applies this refinment queue to another pattern.
+             * Pattern can change if second pattern is not refined as first pattern
+             *
+             * @param[ in ]     uint active pattern
+             */
+            void apply_refinement_queue_to_pattern( const uint aPattern );
+
+//--------------------------------------------------------------------------------
+
+            /**
              * synchronizes and processes the refinement queue
              * and updates active element table
              *
+             *@param[ in ]     uint active pattern
+             *
              * @return         bool telling if at least one element has been refined
              */
-            bool perform_refinement();
+            bool perform_refinement( const uint aPattern );
 
 //--------------------------------------------------------------------------------
 

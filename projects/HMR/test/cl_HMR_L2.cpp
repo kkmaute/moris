@@ -258,7 +258,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
             tDatabase->flag_element( 0 );
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
         // update database etc
@@ -274,7 +274,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
             tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 1 );
         }
         // update database etc
         tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , 1, false );
@@ -374,11 +374,8 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
-
-        // update database etc
-//        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );   //FIXME
 
        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
@@ -393,13 +390,11 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
             tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 1 );
         }
-        // update database etc
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
         // manually create union
-        tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+        tDatabase->unite_patterns( 0, 1, 2 );
 
         tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
         //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
@@ -424,9 +419,9 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
          // map input to output
          tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-         tHMR.save_to_exodus( "LevelSet.exo" );
+//         tHMR.save_to_exodus( "LevelSet.exo" );
 
-         auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
+         auto tOutputMesh = tHMR.create_mesh( tOutputOrder, 2 );        // order , pattern
 
          // calculate exact value
          auto tExact = tOutputMesh->create_field( "Exact", 0 );
@@ -505,7 +500,7 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
         // update database etc
@@ -524,7 +519,7 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
             tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 1 );
         }
         // update database etc
         //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
@@ -639,7 +634,7 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
         // update database etc
@@ -658,7 +653,7 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
             tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
-            tDatabase->get_background_mesh()->perform_refinement();
+            tDatabase->get_background_mesh()->perform_refinement( 1 );
         }
         // update database etc
         //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
@@ -781,7 +776,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
                 tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement( 0 );
             }
 
            tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
@@ -797,7 +792,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
                 tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement( 1 );
             }
 
             // manually create union
@@ -826,7 +821,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
              // map input to output
              tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-             tHMR.save_to_exodus( "LevelSet2.exo", tOutputOrder );
+//             tHMR.save_to_exodus( "LevelSet2.exo", tOutputOrder );
 
              auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
 
@@ -924,7 +919,7 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement(0 );
             }
 
            tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
@@ -939,7 +934,7 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement(1);
             }
 
             // manually create union
@@ -1070,7 +1065,7 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
                 tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement(0);
             }
 
            tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
@@ -1085,7 +1080,7 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
                 tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement(1);
             }
 
             // manually create union
@@ -1217,7 +1212,7 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement(0);
             }
 
            //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi1.vtk");
@@ -1233,7 +1228,7 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
-                tDatabase->get_background_mesh()->perform_refinement();
+                tDatabase->get_background_mesh()->perform_refinement(1);
             }
 
             // manually create union

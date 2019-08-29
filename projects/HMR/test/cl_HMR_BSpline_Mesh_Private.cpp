@@ -22,7 +22,7 @@
 #undef private
 
 
-TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private]")
+TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private],[BsplineMesh]")
 {
 //-------------------------------------------------------------------------------
 

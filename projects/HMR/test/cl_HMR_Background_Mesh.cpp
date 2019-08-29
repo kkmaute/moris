@@ -15,7 +15,7 @@
 #include "cl_HMR_Database.hpp" //HMR/src
 
 
-TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
+TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Background_Mesh1]")
 {
     SECTION( "Background mesh initialization test")
     {
@@ -29,12 +29,14 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
 
             // do not print debug information during test
-//            tParameters->set_verbose( true );
             tParameters->set_severity_level( 0 );
 
             // set buffer size to zero
-            tParameters->set_refinement_buffer( 0 );
-            tParameters->set_staircase_buffer( 0 );
+            tParameters->set_refinement_buffer( 1 );
+            tParameters->set_staircase_buffer( 1 );
+
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0} });
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -43,8 +45,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             moris::hmr::Factory tFactory;
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
 
             // update element table
             //tBackgroundMesh->collect_active_elements();
@@ -63,7 +64,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
                 // ------------------------------------------------------
 
                 //  tBackgroundMesh->print_level_zero();
-                tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 45);
+                tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 45 );
 
                 // must be 10
                 REQUIRE( tElement->get_hmr_id() == 45 );
@@ -352,6 +353,9 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
 
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0} });
+
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
@@ -360,9 +364,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
 
             // create background mesh object
             moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
-
-            // update element table
-//            tBackgroundMesh->collect_active_elements();
 
             if ( moris::par_size() == 1 )
             {
@@ -450,7 +451,8 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
                 }
 
                 // refine all elements
-                tBackgroundMesh->perform_refinement();
+                tBackgroundMesh->perform_refinement( 0 );
+                
                 if( moris::par_rank() == 0 )
                 {
                     // pick element 150
@@ -464,7 +466,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
                 }
 
                 // refine all elements
-                tBackgroundMesh->perform_refinement();
+                tBackgroundMesh->perform_refinement( 0 );
 
                 // list of active elements on proc
                 moris::Matrix< moris::DDLUMat > tElementIDs;
@@ -534,7 +536,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
                 }
 
                 // call refinement procedure
-                tBackgroundMesh->perform_refinement();
+                tBackgroundMesh->perform_refinement( 0 );
 
                 if( moris::par_rank() == 0 )
                 {
@@ -549,7 +551,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
                 }
 
                 // call refinement procedure
-                tBackgroundMesh->perform_refinement();
+                tBackgroundMesh->perform_refinement( 0 );
 
                 // list of active elements on proc including aura
                 moris::Matrix< moris::DDLUMat > tElementIDs;
@@ -596,7 +598,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
     }
 }
 
-TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Background_Mesh_Activation_Pattern]")
+TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Background_Mesh_Activation_Pattern],[Background_Mesh]")
 {
     if( moris::par_size() == 1 )
     {
@@ -609,6 +611,9 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
         // set buffer size to zero
         tParameters->set_refinement_buffer( 1 );
         tParameters->set_staircase_buffer( 1 );
+
+        tParameters->set_lagrange_orders  ( { {2} });
+        tParameters->set_lagrange_patterns({ {0} });
 
         // deactivate truncation
         tParameters->set_bspline_truncation( false );
@@ -626,10 +631,10 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
 
         // element 0 is the element with ID 18
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 0 );
 
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 0 );
 
 //        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref1.vtk");
 
@@ -640,10 +645,10 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
 
         // element 0 is the element with ID 18
         tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 1 );
 
         tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 1 );
 
 //        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref2.vtk");
 
@@ -658,7 +663,10 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
         // get hmr ids of active elements
         tBackgroundMesh->get_active_elements_on_proc( tElementIDs_1 );
 
+        print(tElementIDs_1,"tElementIDs_1");
+
         REQUIRE( tElementIDs_1.length()  == 28 );
+
 
         REQUIRE( tElementIDs_1(  0 ) == 584 );        REQUIRE( tElementIDs_1(  2 ) == 616 );
         REQUIRE( tElementIDs_1(  4 ) == 133 );        REQUIRE( tElementIDs_1( 10 ) == 151 );
@@ -691,7 +699,7 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
     }
 }
 
-TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background_Mesh_Unite_Pattern]")
+TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background_Mesh_Unite_Pattern],[Background_Mesh]")
 {
     if( moris::par_size() == 1 )
     {
@@ -704,6 +712,9 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
         // set buffer size to zero
         tParameters->set_refinement_buffer( 1 );
         tParameters->set_staircase_buffer( 1 );
+
+        tParameters->set_lagrange_orders  ( { {2} });
+        tParameters->set_lagrange_patterns({ {0} });
 
         // deactivate truncation
         tParameters->set_bspline_truncation( false );
@@ -720,10 +731,10 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
 
         // element 0 is the element with ID 18
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 0 );
 
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 0 );
 
 //        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref1.vtk");
 
@@ -733,10 +744,10 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
 
         // element 0 is the element with ID 18
         tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 1 );
 
         tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 1 );
 
 //        tBackgroundMesh->save_to_vtk( "BackgorundMesh_Procref2.vtk");
 
@@ -798,7 +809,7 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
     }
 }
 
-TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_refine]")
+TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_refine],[Background_Mesh]")
 {
     if( moris::par_size() == 1 )
     {

@@ -195,7 +195,7 @@ namespace moris
         this->set_bspline_truncation( (bool) aParameterList.get< sint >("truncate_bsplines") );
 
 //        // set minimum initial refinement
-//        this->set_initial_bspline_refinement( aParameterList.get< sint >("initial_bspline_refinement") );
+//        this->set_initial_refinement( aParameterList.get< sint >("initial_bspline_refinement") );
 //        this->set_additional_lagrange_refinement( aParameterList.get< sint >( "additional_lagrange_refinement" ) );
 
         this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
@@ -230,7 +230,7 @@ namespace moris
         tParameterList.set( "truncate_bsplines", ( sint ) aParameters->truncate_bsplines() );
 
         // initial refinement
-        tParameterList.set( "initial_bspline_refinement",     ( sint ) aParameters->get_initial_bspline_refinement() );
+        tParameterList.set( "initial_bspline_refinement",     ( sint ) aParameters->get_initial_refinement() );
         tParameterList.set( "additional_lagrange_refinement", ( sint )  aParameters->get_additional_lagrange_refinement()  );
         tParameterList.set( "max_refinement_level", ( sint ) aParameters->get_max_refinement_level() );
 
@@ -262,7 +262,7 @@ namespace moris
         this->set_bspline_truncation( aParameters.truncate_bsplines() );
 
         // initial refinement
-        this->set_initial_bspline_refinement( aParameters.get_initial_bspline_refinement() );
+        this->set_initial_refinement( aParameters.get_initial_refinement() );
         this->set_additional_lagrange_refinement( aParameters.get_additional_lagrange_refinement() );
 
         // side sets

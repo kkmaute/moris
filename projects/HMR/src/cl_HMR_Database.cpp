@@ -656,30 +656,30 @@ namespace moris
 
         void Database::add_extra_refinement_step_for_exodus()
         {
-            // get refined pattern
-            auto tPattern = mParameters->get_refined_output_pattern();
-
-            // create refined pattern
-            mBackgroundMesh->copy_pattern( mParameters->get_lagrange_output_pattern(),
-                                           tPattern );
-
-            // activate output pattern
-            mBackgroundMesh->set_activation_pattern( tPattern );
-
-            // collect all active elements on background mesh
-            mBackgroundMesh->collect_active_elements();
-
-            // get number of elements
-            luint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
-
-            // flag all active elements
-            for( luint e = 0; e < tNumberOfElements; ++e )
-            {
-                mBackgroundMesh->get_element( e )->put_on_refinement_queue();
-            }
-
-            // perform refinement
-            mBackgroundMesh->perform_refinement();
+//            // get refined pattern
+//            auto tPattern = mParameters->get_refined_output_pattern();
+//
+//            // create refined pattern
+//            mBackgroundMesh->copy_pattern( mParameters->get_lagrange_output_pattern(),
+//                                           tPattern );
+//
+//            // activate output pattern
+//            mBackgroundMesh->set_activation_pattern( tPattern );
+//
+//            // collect all active elements on background mesh
+//            mBackgroundMesh->collect_active_elements();
+//
+//            // get number of elements
+//            luint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
+//
+//            // flag all active elements
+//            for( luint e = 0; e < tNumberOfElements; ++e )
+//            {
+//                mBackgroundMesh->get_element( e )->put_on_refinement_queue();
+//            }
+//
+//            // perform refinement
+//            mBackgroundMesh->perform_refinement();
         }
 
 // -----------------------------------------------------------------------------
@@ -778,13 +778,13 @@ namespace moris
                         tElement->put_on_refinement_queue();
                     }
                 }
-                tFlag = tFlag || mBackgroundMesh->perform_refinement();
+                tFlag = tFlag || mBackgroundMesh->perform_refinement( aActivePattern );
             }
 
             // #MINREF check for minimum refinement criterion
             while ( mBackgroundMesh->collect_refinement_queue() )
             {
-                mBackgroundMesh->perform_refinement();
+                mBackgroundMesh->perform_refinement( aActivePattern );
             }
 
             // update max level

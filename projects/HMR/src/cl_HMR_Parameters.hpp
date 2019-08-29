@@ -125,7 +125,7 @@ namespace moris
            //! Lagrange Mesh that is used for the refined output
            uint             mRefinedOutputMesh = 7;
 
-           uint mInitialBSplineRefinementLevel = 0;
+           uint mInitialRefinementLevel = 0;
            uint mAdditionalLagrangeRefinementLevel = 0;
            //! defines which SideSets are to be generated
            Matrix< DDUMat > mSideSets;
@@ -865,16 +865,16 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           void set_initial_bspline_refinement( const uint & aLevel )
+           void set_initial_refinement( const uint & aLevel )
            {
-               mInitialBSplineRefinementLevel = aLevel;
+               mInitialRefinementLevel = aLevel;
            }
 
 //-------------------------------------------------------------------------------
 
-           uint get_initial_bspline_refinement() const
+           uint get_initial_refinement() const
            {
-               return mInitialBSplineRefinementLevel;
+               return mInitialRefinementLevel;
            }
 
 //-------------------------------------------------------------------------------

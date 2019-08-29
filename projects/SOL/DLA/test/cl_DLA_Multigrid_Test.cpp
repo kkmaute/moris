@@ -104,10 +104,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         // flag first element for refinement
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0 );
 
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0 );
 
         tHMR.finalize();
 
@@ -500,31 +500,49 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 {
     if( moris::par_size() == 1 )
     {
-        // order for this example
-        moris::uint tOrder = 1;
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
 
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 }, { 4 } } );
 
+        tParameters.set_severity_level( 0 );
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( tOrder );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
         tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         // create HMR object
         moris::hmr::HMR tHMR( tParameters );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
         // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeMeshIndex );
 
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
             tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0 );
             tHMR.update_refinement_pattern( 0 );
         }
 
@@ -533,7 +551,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
 
-        tHMR.save_to_exodus( "Sphere11.exo" );
+        tHMR.save_to_exodus( 0,"Sphere11.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 

@@ -75,6 +75,7 @@ namespace ge
              * @param[out] nodal information
              */
             Matrix< DDRMat > get_field_vals( moris_index aWhichGeom,
+
                                              moris_index aWhichIndex )
             {
                 return mListOfNodalInfoObjects( aWhichGeom ).get_field_vals( aWhichIndex );
