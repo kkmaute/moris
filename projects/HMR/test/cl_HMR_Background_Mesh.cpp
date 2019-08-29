@@ -36,9 +36,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             tParameters->set_refinement_buffer( 0 );
             tParameters->set_staircase_buffer( 0 );
 
-            // use simple patterns
-            tParameters->set_mesh_orders_simple( 2 );
-
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
@@ -358,9 +355,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // use simple patterns
-            tParameters->set_mesh_orders_simple( 2 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -619,9 +613,6 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
         // deactivate truncation
         tParameters->set_bspline_truncation( false );
 
-        // use simple patterns
-        tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
-
         // create factory
         moris::hmr::Factory tFactory;
 
@@ -716,9 +707,6 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
 
         // deactivate truncation
         tParameters->set_bspline_truncation( false );
-
-        // use simple patterns
-        tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
 
         // create factory
         moris::hmr::Factory tFactory;

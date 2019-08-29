@@ -66,9 +66,6 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                // It is recommended to leave this setting as is.
 //                tParameters.set_bspline_truncation( true );
 //
-//                // set mesh order
-//                tParameters.set_mesh_orders_simple( tOrder );
-//
 ////                moris::Matrix< moris::DDUMat > tSideSetsUsed;
 ////
 ////                if( tDimension == 2 )
@@ -348,9 +345,6 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
 
-        // set mesh order
-        //tParameters.set_mesh_orders_simple( tOrder );
-
         tParameters.set_lagrange_orders  ( { {1}, {1} });
         tParameters.set_lagrange_patterns({ {0}, {1} });
 
@@ -483,9 +477,6 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
 
-        // set mesh order
-        //tParameters.set_mesh_orders_simple( tOrder );
-
         tParameters.set_lagrange_orders  ( { {2}, {1} });
         tParameters.set_lagrange_patterns({ {0}, {1} });
 
@@ -617,9 +608,6 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         // B-Spline truncation is turned on by default.
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
-
-        // set mesh order
-        //tParameters.set_mesh_orders_simple( tOrder );
 
         tParameters.set_lagrange_orders  ( { {1}, {1} });
         tParameters.set_lagrange_patterns({ {0}, {1} });
@@ -763,9 +751,6 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            // set mesh order
-            //tParameters.set_mesh_orders_simple( tOrder );
-
             tParameters.set_lagrange_orders  ( { {2}, {1} });
             tParameters.set_lagrange_patterns({ {0}, {1} });
 
@@ -808,9 +793,6 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
                 tDatabase->get_background_mesh()->perform_refinement();
             }
 
-            // update database etc
-    //        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );   //FIXME
-
            tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
             // manually select output pattern
@@ -826,8 +808,6 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
                 // manually refine, do not reset pattern
                 tDatabase->get_background_mesh()->perform_refinement();
             }
-            // update database etc
-            //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
             // manually create union
             tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
@@ -878,7 +858,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
 TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
 {
     //    gLogger.set_severity_level( 0 );
-        // can only perform test for 1, 2 or 4 procs
+    // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
@@ -915,9 +895,6 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
-
-            // set mesh order
-            //tParameters.set_mesh_orders_simple( tOrder );
 
             tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
             tParameters.set_lagrange_patterns({ {0}, {1} });
@@ -959,9 +936,6 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 tDatabase->get_background_mesh()->perform_refinement();
             }
 
-            // update database etc
-    //        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );   //FIXME
-
            tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
             // manually select output pattern
@@ -971,14 +945,11 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
             // fixme: change this to 2
             for( uint tLevel = 0; tLevel < 2; ++tLevel )
             {
-    //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
                 tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
                 tDatabase->get_background_mesh()->perform_refinement();
             }
-            // update database etc
-            //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
             // manually create union
             //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
@@ -1003,17 +974,12 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
 
              uint tOutputMeshIndex = 1;
              uint tBsplineMeshIndex = 0;
-
-//             uint tOutputOrder = tDatabase->get_lagrange_mesh_by_index( tOutputMeshIndex )->get_order();
-
              // map input to output
              tHMR.map_field_to_output( tField,
                                        tOutputMeshIndex,
                                        tBsplineMeshIndex);
 
              //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
-
-             //---------------------------------
 
              auto tOutputMesh = tHMR.create_mesh( 1 );        // Mesh index
 
@@ -1038,7 +1004,7 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
 TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
 {
     //    gLogger.set_severity_level( 0 );
-        // can only perform test for 1, 2 or 4 procs
+    // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
@@ -1075,9 +1041,6 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
-
-            // set mesh order
-            //tParameters.set_mesh_orders_simple( tOrder );
 
             tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
             tParameters.set_lagrange_patterns({ {0}, {1} });
@@ -1119,9 +1082,6 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
                 tDatabase->get_background_mesh()->perform_refinement();
             }
 
-            // update database etc
-    //        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );   //FIXME
-
            tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
             // manually select output pattern
@@ -1131,14 +1091,11 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
             // fixme: change this to 2
             for( uint tLevel = 0; tLevel < 2; ++tLevel )
             {
-    //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
                 tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
 
                 // manually refine, do not reset pattern
                 tDatabase->get_background_mesh()->perform_refinement();
             }
-            // update database etc
-            //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
             // manually create union
             //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
@@ -1164,16 +1121,12 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
              uint tOutputMeshIndex = 1;
              uint tBsplineMeshIndex = 1;
 
-//             uint tOutputOrder = tDatabase->get_lagrange_mesh_by_index( tOutputMeshIndex )->get_order();
-
              // map input to output
              tHMR.map_field_to_output( tField,
                                        tOutputMeshIndex,
                                        tBsplineMeshIndex);
 
              //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
-
-             //---------------------------------
 
              auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
 
@@ -1190,8 +1143,6 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
 
              // perform test
              REQUIRE( tR2 > 0.99 );
-
-
     }
     }
     }
@@ -1200,13 +1151,13 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
 TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
 {
     //    gLogger.set_severity_level( 0 );
-        // can only perform test for 1, 2 or 4 procs
+    // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
-    for( moris::uint tDimension=2; tDimension<=2; ++tDimension )
+    for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
     {
-    for( moris::uint tOrder=2; tOrder<=2; tOrder++ )
+    for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
     {
     //------------------------------------------------------------------------------
     //  HMR Parameters setup
@@ -1237,9 +1188,6 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
-
-            // set mesh order
-            //tParameters.set_mesh_orders_simple( tOrder );
 
             tParameters.set_lagrange_orders  ( { {1}, {tOrder} });
             tParameters.set_lagrange_patterns({ {0}, {1} });
@@ -1281,10 +1229,7 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 tDatabase->get_background_mesh()->perform_refinement();
             }
 
-            // update database etc
-    //        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );   //FIXME
-
-           tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi1.vtk");
+           //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi1.vtk");
 
             // manually select output pattern
             tDatabase->set_activation_pattern( 1 );
@@ -1299,13 +1244,11 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 // manually refine, do not reset pattern
                 tDatabase->get_background_mesh()->perform_refinement();
             }
-            // update database etc
-            //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
             // manually create union
             //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
 
-            tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi2.vtk");
+            //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi2.vtk");
             //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
             tDatabase->update_bspline_meshes();
@@ -1326,16 +1269,12 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
              uint tOutputMeshIndex = 1;
              uint tBsplineMeshIndex = 1;
 
-//             uint tOutputOrder = tDatabase->get_lagrange_mesh_by_index( tOutputMeshIndex )->get_order();
-
              // map input to output
              tHMR.map_field_to_output( tField,
                                        tOutputMeshIndex,
                                        tBsplineMeshIndex);
 
-             tHMR.save_to_exodus( tOutputMeshIndex, "LevelSetPresi.exo" );
-
-             //---------------------------------
+             //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSetPresi.exo" );
 
              auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
 
@@ -1368,35 +1307,3 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
     }
 }
 
-//Matrix< DDRMat > test_residual1( const sint Aa)
-//{
-//    Matrix< DDRMat > tResidual( 2, 1, 1.0);
-//
-//    return tResidual;
-//}
-//
-//Matrix< DDRMat > test_residual2( const sint Aa)
-//{
-//
-//    Matrix< DDRMat > tResidual( 2, 1, 2.0);
-//
-//    return tResidual;
-//}
-//
-//#include <functional>
-//
-//TEST_CASE("std_function", "[moris],[mesh],[hmr],[std_function]")
-//{
-//    std::function< Matrix< DDRMat >( sint )> tA1 = test_residual1;
-//    std::function< Matrix< DDRMat >( sint )> tA2 = test_residual2;
-//
-//    moris::Cell< std::function< Matrix< DDRMat >( sint  )> > tCell(2);
-//
-//    tCell(0) = tA1;
-//    tCell(1) = tA2;
-//
-//    std::cout<<"------ output -----"<<std::endl;
-//
-//    print( tCell(0)(1)," 1" );
-//    print( tCell(1)(1),"2" );
-//}
