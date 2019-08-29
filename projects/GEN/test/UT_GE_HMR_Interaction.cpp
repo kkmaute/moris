@@ -17,8 +17,35 @@
 
 #include "HDF5_Tools.hpp"
 
+// GE includes
+#include "cl_GE_Core.hpp"
+#include "cl_GE_Factory.hpp"
+#include "cl_GE_Intersection_Object_Line.hpp"
+#include "cl_GE_Node.hpp"
+
+// LINALG includes
+#include "cl_Matrix.hpp"
+#include "fn_all_true.hpp"
+#include "fn_equal_to.hpp"
+#include "linalg_typedefs.hpp"
+#include "op_equal_equal.hpp"
+
+// MTK includes
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_MTK_Mesh_Tools.hpp"
+#include "cl_MTK_Scalar_Field_Info.hpp"
+#include "cl_MTK_Vertex.hpp"
+
+#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+
 using namespace moris;
 using namespace hmr;
+using namespace ge;
 
 TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 {
@@ -26,6 +53,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
     {
         for( moris::uint tOrder=1; tOrder<=1; tOrder++ )
         {
+            uint tLagrangeMeshIndex = 0;
             // empty container for B-Spline meshes
             moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
@@ -46,7 +74,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            tParameters.set_initial_refinement( 2 );
+            tParameters.set_initial_refinement( 0 );
 
             Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
@@ -75,7 +103,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             // refine the last element three times
             // fixme: change this to 2
-            for( uint tLevel = 0; tLevel < 1; ++tLevel )
+            for( uint tLevel = 0; tLevel < 2; ++tLevel )
             {
                 tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
@@ -85,12 +113,71 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_1_initial.vtk");
 
-            tDatabase->unite_patterns( 0, 1, 2);
+
+
+            tDatabase->unite_patterns( 0, 1, 2 );
+
+            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_2_initial.vtk");
 
             tDatabase->update_bspline_meshes();
             tDatabase->update_lagrange_meshes();
             // calculate T-Matrices etc
             tDatabase->finalize();
+
+            std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+            std::shared_ptr< moris::hmr::Integration_Mesh_HMR > tIntegrationMesh = tHMR.create_integration_mesh( 1, 2,*tInterpMesh );
+
+            mtk::Mesh_Manager tMesh;
+            uint tMeshIndex = tMesh.register_mesh_pair( tInterpMesh.get(), tIntegrationMesh.get() );
+
+            //--------------------------------------------------------------------------------------------------
+
+            // input parameters for the circle LS
+            moris::Cell< real > tCircleInputs = {{0},{0},{0.9}};
+            //------------------------------------------------------------------------------
+
+            Ge_Factory tFactory;
+            std::shared_ptr< Geometry > tGeom = tFactory.set_geometry_type( GeomType::ANALYTIC );
+
+            tGeom->set_my_mesh( &tMesh );
+            tGeom->set_my_constants(tCircleInputs);
+
+            tGeom->set_analytical_function(AnalyticType::CIRCLE);
+            tGeom->set_analytical_function_dphi_dx(AnalyticType::CIRCLE);
+
+            GE_Core tGeometryEngine;
+            moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom );
+
+            uint tNumOfIPNodes = tIntegrationMesh->get_num_nodes();
+
+            Matrix< DDRMat > tFieldData( tNumOfIPNodes,1, 0.0);
+            for( uint n=0; n<tNumOfIPNodes; n++)
+            {
+                tFieldData(n)        = tGeometryEngine.get_field_vals( tMyGeomIndex, n )( 0 );     //FIXME
+            }
+
+            print(tFieldData, "tFieldData");
+
+            tHMR.flag_surface_elements( tFieldData );
+
+            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 1 );
+//            tHMR.update_refinement_pattern( 1 );
+
+            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes1;
+
+            // create factory
+            moris::hmr::Factory tFactory_HMR;
+
+            moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory_HMR.create_lagrange_mesh( &tParameters,
+                                                                                                tDatabase->get_background_mesh(),
+                                                                                                 tBSplineMeshes1,
+                                                                                                 1,
+                                                                                                 1 );
+
+             // output to exodus
+             STK * tSTK = tLagrangeMesh->create_stk_object(0);
+             tSTK->save_to_file( "GE_HMR_Mesh.g");
+             delete tSTK;
 
 
 //        // create first order Lagrange mesh

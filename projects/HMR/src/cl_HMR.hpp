@@ -333,6 +333,8 @@ namespace moris
              */
             uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
 
+            uint flag_surface_elements( const Matrix< DDRMat > & aFieldValues );
+
 // -----------------------------------------------------------------------------
 
             /**

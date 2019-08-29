@@ -1744,6 +1744,43 @@ namespace moris
             return aElementCounter;
         }
 
+        uint HMR::flag_surface_elements( const Matrix< DDRMat > & aFieldValues )
+        {
+//            MORIS_ERROR(false, "HMR::flag_surface_elements() this function is not udated yet ");
+            // the funciton returns the number of flagged elements
+            uint aElementCounter = 0;
+
+            // create geometry engine
+            ge::GE_Core tRefMan;
+
+            // candidates for refinement
+            Cell< mtk::Cell* > tCandidates;
+
+            // elements to be flagged for refinement
+            Cell< mtk::Cell* > tRefinementList;
+
+            uint tLagrangeMeshIndex = 0;                  //FIXME
+
+            // get candidates for surface
+            this->get_candidates_for_refinement( tCandidates,
+                                                 tLagrangeMeshIndex,
+                                                 2 );                                 //FIXME
+
+            // call refinement manager and get intersected cells
+            tRefMan.find_cells_intersected_by_levelset( tRefinementList,
+                                                        tCandidates,
+                                                        aFieldValues );
+
+            // add length of list to counter
+            aElementCounter += tRefinementList.size();
+
+            // flag elements in HMR
+            this->flag_elements( tRefinementList, 0 );             //FIXME
+
+            // return number of flagged elements
+            return aElementCounter;
+        }
+
 // ----------------------------------------------------------------------------
 
         /**
