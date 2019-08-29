@@ -350,7 +350,7 @@ namespace moris
             moris::Matrix< DDRMat > tSolution11;
             tTimeSolver.get_full_solution( tSolution11 );
 
-            print(tSolution11,"tSolution11");
+//            print(tSolution11,"tSolution11");
 
 
             delete tInterpMesh1;

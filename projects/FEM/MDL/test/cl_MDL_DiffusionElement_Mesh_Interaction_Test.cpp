@@ -61,6 +61,12 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 0.5;
 }
 
+//moris::real
+//LevelSetFunction_2( const moris::Matrix< moris::DDRMat > & aPoint, Cell< real > aConstant )
+//{
+//    return norm( aPoint ) - aConstant( 0 );
+//}
+
 namespace moris
 {
 namespace mdl
@@ -410,26 +416,6 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
         //------------------------------------------------------------------------------
 
-//        moris::uint tBplineOrder = 1;
-//        moris::uint tLagrangeOrder = 1;
-//        moris::uint tMyCoeff = 1;
-//
-//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
-//
-//        tParameters.set( "number_of_elements_per_dimension", "10, 4, 4" );
-//        tParameters.set( "domain_dimensions", "10, 4, 4" );
-//        tParameters.set( "domain_offset", "-10.0, -2.0, -2.0" );
-//        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-//
-//        tParameters.set( "truncate_bsplines", 1 );
-//        tParameters.set( "bspline_orders", "1" );
-//        tParameters.set( "lagrange_orders", "1" );
-//
-//        tParameters.set( "use_multigrid", 0 );
-//
-//        tParameters.set( "refinement_buffer", 1 );
-//        tParameters.set( "staircase_buffer", 1 );
-
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;
 
@@ -463,6 +449,24 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         hmr::HMR tHMR( tParameters );
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+//        tHMR.finalize();
+//
+//        // construct a mesh manager for the fem
+//        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh_Orig = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+//        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh_Orig   = tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
+//
+//        // place the pair in mesh manager
+//        mtk::Mesh_Manager tMeshManager;
+//        tMeshManager.register_mesh_pair( tInterpolationMesh_Orig.get(),tIntegrationMesh_Orig.get() );
+//
+//        // ------------- Geometry Engine ------------------------------------------------
+//        Ge_Factory tFactory;
+//        std::shared_ptr< Geometry > tGeomEngine = tFactory.set_geometry_type(GeomType::ANALYTIC);
+//
+//        tGeomEngine->set_my_mesh(&tMeshManager);
+//        tGeomEngine->set_analytical_function( LevelSetFunction_2 );
+        // ------------- Geometry Engine ------------------------------------------------
 
         // create field
         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeMeshIndex );
@@ -1013,7 +1017,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
 
-        print(tSolution11,"tSolution11");
+//        print(tSolution11,"tSolution11");
 
         tModel->output_solution( "Circle" );
 

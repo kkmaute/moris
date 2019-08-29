@@ -127,6 +127,7 @@ namespace moris
 
         void HMR::finalize()
         {
+            //FIXME
             // if mesh has not been refined, copy input to output before finalizing
             if( ! mDatabase->have_refined_at_least_one_element() )
             {
@@ -179,7 +180,7 @@ namespace moris
             else
             {
 //                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );         //FIXME
-                tIndex = this->get_mesh_index( tOutputOrder, 2 );
+//                tIndex = this->get_mesh_index( tOutputOrder, 2 );
             }
 
             MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
@@ -215,7 +216,7 @@ namespace moris
             }
             else
             {
-                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );
+//                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );
             }
 
             MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
@@ -258,7 +259,7 @@ namespace moris
             }
             else
             {
-                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_input_pattern() );
+//                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_input_pattern() );
             }
 
             MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
@@ -1369,54 +1370,18 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void HMR::perform_initial_refinement()
+        void HMR::perform_initial_refinement( const uint aPattern )
         {
             // get minimum refinement from parameters object
-            uint tInitialRefinement = mParameters->get_initial_bspline_refinement();
+            uint tInitialRefinement = mParameters->get_initial_refinement();
 
-            // get pointer to background mesh
-            Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
-
-            // get number of active elements on mesh
-            uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
-
-            // flag all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
+            for( uint Ik=0; Ik<tInitialRefinement; ++Ik )
             {
-                // get pointer to background element
-                Background_Element_Base * tElement = tBackMesh->get_element( e );
-
-                // set minumum level for this element
-                tElement->set_min_refimenent_level( tInitialRefinement );
-
-                // flag this element
-                tElement->put_on_refinement_queue();
-            }
-
-            // run the refiner
-            this->perform_refinement( RefinementMode::BSPLINE_INIT );
-
-            if( mParameters->get_additional_lagrange_refinement()  == 0 )
-            {
-                // union pattern is needed, otherwise error is thrown
-//                this->get_database()->copy_pattern( mParameters->get_lagrange_output_pattern(),
-//                                                    mParameters->get_union_pattern() );
-
-                // update database
-                mDatabase->update_bspline_meshes();
-                mDatabase->update_lagrange_meshes();
-            }
-            else
-            {
-                MORIS_ERROR(false, "not implemented yet");
-                // select B-Spline flags on output for second flagging
-                this->get_database()->set_activation_pattern( mParameters->get_bspline_output_pattern() );
-
-                // add delta for Lagrange
-                tInitialRefinement += mParameters->get_additional_lagrange_refinement();
+                // get pointer to background mesh
+                Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
 
                 // get number of active elements on mesh
-                tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+                uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
 
                 // flag all elements
                 for( uint e=0; e<tNumberOfElements; ++e )
@@ -1424,15 +1389,57 @@ namespace moris
                     // get pointer to background element
                     Background_Element_Base * tElement = tBackMesh->get_element( e );
 
-                    // set minumum level for this element
-                    tElement->set_min_refimenent_level( tInitialRefinement );
+//                    // set minumum level for this element
+//                    tElement->set_min_refimenent_level( tInitialRefinement );
 
                     // flag this element
                     tElement->put_on_refinement_queue();
                 }
 
-                this->perform_refinement( RefinementMode::LAGRANGE_INIT );
+                // run the refiner
+                this->perform_refinement( RefinementMode::SIMPLE, aPattern );
+
+                mDatabase->update_bspline_meshes();
+                mDatabase->update_lagrange_meshes();
             }
+
+//            if( mParameters->get_additional_lagrange_refinement()  == 0 )
+//            {
+//                // union pattern is needed, otherwise error is thrown
+////                this->get_database()->copy_pattern( mParameters->get_lagrange_output_pattern(),
+////                                                    mParameters->get_union_pattern() );
+//
+//                // update database
+////                mDatabase->update_bspline_meshes();
+////                mDatabase->update_lagrange_meshes();
+//            }
+//            else
+//            {
+//                MORIS_ERROR(false, "not implemented yet");
+//                // select B-Spline flags on output for second flagging
+//                this->get_database()->set_activation_pattern( mParameters->get_bspline_output_pattern() );
+//
+//                // add delta for Lagrange
+//                tInitialRefinement += mParameters->get_additional_lagrange_refinement();
+//
+//                // get number of active elements on mesh
+//                tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+//
+//                // flag all elements
+//                for( uint e=0; e<tNumberOfElements; ++e )
+//                {
+//                    // get pointer to background element
+//                    Background_Element_Base * tElement = tBackMesh->get_element( e );
+//
+//                    // set minumum level for this element
+//                    tElement->set_min_refimenent_level( tInitialRefinement );
+//
+//                    // flag this element
+//                    tElement->put_on_refinement_queue();
+//                }
+//
+//                this->perform_refinement( RefinementMode::LAGRANGE_INIT );
+//            }
         }
 
 // ----------------------------------------------------------------------------
@@ -1444,6 +1451,7 @@ namespace moris
                         Cell< std::shared_ptr< Field > > & aFields,
                         ParameterList              & aParameters )
         {
+            MORIS_ERROR(false, "HMR::perform_initial_refinement() this function is not udated yet ");
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
 
@@ -1553,43 +1561,48 @@ namespace moris
 
         uint HMR::get_mesh_index( const uint aOrder, const uint aPattern )
         {
-            uint aIndex = MORIS_UINT_MAX;
+            MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
+//            uint aIndex = MORIS_UINT_MAX;
+//
+//            // find correct output mesh
+//            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
+//            for( uint k=0; k<tNumberOfMeshes; ++k )
+//            {
+//                auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
+//
+//                if(        tMesh->get_activation_pattern() == aPattern
+//                        && tMesh->get_order() == aOrder )
+//                {
+//                    aIndex = k;
+//                    break;
+//                }
+//            }
 
-            // find correct output mesh
-            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
-            for( uint k=0; k<tNumberOfMeshes; ++k )
-            {
-                auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                if(        tMesh->get_activation_pattern() == aPattern
-                        && tMesh->get_order() == aOrder )
-                {
-                    aIndex = k;
-                    break;
-                }
-            }
-
-            return aIndex;
+            return 0;
         }
 
 // ----------------------------------------------------------------------------
 
         void HMR::get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
-                                                 const uint                 aPattern,
+                                                 const uint                 aLagrangeMeshIndex,
                                                  const uint                 aMaxLevel )
         {
+//            MORIS_ERROR(false, "HMR::get_candidates_for_refinement() this function is not udated yet ");
             // reset candidate list
             aCandidates.clear();
 
+            // Get Lagrange mesh pattern
+            uint tPattern = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->get_activation_pattern();
+
             // make sure that input pattern is active
-            mDatabase->set_activation_pattern( aPattern );
+            mDatabase->set_activation_pattern( tPattern );
 
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
 
             // pick first Lagrange mesh on input pattern
             // fixme: add option to pick another one
-            Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( 0 );
+            Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 
             // get max level of this mesh
             //uint tMaxLevel = std::min( tBackgroundMesh->get_max_level(), aMaxLevel );
@@ -1597,7 +1610,7 @@ namespace moris
             // counter for elements
             uint tCount = 0;
 
-            // loop over all levels
+            // loop over all levels and determine size of Cell
             for( uint l = 0; l < aMaxLevel; ++l )
             {
                 Cell< Background_Element_Base * > tBackgroundElements;
@@ -1607,8 +1620,8 @@ namespace moris
                 // element must be active or refined
                 for( Background_Element_Base * tElement : tBackgroundElements )
                 {
-                    if( ( tElement->is_active( aPattern ) ||  tElement->is_refined( aPattern ) )
-                            && ! tElement->is_padding() )
+                    // if element  is active or refined but not padding
+                    if( ( tElement->is_active( tPattern ) || tElement->is_refined( tPattern ) ) && ! tElement->is_padding() )
                     {
                         // increment counter
                         ++tCount;
@@ -1630,8 +1643,7 @@ namespace moris
                 // element must be active or refined
                 for(  Background_Element_Base * tElement : tBackgroundElements )
                 {
-                    if( ( tElement->is_active( aPattern ) ||  tElement->is_refined( aPattern ) )
-                            && ! tElement->is_padding() )
+                    if( ( tElement->is_active( tPattern ) ||  tElement->is_refined( tPattern ) ) && ! tElement->is_padding() )
                     {
                         aCandidates( tCount++ ) = tMesh->get_element_by_memory_index( tElement->get_memory_index() );
                     }
@@ -1642,6 +1654,7 @@ namespace moris
 
         uint HMR::flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField )
         {
+//            MORIS_ERROR(false, "HMR::perform_initial_refinement() this function is not udated yet ");
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
@@ -1654,11 +1667,11 @@ namespace moris
             // elements to be flagged for refinement
             Cell< mtk::Cell* > tRefinementList;
 
-            uint tPattern = aScalarField->get_lagrange_pattern();
+            uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                                                 tPattern,
+                                                 tLagrangeMeshIndex,
                                                  aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
@@ -1674,7 +1687,7 @@ namespace moris
 
             // get candidates from volume
             this->get_candidates_for_refinement( tCandidates,
-                                                 tPattern,
+                                                 tLagrangeMeshIndex,
                                                  aScalarField->get_max_volume_level() );
 
             // call refinement manager and get volume cells
@@ -1696,11 +1709,11 @@ namespace moris
 
         uint HMR::flag_surface_elements( const std::shared_ptr<Field> aScalarField )
         {
+//            MORIS_ERROR(false, "HMR::flag_surface_elements() this function is not udated yet ");
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
             // create geometry engine
-
             ge::GE_Core tRefMan;
 
             // candidates for refinement
@@ -1709,11 +1722,11 @@ namespace moris
             // elements to be flagged for refinement
             Cell< mtk::Cell* > tRefinementList;
 
-            uint tPattern = aScalarField->get_lagrange_pattern();
+            uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                                                 tPattern,
+                                                 tLagrangeMeshIndex,
                                                  aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells

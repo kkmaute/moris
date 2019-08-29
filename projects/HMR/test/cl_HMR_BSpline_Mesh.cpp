@@ -13,7 +13,7 @@
 // This test creates a simple refinement pattern and makes sure that each B-Spline
 // is only generated once.
 
-TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
+TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
 {
 //-------------------------------------------------------------------------------
 
@@ -48,10 +48,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // set buffer size to zero
-
-            tParameters->set_refinement_buffer( 0 );
-            tParameters->set_staircase_buffer( 0 );
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -65,11 +61,12 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                 tParameters->set_refinement_buffer( tOrder );
                 tParameters->set_staircase_buffer( tOrder );
 
-                // set aura
-                //tParameters->set_max_polynomial( tOrder );
+                // set mesh order
+                tParameters->set_lagrange_orders  ( { {tOrder} });
+                tParameters->set_lagrange_patterns({ {0}});
 
-                // set simple mesh order
-                tParameters->set_mesh_orders_simple( tOrder );
+                tParameters->set_bspline_orders   ( { {tOrder} } );
+                tParameters->set_bspline_patterns ( { {0} } );
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
@@ -90,12 +87,14 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                     }
 
                     // refine mesh
-                    tBackgroundMesh->perform_refinement();
+                    tBackgroundMesh->perform_refinement( 0 );
                 }
 
                 // create B-Spline mesh
-                moris::hmr::BSpline_Mesh_Base* tBSplineMesh
-                    = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, tOrder );
+                moris::hmr::BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tParameters,
+                                                                                            tBackgroundMesh,
+                                                                                            0,
+                                                                                            tOrder );
 
                 // test basis uniqueness
                 REQUIRE ( tBSplineMesh->test_for_double_basis() );
@@ -139,10 +138,6 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // set buffer size to zero
-            tParameters->set_refinement_buffer( 0 );
-            tParameters->set_staircase_buffer( 0 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -157,8 +152,11 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                 tParameters->set_refinement_buffer( tOrder );
                 tParameters->set_staircase_buffer( tOrder );
 
-                // set max order to 3
-                tParameters->set_mesh_orders_simple( tOrder );
+                tParameters->set_lagrange_orders  ( { {tOrder} });
+                tParameters->set_lagrange_patterns({ {0}});
+
+                tParameters->set_bspline_orders   ( { {tOrder} } );
+                tParameters->set_bspline_patterns ( { {0} } );
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh
@@ -181,12 +179,14 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
                     }
 
                     // refine mesh
-                    tBackgroundMesh->perform_refinement();
+                    tBackgroundMesh->perform_refinement( 0 );
                 }
 
                 // create B-Spline mesh
-                moris::hmr::BSpline_Mesh_Base* tBSplineMesh
-                    = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, tOrder );
+                moris::hmr::BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tParameters,
+                                                                                            tBackgroundMesh,
+                                                                                            0,
+                                                                                            tOrder );
 
                 // test basis uniqueness
                 REQUIRE ( tBSplineMesh->test_for_double_basis() );
@@ -202,7 +202,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr]")
     }
 }
 
-TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_pattern]")
+TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_pattern],[BsplineMesh]")
 {
 //-------------------------------------------------------------------------------
 
@@ -221,8 +221,11 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
             tParameters->set_refinement_buffer( 1 );
             tParameters->set_staircase_buffer( 1 );
 
-            // use simple patterns
-            tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
+            tParameters->set_lagrange_orders  ( { {2} });
+            tParameters->set_lagrange_patterns({ {0}});
+
+            tParameters->set_bspline_orders   ( { {2} } );
+            tParameters->set_bspline_patterns ( { {0} } );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -236,10 +239,10 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
 
             // element 0 is the element with ID 18
             tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-            tBackgroundMesh->perform_refinement( );
+            tBackgroundMesh->perform_refinement( 0 );
 
             tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-            tBackgroundMesh->perform_refinement( );
+            tBackgroundMesh->perform_refinement( 0 );
 
             //----------------------------------------------------------------------------------------------------------
             // Work on activation pattern 1 mesh
@@ -247,10 +250,10 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
 
             // element 0 is the element with ID 18
             tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
-            tBackgroundMesh->perform_refinement( );
+            tBackgroundMesh->perform_refinement( 1 );
 
             tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
-            tBackgroundMesh->perform_refinement( );
+            tBackgroundMesh->perform_refinement( 1 );
 
             // create B-Spline mesh
             //( Parameters, Backgroundmesh, Pattern, Order)

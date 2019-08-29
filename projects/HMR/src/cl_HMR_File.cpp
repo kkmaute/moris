@@ -96,7 +96,7 @@ namespace moris
             // save initial refinement
             save_scalar_to_hdf5_file( mFileID,
                                       "InitialBSplineRefinement",
-                                      aParameters->get_initial_bspline_refinement(),
+                                      aParameters->get_initial_refinement(),
                                       mStatus );
 
             // save initial refinement
@@ -257,7 +257,7 @@ namespace moris
                                         tValUint,
                                         mStatus );
 
-            aParameters->set_initial_bspline_refinement( tValUint );
+            aParameters->set_initial_refinement( tValUint );
 
             // load initial refinement
             load_scalar_from_hdf5_file( mFileID,
@@ -509,7 +509,7 @@ namespace moris
                 }
 
                 // refine mesh
-                aMesh->perform_refinement();
+                aMesh->perform_refinement( tBSplinePattern );
             }
 
             // clone B-Spline to Lagrange
@@ -547,7 +547,7 @@ namespace moris
                 }
 
                 // refine mesh
-                aMesh->perform_refinement();
+                aMesh->perform_refinement( tLagrangePattern );
             }
 
             aMesh->update_database();

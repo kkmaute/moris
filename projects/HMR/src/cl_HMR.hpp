@@ -315,8 +315,8 @@ namespace moris
              * for flagging
              */
             void get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
-                                                const uint                 aPattern,
-                                                const uint                 aMaxLevel=gMaxNumberOfLevels );
+                                                const uint                 aLagrangeMeshIndex,
+                                                const uint                 aMaxLevel = gMaxNumberOfLevels );
 
 
 // -----------------------------------------------------------------------------
@@ -412,7 +412,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void perform_initial_refinement();
+            void perform_initial_refinement( const uint aPattern );
 
 // -----------------------------------------------------------------------------
 

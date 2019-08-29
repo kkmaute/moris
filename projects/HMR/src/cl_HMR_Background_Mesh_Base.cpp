@@ -628,7 +628,34 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        bool Background_Mesh_Base::perform_refinement()
+        void Background_Mesh_Base::apply_refinement_queue_to_pattern( const uint aPattern )
+        {
+            // synchronize with other procs ( this must be called twice )
+            this->synchronize_refinement_queue();
+            this->synchronize_refinement_queue();
+
+            // update element active cell
+            this->collect_active_elements_including_aura();
+
+            // step 1:  count flagged elements from active list
+            // count active elements on proc including aura
+            uint tActiveElementsOnProc = mActiveElementsIncludingAura.size();
+
+            for( luint k = 0; k < tActiveElementsOnProc; ++k )
+            {
+                Background_Element_Base * tBackGroundElement = mActiveElementsIncludingAura( k );
+
+                // check if element is flagged
+                if ( tBackGroundElement->is_queued_for_refinement() )
+                {
+                    tBackGroundElement->check_refinement_queue_for_pattern( aPattern );
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
+        bool Background_Mesh_Base::perform_refinement( const uint aPattern )
         {
             // update buffer size
             mBufferSize = mParameters->get_staircase_buffer();
@@ -641,6 +668,19 @@ namespace moris
             Matrix< DDUMat > tElementCountOld( tNumberOfProcs, 1    );
 
             uint tNumberOfElements = 0;
+
+            bool tPatternChange = false;
+            uint tOldPattern = mActivePattern;
+
+            if( mActivePattern != aPattern )
+            {
+                tPatternChange = true;
+
+                this->apply_refinement_queue_to_pattern( aPattern );
+
+                // change activation pattern
+                mActivePattern = aPattern;
+            }
 
             bool aFlag = false;
 
@@ -692,6 +732,11 @@ namespace moris
 
             // empty queue
             mRefinementQueue.clear();
+
+            if( tPatternChange )
+            {
+                mActivePattern = tOldPattern;
+            }
 
 
            // stop timer
@@ -1906,7 +1951,7 @@ namespace moris
                 }
 
                 // perform refinement
-                this->perform_refinement();
+                this->perform_refinement( aTarget );
             }
 
             // get back to old pattern
@@ -1961,7 +2006,7 @@ namespace moris
                 }
 
                 // perform refinement
-                this->perform_refinement();
+                this->perform_refinement( aTarget );
             }
         }
 
@@ -2009,7 +2054,7 @@ namespace moris
                 }
 
                 // perform refinement
-                this->perform_refinement();
+                this->perform_refinement( aTarget );
             }
         }
 

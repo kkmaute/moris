@@ -163,7 +163,7 @@ namespace moris
                 // an active element is not a padding element
                 mPaddingFlag = false;
 
-                // refine parents ( this is safe but not necessary )
+                // refine parents ( this is safe but not necessary )    FIXME
                 if( mLevel > 0 )
                 {
                     if( ! mParent->is_refined( aPattern ) )
@@ -391,6 +391,22 @@ namespace moris
             void remove_from_refinement_queue()
             {
                 mRefinementQueueFlag = false;
+            }
+
+//--------------------------------------------------------------------------------
+
+            void check_refinement_queue_for_pattern( const uint aPattern )
+            {
+                if( this->is_deactive( aPattern ) )
+                {
+                    mRefinementQueueFlag = false;
+
+                    mParent->check_refinement_queue_for_pattern( aPattern );
+                }
+                else
+                {
+                    mRefinementQueueFlag = true;
+                }
             }
 
 //--------------------------------------------------------------------------------
