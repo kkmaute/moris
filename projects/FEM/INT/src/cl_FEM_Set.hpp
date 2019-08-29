@@ -83,6 +83,11 @@ namespace MSI
 
         // cell of pointers to IWG objects
         moris::Cell< IWG* > mIWGs;
+        uint mNumOfIWG;
+        moris::Cell< moris::Cell< Field_Interpolator* > > mIWGMasterFieldInterpolators;
+        moris::Cell< moris::Cell< Field_Interpolator* > > mIWGSlaveFieldInterpolators;
+        moris::Cell< uint > mIWGNumActiveDof;
+        moris::Cell< moris::Matrix < DDUMat > > mIWGDofAssemblyMap;
 
         enum fem::Element_Type mElementType;
 
@@ -277,7 +282,7 @@ namespace MSI
 
         uint get_num_IWG()
         {
-            return mIWGs.size();
+            return mNumOfIWG;
         }
 
 //------------------------------------------------------------------------------
@@ -354,8 +359,42 @@ namespace MSI
         /**
          * get the field interpolators for an IWG
          */
-        moris::Cell< Field_Interpolator* > get_IWG_field_interpolators ( IWG*                               & aIWG,
-                                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+//        moris::Cell< Field_Interpolator* > get_IWG_field_interpolators ( IWG*                               & aIWG,
+//                                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+
+        void create_IWG_set_info();
+
+        void create_IWG_set_info_double();
+
+        moris::Cell< moris::Cell < Field_Interpolator* > > & get_IWG_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mIWGMasterFieldInterpolators;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mIWGSlaveFieldInterpolators;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_IWG_field_interpolators_info - can only be MASTER or SLAVE");
+                    return mIWGMasterFieldInterpolators;
+                }
+            }
+        }
+
+        moris::Cell< uint > & get_IWG_num_active_dof()
+        {
+            return mIWGNumActiveDof;
+        }
+
+        moris::Cell< Matrix< DDUMat > > & get_IWG_dof_assembly_map()
+        {
+            return mIWGDofAssemblyMap;
+        }
 
 //------------------------------------------------------------------------------
 

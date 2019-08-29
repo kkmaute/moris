@@ -43,36 +43,35 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::get_param_coords() const
+        void
+        Interpolation_Function< mtk::Geometry_Type::HEX, Interpolation_Type::LAGRANGE, 3, 8 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
-            Matrix< DDRMat > tXiHat( 3, 8 );
+            aXiHat.set_size( 3, 8, 0.0 );
 
-            tXiHat( 0, 0 ) = -1.000000;
-            tXiHat( 1, 0 ) = -1.000000;
-            tXiHat( 2, 0 ) = -1.000000;
-            tXiHat( 0, 1 ) =  1.000000;
-            tXiHat( 1, 1 ) = -1.000000;
-            tXiHat( 2, 1 ) = -1.000000;
-            tXiHat( 0, 2 ) =  1.000000;
-            tXiHat( 1, 2 ) =  1.000000;
-            tXiHat( 2, 2 ) = -1.000000;
-            tXiHat( 0, 3 ) = -1.000000;
-            tXiHat( 1, 3 ) =  1.000000;
-            tXiHat( 2, 3 ) = -1.000000;
-            tXiHat( 0, 4 ) = -1.000000;
-            tXiHat( 1, 4 ) = -1.000000;
-            tXiHat( 2, 4 ) =  1.000000;
-            tXiHat( 0, 5 ) =  1.000000;
-            tXiHat( 1, 5 ) = -1.000000;
-            tXiHat( 2, 5 ) =  1.000000;
-            tXiHat( 0, 6 ) =  1.000000;
-            tXiHat( 1, 6 ) =  1.000000;
-            tXiHat( 2, 6 ) =  1.000000;
-            tXiHat( 0, 7 ) = -1.000000;
-            tXiHat( 1, 7 ) =  1.000000;
-            tXiHat( 2, 7 ) =  1.000000;
-            return tXiHat;
+            aXiHat( 0, 0 ) = -1.000000;
+            aXiHat( 1, 0 ) = -1.000000;
+            aXiHat( 2, 0 ) = -1.000000;
+            aXiHat( 0, 1 ) =  1.000000;
+            aXiHat( 1, 1 ) = -1.000000;
+            aXiHat( 2, 1 ) = -1.000000;
+            aXiHat( 0, 2 ) =  1.000000;
+            aXiHat( 1, 2 ) =  1.000000;
+            aXiHat( 2, 2 ) = -1.000000;
+            aXiHat( 0, 3 ) = -1.000000;
+            aXiHat( 1, 3 ) =  1.000000;
+            aXiHat( 2, 3 ) = -1.000000;
+            aXiHat( 0, 4 ) = -1.000000;
+            aXiHat( 1, 4 ) = -1.000000;
+            aXiHat( 2, 4 ) =  1.000000;
+            aXiHat( 0, 5 ) =  1.000000;
+            aXiHat( 1, 5 ) = -1.000000;
+            aXiHat( 2, 5 ) =  1.000000;
+            aXiHat( 0, 6 ) =  1.000000;
+            aXiHat( 1, 6 ) =  1.000000;
+            aXiHat( 2, 6 ) =  1.000000;
+            aXiHat( 0, 7 ) = -1.000000;
+            aXiHat( 1, 7 ) =  1.000000;
+            aXiHat( 2, 7 ) =  1.000000;
        }
 
 //------------------------------------------------------------------------------

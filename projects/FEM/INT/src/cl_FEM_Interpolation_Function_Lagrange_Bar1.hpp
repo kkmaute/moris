@@ -28,23 +28,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    template<>
-    mtk::Interpolation_Order
-    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1 >::get_interpolation_order() const
-    {
-        return mtk::Interpolation_Order::CONSTANT;
-    }
+        template<>
+        mtk::Interpolation_Order
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1 >::get_interpolation_order() const
+        {
+            return mtk::Interpolation_Order::CONSTANT;
+        }
 
 //------------------------------------------------------------------------------
 
-    template<>
-    Matrix< DDRMat >
-    Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1 >::get_param_coords() const
-    {
-        Matrix< DDRMat > tXiHat(1,1);
-        tXiHat( 0 ) =  0.000000;
-        return tXiHat;
-    }
+        template<>
+        void
+        Interpolation_Function< mtk::Geometry_Type::LINE, Interpolation_Type::LAGRANGE, 1, 1 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
+        {
+            aXiHat.set_size( 1, 1, 0.0 );
+        }
 
 //------------------------------------------------------------------------------
 

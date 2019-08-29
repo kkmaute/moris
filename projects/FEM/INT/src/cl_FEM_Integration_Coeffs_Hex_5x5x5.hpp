@@ -43,12 +43,12 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
+        void
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::HEX_5x5x5>::get_points()
+                Integration_Order::HEX_5x5x5>::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
-            Matrix< DDRMat > aIntegrationPoints =
+            aIntegrationPoints =
             {
                 {
                     -9.061798459386640e-01,
@@ -558,19 +558,17 @@ namespace moris
                      1.329973642063265e-02
                  }
             };
-
-            return aIntegrationPoints;
           }
 
 //------------------------------------------------------------------------------
 
             template<>
-            Matrix< DDRMat >
+            void
             Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::HEX_5x5x5 >::get_weights()
+                Integration_Order::HEX_5x5x5 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
             {
-                Matrix< DDRMat > aWeights =
+                aIntegrationWeights =
                 {
                     {
                         1.329973642063265e-02,
@@ -700,8 +698,6 @@ namespace moris
                         1.329973642063265e-02
                     }
                 };
-
-                return aWeights;
             }
 
 //------------------------------------------------------------------------------

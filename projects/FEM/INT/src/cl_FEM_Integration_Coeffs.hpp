@@ -10,8 +10,6 @@
 
 #include "assert.hpp"
 
-
-
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp" //LNA/src
@@ -60,18 +58,18 @@ namespace moris
             /**
              * returns the integration weights
              *
-             * @param[ out ] aIntegrationWeights
+             * @param[ in ] aIntegrationWeights
              */
-            Matrix< DDRMat > get_weights();
+            void get_weights( Matrix< DDRMat > & aIntegrationWeights );
 
 //------------------------------------------------------------------------------
 
             /**
              * writes the integration points into given Mat
              *
-             * @param[ out ] aIntegrationPoints
+             * @param[ in ] aIntegrationPoints
              */
-            Matrix< DDRMat > get_points();
+            void get_points( Matrix< DDRMat > & aIntegrationPoints );
         };
 
 //------------------------------------------------------------------------------
@@ -99,27 +97,21 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< Integration_Type T, Integration_Order P >
-        Matrix< DDRMat >
-        Integration_Coeffs< T, P >::get_weights()
+        void
+        Integration_Coeffs< T, P >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
         {
             MORIS_ERROR( false,
                     "get_weights() not implemented for this rule." );
-
-            Matrix< DDRMat > aEmpty;
-            return aEmpty;
         }
 
 //------------------------------------------------------------------------------
 
         template< Integration_Type T, Integration_Order P >
-        Matrix< DDRMat >
-        Integration_Coeffs< T, P >::get_points()
+        void
+        Integration_Coeffs< T, P >::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
             MORIS_ERROR( false,
                     "get_points() not implemented for this rule." );
-
-            Matrix< DDRMat > aEmpty;
-            return aEmpty;
         }
 
 //------------------------------------------------------------------------------

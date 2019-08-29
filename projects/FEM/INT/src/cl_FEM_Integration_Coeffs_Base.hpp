@@ -57,20 +57,18 @@ namespace moris
             /**
              * returns the integration weights
              *
-             * @param[ out ] aIntegrationWeights
+             * @param[ in ] aIntegrationWeights
              */
-            virtual Matrix< DDRMat >
-            get_weights() = 0;
+            virtual void get_weights( Matrix< DDRMat > & aIntegrationWeights ) = 0;
 
 //------------------------------------------------------------------------------
 
             /**
              * writes the integration points into given Mat
              *
-             * @param[ out ] aIntegrationPoints
+             * @param[ in ] aIntegrationPoints
              */
-            virtual Matrix< DDRMat >
-            get_points() = 0;
+            virtual void get_points( Matrix< DDRMat > & aIntegrationPoints ) = 0;
 
 //------------------------------------------------------------------------------
         };

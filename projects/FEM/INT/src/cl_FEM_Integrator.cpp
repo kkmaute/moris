@@ -18,6 +18,24 @@ namespace moris
 
             // create time rule
             mTimeCoeffs  = aIntegrationRule.create_time_coeffs();
+
+            // get number of points in space
+            mNumOfSpacePoints = mSpaceCoeffs->get_number_of_points();
+
+            // get number of points in time
+            mNumOfTimePoints  = mTimeCoeffs->get_number_of_points();
+
+            // matrix with space points
+            mSpaceCoeffs->get_points( mSpacePoints );
+
+            // matrix with time points
+            mTimeCoeffs->get_points( mTimePoints );
+
+            // matrix with space weights
+            mSpaceCoeffs->get_weights( mSpaceWeights );
+
+            // matrix with time weights
+            mTimeCoeffs->get_weights( mTimeWeights );
         }
 
 //------------------------------------------------------------------------------
@@ -41,81 +59,46 @@ namespace moris
 
         uint Integrator::get_number_of_points()
         {
-            return mSpaceCoeffs->get_number_of_points() * mTimeCoeffs->get_number_of_points();
+            return mNumOfSpacePoints * mNumOfTimePoints;
         }
 
 //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > Integrator::get_points()
+        void Integrator::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
-            // matrix with space points
-            Matrix< DDRMat > tSpacePoints  = mSpaceCoeffs->get_points();
-
-            // matrix with time points
-            Matrix< DDRMat > tTimePoints   = mTimeCoeffs->get_points();
-
-            // get number of points in space
-            uint tNumOfSpacePoints = mSpaceCoeffs->get_number_of_points();
-
-            // get number of points in time
-            uint tNumOfTimePoints  = mTimeCoeffs->get_number_of_points();
-
             // get number of dimensions in space
             uint tNumOfSpaceDim = mSpaceCoeffs->get_number_of_dimensions();
 
-            // create output matrix for space time
-            Matrix< DDRMat > tPoints( tNumOfSpaceDim + 1,
-                                      tNumOfSpacePoints*tNumOfTimePoints );
+            // set output matrix size for space time
+            aIntegrationPoints.set_size( tNumOfSpaceDim + 1,
+                                         mNumOfSpacePoints*mNumOfTimePoints );
 
-            Matrix< DDRMat > tOnes( 1, tNumOfSpacePoints, 1.0 );
+            Matrix< DDRMat > tOnes( 1, mNumOfSpacePoints, 1.0 );
 
             // loop over time
             uint startCol, stopCol;
-            for( uint k = 0; k < tNumOfTimePoints; ++k )
+            for( uint k = 0; k < mNumOfTimePoints; ++k )
             {
                 // indices for columns
-                startCol = k * tNumOfSpacePoints;
-                stopCol  = ( k + 1 ) * tNumOfSpacePoints - 1;
+                startCol = k * mNumOfSpacePoints;
+                stopCol  = ( k + 1 ) * mNumOfSpacePoints - 1;
 
                 // fill in the space points coordinates
-                tPoints( { 0, tNumOfSpaceDim-1 }, { startCol, stopCol } )
-                    = tSpacePoints.matrix_data();
+                aIntegrationPoints( { 0, tNumOfSpaceDim-1 }, { startCol, stopCol } )
+                    = mSpacePoints.matrix_data();
 
                 // fill in the time point coordinates
-                tPoints( { tNumOfSpaceDim, tNumOfSpaceDim }, { startCol, stopCol } )
-                    = tTimePoints( k ) * tOnes;
+                aIntegrationPoints( { tNumOfSpaceDim, tNumOfSpaceDim }, { startCol, stopCol } )
+                    = mTimePoints( k ) * tOnes;
             }
-            return tPoints;
         }
 
 //------------------------------------------------------------------------------
 
-//        uint Integrator::get_number_of_dimensions()
-//        {
-//            return mSpaceCoeffs->get_number_of_dimensions() + 1;
-//        }
-
-//------------------------------------------------------------------------------
-
-        Matrix< DDRMat > Integrator::get_weights()
+        void Integrator::get_weights( Matrix< DDRMat > & aIntegrationWeights )
         {
-
-            // matrix with space weights
-            Matrix< DDRMat > tSpaceWeights = mSpaceCoeffs->get_weights();
-
-            // matrix with time weights
-            Matrix< DDRMat > tTimeWeights  = mTimeCoeffs->get_weights();
-
-            // get number of points in space
-            uint tNumOfSpacePoints = mSpaceCoeffs->get_number_of_points();
-
-            // get number of points in time
-            uint tNumOfTimePoints  = mTimeCoeffs->get_number_of_points();
-
             // get weights
-            Matrix< DDRMat > tWeights = reshape ( trans( tSpaceWeights ) * tTimeWeights, 1, tNumOfSpacePoints*tNumOfTimePoints );
-
-            return tWeights;
+            aIntegrationWeights = reshape ( trans( mSpaceWeights ) * mTimeWeights, 1, mNumOfSpacePoints*mNumOfTimePoints );
         }
 
 //------------------------------------------------------------------------------

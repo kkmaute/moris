@@ -44,33 +44,23 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
+        void
         Integration_Coeffs< Integration_Type::GAUSS,
-                            Integration_Order::BAR_1 >::get_points()
+                            Integration_Order::BAR_1 >::get_points( Matrix< DDRMat > & aIntegrationPoints )
         {
-            Matrix< DDRMat > aIntegrationPoints =
-            {
-                { 0.0 }
-            };
-
-            return aIntegrationPoints;
-          }
+            aIntegrationPoints.set_size( 1, 1, 0.0 );
+        }
 
 //------------------------------------------------------------------------------
 
-            template<>
-            Matrix< DDRMat >
-            Integration_Coeffs<
-                Integration_Type::GAUSS,
-                Integration_Order::BAR_1 >::get_weights()
-            {
-                Matrix< DDRMat > aWeights =
-                {
-                    { 2.0 }
-                };
-
-                return aWeights;
-            }
+        template<>
+        void
+        Integration_Coeffs<
+            Integration_Type::GAUSS,
+            Integration_Order::BAR_1 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
+        {
+            aIntegrationWeights.set_size( 1, 1, 2.0 );
+        }
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

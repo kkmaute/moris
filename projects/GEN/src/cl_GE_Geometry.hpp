@@ -56,7 +56,7 @@ namespace ge
         virtual void
         check_if_functions_are_set()
         {
-            MORIS_ASSERT(false, "ge::Geometry::chekc_if_functions_are_set(): not implemented");
+            MORIS_ASSERT(false, "ge::Geometry::check_if_functions_are_set(): not implemented");
         };
         //------------------------------------------------------------------------------
         /*

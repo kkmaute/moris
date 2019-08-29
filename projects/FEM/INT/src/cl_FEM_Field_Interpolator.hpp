@@ -35,7 +35,7 @@ class Property;
             Interpolation_Function_Base * mTimeInterpolation  = nullptr;
 
             // space and time geometry interpolator
-            const Geometry_Interpolator * mGeometryInterpolator = nullptr;
+            Geometry_Interpolator * mGeometryInterpolator = nullptr;
 
             // space, time, and space time number of bases
             uint mNSpaceBases;
@@ -52,7 +52,7 @@ class Property;
             // space parametric dimensions
             uint mNSpaceParamDim;
 
-            // parametric point where field is interpolated
+            // parametric point where field is interpolatedctest
             Matrix< DDRMat > mXi;
             Matrix< DDRMat > mTau;
 
@@ -68,6 +68,22 @@ class Property;
             // field interpolator property type
             fem::Property_Type mPropertyType;
 
+            // flag for evaluation
+            bool mNEval      = true;
+            bool mBxEval     = true;
+            bool md2Ndx2Eval = true;
+            bool md3Ndx3Eval = true;
+            bool mBtEval     = true;
+            bool md2Ndt2Eval = true;
+
+            // storage
+            Matrix< DDRMat > mN;
+            Matrix< DDRMat > mBx;
+            Matrix< DDRMat > md2Ndx2;
+            Matrix< DDRMat > md3Ndx3;
+            Matrix< DDRMat > mBt;
+            Matrix< DDRMat > md2Ndt2;
+
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -81,18 +97,21 @@ class Property;
              */
             Field_Interpolator( const uint                   & aNumberOfFields,
                                 const Interpolation_Rule     & aFieldInterpolationRule,
-                                const Geometry_Interpolator*   aGeometryInterpolator,
+                                      Geometry_Interpolator*   aGeometryInterpolator,
                                 const MSI::Dof_Type            aDofType = MSI::Dof_Type::UNDEFINED );
 
             Field_Interpolator( const uint                   & aNumberOfFields,
                                 const Interpolation_Rule     & aFieldInterpolationRule,
-                                const Geometry_Interpolator*   aGeometryInterpolator,
+                                      Geometry_Interpolator*   aGeometryInterpolator,
                                 const fem::Property*           aProperty,
                                 const fem::Property_Type       aPropertyType = fem::Property_Type::UNDEFINED );
             /**
              * trivial constructor
              */
-            Field_Interpolator( const uint & aNumberOfFields) : mNumberOfFields( aNumberOfFields ){};
+            Field_Interpolator( const uint & aNumberOfFields) : mNumberOfFields( aNumberOfFields )
+            {
+                mNFieldCoeff = mNumberOfFields;
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -164,7 +183,7 @@ class Property;
              /**
               * get the parametric point in space where field is interpolated
               */
-              Matrix< DDRMat > get_space() const
+              const Matrix< DDRMat > & get_space() const
               {
                   return mXi;
               }
@@ -173,7 +192,7 @@ class Property;
             /**
              * get the parametric point in time where field is interpolated of tau
              */
-            Matrix< DDRMat > get_time() const
+            const Matrix< DDRMat > & get_time() const
             {
                 return mTau;
             }
@@ -190,63 +209,98 @@ class Property;
              * get the coefficients of the field uHat
              * @param[ out ] mUHat coefficients
              */
-              Matrix< DDRMat > get_coeff() const
+              const Matrix< DDRMat > & get_coeff() const
               {
                   return mUHat;
               }
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the space time shape functions
+             * return the space time shape functions
              * @param[ out ] shape functions matrix
              *               ( 1 x <number of basis> )
              */
-            Matrix < DDRMat > N();
+            const Matrix < DDRMat > & N();
+
+            /**
+             * evaluates the space time shape functions
+             */
+            void eval_N();
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the first derivatives of the space time shape functions
+             * return the first derivatives of the space time shape functions
              * wrt space x
              * @param[ out ] dNdx
              *               ( < number of space dimensions > x <number of space time basis > )
              */
-             Matrix< DDRMat > Bx();
+            const Matrix< DDRMat > & Bx();
+
+            /**
+             * evaluates the first derivatives of the space time shape functions
+             * wrt space x
+             */
+            void eval_Bx();
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the second derivatives of the space time shape functions
+             * return the second derivatives of the space time shape functions
              * wrt space x
              * @param[ out ] d2Ndx2
              *               ( < 1D:1, 2D:3, 3D:6 > x <number of space time basis > )
              */
-            Matrix< DDRMat > eval_d2Ndx2();
+            const Matrix< DDRMat > & d2Ndx2();
+
+            /**
+             * evaluates the second derivatives of the space time shape functions
+             * wrt space x
+             */
+            void eval_d2Ndx2();
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the thrid derivatives of the space time shape functions
+             * return the third derivatives of the space time shape functions
              * wrt space x
              * @param[ out ] d3Ndx3
              *               ( < 1D:1, 2D:4, 3D:10 > x <number of space time basis > )
              */
-            Matrix< DDRMat > eval_d3Ndx3();
+            const Matrix< DDRMat > & d3Ndx3();
+
+            /**
+             * evaluates the third derivatives of the space time shape functions
+             * wrt space x
+             */
+            void eval_d3Ndx3();
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the first derivative of the space time shape functions
+             * return the first derivative of the space time shape functions
              * wrt time t
              * @param[ out ] dNdt
              *               ( < number of time dimensions > x <number of space time basis > )
              */
-            Matrix< DDRMat > Bt();
+            const Matrix< DDRMat > & Bt();
+
+            /**
+             * evaluates the first derivative of the space time shape functions
+             * wrt time t
+             */
+            void eval_Bt();
 
 //------------------------------------------------------------------------------
             /**
+             * return the second derivative of the space time shape functions
+             * wrt time t
+             * @param[ out ] d2Ndt2
+             *               ( < number of time dimensions > x <number of space time basis > )
+             */
+            const Matrix< DDRMat > & d2Ndt2();
+
+            /**
             * evaluates the second derivative of the space time shape functions
             * wrt time t
-            * @param[ out ] d2Ndt2
-            *               ( < number of time dimensions > x <number of space time basis > )
             */
-            Matrix< DDRMat > eval_d2Ndt2();
+            void eval_d2Ndt2();
 
 //------------------------------------------------------------------------------
             /**

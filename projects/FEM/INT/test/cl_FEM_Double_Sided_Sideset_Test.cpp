@@ -62,8 +62,10 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // loop over master side ordinals
     for ( uint iMasterOrd = 0; iMasterOrd < 4; iMasterOrd++ )
@@ -153,7 +155,8 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
             //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
             // get the rotation matrix
-            Matrix< DDRMat > tR = rotation_matrix( tSideGeoTypeIG, tSlaveNode );
+            Matrix< DDRMat > tR;
+            rotation_matrix( tSideGeoTypeIG, tSlaveNode, tR );
 
             // define an interpolation slave element in the phys space
             Matrix< DDRMat > tXHatIP_S = tXHatIP;
@@ -274,8 +277,10 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // loop over master side ordinals
     for ( uint iMasterOrd = 0; iMasterOrd < 3; iMasterOrd++ )
@@ -352,7 +357,8 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
             //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
             // get the rotation matrix
-            Matrix< DDRMat > tR = rotation_matrix( tSideGeoTypeIG, tSlaveNode );
+            Matrix< DDRMat > tR;
+            rotation_matrix( tSideGeoTypeIG, tSlaveNode, tR );
 
             // define an interpolation slave element in the phys space
             Matrix< DDRMat > tXHatIP_S = tXHatIP;
@@ -482,8 +488,10 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // loop over master side ordinals
     for ( uint iMasterOrd = 0; iMasterOrd < 4; iMasterOrd++ )
@@ -583,7 +591,8 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
                 //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
                 // get the rotation matrix
-                Matrix< DDRMat > tR = rotation_matrix( tSideGeoTypeIG, tSlaveNode );
+                Matrix< DDRMat > tR;
+                rotation_matrix( tSideGeoTypeIG, tSlaveNode, tR );
 
                 // define an interpolation slave element in the phys space
                 Matrix< DDRMat > tXHatIP_S( 4, 3, 0.0 );
@@ -723,8 +732,10 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
 
     // get number of integration points, integration points and weights
     uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
-    Matrix< DDRMat > tIntegPoints      = tSideIntegrator.get_points();
-    Matrix< DDRMat > tIntegWeights     = tSideIntegrator.get_weights();
+    Matrix< DDRMat > tIntegPoints;
+    tSideIntegrator.get_points( tIntegPoints );
+    Matrix< DDRMat > tIntegWeights;
+    tSideIntegrator.get_weights( tIntegWeights );
 
     // loop over master side ordinals
     for ( uint iMasterOrd = 0; iMasterOrd < 6; iMasterOrd++ )
@@ -865,7 +876,8 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
                 //std::cout<<"A master slave pair + slave node"<<" "<<tMasterSideOrd<<" - "<<tSlaveSideOrd<<" - "<<tSlaveNode<<"-----------------------"<<std::endl;
 
                 // get the rotation matrix
-                Matrix< DDRMat > tR = rotation_matrix( tSideGeoTypeIG, tSlaveNode );
+                Matrix< DDRMat > tR;
+                rotation_matrix( tSideGeoTypeIG, tSlaveNode, tR );
 
                 // define an interpolation slave element in the phys space
                 Matrix< DDRMat > tXHatIP_S( 8, 3, 0.0 );

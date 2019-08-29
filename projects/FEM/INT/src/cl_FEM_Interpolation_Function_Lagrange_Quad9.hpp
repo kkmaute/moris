@@ -42,29 +42,28 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template<>
-        Matrix< DDRMat >
-        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 9 >::get_param_coords() const
+        void
+        Interpolation_Function< mtk::Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 9 >::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
-            Matrix< DDRMat > tXiHat( 2, 9 );
-            tXiHat( 0, 0 ) = -1.000000;
-            tXiHat( 1, 0 ) = -1.000000;
-            tXiHat( 0, 1 ) =  1.000000;
-            tXiHat( 1, 1 ) = -1.000000;
-            tXiHat( 0, 2 ) =  1.000000;
-            tXiHat( 1, 2 ) =  1.000000;
-            tXiHat( 0, 3 ) = -1.000000;
-            tXiHat( 1, 3 ) =  1.000000;
-            tXiHat( 0, 4 ) =  0.000000;
-            tXiHat( 1, 4 ) = -1.000000;
-            tXiHat( 0, 5 ) =  1.000000;
-            tXiHat( 1, 5 ) =  0.000000;
-            tXiHat( 0, 6 ) =  0.000000;
-            tXiHat( 1, 6 ) =  1.000000;
-            tXiHat( 0, 7 ) = -1.000000;
-            tXiHat( 1, 7 ) =  0.000000;
-            tXiHat( 0, 8 ) =  0.000000;
-            tXiHat( 1, 8 ) =  0.000000;
-            return tXiHat;
+            aXiHat.set_size( 2, 9, 0.0 );
+            aXiHat( 0, 0 ) = -1.000000;
+            aXiHat( 1, 0 ) = -1.000000;
+            aXiHat( 0, 1 ) =  1.000000;
+            aXiHat( 1, 1 ) = -1.000000;
+            aXiHat( 0, 2 ) =  1.000000;
+            aXiHat( 1, 2 ) =  1.000000;
+            aXiHat( 0, 3 ) = -1.000000;
+            aXiHat( 1, 3 ) =  1.000000;
+            aXiHat( 0, 4 ) =  0.000000;
+            aXiHat( 1, 4 ) = -1.000000;
+            aXiHat( 0, 5 ) =  1.000000;
+            aXiHat( 1, 5 ) =  0.000000;
+            aXiHat( 0, 6 ) =  0.000000;
+            aXiHat( 1, 6 ) =  1.000000;
+            aXiHat( 0, 7 ) = -1.000000;
+            aXiHat( 1, 7 ) =  0.000000;
+            aXiHat( 0, 8 ) =  0.000000;
+            aXiHat( 1, 8 ) =  0.000000;
         }
 
 //------------------------------------------------------------------------------

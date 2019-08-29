@@ -29,6 +29,11 @@ using namespace tsa;
         // create solver object
         std::shared_ptr< Time_Solver_Algorithm > tTimeSolver = tTimeSolFactory.create_time_solver( aTimeSolverType );
 
+//        for( auto tTimeSolverAlgorithmList : mTimeSolverAlgorithmList )
+//        {
+////            delete tTimeSolverAlgorithmList;
+//            tTimeSolverAlgorithmList = nullptr;
+//        }
         mTimeSolverAlgorithmList.clear();
 
         mTimeSolverAlgorithmList.resize( 1, nullptr );

@@ -103,7 +103,7 @@ namespace moris
              * returns a matrix containing the parameter coordinates
              * < number of dimensions * number of basis >
              */
-            Matrix< DDRMat > get_param_coords() const;
+            void get_param_coords( Matrix< DDRMat > & aXiHat ) const;
 
 //------------------------------------------------------------------------------
 
@@ -191,11 +191,9 @@ namespace moris
 //------------------------------------------------------------------------------
 
         template< mtk::Geometry_Type G, Interpolation_Type T, uint N, uint B >
-        Matrix< DDRMat > Interpolation_Function< G, T, N, B>::get_param_coords() const
+        void Interpolation_Function< G, T, N, B>::get_param_coords( Matrix< DDRMat > & aXiHat ) const
         {
             MORIS_ERROR( false, "get_param_coords not implemented for this interpolation function" );
-            Matrix< DDRMat > aEmpty;
-            return aEmpty;
         }
 
 //------------------------------------------------------------------------------

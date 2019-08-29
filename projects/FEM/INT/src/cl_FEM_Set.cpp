@@ -13,6 +13,8 @@
 
 #include "cl_MTK_Set.hpp"             //FEM/INT/src
 
+#include "fn_equal_to.hpp"
+
 namespace moris
 {
     namespace fem
@@ -27,6 +29,7 @@ namespace moris
                                                                          mElementType( aElementType )
         {
             mMeshClusterList = aSet->get_clusters_on_set();
+
             // create a unique dof type list
             this->create_unique_dof_type_lists();
 
@@ -103,6 +106,7 @@ namespace moris
             delete tSlaveFieldInterpolators;
         }
         mSlaveFieldInterpolators.clear();
+
     }
 
 //------------------------------------------------------------------------------
@@ -158,6 +162,9 @@ namespace moris
                 // create the element dof assembly map
                 this->create_dof_assembly_map();
 
+                // create the element IWG info
+                this->create_IWG_set_info();
+
                 break;
             }
 
@@ -175,6 +182,9 @@ namespace moris
 
                 // create the element dof assembly map
                 this->create_dof_assembly_map();
+
+                // create the element IWG info
+                this->create_IWG_set_info();
 
                 break;
             }
@@ -197,6 +207,9 @@ namespace moris
 
                 // create the element dof assembly map
                 this->create_dof_assembly_map_double();
+
+                // create the element IWG info
+                this->create_IWG_set_info_double();
 
                 break;
             }
@@ -221,13 +234,36 @@ namespace moris
         mNumOfIntegPoints = tIntegrator.get_number_of_points();
 
         // get integration points
-        mIntegPoints = tIntegrator.get_points();
+        tIntegrator.get_points( mIntegPoints );
 
         // get integration weights
-        mIntegWeights = tIntegrator.get_weights();
+        tIntegrator.get_weights( mIntegWeights );
     }
 
 //------------------------------------------------------------------------------
+
+//    void Set::create_unique_dof_type_lists()
+//    {
+//        // set the size of the element active dof type list
+//        uint tCounter = 0;
+//        for ( IWG * tIWG : mIWGs )
+//        {
+//            tCounter = tCounter + tIWG->get_residual_dof_type().size();
+//        }
+//        mEqnObjDofTypeList.reserve( tCounter );
+//
+//        // loop over the IWGs
+//        tCounter = 0;
+//        for ( IWG * tIWG : mIWGs )
+//        {
+//            mEqnObjDofTypeList.append( tIWG->get_residual_dof_type() );
+//        }
+//
+//        auto last = std::unique( ( mEqnObjDofTypeList.data() ).data(),
+//                                 ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size() );
+//        auto pos  = std::distance( ( mEqnObjDofTypeList.data() ).data(), last );
+//        mEqnObjDofTypeList.resize( pos );
+//    }
 
     void Set::create_unique_dof_type_lists()
     {
@@ -235,7 +271,13 @@ namespace moris
         uint tCounter = 0;
         for ( IWG * tIWG : mIWGs )
         {
-            tCounter = tCounter + tIWG->get_residual_dof_type().size();
+            // get active dof type
+            Cell< Cell< MSI::Dof_Type > > tActiveDofType = tIWG->get_active_dof_types();
+
+            for ( uint iDOF = 0; iDOF< tActiveDofType.size(); iDOF++ )
+            {
+                tCounter += tActiveDofType( iDOF ).size();
+            }
         }
         mEqnObjDofTypeList.reserve( tCounter );
 
@@ -243,7 +285,13 @@ namespace moris
         tCounter = 0;
         for ( IWG * tIWG : mIWGs )
         {
-            mEqnObjDofTypeList.append( tIWG->get_residual_dof_type() );
+            // get active dof type
+            Cell< Cell< MSI::Dof_Type > > tActiveDofType = tIWG->get_active_dof_types();
+
+            for ( uint iDOF = 0; iDOF< tActiveDofType.size(); iDOF++ )
+            {
+                mEqnObjDofTypeList.append( tActiveDofType( iDOF ) );
+            }
         }
 
         auto last = std::unique( ( mEqnObjDofTypeList.data() ).data(),
@@ -254,56 +302,108 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+//    void Set::create_dof_type_lists()
+//    {
+//        // get the number of IWGs
+//        uint tNumOfIWGs = this->get_num_IWG();
+//
+//        // create a list of the groups of dof types provided by the IWGs----------------
+//        // FIXME works as long as the dof type are always grouped in the same way
+//        moris::Cell< MSI::Dof_Type > tInterpDofTypeListBuild( tNumOfIWGs );
+//
+//        // loop over the IWGs
+//        for ( uint i = 0; i < tNumOfIWGs; i++ )
+//        {
+//            // get the first dof type of each group
+//            tInterpDofTypeListBuild( i ) = mIWGs( i )->get_residual_dof_type()( 0 );
+//        }
+//
+//        // get a unique list of the first dof type of each group
+//        Cell< moris::moris_index > tUniqueDofTypeGroupsIndices = unique_index( tInterpDofTypeListBuild );
+//
+//        // get the number of unique dof type groups, i.e. the number of interpolators
+//        mNumOfInterp = tUniqueDofTypeGroupsIndices.size();
+//
+//        // set the size of the list of unique dof type groups
+//        mInterpDofTypeList.resize( mNumOfInterp );
+//
+//        // get maximal dof type enum
+//        sint tMaxEnum = 0;
+//
+//        // loop over the list of unique dof type groups
+//        for ( uint i = 0; i < mNumOfInterp; i++ )
+//        {
+//            // get the unique residual dof type groups
+//            mInterpDofTypeList( i ) = mIWGs( tUniqueDofTypeGroupsIndices( i ) )->get_residual_dof_type();
+//
+//            // get the highest dof type enum
+//            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mInterpDofTypeList( i )( 0 ) ) );
+//        }
+//
+//        // +1 because c++ is 0 based
+//        tMaxEnum++;
+//
+//        // create a map of the set active dof type list------------------------
+//        // set size of mapping matrix
+//        mInterpDofTypeMap.set_size( tMaxEnum, 1, -1 );
+//
+//        // loop over all dof types to create the mapping matrix
+//        for ( uint i = 0; i < mNumOfInterp; i++ )
+//        {
+//            mInterpDofTypeMap( static_cast< int >( mInterpDofTypeList( i )( 0 ) ), 0 ) = i;
+//        }
+//    }
+
     void Set::create_dof_type_lists()
     {
-        // get the number of IWGs
-        uint tNumOfIWGs = this->get_num_IWG();
-
-        // create a list of the groups of dof types provided by the IWGs----------------
-        // FIXME works as long as the dof type are always grouped in the same way
-        moris::Cell< MSI::Dof_Type > tInterpDofTypeListBuild( tNumOfIWGs );
-
-        // loop over the IWGs
-        for ( uint i = 0; i < tNumOfIWGs; i++ )
+        // set the size of the element active dof type list
+        uint tCounterMax = 0;
+        for ( IWG * tIWG : mIWGs )
         {
-            // get the first dof type of each group
-            tInterpDofTypeListBuild( i ) = mIWGs( i )->get_residual_dof_type()( 0 );
+            tCounterMax += tIWG->get_active_dof_types().size();
+        }
+        mInterpDofTypeList.resize( tCounterMax );
+        moris::Cell< sint > tCheckList( tCounterMax, -1 );
+
+        // get maximal dof type enum
+        sint tMaxEnum = 0;
+
+        uint tCounter = 0;
+        for ( IWG * tIWG : mIWGs )
+        {
+            // get active dof type
+            Cell< Cell< MSI::Dof_Type > > tActiveDofType = tIWG->get_active_dof_types();
+
+            for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+            {
+                // check enum is not already in the list
+                bool tCheck = false;
+                for( uint i = 0; i < tCounter; i++ )
+                {
+                    tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                }
+
+                // if dof enum not in the list
+                if ( !tCheck )
+                {
+                    tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                    mInterpDofTypeList( tCounter ) = tActiveDofType( iDOF );
+                    tCounter++;
+
+                    // get the highest dof type enum
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( tActiveDofType( iDOF )( 0 ) ) );
+                }
+            }
         }
 
-        // get a unique list of the first dof type of each group
-        Cell< moris::moris_index > tUniqueDofTypeGroupsIndices = unique_index( tInterpDofTypeListBuild );
+        // get the number of unique dof type groups, i.e. the number of interpolators
+        mNumOfInterp = tCounter;
+        mInterpDofTypeList.resize( mNumOfInterp );
+        tMaxEnum++;
 
-        // get the number of unique dof type groups
-        uint tNumOfUniqueDofTypeGroupsIndices = tUniqueDofTypeGroupsIndices.size();
-
-        // set the size of the list of unique dof type groups
-        mInterpDofTypeList.resize( tNumOfUniqueDofTypeGroupsIndices );
-
-        // loop over the list of unique dof type groups
-        for ( uint i = 0; i < tNumOfUniqueDofTypeGroupsIndices; i++ )
-        {
-            // get the unique residual dof type groups
-            mInterpDofTypeList( i ) = mIWGs( tUniqueDofTypeGroupsIndices( i ) )->get_residual_dof_type();
-        }
-
-        // create a map of the element active dof type list------------------------
-        // set number of unique pdof type of the element
-        mNumOfInterp = tNumOfUniqueDofTypeGroupsIndices;
-
-        // get maximal dof type enum number
-        sint tMaxDofTypeEnumNumber = 0;
-
-        // loop over all pdof types to get the highest enum index
-        for ( uint i = 0; i < mNumOfInterp; i++ )
-        {
-            tMaxDofTypeEnumNumber = std::max( tMaxDofTypeEnumNumber, static_cast< int >( mInterpDofTypeList( i )( 0 ) ) );
-        }
-
-        // +1 because c++ is 0 based
-        tMaxDofTypeEnumNumber = tMaxDofTypeEnumNumber + 1;
-
+        // create a map of the set active dof type list------------------------
         // set size of mapping matrix
-        mInterpDofTypeMap.set_size( tMaxDofTypeEnumNumber, 1, -1 );
+        mInterpDofTypeMap.set_size( tMaxEnum, 1, -1 );
 
         // loop over all dof types to create the mapping matrix
         for ( uint i = 0; i < mNumOfInterp; i++ )
@@ -353,13 +453,13 @@ namespace moris
             mInterpDofAssemblyMap( i, 0 ) = tDofCounter;
 
             // update dof counter
-            tDofCounter = tDofCounter + mMasterFieldInterpolators( i )->get_number_of_space_time_coefficients()-1;
+            tDofCounter += mMasterFieldInterpolators( i )->get_number_of_space_time_coefficients() - 1;
 
             // fill the assembly map with starting dof counter
             mInterpDofAssemblyMap( i, 1 ) = tDofCounter;
 
             // update dof counter
-            tDofCounter = tDofCounter + 1;
+            tDofCounter++;
         }
 
         // set mTotalDof
@@ -618,27 +718,138 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    moris::Cell< Field_Interpolator* > Set::get_IWG_field_interpolators ( IWG*                               & aIWG,
-                                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+//    moris::Cell< Field_Interpolator* > Set::get_IWG_field_interpolators( IWG*                               & aIWG,
+//                                                                         moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+//    {
+//        // ask the IWG for its active dof types
+//        moris::Cell< moris::Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
+//
+//        // number of active dof type for the IWG
+//        uint tNumOfIWGActiveDof = tIWGActiveDof.size();
+//
+//        // select associated active interpolators
+//        moris::Cell< Field_Interpolator* > tIWGFieldInterpolators( tNumOfIWGActiveDof, nullptr );
+//        for( uint i = 0; i < tNumOfIWGActiveDof; i++ )
+//        {
+//            // find the index of active dof type in the list of element dof type
+//            uint tIWGDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDof( i )( 0 ) ) );
+//
+//            // select the corresponding interpolator
+//            tIWGFieldInterpolators( i ) = aFieldInterpolators( tIWGDofIndex );
+//        }
+//        return tIWGFieldInterpolators;
+//    }
+
+    void Set::create_IWG_set_info()
     {
-        // ask the IWG for its active dof types
-        moris::Cell< moris::Cell< MSI::Dof_Type > > tIWGActiveDof = aIWG->get_active_dof_types();
+        // get number of IWGs
+        mNumOfIWG = mIWGs.size();
 
-        // number of active dof type for the IWG
-        uint tNumOfIWGActiveDof = tIWGActiveDof.size();
+        // set info size
+        mIWGNumActiveDof.resize( mNumOfIWG );
+        mIWGMasterFieldInterpolators.resize( mNumOfIWG );
+        mIWGDofAssemblyMap.resize( mNumOfIWG );
 
-        // select associated active interpolators
-        moris::Cell< Field_Interpolator* > tIWGFieldInterpolators( tNumOfIWGActiveDof, nullptr );
-        for( uint i = 0; i < tNumOfIWGActiveDof; i++ )
+        // loop over the IWGs
+        for ( uint iIWG = 0; iIWG < mNumOfIWG; iIWG++ )
         {
-            // find the index of active dof type in the list of element dof type
-            uint tIWGDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDof( i )( 0 ) ) );
+            // get IWG
+            IWG* tIWG = mIWGs( iIWG );
 
-            // select the corresponding interpolator
-            tIWGFieldInterpolators( i ) = aFieldInterpolators( tIWGDofIndex );
+            // ask the IWG for its residual dof type
+            moris::Cell< MSI::Dof_Type > tIWGResidualDof = tIWG->get_residual_dof_type();
+
+            // ask the IWG for its active dof types
+            moris::Cell< moris::Cell< MSI::Dof_Type > > tIWGActiveDof = tIWG->get_active_dof_types();
+
+            // get the number of active dof type for the IWG
+            mIWGNumActiveDof( iIWG ) = tIWGActiveDof.size();
+
+            // find the index of residual dof type in the list of element dof type
+            uint tIWGResDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGResidualDof( 0 ) ), 0 );
+            uint startIDof = mInterpDofAssemblyMap( tIWGResDofIndex, 0 );
+            uint stopIDof  = mInterpDofAssemblyMap( tIWGResDofIndex, 1 );
+
+            // set size
+            mIWGMasterFieldInterpolators( iIWG ).resize( mIWGNumActiveDof( iIWG ), nullptr );
+            mIWGDofAssemblyMap( iIWG ).set_size( mIWGNumActiveDof( iIWG ), 4 );
+
+            // select associated active interpolators
+            for( uint iDOF = 0; iDOF < mIWGNumActiveDof( iIWG ); iDOF++ )
+            {
+                // find the index of active dof type in the list of element dof type
+                uint tIWGActiveDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDof( iDOF )( 0 ) ), 0 );
+                uint startJDof = mInterpDofAssemblyMap( tIWGActiveDofIndex, 0 );
+                uint stopJDof  = mInterpDofAssemblyMap( tIWGActiveDofIndex, 1 );
+
+                // select the corresponding interpolator
+                mIWGMasterFieldInterpolators( iIWG )( iDOF ) = mMasterFieldInterpolators( tIWGActiveDofIndex );
+
+                // build the dof assembly map for each IWG
+                mIWGDofAssemblyMap( iIWG )( iDOF, 0 ) = startIDof;
+                mIWGDofAssemblyMap( iIWG )( iDOF, 1 ) = stopIDof;
+                mIWGDofAssemblyMap( iIWG )( iDOF, 2 ) = startJDof;
+                mIWGDofAssemblyMap( iIWG )( iDOF, 3 ) = stopJDof;
+            }
         }
-        return tIWGFieldInterpolators;
     }
+
+    void Set::create_IWG_set_info_double()
+        {
+            // get number of IWGs
+            mNumOfIWG = mIWGs.size();
+
+            // set info size
+            mIWGNumActiveDof.resize( mNumOfIWG );
+            mIWGMasterFieldInterpolators.resize( mNumOfIWG );
+            mIWGSlaveFieldInterpolators.resize( mNumOfIWG );
+            mIWGDofAssemblyMap.resize( mNumOfIWG );
+
+            // loop over the IWGs
+            for ( uint iIWG = 0; iIWG < mNumOfIWG; iIWG++ )
+            {
+                // get IWG
+                IWG* tIWG = mIWGs( iIWG );
+
+                // ask the IWG for its residual dof type
+                moris::Cell< MSI::Dof_Type > tIWGResidualDof = tIWG->get_residual_dof_type();
+
+                // ask the IWG for its active dof types
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tIWGActiveDof = tIWG->get_active_dof_types();
+
+                // get the number of active dof type for the IWG
+                mIWGNumActiveDof( iIWG ) = tIWGActiveDof.size();
+
+                // find the index of residual dof type in the list of element dof type
+                uint tIWGResDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGResidualDof( 0 ) ), 0 );
+                uint startIDof = mInterpDofAssemblyMap( tIWGResDofIndex, 0 );
+                uint stopIDof  = mInterpDofAssemblyMap( tIWGResDofIndex, 1 );
+
+                // set size
+                mIWGMasterFieldInterpolators( iIWG ).resize( mIWGNumActiveDof( iIWG ), nullptr );
+                mIWGSlaveFieldInterpolators( iIWG ).resize( mIWGNumActiveDof( iIWG ), nullptr );
+                mIWGDofAssemblyMap( iIWG ).set_size( mIWGNumActiveDof( iIWG ), 4 );
+
+                // select associated active interpolators
+                for( uint iDOF = 0; iDOF < mIWGNumActiveDof( iIWG ); iDOF++ )
+                {
+                    // find the index of active dof type in the list of element dof type
+                    uint tIWGActiveDofIndex = mInterpDofTypeMap( static_cast< int >( tIWGActiveDof( iDOF )( 0 ) ), 0 );
+                    uint startJDof = mInterpDofAssemblyMap( tIWGActiveDofIndex, 0 );
+                    uint stopJDof  = mInterpDofAssemblyMap( tIWGActiveDofIndex, 1 );
+
+                    // select the corresponding interpolator
+                    mIWGMasterFieldInterpolators( iIWG )( iDOF ) = mMasterFieldInterpolators( tIWGActiveDofIndex );
+                    mIWGSlaveFieldInterpolators( iIWG )( iDOF )  = mSlaveFieldInterpolators( tIWGActiveDofIndex );
+
+                    // build the dof assembly map for each IWG
+                    mIWGDofAssemblyMap( iIWG )( iDOF, 0 ) = startIDof;
+                    mIWGDofAssemblyMap( iIWG )( iDOF, 1 ) = stopIDof;
+                    mIWGDofAssemblyMap( iIWG )( iDOF, 2 ) = startJDof;
+                    mIWGDofAssemblyMap( iIWG )( iDOF, 3 ) = stopJDof;
+                }
+            }
+        }
 
 //------------------------------------------------------------------------------
 

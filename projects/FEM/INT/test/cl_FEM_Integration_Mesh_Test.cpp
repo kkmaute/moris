@@ -101,8 +101,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
         //get number of integration points, integration points and weights
         uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
-        Matrix< DDRMat > tIntegPoints      = tIntegrator.get_points();
-        Matrix< DDRMat > tIntegWeights     = tIntegrator.get_weights();
+        Matrix< DDRMat > tIntegPoints;
+        tIntegrator.get_points( tIntegPoints );
+        Matrix< DDRMat > tIntegWeights;
+        tIntegrator.get_weights( tIntegWeights );
 
         // boolean for surface check
         bool tSurfaceCheck = true;
@@ -119,6 +121,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             // get the treated integration point location in integration space
             Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
 
+            // set the treated integration point location in the surface ref space for the geometry interp
+            tGeoInterpIG.set_space_time( tIntegPointI );
+
             // get the treated integration point location in the interpolation space
             //------------------------------------------------------------------------------
             // unpack the space and time param coords of the integration point
@@ -129,7 +134,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             Matrix< DDRMat > tNTime;
 
             // evaluate space interpolation shape functions at integration point
-           tIntegSpaceInterpolation->eval_N( tXi, tNIntegSpace );
+            tIntegSpaceInterpolation->eval_N( tXi, tNIntegSpace );
 
             // evaluate time interpolation shape functions at aParamPoint
             tTimeInterpolation->eval_N( tTau, tNTime );
@@ -141,7 +146,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );
 
             // get the time parametric coordinates
-            Matrix< DDRMat > tTimeParamCoords  = tTimeInterpolation->get_param_coords();
+            Matrix< DDRMat > tTimeParamCoords;
+            tTimeInterpolation->get_param_coords( tTimeParamCoords );
 
             // get a vector of ones
             Matrix< DDRMat > tOnes( 1, tIntegNumSpaceBases, 1.0 );
@@ -163,8 +169,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
             // compute the parametric coordinates of the SideParamPoint in the parent reference element
             Matrix< DDRMat > tRefIntegPointI2;
-            tGeoInterpIG.map_integration_point( tIntegPointI,
-                                                tRefIntegPointI2 );
+            tGeoInterpIG.map_integration_point( tRefIntegPointI2 );
             //print(tRefIntegPointI,"tRefIntegPointI");
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -175,7 +180,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
             // evaluate detJ
             //------------------------------------------------------------------------------
-            real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
+            // set the global integration point for the IP geometry interp
+            tGeoInterpIP.set_space_time( tRefIntegPointI );
+
+            real tDetJ1 = tGeoInterpIP.det_J();
 
             // get the space jacobian
             Matrix <DDRMat> tdNSpacedXi;
@@ -193,7 +201,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             tSurface = tSurface + tDetJ * tIntegWeights( iGP );
 
             // add contribution to the surface from GeoInterpIG
-            tSurface2 = tSurface2 + tGeoInterpIG.det_J( tIntegPointI ) * tIntegWeights( iGP );
+            tSurface2 = tSurface2 + tGeoInterpIG.det_J() * tIntegWeights( iGP );
 
         }
 
@@ -307,8 +315,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
            //get number of integration points, integration points and weights
            uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
-           Matrix< DDRMat > tIntegPoints      = tIntegrator.get_points();
-           Matrix< DDRMat > tIntegWeights     = tIntegrator.get_weights();
+           Matrix< DDRMat > tIntegPoints;
+           tIntegrator.get_points( tIntegPoints );
+           Matrix< DDRMat > tIntegWeights;
+           tIntegrator.get_weights( tIntegWeights );
 
            // boolean for surface check
            bool tSurfaceCheck = true;
@@ -324,6 +334,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            {
                // get the treated integration point location in integration space
                Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
+
+               // set the treated integration point location in the surface ref space for the geometry interp
+               tGeoInterpIG.set_space_time( tIntegPointI );
 
                // get the treated integration point location in the interpolation space
                //------------------------------------------------------------------------------
@@ -347,7 +360,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );
 
                // get the time parametric coordinates
-               Matrix< DDRMat > tTimeParamCoords  = tTimeInterpolation->get_param_coords();
+               Matrix< DDRMat > tTimeParamCoords;
+               tTimeInterpolation->get_param_coords( tTimeParamCoords );
 
                // get a vector of ones
                Matrix< DDRMat > tOnes( 1, tIntegNumSpaceBases, 1.0 );
@@ -370,8 +384,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
                 // compute the parametric coordinates of the SideParamPoint in the parent reference element
                 Matrix< DDRMat > tRefIntegPointI2;
-                tGeoInterpIG.map_integration_point( tIntegPointI,
-                                                    tRefIntegPointI2 );
+                tGeoInterpIG.map_integration_point( tRefIntegPointI2 );
                 //print(tRefIntegPointI,"tRefIntegPointI");
                 //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -382,7 +395,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
                 // evaluate detJ
                 //------------------------------------------------------------------------------
-                real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
+                // set the global integration point for the IP geometry interp
+                tGeoInterpIP.set_space_time( tRefIntegPointI );
+
+                real tDetJ1 = tGeoInterpIP.det_J();
 
                 // get the space jacobian
                 Matrix <DDRMat> tdNSpacedXi;
@@ -404,7 +420,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                 tSurface = tSurface + tDetJ * tIntegWeights( iGP );
 
                 // add contribution to the surface from GeoInterpIG
-                tSurface2 = tSurface2 + tGeoInterpIG.det_J( tIntegPointI ) * tIntegWeights( iGP );
+                tSurface2 = tSurface2 + tGeoInterpIG.det_J() * tIntegWeights( iGP );
             }
 
            // check the integration point values
@@ -533,8 +549,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
         //get number of integration points, integration points and weights
         uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
-        Matrix< DDRMat > tIntegPoints      = tIntegrator.get_points();
-        Matrix< DDRMat > tIntegWeights     = tIntegrator.get_weights();
+        Matrix< DDRMat > tIntegPoints;
+        tIntegrator.get_points( tIntegPoints );
+        Matrix< DDRMat > tIntegWeights;
+        tIntegrator.get_weights( tIntegWeights );
 
         // boolean for surface check
         bool tSurfaceCheck = true;
@@ -550,6 +568,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         {
             // get the treated integration point location in integration space
             Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
+
+            // set the treated integration point location in the surface ref space for the geometry interp
+            tGeoInterpIG.set_space_time( tIntegPointI );
 
             // get the treated integration point location in the interpolation space
             //------------------------------------------------------------------------------
@@ -574,7 +595,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );
 
             // get the time parametric coordinates
-            Matrix< DDRMat > tTimeParamCoords  = tTimeInterpolation->get_param_coords();
+            Matrix< DDRMat > tTimeParamCoords;
+            tTimeInterpolation->get_param_coords( tTimeParamCoords );
 
             // get a vector of ones
             Matrix< DDRMat > tOnes( 1, tIntegNumSpaceBases, 1.0 );
@@ -596,8 +618,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
             // compute the parametric coordinates of the SideParamPoint in the parent reference element
             Matrix< DDRMat > tRefIntegPointI2;
-            tGeoInterpIG.map_integration_point( tIntegPointI,
-                                                tRefIntegPointI2 );
+            tGeoInterpIG.map_integration_point( tRefIntegPointI2 );
             //print(tRefIntegPointI,"tRefIntegPointI");
             //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -608,7 +629,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
             // evaluate detJ
             //------------------------------------------------------------------------------
-            real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
+            // set the global integration point for the IP geometry interp
+            tGeoInterpIP.set_space_time( tRefIntegPointI );
+
+            real tDetJ1 = tGeoInterpIP.det_J();
 
             // get the space jacobian
             Matrix <DDRMat> tdNSpacedXi;
@@ -626,7 +650,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             tSurface = tSurface + tDetJ * tIntegWeights( iGP );
 
             // add contribution to the surface from GeoInterpIG
-            tSurface2 = tSurface2 + tGeoInterpIG.det_J( tIntegPointI ) * tIntegWeights( iGP );
+            tSurface2 = tSurface2 + tGeoInterpIG.det_J() * tIntegWeights( iGP );
         }
 
         // check integration points values
@@ -751,8 +775,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
            //get number of integration points, integration points and weights
            uint             tNumOfIntegPoints = tIntegrator.get_number_of_points();
-           Matrix< DDRMat > tIntegPoints      = tIntegrator.get_points();
-           Matrix< DDRMat > tIntegWeights     = tIntegrator.get_weights();
+           Matrix< DDRMat > tIntegPoints;
+           tIntegrator.get_points( tIntegPoints );
+           Matrix< DDRMat > tIntegWeights;
+           tIntegrator.get_weights( tIntegWeights );
 
            // boolean for surface check
            bool tSurfaceCheck = true;
@@ -768,6 +794,9 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
            {
                // get the treated integration point location in integration space
                Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
+
+               // set the treated integration point location in the surface ref space for the geometry interp
+               tGeoInterpIG.set_space_time( tIntegPointI );
 
                // get the treated integration point location in the interpolation space
                //------------------------------------------------------------------------------
@@ -793,7 +822,8 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                Matrix< DDRMat > tInterpParamCoords( tNumTimeDim+tNumParamSpaceDim, tNumTimeBases*tIntegNumSpaceBases );
 
                // get the time parametric coordinates
-               Matrix< DDRMat > tTimeParamCoords  = tTimeInterpolation->get_param_coords();
+               Matrix< DDRMat > tTimeParamCoords;
+               tTimeInterpolation->get_param_coords( tTimeParamCoords );
 
                // get a vector of ones
                Matrix< DDRMat > tOnes( 1, tIntegNumSpaceBases, 1.0 );
@@ -816,8 +846,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
                 // compute the parametric coordinates of the SideParamPoint in the parent reference element
                 Matrix< DDRMat > tRefIntegPointI2;
-                tGeoInterpIG.map_integration_point( tIntegPointI,
-                                                    tRefIntegPointI2 );
+                tGeoInterpIG.map_integration_point( tRefIntegPointI2 );
                 //print(tRefIntegPointI,"tRefIntegPointI");
                 //print(tRefIntegPointI2,"tRefIntegPointI2");
 
@@ -828,7 +857,10 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
                 // evaluate detJ
                 //------------------------------------------------------------------------------
-                real tDetJ1 = tGeoInterpIP.det_J( tRefIntegPointI );
+                // set the global integration point for the IP geometry interp
+                tGeoInterpIP.set_space_time( tRefIntegPointI );
+
+                real tDetJ1 = tGeoInterpIP.det_J();
 
                 // get the space jacobian
                 Matrix <DDRMat> tdNSpacedXi;
@@ -850,7 +882,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
                 tSurface = tSurface + tDetJ * tIntegWeights( iGP );
 
                 // add contribution to the surface from GeoInterpIG
-                tSurface2 = tSurface2 + tGeoInterpIG.det_J( tIntegPointI ) * tIntegWeights( iGP );
+                tSurface2 = tSurface2 + tGeoInterpIG.det_J() * tIntegWeights( iGP );
             }
 
             // check integration points values

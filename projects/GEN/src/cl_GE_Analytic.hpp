@@ -49,7 +49,7 @@ namespace moris{
 		    check_if_functions_are_set()
 		    {
 		        MORIS_ASSERT(mFuncAnalytic != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic function not set ");
-		        MORIS_ASSERT(mFuncAnalyticDphiDx != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): sensitivity function not set ");
+		        MORIS_ASSERT(mFuncAnalyticDphiDx != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic sensitivity function not set ");
 		    }
 		    //------------------------------------------------------------------------------
 		    void
@@ -430,7 +430,6 @@ namespace moris{
                                                 Cell<moris::real>       & aRadius,
                                                 Cell<moris::real>       & aLength,
                                                 Cell<Cell<moris::real>> & aAxis ) = nullptr;
-
 
             fem::Interpolation_Type  mMySpaceInterpType;
             mtk::Interpolation_Order mMySpaceInterpOrder;
