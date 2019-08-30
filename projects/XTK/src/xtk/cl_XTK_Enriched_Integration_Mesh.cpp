@@ -16,8 +16,10 @@
 namespace xtk
 {
 //------------------------------------------------------------------------------
-Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel):
-                mModel(aXTKModel)
+Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel,
+                                                     moris::moris_index aInterpIndex):
+                mModel(aXTKModel),
+                mMeshIndexInModel(aInterpIndex)
 {
 
     this->setup_cell_clusters();
@@ -25,7 +27,6 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel):
     this->setup_side_set_clusters();
     this->setup_interface_side_sets();
     this->setup_double_side_set_clusters();
-
     this->print();
 }
 //------------------------------------------------------------------------------
@@ -488,7 +489,7 @@ Enriched_Integration_Mesh::get_interface_side_set_name(moris_index aGeomIndex,
 void
 Enriched_Integration_Mesh::setup_cell_clusters()
 {
-    Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh;
+    Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
     Background_Mesh &            tBackgroundMesh = mModel->mBackgroundMesh;
     Cut_Mesh        &            tCutMesh        = mModel->mCutMesh;
 
@@ -576,7 +577,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
     Background_Mesh & tBackgroundMesh = mModel->get_background_mesh();
 
     // enriched interpolation mesh
-    Enriched_Interpolation_Mesh* tEnrInterpMesh = mModel->mEnrichedInterpMesh;
+    Enriched_Interpolation_Mesh* tEnrInterpMesh = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
 
     // get block sets (in background mesh data)
     Cell<std::string> tBlockSetsNames = tBackgroundMesh.get_mesh_data().get_set_names(EntityRank::ELEMENT);
@@ -646,7 +647,7 @@ void
 Enriched_Integration_Mesh::setup_side_set_clusters()
 {
     // get data for easy access
-    Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh;
+    Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
     Background_Mesh &            tBackgroundMesh = mModel->mBackgroundMesh;
     Cut_Mesh        &            tCutMesh        = mModel->mCutMesh;
 
@@ -927,7 +928,7 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
     uint tNumBulkPhases  = mModel->get_geom_engine().get_num_bulk_phase();
     uint tNumChildMeshes = mModel->get_cut_mesh().get_num_child_meshes();
 
-    Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh;
+    Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
 
     for(moris::moris_index iG = 0; iG < (moris_index)tNumGeometries; iG++)
     {

@@ -114,14 +114,11 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment();
+        tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
         // get meshes
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-
-        tEnrInterpMesh.print();
-        tEnrIntegMesh.print();
 
         std::string tDirchletSideName      = "surface_1_n_p0";
         std::string tNeumannSideName       = tEnrIntegMesh.get_interface_side_set_name(0,0,1);

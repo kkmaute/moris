@@ -53,7 +53,6 @@ set(HEADERS
     xtk/cl_MTK_Mesh_XTK_Impl.hpp
     xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.hpp
     xtk/cl_MTK_Vertex_XTK_Impl.hpp
-    xtk/cl_XTK_Active_Process_Manager.hpp
     xtk/cl_XTK_Background_Mesh.hpp
     xtk/cl_XTK_Cell_Cluster.hpp
     xtk/cl_XTK_Child_Mesh_Modification_Template.hpp
@@ -62,7 +61,6 @@ set(HEADERS
     xtk/cl_XTK_Decomposition_Data.hpp
     xtk/cl_XTK_Downward_Inheritance.hpp
     xtk/cl_XTK_Enrichment.hpp
-    xtk/cl_XTK_Entity_Tracker.hpp
     xtk/cl_XTK_Entity.hpp
     xtk/cl_XTK_Enums.hpp
     xtk/cl_XTK_External_Mesh_Data.hpp
@@ -86,7 +84,6 @@ set(HEADERS
     xtk/cl_XTK_Request_Handler.hpp
     xtk/cl_XTK_Sensitivity.hpp
     xtk/cl_XTK_Side_Cluster.hpp
-    xtk/fn_assemble_boundary_subphase_constraint.hpp
     xtk/fn_compute_interface_surface_area.hpp
     xtk/fn_compute_xtk_model_volumes.hpp
     xtk/fn_create_edges_from_element_to_node.hpp
@@ -128,7 +125,6 @@ include_directories(${MORIS_PACKAGE_DIR}/XTK/include)
 # List source files
 set(LIB_SOURCES
 xtk/cl_MTK_Cell_XTK_Impl.cpp
-xtk/cl_MTK_Mesh_XTK_Impl.cpp
 xtk/cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
 xtk/cl_MTK_Vertex_XTK_Impl.cpp
 xtk/cl_XTK_Background_Mesh.cpp

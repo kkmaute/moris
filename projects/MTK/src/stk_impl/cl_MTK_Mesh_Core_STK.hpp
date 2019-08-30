@@ -197,12 +197,6 @@ public:
     get_all_vertices() const;
 
 
-    Matrix< IndexMat >
-    get_elements_in_support_of_basis(moris_index aBasisIndex)
-    {
-        return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
-    }
-
 
     //##############################################
     // global id functions

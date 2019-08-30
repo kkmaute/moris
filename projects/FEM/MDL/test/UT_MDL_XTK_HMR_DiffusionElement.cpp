@@ -134,24 +134,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 {
     if(par_size() == 1)
     {
-//        moris::uint tBplineOrder = 2;
-//        moris::uint tLagrangeOrder = 2;
-//        moris::uint tMyCoeff = 1;
         std::string tFieldName = "Cylinder";
 
-//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
-//
-//        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
-//        tParameters.set( "domain_dimensions", "2, 2, 4" );
-//        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
-//        tParameters.set( "domain_sidesets", "5,6");
-//
-//        tParameters.set( "truncate_bsplines", 1 );
-//        tParameters.set( "bspline_orders", "2" );
-//        tParameters.set( "lagrange_orders", "2" );
-//        tParameters.set( "use_multigrid", 0 );
-//        tParameters.set( "refinement_buffer", 2 );
-//        tParameters.set( "staircase_buffer", 2 );
 
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;

@@ -439,13 +439,13 @@ public:
     /*!
      * return the background mesh data
      */
-    moris::mtk::Mesh &
+    moris::mtk::Interpolation_Mesh &
     get_mesh_data();
 
     /*!
      * return const reference to background mesh data
      */
-    moris::mtk::Mesh const &
+    moris::mtk::Interpolation_Mesh const &
     get_mesh_data() const;
     // -------------------------------------------------------------------
 

@@ -275,7 +275,7 @@ void run_xtk_problem(XTK_Problem_Params & aXTKProblemParams)
           if(aXTKProblemParams.mEnrich)
           {
             tOpTimer = std::clock();
-            tXTKModel.perform_basis_enrichment();
+            tXTKModel.perform_basis_enrichment(EntityRank::NODE);
             tEnrichmentTime = (std::clock() - tOpTimer)/(CLOCKS_PER_SEC/1000);
           }
 
