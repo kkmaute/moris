@@ -49,6 +49,35 @@ namespace moris
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
+            /*
+             * @brief determines elements (cells) intersected by the level set
+             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aLowerBound   - lower bound of LS
+             * @param[in] aUpperBound   - upper bound of LS
+             */
+            void find_cells_intersected_by_levelset(        Cell< hmr::Element * > & aCells,
+                                                            Cell< hmr::Element * > & aCandidates,
+                                                     const  Matrix< DDRMat >    & aVertexValues,
+                                                     const  real                  aLowerBound = -0.0001,
+                                                     const  real                  aUpperBound =  0.0001);
+
+            /*
+             * @brief determines volume elements (cells)
+             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aUpperBound   - upper bound of LS
+             */
+            void find_cells_within_levelset(        Cell< hmr::Element * > & aCells,
+                                                    Cell< hmr::Element * > & aCandidates,
+                                             const  Matrix< DDRMat >    & aVertexValues,
+                                             const  uint                  aUpperBound = 0.0 );
+
+
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -194,7 +223,7 @@ namespace moris
              * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
              *                                     the child is automatically flagged in the next iteration
              */
-            void flag_elements(       Cell< mtk::Cell* > & aElements,
+            void flag_elements(       Cell< hmr::Element* > & aElements,
                                 const uint                 aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
@@ -214,6 +243,11 @@ namespace moris
              */
             void perform_refinement( const enum RefinementMode aRefinementMode,
                                      const uint                aPattern = 0);                // FIXME get rid of default
+
+// -----------------------------------------------------------------------------
+
+            void put_elements_on_refinment_queue(       Cell< hmr::Element* > & aElements,
+                                                  const uint                 aMinRefinementLevel );
 
 // -----------------------------------------------------------------------------
 
@@ -314,9 +348,9 @@ namespace moris
             /**
              * for flagging
              */
-            void get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
-                                                const uint                 aLagrangeMeshIndex,
-                                                const uint                 aMaxLevel = gMaxNumberOfLevels );
+            void get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
+                                                const uint                    aLagrangeMeshIndex,
+                                                const uint                    aMaxLevel = gMaxNumberOfLevels );
 
 
 // -----------------------------------------------------------------------------

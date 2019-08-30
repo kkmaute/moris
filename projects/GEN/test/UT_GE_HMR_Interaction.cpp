@@ -74,7 +74,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             tParameters.set_staircase_buffer( tOrder );
 
-            tParameters.set_initial_refinement( 0 );
+            tParameters.set_initial_refinement( 2 );
 
             Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
@@ -103,7 +103,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             // refine the last element three times
             // fixme: change this to 2
-            for( uint tLevel = 0; tLevel < 2; ++tLevel )
+            for( uint tLevel = 0; tLevel < 1; ++tLevel )
             {
                 tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
@@ -112,8 +112,6 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
             }
 
             tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_1_initial.vtk");
-
-
 
             tDatabase->unite_patterns( 0, 1, 2 );
 
@@ -133,7 +131,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
             //--------------------------------------------------------------------------------------------------
 
             // input parameters for the circle LS
-            moris::Cell< real > tCircleInputs = {{0},{0},{0.9}};
+            moris::Cell< real > tCircleInputs = { {0}, {0}, {0.9} };
             //------------------------------------------------------------------------------
 
             Ge_Factory tFactory;
@@ -150,7 +148,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             uint tNumOfIPNodes = tIntegrationMesh->get_num_nodes();
 
-            Matrix< DDRMat > tFieldData( tNumOfIPNodes,1, 0.0);
+            Matrix< DDRMat > tFieldData( tNumOfIPNodes,1, 0.0 );
             for( uint n=0; n<tNumOfIPNodes; n++)
             {
                 tFieldData(n)        = tGeometryEngine.get_field_vals( tMyGeomIndex, n )( 0 );     //FIXME
@@ -160,8 +158,11 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             tHMR.flag_surface_elements( tFieldData );
 
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 1 );
-//            tHMR.update_refinement_pattern( 1 );
+            tDatabase->get_background_mesh()->perform_refinement( 1);
+
+
+//            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 1 );
+            tHMR.update_refinement_pattern( 1 );
 
             moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes1;
 
@@ -179,55 +180,9 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
              tSTK->save_to_file( "GE_HMR_Mesh.g");
              delete tSTK;
 
+             REQUIRE( tLagrangeMesh->get_number_of_nodes_on_proc()  == 59 );
 
-//        // create first order Lagrange mesh
-//        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh( tParameters,
-//                                                                                          tBackgroundMesh,
-//                                                                                          tBSplineMeshes,
-//                                                                                          0,
-//                                                                                          1 );
-//        // create first order Lagrange mesh
-//        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh( tParameters,
-//                                                                                          tBackgroundMesh,
-//                                                                                          tBSplineMeshes,
-//                                                                                          1,
-//                                                                                          1 );
-//
-//        REQUIRE( tLagrangeMesh_1->get_number_of_nodes_on_proc()  == 43 );
-//        REQUIRE( tLagrangeMesh_2->get_number_of_nodes_on_proc()  == 30 );
-//
-//
-//        // output to exodus
-//        STK * tSTK = tLagrangeMesh_2->create_stk_object(0);
-//        tSTK->save_to_file( "cccccc.g");
-//        delete tSTK;
-//
-//        // Check some basis coordinates of Lagrange mesh 1
-//        const moris::real* tXYZ_1 = tLagrangeMesh_1->get_node_by_index( 2 )->get_xyz( );
-//        REQUIRE( tXYZ_1[0]  == 0.0625 );    REQUIRE( tXYZ_1[1]  == 0.0625 );
-//        const moris::real* tXYZ_2 = tLagrangeMesh_1->get_node_by_index( 13 )->get_xyz( );
-//        REQUIRE( tXYZ_2[0]  == 0.25 );    REQUIRE( tXYZ_2[1]  == 0.25 );
-//        const moris::real* tXYZ_3 = tLagrangeMesh_1->get_node_by_index( 15 )->get_xyz( );
-//        REQUIRE( tXYZ_3[0]  == 0.375 );    REQUIRE( tXYZ_3[1]  == 0.125 );
-//        const moris::real* tXYZ_4 = tLagrangeMesh_1->get_node_by_index( 36 )->get_xyz( );
-//        REQUIRE( tXYZ_4[0]  == 0.75 );    REQUIRE( tXYZ_4[1]  == 0.75 );
-//        const moris::real* tXYZ_14 = tLagrangeMesh_1->get_node_by_index( 41 )->get_xyz( );
-//        REQUIRE( tXYZ_14[0]  == 0.75 );    REQUIRE( tXYZ_14[1]  == 1.0 );
-//
-////        // Check some basis coordinates of Lagrange mesh 2
-////        const moris::real* tXYZ_5 = tLagrangeMesh_2->get_node_by_index( 2 )->get_xyz( );
-////        REQUIRE( tXYZ_5[0]  == 0.25 );    REQUIRE( tXYZ_5[1]  == 0.25 );
-////        const moris::real* tXYZ_6 = tLagrangeMesh_2->get_node_by_index( 13 )->get_xyz( );
-////        REQUIRE( tXYZ_6[0]  == 0.75 );    REQUIRE( tXYZ_6[1]  == 0.5 );
-////        const moris::real* tXYZ_7 = tLagrangeMesh_2->get_node_by_index( 15 )->get_xyz( );
-////        REQUIRE( tXYZ_7[0]  == 0.25 );    REQUIRE( tXYZ_7[1]  == 0.75 );
-////        const moris::real* tXYZ_8 = tLagrangeMesh_2->get_node_by_index( 36 )->get_xyz( );
-////        REQUIRE( tXYZ_8[0]  == 0.875 );    REQUIRE( tXYZ_8[1]  == 1.0 );
-//
-//
-//        // delete mesh
-//        delete tLagrangeMesh_1;
-//        delete tLagrangeMesh_2;
+        delete tLagrangeMesh;
     }
     }
 }
