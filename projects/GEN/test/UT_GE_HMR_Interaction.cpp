@@ -96,7 +96,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             tHMR.perform_initial_refinement( 0 );
 
-            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_0_initial.vtk");
+//            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_0_initial.vtk");
 
             // manually select output pattern
             tDatabase->set_activation_pattern( 1 );
@@ -111,11 +111,11 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
                 tDatabase->get_background_mesh()->perform_refinement( 1 );
             }
 
-            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_1_initial.vtk");
+//            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_1_initial.vtk");
 
             tDatabase->unite_patterns( 0, 1, 2 );
 
-            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_2_initial.vtk");
+//            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_2_initial.vtk");
 
             tDatabase->update_bspline_meshes();
             tDatabase->update_lagrange_meshes();
@@ -154,7 +154,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
                 tFieldData(n)        = tGeometryEngine.get_field_vals( tMyGeomIndex, n )( 0 );     //FIXME
             }
 
-            print(tFieldData, "tFieldData");
+//            print(tFieldData, "tFieldData");
 
             tHMR.flag_surface_elements( tFieldData );
 
@@ -176,9 +176,9 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
                                                                                                  1 );
 
              // output to exodus
-             STK * tSTK = tLagrangeMesh->create_stk_object(0);
-             tSTK->save_to_file( "GE_HMR_Mesh.g");
-             delete tSTK;
+//             STK * tSTK = tLagrangeMesh->create_stk_object(0);
+//             tSTK->save_to_file( "GE_HMR_Mesh.g");
+//             delete tSTK;
 
              REQUIRE( tLagrangeMesh->get_number_of_nodes_on_proc()  == 59 );
 
