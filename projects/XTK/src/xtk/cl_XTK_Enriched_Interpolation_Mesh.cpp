@@ -166,41 +166,6 @@ Enriched_Interpolation_Mesh::get_communication_table() const
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Matrix<IdMat>
-Enriched_Interpolation_Mesh::convert_indices_to_ids(Matrix<IndexMat> const & aIndices,
-                                                    enum EntityRank          aEntityRank) const
-{
-    moris::uint tNRow = aIndices.n_rows();
-    moris::uint tNCol = aIndices.n_cols();
-    Matrix<IdMat> tIds(tNRow,tNCol);
-    for(moris::uint i = 0; i < tNRow; i++)
-    {
-        for(moris::uint j = 0; j<tNCol; j++)
-        {
-            tIds(i,j) = this->get_glb_entity_id_from_entity_loc_index(aIndices(i,j),aEntityRank);
-        }
-    }
-    return tIds;
-}
-//------------------------------------------------------------------------------
-Matrix<IndexMat>
-Enriched_Interpolation_Mesh::convert_ids_to_indices(Matrix<IdMat> const & aIds,
-                                                    enum EntityRank       aEntityRank) const
-{
-    moris::uint tNRow = aIds.n_rows();
-    moris::uint tNCol = aIds.n_cols();
-    Matrix<IdMat> tIndices(tNRow,tNCol);
-    for(moris::uint i = 0; i < tNRow; i++)
-    {
-        for(moris::uint j = 0; j<tNCol; j++)
-        {
-            tIndices(i,j) = this->get_loc_entity_ind_from_entity_glb_id(aIds(i,j),aEntityRank);
-        }
-    }
-
-    return tIndices;
-}
-//------------------------------------------------------------------------------
 uint
 Enriched_Interpolation_Mesh::get_num_elements()
 {
@@ -280,11 +245,79 @@ Enriched_Interpolation_Mesh::get_vertex_related_to_vertex_enrichment(moris_index
     return mVertexEnrichmentParentVertexIndex(aVertexEnrichmentIndex);
 }
 //------------------------------------------------------------------------------
+
+moris::Cell<Interpolation_Cell_Unzipped const*>
+Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cells(moris::Cell<moris::mtk::Cell const*> const & aBaseCells) const
+{
+    uint tNumBaseCells = aBaseCells.size();
+
+    moris::Cell<Interpolation_Cell_Unzipped const*> tEnrichedCells;
+    for(moris::uint  i = 0 ; i <tNumBaseCells; i++)
+    {
+        tEnrichedCells.append(this->get_enriched_cells_from_base_cell(aBaseCells(i)));
+    }
+    return tEnrichedCells;
+
+}
+//------------------------------------------------------------------------------
 Cell<Interpolation_Cell_Unzipped> const &
 Enriched_Interpolation_Mesh::get_enriched_interpolation_cells() const
 {
     return mEnrichedInterpCells;
 }
+//------------------------------------------------------------------------------
+moris::Cell<Interpolation_Cell_Unzipped const*>
+Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cell(moris::mtk::Cell const * aBaseCells) const
+{
+    moris_index tBaseIndex = aBaseCells->get_index();
+    MORIS_ASSERT(tBaseIndex<(moris_index)mBaseCelltoEnrichedCell.size(),"Base Cell index is out of bounds. This index is related to the unenriched interpolation mesh. Make sure enriched cell is not passed into this function");
+
+    uint tNumEnrichedCells = mBaseCelltoEnrichedCell(tBaseIndex).size();
+    moris::Cell<Interpolation_Cell_Unzipped const*> tEnrichedCellPtrs(tNumEnrichedCells);
+
+    for(moris::uint i = 0; i<tNumEnrichedCells; i++)
+    {
+        tEnrichedCellPtrs(i) = (mBaseCelltoEnrichedCell(tBaseIndex)(i));
+    }
+
+    return tEnrichedCellPtrs;
+}
+//------------------------------------------------------------------------------
+Matrix<IdMat>
+Enriched_Interpolation_Mesh::convert_indices_to_ids(Matrix<IndexMat> const & aIndices,
+                                                    enum EntityRank          aEntityRank) const
+{
+    moris::uint tNRow = aIndices.n_rows();
+    moris::uint tNCol = aIndices.n_cols();
+    Matrix<IdMat> tIds(tNRow,tNCol);
+    for(moris::uint i = 0; i < tNRow; i++)
+    {
+        for(moris::uint j = 0; j<tNCol; j++)
+        {
+            tIds(i,j) = this->get_glb_entity_id_from_entity_loc_index(aIndices(i,j),aEntityRank);
+        }
+    }
+    return tIds;
+}
+//------------------------------------------------------------------------------
+Matrix<IndexMat>
+Enriched_Interpolation_Mesh::convert_ids_to_indices(Matrix<IdMat> const & aIds,
+                                                    enum EntityRank       aEntityRank) const
+{
+    moris::uint tNRow = aIds.n_rows();
+    moris::uint tNCol = aIds.n_cols();
+    Matrix<IdMat> tIndices(tNRow,tNCol);
+    for(moris::uint i = 0; i < tNRow; i++)
+    {
+        for(moris::uint j = 0; j<tNCol; j++)
+        {
+            tIndices(i,j) = this->get_loc_entity_ind_from_entity_glb_id(aIds(i,j),aEntityRank);
+        }
+    }
+
+    return tIndices;
+}
+
 //------------------------------------------------------------------------------
 void
 Enriched_Interpolation_Mesh::print() const
@@ -309,7 +342,7 @@ void Enriched_Interpolation_Mesh::print_vertex_maps() const
     std::cout<<"\nVertex Map:"<<std::endl;
     for(moris::uint i =0; i <tNumNodes; i++)
     {
-        std::cout<<"    Vertex Index: "<<i<< " | Vertex Id: "<<std::setw(9) <<mLocalToGlobalMaps(0)(i)<<std::endl;
+        std::cout<<"    Vertex Index: "<<std::setw(9)<<i<< " | Vertex Id: "<<std::setw(9) <<mLocalToGlobalMaps(0)(i)<<std::endl;
     }
 }
 
@@ -321,7 +354,7 @@ void Enriched_Interpolation_Mesh::print_enriched_cell_maps() const
     std::cout<<"\nCell Map:"<<std::endl;
     for(moris::uint i =0; i <tNumCells; i++)
     {
-        std::cout<<"    Cell Index: "<<i<< " | Cell Id: "<<std::setw(9) <<mLocalToGlobalMaps(tSpatialDim)(i)<<std::endl;
+        std::cout<<"    Cell Index: "<<std::setw(9)<<i<< " | Cell Id: "<<std::setw(9) <<mLocalToGlobalMaps(tSpatialDim)(i)<<std::endl;
     }
 }
 

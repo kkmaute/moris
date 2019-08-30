@@ -400,6 +400,10 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         REQUIRE( tCheckNodalSolution );
 
 
+        delete tIntegMesh1;
+        delete tInterpMesh1;
+        delete tModel;
+
     }/* if( par_size() */
 }
 
@@ -638,6 +642,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         // check bool is true
         REQUIRE( tCheckNodalSolution );
+
+        delete tModel;
     }/* if( par_size() */
 }
 
@@ -1310,6 +1316,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         }
         // check bool is true
         REQUIRE( tCheckNodalSolution );
+
+        delete tModel;
     }/* if( par_size() */
 }
 

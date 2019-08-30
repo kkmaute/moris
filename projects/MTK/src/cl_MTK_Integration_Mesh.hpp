@@ -66,6 +66,30 @@ public:
     moris::Cell<std::string>
     get_block_set_names() const = 0;
 
+    /*!
+     * Returns the label
+     */
+    virtual
+    std::string
+    get_block_set_label(moris_index aBlockSetOrdinal) const
+    {
+        MORIS_ERROR(0, "get_block_set_label has no default implementation");
+        return "ERROR";
+    }
+
+    // ----------------------------------------------------------------------------
+
+    /*!
+     * Returns the index given a label
+     */
+    virtual
+    moris_index
+    get_block_set_index(std::string aBlockSetLabel) const
+    {
+        MORIS_ERROR(0, "get_block_set_index has no default implementation");
+        return MORIS_INDEX_MAX;
+    }
+
     // ----------------------------------------------------------------------------
     /*
      * Get number of blocks
@@ -83,6 +107,7 @@ public:
     moris::mtk::Set *
     get_block_by_index( moris::uint aBlockIndex) const
     {
+        MORIS_ASSERT(aBlockIndex<mListofBlocks.size(),"Block index out of bounds");
         return mListofBlocks(aBlockIndex);
     };
 
@@ -104,6 +129,7 @@ public:
     moris::mtk::Set *
     get_side_set_by_index( moris::uint aSideSetIndex) const
     {
+        MORIS_ASSERT(aSideSetIndex<mListofSideSets.size(),"Side set index out of bounds");
         return mListofSideSets(aSideSetIndex);
     };
 
@@ -125,6 +151,7 @@ public:
     moris::mtk::Set *
     get_double_side_set_by_index( moris::uint aSideSetIndex) const
     {
+        MORIS_ASSERT(aSideSetIndex<mListofDoubleSideSets.size(),"Double side set index out of bounds");
         return mListofDoubleSideSets(aSideSetIndex);
     };
 

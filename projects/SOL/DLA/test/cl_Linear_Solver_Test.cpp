@@ -80,6 +80,7 @@ TEST_CASE("Linear Solver Trilinos","[Linear Solver],[DistLinAlg]")
 
     //delete tEpetraComm;
     delete ( tSolverInterface );
+    delete ( tLinProblem );
     }
 }
 
@@ -173,6 +174,7 @@ TEST_CASE("Linear Solver Aztec","[Linear Solver Aztec],[DistLinAlg]")
 
     //delete tEpetraComm;
     delete ( tSolverInterface );
+    delete ( tLinProblem );
     }
 }
 

@@ -62,6 +62,7 @@ class Enrichment;
 class Enrichment_Parameters;
 class Ghost_Stabilization;
 class Enriched_Interpolation_Mesh;
+class Enriched_Integration_Mesh;
 }
 
 
@@ -79,9 +80,10 @@ public:
     moris::real REAL_MAX          = MORIS_REAL_MAX;
     moris::moris_index INTEGER_MAX = MORIS_INDEX_MAX;
 
-    // friend class
+    // friend classes
     friend class Enrichment;
     friend class Enriched_Interpolation_Mesh;
+    friend class Enriched_Integration_Mesh;
 
     //--------------------------------------------------------------------------------
     // Initialization
@@ -152,9 +154,13 @@ public:
 
     // ----------------------------------------------------------------------------------
 
-    Enriched_Interpolation_Mesh const &
+    Enriched_Interpolation_Mesh &
     get_enriched_interp_mesh();
 
+    // ----------------------------------------------------------------------------------
+
+    Enriched_Integration_Mesh &
+    get_enriched_integ_mesh();
 
     // ----------------------------------------------------------------------------------
 
@@ -304,6 +310,7 @@ protected:
     Enrichment*                  mEnrichment;
     Ghost_Stabilization*         mGhostStabilization;
     Enriched_Interpolation_Mesh* mEnrichedInterpMesh;
+    Enriched_Integration_Mesh*   mEnrichedIntegMesh;
 
 private:
 
@@ -328,6 +335,7 @@ private:
      * @param[in] aReqType- specifies which template mesh is going to be used later on
      */
     void decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
+                            moris::uint                        aGeomIndex,
                             moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                             bool const & aFirstSubdivision = true,
                             bool const & aSetIds = false);
@@ -582,6 +590,7 @@ private:
      */
 
     void  run_first_cut_routine(enum TemplateType const &          aTemplateType,
+                                moris::uint                        aGeomIndex,
                                 moris::size_t const &              aNumNodesPerElement,
                                 moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                                 moris::Matrix< moris::IndexMat > & aNewPairBool)
@@ -644,7 +653,6 @@ private:
         // Add the downward pair to the mesh for all the newly created element pairs
         mBackgroundMesh.register_new_downward_inheritance(tNewChildElementPair);
 
-
         // Allocate space for more simple meshes in XTK mesh
         mCutMesh.inititalize_new_child_meshes(tNumNewChildMeshes, mModelDimension);
 
@@ -663,12 +671,6 @@ private:
                 Matrix< IndexMat > tFacetoElemConnInd = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tParentElementIndex, moris::EntityRank::ELEMENT, moris::EntityRank::FACE);
                 Matrix< IndexMat > tElementMat        = {{tParentElementIndex}};
 
-                for(moris::uint i = 0; i < tEdgetoElemConnInd.numel(); i++)
-                {
-                    moris_index tEdgeIndex = tEdgetoElemConnInd(i);
-                    Matrix<IndexMat> tEdgeNodes = tXTKMeshData.get_entity_connected_to_entity_loc_inds(tEdgeIndex,EntityRank::EDGE,EntityRank::NODE);
-                }
-
                 // Set parent element, nodes, and entity ancestry
                 moris::Matrix< moris::IndexMat > tElemToNodeIndices(tNodetoElemConnVec);
 
@@ -683,10 +685,23 @@ private:
 
                 // get child mesh
                 Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(tCMIndex);
+                tChildMesh.add_new_geometry_interface(aGeomIndex);
 
                 // add node ids
                 tChildMesh.add_node_ids(tNodetoElemConnVec);
 
+            }
+            else
+            {
+                // get parent element index
+                tParentElementIndex = tGeoObjects(j).get_parent_entity_index();
+
+                // get child mesh
+                moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tParentElementIndex,EntityRank::ELEMENT);
+
+                // get child mesh
+                Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(tCMIndex);
+                tChildMesh.add_new_geometry_interface(aGeomIndex);
             }
         }
     }

@@ -57,6 +57,7 @@ namespace mtk
 
       ~Exodus_IO_Helper()
       {
+          ex_close(mExoFileId);
           delete mTitle;
       }
 

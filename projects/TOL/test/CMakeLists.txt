@@ -25,10 +25,6 @@ add_executable(${TOL_TEST} ${TEST_SOURCES})
 target_link_libraries(${TOL_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${TOL_TEST} PROPERTIES OUTPUT_NAME ${TOL}-test${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${TOL_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${TOL_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(TOL_TEST_PROCS ${MORIS_TEST_PROCS})

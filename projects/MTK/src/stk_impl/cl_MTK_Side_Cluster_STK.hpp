@@ -49,8 +49,6 @@ public:
                       moris_index aSideOrdinal);
 
     //----------------------------------------------------------------
-
-
     Side_Cluster_STK(bool aTrivial,
                      moris::mtk::Cell const *                        aInterpolationCell,
                      moris::Cell<moris::mtk::Cell const *>   const & aIntegrationCells,

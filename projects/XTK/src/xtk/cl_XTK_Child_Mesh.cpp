@@ -7,6 +7,7 @@
 
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
+#include "cl_MTK_Vertex.hpp"
 
 using namespace moris;
 namespace xtk
@@ -155,6 +156,8 @@ Child_Mesh::Child_Mesh(Mesh_Modification_Template & aMeshModTemplate):
     mElementInterfaceSides  = aMeshModTemplate.mNewElementInterfaceSides.copy();
 
     set_up_proc_local_to_cm_local_node_map();
+
+    add_new_geometry_interface(0);
 
     generate_connectivities(true,true,true);
 
@@ -530,6 +533,11 @@ Child_Mesh::get_node_ids() const
 {
     return mNodeIds;
 }
+moris::Cell<moris::mtk::Vertex const *> const &
+Child_Mesh::get_vertices() const
+{
+    return mVertices;
+}
 
 // ---------------------------------------------------------------------------------
 
@@ -764,10 +772,9 @@ void
 Child_Mesh::unzip_child_mesh_interface_get_interface_element_pairs(moris::uint aGeometryIndex,
                                                        bool & aNoPairFoundFlag,
                                                        moris::Matrix<moris::IndexMat> & aInterfaceElementPairs,
-                                                       moris::Matrix<moris::IndexMat> & aInterfacePairSideOrds)
+                                                       moris::Matrix<moris::IndexMat> & aInterfacePairSideOrds) const
 {
     aNoPairFoundFlag = false;
-    MORIS_ASSERT(aGeometryIndex == 0 ,"unzip_child_mesh_interface_get_interface_element_pairs not implemented for multiple geometries because mElementInterfaceFaces needs to accomodate this");
     moris::uint tNumElements = this->get_num_entities(EntityRank::ELEMENT);
 
     // Figure out which faces are interface faces
@@ -788,7 +795,7 @@ Child_Mesh::unzip_child_mesh_interface_get_interface_element_pairs(moris::uint a
     unique(tInterfaceFaceIndices);
 
     // Number of interface nodes
-    moris::uint tNumInterfaceNodes = tInterfaceFaceIndices.size();
+    moris::uint tNumInterfaceFaces = tInterfaceFaceIndices.size();
 
     // Construct interface pairs
     moris::uint tNumElementsPerFace = 2;
@@ -798,7 +805,7 @@ Child_Mesh::unzip_child_mesh_interface_get_interface_element_pairs(moris::uint a
     // Face to element matrix
     moris::Matrix<moris::IndexMat> const & tFaceToElem = this->get_face_to_element();
 
-    for( moris::uint iF = 0; iF< tNumInterfaceNodes; iF++)
+    for( moris::uint iF = 0; iF< tNumInterfaceFaces; iF++)
     {
         moris::uint tInterfaceFaceIndex = tInterfaceFaceIndices(iF);
 
@@ -810,11 +817,13 @@ Child_Mesh::unzip_child_mesh_interface_get_interface_element_pairs(moris::uint a
             if( tCMElementIndex != MORIS_INDEX_MAX )
             {
                 aInterfaceElementPairs(iEl,iF)  = tCMElementIndex;
-                aInterfacePairSideOrds(iEl,iF)  = mElementInterfaceSides(tCMElementIndex);
+                aInterfacePairSideOrds(iEl,iF)  = mElementInterfaceSides(tCMElementIndex,aGeometryIndex);
             }
             else
             {
                 aNoPairFoundFlag = true;
+                aInterfaceElementPairs(iEl,iF) = MORIS_INDEX_MAX;
+                aInterfacePairSideOrds(iEl,iF) = MORIS_INDEX_MAX;
             }
         }
     }
@@ -1015,6 +1024,12 @@ Child_Mesh::add_node_ids(moris::Matrix< moris::IdMat > const & aNewNodeIds)
 
 }
 
+void
+Child_Mesh::add_vertices(moris::Cell<moris::mtk::Vertex const *> const & aVertices)
+{
+    mVertices.append(aVertices);
+}
+
 // ---------------------------------------------------------------------------------
 
 void
@@ -1149,10 +1164,16 @@ Child_Mesh::insert_child_mesh_template(Mesh_Modification_Template & aMeshModTemp
       // Assert that reindex template actually happened
       MORIS_ASSERT(aMeshModTemplate.mIsReindexed,"Prior to inserting the template, reindexing must occur, in insert_child_mesh_template.");
 
+      // index of current geometry
+      moris_index tGeomIndex = *(mGeometryIndex.end() - 1);
+
+
       // Replace the element which is marked as replaceable (if in the future multiple elements are replaced at one time then this could be a for loop)
       // But for now only one element is replaced
+
       replace_element(aMeshModTemplate.mElemIndToReplace,
                       0,
+                      tGeomIndex,
                       aMeshModTemplate.mNewElementToNode,
                       aMeshModTemplate.mNewParentEdgeOrdinals,
                       aMeshModTemplate.mNewParentEdgeRanks,
@@ -1167,6 +1188,7 @@ Child_Mesh::insert_child_mesh_template(Mesh_Modification_Template & aMeshModTemp
       for(moris::size_t i = 0; i<tNumElemToAdd; i++)
       {
           add_element(i+aMeshModTemplate.mNumElemToReplace,
+                      tGeomIndex,
                       aMeshModTemplate.mNewElementToNode,
                       aMeshModTemplate.mNewParentEdgeOrdinals,
                       aMeshModTemplate.mNewParentEdgeRanks,
@@ -1208,6 +1230,7 @@ Child_Mesh::reindex_template(Mesh_Modification_Template & aMeshModTemplate)
 void
 Child_Mesh::replace_element(moris::size_t                    const & aElementIndexToReplace,
                             moris::size_t                    const & aRowIndex,
+                            moris::size_t                    const & aGeomIndex,
                             moris::Matrix< moris::IndexMat > const & aElementToNode,
                             moris::Matrix< moris::IndexMat > const & aElementEdgeParentInds,
                             moris::Matrix< moris::DDSTMat >  const & aElementEdgeParentRanks,
@@ -1223,20 +1246,21 @@ Child_Mesh::replace_element(moris::size_t                    const & aElementInd
     replace_row(aRowIndex, aElementEdgeParentRanks, aElementIndexToReplace, mElementEdgeParentRanks);
     replace_row(aRowIndex, aElementFaceParentInds , aElementIndexToReplace, mElementFaceParentInds);
     replace_row(aRowIndex, aElementFaceParentRanks, aElementIndexToReplace, mElementFaceParentRanks);
-    replace_row(aRowIndex, aElementInterfaceFaces , aElementIndexToReplace, mElementInterfaceSides);
+    mElementInterfaceSides(aElementIndexToReplace,aGeomIndex) = aElementInterfaceFaces(aRowIndex);
 }
 
 
 // ---------------------------------------------------------------------------------
 
 void
-Child_Mesh::add_element(moris::size_t                     const & aRowIndex,
+Child_Mesh::add_element(moris::size_t                    const & aRowIndex,
+                        moris::size_t                    const & aGeomIndex,
                         moris::Matrix< moris::IndexMat > const & aElementToNode,
                         moris::Matrix< moris::IndexMat > const & aElementEdgeParentInds,
-                        moris::Matrix< moris::DDSTMat > const & aElementEdgeParentRanks,
+                        moris::Matrix< moris::DDSTMat >  const & aElementEdgeParentRanks,
                         moris::Matrix< moris::IndexMat > const & aElementFaceParentInds,
-                        moris::Matrix< moris::DDSTMat > const & aElementFaceParentRanks,
-                        moris::Matrix< moris::DDSTMat> const & aElementInterfaceFaces)
+                        moris::Matrix< moris::DDSTMat >  const & aElementFaceParentRanks,
+                        moris::Matrix< moris::DDSTMat>   const & aElementInterfaceFaces)
 {
     MORIS_ASSERT(mNumElem<mElementToNode.n_rows(),"Not enough space allocated in call to allocate_more_elements");
     mHasFaceConn = false;
@@ -1248,11 +1272,11 @@ Child_Mesh::add_element(moris::size_t                     const & aRowIndex,
     replace_row(aRowIndex, aElementEdgeParentRanks, mNumElem, mElementEdgeParentRanks);
     replace_row(aRowIndex, aElementFaceParentInds , mNumElem, mElementFaceParentInds);
     replace_row(aRowIndex, aElementFaceParentRanks, mNumElem, mElementFaceParentRanks);
-    replace_row(aRowIndex, aElementInterfaceFaces , mNumElem, mElementInterfaceSides);
+
+    mElementInterfaceSides(mNumElem,aGeomIndex) = aElementInterfaceFaces(aRowIndex);
 
     mNumElem++;
 }
-
 // ---------------------------------------------------------------------------------
 
 void
@@ -1292,6 +1316,15 @@ Child_Mesh::generate_connectivities(bool aGenerateFaceConn,
     }
 }
 
+// ---------------------------------------------------------------------------------
+
+void
+Child_Mesh::add_new_geometry_interface(moris_index aGeomIndex)
+{
+
+    mGeometryIndex.push_back(aGeomIndex);
+    mElementInterfaceSides.resize(this->get_num_entities(EntityRank::ELEMENT),mGeometryIndex.size());
+}
 
 // ---------------------------------------------------------------------------------
 
@@ -1363,8 +1396,12 @@ Child_Mesh::mark_interface_faces_from_interface_coincident_faces()
         // Now that we know all the element edges that are intersected
         // figure out which faces are on the interface
         uint tNumFacesPerEdge = 2;
-        moris::Matrix<moris::IndexMat> const tEdgeOrdinalToFaceOrdMap = {{0,3},{1,3},{2,3},{0,2},{0,1},{1,2}};
+        moris::Matrix<moris::IndexMat> const tEdgeOrdinalToFaceOrdMap = moris::Tetra4_Connectivity::get_edge_to_face_map();
+
+
         moris::Matrix<moris::DDUMat>       tFaceCounter(1,tNumFacesPerElem,0);
+        moris_index tGeomIndex = mGeometryIndex.size()-1;
+
 
         for(uint iElem = 0; iElem < tNumElements; iElem++)
         {
@@ -1384,7 +1421,7 @@ Child_Mesh::mark_interface_faces_from_interface_coincident_faces()
 
                     if(tFaceCounter(tFaceOrd) == tNumEdgesPerFace)
                     {
-                        mElementInterfaceSides(iElem) = tFaceOrd;
+                        mElementInterfaceSides(iElem,tGeomIndex) = tFaceOrd;
                     }
                 }
 
@@ -1430,6 +1467,13 @@ Child_Mesh::get_element_phase_index( moris::size_t const & aEntityIndex) const
 }
 
 // ---------------------------------------------------------------------------------
+moris_index
+Child_Mesh::get_element_subphase_index(moris::size_t const & aEntityIndex) const
+{
+    MORIS_ASSERT(aEntityIndex<get_num_entities(EntityRank::ELEMENT),"EntityIndex out of bounds, aEntityIndex should be a child mesh local index");
+    MORIS_ASSERT(mHasPhaseInfo,"Elemental phase information not set");
+    return mElementBinIndex(aEntityIndex);
+}
 // ---------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------

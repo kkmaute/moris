@@ -393,6 +393,7 @@ namespace xtk
         // needed to tell geometry engine to store the edge a node was created once
         bool mConformalDecomp        = false;
         bool mHasSecondaryIdentifier = false;
+        bool mFirstSubdivision       = false;
 
         // Active child mesh to its nodes location in tNewNodeIndex
         Cell<Cell<moris_index>>    tCMNewNodeLoc;

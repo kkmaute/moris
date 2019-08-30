@@ -31,10 +31,6 @@ add_executable(${TSA_TEST} ${TEST_SOURCES})
 target_link_libraries(${TSA_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${TSA_TEST} PROPERTIES OUTPUT_NAME ${TSA_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${TSA_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${TSA_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     set(TSA_TEST_PROCS ${MORIS_TEST_PROCS})

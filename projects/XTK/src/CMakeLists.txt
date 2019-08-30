@@ -25,8 +25,10 @@ set(HEADERS
     geometry/cl_Discrete_Level_Set.hpp
     geometry/cl_Gyroid.hpp
     geometry/cl_Multi_Cylinder.hpp
+    geometry/cl_Multi_Geometry.hpp
     geometry/cl_Plane.hpp
     geometry/cl_Sphere.hpp
+    geometry/cl_SphereBox.hpp
     geometry/cl_Spiral.hpp
     ios/cl_Logger.hpp
     linalg/cl_XTK_Matrix_Base_Utilities.hpp
@@ -53,6 +55,7 @@ set(HEADERS
     xtk/cl_MTK_Vertex_XTK_Impl.hpp
     xtk/cl_XTK_Active_Process_Manager.hpp
     xtk/cl_XTK_Background_Mesh.hpp
+    xtk/cl_XTK_Cell_Cluster.hpp
     xtk/cl_XTK_Child_Mesh_Modification_Template.hpp
     xtk/cl_XTK_Child_Mesh.hpp
     xtk/cl_XTK_Cut_Mesh.hpp
@@ -65,10 +68,12 @@ set(HEADERS
     xtk/cl_XTK_External_Mesh_Data.hpp
     xtk/cl_XTK_Face_Registry.hpp
     xtk/cl_XTK_Ghost_Stabilization.hpp
+    xtk/cl_XTK_Hole_Seeder.hpp
     xtk/cl_XTK_Input_Generator.hpp
     xtk/cl_XTK_Interface_Element.hpp
     xtk/cl_XTK_Interpolation_Cell.hpp
     xtk/cl_XTK_Interpolation_Cell_Unzipped.hpp
+    xtk/cl_XTK_Enriched_Integration_Mesh.hpp
     xtk/cl_XTK_Enriched_Interpolation_Mesh.hpp
     xtk/cl_XTK_Mesh.hpp
     xtk/cl_XTK_Model.hpp
@@ -80,6 +85,7 @@ set(HEADERS
     xtk/cl_XTK_Phase_Table.hpp
     xtk/cl_XTK_Request_Handler.hpp
     xtk/cl_XTK_Sensitivity.hpp
+    xtk/cl_XTK_Side_Cluster.hpp
     xtk/fn_assemble_boundary_subphase_constraint.hpp
     xtk/fn_compute_interface_surface_area.hpp
     xtk/fn_compute_xtk_model_volumes.hpp
@@ -130,12 +136,17 @@ xtk/cl_XTK_Child_Mesh.cpp
 xtk/cl_XTK_Cut_Mesh.cpp
 xtk/cl_XTK_Enrichment.cpp
 xtk/cl_XTK_Ghost_Stabilization.cpp
+xtk/cl_XTK_Hole_Seeder.cpp
 xtk/cl_XTK_Model.cpp
 xtk/cl_XTK_Paramfile.cpp
 xtk/cl_XTK_Interpolation_Vertex_Unzipped.cpp
 xtk/cl_XTK_Interpolation_Cell_Unzipped.cpp
 xtk/cl_XTK_Enriched_Interpolation_Mesh.cpp
-xtk/cl_XTK_Vertex_Enrichment.cpp)
+xtk/cl_XTK_Vertex_Enrichment.cpp
+xtk/cl_XTK_Enriched_Integration_Mesh.cpp
+xtk/cl_XTK_Cell_Cluster.cpp
+xtk/cl_XTK_Side_Cluster.cpp
+xtk/cl_XTK_Interpolation_Cell.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

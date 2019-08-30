@@ -537,7 +537,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
      */
     tXTKModel.decompose(tDecompositionMethods);
 
-    tXTKModel.unzip_interface();
+//    tXTKModel.unzip_interface();
 
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
     moris::real tMySurfaceArea = compute_interface_surface_area(tNodeCoords,tXTKModel);

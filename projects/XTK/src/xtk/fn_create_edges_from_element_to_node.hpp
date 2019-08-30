@@ -13,6 +13,7 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
+#include "cl_MTK_Tetra4_Connectivity.hpp"
 
 namespace xtk
 {
@@ -59,13 +60,7 @@ create_edges_from_element_to_node(enum CellTopology                 aElementTopo
     aEdgeToElement.fill(std::numeric_limits<moris::moris_index>::max());
 
     // TET4 specific topology map
-    moris::Matrix< moris::IdMat > tElementEdgeToNodeMap({
-    {0,1},
-    {1,2},
-    {0,2},
-    {0,3},
-    {1,3},
-    {2,3}});
+    moris::Matrix< moris::IdMat > tElementEdgeToNodeMap = moris::Tetra4_Connectivity::get_node_to_edge_map();
 
     // Single Element Face To Nodes
     moris::Matrix< moris::IdMat > tElementEdgeToNode(6,2);

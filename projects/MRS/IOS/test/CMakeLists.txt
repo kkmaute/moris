@@ -27,10 +27,6 @@ add_executable(${IOS_TEST} ${TEST_SOURCES})
 target_link_libraries(${IOS_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${IOS_TEST} PROPERTIES OUTPUT_NAME ${IOS_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${IOS_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${IOS_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(IOS_TEST_PROCS ${MORIS_TEST_PROCS})
