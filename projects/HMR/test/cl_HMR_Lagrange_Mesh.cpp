@@ -735,7 +735,6 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         REQUIRE( tLagrangeMesh_1->get_number_of_nodes_on_proc()  == 43 );
         REQUIRE( tLagrangeMesh_2->get_number_of_nodes_on_proc()  == 30 );
 
-
         // output to exodus
         STK * tSTK = tLagrangeMesh_2->create_stk_object(0);
         tSTK->save_to_file( "cccccc.g");

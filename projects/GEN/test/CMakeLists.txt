@@ -11,6 +11,7 @@ set(TEST_SOURCES
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
     cl_GE_test.cpp
+    UT_GE_HMR_Interaction.cpp
     geometry_classes/cl_GE_test_analytic.cpp
     geometry_classes/cl_GE_test_discrete.cpp
     geometry_classes/cl_GE_test_sdf.cpp

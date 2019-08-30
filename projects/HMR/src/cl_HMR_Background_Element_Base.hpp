@@ -144,6 +144,13 @@ namespace moris
             }
 
 //--------------------------------------------------------------------------------
+
+            virtual uint get_num_children() const
+            {
+                MORIS_ERROR( false, "get_num_children(); not implemented");
+                return 0;
+            };
+//--------------------------------------------------------------------------------
             /**
              * Needed for the initialization process of the coarsest elements.
              * If the element is set as active, it can't be refined or be
@@ -448,6 +455,10 @@ namespace moris
              * @return Background_Element_Base *  pointer to selected child
              */
             virtual Background_Element_Base * get_child( const uint& aIndex ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual Background_Element_Base * get_child( const uint& aIndex ) const = 0;
 
 //--------------------------------------------------------------------------------
 

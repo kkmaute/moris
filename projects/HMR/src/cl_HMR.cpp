@@ -771,8 +771,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::flag_elements(       Cell< mtk::Cell* > & aElements,
-                                 const uint                 aMinRefinementLevel )
+        void HMR::flag_elements(       Cell< hmr::Element* > & aElements,
+                                 const uint                    aMinRefinementLevel )
         {
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
@@ -787,7 +787,7 @@ namespace moris
             Lagrange_Mesh_Base * tLagrangeMesh = mDatabase->get_lagrange_mesh_by_index( 0 );
 
             // loop over all active elements
-            for( mtk::Cell* tCell :  aElements )
+            for( hmr::Element* tCell :  aElements )
             {
                 // get pointer to Background Element
                 // ( the input elements are general mtk::cells, so they might not have any )
@@ -809,6 +809,18 @@ namespace moris
                     // set flag for parent of element
                     tElement->set_refined_flag( tWorkingPattern );
                 }
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void HMR::put_elements_on_refinment_queue(       Cell< hmr::Element* > & aElements,
+                                                   const uint                 aMinRefinementLevel )
+        {
+            // loop over all active elements
+            for( hmr::Element* tCell :  aElements )
+            {
+                tCell->get_background_element()->put_on_refinement_queue();
             }
         }
 
@@ -1583,9 +1595,9 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void HMR::get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
-                                                 const uint                 aLagrangeMeshIndex,
-                                                 const uint                 aMaxLevel )
+        void HMR::get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
+                                                 const uint                    aLagrangeMeshIndex,
+                                                 const uint                     aMaxLevel )
         {
 //            MORIS_ERROR(false, "HMR::get_candidates_for_refinement() this function is not udated yet ");
             // reset candidate list
@@ -1658,14 +1670,11 @@ namespace moris
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
-            // create geometry engine
-            ge::GE_Core tRefMan;
-
             // candidates for refinement
-            Cell< mtk::Cell*  > tCandidates;
+            Cell< hmr::Element*  > tCandidates;
 
             // elements to be flagged for refinement
-            Cell< mtk::Cell* > tRefinementList;
+            Cell< hmr::Element* > tRefinementList;
 
             uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
@@ -1675,9 +1684,9 @@ namespace moris
                                                  aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
-            tRefMan.find_cells_intersected_by_levelset( tRefinementList,
-                                                        tCandidates,
-                                                        aScalarField->get_node_values() );
+            this->find_cells_intersected_by_levelset( tRefinementList,
+                                                      tCandidates,
+                                                      aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -1691,9 +1700,9 @@ namespace moris
                                                  aScalarField->get_max_volume_level() );
 
             // call refinement manager and get volume cells
-            tRefMan.find_cells_within_levelset( tRefinementList,
-                    tCandidates,
-                    aScalarField->get_node_values() );
+            this->find_cells_within_levelset( tRefinementList,
+                                              tCandidates,
+                                              aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
@@ -1713,14 +1722,11 @@ namespace moris
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
-            // create geometry engine
-            ge::GE_Core tRefMan;
-
             // candidates for refinement
-            Cell< mtk::Cell* > tCandidates;
+            Cell< hmr::Element* > tCandidates;
 
             // elements to be flagged for refinement
-            Cell< mtk::Cell* > tRefinementList;
+            Cell< hmr::Element* > tRefinementList;
 
             uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
@@ -1730,15 +1736,51 @@ namespace moris
                                                  aScalarField->get_max_surface_level() );
 
             // call refinement manager and get intersected cells
-            tRefMan.find_cells_intersected_by_levelset( tRefinementList,
-                                                        tCandidates,
-                                                        aScalarField->get_node_values() );
+            this->find_cells_intersected_by_levelset( tRefinementList,
+                                                      tCandidates,
+                                                      aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
             // flag elements in HMR
             this->flag_elements( tRefinementList, aScalarField->get_min_surface_level() );
+
+            // return number of flagged elements
+            return aElementCounter;
+        }
+
+// -----------------------------------------------------------------------------
+
+        uint HMR::flag_surface_elements( const Matrix< DDRMat > & aFieldValues )
+        {
+//            MORIS_ERROR(false, "HMR::flag_surface_elements() this function is not udated yet ");
+            // the funciton returns the number of flagged elements
+            uint aElementCounter = 0;
+
+            // candidates for refinement
+            Cell< hmr::Element* > tCandidates;
+
+            // elements to be flagged for refinement
+            Cell< hmr::Element* > tRefinementList;
+
+            uint tLagrangeMeshIndex = 0;                  //FIXME
+
+            // get candidates for surface
+            this->get_candidates_for_refinement( tCandidates,
+                                                 tLagrangeMeshIndex,
+                                                 2 );                                 //FIXME
+
+            // call refinement manager and get intersected cells
+            this->find_cells_intersected_by_levelset( tRefinementList,
+                                                      tCandidates,
+                                                      aFieldValues );
+
+            // add length of list to counter
+            aElementCounter += tRefinementList.size();
+
+            // flag elements in HMR
+            this->put_elements_on_refinment_queue( tRefinementList, 0 );             //FIXME
 
             // return number of flagged elements
             return aElementCounter;
@@ -2087,6 +2129,104 @@ namespace moris
             // make this field point to the output mesh
             aField->change_mesh( tUnionField->get_mesh(),
                                  tUnionField->get_field_index() );
+        }
+
+// ----------------------------------------------------------------------------
+
+        void HMR::find_cells_intersected_by_levelset(        Cell< hmr::Element * > & aCells,
+                                                             Cell< hmr::Element * > & aCandidates,
+                                                      const  Matrix< DDRMat >    & aVertexValues,
+                                                      const  real                  aLowerBound,
+                                                      const  real                  aUpperBound )
+        {
+                // make sure that input makes sense
+                MORIS_ASSERT( aLowerBound <= aUpperBound,
+                        "find_cells_intersected_by_levelset() : aLowerBound bound must be less or equal aUpperBound" );
+
+                // make sure that the field is a scalar field
+                MORIS_ASSERT( aVertexValues.n_cols() == 1,
+                        "find_cells_within_levelset() can only be performed on scalar fields" );
+
+                // initialize output cell
+                aCells.resize( aCandidates.size(), nullptr );
+
+                // initialize counter
+                uint tCount = 0;
+
+                // loop over all candidates
+                for( hmr::Element * tCell : aCandidates )
+                {
+                    // get cell of vertex pointers
+                    Cell< mtk::Vertex * > tVertices = tCell->get_vertex_pointers();
+
+                    // get number of vertices on this element
+                    uint tNumberOfVertices = tVertices.size();
+
+                    // assign matrix with vertex values
+                    Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
+
+                    // loop over all vertices and extract scalar field
+                    for( uint k=0; k<tNumberOfVertices; ++k )
+                    {
+                        // copy value from field into element local matrix
+                        tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
+                    }
+
+                    // test if cell is inside
+                    if ( tCellValues.min() <= aUpperBound && tCellValues.max() >= aLowerBound )
+                    {
+                        // copy pointer to output
+                        aCells( tCount++ ) = tCell;
+                    }
+                }
+
+                // shrink output to fit
+                aCells.resize( tCount );
+        }
+
+        void HMR::find_cells_within_levelset(        Cell< hmr::Element * > & aCells,
+                                                     Cell< hmr::Element * > & aCandidates,
+                                              const  Matrix< DDRMat >       & aVertexValues,
+                                              const  uint                     aUpperBound )
+        {
+            // make sure that the field is a scalar field
+            MORIS_ASSERT( aVertexValues.n_cols() == 1, "find_cells_within_levelset() can only be performed on scalar fields" );
+
+            // initialize output cell
+            aCells.resize( aCandidates.size(), nullptr );
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over all candidates
+            for( hmr::Element * tCell : aCandidates )
+            {
+                // get cell of vertex pointers
+                Cell< mtk::Vertex * > tVertices = tCell->get_vertex_pointers();
+
+                // get number of vertices on this element
+                uint tNumberOfVertices = tVertices.size();
+
+                // assign matrix with vertex values
+                Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
+
+                // loop over all vertices and extract scalar field
+                for( uint k=0; k<tNumberOfVertices; ++k )
+                {
+                    // copy value from field into element local matrix
+                    tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
+                }
+
+                // test if cell is inside
+                if(  tCellValues.max() <= aUpperBound )
+                {
+                    // copy pointer to output
+                    aCells( tCount++ ) = tCell;
+                }
+            }
+
+            // shrink output to fit
+            aCells.resize( tCount );
         }
 
 // ----------------------------------------------------------------------------

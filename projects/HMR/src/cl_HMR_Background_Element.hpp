@@ -278,6 +278,13 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+            uint get_num_children() const
+            {
+                return C;
+            }
+
+//--------------------------------------------------------------------------------
+
             /**
              * Returns a pointer to a child of an element. If the element
              * has no children, a null pointer will be returned.
@@ -286,6 +293,20 @@ namespace moris
              * @return Background_Element_Base*  pointer to selected child
              */
             Background_Element_Base * get_child( const uint& aIndex )
+            {
+                return mChildren[ aIndex ];
+            }
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * Returns a pointer to a child of an element. If the element
+             * has no children, a null pointer will be returned.
+             *
+             * @param[in] aIndex      Index of requested child (2D: 0-3, 3D: 0-7)
+             * @return Background_Element_Base*  pointer to selected child
+             */
+            Background_Element_Base * get_child( const uint& aIndex ) const
             {
                 return mChildren[ aIndex ];
             }
