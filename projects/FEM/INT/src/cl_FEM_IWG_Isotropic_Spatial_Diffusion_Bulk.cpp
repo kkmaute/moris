@@ -16,16 +16,15 @@ namespace moris
             //FIXME forced diffusion parameter
             //      forced dimensions for 3D
             eye( mSpaceDim, mSpaceDim, mKappa );
-            mKappa = 1.0 * mKappa;
 
             // set the residual dof type
             mResidualDofType = { MSI::Dof_Type::TEMP };
 
             // set the active dof type
-            mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
+            mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
 
             // set the active property type
-            mActivePropertyTypes = { fem::Property_Type::CONDUCTIVITY };
+            mMasterPropTypes = { fem::Property_Type::CONDUCTIVITY };
         }
 
 //------------------------------------------------------------------------------
@@ -39,6 +38,12 @@ namespace moris
             // check master field interpolators
             this->check_field_interpolators();
 
+            // check master properties
+            this->check_properties();
+
+            // compute conductivity
+            mKappa = mMasterProp( 0 )->val()( 0 ) * mKappa;
+
             // compute the residual r_T
             aResidual = trans( mMasterFI( 0 )->Bx() ) * mKappa * mMasterFI( 0 )->gradx( 1 )
                       - trans( mMasterFI( 0 )->N() ) * tQ;
@@ -47,10 +52,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
         void
-        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
+        IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > > & aJacobians )
         {
             // check master field interpolators
             this->check_field_interpolators();
+
+            // check master properties
+            this->check_properties();
+
+            // compute conductivity
+            mKappa = mMasterProp( 0 )->val()( 0 ) * mKappa;
 
             // set the jacobian size
             aJacobians.resize( 1 );
@@ -70,6 +81,12 @@ namespace moris
 
             // check master field interpolators
             this->check_field_interpolators();
+
+            // check master properties
+            this->check_properties();
+
+            // compute conductivity
+            mKappa = mMasterProp( 0 )->val()( 0 ) * mKappa;
 
             // compute the residual r_T
             aResidual = trans( mMasterFI( 0 )->Bx() ) * mKappa * mMasterFI( 0 )->gradx( 1 )

@@ -20,6 +20,8 @@ namespace moris
 {
     namespace fem
     {
+    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
+                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > PropertyFunc;
 //------------------------------------------------------------------------------
         /**
          * Property
@@ -32,7 +34,10 @@ namespace moris
             fem::Property_Type mPropertyType;
 
             // active dof types
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mActiveDofTypes;
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
+
+            // active dof type map
+            Matrix< DDSMat > mDofTypeMap;
 
             // field interpolators
             moris::Cell< Field_Interpolator* > mFieldInterpolators;
@@ -40,14 +45,20 @@ namespace moris
             // coefficients
             moris::Cell< Matrix< DDRMat> > mCoeff;
 
-            // val function
-//            Matrix< DDRMat > ( *mValFunction )( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-//                                                moris::Cell< Field_Interpolator* > & aFieldInterpolator ) = nullptr;
-            std::function< Matrix< DDRMat >( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                             moris::Cell< Field_Interpolator* > & aFieldInterpolator ) > mValFunction = nullptr;
+            // value function
+            PropertyFunc mValFunction = nullptr;
+
             // derivative functions
-            moris::Cell< std::function< Matrix< DDRMat >( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolator ) > > mDerFunctions;
+            moris::Cell< PropertyFunc > mDerFunctions;
+
+            // flag for evaluation
+            bool mPropEval = true;
+            moris::Cell< bool > mPropDerEval;
+
+            // storage
+            Matrix< DDRMat > mProp;
+            moris::Cell< Matrix< DDRMat > > mPropDer;
+            Matrix< DDRMat > mPropDerZero;
 
 //------------------------------------------------------------------------------
         public :
@@ -57,24 +68,14 @@ namespace moris
              * constructor
              */
             Property( fem::Property_Type aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aActiveDofTypes ) : mPropertyType( aPropertyType ),
-                                                                                      mActiveDofTypes( aActiveDofTypes )
+                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes ) : mPropertyType( aPropertyType ),
+                                                                                mDofTypes( aDofTypes )
             {};
 
-            Property( fem::Property_Type aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aActiveDofTypes,
-                      std::function< Matrix< DDRMat >( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator ) > aValFunction,
-                      moris::Cell< std::function< Matrix< DDRMat >( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolator ) > > aDerFunctions )
-            : mPropertyType( aPropertyType ),
-              mActiveDofTypes( aActiveDofTypes ),
-              mValFunction( aValFunction ),
-              mDerFunctions( aDerFunctions )
-            {
-                // set mDerFunctions size
-                mDerFunctions.resize( mActiveDofTypes.size(), nullptr );
-            };
+            Property( fem::Property_Type                          aPropertyType,
+                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                      PropertyFunc                                aValFunction,
+                      moris::Cell< PropertyFunc >                 aDerFunctions );
 
 //------------------------------------------------------------------------------
             /**
@@ -95,85 +96,74 @@ namespace moris
             /**
              * returns a list of active dof types
              */
-            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_active_dof_types() const
+            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list() const
             {
-                return mActiveDofTypes;
+                return mDofTypes;
             };
+
+//------------------------------------------------------------------------------
+            /**
+             * build a dof type map
+             */
+            void build_dof_type_map();
 
 //------------------------------------------------------------------------------
             /**
              * set field interpolators
              */
-            void set_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-            {
-                // check size
-                MORIS_ASSERT( aFieldInterpolators.size() == mActiveDofTypes.size(), "Property::set_field_interpolators - wrong input size. " );
+            void set_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
 
-                // set field interpolators
-                mFieldInterpolators = aFieldInterpolators;
+            moris::Cell< fem::Field_Interpolator* > & get_field_interpolators()
+            {
+                return mFieldInterpolators;
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * check that field interpolators are assigned
+             */
+            void check_field_interpolators();
 
 //------------------------------------------------------------------------------
             /**
              * set coefficients
              */
-            void set_coefficients( moris::Cell< Matrix< DDRMat > > & aCoefficients )
+            void set_coefficients( const moris::Cell< Matrix< DDRMat > > & aCoefficients );
+
+//------------------------------------------------------------------------------
+            /**
+             * reset evaluation flags
+             */
+            void reset_eval_flags()
             {
-                // set coefficients
-                mCoeff = aCoefficients;
+                mPropEval = true;
+
+                mPropDerEval.resize( mDofTypes.size(), true );
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the property value
+             */
+            const Matrix< DDRMat > & val();
+
 //------------------------------------------------------------------------------
             /**
              * evaluate property in terms of coefficients and variables
              */
-            void val( Matrix< DDRMat > & aPropertyValue )
-            {
-                // check that mValFunc was assigned
-                MORIS_ASSERT( mValFunction != nullptr, "Property::val - mValFunction not assigned. " );
-
-                // check that the field interpolators are set
-                MORIS_ASSERT( mFieldInterpolators.size() > 0, "Property::val - mFieldInterpolators not assigned. " );
-
-                // use mValFunction to evaluate the property
-                aPropertyValue = mValFunction( mCoeff, mFieldInterpolators );
-            }
+            void eval_Prop();
 
 //------------------------------------------------------------------------------
             /**
              * evaluate property derivatives in terms of coefficients and variables
              */
-            void dPdDOF( MSI::Dof_Type                        aDofType,
-                         Matrix< DDRMat >                   & aPropertyDerivative )
-            {
-                // check that the field interpolators are set
-                MORIS_ASSERT( mFieldInterpolators.size() > 0, "Property::val - mFieldInterpolators not assigned. " );
+            const Matrix< DDRMat > & dPropdDOF( MSI::Dof_Type aDofType );
 
-                // loop over the property dof dependencies
-                bool tDerEval = false;
-                for( uint iDOF = 0; iDOF < mActiveDofTypes.size(); iDOF++ )
-                {
-                    // check aDofType = active DofType
-                    if ( equal_to( static_cast< uint >( aDofType ), static_cast< uint >( mActiveDofTypes( iDOF )( 0 ) ) ) )
-                    {
-                        // check that mDerFunctions was assigned
-                        MORIS_ASSERT( mDerFunctions( iDOF ) != nullptr, "Property::dPdDOF - mDerFunction not assigned. " );
-
-                        // if so use mDerivativeFunction to compute the derivative
-                        aPropertyDerivative = mDerFunctions( iDOF )( mCoeff, mFieldInterpolators );
-
-                        // set bool to true as derivative was evaluated
-                        tDerEval = true;
-                        break;
-                    }
-                }
-
-                // if property does not depend on aDofType
-                if( !tDerEval )
-                {
-                    // set the derivative to zero
-                    aPropertyDerivative.set_size( 1, 1, 0.0 );
-                }
-            }
+//------------------------------------------------------------------------------
+            /**
+             * evaluate property derivatives in terms of coefficients and variables
+             */
+            void eval_dPropdDOF( MSI::Dof_Type aDofType );
 
         };
 

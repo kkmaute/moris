@@ -75,16 +75,13 @@ namespace moris
                                                               { MSI::Dof_Type::VX }};
 
             // create the function pointers for the value
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tValFunction;
-
-
-            Cell< std::function< Matrix< DDRMat > ( Cell< Matrix< DDRMat > >    & aCoeff,
-                                                    Cell< Field_Interpolator* > & aFieldInterpolator) > > tDerFunctions( 0 );
+            fem::PropertyFunc tValFunction0 = tValFunction;
+            Cell< fem::PropertyFunc > tDerFunctions( 0 );
 
             // create a property object
             Cell< fem::Property* > tProperties( 1, nullptr );
-            tProperties( 0 ) = new Property( fem::Property_Type::TEMP_NEUMANN, tActiveDofTypes,
+            tProperties( 0 ) = new Property( fem::Property_Type::TEMP_NEUMANN,
+                                             tActiveDofTypes,
                                              tValFunction0, tDerFunctions );
 
             //create a space geometry interpolation rule
@@ -107,17 +104,23 @@ namespace moris
                                                     Interpolation_Type::LAGRANGE,
                                                     mtk::Interpolation_Order::LINEAR );
 
-            // create a TEMP field interpolator
+            // create a TEMP and a VX field interpolator
             uint tNumberOfFields = 1;
-            Cell< Field_Interpolator* > tFieldInterpolators( 1, nullptr );
+            Cell< Field_Interpolator* > tFieldInterpolators( 2, nullptr );
             tFieldInterpolators( 0 ) = new Field_Interpolator ( tNumberOfFields,
                                                                tInterpolationRule,
                                                                tGeomInterpolator,
-                                                               MSI::Dof_Type::TEMP );
+                                                               { MSI::Dof_Type::TEMP } );
+            tFieldInterpolators( 1 ) = new Field_Interpolator ( tNumberOfFields,
+                                                                tInterpolationRule,
+                                                                tGeomInterpolator,
+                                                                { MSI::Dof_Type::VX } );
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0( 8, 1, 2.0 );
             tFieldInterpolators( 0 )->set_coeff( tUHat0 );
+            Matrix< DDRMat > tUHat1( 8, 1, 3.0 );
+            tFieldInterpolators( 1 )->set_coeff( tUHat1 );
 
             // a factory to create the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -125,25 +128,32 @@ namespace moris
             // create an IWG with the factory for the ith IWG type
             fem::IWG* tIWG = tIWGFactory.create_IWGs( fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
-            // set IWG field interpolators
-            tIWG->set_field_interpolators( tFieldInterpolators );
-
             // set IWG properties
             tIWG->set_properties( tProperties );
 
-            // get global dof type list
-            tIWG->create_global_dof_types_list();
+            // set IWG field interpolators
+            tIWG->set_field_interpolators( tFieldInterpolators );
 
             //check global dof list size
-            CHECK( equal_to( tIWG->mActiveDofTypesGlobal.size(), 2 ));
+            CHECK( equal_to( tIWG->mMasterGlobalDofTypes.size(), 2 ));
 
             //check global dof list content
-            CHECK( equal_to( static_cast< uint >( tIWG->mActiveDofTypesGlobal( 0 )( 0 ) ), 3 ) );
-            CHECK( equal_to( static_cast< uint >( tIWG->mActiveDofTypesGlobal( 1 )( 0 ) ), 11 ) );
+            CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 0 )( 0 ) ), 3 ) );
+            CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 1 )( 0 ) ), 11 ) );
 
             // clean up
-            delete tProperties( 0 );
-            delete tFieldInterpolators( 0 );
+
+            // delete the property pointers
+            for( uint iProp = 0; iProp < tProperties.size(); iProp++ )
+            {
+                delete tProperties( iProp );
+            }
+
+            // delete the field interpolator pointers
+            for( uint iFI = 0; iFI < tFieldInterpolators.size(); iFI++ )
+            {
+                delete tFieldInterpolators( iFI );
+            }
 
         }/* TEST_CASE */
 

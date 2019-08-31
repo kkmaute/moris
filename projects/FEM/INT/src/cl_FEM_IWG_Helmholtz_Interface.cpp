@@ -9,7 +9,6 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-//        IWG_Helmholtz_Interface::IWG_Helmholtz_Interface( const real aFilterParam )
         IWG_Helmholtz_Interface::IWG_Helmholtz_Interface()
         {
             //FIXME set the Helmholtz filter parameter
@@ -19,7 +18,7 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::VX };
 
             // set the active dof type
-            mActiveDofTypes = {{ MSI::Dof_Type::VX }};
+            mMasterDofTypes = {{ MSI::Dof_Type::VX }};
         }
 
 //------------------------------------------------------------------------------

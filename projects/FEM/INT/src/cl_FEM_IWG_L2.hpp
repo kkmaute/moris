@@ -29,18 +29,15 @@ namespace moris
             // Alpha-Parameter, for J = M + alpha*K
             real mAlpha;
 
-            // pointer to interpolator
-            Field_Interpolator * mInterpolator = nullptr;
+            void
+            ( IWG_L2:: * mComputeFunction )( moris::Cell< Matrix< DDRMat > > & aJacobians,
+                                             Matrix< DDRMat >                & aResidual );
 
             void
-            ( IWG_L2:: * mComputeFunction )( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                             Matrix< DDRMat >                   & aResidual );
+            ( IWG_L2:: * mComputeJacFunction )( moris::Cell< Matrix< DDRMat > > & aJacobians );
 
             void
-            ( IWG_L2:: * mComputeJacFunction )( moris::Cell< Matrix< DDRMat > >    & aJacobians );
-
-            void
-            ( IWG_L2:: * mComputeResFunction )( Matrix< DDRMat >                   & aResidual );
+            ( IWG_L2:: * mComputeResFunction )( Matrix< DDRMat > & aResidual );
 
 //------------------------------------------------------------------------------
         public:

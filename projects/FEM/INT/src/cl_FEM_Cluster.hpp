@@ -100,7 +100,7 @@ namespace moris
             mMasterIntegrationCells = aMeshCluster->get_primary_cells_in_cluster();
 
             // get the number of IWGs //FIXME
-            mNumOfIWGs = mSet->get_num_IWG();
+            mNumOfIWGs = mSet->get_number_of_IWGs();
 
             // switch on the element type
             switch ( mElementType )
@@ -403,7 +403,7 @@ namespace moris
         real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
         {
             //get number of integration points
-            uint tNumOfIntegPoints = mSet->get_num_integration_points();
+            uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
 
             // init volume
             real tVolume = 0;
@@ -432,15 +432,19 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
+         * FIXME
          * set the field interpolators coefficients
          */
         void set_field_interpolators_coefficients( )
          {
+             // get number of master dof types
+             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
+
              // loop on the dof types
-             for( uint i = 0; i < mSet->get_num_interpolators(); i++ )
+             for( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
              {
                  // get the ith dof type group
-                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_interpolator_dof_type_list()( i );
+                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
 
                  // get the pdof values for the ith dof type group
                  Matrix< DDRMat > tCoeff;
@@ -452,14 +456,14 @@ namespace moris
                      case ( fem::Element_Type::SIDESET ):
                      {
                          // set the field coefficients
-                         mSet->get_field_interpolator()( i )->set_coeff( tCoeff );
+                         mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
                          break;
                      }
                      case ( fem::Element_Type::DOUBLE_SIDESET ) :
                      {
                          // set the field coefficients for the master and the slave interpolation cell
-                         mSet->get_field_interpolator( mtk::Master_Slave::MASTER )( i )->set_coeff( tCoeff({0,tCoeff.numel()/2 -1},{0,0}) );
-                         mSet->get_field_interpolator( mtk::Master_Slave::SLAVE )( i )->set_coeff( tCoeff({tCoeff.numel()/2, tCoeff.numel()-1},{0,0}) );
+                         mSet->get_field_interpolators( mtk::Master_Slave::MASTER )( iDOF )->set_coeff( tCoeff({0,tCoeff.numel()/2 -1},{0,0}) );
+                         mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff({tCoeff.numel()/2, tCoeff.numel()-1},{0,0}) );
                          break;
                      }
                      default :
@@ -470,30 +474,6 @@ namespace moris
                  }
              }
          }
-
-//        /**
-//         * set the field interpolators coefficients
-//         */
-//        void set_field_interpolators_coefficients_double( )
-//         {
-//             // loop on the dof types
-//             for( uint i = 0; i < mSet->get_num_interpolators(); i++ )
-//             {
-//                 // get the ith dof type group
-//                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_interpolator_dof_type_list()( i );
-//
-//                 // get the pdof values for the ith dof type group
-//                 Matrix< DDRMat > tCoeff;
-//                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
-//
-//                 // FIXME ok only if both left and right have same interpolation
-//                 // set the field coefficients for the left interpolation cell
-//                 mSet->get_field_interpolator( mtk::Master_Slave::MASTER )( i )->set_coeff( tCoeff({0,tCoeff.numel()/2 -1},{0,0}) );
-//
-//                 // set the field coefficients for the right interpolation cell
-//                 mSet->get_field_interpolator( mtk::Master_Slave::SLAVE )( i )->set_coeff( tCoeff({tCoeff.numel()/2, tCoeff.numel()-1},{0,0}) );
-//             }
-//         }
 
  //------------------------------------------------------------------------------
         /**

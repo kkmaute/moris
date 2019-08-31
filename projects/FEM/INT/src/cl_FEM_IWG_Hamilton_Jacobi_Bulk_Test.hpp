@@ -32,14 +32,7 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Hamilton_Jacobi_Bulk_Test()
-        {
-            // set the residual dof type
-            mResidualDofType = { MSI::Dof_Type::LS1 };
-
-            // set the active dof type
-            mActiveDofTypes = {{ MSI::Dof_Type::LS1 }};
-        };
+            IWG_Hamilton_Jacobi_Bulk_Test();
 
 //------------------------------------------------------------------------------
             /**
@@ -56,17 +49,7 @@ namespace moris
              * @param[ in ] aResidual            residual vector to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_residual( Matrix< DDRMat > & aResidual )
-            {
-                // set field interpolators
-                Field_Interpolator* phi = mMasterFI( 0 );
-
-                // velocity field value
-                Matrix< DDRMat > aVN( 1, 3, 1.0 );
-
-               //compute the residual
-               aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + aVN * phi->gradx( 1 ) );
-            }
+            void compute_residual( Matrix< DDRMat > & aResidual );
 
 //------------------------------------------------------------------------------
             /**
@@ -77,21 +60,7 @@ namespace moris
              * @param[ in ] aJacobians           list of jacobian matrices to fill
              * @param[ in ] aFieldInterpolators  list of active field interpolators
              */
-            void compute_jacobian( moris::Cell< Matrix< DDRMat > > & aJacobians )
-            {
-                // set field interpolators
-                Field_Interpolator* phi = mMasterFI( 0 );
-
-                // velocity field value
-                Matrix< DDRMat > aVN( 1, 3, 1.0 );
-
-                // set the jacobian size
-                aJacobians.resize( 1 );
-
-                // compute the jacobian Jphiphi
-                aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + aVN * phi->Bx() );
-
-            };
+            void compute_jacobian( moris::Cell< Matrix< DDRMat > > & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
@@ -103,23 +72,7 @@ namespace moris
              *
              */
             void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                Matrix< DDRMat >                   & aResidual )
-            {
-                // set field interpolators
-                Field_Interpolator* phi = mMasterFI( 0 );
-
-                // velocity field value
-                Matrix< DDRMat > aVN( 1, 3, 1.0 );
-
-                //compute the residual
-                aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + aVN * phi->gradx( 1 ) );
-
-                // set the jacobian size
-                aJacobians.resize( 1 );
-
-                // compute the jacobian Jphiphi
-                aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + aVN * phi->Bx() );
-            }
+                                                Matrix< DDRMat >                   & aResidual );
 
 //------------------------------------------------------------------------------
         };

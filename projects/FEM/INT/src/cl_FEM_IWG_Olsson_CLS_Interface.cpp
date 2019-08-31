@@ -29,7 +29,7 @@ namespace moris
             // set the active dof type
             //FIXME: level set scalar field not UX
             //       level set normal field not UY
-            mActiveDofTypes = {{ MSI::Dof_Type::LS2 },
+            mMasterDofTypes = {{ MSI::Dof_Type::LS2 },
                                { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ } };
 
         }

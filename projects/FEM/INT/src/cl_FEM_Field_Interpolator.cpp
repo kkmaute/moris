@@ -23,7 +23,7 @@ namespace moris
         Field_Interpolator::Field_Interpolator( const uint                   & aNumberOfFields,
                                                 const Interpolation_Rule     & aFieldInterpolationRule,
                                                       Geometry_Interpolator*   aGeometryInterpolator,
-                                                const MSI::Dof_Type            aDofType )
+                                                const moris::Cell< MSI::Dof_Type >            aDofType )
                                               : mNumberOfFields( aNumberOfFields ),
                                                 mGeometryInterpolator( aGeometryInterpolator ),
                                                 mDofType( aDofType )
@@ -182,7 +182,7 @@ namespace moris
             // build the space time dNFielddXi row by row
             for ( moris::uint Ik = 0; Ik < mNSpaceDim; Ik++ )
             {
-                tdNFielddXi.get_row(Ik) = reshape( tdNSpacedXi.get_column(Ik) * tNTime , 1, mNFieldBases );
+                tdNFielddXi.get_row( Ik ) = reshape( tdNSpacedXi.get_column(Ik) * tNTime , 1, mNFieldBases );
             }
 
             // evaluate the space Jacobian from the geometry interpolator
@@ -464,7 +464,7 @@ namespace moris
         Matrix< DDRMat > Field_Interpolator::val()
         {
             // check that mUHat is set
-            MORIS_ASSERT( mUHat.numel() > 0, "Field_Interpolator::val - mUHat  is not set." );
+            MORIS_ASSERT( mUHat.numel() > 0, "Field_Interpolator::val - mUHat is not set." );
 
             //evaluate the field value
             return this->N() * mUHat ;

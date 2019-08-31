@@ -17,11 +17,11 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::TEMP };
 
             // set the active dof types
-            mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
+            mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
 
             // set the active property types
-            mActivePropertyTypes = { fem::Property_Type::CONDUCTIVITY,
-                                     fem::Property_Type::TEMP_DIRICHLET };
+            mMasterPropTypes = { fem::Property_Type::CONDUCTIVITY,
+                                 fem::Property_Type::TEMP_DIRICHLET };
 
             // FIXME set a penalty
             mGamma = 1.0;
@@ -29,7 +29,6 @@ namespace moris
             //FIXME forced diffusion parameter
             //      forced dimensions for 3D
             eye( mSpaceDim, mSpaceDim, mKappa );
-            mKappa = 1.0 * mKappa;
         }
 
 //------------------------------------------------------------------------------
@@ -39,13 +38,16 @@ namespace moris
             // check master field interpolators
             this->check_field_interpolators();
 
-            // fixme interpolated TBar from nodal values
-            Matrix< DDRMat > tTBar = mMasterFI( 0 )->N() * mNodalWeakBCs;
+            // check master properties
+            this->check_properties();
+
+            // compute conductivity
+            mKappa = mMasterProp( 0 )->val()( 0 ) * mKappa;
 
             // compute the residual r_T
             aResidual = - trans( mMasterFI( 0 )->N() ) * dot( mKappa * mMasterFI( 0 )->gradx( 1 ), mNormal )
-                        + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) )
-                        + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) );
+                        + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) )
+                        + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) );
         }
 
 //------------------------------------------------------------------------------
@@ -54,6 +56,12 @@ namespace moris
         {
             // check master field interpolators
             this->check_field_interpolators();
+
+            // check master properties
+            this->check_properties();
+
+            // compute conductivity
+            mKappa = mMasterProp( 0 )->val()( 0 ) * mKappa;
 
             // set the jacobian size
             aJacobians.resize( 1 );
@@ -73,13 +81,16 @@ namespace moris
             // check master field interpolators
             this->check_field_interpolators();
 
-            // interpolated TBar from nodal values
-            Matrix< DDRMat > tTBar = mMasterFI( 0 )->N() * mNodalWeakBCs;
+            // check master properties
+            this->check_properties();
+
+            // compute conductivity
+            mKappa = mMasterProp( 0 )->val()( 0 ) * mKappa;
 
             // compute the residual r_T
             aResidual = - trans( mMasterFI( 0 )->N() ) * dot( mKappa * mMasterFI( 0 )->gradx( 1 ), mNormal )
-                        + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) )
-                        + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - tTBar( 0 ) );
+                        + trans( mKappa * mMasterFI( 0 )->Bx() ) * mNormal * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) )
+                        + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) );
 
             // set the jacobian size
             aJacobians.resize( 1 );

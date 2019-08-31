@@ -16,7 +16,12 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::TEMP };
 
             // set the active dof type
-            mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
+            mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
+            mSlaveDofTypes  = { { MSI::Dof_Type::TEMP } };
+
+            // set the active property types
+            mMasterPropTypes = { fem::Property_Type::CONDUCTIVITY };
+            mSlavePropTypes  = { fem::Property_Type::CONDUCTIVITY };
 
             // FIXME set a penalty
             mGammaGhost = 1.0;

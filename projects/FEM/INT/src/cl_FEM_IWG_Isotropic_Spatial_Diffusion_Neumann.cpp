@@ -18,10 +18,10 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::TEMP };
 
             // set the active dof type
-            mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
+            mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
 
             // set the active mp type
-            mActivePropertyTypes = { fem::Property_Type::TEMP_NEUMANN };
+            mMasterPropTypes = { fem::Property_Type::TEMP_NEUMANN };
         }
 
 //------------------------------------------------------------------------------
@@ -32,15 +32,10 @@ namespace moris
             this->check_field_interpolators();
 
             // check master properties
-            //this->check_properties();
-
-            // fixme compute the normal flux
-            Matrix < DDRMat > tNormalFlux = mMasterFI( 0 )->N() * mNodalWeakBCs;
-            //Matrix < DDRMat > tNormalFlux;
-            //mMasterProp( 0 )->val( tNormalFlux );
+            this->check_properties();
 
             // compute the residual r_T
-            aResidual = - trans( mMasterFI( 0 )->N() ) * tNormalFlux;
+            aResidual = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
         }
 
 //------------------------------------------------------------------------------
@@ -69,13 +64,8 @@ namespace moris
             // check master properties
             this->check_properties();
 
-            // fixme compute the normal flux
-            Matrix < DDRMat > tNormalFlux = mMasterFI( 0 )->N() * mNodalWeakBCs;
-            //Matrix < DDRMat > tNormalFlux;
-            //mMasterProp( 0 )->val( tNormalFlux );
-
             // compute the residual r_T
-            aResidual = - trans( mMasterFI( 0 )->N() ) * tNormalFlux;
+            aResidual = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
 
             // set the jacobian size
             aJacobians.resize( 1 );

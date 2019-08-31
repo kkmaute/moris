@@ -62,14 +62,11 @@ namespace moris
             Cell< Cell< MSI::Dof_Type > >  tActiveDofTypes = {{ MSI::Dof_Type::TEMP }};
 
             // create the function pointers for the value
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tValFunction;
+            fem::PropertyFunc tValFunction0 = tValFunction;
 
             // create the cell of function pointers for the derivatives
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tDerFunction0 = tDerFunction;
-            Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolator) > > tDerFunctions( 1 );
+            fem::PropertyFunc tDerFunction0 = tDerFunction;
+            Cell< fem::PropertyFunc > tDerFunctions( 1 );
             tDerFunctions( 0 ) = tDerFunction0;
 
             // create a property object
@@ -82,32 +79,35 @@ namespace moris
             CHECK( equal_to( static_cast< uint >( tProperty.get_property_type() ), 1 ) );
 
             //check dof dependencies
-            CHECK( equal_to( static_cast< uint >( tProperty.get_active_dof_types()( 0 )( 0 ) ), 3 ) );
+            CHECK( equal_to( static_cast< uint >( tProperty.get_dof_type_list()( 0 )( 0 ) ), 3 ) );
 
             // set coeffs and field interpolators
             Cell< Matrix< DDRMat > > tCoeff;
             tProperty.set_coefficients( tCoeff );
-            Cell< Field_Interpolator* > tFieldInterpolator( 1, nullptr );
+            Cell< Field_Interpolator* > tFieldInterpolator( 1 );
+            tFieldInterpolator( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP });
             tProperty.set_field_interpolators( tFieldInterpolator );
 
             // evaluate the property
-            Matrix< DDRMat > tPropertyValue;
-            tProperty.val( tPropertyValue );
+            Matrix< DDRMat > tPropertyValue = tProperty.val();
 
             //check property value
             CHECK( equal_to( tPropertyValue( 0, 0 ), 1.0 ) );
 
             // evaluate the property derivative wrt to TEMP (in dependencies)
-            Matrix< DDRMat > tPropertyDerivative;
-            tProperty.dPdDOF( MSI::Dof_Type::TEMP, tPropertyDerivative );
+            Matrix< DDRMat > tPropertyDerivative = tProperty.dPropdDOF( { MSI::Dof_Type::TEMP } );
 
             //check property value
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 2.0 ) );
 
             // evaluate the property derivative wrt to UX (not in dependencies)
-            tProperty.dPdDOF( MSI::Dof_Type::UX, tPropertyDerivative );
+            tPropertyDerivative = tProperty.dPropdDOF( { MSI::Dof_Type::UX } );
+
             //check property value
             CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.0 ) );
+
+            // clean up
+            delete tFieldInterpolator( 0 );
         }
 
         TEST_CASE( "Property_with_dependency", "[moris],[fem],[Property_with_dependency]" )
@@ -117,16 +117,12 @@ namespace moris
                                                               { MSI::Dof_Type::UX }};
 
             // create the function pointers for the value
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tValFunction2;
+            fem::PropertyFunc tValFunction0 = tValFunction2;
 
             // create the cell of function pointers for the derivatives
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tDerFunction0 = tDerFunction2;
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tDerFunction1 = tDerFunction3;
-            Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolator) > > tDerFunctions( 2, nullptr );
+            fem::PropertyFunc tDerFunction0 = tDerFunction2;
+            fem::PropertyFunc tDerFunction1 = tDerFunction3;
+            Cell< fem::PropertyFunc > tDerFunctions( 2, nullptr );
             tDerFunctions( 0 ) = tDerFunction0;
             tDerFunctions( 1 ) = tDerFunction1;
 
@@ -171,11 +167,11 @@ namespace moris
             tFieldInterpolator( 0 ) = new Field_Interpolator ( tNumberOfFields,
                                                                tInterpolationRule,
                                                                tGeomInterpolator,
-                                                               MSI::Dof_Type::TEMP );
+                                                               { MSI::Dof_Type::TEMP } );
             tFieldInterpolator( 1 ) = new Field_Interpolator ( tNumberOfFields,
                                                                tInterpolationRule,
                                                                tGeomInterpolator,
-                                                               MSI::Dof_Type::UX );
+                                                               { MSI::Dof_Type::UX } );
 
             // set coefficients for field interpolators
             Matrix< DDRMat > tUHat0( 8, 1, 2.0 );
@@ -199,22 +195,20 @@ namespace moris
             tProperty.set_coefficients( tCoeff );
 
             //evaluate the property
-            Matrix< DDRMat > tPropertyValue;
-            tProperty.val( tPropertyValue );
-            print( tPropertyValue, "tPropertyValue" );
+            Matrix< DDRMat > tPropertyValue = tProperty.val();
+            //print( tPropertyValue, "tPropertyValue" );
 
             // evaluate the property derivative wrt to TEMP (in dependencies)
-            Matrix< DDRMat > tPropertyDerivative;
-            tProperty.dPdDOF( MSI::Dof_Type::TEMP, tPropertyDerivative );
-            print( tPropertyDerivative, "tPropertyDerivative" );
+            Matrix< DDRMat > tPropertyDerivative = tProperty.dPropdDOF( MSI::Dof_Type::TEMP );
+            //print( tPropertyDerivative, "tPropertyDerivative" );
 
             // evaluate the property derivative wrt to UX (in dependencies)
-            tProperty.dPdDOF( MSI::Dof_Type::UX, tPropertyDerivative );
-            print( tPropertyDerivative, "tPropertyDerivative" );
+            tPropertyDerivative = tProperty.dPropdDOF( MSI::Dof_Type::UX );
+            //print( tPropertyDerivative, "tPropertyDerivative" );
 
             // evaluate the property derivative wrt to LS1 (not in dependencies)
-            tProperty.dPdDOF( MSI::Dof_Type::LS1, tPropertyDerivative );
-            print( tPropertyDerivative, "tPropertyDerivative" );
+            tPropertyDerivative = tProperty.dPropdDOF( MSI::Dof_Type::LS1 );
+            //print( tPropertyDerivative, "tPropertyDerivative" );
 
             // clean up
             delete tGeomInterpolator;
@@ -293,7 +287,7 @@ namespace moris
 
                 tPropertyTypeMap( static_cast< int >( tPropertyTypeList( iProp ) ), 0 ) = iProp;
             }
-            print(tPropertyTypeMap,"tPropertyTypeMap");
+            //print(tPropertyTypeMap,"tPropertyTypeMap");
 
             // clean up
             for( Property* tProperty : tModelProperties )
@@ -323,16 +317,13 @@ namespace moris
             tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
             // cast free function into std::function
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+            fem::PropertyFunc tValFunction0 = tConstValFunction;
 
             // create the list with function pointers for the value
-            Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+            Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
             // create the list with cell of function pointers for the derivatives
-            Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+            Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
             // model property map
             sint tMaxEnum = 0;
@@ -354,7 +345,7 @@ namespace moris
 
                 tPropertyTypeMap( static_cast< int >( tPropertyTypeList( iProp ) ), 0 ) = iProp;
             }
-            print(tPropertyTypeMap,"tPropertyTypeMap");
+            //print(tPropertyTypeMap,"tPropertyTypeMap");
 
             // create a list of IWG type
             Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
@@ -383,7 +374,7 @@ namespace moris
 
                     // get the IWG properties
                     Cell< fem::Property_Type > tIWGPropertyType;
-                    tIWGPropertyType = tIWGs( i )( Ki )->get_active_property_types();
+                    tIWGPropertyType = tIWGs( i )( Ki )->get_property_type_list();
 
                     // loop over property type
                     Cell< Property* > tIWGProperties( tIWGPropertyType.size() );
@@ -404,6 +395,7 @@ namespace moris
             {
                 delete tProperty;
             }
+
             for( uint iIWGSet = 0; iIWGSet < tNumOfIWGs; iIWGSet++ )
             {
                 for( uint iIWG = 0; iIWG < tIWGs( iIWGSet ).size(); iIWG++ )

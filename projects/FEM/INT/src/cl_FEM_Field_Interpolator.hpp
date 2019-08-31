@@ -15,7 +15,6 @@
 
 #include "cl_FEM_Interpolation_Rule.hpp" //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
-//#include "cl_FEM_Property.hpp" //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"     //FEM/MSI/src
 
 namespace moris
@@ -52,7 +51,7 @@ class Property;
             // space parametric dimensions
             uint mNSpaceParamDim;
 
-            // parametric point where field is interpolatedctest
+            // parametric point where field is interpolated
             Matrix< DDRMat > mXi;
             Matrix< DDRMat > mTau;
 
@@ -60,7 +59,7 @@ class Property;
             Matrix < DDRMat > mUHat;
 
             // field interpolator dof type
-            MSI::Dof_Type mDofType;
+            moris::Cell< MSI::Dof_Type > mDofType;
 
             // flag for evaluation
             bool mNEval      = true;
@@ -89,15 +88,17 @@ class Property;
              * @param[ in ] aDofType                  dof type for the interpolated fields
              *
              */
-            Field_Interpolator( const uint                   & aNumberOfFields,
-                                const Interpolation_Rule     & aFieldInterpolationRule,
-                                      Geometry_Interpolator*   aGeometryInterpolator,
-                                const MSI::Dof_Type            aDofType = MSI::Dof_Type::UNDEFINED );
+            Field_Interpolator( const uint                         & aNumberOfFields,
+                                const Interpolation_Rule           & aFieldInterpolationRule,
+                                      Geometry_Interpolator*         aGeometryInterpolator,
+                                const moris::Cell< MSI::Dof_Type >   aDofType = { MSI::Dof_Type::UNDEFINED } );
 
             /**
              * trivial constructor for unit test
              */
-            Field_Interpolator( const uint & aNumberOfFields) : mNumberOfFields( aNumberOfFields )
+            Field_Interpolator( const uint & aNumberOfFields,
+                                const moris::Cell< MSI::Dof_Type >   aDofType = { MSI::Dof_Type::UNDEFINED }) : mNumberOfFields( aNumberOfFields ),
+                                                                                                                mDofType( aDofType )
             {
                 mNFieldCoeff = mNumberOfFields;
             };
@@ -112,7 +113,7 @@ class Property;
             /**
              * get dof type
              */
-            MSI::Dof_Type get_dof_type() const
+            const moris::Cell< MSI::Dof_Type > & get_dof_type() const
             {
                 return mDofType;
             }
@@ -172,10 +173,10 @@ class Property;
              /**
               * get the parametric point in space where field is interpolated
               */
-              const Matrix< DDRMat > & get_space() const
-              {
-                  return mXi;
-              }
+             const Matrix< DDRMat > & get_space() const
+             {
+                 return mXi;
+             }
 
 //------------------------------------------------------------------------------
             /**

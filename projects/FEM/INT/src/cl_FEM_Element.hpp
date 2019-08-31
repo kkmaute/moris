@@ -123,7 +123,7 @@ namespace moris
         real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
         {
             //get number of integration points
-            uint tNumOfIntegPoints = mSet->get_num_integration_points();
+            uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
 
             // init volume
             real tVolume = 0;

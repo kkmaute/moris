@@ -32,8 +32,16 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} );//fixme
 
+            // get number of field interpolator and properties
+            uint tNumFI   = mSet->get_number_of_field_interpolators();
+            uint tNumProp = mSet->get_number_of_properties();
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_IWGs();
+
             // loop over integration points
-            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
@@ -46,9 +54,15 @@ namespace moris
                 mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
+                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolator()( iInterp )->set_space_time( tGlobalIntegPoint );
+                    mSet->get_field_interpolators()( iFI )->set_space_time( tGlobalIntegPoint );
+                }
+
+                // reset properties
+                for ( uint iProp = 0; iProp < tNumProp; iProp++ )
+                {
+                    mSet->get_properties()( iProp )->reset_eval_flags();
                 }
 
                 // compute integration point weight
@@ -56,7 +70,7 @@ namespace moris
                             * mSet->get_IG_geometry_interpolator()->det_J();
 
                 // loop over the IWGs
-                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // FIXME set nodal weak BCs
                     mSet->get_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );
@@ -73,7 +87,8 @@ namespace moris
 //                    print(tJacobiansFD(0),"tJacobiansFD");
 
                     // loop over the IWG active dof types
-                    for ( uint iIWGFI = 0; iIWGFI < mSet->get_IWG_num_active_dof()( iIWG ); iIWGFI++)
+                    uint tNumIWGDof = mSet->get_IWGs()( iIWG )->get_dof_type_list().size();
+                    for ( uint iIWGFI = 0; iIWGFI < tNumIWGDof; iIWGFI++)
                     {
                         // add contribution to jacobian from evaluation point
                         mSet->mJacobian( { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 1 ) },
@@ -98,8 +113,16 @@ namespace moris
             mSet->get_IG_geometry_interpolator()->set_space_param_coeff( mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster) );
             mSet->get_IG_geometry_interpolator()->set_time_param_coeff( {{-1.0}, {1.0}} ); //fixme
 
+            // get number of field interpolator and properties
+            uint tNumFI   = mSet->get_number_of_field_interpolators();
+            uint tNumProp = mSet->get_number_of_properties();
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_IWGs();
+
             // loop over integration points
-            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
@@ -112,9 +135,15 @@ namespace moris
                 mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
+                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolator()( iInterp )->set_space_time( tGlobalIntegPoint );
+                    mSet->get_field_interpolators()( iFI )->set_space_time( tGlobalIntegPoint );
+                }
+
+                // reset properties
+                for ( uint iProp = 0; iProp < tNumProp; iProp++ )
+                {
+                    mSet->get_properties()( iProp )->reset_eval_flags();
                 }
 
                 // compute integration point weight
@@ -122,7 +151,7 @@ namespace moris
                             * mSet->get_IG_geometry_interpolator()->det_J();
 
                 // loop over the IWGs
-                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // FIXME: enforced nodal weak bcs
                     mSet->get_IWGs()( iIWG )->set_nodal_weak_bcs( mCluster->get_weak_bcs() );

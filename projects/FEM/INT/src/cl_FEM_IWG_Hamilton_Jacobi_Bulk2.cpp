@@ -17,7 +17,7 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::LS1 };
 
             // set the active dof type
-            mActiveDofTypes = { { MSI::Dof_Type::LS1 },
+            mMasterDofTypes = { { MSI::Dof_Type::LS1 },
                                 { MSI::Dof_Type::VX } };
         }
 

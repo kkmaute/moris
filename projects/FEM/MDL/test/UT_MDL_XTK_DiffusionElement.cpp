@@ -44,6 +44,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -68,6 +69,13 @@
 
 namespace moris
 {
+
+Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator )
+{
+    return aCoeff( 0 );
+}
+
 TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                 {
     if(par_size() == 1)
@@ -145,27 +153,58 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         // create a list of IWG type
         Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
         tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+        // list of property type
+        Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
+                                                        { fem::Property_Type::TEMP_DIRICHLET },
+                                                        { fem::Property_Type::TEMP_NEUMANN   }};
+
+        // list of property dependencies
+        Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
+
+        // list of the property coefficients
+        Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
+        tCoeffList( 0 ).resize( 1 );
+        tCoeffList( 0 )( 0 )= {{ 1.0 }};
+        tCoeffList( 1 ).resize( 1 );
+        tCoeffList( 1 )( 0 )= {{ 5.0 }};
+        tCoeffList( 2 ).resize( 1 );
+        tCoeffList( 2 )( 0 )= {{ 20.0 }};
+
+        // cast free function into std::function
+        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+
+        // create the list with function pointers for the value
+        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+
+        // create the list with cell of function pointers for the derivatives
+        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+
+        // collect properties info
+        fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
+                                                                  tPropertyDofList,
+                                                                  tCoeffList,
+                                                                  tValFuncList,
+                                                                  tDerFuncList );
 
         // create a list of active block-sets
-        moris::Cell< moris_index >  tBlocksetList = { 4, 5 };
+        moris::Cell< moris_index >  tSetList = { 4, 5, 1, 3 };
 
-        // create a list of active side-sets
-        moris::Cell< moris_index >  tSidesetList = { 1, 3 };
-
-        // create a list of BC type for the side-sets
-        moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
-                fem::BC_Type::NEUMANN };
-
-        // create a list of active double side-sets
-        moris::Cell< moris_index >  tDoubleSidesetList = {  };
+        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+                                                          fem::Element_Type::BULK,
+                                                          fem::Element_Type::SIDESET,
+                                                          fem::Element_Type::SIDESET };
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
-                tBlocksetList, tSidesetList,
-                tSidesetBCTypeList,
-                tDoubleSidesetList );
+                                              tSetList, tSetTypeList,
+                                              &tPropertyUserDefinedInfo );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -234,27 +273,27 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 
 
         Matrix<DDRMat> tGoldSolution =  {{+2.50e+01},
-                {+2.50e+01},
-                {+2.50e+01},
-                {+2.50e+01},
-                {+4.50e+01},
-                {+4.50e+01},
-                {+4.50e+01},
-                {+4.50e+01},
-                {+6.50e+01},
-                {+6.50e+01},
-                {+6.50e+01},
-                {+6.50e+01},
-                {+8.50e+01},
-                {+8.50e+01},
-                {+8.50e+01},
-                {+8.50e+01},
-                {+5.00e+00},
-                {+5.00e+00},
-                {+5.00e+00},
-                {+5.00e+00}};
+                                         {+2.50e+01},
+                                         {+2.50e+01},
+                                         {+2.50e+01},
+                                         {+4.50e+01},
+                                         {+4.50e+01},
+                                         {+4.50e+01},
+                                         {+4.50e+01},
+                                         {+6.50e+01},
+                                         {+6.50e+01},
+                                         {+6.50e+01},
+                                         {+6.50e+01},
+                                         {+8.50e+01},
+                                         {+8.50e+01},
+                                         {+8.50e+01},
+                                         {+8.50e+01},
+                                         {+5.00e+00},
+                                         {+5.00e+00},
+                                         {+5.00e+00},
+                                         {+5.00e+00}};
 
-        moris::print(tSolution11,"tSolution11");
+        //moris::print(tSolution11,"tSolution11");
 
         std::cout<<"Min = "<<tSolution11.min()<<std::endl;
         // verify solution

@@ -26,12 +26,8 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::LS2 };
 
             // set the active dof type
-            //mActiveDofTypes = {{ MSI::Dof_Type::LS2 },
-            //                   { MSI::Dof_Type::NLSX } };
-            mActiveDofTypes = {{ MSI::Dof_Type::LS2 },
+            mMasterDofTypes = {{ MSI::Dof_Type::LS2 },
                                { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY } };
-            //mActiveDofTypes = {{ MSI::Dof_Type::LS2 },
-            //                   { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ } };
         }
 
 //------------------------------------------------------------------------------

@@ -145,6 +145,9 @@ namespace moris
              Cell< fem::IWG* > tIWGs ( 1, nullptr );
              tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
+             // create property info
+             fem::Property_User_Defined_Info tPropertyUserDefinedInfo;
+
              map< moris_id, moris_index >   tCoefficientsMap;
              Cell< fem::Node_Base* >        tNodes;
              Cell< MSI::Equation_Object* >  tElements;
@@ -184,7 +187,7 @@ namespace moris
                  // create new fem set
                  tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                                   fem::Element_Type::BULK,
-                                                                  tIWGs, tNodes );
+                                                                  tIWGs, &tPropertyUserDefinedInfo, tNodes );
 
                  // collect equation objects associated with the block-set
                  tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );

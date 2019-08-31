@@ -16,7 +16,7 @@ namespace moris
         mResidualDofType = { MSI::Dof_Type::L2 };
 
         // set the active dof types
-        mActiveDofTypes = { { MSI::Dof_Type::L2 } };
+        mMasterDofTypes = { { MSI::Dof_Type::L2 } };
 
         // set alpha
         this->set_alpha( aAlpha );

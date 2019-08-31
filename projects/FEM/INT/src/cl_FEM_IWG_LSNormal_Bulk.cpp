@@ -15,19 +15,12 @@ namespace moris
         IWG_LSNormal_Bulk::IWG_LSNormal_Bulk()
         {
             // set the residual dof type
-            //FIXME should be NLSX, NLSY, NLSZ
-            //mResidualDofType = { MSI::Dof_Type::NLSX };
-            //mResidualDofType = { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY };
             mResidualDofType = { MSI::Dof_Type::NLSX,
                                  MSI::Dof_Type::NLSY,
                                  MSI::Dof_Type::NLSZ };
 
             // set the active dof type
-            //mActiveDofTypes = {{ MSI::Dof_Type::NLSX },
-            //                   { MSI::Dof_Type::LS1 }};
-            //mActiveDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY },
-            //                   { MSI::Dof_Type::LS1 }};
-            mActiveDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
+            mMasterDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
                                { MSI::Dof_Type::LS1 }};
         }
 
