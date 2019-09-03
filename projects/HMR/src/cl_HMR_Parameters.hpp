@@ -101,13 +101,13 @@ namespace moris
            const      uint mLagrangeOutputPattern = 3;
 
            //! default union pattern
-           uint mUnionPattern = 4;
+           uint mUnionPattern = gNumberOfPatterns - 2;
+
+           //! default pattern for iterative refinement
+           uint mWorkingPattern = gNumberOfPatterns - 1;
 
            //! default pattern for output refinement
            const      uint mRefinedOutputPattern = 5;
-
-           //! default pattern for iterative refinement
-                 uint mWorkingPattern = 6;
 
            //! Map Lagrange Meshes that are used for the unity meshes
            //! position 0: first order,

@@ -141,12 +141,12 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
             //------------------------------------------------------------------------------
 
             Ge_Factory tFactory;
-            std::shared_ptr< Geometry > tGeom = tFactory.set_geometry_type( GeomType::ANALYTIC );    //FIXME pass in function pointer
+            std::shared_ptr< Geometry > tGeom = tFactory.set_geometry_type( GeomType::ANALYTIC );
 
             tGeom->set_my_mesh( &tMesh );
             tGeom->set_my_constants(tCircleInputs);
 
-            tGeom->set_analytical_function(AnalyticType::CIRCLE);
+            tGeom->set_analytical_function( LevelSetFunction );
 
             GE_Core tGeometryEngine;
             moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom );
@@ -159,7 +159,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
             tHMR.flag_surface_elements( tFieldData, tLagrangeMeshIndex );
 
-            tDatabase->get_background_mesh()->perform_refinement( 1);  //FIXME
+            tDatabase->get_background_mesh()->perform_refinement( 1);
 
 
 //            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 1 );

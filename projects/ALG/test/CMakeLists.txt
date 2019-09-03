@@ -32,6 +32,8 @@ add_executable(${ALG_TEST} ${TEST_SOURCES})
 target_link_libraries(${ALG_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${ALG_TEST} PROPERTIES OUTPUT_NAME ${ALG_TEST}${EXE_EXT})
 
+MESSAGE("\n\n\n\n\n MORIS_EXECUTE_COMMAND: ${MORIS_EXECUTE_COMMAND} \n\n\n\n")
+
 # Add tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(ALG_TEST_PROCS ${MORIS_TEST_PROCS})
