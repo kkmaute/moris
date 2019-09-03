@@ -51,13 +51,24 @@ namespace ge
 		 */
         //------------------------------------------------------------------------------
         /*
-         * @brief check that the analytic function have been set before attempting to use them
+         * @brief check that the analytic function has been set before attempting to use
          */
-        virtual void
-        check_if_functions_are_set()
+        virtual bool
+        check_if_function_is_set()
         {
-            MORIS_ASSERT(false, "ge::Geometry::check_if_functions_are_set(): not implemented");
+            MORIS_ASSERT(false, "ge::Geometry::check_if_function_is_set(): not implemented ");
+            return false;
         };
+        //------------------------------------------------------------------------------
+        /*
+         * @brief check that the analytic function for sensitivity has been set before attempting to use
+         */
+        virtual bool
+        check_if_sensitivity_function_is_set()
+        {
+            MORIS_ASSERT(false,"ge::Geometry::check_if_sensitivity_function_is_set(): not implemented ");
+            return false;
+        }
         //------------------------------------------------------------------------------
         /*
          * @brief sets the constants necessary for the specific geometry rep
