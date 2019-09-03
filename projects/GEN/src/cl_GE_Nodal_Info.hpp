@@ -9,6 +9,7 @@
 #define PROJECTS_GEN_SRC_CL_GE_NODAL_INFO_HPP_
 
 #include "catch.hpp"
+#include "cl_Logger.hpp"
 
 // GE includes
 #include "cl_MTK_Mapper.hpp"
@@ -52,6 +53,11 @@ namespace ge
          */
         Matrix< DDRMat > get_field_vals( moris_index aNodeIndex )
         {
+            if( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC )
+            {
+                MORIS_ASSERT( mMyGeomRep->check_if_function_is_set(),"ge::Nodal_Info::get_field_vals() - analytic function not set " );
+            }
+
             auto tRowItt = mMyMap.find(aNodeIndex);
             MORIS_ASSERT( tRowItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
             return mMyNodalFieldVals.get_row( tRowItt->second );
@@ -67,6 +73,11 @@ namespace ge
          */
         Matrix< DDRMat > get_sensitivity_vals( moris_index aNodeIndex )
         {
+            if( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC )
+            {
+                MORIS_ASSERT( mMyGeomRep->check_if_sensitivity_function_is_set(),"ge::Nodal_Info::get_field_vals() - analytic sensitivity function not set " );
+            }
+
             auto tCellItt = mMyMap.find(aNodeIndex);
             MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
             return mMyNodalSensitivities( tCellItt->second );
@@ -156,6 +167,12 @@ namespace ge
         {
             return mMyGeomRep->get_field_val_at_coordinate( aPoint );
         }
+        //------------------------------------------------------------------------------
+        std::shared_ptr< Geometry > get_my_geom_rep()
+        {
+            return mMyGeomRep;
+        }
+
     private:
         //------------------------------------------------------------------------------
         /*
@@ -194,10 +211,12 @@ namespace ge
 
             case(GeomType::ANALYTIC) :
             {
-                mMyGeomRep->check_if_functions_are_set();
-                for (uint n=0; n<aNumNodes; ++n)
+                if( mMyGeomRep->check_if_function_is_set() )
                 {
-                    mMyNodalFieldVals( n,0 ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_coords() );
+                    for (uint n=0; n<aNumNodes; ++n)
+                    {
+                        mMyNodalFieldVals( n,0 ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_coords() );
+                    }
                 }
                 break;
             }
@@ -246,10 +265,12 @@ namespace ge
             {
             case(GeomType::ANALYTIC) :
             {
-                mMyGeomRep->check_if_functions_are_set();
-                for (uint n=0; n<aNumNodes; ++n)
+                if( mMyGeomRep->check_if_sensitivity_function_is_set() )
                 {
-                    mMyNodalSensitivities( n ) = mMyGeomRep->get_sensitivity_dphi_dp_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_coords() );
+                    for (uint n=0; n<aNumNodes; ++n)
+                    {
+                        mMyNodalSensitivities( n ) = mMyGeomRep->get_sensitivity_dphi_dp_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_coords() );
+                    }
                 }
                 break;
             }
@@ -258,9 +279,9 @@ namespace ge
                 /*
                  * need to be able to use finite differencing to compute derivatives for discrete class
                  */
-                std::cout<<"----------------------------------------------------------------------------------------------------"<<std::endl;
-                std::cout<<"note: sensitivity vals are currently not implemented for DISCRETE geom type, default values to zeros"<<std::endl;
-                std::cout<<"----------------------------------------------------------------------------------------------------"<<std::endl;
+                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for DISCRETE geom type, default values to zeros" );
+                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------" );
                 Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), 0.0);
                 for (uint n=0; n<aNumNodes; ++n)
                 {
@@ -273,9 +294,9 @@ namespace ge
                 /*
                  * not sure how getting the sensitivities from the SDF type will work (via raycast?)
                  */
-                std::cout<<"-----------------------------------------------------------------------------------------------"<<std::endl;
-                std::cout<<"note: sensitivity vals are currently not implemented for SDF geom type, default values to zeros"<<std::endl;
-                std::cout<<"-----------------------------------------------------------------------------------------------"<<std::endl;
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for SDF geom type, default values to zeros" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
                 Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), 0.0);
                 for (uint n=0; n<aNumNodes; ++n)
                 {

@@ -44,7 +44,7 @@ namespace NLA
         moris::sint mNX;
         moris::sint mNY;
 
-        Matrix<DDRMat> mTime;
+        Matrix<DDRMat> mTime = {{1.0},{1.0}};
 
         Matrix< DDSMat > mTimeLevelIdsMinus;
         Matrix< DDSMat > mTimeLevelIdsPlus;

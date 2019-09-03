@@ -136,21 +136,13 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom1 );
             /*
              * --------------------------------------------------------
-             * (3) determine LS values and sensitivity at nodes
+             * (3) access LS values and sensitivity at nodes
              * --------------------------------------------------------
              */
-            Cell< Matrix< DDRMat > > tLSVals(4);
-            Cell< Matrix< DDRMat > > tSensitivities(4);
+            Matrix< DDRMat > tLSVals                = tGeometryEngine.get_field_vals( tMyGeomIndex );
+            Cell< Matrix< DDRMat > > tSensitivities = tGeometryEngine.get_sensitivity_vals( tMyGeomIndex );
 
-            Matrix< DDRMat > tFieldData(4,1, 0.0);
-            for(moris_index n=0; n<4; n++)
-            {
-                tLSVals(n)        = tGeometryEngine.get_field_vals(tMyGeomIndex,n);
-                tSensitivities(n) = tGeometryEngine.get_sensitivity_vals(tMyGeomIndex,n);
-
-                tFieldData(n) = tLSVals(n)(0,0);
-            }
-            tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tFieldData);   // add the determined values as a field on the mesh
+            tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);      // add the determined values as a field on the mesh
             /*
              * --------------------------------------------------------
              * 3.1) add a node/value and re-check
@@ -174,7 +166,8 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             // edge [1]:
             Matrix< DDRMat > tGlobalPos = {{0},{1}};    // edge [1] goes form x=0 to x=1
             Matrix< DDRMat > tTHat = {{0},{1}};
-            Matrix< DDRMat > tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(1)(0,0) }};
+//            Matrix< DDRMat > tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(1)(0,0) }};
+            Matrix< DDRMat > tUHat = {{ tLSVals(0) },{ tLSVals(1) }};
 
             Intersection_Object_Line tIntersectionObject;
 
@@ -186,7 +179,8 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             // edge [4]:
             tGlobalPos = {{0},{1}};     // edge [2] goes from y=0 to y=1
             tTHat = {{0},{1}};
-            tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(3)(0,0) }};
+//            tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(3)(0,0) }};
+            tUHat = {{ tLSVals(0) },{ tLSVals(3) }};
 
             tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
             moris_index tYInd = tGeometryEngine.compute_intersection( tMyGeomIndex, &tIntersectionObject );
@@ -203,10 +197,14 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
              * check determined values
              * --------------------------------------------------------
              */
-            CHECK( equal_to( tLSVals(0)(0,0), -0.60 ) );
-            CHECK( equal_to( tLSVals(1)(0,0),  0.40 ) );
-            CHECK( equal_to( tLSVals(2)(0,0),  (std::sqrt(2)-0.6)) );
-            CHECK( equal_to( tLSVals(3)(0,0),  0.40 ) );
+//            CHECK( equal_to( tLSVals(0)(0,0), -0.60 ) );
+//            CHECK( equal_to( tLSVals(1)(0,0),  0.40 ) );
+//            CHECK( equal_to( tLSVals(2)(0,0),  (std::sqrt(2)-0.6)) );
+//            CHECK( equal_to( tLSVals(3)(0,0),  0.40 ) );
+            CHECK( equal_to( tLSVals(0), -0.60 ) );
+            CHECK( equal_to( tLSVals(1),  0.40 ) );
+            CHECK( equal_to( tLSVals(2),  (std::sqrt(2)-0.6)) );
+            CHECK( equal_to( tLSVals(3),  0.40 ) );
 
             Matrix< DDRMat > tCheckMat(3,2);
             tCheckMat(0,0) = 1.0;            tCheckMat(0,1) = 1.0;

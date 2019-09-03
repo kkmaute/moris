@@ -70,16 +70,30 @@ namespace ge
             /*
              * @brief return the nodal field vals from the specified NodalInfoObject
              *
-             * @param[in] aWhichGeom - Nwhich geometry representation
+             * @param[in] aWhichGeom  - aWhich geometry representation
              * @param[in] aWhichIndex - node/location to get information from
              *
              * @param[out] nodal information
              */
             Matrix< DDRMat > get_field_vals( moris_index aWhichGeom,
-
                                              moris_index aWhichIndex )
             {
                 return mListOfNodalInfoObjects( aWhichGeom ).get_field_vals( aWhichIndex );
+            };
+
+            /*
+             * @brief returns all the nodal field values
+             */
+            Matrix< DDRMat > get_field_vals( moris_index aWhichGeom )
+            {
+                uint tNumOfIPNodes = mListOfNodalInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
+
+                Matrix< DDRMat > tLSVals(tNumOfIPNodes,1, 0.0);
+                for( uint n=0; n<tNumOfIPNodes; n++ )
+                {
+                    tLSVals(n) = this->get_field_vals( aWhichGeom, n )(0);
+                }
+                return tLSVals;
             };
 
             //------------------------------------------------------------------------------
@@ -95,6 +109,21 @@ namespace ge
                                                    moris_index aWhichIndex )
             {
                 return mListOfNodalInfoObjects( aWhichGeom ).get_sensitivity_vals( aWhichIndex );
+            };
+
+            /*
+             * @brief returns all the nodal sensitivity values
+             */
+            Cell< Matrix< DDRMat > > get_sensitivity_vals( moris_index aWhichGeom )
+            {
+                uint tNumOfIPNodes = mListOfNodalInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
+
+                Cell< Matrix< DDRMat > > tSensitivities( tNumOfIPNodes );
+                for( uint n=0; n<tNumOfIPNodes; n++ )
+                {
+                    tSensitivities(n) = this->get_sensitivity_vals( aWhichGeom, n );
+                }
+                return tSensitivities;
             };
 
             //------------------------------------------------------------------------------
