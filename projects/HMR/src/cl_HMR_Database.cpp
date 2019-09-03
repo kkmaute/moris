@@ -695,15 +695,15 @@ namespace moris
             uint tWorkingPattern = mParameters->get_working_pattern();
 
             // minimum refinement level. Is zero by default
-            uint tMinLevel = 0;
+            uint tMinLevel = 0;                               // FIXME set min level
 
-            // this function resets the output pattern
+            // this function resets the working pattern
             if ( aResetPattern )
             {
                 mBackgroundMesh->reset_pattern( aActivePattern );
             }
 
-            // activate pattern for output
+            // set activation pattern
             mBackgroundMesh->set_activation_pattern( aActivePattern );
 
             // get max level on this mesh
@@ -767,13 +767,6 @@ namespace moris
             {
                 case( RefinementMode::SIMPLE ) :
                 {
-//                    // copy Lagrange output to B-Spline output
-//                    mBackgroundMesh->copy_pattern( mParameters->get_lagrange_output_pattern(),
-//                                                   mParameters->get_bspline_output_pattern() );
-//
-//                    // union is created from both B-Spline patterns
-//                    this->create_union_pattern();
-                    
                     // create new B-Spline Meshes
                     this->update_bspline_meshes();
 
@@ -782,61 +775,6 @@ namespace moris
 
                     break;
                 }
-//                case( RefinementMode::BSPLINE_INIT ) :
-//                {
-//                    // copy B-Spline to Lagrange
-//                    this->copy_pattern( mParameters->get_bspline_output_pattern(),
-//                                        mParameters->get_lagrange_output_pattern() );
-//
-//                    break;
-//                }
-//                case( RefinementMode::LAGRANGE_INIT ) :
-//                {
-//                    // for mapping
-//                    this->unite_patterns( mParameters->get_lagrange_input_pattern(),
-//                                          mParameters->get_lagrange_output_pattern(),
-//                                          mParameters->get_union_pattern() );
-//
-//                    // create new B-Spline Meshes
-//                    this->update_bspline_meshes();
-//
-//                    // create new Lagrange meshes
-//                    this->update_lagrange_meshes();
-//
-//                    break;
-//                }
-//                case( RefinementMode::LAGRANGE_REFINE ) :
-//                {
-//                    // clone pattern if no element was flagged
-//                    if ( ! tFlag )
-//                    {
-//                        // copy lagrange input to output
-//                        mBackgroundMesh->copy_pattern( mParameters->get_lagrange_input_pattern(),
-//                                                       mParameters->get_lagrange_output_pattern() );
-//
-//                        // update background mesh
-//                        mBackgroundMesh->update_database();
-//                    }
-//
-//                    this->create_working_pattern_for_bspline_refinement();
-//
-//                    mBackgroundMesh->reset_min_refinement_levels();
-//
-//                    break;
-//                }
-//                case( RefinementMode::BSPLINE_REFINE ) :
-//                {
-//                    // for mapping
-//                    this->unite_patterns( mParameters->get_lagrange_input_pattern(),
-//                                          mParameters->get_lagrange_output_pattern(),
-//                                          mParameters->get_union_pattern() );
-//
-//                    // create new B-Spline Meshes
-//                    this->update_bspline_meshes();
-//
-//                    // create new Lagrange meshes
-//                    this->update_lagrange_meshes();
-//                }
                 default :
                 {
                     /*
