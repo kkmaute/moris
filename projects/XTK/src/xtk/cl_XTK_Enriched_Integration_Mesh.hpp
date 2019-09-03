@@ -23,7 +23,8 @@ class Interpolation_Cell_Unzipped;
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 {
 public:
-    Enriched_Integration_Mesh(Model* aXTKModel);
+    Enriched_Integration_Mesh(Model*             aXTKModel,
+                              moris::moris_index aInterpIndex);
 
     ~Enriched_Integration_Mesh();
 
@@ -108,8 +109,13 @@ public:
     void print_block_sets();
     void print_side_sets();
 
+
+    friend class Enrichment;
 protected:
     Model* mModel;
+
+    //mesh index
+    moris::moris_index mMeshIndexInModel;
 
     // Cell Clusters
     moris::Cell<xtk::Cell_Cluster * > mCellClusters;

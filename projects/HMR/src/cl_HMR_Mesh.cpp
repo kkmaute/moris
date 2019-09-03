@@ -709,6 +709,15 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
+        Matrix< IndexMat >
+        Mesh::get_elements_in_support_of_basis(moris_index aBasisIndex,
+                                               moris_index aInterpIndex)
+        {
+            return this->get_entity_connected_to_entity_loc_inds( aBasisIndex, EntityRank::BSPLINE_1,EntityRank::ELEMENT);
+        }
+
+//-----------------------------------------------------------------------------
+
         Matrix< IndexMat > Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
         {
             // collect memory indices of active neighbors

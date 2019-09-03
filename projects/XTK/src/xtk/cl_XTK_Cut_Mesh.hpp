@@ -76,7 +76,6 @@ public:
     generate_templated_mesh(Matrix< IndexMat > const & aChildMeshIndices,
                             enum TemplateType          aTemplate);
 
-
     /*
      * Converts existing tet4 child mesh to tet10s
      *
@@ -287,6 +286,12 @@ public:
     get_full_element_to_node_glob_ids();
 
     /*
+     * Get full element to node connectivity (indices). Full here means for all children meshes
+     */
+    moris::Matrix<moris::IdMat>
+    get_full_element_to_node_loc_inds();
+
+    /*
      * Get full element to node glob ids by phase
      */
     moris::Cell<moris::Matrix<moris::IdMat>>
@@ -375,8 +380,6 @@ private:
 
     // topology of child elements (i.e. TET4)
     enum CellTopology mChildElementTopo;
-
-    // Interface
 
 private:
 

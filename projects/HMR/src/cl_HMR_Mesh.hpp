@@ -218,6 +218,11 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            Matrix< IndexMat > get_elements_in_support_of_basis(moris_index aBasisIndex,
+                                                                moris_index aInterpIndex);
+
+//-------------------------------------------------------------------------------
+
             /*
              * Since the connectivity between entities of the same rank are considered
              * invalid by STK standards, we need a separate function for element to element

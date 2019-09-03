@@ -35,7 +35,6 @@
 //------------------------------------------------------------------------------
 // XTK
 #include "cl_XTK_Model.hpp"
-#include "fn_XTK_IO_Utilities.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "xtk_typedefs.hpp"
 #include "cl_Geom_Field.hpp"

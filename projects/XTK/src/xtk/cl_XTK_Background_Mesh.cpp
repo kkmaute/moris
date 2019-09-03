@@ -1107,7 +1107,7 @@ Background_Mesh::get_child_element_mtk_cell(moris::moris_index aElementIndex) co
 
 // ----------------------------------------------------------------------------------
 
-moris::mtk::Mesh &
+moris::mtk::Interpolation_Mesh &
 Background_Mesh::get_mesh_data()
 {
     return *mMeshData;
@@ -1115,7 +1115,7 @@ Background_Mesh::get_mesh_data()
 
 // ----------------------------------------------------------------------------------
 
-moris::mtk::Mesh const &
+moris::mtk::Interpolation_Mesh const &
 Background_Mesh::get_mesh_data() const
 {
     return *mMeshData;

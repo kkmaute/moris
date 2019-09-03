@@ -129,6 +129,9 @@ option(MORIS_HAVE_PARALLEL
 set(MORIS_MPI_LIBS "MPICH" "OPENMPI")
 set(MORIS_USE_MPI "OPENMPI" CACHE STRING "Set MPI package: ${MORIS_MPI_LIBS}")
 
+# MPI execution command
+set(MORIS_EXECUTE_COMMAND "mpirun" CACHE STRING "The command used to execute MORIS tests.")
+
 option(MORIS_USE_ARMA
     "Use the Armadillo library as the dense linear algebra package." ON )
 

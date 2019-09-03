@@ -918,18 +918,6 @@ public:
     //FIXME: MOVE THESE FUNCTIONS TO INTERPOLATION MESH BASE CLASS
 public:
 
-    /*
-     * Get elements interpolated into by a basis function. For a Lagrange mesh,
-     * the elements in support of basis is equivalent to the elements connected
-     * to a node. Therefore, a call to get_elements
-     */
-    virtual
-    Matrix< IndexMat >
-    get_elements_in_support_of_basis(moris_index aBasisIndex)
-    {
-        MORIS_ERROR( false, "get_elements_in_support_of_basis() not implemented for this mesh" );
-        return Matrix<IndexMat>(0,0);
-    }
 
     //FIXME: IMPLEMENT THIS FUNCTION IN STK,XTK
     /*

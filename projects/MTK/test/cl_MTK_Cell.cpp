@@ -12,7 +12,7 @@
 // base class
 #include"cl_Mesh_Factory.hpp"
 #include"cl_MTK_Cell.hpp"
-#include "cl_MTK_Mesh_STK.hpp"
+#include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
@@ -34,7 +34,7 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
     {
         // construct a mesh
         std::string tFilename = "generated:2x2x2";
-        Mesh_STK tMesh1( tFilename, NULL );
+        Mesh_Core_STK tMesh1( tFilename, NULL );
 
         // get vertex information attached to element with index 0
         Matrix< IndexMat > tNodeIndices = tMesh1.get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT,EntityRank::NODE);

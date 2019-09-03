@@ -13,7 +13,7 @@
 #include "fn_sort.hpp" //LINALG/src
 #include "cl_MTK_Mesh.hpp" //MTK/src
 #include "HMR_Tools.hpp" //HMR/src
-#include "stk_impl/cl_MTK_Mesh_STK.hpp"
+#include "stk_impl/cl_MTK_Mesh_Core_STK.hpp"
 
 namespace moris
 {
@@ -248,7 +248,7 @@ namespace moris
 //        mMeshData.print_details();
 
         // create database object
-        moris::mtk::Mesh_STK tMesh( mMeshData );
+        moris::mtk::Mesh_Core_STK tMesh( mMeshData );
 
         // copy file path, since tMesh does not like const input
         std::string tFilePath = aFilePath;
