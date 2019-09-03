@@ -694,38 +694,8 @@ namespace moris
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
-            // pattern the refinement is run on
-//            uint tOutputPattern = gNumberOfPatterns;
-
             // minimum refinement level. Is zero by default
             uint tMinLevel = 0;
-
-//            switch( aRefinementMode )
-//            {
-//                case( RefinementMode::BSPLINE_INIT ) :
-//                case( RefinementMode::BSPLINE_REFINE ) :
-//                {
-//                    tOutputPattern = mParameters->get_bspline_output_pattern();
-//                    break;
-//                }
-//                case( RefinementMode::SIMPLE ) :
-//                case( RefinementMode::LAGRANGE_INIT ) :
-//                {
-//                    tOutputPattern = aActivePattern;
-//                    break;
-//                }
-//                case( RefinementMode::LAGRANGE_REFINE ) :
-//                {
-//                    tOutputPattern = mParameters->get_lagrange_output_pattern();
-//                    tMinLevel = mParameters->get_additional_lagrange_refinement();
-//                    break;
-//                }
-//                default :
-//                {
-//                    MORIS_ERROR( false, "invalid refinement mode");
-//                    break;
-//                }
-//            }
 
             // this function resets the output pattern
             if ( aResetPattern )

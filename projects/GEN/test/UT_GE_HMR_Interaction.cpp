@@ -47,6 +47,12 @@ using namespace moris;
 using namespace hmr;
 using namespace ge;
 
+moris::real
+LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell< moris::real > aConst )
+{
+    return norm( aPoint ) - 0.9;
+}
+
 TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 {
     if(par_size() == 1)
@@ -135,7 +141,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
             //------------------------------------------------------------------------------
 
             Ge_Factory tFactory;
-            std::shared_ptr< Geometry > tGeom = tFactory.set_geometry_type( GeomType::ANALYTIC );
+            std::shared_ptr< Geometry > tGeom = tFactory.set_geometry_type( GeomType::ANALYTIC );    //FIXME pass in function pointer
 
             tGeom->set_my_mesh( &tMesh );
             tGeom->set_my_constants(tCircleInputs);
@@ -151,14 +157,14 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
             Matrix< DDRMat > tFieldData( tNumOfIPNodes,1, 0.0 );
             for( uint n=0; n<tNumOfIPNodes; n++)
             {
-                tFieldData(n)        = tGeometryEngine.get_field_vals( tMyGeomIndex, n )( 0 );     //FIXME
+                tFieldData(n) = tGeometryEngine.get_field_vals( tMyGeomIndex, n )( 0 );     //FIXME
             }
 
 //            print(tFieldData, "tFieldData");
 
-            tHMR.flag_surface_elements( tFieldData );
+            tHMR.flag_surface_elements( tFieldData, tLagrangeMeshIndex );
 
-            tDatabase->get_background_mesh()->perform_refinement( 1);
+            tDatabase->get_background_mesh()->perform_refinement( 1);  //FIXME
 
 
 //            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 1 );

@@ -814,8 +814,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::put_elements_on_refinment_queue(       Cell< hmr::Element* > & aElements,
-                                                   const uint                 aMinRefinementLevel )
+        void HMR::put_elements_on_refinment_queue( Cell< hmr::Element* > & aElements )
         {
             // loop over all active elements
             for( hmr::Element* tCell :  aElements )
@@ -1596,10 +1595,8 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         void HMR::get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
-                                                 const uint                    aLagrangeMeshIndex,
-                                                 const uint                     aMaxLevel )
+                                                 const uint                    aLagrangeMeshIndex)
         {
-//            MORIS_ERROR(false, "HMR::get_candidates_for_refinement() this function is not udated yet ");
             // reset candidate list
             aCandidates.clear();
 
@@ -1612,6 +1609,8 @@ namespace moris
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
 
+            uint tMaxLevel = tBackgroundMesh->get_max_level();
+
             // pick first Lagrange mesh on input pattern
             // fixme: add option to pick another one
             Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
@@ -1623,7 +1622,7 @@ namespace moris
             uint tCount = 0;
 
             // loop over all levels and determine size of Cell
-            for( uint l = 0; l < aMaxLevel; ++l )
+            for( uint l = 0; l < tMaxLevel; ++l )
             {
                 Cell< Background_Element_Base * > tBackgroundElements;
 
@@ -1647,7 +1646,7 @@ namespace moris
             // reset counter
             tCount = 0;
             // loop over all levels
-            for( uint l=0; l<aMaxLevel; ++l )
+            for( uint l=0; l<tMaxLevel; ++l )
             {
                 Cell< Background_Element_Base * > tBackgroundElements;
                 tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
@@ -1680,8 +1679,7 @@ namespace moris
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                                                 tLagrangeMeshIndex,
-                                                 aScalarField->get_max_surface_level() );
+                                                 tLagrangeMeshIndex );
 
             // call refinement manager and get intersected cells
             this->find_cells_intersected_by_levelset( tRefinementList,
@@ -1696,8 +1694,7 @@ namespace moris
 
             // get candidates from volume
             this->get_candidates_for_refinement( tCandidates,
-                                                 tLagrangeMeshIndex,
-                                                 aScalarField->get_max_volume_level() );
+                                                 tLagrangeMeshIndex);
 
             // call refinement manager and get volume cells
             this->find_cells_within_levelset( tRefinementList,
@@ -1732,8 +1729,7 @@ namespace moris
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                                                 tLagrangeMeshIndex,
-                                                 aScalarField->get_max_surface_level() );
+                                                 tLagrangeMeshIndex );
 
             // call refinement manager and get intersected cells
             this->find_cells_intersected_by_levelset( tRefinementList,
@@ -1752,10 +1748,9 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        uint HMR::flag_surface_elements( const Matrix< DDRMat > & aFieldValues )
+        uint HMR::flag_surface_elements( const Matrix< DDRMat > & aFieldValues,
+                                         const uint             & aLagrangeMeshIndex )
         {
-//            MORIS_ERROR(false, "HMR::flag_surface_elements() this function is not udated yet ");
-            // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
             // candidates for refinement
@@ -1764,12 +1759,9 @@ namespace moris
             // elements to be flagged for refinement
             Cell< hmr::Element* > tRefinementList;
 
-            uint tLagrangeMeshIndex = 0;                  //FIXME
-
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                                                 tLagrangeMeshIndex,
-                                                 2 );                                 //FIXME
+                                                 aLagrangeMeshIndex);
 
             // call refinement manager and get intersected cells
             this->find_cells_intersected_by_levelset( tRefinementList,
@@ -1780,7 +1772,7 @@ namespace moris
             aElementCounter += tRefinementList.size();
 
             // flag elements in HMR
-            this->put_elements_on_refinment_queue( tRefinementList, 0 );             //FIXME
+            this->put_elements_on_refinment_queue( tRefinementList );
 
             // return number of flagged elements
             return aElementCounter;

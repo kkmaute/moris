@@ -246,8 +246,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void put_elements_on_refinment_queue(       Cell< hmr::Element* > & aElements,
-                                                  const uint                 aMinRefinementLevel );
+            void put_elements_on_refinment_queue( Cell< hmr::Element* > & aElements);
 
 // -----------------------------------------------------------------------------
 
@@ -349,8 +348,7 @@ namespace moris
              * for flagging
              */
             void get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
-                                                const uint                    aLagrangeMeshIndex,
-                                                const uint                    aMaxLevel = gMaxNumberOfLevels );
+                                                const uint                    aLagrangeMeshIndex);
 
 
 // -----------------------------------------------------------------------------
@@ -367,7 +365,8 @@ namespace moris
              */
             uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
 
-            uint flag_surface_elements( const Matrix< DDRMat > & aFieldValues );
+            uint flag_surface_elements( const Matrix< DDRMat > & aFieldValues,
+                                        const uint             & aLagrangeMeshIndex);
 
 // -----------------------------------------------------------------------------
 

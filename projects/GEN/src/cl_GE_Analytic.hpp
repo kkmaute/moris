@@ -49,7 +49,7 @@ namespace moris{
 		    check_if_functions_are_set()
 		    {
 		        MORIS_ASSERT(mFuncAnalytic != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic function not set ");
-		        MORIS_ASSERT(mFuncAnalyticDphiDx != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic sensitivity function not set ");
+//		        MORIS_ASSERT(mFuncAnalyticDphiDx != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic sensitivity function not set ");
 		    }
 		    //------------------------------------------------------------------------------
 		    void
