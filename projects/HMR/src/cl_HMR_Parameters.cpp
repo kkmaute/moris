@@ -665,6 +665,10 @@ namespace moris
             MORIS_ERROR( aPatterns.length() == mLagrangeOrders.length(),
                     "set_lagrange_patterns() : referred refinement pattern does not exist. Call set_lagrange_orders() first." );
 
+            MORIS_ERROR( aPatterns.max() < gNumberOfPatterns - 2,
+                    "set_lagrange_patterns() : Pattern %-5i and %-5i are reserved for union and working pattern. Choose different pattern or increase gNumberOfPatterns.",
+                    gNumberOfPatterns-2, gNumberOfPatterns-1 );
+
             mLagrangePatterns = aPatterns;
         }
 
@@ -681,6 +685,10 @@ namespace moris
             // test sanity of input
             MORIS_ERROR( aPatterns.length() == mBSplineOrders.length(),
                     "set_bspline_patterns() : referred refinement pattern does not exist. Call set_bspline_orders() first." );
+
+            MORIS_ERROR( aPatterns.max() < gNumberOfPatterns - 2,
+                    "set_bspline_patterns() : Pattern %-5i and %-5i are reserved for union and working pattern. Choose different pattern or increase gNumberOfPatterns.",
+                    gNumberOfPatterns-2, gNumberOfPatterns-1 );
 
             mBSplinePatterns = aPatterns;
         }
