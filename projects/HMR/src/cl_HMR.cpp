@@ -733,18 +733,11 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::flag_elements(       Cell< hmr::Element* > & aElements,
-                                 const uint                    aMinRefinementLevel )
+        void HMR::flag_elements_on_working_pattern(       Cell< hmr::Element* > & aElements,
+                                                    const uint                    aMinRefinementLevel )
         {
-//            MORIS_ERROR(false,"flag_elements() not changed yet" );
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
-
-//            // get pointer to background mesh
-//            Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
-//
-//            // use Lagrange pattern for flagging
-//            tBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
 
             // loop over all active elements
             for( hmr::Element* tCell : aElements )
@@ -783,7 +776,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::perform_refinement( const uint aPattern )
+        void HMR::perform_refinement_based_on_working_pattern( const uint aPattern )
         {
             // refine database and remember flag
             mDatabase->perform_refinement( aPattern, ! mPerformRefinementCalled );
@@ -794,37 +787,21 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
+        void HMR::perform_refinement( const uint aPattern )
+        {
+            // refine database and remember flag
+            mDatabase->get_background_mesh()->perform_refinement( aPattern );
+
+            // remember that refinement has been called
+            mPerformRefinementCalled = true;
+        }
+
+// -----------------------------------------------------------------------------
+
         void HMR::update_refinement_pattern( const uint aPattern )
         {
-            // get number of bspline meshes
-            uint tNumberOfBsplineMeshes = mDatabase->get_number_of_bspline_meshes();
-
-            // update bspline meshes
-            for( uint k = 0; k < tNumberOfBsplineMeshes; ++k )
-            {
-                // get pointer to bspline mesh
-                BSpline_Mesh_Base * tMesh = mDatabase->get_bspline_mesh_by_index( k );
-
-                if( tMesh->get_activation_pattern() == aPattern )
-                {
-                    tMesh->update_mesh();
-                }
-            }
-
-            // get number of bspline meshes
-            uint tNumberOfLagrangeMeshes = mDatabase->get_number_of_lagrange_meshes();
-
-            // update lagrange meshes
-            for( uint k = 0; k < tNumberOfLagrangeMeshes; ++k )
-            {
-                // get pointer to bspline mesh
-                Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                if( tMesh->get_activation_pattern() == aPattern )
-                {
-                    tMesh->update_mesh();
-                }
-            }
+            mDatabase->update_bspline_meshes( aPattern );
+            mDatabase->update_lagrange_meshes( aPattern );
 
             // set flag that this function has been called
             mUpdateRefinementCalled = true;
@@ -1347,7 +1324,7 @@ namespace moris
                 }
 
                 // run the refiner
-                this->perform_refinement( aPattern );
+                this->perform_refinement_based_on_working_pattern( aPattern );
 
                 mDatabase->update_bspline_meshes( aPattern );
                 mDatabase->update_lagrange_meshes( aPattern );
@@ -1510,30 +1487,6 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        uint HMR::get_mesh_index( const uint aOrder, const uint aPattern )
-        {
-            MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
-//            uint aIndex = MORIS_UINT_MAX;
-//
-//            // find correct output mesh
-//            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
-//            for( uint k=0; k<tNumberOfMeshes; ++k )
-//            {
-//                auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-//
-//                if(        tMesh->get_activation_pattern() == aPattern
-//                        && tMesh->get_order() == aOrder )
-//                {
-//                    aIndex = k;
-//                    break;
-//                }
-//            }
-
-            return 0;
-        }
-
-// ----------------------------------------------------------------------------
-
         void HMR::get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
                                                  const uint                    aLagrangeMeshIndex)
         {
@@ -1600,7 +1553,7 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        uint HMR::flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField )
+        uint HMR::flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField )
         {
 //            MORIS_ERROR(false, "HMR::perform_initial_refinement() this function is not udated yet ");
             // the funciton returns the number of flagged elements
@@ -1627,7 +1580,7 @@ namespace moris
             aElementCounter += tRefinementList.size();
 
             // flag elements in HMR
-            this->flag_elements( tRefinementList, aScalarField->get_min_surface_level() );
+            this->flag_elements_on_working_pattern( tRefinementList, aScalarField->get_min_surface_level() );
 
             // get candidates from volume
             this->get_candidates_for_refinement( tCandidates,
@@ -1642,7 +1595,7 @@ namespace moris
             aElementCounter += tRefinementList.size();
 
             // flag elements in database
-            this->flag_elements( tRefinementList, aScalarField->get_min_volume_level()  );
+            this->flag_elements_on_working_pattern( tRefinementList, aScalarField->get_min_volume_level()  );
 
             // return number of flagged elements
             return aElementCounter;
@@ -1650,9 +1603,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        uint HMR::flag_surface_elements( const std::shared_ptr<Field> aScalarField )
+        uint HMR::flag_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField )
         {
-//            MORIS_ERROR(false, "HMR::flag_surface_elements() this function is not udated yet ");
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
@@ -1677,7 +1629,7 @@ namespace moris
             aElementCounter += tRefinementList.size();
 
             // flag elements in HMR
-            this->flag_elements( tRefinementList, aScalarField->get_min_surface_level() );
+            this->flag_elements_on_working_pattern( tRefinementList, aScalarField->get_min_surface_level() );
 
             // return number of flagged elements
             return aElementCounter;
@@ -1685,8 +1637,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        uint HMR::flag_surface_elements( const Matrix< DDRMat > & aFieldValues,
-                                         const uint             & aLagrangeMeshIndex )
+        uint HMR::based_on_field_put_elements_on_queue( const Matrix< DDRMat > & aFieldValues,
+                                                        const uint             & aLagrangeMeshIndex )
         {
             uint aElementCounter = 0;
 

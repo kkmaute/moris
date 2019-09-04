@@ -117,15 +117,10 @@ main(
 
     for( uint k=0; k<3; ++k )
     {
-            tHMR.flag_surface_elements( tField );
-//            tHMR.flag_surface_elements( tField2 );
-
-            //tDatabase->flag_element( 0 );
-            tHMR.perform_refinement( 0 );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetFunction );
-//            tField2->evaluate_scalar_function( LevelSetFunction2 );
     }
 
     tHMR.finalize();
@@ -139,7 +134,6 @@ main(
 
     xtk::Geom_Field tFieldAsGeom(tField);
 //    xtk::Geom_Field tFieldAsGeom2(tField2);
-
 
         moris::Cell<Geometry*> tGeometryVector = {&tFieldAsGeom};
 

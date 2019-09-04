@@ -157,7 +157,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
 //            print(tFieldData, "tFieldData");
 
-            tHMR.flag_surface_elements( tFieldData, tLagrangeMeshIndex );
+            tHMR.based_on_field_put_elements_on_queue( tFieldData, tLagrangeMeshIndex );
 
             tDatabase->get_background_mesh()->perform_refinement( 1 );
 
@@ -181,7 +181,6 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 //             tSTK->save_to_file( "GE_HMR_Mesh.g");
 //             delete tSTK;
 
-             std::cout<<tLagrangeMesh->get_number_of_nodes_on_proc()<<std::endl;
              REQUIRE( tLagrangeMesh->get_number_of_nodes_on_proc()  == 59 );
 
         delete tLagrangeMesh;

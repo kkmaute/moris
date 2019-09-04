@@ -63,9 +63,8 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
     for( uint k=0; k<3; ++k )
     {
         tField->evaluate_scalar_function( LevelSetFunction );
-        tHMR.flag_surface_elements( tField );
-        tHMR.perform_refinement( 0 );
-        tHMR.update_refinement_pattern( 0 );
+        tHMR.flag_surface_elements_on_working_pattern( tField );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
     }
 
     tHMR.finalize();

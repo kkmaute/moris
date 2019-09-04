@@ -450,41 +450,22 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-//        tHMR.finalize();
-//
-//        // construct a mesh manager for the fem
-//        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh_Orig = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
-//        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh_Orig   = tHMR.create_integration_mesh( 1, 0, *tInterpolationMesh );
-//
-//        // place the pair in mesh manager
-//        mtk::Mesh_Manager tMeshManager;
-//        tMeshManager.register_mesh_pair( tInterpolationMesh_Orig.get(),tIntegrationMesh_Orig.get() );
-//
-//        // ------------- Geometry Engine ------------------------------------------------
-//        Ge_Factory tFactory;
-//        std::shared_ptr< Geometry > tGeomEngine = tFactory.set_geometry_type(GeomType::ANALYTIC);
-//
-//        tGeomEngine->set_my_mesh(&tMeshManager);
-//        tGeomEngine->set_analytical_function( LevelSetFunction_2 );
-        // ------------- Geometry Engine ------------------------------------------------
-
         // create field
         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeMeshIndex );
 
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( 0 );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
 
         // evaluate node values
-        //             tField->evaluate_scalar_function( LevelSetFunction );
-        //             tHMR.save_to_exodus( "Circle_diff.exo" );
-        //             tHMR.save_faces_to_vtk( "Faces.vtk" );
+        // tField->evaluate_scalar_function( LevelSetFunction );
+        // tHMR.save_to_exodus( "Circle_diff.exo" );
+        // tHMR.save_faces_to_vtk( "Faces.vtk" );
 
         //1) Create the fem nodes ------------------------------------------------------
         std::cout<<" Create the fem nodes "<<std::endl;
@@ -905,18 +886,17 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
 
             //tDatabase->flag_element( 0 );
-            tHMR.perform_refinement( 0 );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
 
         // evaluate node values
-                   tField->evaluate_scalar_function( LevelSetFunction );
-                   tHMR.save_to_exodus( 0,"Circle_diff.exo" );
+//        tField->evaluate_scalar_function( LevelSetFunction );
+//        tHMR.save_to_exodus( 0,"Circle_diff.exo" );
 
         //1) Create the fem nodes ------------------------------------------------------
         std::cout<<" Create the fem nodes "<<std::endl;
@@ -1025,17 +1005,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         tHMR.save_to_exodus( 0,"Circle_diff_temp.exo" );
         //           tHMR.save_bsplines_to_vtk("Bsplines_temp.vtk");
-
-        //           //-------------------------------------//
-        //           // print solution of each processor
-        //           if (par_rank() == 0){
-        //             print(tSolution11,"Processor_ONE");
-        //           }
-        //           else if (par_rank() == 1){
-        //             print(tSolution11,"Processor_TWO");
-        //           }
-        //           else {} // do nothing
-        //           //-------------------------------------//
 
         // Expected solution when running in serial
         Matrix< DDRMat > tExpectedSolution = {{ +1.976384396893782e-09, +9.999999997638666e+00, +2.299478928887239e-09,
@@ -1172,9 +1141,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         for( uint k=0; k<2; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( 0 );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();

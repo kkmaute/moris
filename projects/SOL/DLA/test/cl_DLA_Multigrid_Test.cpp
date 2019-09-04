@@ -104,10 +104,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         // flag first element for refinement
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( 0 );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( 0 );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
         tHMR.finalize();
 
@@ -340,9 +340,8 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
         for( uint k=0; k<2; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement(0 );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern(0 );
         }
 
         tHMR.finalize();
@@ -542,9 +541,8 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( 0 );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
@@ -743,9 +741,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
                 tHMR.flag_element( tSurfaceElements( e ) );
             }
 
-            tHMR.perform_refinement( 0  );
-
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0  );
         }
 
         tHMR.finalize();

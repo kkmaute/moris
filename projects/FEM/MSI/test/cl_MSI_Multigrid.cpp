@@ -91,10 +91,10 @@ namespace moris
 
             // flag first element for refinement
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.finalize();
 

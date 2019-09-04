@@ -222,8 +222,8 @@ namespace moris
              * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
              *                                     the child is automatically flagged in the next iteration
              */
-            void flag_elements(       Cell< hmr::Element* > & aElements,
-                                const uint                 aMinRefinementLevel = 0 );
+            void flag_elements_on_working_pattern(       Cell< hmr::Element* > & aElements,
+                                                   const uint                 aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -240,6 +240,8 @@ namespace moris
             /**
              * runs the refinement scheme
              */
+            void perform_refinement_based_on_working_pattern( const uint aPattern );
+
             void perform_refinement( const uint aPattern );
 
 // -----------------------------------------------------------------------------
@@ -354,17 +356,17 @@ namespace moris
             /**
              * flags elements on the surface and inside of a level set
              */
-            uint flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField );
+            uint flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
             /**
              * flags elements on the surface of a level set
              */
-            uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
+            uint flag_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField );
 
-            uint flag_surface_elements( const Matrix< DDRMat > & aFieldValues,
-                                        const uint             & aLagrangeMeshIndex);
+            uint based_on_field_put_elements_on_queue( const Matrix< DDRMat > & aFieldValues,
+                                                       const uint             & aLagrangeMeshIndex);
 
 // -----------------------------------------------------------------------------
 
@@ -454,10 +456,6 @@ namespace moris
                                                                  ParameterList              & aParameters ),
                                         Cell< std::shared_ptr< Field > > & aFields,
                                         ParameterList                    & aParameters );
-
-// -----------------------------------------------------------------------------
-
-            uint get_mesh_index( const uint aOrder, const uint aPattern );
 
 // -----------------------------------------------------------------------------
         }; /* HMR */
