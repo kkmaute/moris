@@ -179,7 +179,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         for( uint k=0; k<2; ++k )
         {
             tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );
@@ -410,7 +410,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         for( uint k=0; k<2; ++k )
         {
             tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );

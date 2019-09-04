@@ -64,7 +64,7 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
     {
         tField->evaluate_scalar_function( LevelSetFunction );
         tHMR.flag_surface_elements( tField );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+        tHMR.perform_refinement( 0 );
         tHMR.update_refinement_pattern( 0 );
     }
 

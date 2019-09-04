@@ -121,7 +121,7 @@ main(
 //            tHMR.flag_surface_elements( tField2 );
 
             //tDatabase->flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetFunction );

@@ -122,14 +122,6 @@ namespace moris{
 //        	return mtk::Interpolation_Order::UNDEFINED;
 //        };
 //
-//		//------------------------------------------------------------------------------
-//        // special hmr function
-//        luint
-//		get_memory_index_of_background_element() const
-//        {
-//        	MORIS_ERROR( false, "get_memory_index_of_background_element() not available for this element " );
-//        	return 0;
-//        };
 
 	protected:
 	};

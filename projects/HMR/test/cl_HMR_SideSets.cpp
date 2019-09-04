@@ -103,7 +103,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
                 tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
 
                 // manually refine, do not reset pattern
-                tDatabase->perform_refinement(  moris::hmr::RefinementMode::SIMPLE, 0, false );
+                tDatabase->perform_refinement( 0, false );
             }
 
             // finish mesh
@@ -238,7 +238,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
               tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
 
               // manually refine, do not reset pattern
-              tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE ,tLagrangeMeshIndex,false );
+              tDatabase->perform_refinement(tLagrangeMeshIndex,false );
           }
 
           // finish mesh

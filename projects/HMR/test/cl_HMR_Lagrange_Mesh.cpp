@@ -78,14 +78,10 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
                 }
                 // refine mesh
                 tBackgroundMesh->perform_refinement(tPattern);
-
             }
 
             for ( uint p=1; p<=3; ++p )
             {
-                // set max order to 3
-                tParameters->set_mesh_orders_simple( p );
-
                 // create first order Lagrange mesh
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
                                                                                                 tBackgroundMesh,
@@ -125,9 +121,6 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // set max order to 3
-            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -252,11 +245,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
-        // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+//        // update database etc
+//        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -364,20 +357,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
-
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
-
-//        tHMR.flag_element( 0 );
-//        tHMR.get_database()->get_background_mesh()->get_element( 0 )->set_min_refimenent_level( 4 );
-//
-//        tHMR.perform_refinement(  moris::hmr::RefinementMode::LAGRANGE_REFINE );
-//        tHMR.perform_refinement(  moris::hmr::RefinementMode::BSPLINE_REFINE );
+        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -484,11 +468,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
-        // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+//        // update database etc
+//        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 

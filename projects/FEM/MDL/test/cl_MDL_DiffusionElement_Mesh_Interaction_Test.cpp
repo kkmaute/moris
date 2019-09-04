@@ -475,8 +475,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
             tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern(0 );
+            tHMR.perform_refinement( 0 );
+            tHMR.update_refinement_pattern( 0 );
         }
 
         tHMR.finalize();
@@ -908,15 +908,15 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
             tHMR.flag_surface_elements( tField );
 
             //tDatabase->flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
         }
 
         tHMR.finalize();
 
         // evaluate node values
-        //           tField->evaluate_scalar_function( LevelSetFunction );
-        //           tHMR.save_to_exodus( 1,"Circle_diff.exo" );
+                   tField->evaluate_scalar_function( LevelSetFunction );
+                   tHMR.save_to_exodus( 0,"Circle_diff.exo" );
 
         //1) Create the fem nodes ------------------------------------------------------
         std::cout<<" Create the fem nodes "<<std::endl;
@@ -1173,7 +1173,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         {
             tField->evaluate_scalar_function( LevelSetFunction );
             tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
         }
 

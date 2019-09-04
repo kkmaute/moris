@@ -216,10 +216,9 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * flags active elements
+             * flags active elements on working pattern
              *
              * @param[ in ]   aElements            element pointers that are to be flagged
-             *  @param[ in ]  aLagrangeSwitch      off: flag b-spline elements, on: flag lagrange elements
              * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
              *                                     the child is automatically flagged in the next iteration
              */
@@ -241,8 +240,7 @@ namespace moris
             /**
              * runs the refinement scheme
              */
-            void perform_refinement( const enum RefinementMode aRefinementMode,
-                                     const uint                aPattern = 0);                // FIXME get rid of default
+            void perform_refinement( const uint aPattern );
 
 // -----------------------------------------------------------------------------
 

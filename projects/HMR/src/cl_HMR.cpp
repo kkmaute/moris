@@ -106,11 +106,6 @@ namespace moris
             // create union of input and output
             mDatabase->create_union_pattern();
 
-//            if( mParameters->get_max_polynomial() > 2 )
-//            {
-//                mDatabase->add_extra_refinement_step_for_exodus();
-//            }
-
             // update database
             mDatabase->update_bspline_meshes();
             mDatabase->update_lagrange_meshes();
@@ -159,6 +154,7 @@ namespace moris
                                   const uint          aOutputOrder,
                                   const double        aTimeStep )
         {
+            MORIS_ERROR(false,"save_to_exodus() not changed yet" );
             uint tOutputOrder = MORIS_UINT_MAX;
             uint tIndex = MORIS_UINT_MAX;
 
@@ -170,17 +166,6 @@ namespace moris
             else
             {
                 tOutputOrder = aOutputOrder;
-            }
-
-            if( tOutputOrder > 2 )
-            {
-                // we can't output a cubic mesh
-                tIndex = mParameters->get_refined_output_mesh();
-            }
-            else
-            {
-//                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );         //FIXME
-//                tIndex = this->get_mesh_index( tOutputOrder, 2 );
             }
 
             MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
@@ -197,6 +182,7 @@ namespace moris
 
         void HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
         {
+            MORIS_ERROR(false,"renumber_and_save_to_exodus() not changed yet" );
             uint tOutputOrder = MORIS_UINT_MAX;
             uint tIndex = MORIS_UINT_MAX;
 
@@ -209,15 +195,6 @@ namespace moris
                 tOutputOrder = aOutputOrder;
             }
 
-            if( tOutputOrder > 2 )
-            {
-                // we can't output a cubic mesh
-                tIndex = mParameters->get_refined_output_mesh();
-            }
-            else
-            {
-//                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );
-            }
 
             MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
 
@@ -237,30 +214,11 @@ namespace moris
                                             const double aTimeStep,
                                             const uint aOutputOrder )
         {
+            MORIS_ERROR(false,"save_last_step_to_exodus() not changed yet" );
             MORIS_ERROR( ! mUpdateRefinementCalled,
                     "HMR does not feel comfortable with you calling save_last_step_to_exodus() after you have overwritten the input pattern using update_refinement_pattern()");
 
-            uint tOutputOrder = MORIS_UINT_MAX;
             uint tIndex = MORIS_UINT_MAX;
-
-            if( aOutputOrder == 0 )
-            {
-                tOutputOrder = mParameters->get_lagrange_orders().max();
-            }
-            else
-            {
-                tOutputOrder = aOutputOrder;
-            }
-
-            if( tOutputOrder > 2 )
-            {
-                // we cant output a cubic mesh
-                tIndex = mParameters->get_refined_output_mesh();
-            }
-            else
-            {
-//                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_input_pattern() );
-            }
 
             MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
 
@@ -289,6 +247,7 @@ namespace moris
 
         void HMR::save_to_hdf5( const std::string & aPath )
         {
+            MORIS_ERROR(false,"save_to_hdf5() not changed yet" );
             // create file object
             File tHDF5;
 
@@ -320,6 +279,7 @@ namespace moris
 
         void HMR::save_coeffs_to_hdf5_file( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_coeffs_to_hdf5_file() not changed yet" );
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
 
@@ -477,6 +437,7 @@ namespace moris
 
         void HMR::renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"renumber_and_save_coeffs_to_hdf5_file_HACK() not changed yet" );
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
 
@@ -617,6 +578,7 @@ namespace moris
 
         void HMR::save_mesh_relations_to_hdf5_file( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_mesh_relations_to_hdf5_file() not changed yet" );
             // get pointer to output mesh
             BSpline_Mesh_Base * tMesh = nullptr;
 
@@ -774,25 +736,21 @@ namespace moris
         void HMR::flag_elements(       Cell< hmr::Element* > & aElements,
                                  const uint                    aMinRefinementLevel )
         {
+//            MORIS_ERROR(false,"flag_elements() not changed yet" );
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
-            // get pointer to background mesh
-            Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
-
-            // use Lagrange pattern for flagging
-            tBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
-
-            // pick any lagrange mesh ( it really doesn't matter which one )
-            Lagrange_Mesh_Base * tLagrangeMesh = mDatabase->get_lagrange_mesh_by_index( 0 );
+//            // get pointer to background mesh
+//            Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
+//
+//            // use Lagrange pattern for flagging
+//            tBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
 
             // loop over all active elements
-            for( hmr::Element* tCell :  aElements )
+            for( hmr::Element* tCell : aElements )
             {
                 // get pointer to Background Element
-                // ( the input elements are general mtk::cells, so they might not have any )
-                Background_Element_Base * tElement = tLagrangeMesh->get_element_by_memory_index( tCell->get_memory_index_of_background_element() )
-                                                                                                      ->get_background_element();
+                Background_Element_Base * tElement = tCell->get_background_element();
 
                 // put this element on the list
                 tElement->set_refined_flag( tWorkingPattern );
@@ -825,40 +783,19 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::perform_refinement( const enum RefinementMode aRefinementMode,
-                                      const uint                aPattern )
+        void HMR::perform_refinement( const uint aPattern )
         {
             // refine database and remember flag
-            mDatabase->perform_refinement( aRefinementMode, aPattern, ! mPerformRefinementCalled );
+            mDatabase->perform_refinement( aPattern, ! mPerformRefinementCalled );
 
-            switch( aRefinementMode )
-            {
-                case( RefinementMode::SIMPLE ) :
-                case( RefinementMode::BSPLINE_INIT ) :
-                case( RefinementMode::LAGRANGE_REFINE ) :
-                {
-                    // remember that refinement has been called
-                    mPerformRefinementCalled = true;
-                    break;
-                }
-                default :
-                {
-                    /* do nothing */
-                    break;
-                }
-            }
+            // remember that refinement has been called
+            mPerformRefinementCalled = true;
         }
 
 // -----------------------------------------------------------------------------
 
         void HMR::update_refinement_pattern( const uint aPattern )
         {
-//            mDatabase->copy_pattern( mParameters->get_bspline_output_pattern(),
-//                                     mParameters->get_bspline_input_pattern() );
-//
-//            mDatabase->copy_pattern( mParameters->get_lagrange_output_pattern(),
-//                                     mParameters->get_lagrange_input_pattern() );
-
             // get number of bspline meshes
             uint tNumberOfBsplineMeshes = mDatabase->get_number_of_bspline_meshes();
 
@@ -897,6 +834,7 @@ namespace moris
 
         std::shared_ptr< Mesh > HMR::create_mesh()
         {
+            MORIS_ERROR(false,"create_mesh() not changed yet" );
             return std::make_shared< Mesh >( mDatabase,
                                              mParameters->get_lagrange_orders().max(),
                                              mParameters->get_lagrange_output_pattern() );
@@ -971,6 +909,7 @@ namespace moris
 
         std::shared_ptr< Field > HMR::create_field( const std::string & aLabel )
         {
+            MORIS_ERROR(false,"create_field() not changed yet" );
             return this->create_field( aLabel,
                                        mParameters->get_lagrange_orders().max(),
                                        mParameters->get_bspline_orders().max() );
@@ -996,6 +935,7 @@ namespace moris
 
         std::shared_ptr< Field > HMR::create_field( const Field_Param & aParameters )
         {
+            MORIS_ERROR(false,"create_field() not changed yet" );
             MORIS_LOG_INFO( "%s Loading field %s from file %s.\n\n",
                     proc_string().c_str(),
                     aParameters.mLabel.c_str(),
@@ -1031,6 +971,7 @@ namespace moris
 
         void HMR::save_bsplines_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_bsplines_to_vtk() not changed yet" );
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
                 // pick mesh
@@ -1051,6 +992,7 @@ namespace moris
 
         void HMR::save_faces_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_faces_to_vtk() not changed yet" );
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
                 // pick mesh
@@ -1069,6 +1011,7 @@ namespace moris
 
         void HMR::save_edges_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_edges_to_vtk() not changed yet" );
             if( mParameters->get_number_of_dimensions() == 3 )
             {
                 for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
@@ -1094,6 +1037,7 @@ namespace moris
 
         void HMR::save_mesh_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_mesh_to_vtk() not changed yet" );
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
                 // pick mesh
@@ -1115,6 +1059,7 @@ namespace moris
                                                                  const uint          aLagrangeOrder,
                                                                  const uint          aBSpineOrder )
         {
+            MORIS_ERROR(false,"load_field_from_hdf5_file() not changed yet" );
             //if(  mParameters->get_renumber_lagrange_nodes() )
             //{
             //    MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
@@ -1199,6 +1144,7 @@ namespace moris
                                                                 const uint          aLagrangeOrder,
                                                                 const uint          aBSpineOrder )
         {
+            MORIS_ERROR(false,"load_field_from_exo_file() not changed yet" );
             // create mesh object
             mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr, false );
 
@@ -1339,6 +1285,7 @@ namespace moris
                                                             const uint          aLagrangeOrder,
                                                             const uint          aBSpineOrder )
         {
+            MORIS_ERROR(false,"load_field_from_file() not changed yet" );
             // detect file type
             std::string tType = aFilePath.substr( aFilePath.find_last_of(".")+1, aFilePath.length() );
 
@@ -1356,25 +1303,17 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void HMR::create_input_and_output_meshes()       //FIXME
+        void HMR::create_input_and_output_meshes()
         {
             // clear memory
             mMeshes.clear();
 
-            // get orders for Lagrange meshes from patterns
-//            Matrix< DDUMat > tOrders;
-//            unique( mParameters->get_lagrange_orders(), tOrders );
-
             // get number of Lagrange meshes
             uint tNumberOfMeshes =  mParameters->get_number_of_lagrange_meshes();
-
-//            mLagrangeOrderToInputMeshIndexMap.set_size( 4, 1, MORIS_UINT_MAX );
 
             // create meshes
             for( uint Ik=0; Ik<tNumberOfMeshes; ++Ik )
             {
-//                mLagrangeOrderToInputMeshIndexMap( tOrders( k ) ) = k;
-//                mMeshes.push_back(  this->create_mesh( mParameters->get_lagrange_order( Ik ), mParameters->get_lagrange_pattern( Ik ) ) );
                 mMeshes.push_back(  this->create_mesh( Ik ) );
             }
         }
@@ -1401,17 +1340,17 @@ namespace moris
                     Background_Element_Base * tElement = tBackMesh->get_element( e );
 
 //                    // set minumum level for this element
-//                    tElement->set_min_refimenent_level( tInitialRefinement );
+//                    tElement->set_min_refimenent_level( tInitialRefinement );         //FIXME
 
                     // flag this element
                     tElement->put_on_refinement_queue();
                 }
 
                 // run the refiner
-                this->perform_refinement( RefinementMode::SIMPLE, aPattern );
+                this->perform_refinement( aPattern );
 
-                mDatabase->update_bspline_meshes();
-                mDatabase->update_lagrange_meshes();
+                mDatabase->update_bspline_meshes( aPattern );
+                mDatabase->update_lagrange_meshes( aPattern );
             }
 
 //            if( mParameters->get_additional_lagrange_refinement()  == 0 )
@@ -1462,6 +1401,7 @@ namespace moris
                         Cell< std::shared_ptr< Field > > & aFields,
                         ParameterList              & aParameters )
         {
+            MORIS_ERROR(false,"user_defined_flagging() not changed yet" );
             MORIS_ERROR(false, "HMR::perform_initial_refinement() this function is not udated yet ");
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
@@ -1615,14 +1555,11 @@ namespace moris
             // fixme: add option to pick another one
             Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 
-            // get max level of this mesh
-            //uint tMaxLevel = std::min( tBackgroundMesh->get_max_level(), aMaxLevel );
-
             // counter for elements
             uint tCount = 0;
 
             // loop over all levels and determine size of Cell
-            for( uint l = 0; l < tMaxLevel; ++l )
+            for( uint l = 0; l <= tMaxLevel; ++l )
             {
                 Cell< Background_Element_Base * > tBackgroundElements;
 
@@ -1646,7 +1583,7 @@ namespace moris
             // reset counter
             tCount = 0;
             // loop over all levels
-            for( uint l=0; l<tMaxLevel; ++l )
+            for( uint l=0; l<=tMaxLevel; ++l )
             {
                 Cell< Background_Element_Base * > tBackgroundElements;
                 tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
@@ -1785,12 +1722,13 @@ namespace moris
          */
         void HMR::perform_refinement_and_map_fields()
         {
+            MORIS_ERROR(false,"perform_refinement_and_map_fields() not changed yet" );
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 0: perform simple refinement
             // - - - - - - - - - - - - - - - - - - - - - -
 
             // in the tutorial, lagrange and B-Spline are the same refinement
-            this->perform_refinement( RefinementMode::SIMPLE );
+            this->perform_refinement( 0 );   //FIXME
 
             // create union of input and output
             mDatabase->create_union_pattern();

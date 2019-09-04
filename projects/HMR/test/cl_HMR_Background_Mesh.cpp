@@ -844,7 +844,7 @@ TEST_CASE("HMR_Background_Mesh_refine", "[moris],[mesh],[hmr],[Background_Mesh_r
                 // flag first element for refinement
                 tHMR.flag_element( Ik );
             }
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement( 0 );
             tHMR.update_refinement_pattern( 0 );
         }
 

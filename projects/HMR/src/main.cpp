@@ -143,8 +143,8 @@ void state_refine_mesh( const Arguments & aArguments )
                                  tParams.get_parameter_list() );
 
     // perform refinement
-    tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );
-    tHMR->perform_refinement( RefinementMode::BSPLINE_REFINE );
+//    tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );    FIXME
+//    tHMR->perform_refinement( RefinementMode::BSPLINE_REFINE );     FIXME
 
     // finalize mesh
     tHMR->finalize();

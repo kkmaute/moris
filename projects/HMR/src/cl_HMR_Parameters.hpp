@@ -92,7 +92,7 @@ namespace moris
            Matrix< DDUMat> mBSplineInputMap;
            Matrix< DDUMat> mBSplineOutputMap;
 
-           //! default input pattern
+           //! default input pattern     //FIXME delete these
            const      uint mBSplineInputPattern = 0;
            const      uint mLagrangeInputPattern = 1;
 
@@ -107,7 +107,7 @@ namespace moris
            uint mWorkingPattern = gNumberOfPatterns - 1;
 
            //! default pattern for output refinement
-           const      uint mRefinedOutputPattern = 5;
+//           const      uint mRefinedOutputPattern = 5;
 
            //! Map Lagrange Meshes that are used for the unity meshes
            //! position 0: first order,
@@ -121,9 +121,6 @@ namespace moris
            Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
 
            Matrix< DDUMat >     mBSplineInputMeshes = { { } };
-
-           //! Lagrange Mesh that is used for the refined output
-           uint             mRefinedOutputMesh = 7;
 
            uint mInitialRefinementLevel = 0;
            uint mAdditionalLagrangeRefinementLevel = 0;
@@ -247,14 +244,6 @@ namespace moris
            {
                return mRefinementBuffer;
            }
-
-//--------------------------------------------------------------------------------
-
-           /**
-            * a function which sets orders for lagrange and B-Spline meshes
-            * in the most simple way
-            */
-           void set_mesh_orders_simple( const uint & aMaxOrder );
 
 //--------------------------------------------------------------------------------
            /**
@@ -488,17 +477,6 @@ namespace moris
 
                mBSplineInputMeshes = aBSplineInputMeshes;
            };
-
-//--------------------------------------------------------------------------------
-
-           /**
-            * returns the mesh for refined output
-            */
-           auto get_refined_output_mesh() const
-               -> decltype( mRefinedOutputMesh )
-           {
-               return mRefinedOutputMesh;
-           }
 
 //--------------------------------------------------------------------------------
 
@@ -814,16 +792,6 @@ namespace moris
            uint get_union_pattern() const
            {
                return mUnionPattern;
-           }
-
-//-------------------------------------------------------------------------------
-
-           /**
-            * returns the default pattern for union meshes
-            */
-           uint get_refined_output_pattern() const
-           {
-               return mRefinedOutputPattern;
            }
 
 //-------------------------------------------------------------------------------

@@ -120,7 +120,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         for( uint k=0; k<2; ++k )
         {
             tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement(0 );
             tHMR.update_refinement_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );

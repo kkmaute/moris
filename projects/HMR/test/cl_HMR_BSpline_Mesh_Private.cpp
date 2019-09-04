@@ -75,7 +75,7 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private
                         for( uint k=0; k<3; ++k )
                         {
                             tHMR.flag_element( 0 );
-                            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+                            tHMR.perform_refinement( 0 );
                         }
 
                         // finish mesh
