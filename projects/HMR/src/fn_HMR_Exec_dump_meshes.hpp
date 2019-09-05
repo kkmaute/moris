@@ -28,7 +28,7 @@ namespace moris
             // test if an output database path is given
             if( aParamfile.get_output_db_path().size() > 0 )
             {
-                aHMR->save_to_hdf5( aParamfile.get_output_db_path() );
+                aHMR->save_to_hdf5( aParamfile.get_output_db_path(),0 ); //FIXME
             }
 
             // test if coefficient path is given

@@ -125,8 +125,6 @@ main(
 
     tHMR.finalize();
 
-    tHMR.save_to_exodus( "./xtk_exo/xtk_hmr_bm.exo" );
-
     std::shared_ptr< Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
 
     std::cout<<"Num Nodes ="<<tMesh->get_num_nodes()<<std::endl;

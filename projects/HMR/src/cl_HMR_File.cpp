@@ -349,16 +349,42 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void File::save_refinement_pattern( Background_Mesh_Base * aMesh  )
+        void File::save_refinement_pattern( Lagrange_Mesh_Base * aLagrangeMesh )
         {
+            Background_Mesh_Base * aBackgroundMesh = aLagrangeMesh->get_background_mesh();
             // step 1: count how many elements need are refined on each level
-            uint tMaxLevel = aMesh->get_max_level();
+            uint tMaxLevel = aBackgroundMesh->get_max_level();
+
+            uint tNumBSplineMeshes = aLagrangeMesh->get_number_of_bspline_meshes();
+
+            moris::Cell< moris::uint > tPatternList( 1 + tNumBSplineMeshes, MORIS_UINT_MAX );
+
+            tPatternList( 0 ) = aLagrangeMesh->get_activation_pattern();
+
+            for( uint Ik = 1; Ik == tNumBSplineMeshes; Ik++ )
+            {
+                tPatternList( Ik ) = aLagrangeMesh->get_bspline_mesh( Ik )->get_activation_pattern();
+            }
+
+            //---------------------------------------------------------------------------------------------
+            moris::Cell< moris::uint > tPatternListUnique = tPatternList;
+
+            // Sort this created list
+            std::sort( ( tPatternListUnique.data() ).data(), ( tPatternListUnique.data() ).data() + tPatternListUnique.size() );
+
+            // use std::unique and std::distance to create list containing all used dof types. This list is unique
+            auto last = std::unique( ( tPatternListUnique.data() ).data(), ( tPatternListUnique.data() ).data() + tPatternListUnique.size() );
+            auto pos  = std::distance( ( tPatternListUnique.data() ).data(), last );
+
+            tPatternListUnique.resize( pos );
+            uint tNumUniquePattern = tPatternListUnique.size();
+            //-----------------------------------------------------------------------------------------------
 
             // element counter
-            Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, 2, 0 );
+            Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, tNumUniquePattern, 0 );
 
-            uint tBSplinePattern  = aMesh->get_parameters()->get_bspline_output_pattern();
-            uint tLagrangePattern = aMesh->get_parameters()->get_lagrange_output_pattern();
+//            uint tBSplinePattern  = aMesh->get_parameters()->get_bspline_output_pattern();
+//            uint tLagrangePattern = aMesh->get_parameters()->get_lagrange_output_pattern();
 
             // collect all elements that are flagged for refinement
             for( uint l = 0; l < tMaxLevel; ++l )
@@ -367,52 +393,57 @@ namespace moris
                 Cell< Background_Element_Base* > tElements;
 
                 // collect elements from this level
-                aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
 
                 // loop over all elements
                 for( auto tElement : tElements )
                 {
-                    // test if B-Spline Element is refined
-                    if( tElement->is_refined( tBSplinePattern ) )
+                    for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
                     {
-                        // increment counter
-                        ++tElementCounter ( l, 0 );
-                    }
-                    else if( tElement->is_refined( tLagrangePattern ) )
-                    {
-                        // increment counter
-                        ++tElementCounter ( l, 1 );
+                        // test if B-Spline Element is refined
+                        if( tElement->is_refined( tPatternListUnique( Ik ) ) )
+                        {
+                            // increment counter
+                            ++tElementCounter ( l, Ik );
+                        }
                     }
                 }
             }
 
-            // allocate patterns
-            Matrix< DDLUMat > tBSplineElements  ( sum( tElementCounter.get_column( 0 ) ), 1 );
-            Matrix< DDLUMat > tLagrangeElements ( sum( tElementCounter.get_column( 1 ) ), 1 );
+            moris::Cell< Matrix< DDLUMat > > tPatternElement( tNumUniquePattern );
+            moris::Cell< hsize_t > tElementPerPatternCount( tNumUniquePattern, 0 );
+
+            for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
+            {
+                tPatternElement( Ik ).set_size( sum( tElementCounter.get_column( Ik ) ) , 1 );
+            }
+
+//            // allocate patterns
+//            Matrix< DDLUMat > tBSplineElements  ( sum( tElementCounter.get_column( 0 ) ), 1 );
+//            Matrix< DDLUMat > tLagrangeElements ( sum( tElementCounter.get_column( 1 ) ), 1 );
 
             // reset counters
-            hsize_t tBSplineCount = 0;
-            hsize_t tLagrangeCount = 0;
+//            hsize_t tBSplineCount = 0;
+//            hsize_t tLagrangeCount = 0;
 
-            for( uint l=0; l<tMaxLevel; ++l )
+            for( uint l = 0; l < tMaxLevel; ++l )
             {
                 // cell which contains elements
                 Cell< Background_Element_Base* > tElements;
 
                 // collect elements from this level
-                aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
 
                 // loop over all elements
                 for( Background_Element_Base * tElement : tElements )
                 {
-                    // test if element is refined
-                    if( tElement->is_refined( tBSplinePattern ) )
+                    for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
                     {
-                        tBSplineElements( tBSplineCount++ ) = tElement->get_hmr_id();
-                    }
-                    else if ( tElement->is_refined( tLagrangePattern ) )
-                    {
-                        tLagrangeElements( tLagrangeCount++ ) = tElement->get_hmr_id();
+                        // test if element is refined
+                        if( tElement->is_refined( tPatternListUnique( Ik ) ) )
+                        {
+                            tPatternElement( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
+                        }
                     }
                 }
             }
@@ -422,15 +453,15 @@ namespace moris
                                       tElementCounter,
                                       mStatus );
 
-            save_matrix_to_hdf5_file( mFileID,
-                                      "BSplineElements",
-                                      tBSplineElements,
-                                      mStatus );
+            for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
+            {
+                std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternListUnique( Ik ) ) + "Elements";
 
-            save_matrix_to_hdf5_file( mFileID,
-                                      "LagrangeElements",
-                                      tLagrangeElements,
-                                      mStatus );
+                save_matrix_to_hdf5_file( mFileID,
+                                          tSubsectionStr,
+                                          tPatternElement( Ik ),
+                                          mStatus );
+            }
         }
 
 //------------------------------------------------------------------------------

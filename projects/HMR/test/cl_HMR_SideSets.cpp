@@ -280,9 +280,7 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 
           // close file
           close_hdf5_file( tFileID );
-
-          // save exodus file for visual inspection
-          tHMR.save_to_exodus( "Mesh.exo" ); */
+ */
 
 //------------------------------------------------------------------------------
 //    open solution

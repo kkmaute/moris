@@ -148,81 +148,49 @@ namespace moris
             // finish database
             mDatabase->finalize();
         }
-// -----------------------------------------------------------------------------
-
-        void HMR::save_to_exodus( const std::string & aPath,
-                                  const uint          aOutputOrder,
-                                  const double        aTimeStep )
-        {
-            MORIS_ERROR(false,"save_to_exodus() not changed yet" );
-            uint tOutputOrder = MORIS_UINT_MAX;
-            uint tIndex = MORIS_UINT_MAX;
-
-            if( aOutputOrder == 0 )
-            {
-//                tOutputOrder = mParameters->get_lagrange_orders().max();       //FIXME
-                tOutputOrder = 1;
-            }
-            else
-            {
-                tOutputOrder = aOutputOrder;
-            }
-
-            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
-
-            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
-                    "Picked wrong mesh for output");
-
-            this->save_to_exodus( tIndex,
-                                  aPath,
-                                  aTimeStep );
-        }
 
 // -----------------------------------------------------------------------------
 
-        void HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
-        {
-            MORIS_ERROR(false,"renumber_and_save_to_exodus() not changed yet" );
-            uint tOutputOrder = MORIS_UINT_MAX;
-            uint tIndex = MORIS_UINT_MAX;
-
-            if( aOutputOrder == 0 )
-            {
-                tOutputOrder = mParameters->get_lagrange_orders().max();
-            }
-            else
-            {
-                tOutputOrder = aOutputOrder;
-            }
-
-
-            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
-
-            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
-                    "Picked wrong mesh for output");
-
-            mDatabase->get_lagrange_mesh_by_index( tIndex )->nodes_renumbering_hack_for_femdoc();
-
-            this->save_to_exodus( tIndex,
-                                  aPath,
-                                  aTimeStep );
-        }
+//        void HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
+//        {
+//            MORIS_ERROR(false,"renumber_and_save_to_exodus() not changed yet" );
+//            uint tOutputOrder = MORIS_UINT_MAX;
+//            uint tIndex = MORIS_UINT_MAX;
+//
+//            if( aOutputOrder == 0 )
+//            {
+//                tOutputOrder = mParameters->get_lagrange_orders().max();
+//            }
+//            else
+//            {
+//                tOutputOrder = aOutputOrder;
+//            }
+//
+//
+//            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
+//
+//            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
+//                    "Picked wrong mesh for output");
+//
+//            mDatabase->get_lagrange_mesh_by_index( tIndex )->nodes_renumbering_hack_for_femdoc();
+//
+//            this->save_to_exodus( tIndex,
+//                                  aPath,
+//                                  aTimeStep );
+//        }
 
 // -----------------------------------------------------------------------------
 
-        void HMR::save_last_step_to_exodus( const std::string & aPath,
-                                            const double aTimeStep,
-                                            const uint aOutputOrder )
+        void HMR::save_last_step_to_exodus( const uint          aIndex,
+                                            const std::string & aPath,
+                                            const double        aTimeStep )
         {
-            MORIS_ERROR(false,"save_last_step_to_exodus() not changed yet" );
             MORIS_ERROR( ! mUpdateRefinementCalled,
                     "HMR does not feel comfortable with you calling save_last_step_to_exodus() after you have overwritten the input pattern using update_refinement_pattern()");
 
-            uint tIndex = MORIS_UINT_MAX;
+            MORIS_ERROR( aIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
 
-            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
-
-            this->save_to_exodus( tIndex,
+            this->save_to_exodus( aIndex,
                                   aPath,
                                   aTimeStep );
         }
@@ -245,7 +213,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::save_to_hdf5( const std::string & aPath )
+        void HMR::save_to_hdf5( const std::string & aPath,
+                                const uint          aLagrangeMeshIndex )
         {
             MORIS_ERROR(false,"save_to_hdf5() not changed yet" );
             // create file object
@@ -257,6 +226,8 @@ namespace moris
             // store settings object
             tHDF5.save_settings( mParameters );
 
+            Lagrange_Mesh_Base * tLagrangeMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
+
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
 
@@ -264,7 +235,7 @@ namespace moris
             auto tActivePattern = tBackgroundMesh->get_activation_pattern();
 
             // save output pattern into file
-            tHDF5.save_refinement_pattern( tBackgroundMesh );
+            tHDF5.save_refinement_pattern( tLagrangeMesh );
 
             if( tActivePattern != tBackgroundMesh->get_activation_pattern() )
             {

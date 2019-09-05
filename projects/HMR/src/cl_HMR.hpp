@@ -139,36 +139,28 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * save the mesh to an exodus file
-             */
-            void save_to_exodus( const std::string & aPath,
-                                 const uint          aOutputOrder = 0,
-                                 const double        aTimeStep = 0.0 );
-
-// -----------------------------------------------------------------------------
-
-            /**
              * renumber nodes for femdoc and save the mesh to an exodus file. HACK with consent of Kurt
              */
-            void renumber_and_save_to_exodus( const std::string & aPath,
-                                              const double        aTimeStep = 0.0,
-                                              const uint          aOutputOrder = 0 );
+//            void renumber_and_save_to_exodus( const std::string & aPath,
+//                                              const double        aTimeStep = 0.0,
+//                                              const uint          aOutputOrder = 0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an exodus file
              */
-            void save_last_step_to_exodus( const std::string & aPath,
-                                           const double        aTimeStep = 0.0,
-                                           const uint          aOutputOrder = 0 );
+            void save_last_step_to_exodus( const uint          aIndex,
+                                           const std::string & aPath,
+                                           const double        aTimeStep = 0.0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an hdf5 file
              */
-            void save_to_hdf5( const std::string & aPath );
+            void save_to_hdf5( const std::string & aPath,
+                               const uint          aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 

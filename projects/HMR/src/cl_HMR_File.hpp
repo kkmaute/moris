@@ -13,6 +13,7 @@
 #include <string>
 
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 // HD5 c-interface
 #include "hdf5.h"
@@ -86,9 +87,9 @@ namespace moris
             /**
              * stores the refinement pattern of the current proc into the file
              *
-             * @param[ in ]  aMesh     pointer to background mesh
+             * @param[ in ]  aMesh     pointer to Lagrange Mesh
              */
-            void save_refinement_pattern( Background_Mesh_Base * aMesh );
+            void save_refinement_pattern( Lagrange_Mesh_Base * aLagrangeMesh );
 
 //-------------------------------------------------------------------------------
 

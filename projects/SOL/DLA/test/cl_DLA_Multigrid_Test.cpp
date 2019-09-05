@@ -289,9 +289,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          CHECK( equal_to( tSolution( 8, 0 ), -0.14904048484, 1.0e+08 ) );
 
          // dump mesh
-         tHMR.save_to_exodus ( 0,  // index in database
-                               "Mesh.exo",  // path
-                               0.0 );       // timestep
+//         tHMR.save_to_exodus ( 0,  // index in database
+//                               "Mesh.exo",  // path
+//                               0.0 );       // timestep
 
          delete ( tMSI );
          delete ( tIWGs( 0 ) );
@@ -348,8 +348,6 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
 
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
-
-        tHMR.save_to_exodus( "Circle.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
@@ -550,7 +548,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
 
-        tHMR.save_to_exodus( 0,"Sphere11.exo" );
+//        tHMR.save_to_exodus( 0,"Sphere11.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
@@ -750,8 +748,6 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
         auto tField = tMesh->create_field( "SDF", 1);
 
         tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
-
-        tHMR.save_to_exodus( "SDF.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 

@@ -127,7 +127,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         tHMR.finalize();
 
-        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_interp.e" );
+//        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_interp.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
