@@ -85,7 +85,8 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             /**
-             * stores the refinement pattern of the current proc into the file
+             * stores the refinement pattern of the lagrange mesh and all related BSpline meshes
+             * of the current proc into the file
              *
              * @param[ in ]  aMesh     pointer to Lagrange Mesh
              */

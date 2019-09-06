@@ -89,8 +89,8 @@ namespace moris
            Cell< Matrix< DDUMat > > mLagrangeToBSplineMesh;
 
            //! maps input orders with B-Splines
-           Matrix< DDUMat> mBSplineInputMap;
-           Matrix< DDUMat> mBSplineOutputMap;
+//           Matrix< DDUMat> mBSplineInputMap;
+//           Matrix< DDUMat> mBSplineOutputMap;
 
            //! default input pattern     //FIXME delete these
            const      uint mBSplineInputPattern = 0;
@@ -861,31 +861,31 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           Matrix< DDUMat> get_bspline_input_map() const
-           {
-               return mBSplineInputMap;
-           }
+//           Matrix< DDUMat> get_bspline_input_map() const
+//           {
+//               return mBSplineInputMap;
+//           }
 
  //-------------------------------------------------------------------------------
 
-           Matrix< DDUMat> get_bspline_output_map() const
-           {
-               return mBSplineOutputMap;
-           }
+//           Matrix< DDUMat> get_bspline_output_map() const
+//           {
+//               return mBSplineOutputMap;
+//           }
 
 //-------------------------------------------------------------------------------
 
-           void set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
-           {
-               mBSplineInputMap = aBSplineInputMap;
-           }
+//           void set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
+//           {
+//               mBSplineInputMap = aBSplineInputMap;
+//           }
 
 //-------------------------------------------------------------------------------
 
-           void set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
-           {
-               mBSplineOutputMap = aBSplineOutputMap;
-           }
+//           void set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
+//           {
+//               mBSplineOutputMap = aBSplineOutputMap;
+//           }
 
 //-------------------------------------------------------------------------------
 

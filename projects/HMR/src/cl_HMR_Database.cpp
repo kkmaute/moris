@@ -730,6 +730,7 @@ namespace moris
                                            const bool aResetPattern )
         {
             // flag for output
+
             bool tFlag = mHaveRefinedAtLeastOneElement;
 
             // get pointer to working pattern

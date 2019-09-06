@@ -68,13 +68,6 @@ namespace moris
                                       aParameters->get_refinement_buffer(),
                                       mStatus);
 
-            // save max polynomial
-            /*save_scalar_to_hdf5_file(
-                    mFileID,
-                    "MaxPolynomial",
-                    aParameters->get_max_polynomial(),
-                    mStatus ); */
-
             // save verbosity flag
             save_scalar_to_hdf5_file( mFileID,
                                       "SeverityFlag",
@@ -141,17 +134,6 @@ namespace moris
                                       aParameters->get_bspline_patterns(),
                                       mStatus );
 
-            // save B-Spline Maps
-            save_matrix_to_hdf5_file( mFileID,
-                                      "BSplineInputMap",
-                                      aParameters->get_bspline_input_map(),
-                                      mStatus );
-
-            save_matrix_to_hdf5_file( mFileID,
-                                      "BSplineOutputMap",
-                                      aParameters->get_bspline_output_map(),
-                                      mStatus );
-
             // save Sidesets
             Matrix< DDUMat > tSideSets = aParameters->get_side_sets();
             if ( tSideSets.length() == 0 )
@@ -215,15 +197,6 @@ namespace moris
             // set buffer size
             aParameters->set_refinement_buffer( tValLuint );
 
-            // load max polynomial
-            /*load_scalar_from_hdf5_file( mFileID,
-                                          "MaxPolynomial",
-                                          tValLuint,
-                                          mStatus ); */
-
-            // set max polynomial
-            //aParameters->set_max_polynomial( tValLuint );
-
             // load truncation flag
             load_scalar_from_hdf5_file( mFileID,
                                         "BSplineTruncationFlag",
@@ -285,7 +258,7 @@ namespace moris
 
             // load orders of meshes
             load_matrix_from_hdf5_file( mFileID,
-                                        "LagrangeOrders",
+                                        "OrderToLagrangeMeshList",
                                         tMatUint,
                                         mStatus );
 
@@ -293,7 +266,7 @@ namespace moris
 
             // load Lagrange mesh associations
             load_matrix_from_hdf5_file( mFileID,
-                                        "LagrangePatterns",
+                                        "PatternToLagrangeMeshList",
                                         tMatUint,
                                         mStatus );
 
@@ -301,7 +274,7 @@ namespace moris
 
             // load orders of meshes
             load_matrix_from_hdf5_file( mFileID,
-                                        "BSplineOrders",
+                                        "OrderToBspMeshList",
                                         tMatUint,
                                         mStatus );
 
@@ -309,26 +282,22 @@ namespace moris
 
             // load bspline mesh associations
             load_matrix_from_hdf5_file( mFileID,
-                                        "BSplinePatterns",
+                                        "PatternToBspMeshList",
                                         tMatUint,
                                         mStatus );
 
             aParameters->set_bspline_patterns( tMatUint );
 
-            // load B-Spline input maps
-            load_matrix_from_hdf5_file( mFileID,
-                                        "BSplineInputMap",
-                                        tMatUint,
-                                        mStatus );
+            // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
+            moris::Cell< Matrix< DDUMat > >tMatBspToLag( 1 );
+            tMatBspToLag( 0 ).set_size(tMatUint.numel(), 1);
 
-            aParameters->set_bspline_input_map( tMatUint );
+            for( uint Ik = 0; Ik < tMatUint.numel(); Ik++ )
+            {
+                tMatBspToLag( 0 )( Ik ) = Ik;
+            }
 
-            // load B-Spline output maps
-            load_matrix_from_hdf5_file( mFileID,
-                                        "BSplineOutputMap",
-                                        tMatUint,
-                                        mStatus );
-            aParameters->set_bspline_output_map( tMatUint );
+            aParameters->set_lagrange_to_bspline_mesh( tMatBspToLag );
 
             // load side sets
             load_matrix_from_hdf5_file( mFileID,
@@ -357,34 +326,76 @@ namespace moris
 
             uint tNumBSplineMeshes = aLagrangeMesh->get_number_of_bspline_meshes();
 
+            // Initialize Cells and Mat for Pattern and order list. Both to do the unique on Cell and to write the Mat to hdf5
             moris::Cell< moris::uint > tPatternList( 1 + tNumBSplineMeshes, MORIS_UINT_MAX );
+            moris::Cell< moris::uint > tOrderList( 1 + tNumBSplineMeshes, MORIS_UINT_MAX );
 
+            moris::Matrix< DDUMat > tPatternLagMat( 1 , 1, MORIS_UINT_MAX );
+            moris::Matrix< DDUMat > tPatternBspMat( tNumBSplineMeshes, 1, MORIS_UINT_MAX );
+            moris::Matrix< DDUMat > tOrderLagMat( 1 , 1, MORIS_UINT_MAX );
+            moris::Matrix< DDUMat > tOrderBspMat( tNumBSplineMeshes, 1, MORIS_UINT_MAX );
+
+            // Fill Cells and Mats with pattern index and order
             tPatternList( 0 ) = aLagrangeMesh->get_activation_pattern();
+            tPatternLagMat( 0 ) =aLagrangeMesh->get_activation_pattern();
+            tOrderList( 0 ) = aLagrangeMesh->get_order();
+            tOrderLagMat( 0 ) = aLagrangeMesh->get_order();
 
-            for( uint Ik = 1; Ik == tNumBSplineMeshes; Ik++ )
+            for( uint Ik = 0; Ik < tNumBSplineMeshes; Ik++ )
             {
-                tPatternList( Ik ) = aLagrangeMesh->get_bspline_mesh( Ik )->get_activation_pattern();
+                tPatternList( Ik+1 ) = aLagrangeMesh->get_bspline_mesh( Ik )->get_activation_pattern();
+                tPatternBspMat( Ik ) = aLagrangeMesh->get_bspline_mesh( Ik )->get_activation_pattern();
+                tOrderList( Ik+1 )   = aLagrangeMesh->get_bspline_mesh( Ik )->get_order();
+                tOrderBspMat( Ik )   = aLagrangeMesh->get_bspline_mesh( Ik )->get_order();
             }
 
-            //---------------------------------------------------------------------------------------------
-            moris::Cell< moris::uint > tPatternListUnique = tPatternList;
+            MORIS_ERROR( tPatternLagMat.max() != MORIS_UINT_MAX, "File::save_refinement_pattern(); the pattern list is not initialized correctly and has a MORIS_UINT_MAX entry" );
+            MORIS_ERROR( tPatternBspMat.max() != MORIS_UINT_MAX, "File::save_refinement_pattern(); the order list is not initialized correctly and has a MORIS_UINT_MAX entry" );
+
+            save_matrix_to_hdf5_file( mFileID,
+                                      "PatternToLagrangeMeshList",
+                                      tPatternLagMat,
+                                      mStatus );
+
+            save_matrix_to_hdf5_file( mFileID,
+                                      "PatternToBspMeshList",
+                                      tPatternBspMat,
+                                      mStatus );
+
+            save_matrix_to_hdf5_file( mFileID,
+                                      "OrderToLagrangeMeshList",
+                                      tOrderLagMat,
+                                      mStatus );
+
+            save_matrix_to_hdf5_file( mFileID,
+                                      "OrderToBspMeshList",
+                                      tOrderBspMat,
+                                      mStatus );
 
             // Sort this created list
-            std::sort( ( tPatternListUnique.data() ).data(), ( tPatternListUnique.data() ).data() + tPatternListUnique.size() );
+            std::sort( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );
 
             // use std::unique and std::distance to create list containing all used dof types. This list is unique
-            auto last = std::unique( ( tPatternListUnique.data() ).data(), ( tPatternListUnique.data() ).data() + tPatternListUnique.size() );
-            auto pos  = std::distance( ( tPatternListUnique.data() ).data(), last );
+            auto last = std::unique( ( tPatternList.data() ).data(), ( tPatternList.data() ).data() + tPatternList.size() );
+            auto pos  = std::distance( ( tPatternList.data() ).data(), last );
 
-            tPatternListUnique.resize( pos );
-            uint tNumUniquePattern = tPatternListUnique.size();
-            //-----------------------------------------------------------------------------------------------
+            tPatternList.resize( pos );
+            uint tNumUniquePattern = tPatternList.size();
+            moris::Matrix< DDUMat >tPatternListUniqueMat( tNumUniquePattern, 1, MORIS_UINT_MAX );
+
+            // Copy unique list in Mat
+            for( uint Ik = 0; Ik < tPatternList.size(); Ik++ )
+            {
+                tPatternListUniqueMat( Ik ) = tPatternList( Ik );
+            }
+
+            save_matrix_to_hdf5_file( mFileID,
+                                      "PatternInd",
+                                      tPatternListUniqueMat,
+                                      mStatus );
 
             // element counter
             Matrix< DDLUMat > tElementCounter ( tMaxLevel+1, tNumUniquePattern, 0 );
-
-//            uint tBSplinePattern  = aMesh->get_parameters()->get_bspline_output_pattern();
-//            uint tLagrangePattern = aMesh->get_parameters()->get_lagrange_output_pattern();
 
             // collect all elements that are flagged for refinement
             for( uint l = 0; l < tMaxLevel; ++l )
@@ -401,7 +412,7 @@ namespace moris
                     for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
                     {
                         // test if B-Spline Element is refined
-                        if( tElement->is_refined( tPatternListUnique( Ik ) ) )
+                        if( tElement->is_refined( tPatternList( Ik ) ) )
                         {
                             // increment counter
                             ++tElementCounter ( l, Ik );
@@ -418,14 +429,6 @@ namespace moris
                 tPatternElement( Ik ).set_size( sum( tElementCounter.get_column( Ik ) ) , 1 );
             }
 
-//            // allocate patterns
-//            Matrix< DDLUMat > tBSplineElements  ( sum( tElementCounter.get_column( 0 ) ), 1 );
-//            Matrix< DDLUMat > tLagrangeElements ( sum( tElementCounter.get_column( 1 ) ), 1 );
-
-            // reset counters
-//            hsize_t tBSplineCount = 0;
-//            hsize_t tLagrangeCount = 0;
-
             for( uint l = 0; l < tMaxLevel; ++l )
             {
                 // cell which contains elements
@@ -440,7 +443,7 @@ namespace moris
                     for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
                     {
                         // test if element is refined
-                        if( tElement->is_refined( tPatternListUnique( Ik ) ) )
+                        if( tElement->is_refined( tPatternList( Ik ) ) )
                         {
                             tPatternElement( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
                         }
@@ -455,7 +458,7 @@ namespace moris
 
             for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
             {
-                std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternListUnique( Ik ) ) + "Elements";
+                std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternList( Ik ) ) + "_Elements";
 
                 save_matrix_to_hdf5_file( mFileID,
                                           tSubsectionStr,
@@ -469,116 +472,82 @@ namespace moris
         void File::load_refinement_pattern( Background_Mesh_Base * aMesh,
                                             const bool             aMode )
         {
-            uint tBSplinePattern;
-            uint tLagrangePattern;
+            Matrix< DDUMat > tPatternListUniqueMat;
+            load_matrix_from_hdf5_file( mFileID,
+                                        "PatternInd",
+                                        tPatternListUniqueMat,
+                                        mStatus );
 
-            // check if we are loading input or output
-            if( aMode )
+            uint tMaxPatternInd = tPatternListUniqueMat.max();
+            Matrix< DDUMat > tPatternMap( tMaxPatternInd +1 , 1, MORIS_UINT_MAX );
+
+            uint tNumUniquePattern = tPatternListUniqueMat.numel();
+
+            for(uint Ik = 0; Ik < tNumUniquePattern; Ik++)
             {
-                tBSplinePattern  = aMesh->get_parameters()->get_bspline_output_pattern();
-                tLagrangePattern = aMesh->get_parameters()->get_lagrange_output_pattern();
+                tPatternMap( tPatternListUniqueMat( Ik ) ) = Ik;
             }
-            else
-            {
-                tBSplinePattern  = aMesh->get_parameters()->get_bspline_input_pattern();
-                tLagrangePattern = aMesh->get_parameters()->get_lagrange_input_pattern();
-            }
+
             // matrix containing counter
             Matrix< DDLUMat > tElementCounter;
-
-            // load counter
             load_matrix_from_hdf5_file( mFileID,
                                         "ElementCounter",
                                         tElementCounter,
                                         mStatus );
 
-            // allocate pattern
-            Matrix< DDLUMat > tBSplineElements;
-            load_matrix_from_hdf5_file( mFileID,
-                                        "BSplineElements",
-                                        tBSplineElements,
-                                        mStatus );
+            moris::Cell< Matrix< DDLUMat > > tPatternElement( tNumUniquePattern );
 
-            Matrix< DDLUMat > tLagrangeElements;
-            load_matrix_from_hdf5_file( mFileID,
-                                        "LagrangeElements",
-                                        tLagrangeElements,
-                                        mStatus );
+            for(uint Ik = 0; Ik<tNumUniquePattern; Ik++)
+            {
+                std::string tSubsectionStr = "Pattern_" + std::to_string( tPatternListUniqueMat( Ik ) ) + "_Elements";
+
+                // allocate pattern
+                Matrix< DDLUMat > tBSplineElements;
+                load_matrix_from_hdf5_file( mFileID,
+                                            tSubsectionStr,
+                                            tPatternElement( Ik ),
+                                            mStatus );
+            }
 
             // get number of levels
             uint tNumberOfLevels = tElementCounter.n_rows();
 
-            // select B-Spline pattern
-            aMesh->set_activation_pattern( tBSplinePattern );
-
-            // reset counter
-            luint tCount = 0;
-
-            // loop over all levels
-            for( uint l=0; l<tNumberOfLevels; ++l )
+            for(uint Ik = 0; Ik<tNumUniquePattern; Ik++)
             {
-                // cell which contains elements
-                Cell< Background_Element_Base* > tElements;
+                // reset counter
+                luint tCount = 0;
 
-                // collect elements from this level
-                aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+                // select B-Spline pattern
+                aMesh->set_activation_pattern( tPatternListUniqueMat( Ik ) );
 
-                // create a map with ids
-                map< moris_id, luint > tMap;
-
-                luint j = 0;
-                for( Background_Element_Base* tElement : tElements )
+                // loop over all levels
+                for( uint l=0; l<tNumberOfLevels; ++l )
                 {
-                    tMap[ tElement->get_hmr_id() ] = j++;
+                    // cell which contains elements
+                    Cell< Background_Element_Base* > tElements;
+
+                    // collect elements from this level
+                    aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                    // create a map with ids
+                    map< moris_id, luint > tMap;
+
+                    luint j = 0;
+                    for( Background_Element_Base* tElement : tElements )
+                    {
+                        tMap[ tElement->get_hmr_id() ] = j++;
+                    }
+
+                    luint tNumberOfElements = tElementCounter( l, Ik );
+
+                    for( luint k=0; k<tNumberOfElements; ++k )
+                    {
+                        tElements( tMap.find( tPatternElement( Ik )( tCount++ ) ) )->put_on_refinement_queue();
+                    }
+
+                    // refine mesh
+                    aMesh->perform_refinement( tPatternListUniqueMat( Ik ) );
                 }
-
-                luint tNumberOfElements = tElementCounter( l, 0 );
-
-                for( luint k=0; k<tNumberOfElements; ++k )
-                {
-                    tElements( tMap.find( tBSplineElements( tCount++ ) ) )->put_on_refinement_queue();
-                }
-
-                // refine mesh
-                aMesh->perform_refinement( tBSplinePattern );
-            }
-
-            // clone B-Spline to Lagrange
-            aMesh->copy_pattern( tBSplinePattern, tLagrangePattern );
-
-            // select Lagrange pattern
-            aMesh->set_activation_pattern( tLagrangePattern );
-
-            // reset counter
-            tCount = 0;
-
-            // loop over all levels
-            for( uint l=0; l<tNumberOfLevels; ++l )
-            {
-                // cell which contains elements
-                Cell< Background_Element_Base* > tElements;
-
-                // collect elements from this level
-                aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
-
-                // create a map with ids
-                map< moris_id, luint > tMap;
-
-                luint j = 0;
-                for( Background_Element_Base* tElement : tElements )
-                {
-                    tMap[ tElement->get_hmr_id() ] = j++;
-                }
-
-                luint tNumberOfElements = tElementCounter( l, 1 );
-
-                for( luint k=0; k<tNumberOfElements; ++k )
-                {
-                    tElements( tMap.find( tLagrangeElements( tCount++ ) ) )->put_on_refinement_queue();
-                }
-
-                // refine mesh
-                aMesh->perform_refinement( tLagrangePattern );
             }
 
             aMesh->update_database();

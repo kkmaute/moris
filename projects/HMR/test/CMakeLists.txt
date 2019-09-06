@@ -14,10 +14,11 @@ set(TEST_SOURCES
     cl_HMR_SideSets.cpp
     cl_HMR_L2.cpp
     cl_HMR_Integration_Mesh.cpp
-    cl_HMR_Lagrange_Elements.cpp )
+    cl_HMR_Lagrange_Elements.cpp
+    UT_HMR_IO.cpp )
 
 set(TEST_DEPENDENCIES
-	test-libs
+    test-libs
     ${HMR}-lib
     ${ALG}-lib
     ${MORIS_BASE_LIBS}

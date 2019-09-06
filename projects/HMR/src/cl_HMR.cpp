@@ -49,8 +49,6 @@ namespace moris
             this->create_input_and_output_meshes();
 
             mDatabase->calculate_t_matrices_for_input();
-
-            mDatabase->set_activation_pattern( 0 );       //FIXME is this needed
         }
 
 // -----------------------------------------------------------------------------
@@ -84,8 +82,6 @@ namespace moris
             this->create_input_and_output_meshes();
 
             mDatabase->calculate_t_matrices_for_input();
-
-            mDatabase->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -93,6 +89,7 @@ namespace moris
         HMR::HMR( const std::string & aInPath,
                   const std::string & aOutPath )
         {
+            MORIS_ERROR( false,"HMR(); constructor not updated yet");
             mDatabase = std::make_shared< Database >( aInPath, aOutPath );
 
             // set shared pointer of database to itself
@@ -122,29 +119,6 @@ namespace moris
 
         void HMR::finalize()
         {
-            //FIXME
-            // if mesh has not been refined, copy input to output before finalizing
-            if( ! mDatabase->have_refined_at_least_one_element() )
-            {
-                // copy input to output
-                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_bspline_input_pattern(),
-                                                                mParameters->get_bspline_output_pattern() );
-
-                // copy input to output
-                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_lagrange_input_pattern(),
-                                                                mParameters->get_lagrange_output_pattern() );
-
-                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_lagrange_input_pattern(),
-                                                                mParameters->get_union_pattern() );
-
-                // select output pattern
-                mDatabase->set_activation_pattern( mParameters->get_lagrange_output_pattern()  );
-
-                // update database
-                mDatabase->update_bspline_meshes();
-                mDatabase->update_lagrange_meshes();
-            }
-
             // finish database
             mDatabase->finalize();
         }
@@ -216,7 +190,6 @@ namespace moris
         void HMR::save_to_hdf5( const std::string & aPath,
                                 const uint          aLagrangeMeshIndex )
         {
-            MORIS_ERROR(false,"save_to_hdf5() not changed yet" );
             // create file object
             File tHDF5;
 
