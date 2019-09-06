@@ -59,12 +59,12 @@ public:
     mtk::Geometry_Type
     get_geometry_type() const { return mGeometryType; };
 
+
+    moris::Cell<moris::mtk::Vertex const *>
+    get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const;
+
     moris::Matrix<moris::DDRMat>
-    compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-    {
-        MORIS_ERROR(0,"compute_outward_side_normal has no default implementation");
-        return  moris::Matrix<moris::DDRMat>(0,0);
-    }
+    compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
 
     mtk::Interpolation_Order
     get_interpolation_order() const{ return mInterpOrder;};

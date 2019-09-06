@@ -216,6 +216,11 @@ private:
         return Geometry_Type::PLANE;
       }
 
+      else if(aGeometryStr == "Sphere Box")
+      {
+        return Geometry_Type::SPHERE_BOX;
+      }
+
       else
       {
         MORIS_ERROR(0,"Geometry str not recognized: %s.", aGeometryStr.c_str());

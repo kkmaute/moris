@@ -76,7 +76,6 @@ public:
     generate_templated_mesh(Matrix< IndexMat > const & aChildMeshIndices,
                             enum TemplateType          aTemplate);
 
-
     /*
      * Converts existing tet4 child mesh to tet10s
      *
@@ -268,10 +267,15 @@ public:
 
     /*!
      * pack interface side sets, if phase index not provided all are packaged
+     * flag  = 0 - ids
+     * flag  = 1- indices
+     * flag  = other - cm indices
      */
     moris::Matrix< moris::IdMat >
-    pack_interface_sides(bool aIndexFlag = false,
-                         moris::moris_index aPhaseIndex = MORIS_INDEX_MAX) const;
+    pack_interface_sides(moris_index aGeometryIndex,
+                         moris_index aPhaseIndex0,
+                         moris_index aPhaseIndex1,
+                         moris_index aIndexFlag              = 0) const;
     moris::Matrix< moris::IndexMat >
     pack_interface_sides_loc_inds() const;
 
@@ -280,6 +284,12 @@ public:
      */
     moris::Matrix<moris::IdMat>
     get_full_element_to_node_glob_ids();
+
+    /*
+     * Get full element to node connectivity (indices). Full here means for all children meshes
+     */
+    moris::Matrix<moris::IdMat>
+    get_full_element_to_node_loc_inds();
 
     /*
      * Get full element to node glob ids by phase
@@ -370,8 +380,6 @@ private:
 
     // topology of child elements (i.e. TET4)
     enum CellTopology mChildElementTopo;
-
-    // Interface
 
 private:
 

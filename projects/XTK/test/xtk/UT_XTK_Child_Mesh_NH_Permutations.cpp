@@ -596,6 +596,7 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             // Initialize child mesh with template (in this case a tet4)
             Child_Mesh tChildMesh(tMeshTemplate);
 
+            tChildMesh.add_new_geometry_interface(0);
 
             // add new node indices
             tChildMesh.add_node_indices({{4,5,6}});
@@ -775,6 +776,7 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             // Initialize child mesh with template (in this case a tet4)
             Child_Mesh tChildMesh(tMeshTemplate);
 
+            tChildMesh.add_new_geometry_interface(0);
 
             // add new node indices
             tChildMesh.add_node_indices({{4,5,6,7}});
@@ -943,6 +945,8 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         // Initialize child mesh with template (in this case a tet4)
         Child_Mesh tChildMesh(tMeshTemplate);
 
+        tChildMesh.add_new_geometry_interface(0);
+
         // add new node indices
         tChildMesh.add_node_indices({{4}});
         tChildMesh.add_node_ids(tNodeIds);
@@ -1108,6 +1112,8 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
 
         // Initialize child mesh with template (in this case a tet4)
         Child_Mesh tChildMesh(tMeshTemplate);
+
+        tChildMesh.add_new_geometry_interface(0);
 
         // add new node indices
         tChildMesh.add_node_indices({{4,5}});

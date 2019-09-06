@@ -110,12 +110,23 @@ namespace moris
             }
 
 //------------------------------------------------------------------------------
+
             /**
              * returns the interpolation order of the Lagrange Mesh
              */
             uint get_lagrange_pattern() const
             {
                 return mLagrangeMesh->get_activation_pattern();
+            }
+
+//------------------------------------------------------------------------------
+
+            /**
+             * returns the mesh index of the Lagrange Mesh
+             */
+            uint get_lagrange_mesh_index() const
+            {
+                return mLagrangeMesh->get_index();
             }
 
 //------------------------------------------------------------------------------

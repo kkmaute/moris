@@ -45,18 +45,43 @@ namespace moris{
 		        return GeomType::ANALYTIC;
 		    }
 		    //------------------------------------------------------------------------------
-		    void
-		    check_if_functions_are_set()
+		    bool
+		    check_if_function_is_set()
 		    {
-		        MORIS_ASSERT(mFuncAnalytic != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic function not set ");
-		        MORIS_ASSERT(mFuncAnalyticDphiDx != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): sensitivity function not set ");
+//		        MORIS_ASSERT(mFuncAnalytic != nullptr,"ge::GE_Analytic::check_if_function_is_set(): analytic function not set ");
+		        bool tBool;
+		        if ( mFuncAnalytic != nullptr )
+		        {
+		            tBool = true;
+		        }
+		        else
+		        {
+		            tBool = false;
+		        }
+		        return tBool;
+		    }
+		    //------------------------------------------------------------------------------
+		    bool
+		    check_if_sensitivity_function_is_set()
+		    {
+//		        MORIS_ASSERT(mFuncAnalyticDphiDx != nullptr,"ge::GE_Analytic::check_if_sensitivity_function_is_set(): analytic sensitivity function not set ");
+                bool tBool;
+                if ( mFuncAnalyticDphiDx != nullptr )
+                {
+                    tBool = true;
+                }
+                else
+                {
+                    tBool = false;
+                }
+                return tBool;
 		    }
 		    //------------------------------------------------------------------------------
 		    void
 		    set_my_constants( moris::Cell< real > aMyConstants )
-		            {
-		                mMyConstants = aMyConstants;
-		            }
+		    {
+		        mMyConstants = aMyConstants;
+		    }
 		    //------------------------------------------------------------------------------
 	        void
 	        set_my_mesh(mtk::Mesh_Manager* aMyMesh)
@@ -430,7 +455,6 @@ namespace moris{
                                                 Cell<moris::real>       & aRadius,
                                                 Cell<moris::real>       & aLength,
                                                 Cell<Cell<moris::real>> & aAxis ) = nullptr;
-
 
             fem::Interpolation_Type  mMySpaceInterpType;
             mtk::Interpolation_Order mMySpaceInterpOrder;

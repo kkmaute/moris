@@ -84,6 +84,15 @@ public:
     moris::Matrix<moris::IdMat>
     get_vertices_sharing(moris::Matrix<moris::IndexMat> const & aVertexIndices) const;
 
+    moris::Cell<moris::mtk::Vertex_XTK> const &
+    get_all_vertices();
+
+    /*!
+     * Get an mtk vertex
+     */
+    Cell<moris::mtk::Vertex const *>
+    get_mtk_vertices(Matrix<IndexMat> const & aVertexIndices);
+
     /*!
      * Get an mtk vertex
      */
@@ -204,7 +213,7 @@ public:
      * Returns whether a cell was in the original background mesh
      */
     bool
-    is_background_cell(moris::moris_index aNodeIndex) const;
+    is_background_cell(moris::moris_index aCellIndex) const;
 
     /*!
      * Return all node coordinates ordered by local indices
@@ -430,13 +439,13 @@ public:
     /*!
      * return the background mesh data
      */
-    moris::mtk::Mesh &
+    moris::mtk::Interpolation_Mesh &
     get_mesh_data();
 
     /*!
      * return const reference to background mesh data
      */
-    moris::mtk::Mesh const &
+    moris::mtk::Interpolation_Mesh const &
     get_mesh_data() const;
     // -------------------------------------------------------------------
 

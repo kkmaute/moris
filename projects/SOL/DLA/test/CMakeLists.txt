@@ -36,10 +36,6 @@ add_executable(${DLA_TEST} ${TEST_SOURCES})
 target_link_libraries(${DLA_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${DLA_TEST} PROPERTIES OUTPUT_NAME ${DLA_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${DLA_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${DLA_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(DLA_TEST_PROCS ${MORIS_TEST_PROCS})

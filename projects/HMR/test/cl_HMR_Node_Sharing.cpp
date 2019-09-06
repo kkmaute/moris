@@ -92,13 +92,10 @@ verify_HMR_node_sharing(HMR & aHMR,
 //            tField->evaluate_scalar_function( Node_Sharing_UT_Func );
 //
 //            // Flag elements with field from above
-//            tHMR.flag_volume_and_surface_elements( tField );
+//            tHMR.flag_volume_and_surface_elements_on_working_pattern( tField );
 //
 //            // Perform the refinement
 //            tHMR.perform_refinement_and_map_fields();
-//
-//            // Save the mesh to an exodus file
-//            tHMR.save_to_exodus( "Node_Share_Mesh.exo" );
 //
 //            // Collect node sharing information.
 //            if(par_size() == 2)

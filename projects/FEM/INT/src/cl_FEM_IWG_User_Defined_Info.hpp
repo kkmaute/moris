@@ -26,15 +26,15 @@ namespace moris
         protected :
 
             // IWGs type list
-            moris::Cell< fem::IWG_Type > mIWGTypeList;
+            moris::Cell< moris::Cell< fem::IWG_Type > > mIWGTypeList;
 
             // IWGs master dof type dependency list
             moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > mMasterDofTypes;
             moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > mSlaveDofTypes;
 
             // IWGs master property type dependency list
-            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > mMasterPropTypes;
-            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > mSlavePropTypes;
+            moris::Cell< moris::Cell< MSI::Property_Type > > mMasterPropTypes;
+            moris::Cell< moris::Cell< MSI::Property_Type > > mSlavePropTypes;
 
 //------------------------------------------------------------------------------
         public :
@@ -45,6 +45,17 @@ namespace moris
              */
             IWG_User_Defined_Info(){};
 
+            IWG_User_Defined_Info( const moris::Cell< moris::Cell< fem::IWG_Type > >                     & aIWGTypeList,
+                                   const moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > >      & aMasterDofTypes,
+                                   const moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > >      & aSlaveDofTypes,
+                                   const moris::Cell< moris::Cell< moris::Cell< MSI::Property_Type > > > & aMasterPropTypes,
+                                   const moris::Cell< moris::Cell< moris::Cell< MSI::Property_Type > > > & aSlavePropTypes)
+                                 : mIWGTypeList( aIWGTypeList ),
+                                   mMasterDofTypes( aMasterDofTypes ),
+                                   mSlaveDofTypes( aSlaveDofTypes ),
+                                   mMasterPropTypes( aMasterPropTypes ),
+                                   mSlavePropTypes( aSlavePropTypes )
+            {};
 
 //------------------------------------------------------------------------------
             /**

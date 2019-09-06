@@ -42,9 +42,10 @@ namespace ge
              *         nodal information container
              *
              *  @param[in] aGeometryPointer - pointer to geometry object
-             *  @param[in] aMyManager       - pointer to mesh manager
+             *  @param[in] aMyMeshIndex     - index of the mesh within the geometry object
              *  @param[in] aThreshold       - threshold value for current geometry LS function
              *
+             *  @param[out] index to the set geometry in the list of geometries
              */
             moris_index set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
                                       moris_index                   aMyMeshIndex = 0,
@@ -69,7 +70,7 @@ namespace ge
             /*
              * @brief return the nodal field vals from the specified NodalInfoObject
              *
-             * @param[in] aWhichGeom - Nwhich geometry representation
+             * @param[in] aWhichGeom  - aWhich geometry representation
              * @param[in] aWhichIndex - node/location to get information from
              *
              * @param[out] nodal information
@@ -80,11 +81,26 @@ namespace ge
                 return mListOfNodalInfoObjects( aWhichGeom ).get_field_vals( aWhichIndex );
             };
 
+            /*
+             * @brief returns all the nodal field values
+             */
+            Matrix< DDRMat > get_field_vals( moris_index aWhichGeom )
+            {
+                uint tNumOfIPNodes = mListOfNodalInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
+
+                Matrix< DDRMat > tLSVals(tNumOfIPNodes,1, 0.0);
+                for( uint n=0; n<tNumOfIPNodes; n++ )
+                {
+                    tLSVals(n) = this->get_field_vals( aWhichGeom, n )(0);
+                }
+                return tLSVals;
+            };
+
             //------------------------------------------------------------------------------
             /*
              * @brief return the nodal sensitivity vals from the specified NodalInfoObject
              *
-             * @param[in] aWhichGeom - which geometry representation
+             * @param[in] aWhichGeom  - which geometry representation
              * @param[in] aWhichIndex - node/location to get information from
              *
              * @param[out] nodal information
@@ -95,11 +111,26 @@ namespace ge
                 return mListOfNodalInfoObjects( aWhichGeom ).get_sensitivity_vals( aWhichIndex );
             };
 
+            /*
+             * @brief returns all the nodal sensitivity values
+             */
+            Cell< Matrix< DDRMat > > get_sensitivity_vals( moris_index aWhichGeom )
+            {
+                uint tNumOfIPNodes = mListOfNodalInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
+
+                Cell< Matrix< DDRMat > > tSensitivities( tNumOfIPNodes );
+                for( uint n=0; n<tNumOfIPNodes; n++ )
+                {
+                    tSensitivities(n) = this->get_sensitivity_vals( aWhichGeom, n );
+                }
+                return tSensitivities;
+            };
+
             //------------------------------------------------------------------------------
             /*
              * @brief return the nodal normals from the specified NodalInfoObject
              *
-             * @param[in] aWhichGeom - which geometry representation
+             * @param[in] aWhichGeom  - which geometry representation
              * @param[in] aWhichIndex - node/location to get information from
              *
              * @param[out] nodal information
@@ -114,8 +145,8 @@ namespace ge
             /*
              * @brief add a vertex to the nodal information object specified
              *
-             * @param[in] aVertex - vertex to be added to nodal information tables
-             * @param[in] aWhichGeom - which geometry representation
+             * @param[in] aVertex    - vertex to be added to nodal information tables
+             * @param[in] aWhichGeom - which geometry representation this is being added to
              */
             void add_vertex_and_value( mtk::Vertex &aVertex,
                                        moris_index  aWhichGeom )
@@ -126,15 +157,35 @@ namespace ge
             /*
              * @brief determine if there is an intersection
              *
-             * @param[in] aWhichGeom - Which geometry representation are we checking for intersection with?
-             * @param[in] aPrimitive - geometric primitive
+             * @param[in] aWhichGeom          - Which geometry representation are we checking for intersection with?
+             * @param[in] aIntersectionObject - intersection object to check with
+             *
+             * @param[out] index of the intersection point (if it exists)
              */
-            //fixme need to loop over all the geometry representations to determine intersection with all of them
-            void compute_intersection( moris_index aWhichGeom,
-                                       Intersection_Object_Line*  aIntersectionObject )
+            //fixme this is currently giving the intersection of a single dimension, should this loop over all dimensions and
+                 // determine the full intersection point (x,y,z,t) or just return the local coordinates?
+            moris_index compute_intersection( moris_index aWhichGeom,
+                                              Intersection_Object*  aIntersectionObject )
             {
-                return mListOfNodalInfoObjects( aWhichGeom ).compute_intersection(aIntersectionObject);
+                return mListOfNodalInfoObjects( aWhichGeom ).compute_intersection( aIntersectionObject );
             };
+            //------------------------------------------------------------------------------
+            /*
+             * @brief returns the intersection point
+             *
+             * @param[in] aWhichGeom          - Which geometry representation are we checking for intersection with?
+             * @param[in] aIntersectionObject - intersection object to check with
+             * @param[in] aWhichIntersection  - index of the intersection point to obtain
+             *
+             * @param[out] intersection point
+             */
+            Matrix< DDRMat > get_intersection_point( moris_index aWhichGeom,
+                                                     Intersection_Object*  aIntersectionObject,
+                                                     moris_index aWhichIntersection )
+            {
+                return mListOfNodalInfoObjects( aWhichGeom ).get_intersection_point( aIntersectionObject,
+                                                                                     aWhichIntersection );
+            }
             //------------------------------------------------------------------------------
             /*
              * @brief compute the LS value of a specified geometry representation at a specific coordinate
@@ -145,7 +196,7 @@ namespace ge
             real compute_value_at_point( Matrix< DDRMat > aCoordinate,
                                          moris_index  aWhichGeom )
             {
-                MORIS_ASSERT( this->get_geometry_pointer(aWhichGeom)->get_geom_type() == GeomType::ANALYTIC, "ge::GE_Core::compute_value_at_point(): currently only implemented for analytic geometry representation" );
+                MORIS_ASSERT( this->get_geometry_pointer(aWhichGeom)->get_geom_type() == GeomType::ANALYTIC, "ge::GE_Core::compute_value_at_point() - currently only implemented for analytic geometry representation" );
                 return mListOfNodalInfoObjects( aWhichGeom ).compute_value_at_point( aCoordinate );
             };
 
@@ -217,67 +268,67 @@ namespace ge
                     aCells.resize( tCount );
             }
             //------------------------------------------------------------------------------
-                        /*
-                         * @brief determines volume elements (cells)
-                         *
-                         * @param[in] aCells        - elements to be flagged for refinement
-                         * @param[in] aCandidates   - candidates for refinement
-                         * @param[in] aVertexValues - vertex values of scalar field
-                         * @param[in] aUpperBound   - upper bound of LS
-                         */
-                        void
-                        find_cells_within_levelset(
-                                      Cell< mtk::Cell * >      & aCells,
-                                      Cell< mtk::Cell * >      & aCandidates,
-                                      const  Matrix< DDRMat >  & aVertexValues,
-                                      const  uint                aUpperBound = 0.0 )
-                        {
+            /*
+             * @brief determines volume elements (cells)
+             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aUpperBound   - upper bound of LS
+             */
+            void
+            find_cells_within_levelset(
+                    Cell< mtk::Cell * >      & aCells,
+                    Cell< mtk::Cell * >      & aCandidates,
+                    const  Matrix< DDRMat >  & aVertexValues,
+                    const  uint                aUpperBound = 0.0 )
+            {
 
 
-                            // make sure that the field is a scalar field
-                            MORIS_ASSERT( aVertexValues.n_cols() == 1,
-                                    "find_cells_within_levelset() can only be performed on scalar fields" );
+                // make sure that the field is a scalar field
+                MORIS_ASSERT( aVertexValues.n_cols() == 1,
+                        "find_cells_within_levelset() can only be performed on scalar fields" );
 
-                            // make sure that node values are calculated
-                            //MORIS_ASSERT( tVertexValues.length() == aScalarField->get_num_nodes(),
-                            //        "number of field values does not match number of vertices on block" );
+                // make sure that node values are calculated
+                //MORIS_ASSERT( tVertexValues.length() == aScalarField->get_num_nodes(),
+                //        "number of field values does not match number of vertices on block" );
 
-                            // initialize output cell
-                            aCells.resize( aCandidates.size(), nullptr );
+                // initialize output cell
+                aCells.resize( aCandidates.size(), nullptr );
 
-                            // initialize counter
-                            uint tCount = 0;
+                // initialize counter
+                uint tCount = 0;
 
-                            // loop over all candidates
-                            for( mtk::Cell * tCell : aCandidates )
-                            {
-                                // get cell of vertex pointers
-                                Cell< mtk::Vertex * > tVertices = tCell->get_vertex_pointers();
+                // loop over all candidates
+                for( mtk::Cell * tCell : aCandidates )
+                {
+                    // get cell of vertex pointers
+                    Cell< mtk::Vertex * > tVertices = tCell->get_vertex_pointers();
 
-                                // get number of vertices on this element
-                                uint tNumberOfVertices = tVertices.size();
+                    // get number of vertices on this element
+                    uint tNumberOfVertices = tVertices.size();
 
-                                // assign matrix with vertex values
-                                Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
+                    // assign matrix with vertex values
+                    Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
 
-                                // loop over all vertices and extract scalar field
-                                for( uint k=0; k<tNumberOfVertices; ++k )
-                                {
-                                    // copy value from field into element local matrix
-                                    tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
-                                }
+                    // loop over all vertices and extract scalar field
+                    for( uint k=0; k<tNumberOfVertices; ++k )
+                    {
+                        // copy value from field into element local matrix
+                        tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
+                    }
 
-                                // test if cell is inside
-                                if(  tCellValues.max() <= aUpperBound )
-                                {
-                                    // copy pointer to output
-                                    aCells( tCount++ ) = tCell;
-                                }
-                            }
+                    // test if cell is inside
+                    if(  tCellValues.max() <= aUpperBound )
+                    {
+                        // copy pointer to output
+                        aCells( tCount++ ) = tCell;
+                    }
+                }
 
-                            // shrink output to fit
-                            aCells.resize( tCount );
-                        }
+                // shrink output to fit
+                aCells.resize( tCount );
+            }
 //------------------------------------------------------------------------------
         private:
             // all corresponding information has the same index in each list (e.g. geom*(0) has corresponding threshold(0) and nodal information(0))

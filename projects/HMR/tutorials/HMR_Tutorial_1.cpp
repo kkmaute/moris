@@ -201,7 +201,7 @@ main(
        * tHMR.flag_volume_and_surface_elements( tField );
        * \endcode
        */
-      tHMR.flag_volume_and_surface_elements( tField );
+      tHMR.flag_volume_and_surface_elements_on_working_pattern( tField );
 
       /*!
        * One all elements are flagged for the refinement, a procedure is

@@ -144,6 +144,13 @@ namespace moris
             }
 
 //--------------------------------------------------------------------------------
+
+            virtual uint get_num_children() const
+            {
+                MORIS_ERROR( false, "get_num_children(); not implemented");
+                return 0;
+            };
+//--------------------------------------------------------------------------------
             /**
              * Needed for the initialization process of the coarsest elements.
              * If the element is set as active, it can't be refined or be
@@ -163,7 +170,7 @@ namespace moris
                 // an active element is not a padding element
                 mPaddingFlag = false;
 
-                // refine parents ( this is safe but not necessary )
+                // refine parents ( this is safe but not necessary )    FIXME
                 if( mLevel > 0 )
                 {
                     if( ! mParent->is_refined( aPattern ) )
@@ -285,6 +292,7 @@ namespace moris
              */
             bool is_refined( const uint & aPattern ) const
             {
+                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_refined(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
                 return mRefinedFlags.test( aPattern );
             }
 
@@ -297,6 +305,7 @@ namespace moris
              */
             bool is_active( const uint & aPattern ) const
             {
+                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_active(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
                 return mActiveFlags.test( aPattern );
             }
 
@@ -307,6 +316,7 @@ namespace moris
              */
             bool is_deactive ( const uint & aPattern )
             {
+                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_deactive(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
                 return ! ( mActiveFlags.test( aPattern )|| mRefinedFlags.test( aPattern ) );
             }
 
@@ -395,6 +405,22 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
+            void check_refinement_queue_for_pattern( const uint aPattern )
+            {
+                if( this->is_deactive( aPattern ) )
+                {
+                    mRefinementQueueFlag = false;
+
+                    mParent->check_refinement_queue_for_pattern( aPattern );
+                }
+                else
+                {
+                    mRefinementQueueFlag = true;
+                }
+            }
+
+//--------------------------------------------------------------------------------
+
             /**
              * Returns a pointer to the parent of an element. If the element
              * is on level zero, a null pointer will be returned.
@@ -432,6 +458,10 @@ namespace moris
              * @return Background_Element_Base *  pointer to selected child
              */
             virtual Background_Element_Base * get_child( const uint& aIndex ) = 0;
+
+//--------------------------------------------------------------------------------
+
+            virtual Background_Element_Base * get_child( const uint& aIndex ) const = 0;
 
 //--------------------------------------------------------------------------------
 

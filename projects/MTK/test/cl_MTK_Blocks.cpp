@@ -5,7 +5,6 @@
  *      Author: schmidt
  */
 
-#include "../src/stk_impl/cl_MTK_Mesh_STK.hpp"
 #include "catch.hpp"
 
 // implementations to test

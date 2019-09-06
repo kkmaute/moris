@@ -37,7 +37,6 @@
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
-#include "cl_MTK_Mesh_XTK_Impl.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 
 namespace xtk
@@ -52,7 +51,7 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         bool tOutputEnrichmentFields = true;
 
         // Generate mesh from string
-        std::string tMeshFileName     = "generated:1x1x3";
+        std::string tMeshFileName     = "generated:1x1x3|sideset:XzZ";
 
         // Add level set field to add onto file
 
@@ -113,11 +112,8 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
          */
         tXTKModel.decompose(tDecompositionMethods);
 
-        // unzip
-        tXTKModel.unzip_interface();
-
         // Perform the enrichment
-        tXTKModel.perform_basis_enrichment();
+        tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
         // get the enriched interpolation mesh
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -128,9 +124,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
 
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-
-
 
         // Declare the fields related to enrichment strategy in output options
         Cell<std::string> tEnrichmentFieldNames;
@@ -261,11 +254,15 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
          * Decompose
          */
         tXTKModel.decompose(tDecompositionMethods);
-        tXTKModel.unzip_interface();
-
 
         // Perform the enrichment
-        tXTKModel.perform_basis_enrichment();
+        tXTKModel.perform_basis_enrichment(EntityRank::NODE);
+
+        // get the enriched interpolation mesh
+        Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+
+        tEnrInterpMesh.print();
+
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 

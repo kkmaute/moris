@@ -49,8 +49,6 @@ namespace moris
             this->create_input_and_output_meshes();
 
             mDatabase->calculate_t_matrices_for_input();
-
-            mDatabase->set_activation_pattern( 0 );       //FIXME is this needed
         }
 
 // -----------------------------------------------------------------------------
@@ -84,8 +82,6 @@ namespace moris
             this->create_input_and_output_meshes();
 
             mDatabase->calculate_t_matrices_for_input();
-
-            mDatabase->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
         }
 
 // -----------------------------------------------------------------------------
@@ -93,6 +89,7 @@ namespace moris
         HMR::HMR( const std::string & aInPath,
                   const std::string & aOutPath )
         {
+            MORIS_ERROR( false,"HMR(); constructor not updated yet");
             mDatabase = std::make_shared< Database >( aInPath, aOutPath );
 
             // set shared pointer of database to itself
@@ -105,11 +102,6 @@ namespace moris
 
             // create union of input and output
             mDatabase->create_union_pattern();
-
-//            if( mParameters->get_max_polynomial() > 2 )
-//            {
-//                mDatabase->add_extra_refinement_step_for_exodus();
-//            }
 
             // update database
             mDatabase->update_bspline_meshes();
@@ -127,143 +119,52 @@ namespace moris
 
         void HMR::finalize()
         {
-            // if mesh has not been refined, copy input to output before finalizing
-            if( ! mDatabase->have_refined_at_least_one_element() )
-            {
-                // copy input to output
-                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_bspline_input_pattern(),
-                                                                mParameters->get_bspline_output_pattern() );
-
-                // copy input to output
-                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_lagrange_input_pattern(),
-                                                                mParameters->get_lagrange_output_pattern() );
-
-                mDatabase->get_background_mesh()->copy_pattern( mParameters->get_lagrange_input_pattern(),
-                                                                mParameters->get_union_pattern() );
-
-                // select output pattern
-                mDatabase->set_activation_pattern( mParameters->get_lagrange_output_pattern()  );
-
-                // update database
-                mDatabase->update_bspline_meshes();
-                mDatabase->update_lagrange_meshes();
-            }
-
             // finish database
             mDatabase->finalize();
         }
-// -----------------------------------------------------------------------------
-
-        void HMR::save_to_exodus( const std::string & aPath,
-                                  const uint          aOutputOrder,
-                                  const double        aTimeStep )
-        {
-            uint tOutputOrder = MORIS_UINT_MAX;
-            uint tIndex = MORIS_UINT_MAX;
-
-            if( aOutputOrder == 0 )
-            {
-//                tOutputOrder = mParameters->get_lagrange_orders().max();       //FIXME
-                tOutputOrder = 1;
-            }
-            else
-            {
-                tOutputOrder = aOutputOrder;
-            }
-
-            if( tOutputOrder > 2 )
-            {
-                // we can't output a cubic mesh
-                tIndex = mParameters->get_refined_output_mesh();
-            }
-            else
-            {
-//                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );         //FIXME
-                tIndex = this->get_mesh_index( tOutputOrder, 2 );
-            }
-
-            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
-
-            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
-                    "Picked wrong mesh for output");
-
-            this->save_to_exodus( tIndex,
-                                  aPath,
-                                  aTimeStep );
-        }
 
 // -----------------------------------------------------------------------------
 
-        void HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
-        {
-            uint tOutputOrder = MORIS_UINT_MAX;
-            uint tIndex = MORIS_UINT_MAX;
-
-            if( aOutputOrder == 0 )
-            {
-                tOutputOrder = mParameters->get_lagrange_orders().max();
-            }
-            else
-            {
-                tOutputOrder = aOutputOrder;
-            }
-
-            if( tOutputOrder > 2 )
-            {
-                // we can't output a cubic mesh
-                tIndex = mParameters->get_refined_output_mesh();
-            }
-            else
-            {
-                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_output_pattern() );
-            }
-
-            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
-
-            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
-                    "Picked wrong mesh for output");
-
-            mDatabase->get_lagrange_mesh_by_index( tIndex )->nodes_renumbering_hack_for_femdoc();
-
-            this->save_to_exodus( tIndex,
-                                  aPath,
-                                  aTimeStep );
-        }
+//        void HMR::renumber_and_save_to_exodus( const std::string & aPath, const double aTimeStep,  const uint aOutputOrder )
+//        {
+//            MORIS_ERROR(false,"renumber_and_save_to_exodus() not changed yet" );
+//            uint tOutputOrder = MORIS_UINT_MAX;
+//            uint tIndex = MORIS_UINT_MAX;
+//
+//            if( aOutputOrder == 0 )
+//            {
+//                tOutputOrder = mParameters->get_lagrange_orders().max();
+//            }
+//            else
+//            {
+//                tOutputOrder = aOutputOrder;
+//            }
+//
+//
+//            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
+//
+//            MORIS_ASSERT( mDatabase->get_lagrange_mesh_by_index( tIndex )->get_order() == tOutputOrder,
+//                    "Picked wrong mesh for output");
+//
+//            mDatabase->get_lagrange_mesh_by_index( tIndex )->nodes_renumbering_hack_for_femdoc();
+//
+//            this->save_to_exodus( tIndex,
+//                                  aPath,
+//                                  aTimeStep );
+//        }
 
 // -----------------------------------------------------------------------------
 
-        void HMR::save_last_step_to_exodus( const std::string & aPath,
-                                            const double aTimeStep,
-                                            const uint aOutputOrder )
+        void HMR::save_last_step_to_exodus( const uint          aIndex,
+                                            const std::string & aPath,
+                                            const double        aTimeStep )
         {
             MORIS_ERROR( ! mUpdateRefinementCalled,
                     "HMR does not feel comfortable with you calling save_last_step_to_exodus() after you have overwritten the input pattern using update_refinement_pattern()");
 
-            uint tOutputOrder = MORIS_UINT_MAX;
-            uint tIndex = MORIS_UINT_MAX;
+            MORIS_ERROR( aIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
 
-            if( aOutputOrder == 0 )
-            {
-                tOutputOrder = mParameters->get_lagrange_orders().max();
-            }
-            else
-            {
-                tOutputOrder = aOutputOrder;
-            }
-
-            if( tOutputOrder > 2 )
-            {
-                // we cant output a cubic mesh
-                tIndex = mParameters->get_refined_output_mesh();
-            }
-            else
-            {
-                tIndex = this->get_mesh_index( tOutputOrder, mParameters->get_lagrange_input_pattern() );
-            }
-
-            MORIS_ERROR( tIndex != MORIS_UINT_MAX, "Something went wrong while trying to find mesh for exodus file" );
-
-            this->save_to_exodus( tIndex,
+            this->save_to_exodus( aIndex,
                                   aPath,
                                   aTimeStep );
         }
@@ -286,7 +187,8 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::save_to_hdf5( const std::string & aPath )
+        void HMR::save_to_hdf5( const std::string & aPath,
+                                const uint          aLagrangeMeshIndex )
         {
             // create file object
             File tHDF5;
@@ -297,6 +199,8 @@ namespace moris
             // store settings object
             tHDF5.save_settings( mParameters );
 
+            Lagrange_Mesh_Base * tLagrangeMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
+
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
 
@@ -304,7 +208,7 @@ namespace moris
             auto tActivePattern = tBackgroundMesh->get_activation_pattern();
 
             // save output pattern into file
-            tHDF5.save_refinement_pattern( tBackgroundMesh );
+            tHDF5.save_refinement_pattern( tLagrangeMesh );
 
             if( tActivePattern != tBackgroundMesh->get_activation_pattern() )
             {
@@ -319,6 +223,7 @@ namespace moris
 
         void HMR::save_coeffs_to_hdf5_file( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_coeffs_to_hdf5_file() not changed yet" );
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
 
@@ -476,6 +381,7 @@ namespace moris
 
         void HMR::renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"renumber_and_save_coeffs_to_hdf5_file_HACK() not changed yet" );
             // get pointer to output mesh
             Lagrange_Mesh_Base * tMesh = nullptr;
 
@@ -616,6 +522,7 @@ namespace moris
 
         void HMR::save_mesh_relations_to_hdf5_file( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_mesh_relations_to_hdf5_file() not changed yet" );
             // get pointer to output mesh
             BSpline_Mesh_Base * tMesh = nullptr;
 
@@ -770,28 +677,17 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::flag_elements(       Cell< mtk::Cell* > & aElements,
-                                 const uint                 aMinRefinementLevel )
+        void HMR::flag_elements_on_working_pattern(       Cell< hmr::Element* > & aElements,
+                                                    const uint                    aMinRefinementLevel )
         {
             // get  working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
-            // get pointer to background mesh
-            Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
-
-            // use Lagrange pattern for flagging
-            tBackgroundMesh->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
-
-            // pick any lagrange mesh ( it really doesn't matter which one )
-            Lagrange_Mesh_Base * tLagrangeMesh = mDatabase->get_lagrange_mesh_by_index( 0 );
-
             // loop over all active elements
-            for( mtk::Cell* tCell :  aElements )
+            for( hmr::Element* tCell : aElements )
             {
                 // get pointer to Background Element
-                // ( the input elements are general mtk::cells, so they might not have any )
-                Background_Element_Base * tElement = tLagrangeMesh->get_element_by_memory_index( tCell->get_memory_index_of_background_element() )
-                                                                                                      ->get_background_element();
+                Background_Element_Base * tElement = tCell->get_background_element();
 
                 // put this element on the list
                 tElement->set_refined_flag( tWorkingPattern );
@@ -813,69 +709,43 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::perform_refinement( const enum RefinementMode aRefinementMode,
-                                      const uint                aPattern )
+        void HMR::put_elements_on_refinment_queue( Cell< hmr::Element* > & aElements )
+        {
+            // loop over all active elements
+            for( hmr::Element* tCell :  aElements )
+            {
+                tCell->get_background_element()->put_on_refinement_queue();
+            }
+        }
+
+// -----------------------------------------------------------------------------
+
+        void HMR::perform_refinement_based_on_working_pattern( const uint aPattern )
         {
             // refine database and remember flag
-            mDatabase->perform_refinement( aRefinementMode, aPattern, ! mPerformRefinementCalled );
+            mDatabase->perform_refinement( aPattern, ! mPerformRefinementCalled );
 
-            switch( aRefinementMode )
-            {
-                case( RefinementMode::SIMPLE ) :
-                case( RefinementMode::BSPLINE_INIT ) :
-                case( RefinementMode::LAGRANGE_REFINE ) :
-                {
-                    // remember that refinement has been called
-                    mPerformRefinementCalled = true;
-                    break;
-                }
-                default :
-                {
-                    /* do nothing */
-                    break;
-                }
-            }
+            // remember that refinement has been called
+            mPerformRefinementCalled = true;
+        }
+
+// -----------------------------------------------------------------------------
+
+        void HMR::perform_refinement( const uint aPattern )
+        {
+            // refine database and remember flag
+            mDatabase->get_background_mesh()->perform_refinement( aPattern );
+
+            // remember that refinement has been called
+            mPerformRefinementCalled = true;
         }
 
 // -----------------------------------------------------------------------------
 
         void HMR::update_refinement_pattern( const uint aPattern )
         {
-//            mDatabase->copy_pattern( mParameters->get_bspline_output_pattern(),
-//                                     mParameters->get_bspline_input_pattern() );
-//
-//            mDatabase->copy_pattern( mParameters->get_lagrange_output_pattern(),
-//                                     mParameters->get_lagrange_input_pattern() );
-
-            // get number of bspline meshes
-            uint tNumberOfBsplineMeshes = mDatabase->get_number_of_bspline_meshes();
-
-            // update bspline meshes
-            for( uint k = 0; k < tNumberOfBsplineMeshes; ++k )
-            {
-                // get pointer to bspline mesh
-                BSpline_Mesh_Base * tMesh = mDatabase->get_bspline_mesh_by_index( k );
-
-                if( tMesh->get_activation_pattern() == aPattern )
-                {
-                    tMesh->update_mesh();
-                }
-            }
-
-            // get number of bspline meshes
-            uint tNumberOfLagrangeMeshes = mDatabase->get_number_of_lagrange_meshes();
-
-            // update lagrange meshes
-            for( uint k = 0; k < tNumberOfLagrangeMeshes; ++k )
-            {
-                // get pointer to bspline mesh
-                Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                if( tMesh->get_activation_pattern() == aPattern )
-                {
-                    tMesh->update_mesh();
-                }
-            }
+            mDatabase->update_bspline_meshes( aPattern );
+            mDatabase->update_lagrange_meshes( aPattern );
 
             // set flag that this function has been called
             mUpdateRefinementCalled = true;
@@ -885,6 +755,7 @@ namespace moris
 
         std::shared_ptr< Mesh > HMR::create_mesh()
         {
+            MORIS_ERROR(false,"create_mesh() not changed yet" );
             return std::make_shared< Mesh >( mDatabase,
                                              mParameters->get_lagrange_orders().max(),
                                              mParameters->get_lagrange_output_pattern() );
@@ -959,6 +830,7 @@ namespace moris
 
         std::shared_ptr< Field > HMR::create_field( const std::string & aLabel )
         {
+            MORIS_ERROR(false,"create_field() not changed yet" );
             return this->create_field( aLabel,
                                        mParameters->get_lagrange_orders().max(),
                                        mParameters->get_bspline_orders().max() );
@@ -984,6 +856,7 @@ namespace moris
 
         std::shared_ptr< Field > HMR::create_field( const Field_Param & aParameters )
         {
+            MORIS_ERROR(false,"create_field() not changed yet" );
             MORIS_LOG_INFO( "%s Loading field %s from file %s.\n\n",
                     proc_string().c_str(),
                     aParameters.mLabel.c_str(),
@@ -1019,6 +892,7 @@ namespace moris
 
         void HMR::save_bsplines_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_bsplines_to_vtk() not changed yet" );
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
                 // pick mesh
@@ -1039,6 +913,7 @@ namespace moris
 
         void HMR::save_faces_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_faces_to_vtk() not changed yet" );
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
                 // pick mesh
@@ -1057,6 +932,7 @@ namespace moris
 
         void HMR::save_edges_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_edges_to_vtk() not changed yet" );
             if( mParameters->get_number_of_dimensions() == 3 )
             {
                 for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
@@ -1082,6 +958,7 @@ namespace moris
 
         void HMR::save_mesh_to_vtk( const std::string & aFilePath )
         {
+            MORIS_ERROR(false,"save_mesh_to_vtk() not changed yet" );
             for( uint k=0; k<mDatabase->get_number_of_lagrange_meshes(); ++k  )
             {
                 // pick mesh
@@ -1103,6 +980,7 @@ namespace moris
                                                                  const uint          aLagrangeOrder,
                                                                  const uint          aBSpineOrder )
         {
+            MORIS_ERROR(false,"load_field_from_hdf5_file() not changed yet" );
             //if(  mParameters->get_renumber_lagrange_nodes() )
             //{
             //    MORIS_ERROR(false, "HMR::load_field_from_hdf5_file(): The option renumber lagrange nodes is not implemented ");
@@ -1187,6 +1065,7 @@ namespace moris
                                                                 const uint          aLagrangeOrder,
                                                                 const uint          aBSpineOrder )
         {
+            MORIS_ERROR(false,"load_field_from_exo_file() not changed yet" );
             // create mesh object
             mtk::Mesh * tMesh = mtk::create_mesh( MeshType::STK, aFilePath, nullptr, false );
 
@@ -1327,6 +1206,7 @@ namespace moris
                                                             const uint          aLagrangeOrder,
                                                             const uint          aBSpineOrder )
         {
+            MORIS_ERROR(false,"load_field_from_file() not changed yet" );
             // detect file type
             std::string tType = aFilePath.substr( aFilePath.find_last_of(".")+1, aFilePath.length() );
 
@@ -1344,79 +1224,35 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void HMR::create_input_and_output_meshes()       //FIXME
+        void HMR::create_input_and_output_meshes()
         {
             // clear memory
             mMeshes.clear();
 
-            // get orders for Lagrange meshes from patterns
-//            Matrix< DDUMat > tOrders;
-//            unique( mParameters->get_lagrange_orders(), tOrders );
-
             // get number of Lagrange meshes
             uint tNumberOfMeshes =  mParameters->get_number_of_lagrange_meshes();
-
-//            mLagrangeOrderToInputMeshIndexMap.set_size( 4, 1, MORIS_UINT_MAX );
 
             // create meshes
             for( uint Ik=0; Ik<tNumberOfMeshes; ++Ik )
             {
-//                mLagrangeOrderToInputMeshIndexMap( tOrders( k ) ) = k;
-//                mMeshes.push_back(  this->create_mesh( mParameters->get_lagrange_order( Ik ), mParameters->get_lagrange_pattern( Ik ) ) );
                 mMeshes.push_back(  this->create_mesh( Ik ) );
             }
         }
 
 // ----------------------------------------------------------------------------
 
-        void HMR::perform_initial_refinement()
+        void HMR::perform_initial_refinement( const uint aPattern )
         {
             // get minimum refinement from parameters object
-            uint tInitialRefinement = mParameters->get_initial_bspline_refinement();
+            uint tInitialRefinement = mParameters->get_initial_refinement();
 
-            // get pointer to background mesh
-            Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
-
-            // get number of active elements on mesh
-            uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
-
-            // flag all elements
-            for( uint e=0; e<tNumberOfElements; ++e )
+            for( uint Ik=0; Ik<tInitialRefinement; ++Ik )
             {
-                // get pointer to background element
-                Background_Element_Base * tElement = tBackMesh->get_element( e );
-
-                // set minumum level for this element
-                tElement->set_min_refimenent_level( tInitialRefinement );
-
-                // flag this element
-                tElement->put_on_refinement_queue();
-            }
-
-            // run the refiner
-            this->perform_refinement( RefinementMode::BSPLINE_INIT );
-
-            if( mParameters->get_additional_lagrange_refinement()  == 0 )
-            {
-                // union pattern is needed, otherwise error is thrown
-//                this->get_database()->copy_pattern( mParameters->get_lagrange_output_pattern(),
-//                                                    mParameters->get_union_pattern() );
-
-                // update database
-                mDatabase->update_bspline_meshes();
-                mDatabase->update_lagrange_meshes();
-            }
-            else
-            {
-                MORIS_ERROR(false, "not implemented yet");
-                // select B-Spline flags on output for second flagging
-                this->get_database()->set_activation_pattern( mParameters->get_bspline_output_pattern() );
-
-                // add delta for Lagrange
-                tInitialRefinement += mParameters->get_additional_lagrange_refinement();
+                // get pointer to background mesh
+                Background_Mesh_Base * tBackMesh =  mDatabase->get_background_mesh();
 
                 // get number of active elements on mesh
-                tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+                uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
 
                 // flag all elements
                 for( uint e=0; e<tNumberOfElements; ++e )
@@ -1424,15 +1260,57 @@ namespace moris
                     // get pointer to background element
                     Background_Element_Base * tElement = tBackMesh->get_element( e );
 
-                    // set minumum level for this element
-                    tElement->set_min_refimenent_level( tInitialRefinement );
+//                    // set minumum level for this element
+//                    tElement->set_min_refimenent_level( tInitialRefinement );         //FIXME
 
                     // flag this element
                     tElement->put_on_refinement_queue();
                 }
 
-                this->perform_refinement( RefinementMode::LAGRANGE_INIT );
+                // run the refiner
+                this->perform_refinement_based_on_working_pattern( aPattern );
+
+                mDatabase->update_bspline_meshes( aPattern );
+                mDatabase->update_lagrange_meshes( aPattern );
             }
+
+//            if( mParameters->get_additional_lagrange_refinement()  == 0 )
+//            {
+//                // union pattern is needed, otherwise error is thrown
+////                this->get_database()->copy_pattern( mParameters->get_lagrange_output_pattern(),
+////                                                    mParameters->get_union_pattern() );
+//
+//                // update database
+////                mDatabase->update_bspline_meshes();
+////                mDatabase->update_lagrange_meshes();
+//            }
+//            else
+//            {
+//                MORIS_ERROR(false, "not implemented yet");
+//                // select B-Spline flags on output for second flagging
+//                this->get_database()->set_activation_pattern( mParameters->get_bspline_output_pattern() );
+//
+//                // add delta for Lagrange
+//                tInitialRefinement += mParameters->get_additional_lagrange_refinement();
+//
+//                // get number of active elements on mesh
+//                tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
+//
+//                // flag all elements
+//                for( uint e=0; e<tNumberOfElements; ++e )
+//                {
+//                    // get pointer to background element
+//                    Background_Element_Base * tElement = tBackMesh->get_element( e );
+//
+//                    // set minumum level for this element
+//                    tElement->set_min_refimenent_level( tInitialRefinement );
+//
+//                    // flag this element
+//                    tElement->put_on_refinement_queue();
+//                }
+//
+//                this->perform_refinement( RefinementMode::LAGRANGE_INIT );
+//            }
         }
 
 // ----------------------------------------------------------------------------
@@ -1444,6 +1322,8 @@ namespace moris
                         Cell< std::shared_ptr< Field > > & aFields,
                         ParameterList              & aParameters )
         {
+            MORIS_ERROR(false,"user_defined_flagging() not changed yet" );
+            MORIS_ERROR(false, "HMR::perform_initial_refinement() this function is not udated yet ");
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
 
@@ -1551,54 +1431,32 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        uint HMR::get_mesh_index( const uint aOrder, const uint aPattern )
-        {
-            uint aIndex = MORIS_UINT_MAX;
-
-            // find correct output mesh
-            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
-            for( uint k=0; k<tNumberOfMeshes; ++k )
-            {
-                auto tMesh = mDatabase->get_lagrange_mesh_by_index( k );
-
-                if(        tMesh->get_activation_pattern() == aPattern
-                        && tMesh->get_order() == aOrder )
-                {
-                    aIndex = k;
-                    break;
-                }
-            }
-
-            return aIndex;
-        }
-
-// ----------------------------------------------------------------------------
-
-        void HMR::get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
-                                                 const uint                 aPattern,
-                                                 const uint                 aMaxLevel )
+        void HMR::get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
+                                                 const uint                    aLagrangeMeshIndex)
         {
             // reset candidate list
             aCandidates.clear();
 
+            // Get Lagrange mesh pattern
+            uint tPattern = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->get_activation_pattern();
+
             // make sure that input pattern is active
-            mDatabase->set_activation_pattern( aPattern );
+            mDatabase->set_activation_pattern( tPattern );
 
             // get pointer to background mesh
             Background_Mesh_Base * tBackgroundMesh = mDatabase->get_background_mesh();
 
+            uint tMaxLevel = tBackgroundMesh->get_max_level();
+
             // pick first Lagrange mesh on input pattern
             // fixme: add option to pick another one
-            Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( 0 );
-
-            // get max level of this mesh
-            //uint tMaxLevel = std::min( tBackgroundMesh->get_max_level(), aMaxLevel );
+            Lagrange_Mesh_Base * tMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 
             // counter for elements
             uint tCount = 0;
 
-            // loop over all levels
-            for( uint l = 0; l < aMaxLevel; ++l )
+            // loop over all levels and determine size of Cell
+            for( uint l = 0; l <= tMaxLevel; ++l )
             {
                 Cell< Background_Element_Base * > tBackgroundElements;
 
@@ -1607,8 +1465,8 @@ namespace moris
                 // element must be active or refined
                 for( Background_Element_Base * tElement : tBackgroundElements )
                 {
-                    if( ( tElement->is_active( aPattern ) ||  tElement->is_refined( aPattern ) )
-                            && ! tElement->is_padding() )
+                    // if element  is active or refined but not padding
+                    if( ( tElement->is_active( tPattern ) || tElement->is_refined( tPattern ) ) && ! tElement->is_padding() )
                     {
                         // increment counter
                         ++tCount;
@@ -1622,7 +1480,7 @@ namespace moris
             // reset counter
             tCount = 0;
             // loop over all levels
-            for( uint l=0; l<aMaxLevel; ++l )
+            for( uint l=0; l<=tMaxLevel; ++l )
             {
                 Cell< Background_Element_Base * > tBackgroundElements;
                 tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
@@ -1630,8 +1488,7 @@ namespace moris
                 // element must be active or refined
                 for(  Background_Element_Base * tElement : tBackgroundElements )
                 {
-                    if( ( tElement->is_active( aPattern ) ||  tElement->is_refined( aPattern ) )
-                            && ! tElement->is_padding() )
+                    if( ( tElement->is_active( tPattern ) ||  tElement->is_refined( tPattern ) ) && ! tElement->is_padding() )
                     {
                         aCandidates( tCount++ ) = tMesh->get_element_by_memory_index( tElement->get_memory_index() );
                     }
@@ -1640,53 +1497,49 @@ namespace moris
         }
 // -----------------------------------------------------------------------------
 
-        uint HMR::flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField )
+        uint HMR::flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField )
         {
+//            MORIS_ERROR(false, "HMR::perform_initial_refinement() this function is not udated yet ");
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
-            // create geometry engine
-            ge::GE_Core tRefMan;
-
             // candidates for refinement
-            Cell< mtk::Cell*  > tCandidates;
+            Cell< hmr::Element*  > tCandidates;
 
             // elements to be flagged for refinement
-            Cell< mtk::Cell* > tRefinementList;
+            Cell< hmr::Element* > tRefinementList;
 
-            uint tPattern = aScalarField->get_lagrange_pattern();
+            uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                                                 tPattern,
-                                                 aScalarField->get_max_surface_level() );
+                                                 tLagrangeMeshIndex );
 
             // call refinement manager and get intersected cells
-            tRefMan.find_cells_intersected_by_levelset( tRefinementList,
-                                                        tCandidates,
-                                                        aScalarField->get_node_values() );
+            this->find_cells_intersected_by_levelset( tRefinementList,
+                                                      tCandidates,
+                                                      aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
             // flag elements in HMR
-            this->flag_elements( tRefinementList, aScalarField->get_min_surface_level() );
+            this->flag_elements_on_working_pattern( tRefinementList, aScalarField->get_min_surface_level() );
 
             // get candidates from volume
             this->get_candidates_for_refinement( tCandidates,
-                                                 tPattern,
-                                                 aScalarField->get_max_volume_level() );
+                                                 tLagrangeMeshIndex);
 
             // call refinement manager and get volume cells
-            tRefMan.find_cells_within_levelset( tRefinementList,
-                    tCandidates,
-                    aScalarField->get_node_values() );
+            this->find_cells_within_levelset( tRefinementList,
+                                              tCandidates,
+                                              aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
             // flag elements in database
-            this->flag_elements( tRefinementList, aScalarField->get_min_volume_level()  );
+            this->flag_elements_on_working_pattern( tRefinementList, aScalarField->get_min_volume_level()  );
 
             // return number of flagged elements
             return aElementCounter;
@@ -1694,38 +1547,65 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        uint HMR::flag_surface_elements( const std::shared_ptr<Field> aScalarField )
+        uint HMR::flag_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField )
         {
             // the funciton returns the number of flagged elements
             uint aElementCounter = 0;
 
-            // create geometry engine
-
-            ge::GE_Core tRefMan;
-
             // candidates for refinement
-            Cell< mtk::Cell* > tCandidates;
+            Cell< hmr::Element* > tCandidates;
 
             // elements to be flagged for refinement
-            Cell< mtk::Cell* > tRefinementList;
+            Cell< hmr::Element* > tRefinementList;
 
-            uint tPattern = aScalarField->get_lagrange_pattern();
+            uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
             // get candidates for surface
             this->get_candidates_for_refinement( tCandidates,
-                                                 tPattern,
-                                                 aScalarField->get_max_surface_level() );
+                                                 tLagrangeMeshIndex );
 
             // call refinement manager and get intersected cells
-            tRefMan.find_cells_intersected_by_levelset( tRefinementList,
-                                                        tCandidates,
-                                                        aScalarField->get_node_values() );
+            this->find_cells_intersected_by_levelset( tRefinementList,
+                                                      tCandidates,
+                                                      aScalarField->get_node_values() );
 
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
             // flag elements in HMR
-            this->flag_elements( tRefinementList, aScalarField->get_min_surface_level() );
+            this->flag_elements_on_working_pattern( tRefinementList, aScalarField->get_min_surface_level() );
+
+            // return number of flagged elements
+            return aElementCounter;
+        }
+
+// -----------------------------------------------------------------------------
+
+        uint HMR::based_on_field_put_elements_on_queue( const Matrix< DDRMat > & aFieldValues,
+                                                        const uint             & aLagrangeMeshIndex )
+        {
+            uint aElementCounter = 0;
+
+            // candidates for refinement
+            Cell< hmr::Element* > tCandidates;
+
+            // elements to be flagged for refinement
+            Cell< hmr::Element* > tRefinementList;
+
+            // get candidates for surface
+            this->get_candidates_for_refinement( tCandidates,
+                                                 aLagrangeMeshIndex);
+
+            // call refinement manager and get intersected cells
+            this->find_cells_intersected_by_levelset( tRefinementList,
+                                                      tCandidates,
+                                                      aFieldValues );
+
+            // add length of list to counter
+            aElementCounter += tRefinementList.size();
+
+            // flag elements in HMR
+            this->put_elements_on_refinment_queue( tRefinementList );
 
             // return number of flagged elements
             return aElementCounter;
@@ -1738,12 +1618,13 @@ namespace moris
          */
         void HMR::perform_refinement_and_map_fields()
         {
+            MORIS_ERROR(false,"perform_refinement_and_map_fields() not changed yet" );
             // - - - - - - - - - - - - - - - - - - - - - -
             // step 0: perform simple refinement
             // - - - - - - - - - - - - - - - - - - - - - -
 
             // in the tutorial, lagrange and B-Spline are the same refinement
-            this->perform_refinement( RefinementMode::SIMPLE );
+            this->perform_refinement( 0 );   //FIXME
 
             // create union of input and output
             mDatabase->create_union_pattern();
@@ -2074,6 +1955,104 @@ namespace moris
             // make this field point to the output mesh
             aField->change_mesh( tUnionField->get_mesh(),
                                  tUnionField->get_field_index() );
+        }
+
+// ----------------------------------------------------------------------------
+
+        void HMR::find_cells_intersected_by_levelset(        Cell< hmr::Element * > & aCells,
+                                                             Cell< hmr::Element * > & aCandidates,
+                                                      const  Matrix< DDRMat >    & aVertexValues,
+                                                      const  real                  aLowerBound,
+                                                      const  real                  aUpperBound )
+        {
+                // make sure that input makes sense
+                MORIS_ASSERT( aLowerBound <= aUpperBound,
+                        "find_cells_intersected_by_levelset() : aLowerBound bound must be less or equal aUpperBound" );
+
+                // make sure that the field is a scalar field
+                MORIS_ASSERT( aVertexValues.n_cols() == 1,
+                        "find_cells_within_levelset() can only be performed on scalar fields" );
+
+                // initialize output cell
+                aCells.resize( aCandidates.size(), nullptr );
+
+                // initialize counter
+                uint tCount = 0;
+
+                // loop over all candidates
+                for( hmr::Element * tCell : aCandidates )
+                {
+                    // get cell of vertex pointers
+                    Cell< mtk::Vertex * > tVertices = tCell->get_vertex_pointers();
+
+                    // get number of vertices on this element
+                    uint tNumberOfVertices = tVertices.size();
+
+                    // assign matrix with vertex values
+                    Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
+
+                    // loop over all vertices and extract scalar field
+                    for( uint k=0; k<tNumberOfVertices; ++k )
+                    {
+                        // copy value from field into element local matrix
+                        tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
+                    }
+
+                    // test if cell is inside
+                    if ( tCellValues.min() <= aUpperBound && tCellValues.max() >= aLowerBound )
+                    {
+                        // copy pointer to output
+                        aCells( tCount++ ) = tCell;
+                    }
+                }
+
+                // shrink output to fit
+                aCells.resize( tCount );
+        }
+
+        void HMR::find_cells_within_levelset(        Cell< hmr::Element * > & aCells,
+                                                     Cell< hmr::Element * > & aCandidates,
+                                              const  Matrix< DDRMat >       & aVertexValues,
+                                              const  uint                     aUpperBound )
+        {
+            // make sure that the field is a scalar field
+            MORIS_ASSERT( aVertexValues.n_cols() == 1, "find_cells_within_levelset() can only be performed on scalar fields" );
+
+            // initialize output cell
+            aCells.resize( aCandidates.size(), nullptr );
+
+            // initialize counter
+            uint tCount = 0;
+
+            // loop over all candidates
+            for( hmr::Element * tCell : aCandidates )
+            {
+                // get cell of vertex pointers
+                Cell< mtk::Vertex * > tVertices = tCell->get_vertex_pointers();
+
+                // get number of vertices on this element
+                uint tNumberOfVertices = tVertices.size();
+
+                // assign matrix with vertex values
+                Matrix< DDRMat > tCellValues( tNumberOfVertices, 1 );
+
+                // loop over all vertices and extract scalar field
+                for( uint k=0; k<tNumberOfVertices; ++k )
+                {
+                    // copy value from field into element local matrix
+                    tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
+                }
+
+                // test if cell is inside
+                if(  tCellValues.max() <= aUpperBound )
+                {
+                    // copy pointer to output
+                    aCells( tCount++ ) = tCell;
+                }
+            }
+
+            // shrink output to fit
+            aCells.resize( tCount );
         }
 
 // ----------------------------------------------------------------------------

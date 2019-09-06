@@ -1,0 +1,55 @@
+## /projects/cubit/claro.Lin64.15.3/bin/cubitx
+## Cubit Version 15.3
+## Cubit Build 411343
+## Revised 2017-12-05 09:40:29 -0700 (Tue, 05 Dec 2017)
+## Running 02/11/2018 03:03:34 PM
+## Command Options:
+##Component
+## parameters of top horizontal bar
+#{l_c_hb=1.0}
+#{w_c_hb=5.0}
+#{th_c_hb=.125}
+## component upright bars
+#{th_c_vb =.125}
+#{h_c_vb = 2.0}
+#{w_c_vb = 1.0}
+
+## design block
+#{th_c_dv =10}
+#{h_c_dv = 10}
+#{w_c_dv = 10}
+
+#{c_mesh_size=0.2}
+#{dv_mesh_size=0.4}
+
+create brick x {l_c_hb} y {w_c_hb} z {th_c_hb}
+create brick x {w_c_vb} y {th_c_vb} z {h_c_vb}
+move curve 16 location curve 4
+create brick x {w_c_vb} y {w_c_vb} z {th_c_vb} 
+move curve 30 location curve 18
+create brick x {th_c_vb} y {w_c_vb} z {h_c_vb}
+move vertex 26 location vertex 2
+create brick x {w_c_vb} y {w_c_vb} z {th_c_vb} 
+move curve 53 location curve 41
+unite volume all
+create brick x {w_c_dv} y {h_c_dv} z {th_c_dv} 
+move surface 42 location surface 20
+create vertex on curve 87 midpoint
+create vertex on curve 85 midpoint
+create curve vertex 59 58
+create vertex on curve 96 fraction 0.3333 from start
+move surface 20 location vertex 60 include_merged
+imprint all
+merge all
+move vertex 56 location 0 0 0 include_merged
+delete vertex 60
+delete curve 96
+volume all scheme tetmesh geometry approximation angle 30
+volume 1 size {c_mesh_size}
+volume 6 size {dv_mesh_size}
+mesh volume all
+block 1 volume 1
+block 1 name "component"
+block 2 volume 6
+block 2 name "dv"
+export mesh "frf_background.exo" overwrite

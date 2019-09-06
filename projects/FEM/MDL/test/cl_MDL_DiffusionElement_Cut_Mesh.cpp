@@ -294,16 +294,13 @@ namespace moris
             tCoeffList( 2 )( 0 ) = {{ 20.0 }};
 
             // cast free function into std::function
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+            fem::PropertyFunc tValFunction0 = tConstValFunction;
 
             // create the list with function pointers for the value
-            Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+            Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
             // create the list with cell of function pointers for the derivatives
-            Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+            Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
             // collect properties info
             fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -391,7 +388,10 @@ namespace moris
             moris::Matrix< DDRMat > tSolution11;
             tTimeSolver.get_full_solution( tSolution11 );
 
-            //print(tSolution11,"tSolution11");
+//            print(tSolution11,"tSolution11");
+            delete tInterpMesh1;
+            delete tIntegMesh1;
+            delete tModel;
         }
         }
 

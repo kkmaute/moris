@@ -5,7 +5,8 @@
 set(TEST_SOURCES
     test_main.cpp
     cl_Logger.cpp
-    fn_to_stdio.cpp )
+    fn_to_stdio.cpp
+    UT_IOS_Parsing_Tool.cpp )
 
 # List additional includes
 include_directories(${MORIS_DIR}/snippets/ios)
@@ -25,10 +26,6 @@ set(IOS_TEST ${IOS}-test)
 add_executable(${IOS_TEST} ${TEST_SOURCES})
 target_link_libraries(${IOS_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${IOS_TEST} PROPERTIES OUTPUT_NAME ${IOS_TEST}${EXE_EXT})
-
-# Mark as test
-add_test(NAME ${IOS_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${IOS_TEST}> )
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)

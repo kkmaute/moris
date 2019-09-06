@@ -537,7 +537,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
      */
     tXTKModel.decompose(tDecompositionMethods);
 
-    tXTKModel.unzip_interface();
+//    tXTKModel.unzip_interface();
 
     moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
     moris::real tMySurfaceArea = compute_interface_surface_area(tNodeCoords,tXTKModel);
@@ -547,14 +547,7 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     std::cout<<"Surface Area: "<<tGlbSurf<<std::endl;
 
 
-    tXTKModel.perform_basis_enrichment();
-
-//    tXTKModel.convert_mesh_tet4_to_tet10();
-
-    // Do the enrichment with a graph based method
-//     Enrichment tEnrichment(2);
-//     tEnrichment.perform_enrichment(tXTKModel.get_cut_mesh(), tXTKModel.get_background_mesh());
-
+    tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
     /*
      * Get the output mesh and write to exodus file

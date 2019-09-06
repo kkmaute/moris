@@ -26,7 +26,6 @@
 #include "fn_generate_element_to_element.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
 #include "fn_generate_shared_face_element_graph.hpp"
-#include "fn_assemble_boundary_subphase_constraint.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_Pairing.hpp"
 #include "fn_equal_to.hpp"
@@ -74,8 +73,8 @@ public:
 
     Enrichment(enum Enrichment_Method aMethod,
                enum EntityRank        aBasisRank,
-               moris::uint            aBasisOrder,
-               moris::size_t          aNumBulkPhases,
+               moris::moris_index     aInterpIndex,
+               moris::moris_index     aNumBulkPhases,
                xtk::Model*            aXTKModelPtr,
                xtk::Cut_Mesh*         aCutMeshPtr,
                xtk::Background_Mesh*  aBackgroundMeshPtr);
@@ -193,8 +192,8 @@ private:
     // basis rank
     enum EntityRank mBasisRank;
 
-    // basis order
-    uint mBasisOrder;
+    // index of interpolation
+    uint mInterpIndex;
 
     moris::size_t mNumBulkPhases;
 
@@ -236,6 +235,7 @@ private:
     moris::Matrix< DDSMat >  mEnrichmentToBasisIndex;
     moris::Matrix< DDSMat >  mEnrichmentToBulk;
 
+    // Multigrid member data
     moris::Cell<moris::Matrix< DDSMat >> mChildrenToParents;
     moris::Cell<moris::Matrix< DDSMat >> mParentsToChildren;
 
@@ -248,6 +248,9 @@ private:
      */
     void
     perform_basis_cluster_enrichment();
+
+    void
+    construct_neighborhoods();
 
 
     /*
@@ -357,6 +360,9 @@ private:
     construct_enriched_interpolation_mesh();
 
     void
+    construct_enriched_integration_mesh();
+
+    void
     allocate_interpolation_cells();
 
     //FIXME: this needs to be done in parallel
@@ -404,9 +410,9 @@ private:
      */
     void
     construct_vertex_to_basis_connectivity(moris::Cell<moris::Cell<moris::moris_index>>  const & aXTKVertsToBGVerts,
-                                           moris::Cell<moris::Cell<moris::real>> const & aXTKVertsToBGVertsWeights,
-                                           moris::Cell< moris::Matrix<moris::IndexMat> > & aVertexToBasisIndex,
-                                           moris::Cell< moris::Matrix<moris::DDRMat> > & aVertexToBasisWeights);
+                                           moris::Cell<moris::Cell<moris::real>> const &         aXTKVertsToBGVertsWeights,
+                                           moris::Cell< moris::Matrix<moris::IndexMat> > &       aVertexToBasisIndex,
+                                           moris::Cell< moris::Matrix<moris::DDRMat> > &         aVertexToBasisWeights);
 
 
     void

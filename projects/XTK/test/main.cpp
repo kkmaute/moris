@@ -14,6 +14,8 @@
 // MPI Header
 #include <mpi.h>
 
+#include <Kokkos_Core.hpp>
+
 // ---------------------------------------------------------------------
 
 // MORIS header files.
@@ -33,6 +35,8 @@ main( int    argc,
 
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );
+
+    Kokkos::initialize(argc, argv);
 
     int result = 0;
 

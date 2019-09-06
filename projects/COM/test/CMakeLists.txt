@@ -31,10 +31,6 @@ add_executable(${COM_TEST} ${TEST_SOURCES})
 target_link_libraries(${COM_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${COM_TEST} PROPERTIES OUTPUT_NAME ${COM_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${COM_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${COM_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(COM_TEST_PROCS ${MORIS_TEST_PROCS})

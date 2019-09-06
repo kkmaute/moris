@@ -17,10 +17,10 @@ using namespace moris;
 
 namespace moris
 {
-    namespace mtk
-    {
-    class Vertex;
-    }
+namespace mtk
+{
+class Vertex;
+}
 }
 
 
@@ -35,6 +35,7 @@ public:
     Interpolation_Cell_Unzipped(){};
     Interpolation_Cell_Unzipped(moris::mtk::Cell*        aBaseCell,
                                 moris_index              aSubphaseIndex,
+                                moris_index              aBulkPhaseIndex,
                                 moris_id                 aCellId,
                                 moris_index              aCellIndex,
                                 moris_id                 aCellOwner,
@@ -59,11 +60,13 @@ public:
     moris_index
     get_subphase_index() const;
 
-
+    moris_index
+    get_bulkphase_index() const;
 
 private:
     moris::mtk::Cell*                                  mBaseCell;
     moris::moris_index                                 mSubPhaseIndex;
+    moris::moris_index                                 mBulkPhaseIndex;
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > mVertices;
     enum mtk::Interpolation_Order                      mInterpolationOrder;
 };
@@ -72,7 +75,8 @@ inline
 std::ostream &
 operator<<(std::ostream & os, const xtk::Interpolation_Cell_Unzipped & dt)
 {
-    os<<"Cell Id: "<<std::right<<std::setw(9)<<dt.get_id() << " | Cell Index: "<<std::setw(9)<<dt.get_index()<<" | Base Cell Id: "<<std::setw(9)<<dt.get_base_cell()->get_id()<<" | Subphase: "<<std::setw(9)<<dt.get_subphase_index();
+    os<<"Cell Id: "<<std::right<<std::setw(9)<<dt.get_id() << " | Cell Index: "<<std::setw(9)<<dt.get_index()<<" | Base Cell Id: "<<std::setw(9)<<dt.get_base_cell()->get_id();
+    os<<" | Subphase: "<<std::setw(9)<<dt.get_subphase_index()<<" | Bulkphase: "<<std::setw(9)<<dt.get_bulkphase_index();
 
     return os;
 }

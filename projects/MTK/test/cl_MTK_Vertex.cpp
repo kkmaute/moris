@@ -5,11 +5,11 @@
  *      Author: doble
  */
 
-#include "../src/stk_impl/cl_MTK_Mesh_STK.hpp"
 #include "catch.hpp"
 
 // implementations to test
 #include "cl_MTK_Vertex_STK.hpp"
+#include "cl_MTK_Mesh_Core_STK.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"
@@ -27,7 +27,7 @@ TEST_CASE("MTK Vertex","[MTK],[MTK_VERTEX],[STK_VERTEX]")
     {
         // construct a mesh
         std::string tFilename = "generated:2x2x2";
-        Mesh_STK tMesh1( tFilename, NULL );
+        Mesh_Core_STK tMesh1( tFilename, NULL );
 
         uint tNodeInd = 3;
         uint tNodeId  = tMesh1.get_glb_entity_id_from_entity_loc_index(tNodeInd, EntityRank::NODE);

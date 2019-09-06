@@ -49,6 +49,35 @@ namespace moris
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
 
+            /*
+             * @brief determines elements (cells) intersected by the level set
+             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aLowerBound   - lower bound of LS
+             * @param[in] aUpperBound   - upper bound of LS
+             */
+            void find_cells_intersected_by_levelset(        Cell< hmr::Element * > & aCells,
+                                                            Cell< hmr::Element * > & aCandidates,
+                                                     const  Matrix< DDRMat >    & aVertexValues,
+                                                     const  real                  aLowerBound = -0.0001,
+                                                     const  real                  aUpperBound =  0.0001);
+
+            /*
+             * @brief determines volume elements (cells)
+             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aUpperBound   - upper bound of LS
+             */
+            void find_cells_within_levelset(        Cell< hmr::Element * > & aCells,
+                                                    Cell< hmr::Element * > & aCandidates,
+                                             const  Matrix< DDRMat >    & aVertexValues,
+                                             const  uint                  aUpperBound = 0.0 );
+
+
 // -----------------------------------------------------------------------------
         public :
 // -----------------------------------------------------------------------------
@@ -110,36 +139,28 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * save the mesh to an exodus file
-             */
-            void save_to_exodus( const std::string & aPath,
-                                 const uint          aOutputOrder = 0,
-                                 const double        aTimeStep = 0.0 );
-
-// -----------------------------------------------------------------------------
-
-            /**
              * renumber nodes for femdoc and save the mesh to an exodus file. HACK with consent of Kurt
              */
-            void renumber_and_save_to_exodus( const std::string & aPath,
-                                              const double        aTimeStep = 0.0,
-                                              const uint          aOutputOrder = 0 );
+//            void renumber_and_save_to_exodus( const std::string & aPath,
+//                                              const double        aTimeStep = 0.0,
+//                                              const uint          aOutputOrder = 0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an exodus file
              */
-            void save_last_step_to_exodus( const std::string & aPath,
-                                           const double        aTimeStep = 0.0,
-                                           const uint          aOutputOrder = 0 );
+            void save_last_step_to_exodus( const uint          aIndex,
+                                           const std::string & aPath,
+                                           const double        aTimeStep = 0.0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an hdf5 file
              */
-            void save_to_hdf5( const std::string & aPath );
+            void save_to_hdf5( const std::string & aPath,
+                               const uint          aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -187,15 +208,14 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * flags active elements
+             * flags active elements on working pattern
              *
              * @param[ in ]   aElements            element pointers that are to be flagged
-             *  @param[ in ]  aLagrangeSwitch      off: flag b-spline elements, on: flag lagrange elements
              * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
              *                                     the child is automatically flagged in the next iteration
              */
-            void flag_elements(       Cell< mtk::Cell* > & aElements,
-                                const uint                 aMinRefinementLevel = 0 );
+            void flag_elements_on_working_pattern(       Cell< hmr::Element* > & aElements,
+                                                   const uint                 aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -212,8 +232,13 @@ namespace moris
             /**
              * runs the refinement scheme
              */
-            void perform_refinement( const enum RefinementMode aRefinementMode,
-                                     const uint                aPattern = 0);                // FIXME get rid of default
+            void perform_refinement_based_on_working_pattern( const uint aPattern );
+
+            void perform_refinement( const uint aPattern );
+
+// -----------------------------------------------------------------------------
+
+            void put_elements_on_refinment_queue( Cell< hmr::Element* > & aElements);
 
 // -----------------------------------------------------------------------------
 
@@ -314,9 +339,8 @@ namespace moris
             /**
              * for flagging
              */
-            void get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
-                                                const uint                 aPattern,
-                                                const uint                 aMaxLevel=gMaxNumberOfLevels );
+            void get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
+                                                const uint                    aLagrangeMeshIndex);
 
 
 // -----------------------------------------------------------------------------
@@ -324,14 +348,17 @@ namespace moris
             /**
              * flags elements on the surface and inside of a level set
              */
-            uint flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField );
+            uint flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
             /**
              * flags elements on the surface of a level set
              */
-            uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
+            uint flag_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField );
+
+            uint based_on_field_put_elements_on_queue( const Matrix< DDRMat > & aFieldValues,
+                                                       const uint             & aLagrangeMeshIndex);
 
 // -----------------------------------------------------------------------------
 
@@ -412,7 +439,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void perform_initial_refinement();
+            void perform_initial_refinement( const uint aPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -421,10 +448,6 @@ namespace moris
                                                                  ParameterList              & aParameters ),
                                         Cell< std::shared_ptr< Field > > & aFields,
                                         ParameterList                    & aParameters );
-
-// -----------------------------------------------------------------------------
-
-            uint get_mesh_index( const uint aOrder, const uint aPattern );
 
 // -----------------------------------------------------------------------------
         }; /* HMR */

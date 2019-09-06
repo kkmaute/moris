@@ -26,6 +26,8 @@ namespace tsa
 
         void solve_monolytic_time_system();
 
+        moris::real mLambdaInc = 0;
+
     public:
         //-------------------------------------------------------------------------------
 
@@ -45,6 +47,10 @@ namespace tsa
         void solve();
 
         //-------------------------------------------------------------------------------
+
+        void set_lambda_increment( moris::real aLambdaInc );
+
+        moris::real get_new_lambda();
     };
 }
 }

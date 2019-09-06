@@ -22,6 +22,7 @@ namespace NLA
     class Newton_Solver : public Nonlinear_Algorithm
     {
     private:
+
         /**
          * @brief Call for solve of linear system
          *

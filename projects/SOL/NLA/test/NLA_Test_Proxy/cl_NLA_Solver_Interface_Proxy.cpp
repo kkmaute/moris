@@ -32,8 +32,6 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy( const moris::uint aNumMy
     mNX = aNX;
     mNY = aNY;
 
-    mLambda = 1.0;
-
     mNumMyDofs = aNumMyDofs/par_size();
     mNumElements = aNumElements;
 
@@ -62,8 +60,44 @@ void NLA_Solver_Interface_Proxy::set_solution_vector( Dist_Vector * aSolutionVec
     mSolutionVector->extract_copy( mMySolVec );
 }
 //-------------------------------------------------
-void NLA_Solver_Interface_Proxy::set_lambda_value( const moris::real & aLambda )
+void NLA_Solver_Interface_Proxy::set_time_value( const moris::real & aLambda,
+                                                       moris::uint   aPos )
 {
-    mLambda = aLambda;
+    mTime(aPos) = aLambda;
 }
 //-------------------------------------------------
+void NLA_Solver_Interface_Proxy::set_time( const Matrix< DDRMat> & aTime )
+{
+    mTime = aTime;
+}
+//-------------------------------------------------
+void NLA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( Dist_Vector * aSolutionVector )
+{
+    mSolutionVectorPrev = aSolutionVector;
+
+//    mSolutionVectorPrev->extract_copy( mMySolVecPrev );
+}
+//-------------------------------------------------
+moris::Matrix< DDSMat > & NLA_Solver_Interface_Proxy::get_time_level_Ids_minus()
+{
+   mTimeLevelIdsMinus.set_size( 1, 1, 0 );
+   return mTimeLevelIdsMinus;
+}
+moris::Matrix< DDSMat > & NLA_Solver_Interface_Proxy::get_time_level_Ids_plus()
+{
+   mTimeLevelIdsPlus.set_size( 1, 1 , 1 );
+   return mTimeLevelIdsPlus;
+}
+//-------------------------------------------------
+void NLA_Solver_Interface_Proxy::perform_mapping()
+{
+    Matrix< DDRMat > tMat;
+    Matrix< DDSMat > tMatRows1 = this->get_time_level_Ids_minus();
+    Matrix< DDSMat > tMatRows2 = this->get_time_level_Ids_plus();
+
+    mSolutionVectorPrev->extract_my_values( 1, tMatRows1, 0 , tMat );
+
+    mSolutionVectorPrev->sum_into_global_values( 1, tMatRows2, tMat );
+
+    mSolutionVectorPrev->vector_global_asembly();
+}

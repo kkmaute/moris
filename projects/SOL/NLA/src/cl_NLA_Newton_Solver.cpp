@@ -35,12 +35,10 @@ using namespace dla;
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-    Newton_Solver::Newton_Solver( dla::Linear_Solver * aLinSolver )
+    Newton_Solver::Newton_Solver( dla::Linear_Solver * aLinSolver ) : Nonlinear_Algorithm()
     {
         mLinSolverManager = aLinSolver;
 
-        // Set default parameters in parameter list for nonlinear solver
-        this->set_nonlinear_solver_parameters();
     }
 
 //--------------------------------------------------------------------------------------------------------------------------

@@ -297,9 +297,9 @@ namespace moris
                         // path to mesh
                         std::string tMeshPath = tBasepath + "_" + std::to_string( tMeshOrders( m ) ) + ".exo";
 
+                        MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
                         // get index of mesh
-                        uint tMeshIndex = aHMR->get_mesh_index( tMeshOrders( m ) ,
-                                aHMR->get_parameters()->get_union_pattern() );
+                        uint tMeshIndex = 0;
 
                         // dump mesh (assume timestep to be zero )
                         aHMR->save_to_exodus( tMeshIndex, tMeshPath, aArguments.get_timestep() );

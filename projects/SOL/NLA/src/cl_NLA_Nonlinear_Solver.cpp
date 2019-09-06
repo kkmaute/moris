@@ -231,6 +231,18 @@ using namespace NLA;
 
         mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );
 
+        if ( mNonLinSolverType == NonlinearSolverType::ARC_LENGTH_SOLVER )
+        {
+            if( mNonlinearSolverAlgorithmList( 0 )->get_my_nonlin_solver()->get_time_step_iter() == 0 )
+            {
+                mNonlinearSolverAlgorithmList( 0 )->initialize_variables( mNonlinearProblem );
+            }
+//            mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
+        }
+//        else
+//        {
+//            mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
+//        }
         mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
     }
 
@@ -275,5 +287,35 @@ using namespace NLA;
     void Nonlinear_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
     {
         mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
+    }
+//--------------------------------------------------------------------------------------------------------------------------
+    void Nonlinear_Solver::set_time_step_iter( const sint aTimeIter )
+    {
+       mTimeIter = aTimeIter;
+    }
+
+    moris::sint Nonlinear_Solver::get_time_step_iter(  )
+    {
+       return mTimeIter;
+    }
+//--------------------------------------------------------------------------------------------------------------------------
+    Nonlinear_Problem * Nonlinear_Solver::get_my_nonlin_problem()
+    {
+        return mNonlinearProblem;
+    }
+
+    void Nonlinear_Solver::set_nonlin_solver_type( enum NonlinearSolverType aNonLinSolverType )
+    {
+        mNonLinSolverType = aNonLinSolverType;
+    }
+
+    enum NonlinearSolverType Nonlinear_Solver::get_nonlin_solver_type()
+    {
+        return mNonLinSolverType;
+    }
+
+    void Nonlinear_Solver::set_time_solver_type( tsa::Time_Solver_Algorithm* aTimeSolverAlgorithm )
+    {
+        mMyTimeSolverAlgorithm = aTimeSolverAlgorithm;
     }
 

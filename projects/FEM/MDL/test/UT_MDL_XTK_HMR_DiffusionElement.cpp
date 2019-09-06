@@ -141,24 +141,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 {
     if(par_size() == 1)
     {
-//        moris::uint tBplineOrder = 2;
-//        moris::uint tLagrangeOrder = 2;
-//        moris::uint tMyCoeff = 1;
         std::string tFieldName = "Cylinder";
 
-//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
-//
-//        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
-//        tParameters.set( "domain_dimensions", "2, 2, 4" );
-//        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
-//        tParameters.set( "domain_sidesets", "5,6");
-//
-//        tParameters.set( "truncate_bsplines", 1 );
-//        tParameters.set( "bspline_orders", "2" );
-//        tParameters.set( "lagrange_orders", "2" );
-//        tParameters.set( "use_multigrid", 0 );
-//        tParameters.set( "refinement_buffer", 2 );
-//        tParameters.set( "staircase_buffer", 2 );
 
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;
@@ -201,9 +185,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
 
         for( uint k=0; k<2; ++k )
         {
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );
         }
@@ -272,16 +255,13 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
         // cast free function into std::function
-        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
 
         // create the list with function pointers for the value
-        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
         // create the list with cell of function pointers for the derivatives
-        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
         // collect properties info
         fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -460,9 +440,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
         for( uint k=0; k<2; ++k )
         {
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );
         }
@@ -541,16 +520,13 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
         // cast free function into std::function
-        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
 
         // create the list with function pointers for the value
-        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
         // create the list with cell of function pointers for the derivatives
-        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
         // collect properties info
         fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -645,7 +621,6 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         delete tIntegMesh1;
     }
 }
-
 
 }
 

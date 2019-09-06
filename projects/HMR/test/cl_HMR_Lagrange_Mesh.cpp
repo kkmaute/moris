@@ -18,7 +18,7 @@
 using namespace moris;
 using namespace hmr;
 
-TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
+TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagrange_mesh]")
 {
 //-------------------------------------------------------------------------------
 
@@ -77,15 +77,11 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
                     tElement->put_on_refinement_queue();
                 }
                 // refine mesh
-                tBackgroundMesh->perform_refinement();
-
+                tBackgroundMesh->perform_refinement(tPattern);
             }
 
             for ( uint p=1; p<=3; ++p )
             {
-                // set max order to 3
-                tParameters->set_mesh_orders_simple( p );
-
                 // create first order Lagrange mesh
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
                                                                                                 tBackgroundMesh,
@@ -126,9 +122,6 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
 
-            // set max order to 3
-            tParameters->set_mesh_orders_simple( 3 );
-
             // create factory
             moris::hmr::Factory tFactory;
 
@@ -140,9 +133,6 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
 
             // maximum level to refine to
             moris::uint tLevel = 3;
-
-            // this test operates on pattern zero
-            tBackgroundMesh->set_activation_pattern( 0 );
 
             // refine a few elements in the mesh
             for( moris::uint l=0; l<tLevel; ++l  )
@@ -159,7 +149,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
                     tElement->put_on_refinement_queue();
                 }
                 // refine mesh
-                tBackgroundMesh->perform_refinement();
+                tBackgroundMesh->perform_refinement( tPattern );
             }
 
             for ( uint p=1; p<=3; ++p )
@@ -187,7 +177,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh]")
 //-------------------------------------------------------------------------------
 } // end test
 
-TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_lin]")
+TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_lin],[lagrange_mesh]")
 {
     if(  moris::par_size() == 1 )
     {
@@ -231,6 +221,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set_refinement_buffer( 3 );
         tParameters.set_staircase_buffer( 1 );
 
+        tParameters.set_initial_refinement( 1 );
+
         //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
@@ -246,18 +238,18 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         // manually select output pattern
         tDatabase->get_background_mesh()->set_activation_pattern( 0 );
 
-        tHMR.perform_initial_refinement();          //FIXME
+        tHMR.perform_initial_refinement( 0 );
 
         // refine the first element three times
         for( uint tLevel = 0; tLevel < 4; ++tLevel )          // 4
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
-        // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+//        // update database etc
+//        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -304,6 +296,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
+
+//        tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
 //
 //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
 //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
@@ -311,7 +305,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
     }
 }
 
-TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_quad]")
+TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_quad],[lagrange_mesh]")
 {
     if(  moris::par_size() == 1 )
     {
@@ -337,6 +331,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         tParameters.set_refinement_buffer( 3 );
         tParameters.set_staircase_buffer( 1 );
 
+        tParameters.set_initial_refinement( 1 );
+
         //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
@@ -350,9 +346,9 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         auto tDatabase = tHMR.get_database();
 
         // manually select output pattern
-        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+//        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
 
-        tHMR.perform_initial_refinement();
+        tHMR.perform_initial_refinement( 0 );
 
         //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
         //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
@@ -363,20 +359,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
-
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
-
-//        tHMR.flag_element( 0 );
-//        tHMR.get_database()->get_background_mesh()->get_element( 0 )->set_min_refimenent_level( 4 );
-//
-//        tHMR.perform_refinement(  moris::hmr::RefinementMode::LAGRANGE_REFINE );
-//        tHMR.perform_refinement(  moris::hmr::RefinementMode::BSPLINE_REFINE );
+        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -427,13 +414,13 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
 
         //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh1.exo" );
         //tHMR.save_bsplines_to_vtk("Basis.vtk");
-        //tHMR.save_last_step_to_exodus( "LastStep.exo" );
+        //tHMR.save_last_step_to_exodus( 0, "LastStep.exo" );
         //tHMR.save_to_hdf5( "Database.hdf5" );
         //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
     }
 }
 
-TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_qub]")
+TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_perturb_qub],[lagrange_mesh]")
 {
     if(  moris::par_size() == 1 )
     {
@@ -459,6 +446,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         tParameters.set_refinement_buffer( 3 );
         tParameters.set_staircase_buffer( 1 );
 
+        tParameters.set_initial_refinement( 1 );
+
         //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
@@ -474,18 +463,18 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         // manually select output pattern
         tDatabase->get_background_mesh()->set_activation_pattern( 0 );
 
-        tHMR.perform_initial_refinement();
+        tHMR.perform_initial_refinement( 0 );
 
         // refine the first element three times
         for( uint tLevel = 0; tLevel < 4; ++tLevel )
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
-        // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+//        // update database etc
+//        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -534,12 +523,10 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
-
-        //tHMR.save_to_exodus( "Mesh_qub.exo" );
     }
 }
 
-TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern]")
+TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern],[lagrange_mesh]")
 {
     if(par_size() == 1)
     {
@@ -559,9 +546,6 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern]")
         // deactivate truncation
         tParameters->set_bspline_truncation( false );
 
-        // use simple patterns
-        tParameters->set_mesh_orders_simple( 2 );       //FIXME might have to replace this
-
         // create factory
         moris::hmr::Factory tFactory;
 
@@ -574,10 +558,10 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern]")
 
         // element 0 is the element with ID 18
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 0);
 
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 0);
 
         //----------------------------------------------------------------------------------------------------------
         // Work on activation pattern 1 mesh
@@ -585,10 +569,10 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern]")
 
         // element 0 is the element with ID 18
         tBackgroundMesh->get_element( 15 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 1);
 
         tBackgroundMesh->get_element( 18 )->put_on_refinement_queue();
-        tBackgroundMesh->perform_refinement( );
+        tBackgroundMesh->perform_refinement( 1);
 
         //----------------------------------------------------------------------------------------------------------
         // unite pattern 0 and 1 on pattern 3
@@ -668,6 +652,104 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern]")
         delete tLagrangeMesh_1;
         delete tLagrangeMesh_2;
         delete tLagrangeMesh_3;
+
+        // delete background mesh
+        delete tBackgroundMesh;
+
+        // delete settings object
+        delete tParameters;
+    }
+}
+
+TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[lagrange_mesh]")
+{
+    if(par_size() == 1)
+    {
+        // empty container for B-Spline meshes
+        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+        // create settings object
+        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+        // set number of elements
+        tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
+
+        // set buffer size to zero
+        tParameters->set_refinement_buffer( 1 );
+        tParameters->set_staircase_buffer( 1 );
+
+        // deactivate truncation
+        tParameters->set_bspline_truncation( false );
+
+        // create factory
+        moris::hmr::Factory tFactory;
+
+        // create background mesh object
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+        //----------------------------------------------------------------------------------------------------------
+        // Work on activation pattern 0 mesh
+        tBackgroundMesh->set_activation_pattern( 0 );
+
+        // element 0 is the element with ID 18
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( 0 );
+
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( 0 );
+
+
+        // element 0 is the element with ID 18
+        tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+        tBackgroundMesh->perform_refinement( 1);
+
+        // create first order Lagrange mesh
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh( tParameters,
+                                                                                          tBackgroundMesh,
+                                                                                          tBSplineMeshes,
+                                                                                          0,
+                                                                                          1 );
+        // create first order Lagrange mesh
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh( tParameters,
+                                                                                          tBackgroundMesh,
+                                                                                          tBSplineMeshes,
+                                                                                          1,
+                                                                                          1 );
+
+        REQUIRE( tLagrangeMesh_1->get_number_of_nodes_on_proc()  == 43 );
+        REQUIRE( tLagrangeMesh_2->get_number_of_nodes_on_proc()  == 30 );
+
+        // output to exodus
+        STK * tSTK = tLagrangeMesh_2->create_stk_object(0);
+        tSTK->save_to_file( "cccccc.g");
+        delete tSTK;
+
+        // Check some basis coordinates of Lagrange mesh 1
+        const moris::real* tXYZ_1 = tLagrangeMesh_1->get_node_by_index( 2 )->get_xyz( );
+        REQUIRE( tXYZ_1[0]  == 0.0625 );    REQUIRE( tXYZ_1[1]  == 0.0625 );
+        const moris::real* tXYZ_2 = tLagrangeMesh_1->get_node_by_index( 13 )->get_xyz( );
+        REQUIRE( tXYZ_2[0]  == 0.25 );    REQUIRE( tXYZ_2[1]  == 0.25 );
+        const moris::real* tXYZ_3 = tLagrangeMesh_1->get_node_by_index( 15 )->get_xyz( );
+        REQUIRE( tXYZ_3[0]  == 0.375 );    REQUIRE( tXYZ_3[1]  == 0.125 );
+        const moris::real* tXYZ_4 = tLagrangeMesh_1->get_node_by_index( 36 )->get_xyz( );
+        REQUIRE( tXYZ_4[0]  == 0.75 );    REQUIRE( tXYZ_4[1]  == 0.75 );
+        const moris::real* tXYZ_14 = tLagrangeMesh_1->get_node_by_index( 41 )->get_xyz( );
+        REQUIRE( tXYZ_14[0]  == 0.75 );    REQUIRE( tXYZ_14[1]  == 1.0 );
+
+//        // Check some basis coordinates of Lagrange mesh 2
+//        const moris::real* tXYZ_5 = tLagrangeMesh_2->get_node_by_index( 2 )->get_xyz( );
+//        REQUIRE( tXYZ_5[0]  == 0.25 );    REQUIRE( tXYZ_5[1]  == 0.25 );
+//        const moris::real* tXYZ_6 = tLagrangeMesh_2->get_node_by_index( 13 )->get_xyz( );
+//        REQUIRE( tXYZ_6[0]  == 0.75 );    REQUIRE( tXYZ_6[1]  == 0.5 );
+//        const moris::real* tXYZ_7 = tLagrangeMesh_2->get_node_by_index( 15 )->get_xyz( );
+//        REQUIRE( tXYZ_7[0]  == 0.25 );    REQUIRE( tXYZ_7[1]  == 0.75 );
+//        const moris::real* tXYZ_8 = tLagrangeMesh_2->get_node_by_index( 36 )->get_xyz( );
+//        REQUIRE( tXYZ_8[0]  == 0.875 );    REQUIRE( tXYZ_8[1]  == 1.0 );
+
+
+        // delete mesh
+        delete tLagrangeMesh_1;
+        delete tLagrangeMesh_2;
 
         // delete background mesh
         delete tBackgroundMesh;

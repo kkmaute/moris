@@ -63,9 +63,8 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
     for( uint k=0; k<3; ++k )
     {
         tField->evaluate_scalar_function( LevelSetFunction );
-        tHMR.flag_surface_elements( tField );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-        tHMR.update_refinement_pattern( 0 );
+        tHMR.flag_surface_elements_on_working_pattern( tField );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
     }
 
     tHMR.finalize();
@@ -89,5 +88,82 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
 
     CHECK(tSideNames == 6);
 }
+
+TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
+{
+    //------------------------------------------------------------------------------
+
+    if(par_size() == 1)
+    {
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
+
+        moris::hmr::Parameters tParameters;
+
+        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set_bspline_truncation( true );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {1} } );
+
+        tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+        hmr::HMR tHMR( tParameters );
+
+        // std::shared_ptr< Database >
+        auto tDatabase = tHMR.get_database();
+
+        // manually select output pattern
+        tDatabase->set_activation_pattern( 0 );
+
+        for( uint tLevel = 0; tLevel < 1; ++tLevel )
+        {
+            tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+
+            // manually refine, do not reset pattern
+            tDatabase->get_background_mesh()->perform_refinement(0);
+        }
+
+        tDatabase->update_bspline_meshes();
+        tDatabase->update_lagrange_meshes();
+
+//        tDatabase->get_background_mesh()->save_to_vtk("Basis_support.vtk");
+
+        tHMR.finalize();
+
+        auto tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+        Matrix< IndexMat > tElementIdnInBasisSupport_1;
+        Matrix< IndexMat > tElementIdnInBasisSupport_2;
+        Matrix< IndexMat > tElementIdnInBasisSupport_3;
+
+        tMesh->get_lagrange_mesh()->get_my_elements_in_basis_support( 0, 1, tElementIdnInBasisSupport_1 );
+        tMesh->get_lagrange_mesh()->get_my_elements_in_basis_support( 0, 4, tElementIdnInBasisSupport_2 );
+        tMesh->get_lagrange_mesh()->get_my_elements_in_basis_support( 0, 8, tElementIdnInBasisSupport_3 );
+
+        CHECK(tElementIdnInBasisSupport_1( 0 ) == 0 );    CHECK(tElementIdnInBasisSupport_1( 1 ) == 1 );
+        CHECK(tElementIdnInBasisSupport_1( 2 ) == 2 );    CHECK(tElementIdnInBasisSupport_1( 3 ) == 3 );
+        CHECK(tElementIdnInBasisSupport_1( 4 ) == 4 );
+
+        CHECK(tElementIdnInBasisSupport_2( 0 ) == 0 );    CHECK(tElementIdnInBasisSupport_2( 1 ) == 1 );
+        CHECK(tElementIdnInBasisSupport_2( 2 ) == 2 );    CHECK(tElementIdnInBasisSupport_2( 3 ) == 3 );
+        CHECK(tElementIdnInBasisSupport_2( 4 ) == 4 );    CHECK(tElementIdnInBasisSupport_2( 5 ) == 5 );
+        CHECK(tElementIdnInBasisSupport_2( 6 ) == 6 );
+
+        CHECK(tElementIdnInBasisSupport_3( 0 ) == 6 );
+    }
+}
+
 }
 

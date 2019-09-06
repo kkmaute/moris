@@ -104,10 +104,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         // flag first element for refinement
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
         tHMR.finalize();
 
@@ -289,9 +289,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          CHECK( equal_to( tSolution( 8, 0 ), -0.14904048484, 1.0e+08 ) );
 
          // dump mesh
-         tHMR.save_to_exodus ( 0,  // index in database
-                               "Mesh.exo",  // path
-                               0.0 );       // timestep
+//         tHMR.save_to_exodus ( 0,  // index in database
+//                               "Mesh.exo",  // path
+//                               0.0 );       // timestep
 
          delete ( tMSI );
          delete ( tIWGs( 0 ) );
@@ -299,16 +299,17 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          delete ( tNonlinearProblem );
          delete ( mLinSolver );
 
-//         for( luint k=0; k<tNumberOfElements; ++k )
-//         {
-//             // create the element
-//             delete tElements( k );
-//         }
-
-         for( luint k = 0; k < tNumberOfNodes; ++k )
+         for( auto k :tNodes)
          {
-             delete tNodes( k );
+             delete k ;
          }
+         tNodes.clear();
+
+         for( auto k :tElementBlocks)
+         {
+             delete k ;
+         }
+         tElementBlocks.clear();
     }
 }
 
@@ -326,7 +327,6 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
 
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( tOrder );
         tParameters.set_refinement_buffer( 3 );
 
         // create HMR object
@@ -340,17 +340,14 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
         for( uint k=0; k<2; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern(0 );
         }
 
         tHMR.finalize();
 
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
-
-        tHMR.save_to_exodus( "Circle.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
@@ -501,32 +498,49 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
 {
     if( moris::par_size() == 1 )
     {
-        // order for this example
-        moris::uint tOrder = 1;
+        moris::uint tLagrangeMeshIndex = 0;
+        moris::uint tBSplineMeshIndex = 0;
 
         // create parameter object
         moris::hmr::Parameters tParameters;
         tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 }, { 4 } } );
 
+        tParameters.set_severity_level( 0 );
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( tOrder );
+
+        tParameters.set_output_meshes( { {0} } );
+
+        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_patterns({ {0} });
+
+        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_patterns ( { {0} } );
+
+        tParameters.set_union_pattern( 2 );
+        tParameters.set_working_pattern( 3 );
+
         tParameters.set_refinement_buffer( 1 );
+        tParameters.set_staircase_buffer( 1 );
+
+        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+        tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
         // create HMR object
         moris::hmr::HMR tHMR( tParameters );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tOrder );
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
         // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tOrder );
+        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeMeshIndex );
 
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
@@ -534,7 +548,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
 
-        tHMR.save_to_exodus( "Sphere11.exo" );
+//        tHMR.save_to_exodus( 0,"Sphere11.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
@@ -695,7 +709,6 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 
         tParameters.set_multigrid( true );
         tParameters.set_bspline_truncation( true );
-        tParameters.set_mesh_orders_simple( tOrder );
         tParameters.set_refinement_buffer( 3 );
 
         std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
@@ -726,9 +739,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
                 tHMR.flag_element( tSurfaceElements( e ) );
             }
 
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
-
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0  );
         }
 
         tHMR.finalize();
@@ -737,8 +748,6 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
         auto tField = tMesh->create_field( "SDF", 1);
 
         tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
-
-        tHMR.save_to_exodus( "SDF.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 

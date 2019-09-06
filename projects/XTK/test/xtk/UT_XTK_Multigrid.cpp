@@ -65,7 +65,6 @@ namespace xtk
             tParameters.set_verbose( false );
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_mesh_orders_simple( tOrder );
             tParameters.set_refinement_buffer( 1 );
 
             // create HMR object
@@ -81,8 +80,7 @@ namespace xtk
 
             // flag first element for refinement
             //tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.perform_refinement_based_on_working_pattern(0 );
 
 //            tNumberOfElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
 //
@@ -93,7 +91,7 @@ namespace xtk
 //            }
 //
 //            //tHMR.flag_element( 0 );
-//            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+//            tHMR.perform_refinement_based_on_working_pattern( moris::hmr::RefinementMode::SIMPLE );
 //            tHMR.update_refinement_pattern();
 //
 //            tNumberOfElements = tHMR.get_database()->get_background_mesh()->get_number_of_active_elements_on_proc();
@@ -105,7 +103,7 @@ namespace xtk
 //            }
 //
 //            //tHMR.flag_element( 0 );
-//            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+//            tHMR.perform_refinement_based_on_working_pattern( moris::hmr::RefinementMode::SIMPLE );
 //            tHMR.update_refinement_pattern();
 
             tHMR.finalize();
@@ -120,7 +118,7 @@ namespace xtk
 
             tHMR.save_bsplines_to_vtk("BSplines1.vtk");
 
-            tHMR.save_to_exodus( "xtk_test_sphere1.exo" );
+//            tHMR.save_to_exodus( "xtk_test_sphere1.exo" );
 
             //-----------------------------------------------------------------------------------------------------
 

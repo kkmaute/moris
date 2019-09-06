@@ -110,8 +110,6 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     tNodeCoords(14,0) = 0.5; tNodeCoords(14,1) = 0.5; tNodeCoords(14,2) = 0.5;
 
 
-    std::cout<<node_is_on_face(0,tNodeCoords.get_row(14))<<std::endl;
-
     // Initialize the Node Indices
     moris::Matrix< moris::IndexMat > tNodeIndex({{0, 1, 3, 2, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14}});
 

@@ -138,9 +138,8 @@ namespace moris
              *
              * returns true if at least one element has been refined
              */
-            void perform_refinement( const enum RefinementMode aRefinementMode,
-                                     const uint                aActivePattern = 0,
-                                     const bool                aResetPattern = true );
+            void perform_refinement( const uint aActivePattern,
+                                     const bool aResetPattern = true );
 
 // -----------------------------------------------------------------------------
 
@@ -333,7 +332,7 @@ namespace moris
             /**
              * needed for exodus output of cubic meshes, called by finalize
              */
-            void add_extra_refinement_step_for_exodus();
+//            void add_extra_refinement_step_for_exodus();
 
 // -----------------------------------------------------------------------------
 
@@ -342,7 +341,11 @@ namespace moris
              */
             void update_bspline_meshes();
 
+            void update_bspline_meshes( const uint & aPattern );
+
             void update_lagrange_meshes();
+
+            void update_lagrange_meshes( const uint & aPattern );
 
 // -----------------------------------------------------------------------------
 

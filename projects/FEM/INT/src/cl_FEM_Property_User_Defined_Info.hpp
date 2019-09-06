@@ -55,6 +55,7 @@ namespace moris
              * constructor
              */
             Property_User_Defined_Info(){};
+
             Property_User_Defined_Info( const moris::Cell< fem::Property_Type >                          & aPropertyTypeList,
                                         const moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > & aPropertyDofList,
                                         const moris::Cell< moris::Cell< Matrix< DDRMat > > >             & aCoeffList,

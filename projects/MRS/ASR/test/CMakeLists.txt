@@ -22,10 +22,6 @@ add_executable(${ASR_TEST} ${TEST_SOURCES})
 target_link_libraries(${ASR_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${ASR_TEST} PROPERTIES OUTPUT_NAME ${ASR_TEST}${EXE_EXT})
 
-# Mark as test
-add_test(NAME ${ASR_TEST}
-    COMMAND ${MORIS_EXECUTE_COMMAND} $<TARGET_FILE:${ASR_TEST}> )
-
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
 	set(ASR_TEST_PROCS ${MORIS_TEST_PROCS})

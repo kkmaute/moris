@@ -31,6 +31,9 @@ public:
      */
     Side_Cluster(){}
 
+    virtual
+    ~Side_Cluster(){};
+
     //##############################################
     // Cell Side Ordinals/Vertex Access
     // (Pure Virtual)

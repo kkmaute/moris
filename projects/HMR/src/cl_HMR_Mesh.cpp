@@ -55,10 +55,7 @@ namespace moris
             // copy database pointer
             mDatabase = aDatabase;
 
-            // get number of meshes
-            uint tNumberOfMeshes = mDatabase->get_number_of_lagrange_meshes();
-
-            MORIS_ASSERT( aLagrangeMeshIndex <= tNumberOfMeshes, "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes.", aLagrangeMeshIndex );
+            MORIS_ASSERT( aLagrangeMeshIndex <= mDatabase->get_number_of_lagrange_meshes(), "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes.", aLagrangeMeshIndex );
 
             mMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 
@@ -708,6 +705,15 @@ namespace moris
             }
 
             return aIndices;
+        }
+
+//-----------------------------------------------------------------------------
+
+        Matrix< IndexMat >
+        Mesh::get_elements_in_support_of_basis(moris_index aBasisIndex,
+                                               moris_index aInterpIndex)
+        {
+            return this->get_entity_connected_to_entity_loc_inds( aBasisIndex, EntityRank::BSPLINE_1,EntityRank::ELEMENT);
         }
 
 //-----------------------------------------------------------------------------

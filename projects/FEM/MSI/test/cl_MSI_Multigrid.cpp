@@ -91,10 +91,10 @@ namespace moris
 
             // flag first element for refinement
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.finalize();
 
@@ -274,7 +274,6 @@ namespace moris
 //                 tParameters.set_domain_offset( 0, 0 );
 //
 //                 uint tOrder = 2;
-//                 tParameters.set_mesh_orders_simple( tOrder );
 //
 //                 tParameters.set_multigrid( true );
 //

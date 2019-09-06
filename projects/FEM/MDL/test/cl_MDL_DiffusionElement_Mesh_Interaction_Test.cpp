@@ -62,6 +62,12 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 0.5;
 }
 
+//moris::real
+//LevelSetFunction_2( const moris::Matrix< moris::DDRMat > & aPoint, Cell< real > aConstant )
+//{
+//    return norm( aPoint ) - aConstant( 0 );
+//}
+
 namespace moris
 {
 namespace mdl
@@ -331,16 +337,13 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
         // cast free function into std::function
-        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
 
         // create the list with function pointers for the value
-        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
         // create the list with cell of function pointers for the derivatives
-        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
         // collect properties info
         fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -451,6 +454,10 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         REQUIRE( tCheckNodalSolution );
 
 
+        delete tIntegMesh1;
+        delete tInterpMesh1;
+        delete tModel;
+
     }/* if( par_size() */
 }
 
@@ -462,26 +469,6 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         // Create a 3D mesh of HEX8 using MTK ------------------------------------------
         std::cout<<" Create a 3D mesh of HEX8 using MTK "<<std::endl;
         //------------------------------------------------------------------------------
-
-//        moris::uint tBplineOrder = 1;
-//        moris::uint tLagrangeOrder = 1;
-//        moris::uint tMyCoeff = 1;
-//
-//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
-//
-//        tParameters.set( "number_of_elements_per_dimension", "10, 4, 4" );
-//        tParameters.set( "domain_dimensions", "10, 4, 4" );
-//        tParameters.set( "domain_offset", "-10.0, -2.0, -2.0" );
-//        tParameters.set( "domain_sidesets", "1, 6, 3, 4, 5, 2");
-//
-//        tParameters.set( "truncate_bsplines", 1 );
-//        tParameters.set( "bspline_orders", "1" );
-//        tParameters.set( "lagrange_orders", "1" );
-//
-//        tParameters.set( "use_multigrid", 0 );
-//
-//        tParameters.set( "refinement_buffer", 1 );
-//        tParameters.set( "staircase_buffer", 1 );
 
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;
@@ -523,17 +510,16 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern(0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
 
         // evaluate node values
-        //             tField->evaluate_scalar_function( LevelSetFunction );
-        //             tHMR.save_to_exodus( "Circle_diff.exo" );
-        //             tHMR.save_faces_to_vtk( "Faces.vtk" );
+        // tField->evaluate_scalar_function( LevelSetFunction );
+        // tHMR.save_to_exodus( "Circle_diff.exo" );
+        // tHMR.save_faces_to_vtk( "Faces.vtk" );
 
         //1) Create the fem nodes ------------------------------------------------------
         std::cout<<" Create the fem nodes "<<std::endl;
@@ -561,16 +547,13 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
         // cast free function into std::function
-        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
 
         // create the list with function pointers for the value
-        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
         // create the list with cell of function pointers for the derivatives
-        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
         // collect properties info
         fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -720,6 +703,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
         // check bool is true
         REQUIRE( tCheckNodalSolution );
+
+        delete tModel;
     }/* if( par_size() */
 }
 
@@ -981,18 +966,17 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
 
             //tDatabase->flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
 
         // evaluate node values
-        //           tField->evaluate_scalar_function( LevelSetFunction );
-        //           tHMR.save_to_exodus( 1,"Circle_diff.exo" );
+//        tField->evaluate_scalar_function( LevelSetFunction );
+//        tHMR.save_to_exodus( 0,"Circle_diff.exo" );
 
         //1) Create the fem nodes ------------------------------------------------------
         std::cout<<" Create the fem nodes "<<std::endl;
@@ -1020,16 +1004,13 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
         // cast free function into std::function
-        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
 
         // create the list with function pointers for the value
-        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
         // create the list with cell of function pointers for the derivatives
-        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
         // collect properties info
         fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -1124,7 +1105,8 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
 
-        //print(tSolution11,"tSolution11");
+
+//        print(tSolution11,"tSolution11");
 
         tModel->output_solution( "Circle" );
 
@@ -1132,17 +1114,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         tHMR.save_to_exodus( 0,"Circle_diff_temp.exo" );
         //           tHMR.save_bsplines_to_vtk("Bsplines_temp.vtk");
-
-        //           //-------------------------------------//
-        //           // print solution of each processor
-        //           if (par_rank() == 0){
-        //             print(tSolution11,"Processor_ONE");
-        //           }
-        //           else if (par_rank() == 1){
-        //             print(tSolution11,"Processor_TWO");
-        //           }
-        //           else {} // do nothing
-        //           //-------------------------------------//
 
         // Expected solution when running in serial
         Matrix< DDRMat > tExpectedSolution = {{ +1.976384396893782e-09, +9.999999997638666e+00, +2.299478928887239e-09,
@@ -1279,9 +1250,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         for( uint k=0; k<2; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
@@ -1316,16 +1286,13 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
         // cast free function into std::function
-        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
 
         // create the list with function pointers for the value
-        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
         // create the list with cell of function pointers for the derivatives
-        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
         // collect properties info
         fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -1455,6 +1422,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         }
         // check bool is true
         REQUIRE( tCheckNodalSolution );
+
+        delete tModel;
     }/* if( par_size() */
 }
 

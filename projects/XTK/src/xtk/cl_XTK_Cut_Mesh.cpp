@@ -6,7 +6,7 @@
  */
 
 #include "cl_XTK_Cut_Mesh.hpp"
-
+#include "cl_Matrix.hpp"
 
 namespace xtk
 {
@@ -461,8 +461,10 @@ Cut_Mesh::pack_cut_mesh_by_phase(moris::size_t const & aMeshIndex,
 }
 // ----------------------------------------------------------------------------------
 moris::Matrix< moris::IdMat >
-Cut_Mesh::pack_interface_sides(bool aIndexFlag,
-                               moris_index aPhaseIndex) const
+Cut_Mesh::pack_interface_sides(moris_index aGeometryIndex,
+                               moris_index aPhaseIndex0,
+                               moris_index aPhaseIndex1,
+                               moris_index aIndexFlag) const
 {
     uint tNumElem = this->get_num_entities(EntityRank::ELEMENT);
 
@@ -472,7 +474,7 @@ Cut_Mesh::pack_interface_sides(bool aIndexFlag,
     uint tNumElemsFromCM = 0;
     for(uint i = 0; i <this->get_num_child_meshes(); i++)
     {
-       moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides(aIndexFlag,aPhaseIndex);
+       moris::Matrix< moris::IdMat > tSingleCMElementIdAndSideOrds = mChildrenMeshes(i).pack_interface_sides(aGeometryIndex,aPhaseIndex0,aPhaseIndex1,aIndexFlag);
 
        tNumElemsFromCM = tSingleCMElementIdAndSideOrds.n_rows();
        if(tNumElemsFromCM!=0)
@@ -543,8 +545,39 @@ Cut_Mesh::get_full_element_to_node_glob_ids()
     }
 
     return tElementToNodeIds;
+}// ----------------------------------------------------------------------------------
+
+moris::Matrix<moris::IdMat>
+Cut_Mesh::get_full_element_to_node_loc_inds()
+{
+    enum CellTopology tChildElementTopo = this->get_child_element_topology();
+    moris::size_t     tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+    moris::size_t tNumNodesPerElem = 0;
+    if(tChildElementTopo == CellTopology::TET4)
+    {
+        tNumNodesPerElem = 4;
+    }
+    else
+    {
+        MORIS_ERROR(0,"Not implemented");
+    }
+
+    moris::Matrix<moris::IdMat> tElementToNodeInds(tNumElements,tNumNodesPerElem);
+    moris::size_t tCount = 0;
+    for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
+    {
+       moris::Matrix<moris::IdMat> tElementToNodeIndsCM = mChildrenMeshes(i).get_element_to_node();
+       for(moris::size_t j = 0; j<tElementToNodeIndsCM.n_rows(); j++)
+       {
+           tElementToNodeInds.set_row(tCount, tElementToNodeIndsCM.get_row(j));
+           tCount++;
+       }
+
+    }
+
+    return tElementToNodeInds;
 }
-// ----------------------------------------------------------------------------------
+
 moris::Cell<moris::Matrix<moris::IdMat>>
 Cut_Mesh::get_full_element_to_node_by_phase_glob_ids(moris::uint aNumPhases,
                                            moris::mtk::Mesh & aBackgroundMeshData)
@@ -667,6 +700,7 @@ Cut_Mesh::get_entity_counts() const
     }
 }
 // ----------------------------------------------------------------------------------
+
 }
 
 

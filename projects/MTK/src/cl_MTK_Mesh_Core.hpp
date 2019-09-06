@@ -918,18 +918,6 @@ public:
     //FIXME: MOVE THESE FUNCTIONS TO INTERPOLATION MESH BASE CLASS
 public:
 
-    /*
-     * Get elements interpolated into by a basis function. For a Lagrange mesh,
-     * the elements in support of basis is equivalent to the elements connected
-     * to a node. Therefore, a call to get_elements
-     */
-    virtual
-    Matrix< IndexMat >
-    get_elements_in_support_of_basis(moris_index aBasisIndex)
-    {
-        MORIS_ERROR( false, "get_elements_in_support_of_basis() not implemented for this mesh" );
-        return Matrix<IndexMat>(0,0);
-    }
 
     //FIXME: IMPLEMENT THIS FUNCTION IN STK,XTK
     /*
@@ -1016,7 +1004,7 @@ public:
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const
                              {
-        MORIS_ERROR(0," get_set_entity_ids has no base implementation");
+        MORIS_ERROR(0," get_set_entity_loc_inds has no base implementation");
         return Matrix< IndexMat >(0,0);
                              }
 
@@ -1105,6 +1093,7 @@ public:
     /*
      * returns the number of faces in a side set.
      */
+    virtual
     uint get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const
     {
         moris::uint tNumSideSetFaces = 0;
