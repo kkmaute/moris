@@ -150,6 +150,55 @@ namespace moris
          }
 
 //------------------------------------------------------------------------------
+         const Matrix< DDRMat > & Field_Interpolator::dnNdxn( const uint & aDerivativeOrder )
+         {
+             // switch on derivative order
+             switch ( aDerivativeOrder )
+             {
+                 // 1st order spatial derivatives of the shape functions
+                 case( 1 ) :
+                 {
+                     // if dNdx needs to be evaluated
+                     if( mBxEval )
+                     {
+                         // evaluate Bx
+                         this->eval_Bx();
+                     }
+                     // return member data
+                     return mBx;
+                 }
+                 // 2nd order spatial derivatives of the shape functions
+                 case ( 2 ) :
+                 {
+                     // if d2Ndx2 needs to be evaluated
+                     if( md2Ndx2Eval )
+                     {
+                         // evaluate d2Ndx2
+                         this->eval_d2Ndx2();
+                     }
+                     // return member data
+                     return md2Ndx2;
+                 }
+                 case ( 3 ) :
+                 {
+                     // if d3Ndx3 needs to be evaluated
+                     if( md3Ndx3Eval )
+                     {
+                         // evaluate d3Ndx3
+                         this->eval_d3Ndx3();
+                     }
+                     // return member data
+                     return md3Ndx3;
+                 }
+
+                 default :
+                     MORIS_ERROR( false, " Field_Interpolator::dnNdxn - Derivative order not implemented. " );
+                     return mBx;
+                     break;
+             }
+         }
+
+//------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Field_Interpolator::Bx()
         {
@@ -209,7 +258,7 @@ namespace moris
                 this->eval_d2Ndx2();
             }
 
-            // return member date
+            // return member data
             return md2Ndx2;
         }
 

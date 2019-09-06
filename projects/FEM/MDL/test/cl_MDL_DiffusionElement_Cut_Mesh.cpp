@@ -287,11 +287,11 @@ namespace moris
             // list of the property coefficients
             Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
             tCoeffList( 0 ).resize( 1 );
-            tCoeffList( 0 )( 0 )= {{ 1.0 }};
+            tCoeffList( 0 )( 0 ) = {{ 1.0 }};
             tCoeffList( 1 ).resize( 1 );
-            tCoeffList( 1 )( 0 )= {{ 5.0 }};
+            tCoeffList( 1 )( 0 ) = {{ 5.0 }};
             tCoeffList( 2 ).resize( 1 );
-            tCoeffList( 2 )( 0 )= {{ 20.0 }};
+            tCoeffList( 2 )( 0 ) = {{ 20.0 }};
 
             // cast free function into std::function
             std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,

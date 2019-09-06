@@ -60,7 +60,7 @@ namespace moris
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );
 
     protected:
-        fem::Node_Base * mNodeObj; // FIXME replace base class bei FEM node
+        fem::Node_Base * mNodeObj;
         moris_id  mNodeID;
        //FIXME Add interpolation order
 

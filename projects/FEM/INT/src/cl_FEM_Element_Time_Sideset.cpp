@@ -72,12 +72,12 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // compute jacobian at evaluation point
-                    Matrix< DDRMat > tResidual;
+                    moris::Cell< Matrix< DDRMat > > tResidual;
                     mSet->get_IWGs()( iIWG )->compute_residual( tResidual );
 
                     // add contribution to residual from evaluation point
-                    mSet->mResidual( { mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 1 ) },
-                                     { 0, 0 } ) += tWStar * tResidual;
+                    mSet->mResidual( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 1 ) },
+                                     { 0, 0 } ) += tWStar * tResidual( 0 );
                 }
             }
 //            // print residual for check
@@ -137,7 +137,7 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // compute jacobian at evaluation point
-                    moris::Cell< Matrix< DDRMat > > tJacobians;
+                    moris::Cell< moris::Cell< Matrix< DDRMat > > > tJacobians;
                     mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians );
 //                    print( tJacobians(0), "tJacobians" );
 //
@@ -150,13 +150,13 @@ namespace moris
 //                    print(tJacobiansFD(0),"tJacobiansFD");
 
                    // loop over the IWG active dof types
-                    uint tNumIWGDof = mSet->get_IWGs()( iIWG )->get_dof_type_list().size();
+                    uint tNumIWGDof = mSet->get_IWGs()( iIWG )->get_global_dof_type_list().size();
                     for ( uint iIWGFI = 0; iIWGFI < tNumIWGDof; iIWGFI++)
                     {
                         // add contribution to jacobian from evaluation point
-                        mSet->mJacobian( { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 1 ) },
-                                         { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 2 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 3 ) } )
-                                       += tWStar * tJacobians( iIWGFI );
+                        mSet->mJacobian( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 0 ),      mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 1 ) },
+                                         { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
+                    	               += tWStar * tJacobians( 0 )( iIWGFI );
                      }
                  }
              }

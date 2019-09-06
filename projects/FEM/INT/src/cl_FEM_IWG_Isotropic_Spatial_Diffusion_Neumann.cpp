@@ -26,7 +26,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( Matrix< DDRMat > & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators
             this->check_field_interpolators();
@@ -34,29 +34,32 @@ namespace moris
             // check master properties
             this->check_properties();
 
+            // set residual size
+            this->set_residual( aResidual );
+
             // compute the residual r_T
-            aResidual = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( moris::Cell< Matrix< DDRMat > > & aJacobians )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check master field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
-            // set the jacobian size
-            aJacobians.resize( 1 );
+            // set jacobian size
+            this->set_jacobian( aJacobians );
 
-            // compute the jacobian j_T_T
+            // compute the jacobian
             uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
-            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > > & aJacobians,
-                                                                                     Matrix< DDRMat >                & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                                                     moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             // check master field interpolators
             this->check_field_interpolators();
@@ -64,15 +67,18 @@ namespace moris
             // check master properties
             this->check_properties();
 
-            // compute the residual r_T
-            aResidual = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
+            // set residual size
+            this->set_residual( aResidual );
 
-            // set the jacobian size
-            aJacobians.resize( 1 );
+            // compute the residual r_T
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
+
+            // set jacobian size
+            this->set_jacobian( aJacobians );
 
             // compute the jacobian j_T_T
             uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
-            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
         }
 
 //------------------------------------------------------------------------------

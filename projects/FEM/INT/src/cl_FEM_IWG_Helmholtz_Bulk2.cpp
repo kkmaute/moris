@@ -30,7 +30,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk2::compute_residual( Matrix< DDRMat >                   & aResidual )
+        void IWG_Helmholtz_Bulk2::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // set field interpolator
             Field_Interpolator* vN  = mMasterFI( 0 );
@@ -56,14 +56,17 @@ namespace moris
                 tDiracFilter = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
             }
 
+            // set residual size
+            this->set_residual( aResidual );
+
             // compute the residual
-            aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                      + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
+            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+                           + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk2::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
+        void IWG_Helmholtz_Bulk2::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // set field interpolator
             Field_Interpolator* vN  = mMasterFI( 0 );
@@ -98,20 +101,20 @@ namespace moris
             }
 
             // set the jacobian size
-            aJacobians.resize( 2 );
+            this->set_jacobian( aJacobians );
 
             // compute the jacobian j_vN_vN
-            aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
 
             // compute the jacobian j_vN_phi
-            aJacobians( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
-                            * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
+                                 * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk2::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                 Matrix< DDRMat >                   & aResidual )
+        void IWG_Helmholtz_Bulk2::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                                 moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             // set field interpolator
             Field_Interpolator* vN  = mMasterFI( 0 );
@@ -145,19 +148,22 @@ namespace moris
                 tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
             }
 
+            // set residual size
+            this->set_residual( aResidual );
+
             // compute the residual r_vN
-            aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                      + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
+            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+                           + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
 
             // set the jacobian size
-            aJacobians.resize( 2 );
+            this->set_jacobian( aJacobians );
 
             // compute the jacobian j_vN_vN
-            aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
 
            // compute the jacobian j_vN_phi
-           aJacobians( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
-                           * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+           aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
+                               * tDDiracFilter * ( phi->N() * tNormPhi  - phi->val()( 0 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------

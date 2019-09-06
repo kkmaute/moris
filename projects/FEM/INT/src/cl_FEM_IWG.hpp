@@ -97,6 +97,153 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * set residual dof type
+             * @param[ in ] aResidualdofType a cell of residual dof types
+             */
+            void set_residual_dof_type( moris::Cell< MSI::Dof_Type > & aResidualDofType )
+            {
+                mResidualDofType = aResidualDofType;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns a dof type for the residual
+             */
+            const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
+            {
+                return mResidualDofType;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * set IWG active dof types
+             * @param[ in ] aDofTypes a cell of cell of dof types
+             * @param[ in ] aIsMaster enum for master or slave
+             *
+             */
+            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER)
+            {
+                switch ( aIsMaster )
+                {
+                    case( mtk::Master_Slave::MASTER ) :
+                    {
+                        mMasterDofTypes = aDofTypes;
+                        break;
+                    }
+                    case( mtk::Master_Slave::SLAVE ) :
+                    {
+                        mSlaveDofTypes = aDofTypes;
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::set_dof_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns a cell of dof types active for the IWG
+             * @param[ in ] aIsMaster enum master or slave
+             */
+            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            {
+                // switch on master/slave
+                switch( aIsMaster )
+                {
+                    // if master
+                    case( mtk::Master_Slave::MASTER ):
+                    {
+                        // return master global dof type list
+                        return mMasterDofTypes;
+                        break;
+                    }
+                    // if slave
+                    case( mtk::Master_Slave::SLAVE ):
+                    {
+                        // return slave global dof type list
+                        return mSlaveDofTypes;
+                        break;
+                    }
+                    // if none
+                    default:
+                    {
+                        MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be master or slave." );
+                        return mMasterDofTypes;
+                        break;
+                    }
+                }
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * set IWG active property types
+             * @param[ in ] aPropertyTypes a cell of cell of property types
+             * @param[ in ] aIsMaster enum for master or slave
+             *
+             */
+            void set_property_type_list( moris::Cell< fem::Property_Type  > & aPropertyTypes,
+                                         mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER)
+            {
+                switch ( aIsMaster )
+                {
+                    case( mtk::Master_Slave::MASTER ) :
+                    {
+                        mMasterPropTypes = aPropertyTypes;
+                        break;
+                    }
+                    case( mtk::Master_Slave::SLAVE ) :
+                    {
+                        mSlavePropTypes = aPropertyTypes;
+                        break;
+                    }
+                    default :
+                    {
+                        MORIS_ERROR( false, "IWG::set_property_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * returns a cell of property type active for the IWG
+             * @param[ in ] aIsMaster enum master or slave
+             */
+            const moris::Cell< fem::Property_Type > & get_property_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            {
+                // switch on master/slave
+                switch( aIsMaster )
+                {
+                    // if master
+                    case( mtk::Master_Slave::MASTER ):
+                    {
+                        // return master global property type list
+                        return mMasterPropTypes;
+                        break;
+                    }
+                    // if slave
+                    case( mtk::Master_Slave::SLAVE ):
+                    {
+                        // return slave global property type list
+                        return mSlavePropTypes;
+                        break;
+                    }
+                    // if none
+                    default:
+                    {
+                        MORIS_ASSERT( false, "IWG::get_property_type_list - can only be master or slave." );
+                        return mMasterPropTypes;
+                        break;
+                    }
+                }
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * set field interpolators
              * @param[ in ] aFieldInterpolators cell of field interpolator pointers
              * @param[ in ] aIsMaster           enum for master or slave
@@ -346,89 +493,23 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns a dof type for the residual
-             */
-            moris::Cell< MSI::Dof_Type > get_residual_dof_type() const
-            {
-                return mResidualDofType;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * returns a cell of dof types active for the IWG
-             * @param[ in ] aIsMaster enum master or slave
-             */
-            moris::Cell< moris::Cell< MSI::Dof_Type > > get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master global dof type list
-                        return mMasterDofTypes;
-                        break;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave global dof type list
-                        return mSlaveDofTypes;
-                        break;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be master or slave." );
-                        return mMasterDofTypes;
-                        break;
-                    }
-                }
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * returns a cell of property type active for the IWG
-             * @param[ in ] aIsMaster enum master or slave
-             */
-            const moris::Cell< fem::Property_Type > & get_property_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master global property type list
-                        return mMasterPropTypes;
-                        break;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave global property type list
-                        return mSlavePropTypes;
-                        break;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IWG::get_property_type_list - can only be master or slave." );
-                        return mMasterPropTypes;
-                        break;
-                    }
-                }
-            };
-
-//------------------------------------------------------------------------------
-            /**
              * evaluates the residual
              * @param[ in ] aResidual matrix to fill with residual
              */
-            virtual void compute_residual( Matrix< DDRMat > & aResidual )
+            virtual void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
             {
                 MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set the residual size
+             * @param[ in ] aResidual matrix to fill with residual
+             */
+            void set_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+            {
+                // FIXME should be 1 if no slave
+                aResidual.resize( 2 );
             }
 
 //------------------------------------------------------------------------------
@@ -436,9 +517,27 @@ namespace moris
              * evaluates the Jacobian
              * @param[ in ] aJacobians cell of matrices to fill with Jacobians
              */
-            virtual void compute_jacobian( moris::Cell< Matrix< DDRMat > > & aJacobians )
+            virtual void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
             {
                 MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set the Jacobian
+             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
+             */
+            void set_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+            {
+                // get number of dof types for the IWG
+                uint tMasterNumDofType = this->get_global_dof_type_list().size();
+                uint tSlaveNumDofType  = this->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
+                uint tNumDofType = tMasterNumDofType + tSlaveNumDofType;
+
+                // FIXME should be 1 if no slave
+                aJacobians.resize( 2 );
+                aJacobians( 0 ).resize( tNumDofType );
+                aJacobians( 1 ).resize( tNumDofType );
             }
 
 //------------------------------------------------------------------------------
@@ -447,8 +546,8 @@ namespace moris
              * @param[ in ] aResidual matrix to fill with residual
              * @param[ in ] aJacobians cell of matrices to fill with Jacobians
              */
-            virtual void compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > > & aJacobians,
-                                                        Matrix< DDRMat >                & aResidual )
+            virtual void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
             {
                 MORIS_ERROR( false, " IWG::compute_jacobian_and_residual - This function does nothing. " );
             }
@@ -456,57 +555,117 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluates the Jacobian by finite difference
-             * @param[ in ] aJacobiansFD  cell of matrices to fill with Jacobians evaluated by FD
+             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
              * @param[ in ] aPerturbation real to perturb for FD
              * @param[ in ] aIsMaster     enum master or slave
              */
-            virtual void compute_jacobian_FD( moris::Cell< Matrix< DDRMat > > & aJacobiansFD,
-                                              real                              aPerturbation,
-                                              mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER )
+            virtual void compute_jacobian_FD( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD,
+                                              real                                             aPerturbation,
+                                              mtk::Master_Slave                                aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // get master and slave number of dof types
+                uint tMasterNumDofType = mMasterGlobalDofTypes.size();
+                uint tSlaveNumDofType  = mSlaveGlobalDofTypes.size();
+                uint tNumDofType       = tMasterNumDofType + tSlaveNumDofType;
+
                 // set the jacobian size
-                aJacobiansFD.resize( this->get_field_interpolators( aIsMaster ).size() );
-
-                // loop over the field interpolator
-                for( uint iFI = 0; iFI < this->get_field_interpolators( aIsMaster ).size(); iFI++ )
+                if ( tSlaveNumDofType > 0 )
                 {
-                    aJacobiansFD( iFI ).set_size( this->get_field_interpolators( aIsMaster )( 0 )->get_number_of_space_time_coefficients(),
-                                                  this->get_field_interpolators( aIsMaster )( iFI )->get_number_of_space_time_coefficients(),
-                                                  0.0 );
+                    aJacobiansFD.resize( 2 );
+                    aJacobiansFD( 0 ).resize( tNumDofType );
+                    aJacobiansFD( 1 ).resize( tNumDofType );
+                }
+                else
+                {
+                    aJacobiansFD.resize( 1 );
+                    aJacobiansFD( 0 ).resize( tNumDofType );
+                }
 
-                    // get field interpolator coefficients
-                    Matrix< DDRMat > tCoeff = this->get_field_interpolators( aIsMaster )( iFI )->get_coeff();
+                // get the number of master residual dofs
+                uint tMasterResNumDof = this->get_field_interpolators()( 0 )->get_number_of_space_time_coefficients();
+                uint tSlaveResNumDof  = this->get_field_interpolators( mtk::Master_Slave::SLAVE )( 0 )->get_number_of_space_time_coefficients();
 
-                    for( uint iCoeff = 0; iCoeff< this->get_field_interpolators( aIsMaster )( iFI )->get_number_of_space_time_coefficients(); iCoeff++ )
+                // loop over the IWG dof types
+                for( uint iFI = 0; iFI < tNumDofType; iFI++ )
+                {
+                    // number of dofs for dof type wrt which derivative is computed
+                    uint tDerNumDof;
+
+                    // field interpolator wrt which derivative is computed
+                    Field_Interpolator* tFI;
+
+                    // coefficients for dof type wrt which derivative is computed
+                    Matrix< DDRMat > tCoeff;
+
+                    // derivative wrt master dof type
+                    if ( iFI < tMasterNumDofType )
+                    {
+                        // get field interpolator for derivative
+                        tFI = this->get_field_interpolators()( iFI );
+
+                        // get number of master dofs for derivative
+                        tDerNumDof = tFI->get_number_of_space_time_coefficients();
+
+                        // get coefficients for derivative
+                        tCoeff = tFI->get_coeff();
+
+                        // set size of the Jacobian
+                        aJacobiansFD( 0 )( iFI ).set_size( tMasterResNumDof, tDerNumDof, 0.0 );
+                        if( tSlaveNumDofType > 0 )
+                        {
+                            aJacobiansFD( 1 )( iFI ).set_size( tSlaveResNumDof, tDerNumDof, 0.0 );
+                        }
+                    }
+                    // derivative wrt slave dof type
+                    else
+                    {
+                        // get field interpolator for derivative
+                        tFI = this->get_field_interpolators( mtk::Master_Slave::SLAVE )( iFI - tMasterNumDofType );
+
+                        // get number of slave dofs for derivative
+                        tDerNumDof = tFI->get_number_of_space_time_coefficients();
+
+                        // get coefficients for derivative
+                        tCoeff = tFI->get_coeff();
+
+                        // set size of the Jacobian
+                        aJacobiansFD( 0 )( iFI ).set_size( tMasterResNumDof, tDerNumDof, 0.0 );
+                        aJacobiansFD( 1 )( iFI ).set_size( tSlaveResNumDof,  tDerNumDof, 0.0 );
+                    }
+
+                    for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
                     {
                         // perturbation of the coefficent
                         Matrix< DDRMat > tCoeffPert = tCoeff;
                         tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;
 
                         // setting the perturbed coefficients
-                        this->get_field_interpolators( aIsMaster )( iFI )->set_coeff( tCoeffPert );
+                        tFI->set_coeff( tCoeffPert );
 
                         // evaluate the residual
-                        Matrix< DDRMat > tResidual_Plus;
-                        this->compute_residual( tResidual_Plus);
+                        moris::Cell< Matrix< DDRMat > > tResidual_Plus;
+                        this->compute_residual( tResidual_Plus );
 
                         // perturbation of the coefficent
                         tCoeffPert = tCoeff;
                         tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation;
 
                         // setting the perturbed coefficients
-                        this->get_field_interpolators( aIsMaster )( iFI )->set_coeff( tCoeffPert );
+                        tFI->set_coeff( tCoeffPert );
 
                         // evaluate the residual
-                        Matrix< DDRMat > tResidual_Minus;
+                        moris::Cell< Matrix< DDRMat > > tResidual_Minus;
                         this->compute_residual( tResidual_Minus );
 
                         // evaluate Jacobian
-                        aJacobiansFD( iFI ).get_column( iCoeff ) = ( tResidual_Plus - tResidual_Minus )/ ( 2.0 * aPerturbation );
-
+                        aJacobiansFD( 0 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) )/ ( 2.0 * aPerturbation );
+                        if( tSlaveNumDofType > 0 )
+                        {
+                            aJacobiansFD( 1 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) )/ ( 2.0 * aPerturbation );
+                        }
                     }
                     // reset the coefficients values
-                    this->get_field_interpolators( aIsMaster )( iFI )->set_coeff( tCoeff );
+                    tFI->set_coeff( tCoeff );
                 }
             }
 

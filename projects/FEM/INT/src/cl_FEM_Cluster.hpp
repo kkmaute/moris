@@ -475,6 +475,45 @@ namespace moris
              }
          }
 
+//        /**
+//         * set the field interpolators coefficients
+//         */
+//        void set_field_interpolators_coefficients( )
+//         {
+//             // get number of master dof types
+//             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
+//
+//             // loop on the master dof types
+//             for( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
+//             {
+//                 // get the ith dof type group
+//                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
+//
+//                 // get the pdof values for the master dof type group
+//                 Matrix< DDRMat > tCoeff;
+//                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
+//
+//                 // set the coefficients for the master field interpolators
+//                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
+//             }
+//
+//             // get number of slave dof types
+//             uint tSlaveNumDofTypes = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
+//
+//             // loop on the slave dof types
+//             for( uint iDOF = 0; iDOF < tSlaveNumDofTypes; iDOF++ )
+//             {
+//                 // get the slave dof type group
+//                 moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
+//
+//                 // get the pdof values for the slave dof type group
+//                 Matrix< DDRMat > tCoeff;
+//                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
+//
+//                 // set the coefficients for the slave field interpolators
+//                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff );
+//             }
+//         }
  //------------------------------------------------------------------------------
         /**
          * @Brief set the initial sizes and values for mJacobian

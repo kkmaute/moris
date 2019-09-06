@@ -814,7 +814,8 @@ namespace moris
         uint tNumOfIWG = this->get_number_of_IWGs();
 
         // set info size
-        mIWGDofAssemblyMap.resize( tNumOfIWG );
+        mIWGResDofAssemblyMap.resize( tNumOfIWG );
+        mIWGJacDofAssemblyMap.resize( tNumOfIWG );
 
         // loop over the IWGs
         for ( uint iIWG = 0; iIWG < tNumOfIWG; iIWG++ )
@@ -828,12 +829,12 @@ namespace moris
             uint tTotalIWGNumDof  = tMasterIWGNumDof + tSlaveIWGNumDof;
 
             // set size
-            mIWGDofAssemblyMap( iIWG ).set_size( tTotalIWGNumDof, 4 );
+            mIWGResDofAssemblyMap( iIWG ).set_size( 1, 2 );
+            mIWGJacDofAssemblyMap( iIWG ).set_size( tTotalIWGNumDof, 2 );
 
             // select associated active interpolators
             Matrix< DDUMat > tStartJDof( tTotalIWGNumDof, 1 );
-            Matrix< DDUMat > tStopJDof( tTotalIWGNumDof, 1 );
-
+            Matrix< DDUMat > tStopJDof ( tTotalIWGNumDof, 1 );
 
             // loop over the master and slave dof types
             for( uint iDOF = 0; iDOF < tTotalIWGNumDof; iDOF++ )
@@ -861,33 +862,111 @@ namespace moris
 
             // find the index of residual dof type in the list of master dof types
             uint tMasterResDofIndex = mMasterDofTypeMap( static_cast< int >( tIWG->get_residual_dof_type()( 0 ) ), 0 );
-            Matrix< DDUMat > tMasterStartIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tMasterResDofIndex, 0 ) );
-            Matrix< DDUMat > tMasterStopIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tMasterResDofIndex, 1 ) );
+
+            // fill the start and stop indices for the master residual dofs
+            mIWGResDofAssemblyMap( iIWG )( 0, 0 ) = mDofAssemblyMap( tMasterResDofIndex, 0 );
+            mIWGResDofAssemblyMap( iIWG )( 0, 1 ) = mDofAssemblyMap( tMasterResDofIndex, 1 );
 
             // fill the map
-            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 0, 0 }) = tMasterStartIDof.matrix_data();
-            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 1, 1 }) = tMasterStopIDof.matrix_data();
-            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 2, 2 }) = tStartJDof.matrix_data();
-            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 3, 3 }) = tStopJDof.matrix_data();
+            mIWGJacDofAssemblyMap( iIWG ).get_column( 0 ) = tStartJDof.matrix_data();
+            mIWGJacDofAssemblyMap( iIWG ).get_column( 1 ) = tStopJDof.matrix_data();
 
             // if there is a slave
             if( tSlaveIWGNumDof > 0 )
             {
-            	mIWGDofAssemblyMap( iIWG ).resize( 2 * tTotalIWGNumDof, 4 );
+                // resize the residual dof assembly map to account for the slave
+                mIWGResDofAssemblyMap( iIWG ).resize( 2, 2 );
+
                 // find the index of residual dof type in the list of slave dof types
                 uint tSlaveResDofIndex = this->get_number_of_field_interpolators()
                                        + mSlaveDofTypeMap( static_cast< int >( tIWG->get_residual_dof_type()( 0 ) ), 0 );
-                Matrix< DDUMat > tSlaveStartIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tSlaveResDofIndex, 0 ) );
-                Matrix< DDUMat > tSlaveStopIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tSlaveResDofIndex, 1 ) );
 
-                // fill the map
-                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 0, 0 }) = tSlaveStartIDof.matrix_data();
-                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 1, 1 }) = tSlaveStopIDof.matrix_data();
-                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 2, 2 }) = tStartJDof.matrix_data();
-                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 3, 3 }) = tStopJDof.matrix_data();
+                // fill the start and stop indices for the slave residual dofs
+                mIWGResDofAssemblyMap( iIWG )( 1, 0 ) = mDofAssemblyMap( tSlaveResDofIndex, 0 );
+                mIWGResDofAssemblyMap( iIWG )( 1, 1 ) = mDofAssemblyMap( tSlaveResDofIndex, 1 );
             }
         }
     }
+//    void Set::create_IWG_dof_assembly_map()
+//    {
+//        // get number of IWGs
+//        uint tNumOfIWG = this->get_number_of_IWGs();
+//
+//        // set info size
+//        mIWGDofAssemblyMap.resize( tNumOfIWG );
+//
+//        // loop over the IWGs
+//        for ( uint iIWG = 0; iIWG < tNumOfIWG; iIWG++ )
+//        {
+//            // get IWG
+//            IWG* tIWG = mIWGs( iIWG );
+//
+//            // get the number of dof type
+//            uint tMasterIWGNumDof = tIWG->get_global_dof_type_list().size();
+//            uint tSlaveIWGNumDof  = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
+//            uint tTotalIWGNumDof  = tMasterIWGNumDof + tSlaveIWGNumDof;
+//
+//            // set size
+//            mIWGDofAssemblyMap( iIWG ).set_size( tTotalIWGNumDof, 4 );
+//
+//            // select associated active interpolators
+//            Matrix< DDUMat > tStartJDof( tTotalIWGNumDof, 1 );
+//            Matrix< DDUMat > tStopJDof( tTotalIWGNumDof, 1 );
+//
+//
+//            // loop over the master and slave dof types
+//            for( uint iDOF = 0; iDOF < tTotalIWGNumDof; iDOF++ )
+//            {
+//                // init index of the dof type in the list of dof types
+//                uint tIWGDofIndex;
+//
+//                // if master dof type
+//                if( iDOF < tMasterIWGNumDof )
+//                {
+//                    // find the index of dof type in the list of master dof type
+//                    tIWGDofIndex = mMasterDofTypeMap( static_cast< int >( tIWG->get_global_dof_type_list()( iDOF )( 0 ) ), 0 );
+//                }
+//                // if slave dof type
+//                else
+//                {
+//                    // find the index of dof type in the list of slave dof type
+//                    tIWGDofIndex = this->get_number_of_field_interpolators()
+//                                 + mSlaveDofTypeMap( static_cast< int >( tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF - tMasterIWGNumDof )( 0 ) ), 0 );
+//                }
+//                // get the assembly indices for the dof type
+//                tStartJDof( iDOF ) = mDofAssemblyMap( tIWGDofIndex, 0 );
+//                tStopJDof( iDOF )  = mDofAssemblyMap( tIWGDofIndex, 1 );
+//            }
+//
+//            // find the index of residual dof type in the list of master dof types
+//            uint tMasterResDofIndex = mMasterDofTypeMap( static_cast< int >( tIWG->get_residual_dof_type()( 0 ) ), 0 );
+//            Matrix< DDUMat > tMasterStartIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tMasterResDofIndex, 0 ) );
+//            Matrix< DDUMat > tMasterStopIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tMasterResDofIndex, 1 ) );
+//
+//            // fill the map
+//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 0, 0 }) = tMasterStartIDof.matrix_data();
+//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 1, 1 }) = tMasterStopIDof.matrix_data();
+//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 2, 2 }) = tStartJDof.matrix_data();
+//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 3, 3 }) = tStopJDof.matrix_data();
+//
+//            // if there is a slave
+//            if( tSlaveIWGNumDof > 0 )
+//            {
+//                mIWGDofAssemblyMap( iIWG ).resize( 2 * tTotalIWGNumDof, 4 );
+//                // find the index of residual dof type in the list of slave dof types
+//                uint tSlaveResDofIndex = this->get_number_of_field_interpolators()
+//                                       + mSlaveDofTypeMap( static_cast< int >( tIWG->get_residual_dof_type()( 0 ) ), 0 );
+//                Matrix< DDUMat > tSlaveStartIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tSlaveResDofIndex, 0 ) );
+//                Matrix< DDUMat > tSlaveStopIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tSlaveResDofIndex, 1 ) );
+//
+//                // fill the map
+//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 0, 0 }) = tSlaveStartIDof.matrix_data();
+//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 1, 1 }) = tSlaveStopIDof.matrix_data();
+//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 2, 2 }) = tStartJDof.matrix_data();
+//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 3, 3 }) = tStopJDof.matrix_data();
+//            }
+//        }
+//    }
 
 //------------------------------------------------------------------------------
     void Set::set_properties_field_interpolators()

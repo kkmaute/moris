@@ -90,6 +90,7 @@ set(HEADERS
     fn_FEM_Rotation_Matrix.hpp
     cl_FEM_Property.hpp
     cl_FEM_Property_User_Defined_Info.hpp
+    cl_FEM_IWG_User_Defined_Info.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

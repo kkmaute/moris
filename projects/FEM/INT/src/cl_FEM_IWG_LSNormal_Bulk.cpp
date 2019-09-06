@@ -26,7 +26,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual )
+        void IWG_LSNormal_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
@@ -51,13 +51,16 @@ namespace moris
                 tNormPhi = 1.0e-12;
             }
 
+            // set residual size
+            this->set_residual( aResidual );
+
             // compute residual
-            aResidual = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
+            aResidual( 0 ) = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
+        void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check master field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
@@ -89,19 +92,19 @@ namespace moris
             }
 
             // set the jacobian size
-            aJacobians.resize( 2 );
+            this->set_jacobian( aJacobians );
 
             // compute j_nPhi_nPhi
-            aJacobians( 0 ) = trans( tNNPhi ) * tNNPhi;
+            aJacobians( 0 )( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                               Matrix< DDRMat >                   & aResidual )
+        void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                               moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             // check master field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
@@ -132,14 +135,20 @@ namespace moris
                 tDNormPhiDPhiHat.set_size( tNPhiBases, 1, 0.0 );
             }
 
+            //set resiaul size
+            this->set_residual( aResidual );
+
             // compute residual
-            aResidual = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
+            aResidual( 0 ) = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
+
+            // set jacobain size
+            this->set_jacobian( aJacobians );
 
             // compute j_nPhi_nPhi
-            aJacobians( 0 ) = trans( tNNPhi ) * tNNPhi;
+            aJacobians( 0 )( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
 
         }
 

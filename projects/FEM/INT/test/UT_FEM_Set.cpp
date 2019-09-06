@@ -22,6 +22,8 @@ namespace moris
             return aCoeff( 0 );
         }
 
+        // This test check all the member functions of the FEM Set in the particular case where
+        // there is only a master.
         TEST_CASE( "Set", "[moris],[fem],[FEMSet_Master]" )
         {
             //create a set
@@ -258,40 +260,59 @@ namespace moris
                 // create IWG dof assembly map
                 tSet.create_IWG_dof_assembly_map();
 
+                // check res dof assembly maps size
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap.size(), 4 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 ).n_rows(), 1 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 ).n_rows(), 1 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 2 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 2 ).n_rows(), 1 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 3 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 3 ).n_rows(), 1 ) );
+
+                // check resDofAssembly matrix per IWG
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 )( 0, 0 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 )( 0, 1 ), 0 ) );
+
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 )( 0, 0 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 )( 0, 1 ), 0 ) );
+
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 2 )( 0, 0 ), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 2 )( 0, 1 ), 2 ) );
+
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 3 )( 0, 0 ), 3 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 3 )( 0, 1 ), 5 ) );
+
+                // check jac dof assembly maps size
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap.size(), 4 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 ).n_rows(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 ).n_rows(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 2 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 2 ).n_rows(), 1 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 3 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 3 ).n_rows(), 2 ) );
+
                 // check dofAssembly matrix per IWG
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 2 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 3 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 0, 0 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 0, 1 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 1, 0 ), 1 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 1, 1 ), 1 ) );
 
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 2 ), 1 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 3 ), 1 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 )( 0, 0 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 )( 0, 1 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 )( 1, 0 ), 1 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 )( 1, 1 ), 1 ) );
 
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 2 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 3 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 2 )( 0, 0 ), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 2 )( 0, 1 ), 2 ) );
 
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 1, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 1, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 1, 2 ), 1 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 1, 3 ), 1 ) );
-
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 2 )( 0, 0 ), 2 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 2 )( 0, 1 ), 2 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 2 )( 0, 2 ), 2 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 2 )( 0, 3 ), 2 ) );
-
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 0, 0 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 0, 1 ), 5 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 0, 2 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 0, 3 ), 5 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 1, 0 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 1, 1 ), 5 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 1, 2 ), 6 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 3 )( 1, 3 ), 6 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 3 )( 0, 0 ), 3 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 3 )( 0, 1 ), 5 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 3 )( 1, 0 ), 6 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 3 )( 1, 1 ), 6 ) );
 
             //std::cout<<"Test create_IWG_dof_assembly_map"<<std::endl;
             //------------------------------------------------------------------------------
@@ -304,6 +325,8 @@ namespace moris
 
         }/* TEST_CASE */
 
+        // This test check all the member functions of the FEM Set in the case where
+        // there is a master and a slave.
         TEST_CASE( "FEMSet_Slave", "[moris],[fem],[FEMSet_Slave]" )
         {
             //create a set
@@ -515,7 +538,8 @@ namespace moris
                 tMasterFI( 1 ) = new Field_Interpolator( 1, { MSI::Dof_Type::UX } );
                 tMasterFI( 2 ) = new Field_Interpolator( 1, { MSI::Dof_Type::VX } );
 
-                // pass in the cell of FI pointers to the element block
+                // pass in the cell of FI pointers to the element block                print(tSet.mIWGDofAssemblyMap( 1 ),"mIWGDofAssemblyMap( 1 )");
+
                 tSet.mMasterFI = tMasterFI;
 
                 // create a cell of master field interpolator pointers
@@ -576,58 +600,41 @@ namespace moris
                 // create IWG dof assembly map
                 tSet.create_IWG_dof_assembly_map();
 
-                // check mIWGDofAssemblyMap size
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap.size(), 2 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 ).n_cols(), 4 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 ).n_rows(), 8 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 ).n_cols(), 4 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 ).n_rows(), 1 ) );
+                // check mIWGResDofAssemblyMap size
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap.size(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 ).n_rows(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 ).n_rows(), 1 ) );
 
                 // check dofAssembly matrix per IWG
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 2 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 0, 3 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 )( 0, 0 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 )( 0, 1 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 )( 1, 0 ), 3 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 0 )( 1, 1 ), 3 ) );
 
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 2 ), 1 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 1, 3 ), 1 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 )( 0, 0 ), 2 ) );
+                CHECK( equal_to( tSet.mIWGResDofAssemblyMap( 1 )( 0, 1 ), 2 ) );
 
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 2, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 2, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 2, 2 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 2, 3 ), 3 ) );
+                // check mIWGResDofAssemblyMap size
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap.size(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 ).n_rows(), 4 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 ).n_cols(), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 ).n_rows(), 1 ) );
 
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 3, 0 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 3, 1 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 3, 2 ), 4 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 3, 3 ), 4 ) );
+                // check dofAssembly matrix per IWG
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 0, 0 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 0, 1 ), 0 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 1, 0 ), 1 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 1, 1 ), 1 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 2, 0 ), 3 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 2, 1 ), 3 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 3, 0 ), 4 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 0 )( 3, 1 ), 4 ) );
 
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 4, 0 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 4, 1 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 4, 2 ), 0 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 4, 3 ), 0 ) );
-
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 5, 0 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 5, 1 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 5, 2 ), 1 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 5, 3 ), 1 ) );
-
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 6, 0 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 6, 1 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 6, 2 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 6, 3 ), 3 ) );
-
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 7, 0 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 7, 1 ), 3 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 7, 2 ), 4 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 0 )( 7, 3 ), 4 ) );
-
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 0 ), 2 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 1 ), 2 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 2 ), 2 ) );
-                CHECK( equal_to( tSet.mIWGDofAssemblyMap( 1 )( 0, 3 ), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 )( 0, 0 ), 2 ) );
+                CHECK( equal_to( tSet.mIWGJacDofAssemblyMap( 1 )( 0, 1 ), 2 ) );
 
             //std::cout<<"Test create_IWG_dof_assembly_map"<<std::endl;
             //------------------------------------------------------------------------------

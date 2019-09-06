@@ -23,7 +23,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual )
+        void IWG_Helmholtz_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             //FIXME set unfiltered velocity values at nodes
             Matrix< DDRMat > tVHat  = mNodalWeakBCs;
@@ -31,30 +31,33 @@ namespace moris
             // set field interpolator
             Field_Interpolator* vN = mMasterFI( 0 );
 
+            // set residual size
+            this->set_residual( aResidual );
+
             // compute the residual
-            aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                      + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
+            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+                           + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians )
+        void IWG_Helmholtz_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // set field interpolator
             Field_Interpolator* vN = mMasterFI( 0 );
 
             // set the jacobian size
-            aJacobians.resize( 1 );
+            this->set_jacobian( aJacobians );
 
             // compute the jacobian
-            aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
-                            + trans( vN->N() ) * vN->N();
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
+                                 + trans( vN->N() ) * vN->N();
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                Matrix< DDRMat >                   & aResidual )
+        void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             //FIXME set unfiltered velocity values at nodes
             Matrix< DDRMat > tVHat  = mNodalWeakBCs;
@@ -62,16 +65,19 @@ namespace moris
             // set field interpolator
             Field_Interpolator* vN = mMasterFI( 0 );
 
+            // set residual size
+            this->set_residual( aResidual );
+
             // compute the residual
-            aResidual = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
-                      + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
+            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+                           + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
 
             // set the jacobian size
-            aJacobians.resize( 1 );
+            this->set_jacobian( aJacobians );
 
             // compute the residual
-            aJacobians( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
-                            + trans( vN->N() ) * vN->N();
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
+                                 + trans( vN->N() ) * vN->N();
         }
 
 //------------------------------------------------------------------------------

@@ -35,7 +35,7 @@ namespace moris
         public:
 //------------------------------------------------------------------------------
             /*
-             *  constructor
+             * constructor
              */
             IWG_Isotropic_Spatial_Diffusion_Dirichlet();
 
@@ -48,36 +48,25 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r =
-             *
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aResidual cell of residual vectors to fill
              */
-            void
-            compute_residual( Matrix< DDRMat >                   & aResidual );
+            void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j =
-             *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
-            void
-            compute_jacobian( moris::Cell< Matrix< DDRMat > >     & aJacobians );
+            void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aResidual  cell of residual vectors to fill
              */
-            void
-            compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                           Matrix< DDRMat >                   & aResidual );
+            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
 
 //------------------------------------------------------------------------------
         };

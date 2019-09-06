@@ -85,8 +85,8 @@ namespace MSI
 
         // cell of pointers to IWG objects
         moris::Cell< IWG* > mIWGs;
-        //moris::Cell< uint > mIWGNumDofTypes;
-        moris::Cell< moris::Matrix < DDUMat > > mIWGDofAssemblyMap;
+        moris::Cell< moris::Matrix < DDUMat > > mIWGJacDofAssemblyMap;
+        moris::Cell< moris::Matrix < DDUMat > > mIWGResDofAssemblyMap;
 
         enum fem::Element_Type mElementType;
 
@@ -518,12 +518,22 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * get dof assembly maps for each IWG
-         * param[ out ] aIWGDofAssemblyMap a map for the dof active on the IWG
+         * get residual dof assembly maps for all IWG
+         * param[ out ] aIWGResDofAssemblyMap a map for the residual dof on the IWG
          */
-        moris::Cell< Matrix< DDUMat > > & get_IWG_dof_assembly_map()
+        moris::Cell< Matrix< DDUMat > > & get_IWG_res_dof_assembly_map()
         {
-            return mIWGDofAssemblyMap;
+            return mIWGResDofAssemblyMap;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get jacobian dof assembly maps for all IWG
+         * param[ out ] aIWGJacDofAssemblyMap a map for the jacobian dof on the IWG
+         */
+        moris::Cell< Matrix< DDUMat > > & get_IWG_jac_dof_assembly_map()
+        {
+            return mIWGJacDofAssemblyMap;
         }
 
 //------------------------------------------------------------------------------
