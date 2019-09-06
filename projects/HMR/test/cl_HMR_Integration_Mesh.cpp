@@ -135,7 +135,10 @@ TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
             tDatabase->get_background_mesh()->perform_refinement(0);
         }
 
-        tDatabase->get_background_mesh()->save_to_vtk("Basis_support.vtk");
+        tDatabase->update_bspline_meshes();
+        tDatabase->update_lagrange_meshes();
+
+//        tDatabase->get_background_mesh()->save_to_vtk("Basis_support.vtk");
 
         tHMR.finalize();
 

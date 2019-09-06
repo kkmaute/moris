@@ -137,6 +137,8 @@ TEST_CASE("HMR_IO","[moris],[hmr],[HMR_IO]")
             REQUIRE( tXYZ_2[0]  == 0.0 );    REQUIRE( tXYZ_2[1]  == 0.0 );
             const moris::real* tXYZ_3 = tLagrangeMesh->get_node_by_index( 109 )->get_xyz( );
             REQUIRE( tXYZ_3[0]  == 0.25 );    REQUIRE( tXYZ_3[1]  == 0.375 );
+
+            delete tLagrangeMesh;
     }
     }
 }
