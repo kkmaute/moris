@@ -2,7 +2,7 @@
  * cl_HMR_Database.hpp
  *
  *  Created on: Oct 1, 2018
- *      Author: messe
+ *      Author: schmidt
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_

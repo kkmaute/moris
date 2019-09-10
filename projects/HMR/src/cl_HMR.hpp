@@ -2,7 +2,7 @@
  * cl_HMR.hpp
  *
  *  Created on: May 5, 2018
- *      Author: messe
+ *      Author: schmidt
  */
 
 #ifndef SRC_HMR_CL_HMR_HPP_
