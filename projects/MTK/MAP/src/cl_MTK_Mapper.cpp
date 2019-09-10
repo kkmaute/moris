@@ -4,6 +4,8 @@
 #include "cl_MTK_Mapper.hpp"
 
 #include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Property_User_Defined_Info.hpp"
+
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
@@ -78,25 +80,19 @@ namespace moris
 
                 // create a list of active block-sets
                 //FIXME should be provided to the function
-                Cell< moris_index >  tBlocksetList = { 0 };
+                Cell< moris_index >  tSetList = { 0 };
+                Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK };
 
-                // create a list of active side-sets
-                Cell< moris_index >  tSidesetList;
-
-                // create a list of BC type for the side-sets
-                Cell< fem::BC_Type > tSidesetBCTypeList;
-
-                // create a list of active double side-sets
-                Cell< moris_index >  tDoubleSidesetList;
+                // create property info
+                fem::Property_User_Defined_Info tPropertyUserDefinedInfo;
 
                 // create model
                 mModel = new mdl::Model( mMeshManager,
                                          mBSplineOrder,
                                          tIWGTypeList,
-                                         tBlocksetList,
-                                         tSidesetList,
-                                         tSidesetBCTypeList,
-                                         tDoubleSidesetList,
+                                         tSetList,
+                                         tSetTypeList,
+                                         &tPropertyUserDefinedInfo,
                                          mTargetMeshPairIndex );
                 mHaveIwgAndModel = true;
             }

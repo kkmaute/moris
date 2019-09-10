@@ -45,6 +45,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -128,6 +129,12 @@ LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
     moris::real lsFromRad = radDist - aRad;
 
     return -std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
+}
+
+Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator )
+{
+    return aCoeff( 0 );
 }
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF]")
@@ -226,30 +233,55 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         // create a list of IWG type
         Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
         tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+        // list of property type
+        Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
+                                                        { fem::Property_Type::TEMP_DIRICHLET },
+                                                        { fem::Property_Type::TEMP_NEUMANN   }};
+
+        // list of property dependencies
+        Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
+
+        // list of the property coefficients
+        Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
+        tCoeffList( 0 ).resize( 1 );
+        tCoeffList( 0 )( 0 )= {{ 1.0 }};
+        tCoeffList( 1 ).resize( 1 );
+        tCoeffList( 1 )( 0 )= {{ 5.0 }};
+        tCoeffList( 2 ).resize( 1 );
+        tCoeffList( 2 )( 0 )= {{ 20.0 }};
+
+        // cast free function into std::function
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
+
+        // create the list with function pointers for the value
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
+
+        // create the list with cell of function pointers for the derivatives
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
+
+        // collect properties info
+        fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
+                                                                  tPropertyDofList,
+                                                                  tCoeffList,
+                                                                  tValFuncList,
+                                                                  tDerFuncList );
 
         // create a list of active block-sets
-        moris::Cell< moris_index >  tBlocksetList = { 4, 5 };
+        moris::Cell< moris_index >  tSetList = { 4, 5, 1, 3 };
 
-        // create a list of active side-sets
-        moris::Cell< moris_index >  tSidesetList = { 1,3 };
-
-        std::cout<<"Set name 1 = "<<tIntegMesh1->get_side_set_label(1)<<std::endl;
-        std::cout<<"Set name 3 = "<<tIntegMesh1->get_side_set_label(3)<<std::endl;
-
-        // create a list of BC type for the side-sets
-        moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
-                                                           fem::BC_Type::NEUMANN};
-
-        // create a list of active double side-sets
-        moris::Cell< moris_index >  tDoubleSidesetList = {  };
+        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+                                                          fem::Element_Type::BULK,
+                                                          fem::Element_Type::SIDESET,
+                                                          fem::Element_Type::SIDESET };
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex, tIWGTypeList,
-                                              tBlocksetList, tSidesetList,
-                                              tSidesetBCTypeList,
-                                              tDoubleSidesetList );
+                                              tSetList, tSetTypeList,
+                                              &tPropertyUserDefinedInfo );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -454,36 +486,60 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
 
         // create a list of IWG type
-        Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
+        Cell< Cell< fem::IWG_Type > >tIWGTypeList( 5 );
         tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGTypeList( 4 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
         // create a list of active block-sets
-        moris::Cell< moris_index >  tBlocksetList = { 4, 5 };
+        moris::Cell< moris_index >  tSetList = { 4, 5, 1, 3, 0 };
 
-        // create a list of active side-sets
-        moris::Cell< moris_index >  tSidesetList = { 1,3,0 };
+        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+                                                          fem::Element_Type::BULK,
+                                                          fem::Element_Type::SIDESET,
+                                                          fem::Element_Type::SIDESET,
+                                                          fem::Element_Type::SIDESET };
 
-//        std::cout<<"Set name 0 = "<<tIntegMesh1->get_side_set_label(0)<<std::endl;
-//        std::cout<<"Set name 1 = "<<tIntegMesh1->get_side_set_label(1)<<std::endl;
-//        std::cout<<"Set name 3 = "<<tIntegMesh1->get_side_set_label(3)<<std::endl;
+        // list of property type
+        Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
+                                                        { fem::Property_Type::TEMP_DIRICHLET },
+                                                        { fem::Property_Type::TEMP_NEUMANN   }};
 
-        // create a list of BC type for the side-sets
-        moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
-                                                           fem::BC_Type::DIRICHLET,
-                                                           fem::BC_Type::NEUMANN};
+        // list of property dependencies
+        Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
 
-        // create a list of active double side-sets
-        moris::Cell< moris_index >  tDoubleSidesetList = {  };
+        // list of the property coefficients
+        Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
+        tCoeffList( 0 ).resize( 1 );
+        tCoeffList( 0 )( 0 )= {{ 1.0 }};
+        tCoeffList( 1 ).resize( 1 );
+        tCoeffList( 1 )( 0 )= {{ 5.0 }};
+        tCoeffList( 2 ).resize( 1 );
+        tCoeffList( 2 )( 0 )= {{ 20.0 }};
+
+        // cast free function into std::function
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
+
+        // create the list with function pointers for the value
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
+
+        // create the list with cell of function pointers for the derivatives
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
+
+        // collect properties info
+        fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
+                                                                  tPropertyDofList,
+                                                                  tCoeffList,
+                                                                  tValFuncList,
+                                                                  tDerFuncList );
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                               tBSplineMeshIndex,
-                                              tIWGTypeList,
-                                              tBlocksetList, tSidesetList,
-                                              tSidesetBCTypeList,
-                                              tDoubleSidesetList,
+                                              tIWGTypeList, tSetList, tSetTypeList,
+                                              &tPropertyUserDefinedInfo,
                                               0,
                                               true);
 
@@ -565,7 +621,6 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         delete tIntegMesh1;
     }
 }
-
 
 }
 

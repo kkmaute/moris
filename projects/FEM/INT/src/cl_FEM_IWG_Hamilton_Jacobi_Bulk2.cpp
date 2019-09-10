@@ -17,18 +17,17 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::LS1 };
 
             // set the active dof type
-            mActiveDofTypes = { { MSI::Dof_Type::LS1 },
+            mMasterDofTypes = { { MSI::Dof_Type::LS1 },
                                 { MSI::Dof_Type::VX } };
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk2::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Hamilton_Jacobi_Bulk2::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
-            Field_Interpolator* vN  = aFieldInterpolators( 1 );
+            Field_Interpolator* phi = mMasterFI( 0 );
+            Field_Interpolator* vN  = mMasterFI( 1 );
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
@@ -41,18 +40,20 @@ namespace moris
                 tNormPhi = 1.0e-12;
             }
 
+            // set residual size
+            this->set_residual( aResidual );
+
            //compute the residual
-           aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi );
+           aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk2::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Hamilton_Jacobi_Bulk2::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
-            Field_Interpolator* vN  = aFieldInterpolators( 1 );
+            Field_Interpolator* phi = mMasterFI( 0 );
+            Field_Interpolator* vN  = mMasterFI( 1 );
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
@@ -68,24 +69,23 @@ namespace moris
             }
 
             // set the jacobian size
-            aJacobians.resize( 2 );
+            this->set_jacobian( aJacobians );
 
             // compute the jacobian Jphiphi
-            aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
+            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
 
             // compute the jacobian JphivN
-            aJacobians( 1 ) = trans( phi->N() ) * vN->N() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi;
+            aJacobians( 0 )( 1 ) = trans( phi->N() ) * vN->N() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk2::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                       Matrix< DDRMat >                   & aResidual,
-                                                                       moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Hamilton_Jacobi_Bulk2::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                                       moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             // set field interpolators
-            Field_Interpolator* phi = aFieldInterpolators( 0 );
-            Field_Interpolator* vN  = aFieldInterpolators( 1 );
+            Field_Interpolator* phi = mMasterFI( 0 );
+            Field_Interpolator* vN  = mMasterFI( 1 );
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
@@ -100,17 +100,20 @@ namespace moris
                 tDNormPhiDPhiHat.set_size( tNPhiBases, 1, 0.0 );
             }
 
+            // set the residual size
+            this->set_residual( aResidual );
+
             //compute the residual
-            aResidual = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi );
+            aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi );
 
             // set the jacobian size
-            aJacobians.resize( 2 );
+            this->set_jacobian( aJacobians );
 
             // compute the jacobian Jphiphi
-            aJacobians( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
+            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
 
             // compute the jacobian JphivN
-            aJacobians( 1 ) = trans( phi->N() ) * vN->N() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi;
+            aJacobians( 0 )( 1 ) = trans( phi->N() ) * vN->N() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi;
         }
 
 //------------------------------------------------------------------------------

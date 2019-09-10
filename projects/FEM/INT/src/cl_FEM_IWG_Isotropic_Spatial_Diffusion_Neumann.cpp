@@ -18,64 +18,67 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::TEMP };
 
             // set the active dof type
-            mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
+            mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
 
             // set the active mp type
-            mActivePropertyTypes = { fem::Property_Type::TEMP_NEUMANN };
+            mMasterPropTypes = { fem::Property_Type::TEMP_NEUMANN };
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual
-            ( Matrix< DDRMat >                   & aResidual,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators();
 
-            // compute the normal flux
-            Matrix < DDRMat > tNormalFlux = tTemp->N() * mNodalWeakBCs;
+            // check master properties
+            this->check_properties();
+
+            // set residual size
+            this->set_residual( aResidual );
 
             // compute the residual r_T
-            aResidual = - trans( tTemp->N() ) * tNormalFlux;
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian
-            ( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
-            // set the jacobian size
-            aJacobians.resize( 1 );
+            // set jacobian size
+            this->set_jacobian( aJacobians );
 
-            // compute the jacobian j_T_T
-            uint tNumOfBases = tTemp->get_number_of_space_time_bases();
-            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            // compute the jacobian
+            uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
+            aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual
-            ( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-              Matrix< DDRMat >                   & aResidual,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                                                     moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators();
+
+            // check master properties
+            this->check_properties();
+
+            // set residual size
+            this->set_residual( aResidual );
 
             // compute the residual r_T
-            aResidual = - trans( tTemp->N() ) * tTemp->N() * mNodalWeakBCs;
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
 
-            // set the jacobian size
-            aJacobians.resize( 1 );
+            // set jacobian size
+            this->set_jacobian( aJacobians );
 
             // compute the jacobian j_T_T
-            uint tNumOfBases = tTemp->get_number_of_space_time_bases();
-            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
+            aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
         }
 
 //------------------------------------------------------------------------------

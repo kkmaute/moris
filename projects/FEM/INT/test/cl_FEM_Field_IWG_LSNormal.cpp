@@ -125,19 +125,20 @@ TEST_CASE( "IWG_LSNormal", "[moris],[fem],[IWG_LSNormal]" )
         // create an IWG LSnormal Bulk
         IWG_LSNormal_Bulk tIWGLSNormalBulk;
 
+        // set field interpolators
+        tIWGLSNormalBulk.set_field_interpolators( tFieldInterpolators );
+
         // check evaluation of the residual for IWG_LSNormal_Bulk ?
         //------------------------------------------------------------------------------
         // evaluate the residual from IWG_LSNormal_Bulk
         Matrix< DDRMat > tResidualLSNormalBulk;
-        tIWGLSNormalBulk.compute_residual( tResidualLSNormalBulk,
-                                           tFieldInterpolators );
+        tIWGLSNormalBulk.compute_residual( tResidualLSNormalBulk );
 
         // check evaluation of the jacobian j_nPhi_nPhi for IWG_LSNormal_Bulk by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian from IWG_Hamilton_Jacobi_Bulk
         Cell< Matrix< DDRMat > > tJacobiansLSNormalBulk( 2 );
-        tIWGLSNormalBulk.compute_jacobian( tJacobiansLSNormalBulk,
-                                           tFieldInterpolators );
+        tIWGLSNormalBulk.compute_jacobian( tJacobiansLSNormalBulk );
 
         // number of nPhi dofs
         uint tNDofsnPhi = tNSpaceTimeBasesnPhi * 2;
@@ -169,8 +170,7 @@ TEST_CASE( "IWG_LSNormal", "[moris],[fem],[IWG_LSNormal]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualLSNormalBulkPert;
-            tIWGLSNormalBulk.compute_residual( tResidualLSNormalBulkPert,
-                                               tFieldInterpolators );
+            tIWGLSNormalBulk.compute_residual( tResidualLSNormalBulkPert );
 
             // compute the jacobian by FD for the kth nPhiHat
             Matrix< DDRMat > tJacobianRow;
@@ -210,8 +210,7 @@ TEST_CASE( "IWG_LSNormal", "[moris],[fem],[IWG_LSNormal]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualLSNormalBulkPert;
-            tIWGLSNormalBulk.compute_residual( tResidualLSNormalBulkPert,
-                                               tFieldInterpolators);
+            tIWGLSNormalBulk.compute_residual( tResidualLSNormalBulkPert );
 
             // compute the jacobian by FD for the kth phiHat
             Matrix< DDRMat > tJacobianRow;

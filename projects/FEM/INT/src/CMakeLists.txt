@@ -89,8 +89,8 @@ set(HEADERS
     cl_FEM_Model_Parameter_Interpolator.hpp
     fn_FEM_Rotation_Matrix.hpp
     cl_FEM_Property.hpp
-    cl_FEM_Property_Factory.hpp
-    cl_FEM_Property_Temp_Dirichlet.hpp
+    cl_FEM_Property_User_Defined_Info.hpp
+    cl_FEM_IWG_User_Defined_Info.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,8 +128,7 @@ set(LIB_SOURCES
     cl_FEM_Integration_Rule.cpp
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
-    cl_FEM_Property_Factory.cpp
-    cl_FEM_Property_Temp_Dirichlet.cpp
+    cl_FEM_Property.cpp
     )
 
 # List library dependencies

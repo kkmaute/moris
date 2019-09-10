@@ -15,30 +15,25 @@ namespace moris
         IWG_LSNormal_Bulk::IWG_LSNormal_Bulk()
         {
             // set the residual dof type
-            //FIXME should be NLSX, NLSY, NLSZ
-            //mResidualDofType = { MSI::Dof_Type::NLSX };
-            //mResidualDofType = { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY };
             mResidualDofType = { MSI::Dof_Type::NLSX,
                                  MSI::Dof_Type::NLSY,
                                  MSI::Dof_Type::NLSZ };
 
             // set the active dof type
-            //mActiveDofTypes = {{ MSI::Dof_Type::NLSX },
-            //                   { MSI::Dof_Type::LS1 }};
-            //mActiveDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY },
-            //                   { MSI::Dof_Type::LS1 }};
-            mActiveDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
+            mMasterDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
                                { MSI::Dof_Type::LS1 }};
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_LSNormal_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* nPhi = aFieldInterpolators( 0 );
-            Field_Interpolator* phi  = aFieldInterpolators( 1 );
+            Field_Interpolator* nPhi = mMasterFI( 0 );
+            Field_Interpolator* phi  = mMasterFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
@@ -56,18 +51,23 @@ namespace moris
                 tNormPhi = 1.0e-12;
             }
 
+            // set residual size
+            this->set_residual( aResidual );
+
             // compute residual
-            aResidual = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
+            aResidual( 0 ) = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* nPhi = aFieldInterpolators( 0 );
-            Field_Interpolator* phi  = aFieldInterpolators( 1 );
+            Field_Interpolator* nPhi = mMasterFI( 0 );
+            Field_Interpolator* phi  = mMasterFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
@@ -92,24 +92,26 @@ namespace moris
             }
 
             // set the jacobian size
-            aJacobians.resize( 2 );
+            this->set_jacobian( aJacobians );
 
             // compute j_nPhi_nPhi
-            aJacobians( 0 ) = trans( tNNPhi ) * tNNPhi;
+            aJacobians( 0 )( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                               Matrix< DDRMat >                   & aResidual,
-                                                               moris::Cell< Field_Interpolator* > & aFieldInterpolators)
+        void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                               moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+
             // set field interpolators
-            Field_Interpolator* nPhi = aFieldInterpolators( 0 );
-            Field_Interpolator* phi  = aFieldInterpolators( 1 );
+            Field_Interpolator* nPhi = mMasterFI( 0 );
+            Field_Interpolator* phi  = mMasterFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
@@ -133,14 +135,20 @@ namespace moris
                 tDNormPhiDPhiHat.set_size( tNPhiBases, 1, 0.0 );
             }
 
+            //set resiaul size
+            this->set_residual( aResidual );
+
             // compute residual
-            aResidual = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
+            aResidual( 0 ) = trans( tNNPhi ) * ( trans( nPhi->val() ) - phi->gradx( 1 ) / tNormPhi );
+
+            // set jacobain size
+            this->set_jacobian( aJacobians );
 
             // compute j_nPhi_nPhi
-            aJacobians( 0 ) = trans( tNNPhi ) * tNNPhi;
+            aJacobians( 0 )( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
 
         }
 

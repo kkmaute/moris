@@ -17,6 +17,7 @@
 
 namespace moris
 {
+
 //------------------------------------------------------------------------------
     namespace mtk
     {
@@ -29,8 +30,11 @@ namespace moris
         class Node_Base;
         class Cell;
         class Set;
+        class Field_Interpolator;
+        class Property_User_Defined_Info;
         enum class IWG_Type;
         enum class BC_Type;
+        enum class Property_Type;
     }
 
     namespace dla
@@ -62,6 +66,8 @@ namespace moris
     }
     namespace mdl
     {
+    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
+                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > PropertyFunc;
 //------------------------------------------------------------------------------
 
         class Model
@@ -97,8 +103,6 @@ namespace moris
 
             bool mUseMultigrid = false;
 
-
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -108,13 +112,12 @@ namespace moris
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aIWG   Integrant Weak form of Governing Equation
             */
-            Model(       mtk::Mesh_Manager*                          aMesh,
-                   const uint                                        aBSplineOrder,
-                         moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
-                   const moris::Cell< moris_index >                  & aBlocksetList,
-                   const moris::Cell< moris_index >                  aSidesetList,
-                   const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
-                   const moris::Cell< moris_index >                  aDoubleSidesetList,
+            Model(       mtk::Mesh_Manager*                            aMesh,
+                   const uint                                          aBSplineOrder,
+                   const moris::Cell< moris::Cell< fem::IWG_Type > > & aIWGTypeList,
+                   const moris::Cell< moris_index >                  & aSetList,
+                   const moris::Cell< fem::Element_Type >            & aSetTypeList,
+                   const fem::Property_User_Defined_Info             * aPropertyUserDefinedInfo,
                    const moris_index                                 aMeshPairIndex = 0,
                    const bool                                        aUseMultigrid = false );
 

@@ -126,6 +126,9 @@ TEST_CASE( "IWG_Hamilton-Jacobi", "[moris],[fem],[IWG_HJ]" )
         // create an IWG Hamilton Jacobi Bulk
         IWG_Hamilton_Jacobi_Bulk tIWGHJBulk;
 
+        // set field interpolators
+        tIWGHJBulk.set_field_interpolators( tFieldInterpolators );
+
         // check evaluation of the residual for IWG_Hamilton_Jacobi_Bulk ?
         //------------------------------------------------------------------------------
         // evaluate the residual from IWG_Hamilton_Jacobi_Bulk
@@ -157,8 +160,7 @@ TEST_CASE( "IWG_Hamilton-Jacobi", "[moris],[fem],[IWG_HJ]" )
             tFieldInterpolators( 0 )->set_coeff( tPhiHatPert );
 
             // compute the perturbed residual
-            tIWGHJBulk.compute_residual( tResidualHJBulkPert,
-                                         tFieldInterpolators);
+            tIWGHJBulk.compute_residual( tResidualHJBulkPert );
 
             // compute the jacobian by FD for the kth uHat
             tJacobianRow = ( tResidualHJBulkPert - tResidualHJBulk ) / tPert;
@@ -196,8 +198,7 @@ TEST_CASE( "IWG_Hamilton-Jacobi", "[moris],[fem],[IWG_HJ]" )
             tFieldInterpolators( 1 )->set_coeff( tvNHatPert );
 
             // compute the perturbed residual
-            tIWGHJBulk.compute_residual( tResidualHJBulkPert,
-                                         tFieldInterpolators );
+            tIWGHJBulk.compute_residual( tResidualHJBulkPert );
 
             // compute the jacobian by FD for the kth uHat
             tJacobianRow = ( tResidualHJBulkPert - tResidualHJBulk ) / tPert;

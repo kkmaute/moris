@@ -32,6 +32,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -66,8 +67,16 @@ namespace moris
 {
     namespace mdl
     {
+
+        Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                            moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator )
+        {
+            return aCoeff( 0 );
+        }
+
         TEST_CASE( "Diffusion_Cut", "[moris],[mdl],[Diffusion_Cut]" )
         {
+
         uint p_rank = moris::par_rank();
         uint p_size = moris::par_size();
 
@@ -260,30 +269,59 @@ namespace moris
             tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
             // create a list of IWG type
-            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
+            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 5 );
             tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
-            tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_GHOST );
+            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+            tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+            tIWGTypeList( 4 ).resize( 1, fem::IWG_Type::SPATIALDIFF_GHOST );
 
-            // create a list of active block-sets
-            moris::Cell< moris_index >  tBlocksetList = { 3, 4 };
+            // list of property type
+            Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
+                                                            { fem::Property_Type::TEMP_DIRICHLET },
+                                                            { fem::Property_Type::TEMP_NEUMANN   }};
 
-            // create a list of active side-sets
-            moris::Cell< moris_index >  tSidesetList = { 1, 0 };
+            // list of property dependencies
+            Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
 
-            // create a list of BC type for the side-sets
-            moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
-                                                               fem::BC_Type::NEUMANN };
+            // list of the property coefficients
+            Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
+            tCoeffList( 0 ).resize( 1 );
+            tCoeffList( 0 )( 0 ) = {{ 1.0 }};
+            tCoeffList( 1 ).resize( 1 );
+            tCoeffList( 1 )( 0 ) = {{ 5.0 }};
+            tCoeffList( 2 ).resize( 1 );
+            tCoeffList( 2 )( 0 ) = {{ 20.0 }};
 
-            // create a list of active double side-sets
-            moris::Cell< moris_index >  tDoubleSidesetList = { 0 };
+            // cast free function into std::function
+            fem::PropertyFunc tValFunction0 = tConstValFunction;
+
+            // create the list with function pointers for the value
+            Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
+
+            // create the list with cell of function pointers for the derivatives
+            Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
+
+            // collect properties info
+            fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
+                                                                      tPropertyDofList,
+                                                                      tCoeffList,
+                                                                      tValFuncList,
+                                                                      tDerFuncList );
+
+            // create a list of active sets
+            moris::Cell< moris_index >  tSetList = { 3, 4, 1, 0, 0 };
+
+            moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+                                                              fem::Element_Type::BULK,
+                                                              fem::Element_Type::SIDESET,
+                                                              fem::Element_Type::SIDESET,
+                                                              fem::Element_Type::DOUBLE_SIDESET };
 
             // create model
             mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
-                                                  tBlocksetList, tSidesetList,
-                                                  tSidesetBCTypeList,
-                                                  tDoubleSidesetList );
+                                                  tSetList, tSetTypeList,
+                                                  &tPropertyUserDefinedInfo );
 
             moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -351,8 +389,6 @@ namespace moris
             tTimeSolver.get_full_solution( tSolution11 );
 
 //            print(tSolution11,"tSolution11");
-
-
             delete tInterpMesh1;
             delete tIntegMesh1;
             delete tModel;

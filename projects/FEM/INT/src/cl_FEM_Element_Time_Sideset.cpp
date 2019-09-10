@@ -31,8 +31,16 @@ namespace moris
             // fixme param coeff from cluster
             mSet->get_IG_geometry_interpolator()->set_param_coeff();
 
-            //loop over the integration points
-            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
+            // get number of field interpolator and properties
+            uint tNumFI   = mSet->get_number_of_field_interpolators();
+            uint tNumProp = mSet->get_number_of_properties();
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_IWGs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get integration point location in the reference surface
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
@@ -45,9 +53,15 @@ namespace moris
                 mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
+                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolator()( iInterp )->set_space_time( tGlobalIntegPoint );
+                    mSet->get_field_interpolators()( iFI )->set_space_time( tGlobalIntegPoint );
+                }
+
+                // reset properties
+                for ( uint iProp = 0; iProp < tNumProp; iProp++ )
+                {
+                    mSet->get_properties()( iProp )->reset_eval_flags();
                 }
 
                 // compute integration point weight
@@ -55,15 +69,15 @@ namespace moris
                             * mSet->get_IG_geometry_interpolator()->det_J();
 
                 // loop over the IWGs
-                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // compute jacobian at evaluation point
-                    Matrix< DDRMat > tResidual;
-                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual, mSet->get_IWG_field_interpolators()( iIWG ) );
+                    moris::Cell< Matrix< DDRMat > > tResidual;
+                    mSet->get_IWGs()( iIWG )->compute_residual( tResidual );
 
                     // add contribution to residual from evaluation point
-                    mSet->mResidual( { mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( 0, 1 ) },
-                                     { 0, 0 } ) += tWStar * tResidual;
+                    mSet->mResidual( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 0 ), mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 1 ) },
+                                     { 0, 0 } ) += tWStar * tResidual( 0 );
                 }
             }
 //            // print residual for check
@@ -82,8 +96,16 @@ namespace moris
             // fixme param coeff from cluster
             mSet->get_IG_geometry_interpolator()->set_param_coeff();
 
-            // loop over the integration points
-            for( uint iGP = 0; iGP < mSet->get_num_integration_points(); iGP++ )
+            // get number of field interpolator and properties
+            uint tNumFI   = mSet->get_number_of_field_interpolators();
+            uint tNumProp = mSet->get_number_of_properties();
+
+            // get number of IWGs
+            uint tNumIWGs = mSet->get_number_of_IWGs();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get local integration point location
                 Matrix< DDRMat > tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
@@ -96,9 +118,15 @@ namespace moris
                 mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
-                for ( uint iInterp = 0; iInterp < mSet->get_num_interpolators(); iInterp++ )
+                for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
-                    mSet->get_field_interpolator()( iInterp )->set_space_time( tGlobalIntegPoint );
+                    mSet->get_field_interpolators()( iFI )->set_space_time( tGlobalIntegPoint );
+                }
+
+                // reset properties
+                for ( uint iProp = 0; iProp < tNumProp; iProp++ )
+                {
+                    mSet->get_properties()( iProp )->reset_eval_flags();
                 }
 
                 // compute integration point weight
@@ -106,11 +134,11 @@ namespace moris
                             * mSet->get_IG_geometry_interpolator()->det_J();
 
                 // loop over the IWGs
-                for( uint iIWG = 0; iIWG < mSet->get_num_IWG(); iIWG++ )
+                for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
                     // compute jacobian at evaluation point
-                    moris::Cell< Matrix< DDRMat > > tJacobians;
-                    mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians, mSet->get_IWG_field_interpolators()( iIWG ) );
+                    moris::Cell< moris::Cell< Matrix< DDRMat > > > tJacobians;
+                    mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians );
 //                    print( tJacobians(0), "tJacobians" );
 //
 //                    // check with finite difference
@@ -122,15 +150,16 @@ namespace moris
 //                    print(tJacobiansFD(0),"tJacobiansFD");
 
                    // loop over the IWG active dof types
-                   for ( uint iIWGFI = 0; iIWGFI < mSet->get_IWG_num_active_dof()( iIWG ); iIWGFI++)
-                   {
-                       // add contribution to jacobian from evaluation point
-                       mSet->mJacobian( { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 1 ) },
-                                        { mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 2 ), mSet->get_IWG_dof_assembly_map()( iIWG )( iIWGFI, 3 ) } )
-                                      += tWStar * tJacobians( iIWGFI );
-                    }
-                }
-            }
+                    uint tNumIWGDof = mSet->get_IWGs()( iIWG )->get_global_dof_type_list().size();
+                    for ( uint iIWGFI = 0; iIWGFI < tNumIWGDof; iIWGFI++)
+                    {
+                        // add contribution to jacobian from evaluation point
+                        mSet->mJacobian( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 0 ),      mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 1 ) },
+                                         { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
+                    	               += tWStar * tJacobians( 0 )( iIWGFI );
+                     }
+                 }
+             }
 //            // print residual for check
 //            print( mCluster->mJacobian, " mJacobian " );
         }

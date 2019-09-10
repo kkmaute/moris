@@ -1,6 +1,5 @@
 #include "cl_FEM_IWG_L2.hpp"
 
-//#include "cl_FEM_Element_Bulk.hpp"
 #include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"  //LINALG/src
 #include "fn_trans.hpp" //LINALG/src
@@ -17,7 +16,7 @@ namespace moris
         mResidualDofType = { MSI::Dof_Type::L2 };
 
         // set the active dof types
-        mActiveDofTypes = { { MSI::Dof_Type::L2 } };
+        mMasterDofTypes = { { MSI::Dof_Type::L2 } };
 
         // set alpha
         this->set_alpha( aAlpha );
@@ -25,9 +24,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void IWG_L2::set_alpha( const real aAlpha  )
+    void IWG_L2::set_alpha( const real aAlpha )
     {
-
         mAlpha = aAlpha;
 
         if(  aAlpha == 0.0 )
@@ -56,55 +54,60 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-    void IWG_L2::compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                Matrix< DDRMat >                   & aResidual,
-                                                moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+    void IWG_L2::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
     {
         // call the right mComputeFunction for residual and jacobian evaluations
         ( this->*mComputeFunction )( aJacobians,
-                                     aResidual,
-                                     aFieldInterpolators );
+                                     aResidual );
     }
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_and_residual_without_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                                  Matrix< DDRMat >                   & aResidual,
-                                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian_and_residual_without_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                                  moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tFI = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute Jacobian
-            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N();
+            aJacobians( 0 ).resize( 1 );
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
+
+            // set the jacobian size
+            aResidual.resize( 1 );
 
             // compute residual
             //FIXME mNodalWeakBCs
-            aResidual = aJacobians( 0 ) * ( tFI->get_coeff() - mNodalWeakBCs );
+            aResidual( 0 ) = aJacobians( 0 )( 0 ) * ( mMasterFI( 0 )->get_coeff() - mNodalWeakBCs );
 
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_and_residual_with_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                               Matrix< DDRMat >                   & aResidual,
-                                                               moris::Cell< Field_Interpolator* > & aFieldInterpolators)
+        void IWG_L2::compute_jacobian_and_residual_with_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                               moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tFI = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute Jacobian
-            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->Bx() ) * tFI->Bx() );
+            aJacobians( 0 ).resize( 1 );
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N()
+                            + mAlpha * ( trans( mMasterFI( 0 )->Bx() ) * mMasterFI( 0 )->Bx() );
+
+            // set the residual size
+            aResidual.resize( 1 );
 
             // compute residual
             //FIXME: mNodalWeakBCs
-            aResidual = aJacobians( 0 ) * ( tFI->get_coeff() - mNodalWeakBCs );
+            aResidual( 0 ) = aJacobians( 0 )( 0 ) * ( mMasterFI( 0 )->get_coeff() - mNodalWeakBCs );
         }
 
 //------------------------------------------------------------------------------
@@ -140,80 +143,81 @@ namespace moris
 //        }
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // call the right mComputeJacFunction for jacobian evaluation
-            ( this->*mComputeJacFunction )( aJacobians,
-                                            aFieldInterpolators );
+            ( this->*mComputeJacFunction )( aJacobians );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_without_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian_without_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // set field interpolator
-            Field_Interpolator* tFI = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute Jacobian
-            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N();
+            aJacobians( 0 ).resize( 1 );
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_jacobian_with_alpha( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_jacobian_with_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // set field interpolator
-            Field_Interpolator* tFI = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
             // set the jacobian size
             aJacobians.resize( 1 );
 
             // compute Jacobian
-            aJacobians( 0 ) = trans( tFI->N() ) * tFI->N() + mAlpha * ( trans( tFI->Bx() ) * tFI->Bx() );
+            aJacobians( 0 ).resize( 1 );
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N()
+                                 + mAlpha * ( trans( mMasterFI( 0 )->Bx() ) * mMasterFI( 0 )->Bx() );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_residual( Matrix< DDRMat >                   & aResidual,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // call the right mComputeResFunction for residual evaluation
-            ( this->*mComputeResFunction )( aResidual,
-                                            aFieldInterpolators );
+            ( this->*mComputeResFunction )( aResidual );
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_residual_without_alpha( Matrix< DDRMat >                   & aResidual,
-                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_residual_without_alpha( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tFI = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
-            // compute Jacobian
+            // set size
+            aResidual.resize( 1 );
+
+            // compute residual
             //FIXME: mNodalWeakBCs
-            aResidual = trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs );
+            aResidual( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val() - mMasterFI( 0 )->N() * mNodalWeakBCs );
 
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_L2::compute_residual_with_alpha( Matrix< DDRMat >                   & aResidual,
-                                                  moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_L2::compute_residual_with_alpha( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tFI = aFieldInterpolators( 0 );
+            // check master field interpolators
+            this->check_field_interpolators( mtk::Master_Slave::MASTER );
 
-            // compute Jacobian
+            // set size
+            aResidual.resize( 1 );
+
+            // compute residual
             //FIXME mNodalWeakBCs
-            aResidual = trans( tFI->N() ) * ( tFI->val() - tFI->N() * mNodalWeakBCs )
-                      + mAlpha * trans( tFI->Bx() ) * ( tFI->gradx( 1 ) - tFI->Bx() * mNodalWeakBCs );
+            aResidual( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val() - mMasterFI( 0 )->N() * mNodalWeakBCs )
+                           + mAlpha * trans( mMasterFI( 0 )->Bx() ) * ( mMasterFI( 0 )->gradx( 1 ) - mMasterFI( 0 )->Bx() * mNodalWeakBCs );
         }
 
 //------------------------------------------------------------------------------
