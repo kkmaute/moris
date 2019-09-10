@@ -66,10 +66,9 @@ namespace moris
 
     public:
         Pdof_Host()
-        {
-        };
+        {};
 
-        Pdof_Host( const moris::uint   aNumUsedDofTypes,
+        Pdof_Host( const moris::uint      aNumUsedDofTypes,
                          fem::Node_Base * aNodeObj );
 
         ~Pdof_Host();

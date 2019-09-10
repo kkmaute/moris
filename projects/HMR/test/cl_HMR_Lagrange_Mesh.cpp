@@ -410,13 +410,12 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         }
         //tHMR.flag_volume_and_surface_elements( tField );
 
-        //tHMR.perform_refinement_and_map_fields();
 
         //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh1.exo" );
         //tHMR.save_bsplines_to_vtk("Basis.vtk");
         //tHMR.save_last_step_to_exodus( 0, "LastStep.exo" );
         //tHMR.save_to_hdf5( "Database.hdf5" );
-        //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
+        //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5",0 );
     }
 }
 

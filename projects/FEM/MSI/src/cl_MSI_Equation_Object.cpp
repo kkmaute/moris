@@ -242,7 +242,7 @@ namespace moris
         // multiply t_matrix with adof values to get pdof values
         mPdofValues = tTMatrix * tMyValues;
 
-        this->set_vector_entry_number_of_pdof();
+        this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
     }
 
 //-------------------------------------------------------------------------------------------------

@@ -95,7 +95,6 @@ verify_HMR_node_sharing(HMR & aHMR,
 //            tHMR.flag_volume_and_surface_elements_on_working_pattern( tField );
 //
 //            // Perform the refinement
-//            tHMR.perform_refinement_and_map_fields();
 //
 //            // Collect node sharing information.
 //            if(par_size() == 2)

@@ -43,7 +43,7 @@ namespace moris
             for( uint f=0; f<tNumberOfFields; ++f )
             {
                 // create field pointer
-                aFields.push_back( aHMR->create_field(  aParamfile.get_field_params( f ) ) );
+//                aFields.push_back( aHMR->create_field(  aParamfile.get_field_params( f ) ) );       //FIXME
             }
 
         }

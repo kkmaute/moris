@@ -139,15 +139,6 @@ namespace moris
 // -----------------------------------------------------------------------------
 
             /**
-             * renumber nodes for femdoc and save the mesh to an exodus file. HACK with consent of Kurt
-             */
-//            void renumber_and_save_to_exodus( const std::string & aPath,
-//                                              const double        aTimeStep = 0.0,
-//                                              const uint          aOutputOrder = 0 );
-
-// -----------------------------------------------------------------------------
-
-            /**
              * save the mesh to an exodus file
              */
             void save_last_step_to_exodus( const uint          aIndex,
@@ -167,18 +158,17 @@ namespace moris
             /**
              * store the T-Matrices and B-Spline IDs into a file
              */
-            void save_coeffs_to_hdf5_file( const std::string & aFilePath );
-
-// -----------------------------------------------------------------------------
-
-            void renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath );
+            void save_coeffs_to_hdf5_file( const std::string & aFilePath,
+                                           const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
             /**
              * store the T-Matrices and B-Spline IDs into a file
              */
-            void save_mesh_relations_to_hdf5_file ( const std::string & aFilePath );
+            void save_mesh_relations_to_hdf5_file ( const std::string & aFilePath,
+                                                    const uint        & aLagrangeMeshIndex,
+                                                    const uint        & aBsplineMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -188,22 +178,24 @@ namespace moris
              */
             std::shared_ptr< Field > load_field_from_hdf5_file( const std::string & aLabel,
                                                                 const std::string & aFilePath,
-                                                                const uint          aLagrangeOrder=0,
-                                                                const uint          aBSpineOrder=0 );
+                                                                const uint          aLagrangeIndex = 0,
+                                                                const uint          aBSpineIndex = 0 );
 
 // -----------------------------------------------------------------------------
 
             std::shared_ptr< Field > load_field_from_exo_file( const std::string & aLabel,
                                                                const std::string & aFilePath,
-                                                               const uint          aLagrangeOrder=0,
-                                                               const uint          aBSpineOrder=0 );
+                                                               const uint          aLagrangeIndex=0,
+                                                               const uint          aBSpineIndex=0 );
 
 // -----------------------------------------------------------------------------
 
             std::shared_ptr< Field > load_field_from_file( const std::string & aLabel,
                                                            const std::string & aFilePath,
-                                                           const uint          aLagrangeOrder=0,
-                                                           const uint          aBSpineOrder=0 );
+                                                           const uint          aLagrangeIndex=0,
+                                                           const uint          aBSpineIndex=0 );
+
+// -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 
@@ -365,7 +357,7 @@ namespace moris
             /**
              * special function for tutorial
              */
-            void perform_refinement_and_map_fields();
+//            void perform_refinement_and_map_fields( const uint aPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -404,7 +396,9 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_bsplines_to_vtk( const std::string & aFilePath );
+            void save_bsplines_to_vtk( const std::string & aFilePath,
+                                       const uint        & aLagrangeMeshIndex,
+                                       const uint        & aBsplineMeshIndex  );
 
 // -----------------------------------------------------------------------------
 
@@ -413,7 +407,8 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_faces_to_vtk( const std::string & aFilePath );
+            void save_faces_to_vtk( const std::string & aFilePath,
+                                    const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -422,7 +417,8 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_edges_to_vtk( const std::string & aFilePath );
+            void save_edges_to_vtk( const std::string & aFilePath,
+                                    const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -431,7 +427,8 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_mesh_to_vtk( const std::string & aFilePath );
+            void save_mesh_to_vtk( const std::string & aFilePath,
+                                   const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
