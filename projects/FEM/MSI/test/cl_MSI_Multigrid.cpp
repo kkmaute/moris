@@ -145,6 +145,12 @@ namespace moris
              Cell< fem::IWG* > tIWGs ( 1, nullptr );
              tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
+             // set residual dof type
+             tIWGs( 0 )->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+
+             // set active dof types
+             tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
+
              // create property info
              fem::Property_User_Defined_Info tPropertyUserDefinedInfo;
 

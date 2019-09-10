@@ -137,7 +137,14 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         Cell< fem::IWG* > tIWGs( 1, nullptr );
         tIWGs( 0 ) = tIWGFactory.create_IWGs( fem::IWG_Type::L2 );
 
-//        tIWGs( 0 ) = new moris::fem::IWG_L2( );
+        // set residual dof type
+        tIWGs( 0 )->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+
+        // set active dof types
+        tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
+
+        // create user defined info for properties
+        fem::Property_User_Defined_Info tPropertyUserDefinedInfo;
 
         map< moris_id, moris_index >   tCoefficientsMap;
         Cell< fem::Node_Base* >        tNodes;
@@ -178,6 +185,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                              fem::Element_Type::BULK,
                                                              tIWGs,
+                                                             &tPropertyUserDefinedInfo,
                                                              tNodes );
 
             // collect equation objects associated with the block-set

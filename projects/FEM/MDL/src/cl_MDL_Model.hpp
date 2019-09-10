@@ -32,6 +32,7 @@ namespace moris
         class Set;
         class Field_Interpolator;
         class Property_User_Defined_Info;
+        class IWG_User_Defined_Info;
         enum class IWG_Type;
         enum class BC_Type;
         enum class Property_Type;
@@ -114,7 +115,7 @@ namespace moris
             */
             Model(       mtk::Mesh_Manager*                            aMesh,
                    const uint                                          aBSplineOrder,
-                   const moris::Cell< moris::Cell< fem::IWG_Type > > & aIWGTypeList,
+                   const fem::IWG_User_Defined_Info                  * aIWGUserDefinedInfo,
                    const moris::Cell< moris_index >                  & aSetList,
                    const moris::Cell< fem::Element_Type >            & aSetTypeList,
                    const fem::Property_User_Defined_Info             * aPropertyUserDefinedInfo,

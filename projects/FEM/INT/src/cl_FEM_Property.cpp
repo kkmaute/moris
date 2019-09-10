@@ -35,6 +35,34 @@ namespace moris
             mPropDerZero.set_size( 1, 1, 0.0 );
         }
 
+
+        Property::Property( fem::Property_Type                          aPropertyType,
+                            moris::Cell< moris::Cell< MSI::Dof_Type > > aActiveDofTypes,
+                            PropertyFunc                                aValFunction,
+                            moris::Cell< PropertyFunc >                 aDerFunctions,
+                            Geometry_Interpolator*                      aGeometryInterpolator )
+        : mPropertyType( aPropertyType ),
+          mDofTypes( aActiveDofTypes ),
+          mValFunction( aValFunction ),
+          mDerFunctions( aDerFunctions ),
+          mGeometryInterpolator( aGeometryInterpolator )
+        {
+            // build a dof type map
+            this->build_dof_type_map();
+
+            // set mDerFunctions size
+            mDerFunctions.resize( mDofTypes.size(), nullptr );
+
+            // set mPropDerEval size
+            mPropDerEval.resize( mDofTypes.size(), true );
+
+            // set mPropDer size
+            mPropDer.resize( mDofTypes.size() );
+
+            // init mPropDerZero size
+            mPropDerZero.set_size( 1, 1, 0.0 );
+        }
+
 //------------------------------------------------------------------------------
         /**
          * build a dof type map
@@ -137,11 +165,14 @@ namespace moris
             // check that mValFunc was assigned
             MORIS_ASSERT( mValFunction != nullptr, "Property::eval_val - mValFunction not assigned. " );
 
+            // check that mGeometryInterpolator was assigned
+            MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_val - mGeometryInterpolator not assigned. " );
+
             // check that the field interpolators are set
             this->check_field_interpolators();
 
             // use mValFunction to evaluate the property
-            mProp = mValFunction( mCoeff, mFieldInterpolators );
+            mProp = mValFunction( mCoeff, mFieldInterpolators, mGeometryInterpolator );
 
             // set bool for evaluation
             mPropEval = false;
@@ -175,15 +206,18 @@ namespace moris
          */
         void Property::eval_dPropdDOF( MSI::Dof_Type aDofType )
         {
-            // check that the field interpolators are set
-            this->check_field_interpolators();
-
             // check that mDerFunctions was assigned
             MORIS_ASSERT( mDerFunctions( mDofTypeMap( static_cast< uint >( aDofType ) ) ) != nullptr, "Property::dPdDOF - mDerFunction not assigned. " );
 
+            // check that mGeometryInterpolator was assigned
+            MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_dPropdDOF - mGeometryInterpolator not assigned. " );
+
+            // check that the field interpolators are set
+            this->check_field_interpolators();
+
             // if so use mDerivativeFunction to compute the derivative
             mPropDer( mDofTypeMap( static_cast< uint >( aDofType ) ) )
-                = mDerFunctions( mDofTypeMap( static_cast< uint >( aDofType ) ) )( mCoeff, mFieldInterpolators );
+                = mDerFunctions( mDofTypeMap( static_cast< uint >( aDofType ) ) )( mCoeff, mFieldInterpolators, mGeometryInterpolator );
         }
 
 //------------------------------------------------------------------------------

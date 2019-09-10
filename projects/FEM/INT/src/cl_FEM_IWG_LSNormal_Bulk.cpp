@@ -11,21 +11,19 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-
         IWG_LSNormal_Bulk::IWG_LSNormal_Bulk()
         {
-            // set the residual dof type
-            mResidualDofType = { MSI::Dof_Type::NLSX,
-                                 MSI::Dof_Type::NLSY,
-                                 MSI::Dof_Type::NLSZ };
-
-            // set the active dof type
-            mMasterDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
-                               { MSI::Dof_Type::LS1 }};
+//            // set the residual dof type
+//            mResidualDofType = { MSI::Dof_Type::NLSX,
+//                                 MSI::Dof_Type::NLSY,
+//                                 MSI::Dof_Type::NLSZ };
+//
+//            // set the active dof type
+//            mMasterDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
+//                               { MSI::Dof_Type::LS1 }};
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_LSNormal_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators
@@ -59,7 +57,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check master field interpolators
@@ -102,7 +99,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
         {

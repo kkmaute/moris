@@ -26,6 +26,7 @@
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
+#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -74,7 +75,8 @@ namespace mdl
 {
 
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator )
+                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aCoeff( 0 );
 }
@@ -121,6 +123,32 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+        // number of groups of IWgs
+        uint tNumSets = tIWGTypeList.size();
+
+        // list of residual dof type
+        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+
+        // list of IWG master dof dependencies
+        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+        // list of IWG master property dependencies
+        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+
+        // build an IWG user defined info
+        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                        tResidualDofType,
+                                                        tMasterDofTypes, tMasterPropTypes );
+
         // list of property type
         Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
                                                         { fem::Property_Type::TEMP_DIRICHLET },
@@ -139,16 +167,13 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tCoeffList( 2 )( 0 )= {{ 20.0 }};
 
         // cast free function into std::function
-        std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                          moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tConstValFunction;
+        fem::PropertyFunc tValFunction0 = tConstValFunction;
 
         // create the list with function pointers for the value
-        Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 3, tValFunction0 );
+        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
 
         // create the list with cell of function pointers for the derivatives
-        Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                                      moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 3 );
+        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
 
         // collect properties info
         fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
@@ -165,7 +190,8 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
                                                           fem::Element_Type::SIDESET };
 
         // create a model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, 1,
+                                              &tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
                                               & tPropertyUserDefinedInfo );
 
@@ -319,6 +345,32 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+        // number of groups of IWgs
+        uint tNumSets = tIWGTypeList.size();
+
+        // list of residual dof type
+        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+
+        // list of IWG master dof dependencies
+        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+        // list of IWG master property dependencies
+        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+
+        // build an IWG user defined info
+        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                        tResidualDofType,
+                                                        tMasterDofTypes, tMasterPropTypes );
+
         // list of property type
         Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
                                                         { fem::Property_Type::TEMP_DIRICHLET },
@@ -360,7 +412,8 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
                                                           fem::Element_Type::SIDESET };
 
         // create a model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, 1,
+                                              &tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
                                               &tPropertyUserDefinedInfo );
 
@@ -529,6 +582,32 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+        // number of groups of IWgs
+        uint tNumSets = tIWGTypeList.size();
+
+        // list of residual dof type
+        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+
+        // list of IWG master dof dependencies
+        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+        // list of IWG master property dependencies
+        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+
+        // build an IWG user defined info
+        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                        tResidualDofType,
+                                                        tMasterDofTypes, tMasterPropTypes );
+
         // list of property type
         Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
                                                         { fem::Property_Type::TEMP_DIRICHLET },
@@ -578,7 +657,8 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tMeshManager.register_mesh_pair(tInterpolationMesh.get(),tIntegrationMesh.get());
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex, tIWGTypeList,
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
+                                              &tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
                                               &tPropertyUserDefinedInfo );
 
@@ -986,6 +1066,32 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+        // number of groups of IWgs
+        uint tNumSets = tIWGTypeList.size();
+
+        // list of residual dof type
+        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+
+        // list of IWG master dof dependencies
+        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+        // list of IWG master property dependencies
+        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+
+        // build an IWG user defined info
+        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                        tResidualDofType,
+                                                        tMasterDofTypes, tMasterPropTypes );
+
         // list of property type
         Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
                                                         { fem::Property_Type::TEMP_DIRICHLET },
@@ -1036,7 +1142,8 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tMeshManager.register_mesh_pair( tInterpolationMesh.get(),tIntegrationMesh.get() );
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex, tIWGTypeList,
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
+                                              &tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
                                               &tPropertyUserDefinedInfo );
 
@@ -1268,6 +1375,32 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+        // number of groups of IWgs
+        uint tNumSets = tIWGTypeList.size();
+
+        // list of residual dof type
+        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+
+        // list of IWG master dof dependencies
+        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+        // list of IWG master property dependencies
+        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+
+        // build an IWG user defined info
+        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                        tResidualDofType,
+                                                        tMasterDofTypes, tMasterPropTypes );
+
         // list of property type
         Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
                                                         { fem::Property_Type::TEMP_DIRICHLET },
@@ -1318,7 +1451,8 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tMeshManager.register_mesh_pair(tInterpolationMesh.get(),tIntegrationMesh.get());
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex, tIWGTypeList,
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
+                                              &tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
                                               &tPropertyUserDefinedInfo );
 

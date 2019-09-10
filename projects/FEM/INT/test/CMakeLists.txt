@@ -29,6 +29,7 @@ set(TEST_SOURCES
     UT_FEM_Property.cpp
     UT_FEM_Property_User_Defined_Info.cpp
     UT_FEM_IWG.cpp
+    UT_FEM_IWG_User_Defined_Info.cpp
     )
 
 # List test dependencies

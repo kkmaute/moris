@@ -12,11 +12,11 @@ namespace moris
 //------------------------------------------------------------------------------
     IWG_L2::IWG_L2( const real aAlpha )
     {
-        // set the residual dof type
-        mResidualDofType = { MSI::Dof_Type::L2 };
-
-        // set the active dof types
-        mMasterDofTypes = { { MSI::Dof_Type::L2 } };
+//        // set the residual dof type
+//        mResidualDofType = { MSI::Dof_Type::L2 };
+//
+//        // set the active dof types
+//        mMasterDofTypes = { { MSI::Dof_Type::L2 } };
 
         // set alpha
         this->set_alpha( aAlpha );

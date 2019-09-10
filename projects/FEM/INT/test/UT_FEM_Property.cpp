@@ -13,21 +13,24 @@ namespace moris
     {
 
         Matrix< DDRMat > tValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                       Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyVal( 1, 1, 1.0);
             return tPropertyVal;
         }
 
         Matrix< DDRMat > tDerFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                       Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyDer( 1, 1, 2.0);
             return tPropertyDer;
         }
 
         Matrix< DDRMat > tValFunction2( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                        Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyVal( 1, 1, 0.0);
             tPropertyVal = aCoeff( 0 ) + aCoeff( 1 ) * aFieldInterpolator( 0 )->val() + aCoeff( 2 ) * aFieldInterpolator( 1 )->val();
@@ -35,7 +38,8 @@ namespace moris
         }
 
         Matrix< DDRMat > tDerFunction2( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                        Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyDer;
             tPropertyDer = aCoeff( 1 ) * aFieldInterpolator( 0 )->N();
@@ -43,7 +47,8 @@ namespace moris
         }
 
         Matrix< DDRMat > tDerFunction3( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                        Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyDer;
             tPropertyDer = aCoeff( 2 ) * aFieldInterpolator( 1 )->N();
@@ -51,9 +56,17 @@ namespace moris
         }
 
         Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                            moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                            moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                            Geometry_Interpolator              * aGeometryInterpolator )
         {
             return aCoeff( 0 );
+        }
+
+        Matrix< DDRMat > tGeoValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
+                                          moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                          Geometry_Interpolator              * aGeometryInterpolator )
+        {
+            return aCoeff( 0 ) * aGeometryInterpolator->valx();
         }
 
         TEST_CASE( "Property", "[moris],[fem],[Property]" )
@@ -69,11 +82,22 @@ namespace moris
             Cell< fem::PropertyFunc > tDerFunctions( 1 );
             tDerFunctions( 0 ) = tDerFunction0;
 
+            //create a space geometry interpolation rule
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR );
+
+            //create a space and a time geometry interpolator
+            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
+
             // create a property object
             fem::Property tProperty( fem::Property_Type::TEMP_DIRICHLET,
                                      tActiveDofTypes,
                                      tValFunction0,
-                                     tDerFunctions );
+                                     tDerFunctions,
+                                     tGeomInterpolator );
 
             // check property type
             CHECK( equal_to( static_cast< uint >( tProperty.get_property_type() ), 1 ) );
@@ -81,9 +105,11 @@ namespace moris
             //check dof dependencies
             CHECK( equal_to( static_cast< uint >( tProperty.get_dof_type_list()( 0 )( 0 ) ), 3 ) );
 
-            // set coeffs and field interpolators
+            // set coeffs
             Cell< Matrix< DDRMat > > tCoeff;
             tProperty.set_coefficients( tCoeff );
+
+            // set field interpolators
             Cell< Field_Interpolator* > tFieldInterpolator( 1 );
             tFieldInterpolator( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP });
             tProperty.set_field_interpolators( tFieldInterpolator );
@@ -108,6 +134,7 @@ namespace moris
 
             // clean up
             delete tFieldInterpolator( 0 );
+            delete tGeomInterpolator;
         }
 
         TEST_CASE( "Property_with_dependency", "[moris],[fem],[Property_with_dependency]" )
@@ -125,12 +152,6 @@ namespace moris
             Cell< fem::PropertyFunc > tDerFunctions( 2, nullptr );
             tDerFunctions( 0 ) = tDerFunction0;
             tDerFunctions( 1 ) = tDerFunction1;
-
-            // create a property object
-            fem::Property tProperty( fem::Property_Type::CONDUCTIVITY,
-                                     tActiveDofTypes,
-                                     tValFunction0,
-                                     tDerFunctions );
 
             //create a quad4 space element
             Matrix< DDRMat > tXHat( 4, 2 );
@@ -156,6 +177,14 @@ namespace moris
             //set the coefficients xHat, tHat
             tGeomInterpolator->set_coeff( tXHat, tTHat );
 
+            // create a property object
+            fem::Property tProperty( fem::Property_Type::CONDUCTIVITY,
+                                     tActiveDofTypes,
+                                     tValFunction0,
+                                     tDerFunctions,
+                                     tGeomInterpolator );
+
+            // create an interpolation rule
             Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
                                                     Interpolation_Type::LAGRANGE,
                                                     mtk::Interpolation_Order::LINEAR,
@@ -217,194 +246,189 @@ namespace moris
 
         }/* TEST_CASE */
 
-        TEST_CASE( "Property_creation_model", "[moris],[fem],[Property_creation_model]" )
-        {
-            // list of property type
-            Cell< fem::Property_Type > tPropertyTypeList = {{fem::Property_Type::CONDUCTIVITY},
-                                                            {fem::Property_Type::TEMP_DIRICHLET}};
-
-            // list of property dependencies
-            Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 2 );
-            tPropertyDofList( 0 ) = {{ MSI::Dof_Type::TEMP},
-                                     { MSI::Dof_Type::UX  }};
-            tPropertyDofList( 1 ) = {{ MSI::Dof_Type::TEMP},
-                                     { MSI::Dof_Type::UX  }};
-
-            // list of the property coefficients
-            Cell< Cell< Matrix< DDRMat > > > tCoeffList( 2 );
-            tCoeffList( 0 ).resize( 3 );
-            tCoeffList( 0 )( 0 )= {{ 1.0 }};
-            tCoeffList( 0 )( 1 )= {{ 2.0 }};
-            tCoeffList( 0 )( 2 )= {{ 3.0 }};
-            tCoeffList( 1 ).resize( 3 );
-            tCoeffList( 1 )( 0 )= {{ 1.0 }};
-            tCoeffList( 1 )( 1 )= {{ 2.0 }};
-            tCoeffList( 1 )( 2 )= {{ 3.0 }};
-
-            // cast free function into std::function
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tValFunction0 = tValFunction2;
-
-            // create the list with function pointers for the value
-            Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                    moris::Cell< Field_Interpolator* > & aFieldInterpolator) > > tValFuncList( 2, nullptr );
-            tValFuncList( 0 ) = tValFunction0;
-            tValFuncList( 1 ) = tValFunction0;
-
-            // cast free function into std::function
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tDerFunction0 = tDerFunction2;
-            std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< Field_Interpolator* > & aFieldInterpolator) > tDerFunction1 = tDerFunction3;
-
-            // create the list with cell of function pointers for the derivatives
-            Cell< Cell< std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                                          moris::Cell< Field_Interpolator* > & aFieldInterpolator) > > > tDerFuncList( 2 );
-            tDerFuncList( 0 ).resize( 2, nullptr );
-            tDerFuncList( 1 ).resize( 2, nullptr );
-            tDerFuncList( 0 )( 0 ) = tDerFunction0;
-            tDerFuncList( 0 )( 1 ) = tDerFunction1;
-            tDerFuncList( 1 )( 0 ) = tDerFunction0;
-            tDerFuncList( 1 )( 1 ) = tDerFunction1;
-
-            // model property map
-            sint tMaxEnum = 0;
-            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
-            {
-                tMaxEnum = std::max( tMaxEnum, static_cast< int >( tPropertyTypeList( iProp ) ) );
-            }
-            tMaxEnum++;
-
-            // creation of properties
-            Matrix< DDSMat > tPropertyTypeMap( tMaxEnum, 1, -1 );
-            Cell< Property* > tModelProperties( tPropertyTypeList.size() );
-            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
-            {
-                tModelProperties( iProp ) = new Property( tPropertyTypeList( iProp ),
-                                                          tPropertyDofList( iProp ),
-                                                          tValFuncList( iProp ),
-                                                          tDerFuncList( iProp ) );
-
-                tPropertyTypeMap( static_cast< int >( tPropertyTypeList( iProp ) ), 0 ) = iProp;
-            }
-            //print(tPropertyTypeMap,"tPropertyTypeMap");
-
-            // clean up
-            for( Property* tProperty : tModelProperties )
-            {
-                delete tProperty;
-            }
-
-        }/* TEST_CASE */
-
-        TEST_CASE( "Property_model_diffusion", "[moris],[fem],[Property_model_diffusion]" )
-        {
-            // list of property type
-            Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
-                                                            { fem::Property_Type::TEMP_DIRICHLET },
-                                                            { fem::Property_Type::TEMP_NEUMANN   }};
-
-            // list of property dependencies
-            Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
-
-            // list of the property coefficients
-            Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
-            tCoeffList( 0 ).resize( 1 );
-            tCoeffList( 0 )( 0 )= {{ 1.0 }};
-            tCoeffList( 1 ).resize( 1 );
-            tCoeffList( 1 )( 0 )= {{ 5.0 }};
-            tCoeffList( 2 ).resize( 1 );
-            tCoeffList( 2 )( 0 )= {{ 20.0 }};
-
-            // cast free function into std::function
-            fem::PropertyFunc tValFunction0 = tConstValFunction;
-
-            // create the list with function pointers for the value
-            Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
-
-            // create the list with cell of function pointers for the derivatives
-            Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
-
-            // model property map
-            sint tMaxEnum = 0;
-            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
-            {
-                tMaxEnum = std::max( tMaxEnum, static_cast< int >( tPropertyTypeList( iProp ) ) );
-            }
-            tMaxEnum++;
-
-            // creation of properties
-            Matrix< DDSMat > tPropertyTypeMap( tMaxEnum, 1, -1 );
-            Cell< Property* > tModelProperties( tPropertyTypeList.size() );
-            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
-            {
-                tModelProperties( iProp ) = new Property( tPropertyTypeList( iProp ),
-                                                          tPropertyDofList( iProp ),
-                                                          tValFuncList( iProp ),
-                                                          tDerFuncList( iProp ) );
-
-                tPropertyTypeMap( static_cast< int >( tPropertyTypeList( iProp ) ), 0 ) = iProp;
-            }
-            //print(tPropertyTypeMap,"tPropertyTypeMap");
-
-            // create a list of IWG type
-            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
-            tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
-
-            // number of IWGs to be created
-            uint tNumOfIWGs = tIWGTypeList.size();
-
-            // a factory to create the IWGs
-            fem::IWG_Factory tIWGFactory;
-
-            // create a cell of IWGs for the problem considered
-            Cell< Cell< IWG* > > tIWGs( tNumOfIWGs );
-
-            // loop over the IWG types
-            for( uint i = 0; i < tNumOfIWGs; i++)
-            {
-                tIWGs( i ).resize( tIWGTypeList( i ).size(), nullptr );
-
-                for( uint Ki = 0; Ki < tIWGTypeList( i ).size(); Ki++)
-                {
-                    // create an IWG with the factory for the ith IWG type
-                    tIWGs( i )( Ki ) = tIWGFactory.create_IWGs( tIWGTypeList( i )( Ki ) );
-
-                    // get the IWG properties
-                    Cell< fem::Property_Type > tIWGPropertyType;
-                    tIWGPropertyType = tIWGs( i )( Ki )->get_property_type_list();
-
-                    // loop over property type
-                    Cell< Property* > tIWGProperties( tIWGPropertyType.size() );
-                    for( uint iProp = 0; iProp < tIWGPropertyType.size(); iProp++ )
-                    {
-                        // collect the properties that are active for the IWG
-                        uint propIndex = tPropertyTypeMap( static_cast< int >( tIWGPropertyType( iProp ) ) );
-                        tIWGProperties( iProp ) = tModelProperties( propIndex );
-                    }
-
-                    // set the IWG properties
-                    tIWGs( i )( Ki )->set_properties( tIWGProperties );
-                }
-            }
-
-            // clean up
-            for( Property* tProperty : tModelProperties )
-            {
-                delete tProperty;
-            }
-
-            for( uint iIWGSet = 0; iIWGSet < tNumOfIWGs; iIWGSet++ )
-            {
-                for( uint iIWG = 0; iIWG < tIWGs( iIWGSet ).size(); iIWG++ )
-                {
-                    delete tIWGs( iIWGSet )( iIWG );
-                }
-            }
-
-        }/* TEST_CASE */
+//        TEST_CASE( "Property_creation_model", "[moris],[fem],[Property_creation_model]" )
+//        {
+//            // list of property type
+//            Cell< fem::Property_Type > tPropertyTypeList = {{fem::Property_Type::CONDUCTIVITY},
+//                                                            {fem::Property_Type::TEMP_DIRICHLET}};
+//
+//            // list of property dependencies
+//            Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 2 );
+//            tPropertyDofList( 0 ) = {{ MSI::Dof_Type::TEMP},
+//                                     { MSI::Dof_Type::UX  }};
+//            tPropertyDofList( 1 ) = {{ MSI::Dof_Type::TEMP},
+//                                     { MSI::Dof_Type::UX  }};
+//
+//            // list of the property coefficients
+//            Cell< Cell< Matrix< DDRMat > > > tCoeffList( 2 );
+//            tCoeffList( 0 ).resize( 3 );
+//            tCoeffList( 0 )( 0 )= {{ 1.0 }};
+//            tCoeffList( 0 )( 1 )= {{ 2.0 }};
+//            tCoeffList( 0 )( 2 )= {{ 3.0 }};
+//            tCoeffList( 1 ).resize( 3 );
+//            tCoeffList( 1 )( 0 )= {{ 1.0 }};
+//            tCoeffList( 1 )( 1 )= {{ 2.0 }};
+//            tCoeffList( 1 )( 2 )= {{ 3.0 }};
+//
+//            // cast free function into std::function
+//            fem::PropertyFunc tValFunction0 = tValFunction2;
+//
+//            // create the list with function pointers for the value
+//            Cell< fem::PropertyFunc > tValFuncList( 2, nullptr );
+//            tValFuncList( 0 ) = tValFunction0;
+//            tValFuncList( 1 ) = tValFunction0;
+//
+//            // cast free function into std::function
+//            fem::PropertyFunc tDerFunction0 = tDerFunction2;
+//            fem::PropertyFunc tDerFunction1 = tDerFunction3;
+//
+//            // create the list with cell of function pointers for the derivatives
+//            Cell< Cell< fem::PropertyFunc > > tDerFuncList( 2 );
+//            tDerFuncList( 0 ).resize( 2, nullptr );
+//            tDerFuncList( 1 ).resize( 2, nullptr );
+//            tDerFuncList( 0 )( 0 ) = tDerFunction0;
+//            tDerFuncList( 0 )( 1 ) = tDerFunction1;
+//            tDerFuncList( 1 )( 0 ) = tDerFunction0;
+//            tDerFuncList( 1 )( 1 ) = tDerFunction1;
+//
+//            // model property map
+//            sint tMaxEnum = 0;
+//            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
+//            {
+//                tMaxEnum = std::max( tMaxEnum, static_cast< int >( tPropertyTypeList( iProp ) ) );
+//            }
+//            tMaxEnum++;
+//
+//            // creation of properties
+//            Matrix< DDSMat > tPropertyTypeMap( tMaxEnum, 1, -1 );
+//            Cell< Property* > tModelProperties( tPropertyTypeList.size() );
+//            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
+//            {
+//                tModelProperties( iProp ) = new Property( tPropertyTypeList( iProp ),
+//                                                          tPropertyDofList( iProp ),
+//                                                          tValFuncList( iProp ),
+//                                                          tDerFuncList( iProp ) );
+//
+//                tPropertyTypeMap( static_cast< int >( tPropertyTypeList( iProp ) ), 0 ) = iProp;
+//            }
+//            //print(tPropertyTypeMap,"tPropertyTypeMap");
+//
+//            // clean up
+//            for( Property* tProperty : tModelProperties )
+//            {
+//                delete tProperty;
+//            }
+//
+//        }/* TEST_CASE */
+//
+//        TEST_CASE( "Property_model_diffusion", "[moris],[fem],[Property_model_diffusion]" )
+//        {
+//            // list of property type
+//            Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
+//                                                            { fem::Property_Type::TEMP_DIRICHLET },
+//                                                            { fem::Property_Type::TEMP_NEUMANN   }};
+//
+//            // list of property dependencies
+//            Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
+//
+//            // list of the property coefficients
+//            Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
+//            tCoeffList( 0 ).resize( 1 );
+//            tCoeffList( 0 )( 0 )= {{ 1.0 }};
+//            tCoeffList( 1 ).resize( 1 );
+//            tCoeffList( 1 )( 0 )= {{ 5.0 }};
+//            tCoeffList( 2 ).resize( 1 );
+//            tCoeffList( 2 )( 0 )= {{ 20.0 }};
+//
+//            // cast free function into std::function
+//            fem::PropertyFunc tValFunction0 = tConstValFunction;
+//
+//            // create the list with function pointers for the value
+//            Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
+//
+//            // create the list with cell of function pointers for the derivatives
+//            Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
+//
+//            // model property map
+//            sint tMaxEnum = 0;
+//            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
+//            {
+//                tMaxEnum = std::max( tMaxEnum, static_cast< int >( tPropertyTypeList( iProp ) ) );
+//            }
+//            tMaxEnum++;
+//
+//            // creation of properties
+//            Matrix< DDSMat > tPropertyTypeMap( tMaxEnum, 1, -1 );
+//            Cell< Property* > tModelProperties( tPropertyTypeList.size() );
+//            for( uint iProp = 0; iProp < tPropertyTypeList.size(); iProp++ )
+//            {
+//                tModelProperties( iProp ) = new Property( tPropertyTypeList( iProp ),
+//                                                          tPropertyDofList( iProp ),
+//                                                          tValFuncList( iProp ),
+//                                                          tDerFuncList( iProp ) );
+//
+//                tPropertyTypeMap( static_cast< int >( tPropertyTypeList( iProp ) ), 0 ) = iProp;
+//            }
+//            //print(tPropertyTypeMap,"tPropertyTypeMap");
+//
+//            // create a list of IWG type
+//            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 3 );
+//            tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+//            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+//            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+//
+//            // number of IWGs to be created
+//            uint tNumOfIWGs = tIWGTypeList.size();
+//
+//            // a factory to create the IWGs
+//            fem::IWG_Factory tIWGFactory;
+//
+//            // create a cell of IWGs for the problem considered
+//            Cell< Cell< IWG* > > tIWGs( tNumOfIWGs );
+//
+//            // loop over the IWG types
+//            for( uint i = 0; i < tNumOfIWGs; i++)
+//            {
+//                tIWGs( i ).resize( tIWGTypeList( i ).size(), nullptr );
+//
+//                for( uint Ki = 0; Ki < tIWGTypeList( i ).size(); Ki++)
+//                {
+//                    // create an IWG with the factory for the ith IWG type
+//                    tIWGs( i )( Ki ) = tIWGFactory.create_IWGs( tIWGTypeList( i )( Ki ) );
+//
+//                    // get the IWG properties
+//                    Cell< fem::Property_Type > tIWGPropertyType;
+//                    tIWGPropertyType = tIWGs( i )( Ki )->get_property_type_list();
+//
+//                    // loop over property type
+//                    Cell< Property* > tIWGProperties( tIWGPropertyType.size() );
+//                    for( uint iProp = 0; iProp < tIWGPropertyType.size(); iProp++ )
+//                    {
+//                        // collect the properties that are active for the IWG
+//                        uint propIndex = tPropertyTypeMap( static_cast< int >( tIWGPropertyType( iProp ) ) );
+//                        tIWGProperties( iProp ) = tModelProperties( propIndex );
+//                    }
+//
+//                    // set the IWG properties
+//                    tIWGs( i )( Ki )->set_properties( tIWGProperties );
+//                }
+//            }
+//
+//            // clean up
+//            for( Property* tProperty : tModelProperties )
+//            {
+//                delete tProperty;
+//            }
+//
+//            for( uint iIWGSet = 0; iIWGSet < tNumOfIWGs; iIWGSet++ )
+//            {
+//                for( uint iIWG = 0; iIWG < tIWGs( iIWGSet ).size(); iIWG++ )
+//                {
+//                    delete tIWGs( iIWGSet )( iIWG );
+//                }
+//            }
+//
+//        }/* TEST_CASE */
 
     }/* namespace fem */
 }/* namespace moris */

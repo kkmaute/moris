@@ -7,22 +7,19 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
-//        IWG_Helmholtz_Bulk::IWG_Helmholtz_Bulk( const real aFilterParam )
         IWG_Helmholtz_Bulk::IWG_Helmholtz_Bulk()
         {
             //FIXME set the Helmholtz filter parameter
             mFilterParam = 1.0;
 
-            // set the residual dof type
-            mResidualDofType = { MSI::Dof_Type::VX };
-
-            // set the active dof type
-            mMasterDofTypes = {{ MSI::Dof_Type::VX }};
+//            // set the residual dof type
+//            mResidualDofType = { MSI::Dof_Type::VX };
+//
+//            // set the active dof type
+//            mMasterDofTypes = {{ MSI::Dof_Type::VX }};
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Helmholtz_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             //FIXME set unfiltered velocity values at nodes
@@ -40,7 +37,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Helmholtz_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // set field interpolator
@@ -55,7 +51,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Helmholtz_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                 moris::Cell< Matrix< DDRMat > >                & aResidual )
         {

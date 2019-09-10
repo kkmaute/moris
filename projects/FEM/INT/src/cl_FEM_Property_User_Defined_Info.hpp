@@ -19,8 +19,11 @@ namespace moris
     namespace fem
     {
     class Field_Interpolator;
+    class Geometry_Interpolator;
+
     typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator ) > PropertyFunc;
+                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                              fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
 //------------------------------------------------------------------------------
         /**
          * Property_User_Defined_Info

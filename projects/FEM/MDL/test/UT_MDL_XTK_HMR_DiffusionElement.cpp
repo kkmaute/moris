@@ -46,6 +46,7 @@
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
+#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -132,7 +133,8 @@ LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator )
+                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                    fem::Geometry_Interpolator             * aGeometryInterpolator )
 {
     return aCoeff( 0 );
 }
@@ -237,6 +239,36 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+        // number of groups of IWgs
+        uint tNumSets = tIWGTypeList.size();
+
+        // list of residual dof type
+        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 3 ).resize( tIWGTypeList( 3 ).size(), { MSI::Dof_Type::TEMP } );
+
+        // list of IWG master dof dependencies
+        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 3 ).resize( tIWGTypeList( 3 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+        // list of IWG master property dependencies
+        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 3 ).resize( tIWGTypeList( 3 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+
+        // build an IWG user defined info
+        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                        tResidualDofType,
+                                                        tMasterDofTypes,
+                                                        tMasterPropTypes );
+
         // list of property type
         Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
                                                         { fem::Property_Type::TEMP_DIRICHLET },
@@ -279,7 +311,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
                                                           fem::Element_Type::SIDESET };
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex, tIWGTypeList,
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
+                                              &tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
                                               &tPropertyUserDefinedInfo );
 
@@ -493,6 +526,39 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGTypeList( 4 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+        // number of groups of IWgs
+        uint tNumSets = tIWGTypeList.size();
+
+        // list of residual dof type
+        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 3 ).resize( tIWGTypeList( 3 ).size(), { MSI::Dof_Type::TEMP } );
+        tResidualDofType( 4 ).resize( tIWGTypeList( 4 ).size(), { MSI::Dof_Type::TEMP } );
+
+        // list of IWG master dof dependencies
+        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 3 ).resize( tIWGTypeList( 3 ).size(), {{ MSI::Dof_Type::TEMP }} );
+        tMasterDofTypes( 4 ).resize( tIWGTypeList( 4 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+        // list of IWG master property dependencies
+        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 3 ).resize( tIWGTypeList( 3 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+        tMasterPropTypes( 4 ).resize( tIWGTypeList( 4 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+
+        // build an IWG user defined info
+        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                        tResidualDofType,
+                                                        tMasterDofTypes,
+                                                        tMasterPropTypes );
+
         // create a list of active block-sets
         moris::Cell< moris_index >  tSetList = { 4, 5, 1, 3, 0 };
 
@@ -538,7 +604,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                               tBSplineMeshIndex,
-                                              tIWGTypeList, tSetList, tSetTypeList,
+                                              &tIWGUserDefinedInfo,
+                                              tSetList, tSetTypeList,
                                               &tPropertyUserDefinedInfo,
                                               0,
                                               true);

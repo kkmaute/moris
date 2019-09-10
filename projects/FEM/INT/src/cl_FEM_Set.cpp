@@ -20,18 +20,17 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        Set::Set( moris::mtk::Set                          * aSet,
+        Set::Set( moris::mtk::Set                          * aMeshSet,
                   enum fem::Element_Type                     aElementType,
                   moris::Cell< IWG* >                      & aIWGs,
                   const fem::Property_User_Defined_Info    * aPropertyUserDefinedInfo,
-                  moris::Cell< Node_Base* >                & aIPNodes ) : mMeshSet(aSet),
-                                                                          mNodes(aIPNodes),
+                  moris::Cell< Node_Base* >                & aIPNodes ) : mMeshSet( aMeshSet ),
+                                                                          mNodes( aIPNodes ),
                                                                           mIWGs( aIWGs ),
                                                                           mElementType( aElementType )
         {
             // get mesh clusters on set
-            mMeshClusterList = aSet->get_clusters_on_set();
-
+            mMeshClusterList = mMeshSet->get_clusters_on_set();
 
             // create a fem cluster factory
             fem::Element_Factory tClusterFactory;
@@ -50,6 +49,85 @@ namespace moris
                                                                                mMeshClusterList( iCluster ),
                                                                                mNodes,
                                                                                this );
+            }
+
+            mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
+
+            mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
+
+            mIGGeometryType = mMeshSet->get_integration_cell_geometry_type();
+
+            // FIXME if different order for different field
+            mIPSpaceInterpolationOrder = mMeshSet->get_interpolation_cell_interpolation_order();
+            mIGSpaceInterpolationOrder = mMeshSet->get_integration_cell_interpolation_order();
+
+            // time interpolation order for IP cells fixme not linear
+            mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+            // time interpolation order for IG cells fixme not linear
+            mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+            // geometry interpolation rule for interpolation cells
+            Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIPSpaceInterpolationOrder,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIPTimeInterpolationOrder );
+
+            // geometry interpolation rule for integration cells
+            Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIGSpaceInterpolationOrder,
+                                                             Interpolation_Type::LAGRANGE,
+                                                             mIGTimeInterpolationOrder );
+
+            switch ( mElementType )
+            {
+                // if block-set
+                case ( fem::Element_Type::BULK ):
+                {
+                    // create an interpolation geometry intepolator
+                    mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
+
+                    // create an integration geometry intepolator
+                    mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
+
+                    break;
+                }
+
+                // if side-set
+                case( fem::Element_Type::SIDESET ):
+                {
+                    // create an interpolation geometry intepolator
+                    mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+
+                    // create an integration geometry intepolator
+                    mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+
+                    break;
+                }
+
+                // if double side-set
+                case( fem::Element_Type::DOUBLE_SIDESET ):
+                {
+                    mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
+
+                    // create an interpolation geometry intepolator
+                    mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+                    mSlaveIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
+
+                    // create an integration geometry intepolator
+                    mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+                    mSlaveIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
+
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR(false, "Set::Set - unknown element type");
+                    break;
+                }
             }
 
             // create a unique property type list for properties
@@ -73,157 +151,101 @@ namespace moris
             // create a dof type map
             this->create_dof_type_map();
 
+            // create an interpolation rule for the side
+            Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
+                                                                  Integration_Type::GAUSS,
+                                                                  this->get_auto_integration_order( mIGGeometryType ),
+                                                                  Integration_Type::GAUSS,
+                                                                  Integration_Order::BAR_1 ); // fixme time order
+
+            // create an integrator
+            Integrator tIntegrator( tIntegrationRule );
+
+            // get integration points
+            tIntegrator.get_points( mIntegPoints );
+
+            // get integration weights
+            tIntegrator.get_weights( mIntegWeights );
+
         }
 
 //------------------------------------------------------------------------------
-
     Set::~Set()
     {
-        this->delete_pointers();
-
+        // delete the equation object pointers
         for( auto tEquationObj : mEquationObjList )
         {
             delete tEquationObj;
         }
         mEquationObjList.clear();
 
+        // delete the master property pointers
         for( auto tMasterProperty : mMasterProperties )
         {
             delete tMasterProperty;
         }
         mMasterProperties.clear();
 
+        // delete the slave property pointers
         for( auto tSlaveProperty : mSlaveProperties )
         {
             delete tSlaveProperty;
         }
         mSlaveProperties.clear();
+
+        // delete the master interpolation geometry interpolator pointer
+        if ( mMasterIPGeometryInterpolator != nullptr )
+        {
+            delete mMasterIPGeometryInterpolator;
+        }
+
+        // delete the slave interpolation geometry interpolator pointer
+        if ( mSlaveIPGeometryInterpolator != nullptr )
+        {
+            delete mSlaveIPGeometryInterpolator;
+        }
+
+        // delete the master integration geometry interpolator pointer
+        if ( mMasterIGGeometryInterpolator != nullptr )
+        {
+            delete mMasterIGGeometryInterpolator;
+        }
+
+        // delete the slave integration geometry interpolator pointer
+        if ( mSlaveIGGeometryInterpolator != nullptr )
+        {
+            delete mSlaveIGGeometryInterpolator;
+        }
+
+        // delete the field interpolator pointers
+        this->delete_pointers();
+
     }
 
 //------------------------------------------------------------------------------
 
     void Set::delete_pointers()
     {
-        // delete the interpolation geometry interpolator pointer
-        if ( mMasterIPGeometryInterpolator != nullptr )
-        {
-            delete mMasterIPGeometryInterpolator;
-        }
-
-        if ( mSlaveIPGeometryInterpolator != nullptr )
-        {
-            delete mSlaveIPGeometryInterpolator;
-        }
-
-        // delete the integration geometry interpolator pointer
-        if ( mMasterIGGeometryInterpolator != nullptr )
-        {
-            delete mMasterIGGeometryInterpolator;
-        }
-
-        if ( mSlaveIGGeometryInterpolator != nullptr )
-        {
-            delete mSlaveIGGeometryInterpolator;
-        }
-
-        // delete the list of field interpolator pointers
+        // delete the master field interpolator pointers
         for( auto tMasterFieldInterpolator : mMasterFI )
         {
             delete tMasterFieldInterpolator;
         }
         mMasterFI.clear();
 
+        // delete the slave field interpolator pointers
         for( auto tSlaveFieldInterpolator : mSlaveFI )
         {
             delete tSlaveFieldInterpolator;
         }
         mSlaveFI.clear();
-
     }
 
 //------------------------------------------------------------------------------
     void Set::finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
     {
+        // delete the field interpolator pointers
         this->delete_pointers();
-
-        mIsTrivialMaster = mMeshSet->is_trivial( mtk::Master_Slave::MASTER );
-
-        mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
-
-        mIGGeometryType = mMeshSet->get_integration_cell_geometry_type();
-
-        // FIXME if different order for different field
-        mIPSpaceInterpolationOrder = mMeshSet->get_interpolation_cell_interpolation_order();
-        mIGSpaceInterpolationOrder = mMeshSet->get_integration_cell_interpolation_order();
-
-        // time interpolation order for IP cells fixme not linear
-        mIPTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
-        // time interpolation order for IG cells fixme not linear
-        mIGTimeInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-
-        // geometry interpolation rule for interpolation cells
-        Interpolation_Rule tIPGeometryInterpolationRule( mIPGeometryType,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIPSpaceInterpolationOrder,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIPTimeInterpolationOrder );
-
-        // geometry interpolation rule for integration cells
-        Interpolation_Rule tIGGeometryInterpolationRule( mIGGeometryType,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIGSpaceInterpolationOrder,
-                                                         Interpolation_Type::LAGRANGE,
-                                                         mIGTimeInterpolationOrder );
-
-        switch ( mElementType )
-        {
-            // if block-set
-            case ( fem::Element_Type::BULK ):
-            {
-                // create an interpolation geometry intepolator
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, false );
-
-                // create an integration geometry intepolator
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, false );
-
-                break;
-            }
-
-            // if side-set
-            case( fem::Element_Type::SIDESET ):
-            {
-                // create an interpolation geometry intepolator
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-                // create an integration geometry intepolator
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-                break;
-            }
-
-            // if double side-set
-            case( fem::Element_Type::DOUBLE_SIDESET ):
-            {
-                mIsTrivialSlave = mMeshSet->is_trivial( mtk::Master_Slave::SLAVE );
-
-                // create an interpolation geometry intepolator
-                mMasterIPGeometryInterpolator = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-                mSlaveIPGeometryInterpolator  = new Geometry_Interpolator( tIPGeometryInterpolationRule, true );
-
-                // create an integration geometry intepolator
-                mMasterIGGeometryInterpolator = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-                mSlaveIGGeometryInterpolator  = new Geometry_Interpolator( tIGGeometryInterpolationRule, true );
-
-                break;
-            }
-
-            default:
-            {
-                MORIS_ERROR(false, "Set::finalize - unknown element type");
-                break;
-            }
-        }
 
         // create the field interpolators
         this->create_field_interpolators( aModelSolverInterface );
@@ -239,22 +261,6 @@ namespace moris
 
         // set field interpolators for the properties
         this->set_properties_field_interpolators();
-
-        // create an interpolation rule for the side
-        Integration_Rule tIntegrationRule = Integration_Rule( mIGGeometryType,
-                                                              Integration_Type::GAUSS,
-                                                              this->get_auto_integration_order( mIGGeometryType ),
-                                                              Integration_Type::GAUSS,
-                                                              Integration_Order::BAR_1 ); // fixme time order
-
-        // create an integrator
-        Integrator tIntegrator( tIntegrationRule );
-
-        // get integration points
-        tIntegrator.get_points( mIntegPoints );
-
-        // get integration weights
-        tIntegrator.get_weights( mIntegWeights );
     }
 
 //------------------------------------------------------------------------------
@@ -680,7 +686,8 @@ namespace moris
             mMasterProperties( iProp ) = new Property( mMasterPropTypes( iProp ),
                                                        aPropertyUserDefinedInfo->get_property_dof_type_list()( propIndex ),
                                                        aPropertyUserDefinedInfo->get_property_valFunc_list()( propIndex ),
-                                                       aPropertyUserDefinedInfo->get_property_derFunc_list()( propIndex ) );
+                                                       aPropertyUserDefinedInfo->get_property_derFunc_list()( propIndex ),
+                                                       mMasterIPGeometryInterpolator );
 
             // set the coefficients for the treated property
             mMasterProperties( iProp )->set_coefficients( aPropertyUserDefinedInfo->get_property_coeff_list()( propIndex ) );
@@ -703,7 +710,8 @@ namespace moris
             mSlaveProperties( iProp ) = new Property( mSlavePropTypes( iProp ),
                                                       aPropertyUserDefinedInfo->get_property_dof_type_list()( propIndex ),
                                                       aPropertyUserDefinedInfo->get_property_valFunc_list()( propIndex ),
-                                                      aPropertyUserDefinedInfo->get_property_derFunc_list()( propIndex ) );
+                                                      aPropertyUserDefinedInfo->get_property_derFunc_list()( propIndex ),
+                                                      mSlaveIPGeometryInterpolator );
 
             // set the coefficients for the treated property
             mSlaveProperties( iProp )->set_coefficients( aPropertyUserDefinedInfo->get_property_coeff_list()( propIndex ) );
@@ -887,86 +895,6 @@ namespace moris
             }
         }
     }
-//    void Set::create_IWG_dof_assembly_map()
-//    {
-//        // get number of IWGs
-//        uint tNumOfIWG = this->get_number_of_IWGs();
-//
-//        // set info size
-//        mIWGDofAssemblyMap.resize( tNumOfIWG );
-//
-//        // loop over the IWGs
-//        for ( uint iIWG = 0; iIWG < tNumOfIWG; iIWG++ )
-//        {
-//            // get IWG
-//            IWG* tIWG = mIWGs( iIWG );
-//
-//            // get the number of dof type
-//            uint tMasterIWGNumDof = tIWG->get_global_dof_type_list().size();
-//            uint tSlaveIWGNumDof  = tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-//            uint tTotalIWGNumDof  = tMasterIWGNumDof + tSlaveIWGNumDof;
-//
-//            // set size
-//            mIWGDofAssemblyMap( iIWG ).set_size( tTotalIWGNumDof, 4 );
-//
-//            // select associated active interpolators
-//            Matrix< DDUMat > tStartJDof( tTotalIWGNumDof, 1 );
-//            Matrix< DDUMat > tStopJDof( tTotalIWGNumDof, 1 );
-//
-//
-//            // loop over the master and slave dof types
-//            for( uint iDOF = 0; iDOF < tTotalIWGNumDof; iDOF++ )
-//            {
-//                // init index of the dof type in the list of dof types
-//                uint tIWGDofIndex;
-//
-//                // if master dof type
-//                if( iDOF < tMasterIWGNumDof )
-//                {
-//                    // find the index of dof type in the list of master dof type
-//                    tIWGDofIndex = mMasterDofTypeMap( static_cast< int >( tIWG->get_global_dof_type_list()( iDOF )( 0 ) ), 0 );
-//                }
-//                // if slave dof type
-//                else
-//                {
-//                    // find the index of dof type in the list of slave dof type
-//                    tIWGDofIndex = this->get_number_of_field_interpolators()
-//                                 + mSlaveDofTypeMap( static_cast< int >( tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF - tMasterIWGNumDof )( 0 ) ), 0 );
-//                }
-//                // get the assembly indices for the dof type
-//                tStartJDof( iDOF ) = mDofAssemblyMap( tIWGDofIndex, 0 );
-//                tStopJDof( iDOF )  = mDofAssemblyMap( tIWGDofIndex, 1 );
-//            }
-//
-//            // find the index of residual dof type in the list of master dof types
-//            uint tMasterResDofIndex = mMasterDofTypeMap( static_cast< int >( tIWG->get_residual_dof_type()( 0 ) ), 0 );
-//            Matrix< DDUMat > tMasterStartIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tMasterResDofIndex, 0 ) );
-//            Matrix< DDUMat > tMasterStopIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tMasterResDofIndex, 1 ) );
-//
-//            // fill the map
-//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 0, 0 }) = tMasterStartIDof.matrix_data();
-//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 1, 1 }) = tMasterStopIDof.matrix_data();
-//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 2, 2 }) = tStartJDof.matrix_data();
-//            mIWGDofAssemblyMap( iIWG )({ 0, tTotalIWGNumDof-1 },{ 3, 3 }) = tStopJDof.matrix_data();
-//
-//            // if there is a slave
-//            if( tSlaveIWGNumDof > 0 )
-//            {
-//                mIWGDofAssemblyMap( iIWG ).resize( 2 * tTotalIWGNumDof, 4 );
-//                // find the index of residual dof type in the list of slave dof types
-//                uint tSlaveResDofIndex = this->get_number_of_field_interpolators()
-//                                       + mSlaveDofTypeMap( static_cast< int >( tIWG->get_residual_dof_type()( 0 ) ), 0 );
-//                Matrix< DDUMat > tSlaveStartIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tSlaveResDofIndex, 0 ) );
-//                Matrix< DDUMat > tSlaveStopIDof( tTotalIWGNumDof, 1, mDofAssemblyMap( tSlaveResDofIndex, 1 ) );
-//
-//                // fill the map
-//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 0, 0 }) = tSlaveStartIDof.matrix_data();
-//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 1, 1 }) = tSlaveStopIDof.matrix_data();
-//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 2, 2 }) = tStartJDof.matrix_data();
-//                mIWGDofAssemblyMap( iIWG )({ tTotalIWGNumDof, 2 * tTotalIWGNumDof-1 },{ 3, 3 }) = tStopJDof.matrix_data();
-//            }
-//        }
-//    }
 
 //------------------------------------------------------------------------------
     void Set::set_properties_field_interpolators()
