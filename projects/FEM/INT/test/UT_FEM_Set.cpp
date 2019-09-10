@@ -3,6 +3,7 @@
 #include "fn_equal_to.hpp"
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "linalg_typedefs.hpp"
+#include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 
 #define protected public
 #define private   public
@@ -17,7 +18,8 @@ namespace moris
     {
 
         Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                            moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                            moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                            Geometry_Interpolator              * aGeometryInterpolator )
         {
             return aCoeff( 0 );
         }
@@ -30,12 +32,34 @@ namespace moris
             Set tSet;
 
             // list of IWG types
-            moris::Cell< fem::IWG_Type > tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_BULK,
-                                                         fem::IWG_Type::SPATIALDIFF_DIRICHLET,
-                                                         fem::IWG_Type::HELMHOLTZ,
-                                                         fem::IWG_Type::LSNORMAL };
+            moris::Cell< fem::IWG_Type >  tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_BULK ,
+                                                          fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+                                                          fem::IWG_Type::HELMHOLTZ,
+                                                          fem::IWG_Type::LSNORMAL };
+
             // number of IWGs to be created
             uint tNumOfIWGs = tIWGTypeList.size();
+
+            // list of residual dof type
+            moris::Cell< moris::Cell< MSI::Dof_Type > > aResidualDofType( tNumOfIWGs );
+            aResidualDofType( 0 ) = { MSI::Dof_Type::TEMP };
+            aResidualDofType( 1 ) = { MSI::Dof_Type::TEMP };
+            aResidualDofType( 2 ) = { MSI::Dof_Type::VX };
+            aResidualDofType( 3 ) = { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ };
+
+            // list of active dof type
+            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aMasterDofTypes( tNumOfIWGs );
+            aMasterDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
+            aMasterDofTypes( 1 ) = {{ MSI::Dof_Type::TEMP }};
+            aMasterDofTypes( 2 ) = {{ MSI::Dof_Type::VX }};
+            aMasterDofTypes( 3 ) = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
+                                    { MSI::Dof_Type::LS1}};
+
+            // list of active property type
+            moris::Cell< moris::Cell< fem::Property_Type > > aMasterPropTypes( tNumOfIWGs );
+            aMasterPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
+            aMasterPropTypes( 1 ) = { fem::Property_Type::CONDUCTIVITY,
+                                      fem::Property_Type::TEMP_DIRICHLET };
 
             // a factory to create the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -48,6 +72,15 @@ namespace moris
            {
                // create an IWG with the factory for the ith IWG type
                tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
+
+               // set residual dof type
+               tIWGs( i )->set_residual_dof_type( aResidualDofType( i ) );
+
+               // set active dof type
+               tIWGs( i )->set_dof_type_list( aMasterDofTypes( i ) );
+
+               // set active property type
+               tIWGs( i )->set_property_type_list( aMasterPropTypes( i ) );
            }
 
            // pass in the cell of IWG pointers to the element block
@@ -339,6 +372,24 @@ namespace moris
             // number of IWGs to be created
             uint tNumOfIWGs = tIWGTypeList.size();
 
+            // list of residual dof type
+            moris::Cell< moris::Cell< MSI::Dof_Type > > aResidualDofType( tNumOfIWGs );
+            aResidualDofType( 0 ) = { MSI::Dof_Type::TEMP };
+            aResidualDofType( 1 ) = { MSI::Dof_Type::VX };
+
+            // list of active dof type
+            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aMasterDofTypes( tNumOfIWGs );
+            aMasterDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
+            aMasterDofTypes( 1 ) = {{ MSI::Dof_Type::VX }};
+            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aSlaveDofTypes( tNumOfIWGs );
+            aSlaveDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
+
+            // list of active property type
+            moris::Cell< moris::Cell< fem::Property_Type > > aMasterPropTypes( tNumOfIWGs );
+            aMasterPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
+            moris::Cell< moris::Cell< fem::Property_Type > > aSlavePropTypes( tNumOfIWGs );
+            aSlavePropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
+
             // create a cell of IWGs for the problem considered
             moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 
@@ -350,6 +401,17 @@ namespace moris
             {
                 // create an IWG with the factory for the ith IWG type
                 tIWGs( i ) = tIWGFactory.create_IWGs( tIWGTypeList( i ) );
+
+                // set residual dof type
+                tIWGs( i )->set_residual_dof_type( aResidualDofType( i ) );
+
+                // set active master and slave dof type
+                tIWGs( i )->set_dof_type_list( aMasterDofTypes( i ) );
+                tIWGs( i )->set_dof_type_list( aSlaveDofTypes( i ), mtk::Master_Slave::SLAVE );
+
+                // set active master and slave property type
+                tIWGs( i )->set_property_type_list( aMasterPropTypes( i ) );
+                tIWGs( i )->set_property_type_list( aSlavePropTypes( i ), mtk::Master_Slave::SLAVE );
             }
 
             // pass in the cell of IWG pointers to the element block

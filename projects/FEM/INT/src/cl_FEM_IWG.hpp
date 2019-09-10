@@ -100,7 +100,7 @@ namespace moris
              * set residual dof type
              * @param[ in ] aResidualdofType a cell of residual dof types
              */
-            void set_residual_dof_type( moris::Cell< MSI::Dof_Type > & aResidualDofType )
+            void set_residual_dof_type( const moris::Cell< MSI::Dof_Type > & aResidualDofType )
             {
                 mResidualDofType = aResidualDofType;
             }
@@ -121,8 +121,8 @@ namespace moris
              * @param[ in ] aIsMaster enum for master or slave
              *
              */
-            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER)
+            void set_dof_type_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER )
             {
                 switch ( aIsMaster )
                 {
@@ -185,8 +185,8 @@ namespace moris
              * @param[ in ] aIsMaster enum for master or slave
              *
              */
-            void set_property_type_list( moris::Cell< fem::Property_Type  > & aPropertyTypes,
-                                         mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER)
+            void set_property_type_list( const moris::Cell< fem::Property_Type  > & aPropertyTypes,
+                                         mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER )
             {
                 switch ( aIsMaster )
                 {

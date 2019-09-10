@@ -134,15 +134,19 @@ namespace MSI
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
-                /**
-                 * constructor for block-set
-                 * @param[ in ]     List of mtk::Cell_Cluster
-                 */
-          Set( moris::mtk::Set                       * aSet,
-               Element_Type                            aElementType,
-               moris::Cell< IWG* >                   & aIWGs,
-               const fem::Property_User_Defined_Info * aPropertyUserDefinedInfo,
-               moris::Cell< Node_Base* >             & aIPNodes );
+        /**
+         * constructor
+         * @param[ in ] aMeshSet                 a set from the mesh
+         * @param[ in ] aElementType             enum for element type ( BULK, SIDESET, ...)
+         * @param[ in ] aIWGs                    cell of IWG pointers
+         * @param[ in ] aPropertyUserDefinedInfo user defined info to build the properties
+         * @param[ in ] aIPNodes                 cell of node pointers
+         */
+        Set( moris::mtk::Set                       * aMeshSet,
+             Element_Type                            aElementType,
+             moris::Cell< IWG* >                   & aIWGs,
+             const fem::Property_User_Defined_Info * aPropertyUserDefinedInfo,
+             moris::Cell< Node_Base* >             & aIPNodes );
 
         /**
          * trivial constructor
@@ -150,7 +154,6 @@ namespace MSI
         Set(){};
 
 //------------------------------------------------------------------------------
-
         /**
          * trivial destructor
          */
@@ -163,7 +166,10 @@ namespace MSI
         void delete_pointers();
 
 //------------------------------------------------------------------------------
-
+        /**
+         * create and set the field interpolators
+         * param[ in ] aModelSolverInterface model solver interface pointer
+         */
         void finalize( MSI::Model_Solver_Interface * aModelSolverInterface );
 
 //------------------------------------------------------------------------------

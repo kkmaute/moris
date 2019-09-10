@@ -5,6 +5,7 @@
 
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Property_User_Defined_Info.hpp"
+#include "cl_FEM_IWG_User_Defined_Info.hpp"
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -74,9 +75,19 @@ namespace moris
         {
             if( ! mHaveIwgAndModel )
             {
-                // create a list of IWG types
+                // build a IWG User defined info
+                //FIXME should be provided to the function
                 Cell< Cell< fem::IWG_Type > >tIWGTypeList( 1 );
                 tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::L2 );
+                moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( 1 );
+                tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::L2 } );
+                moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( 1 );
+                tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::L2 }} );
+                moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( 1 );
+                tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size() );
+                fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                                tResidualDofType,
+                                                                tMasterDofTypes, tMasterPropTypes );
 
                 // create a list of active block-sets
                 //FIXME should be provided to the function
@@ -89,7 +100,7 @@ namespace moris
                 // create model
                 mModel = new mdl::Model( mMeshManager,
                                          mBSplineOrder,
-                                         tIWGTypeList,
+                                         &tIWGUserDefinedInfo,
                                          tSetList,
                                          tSetTypeList,
                                          &tPropertyUserDefinedInfo,

@@ -19,21 +19,24 @@ namespace moris
     {
 
         Matrix< DDRMat > tValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                       Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyVal( 1, 1, 1.0);
             return tPropertyVal;
         }
 
         Matrix< DDRMat > tDerFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                       Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyDer( 1, 1, 2.0);
             return tPropertyDer;
         }
 
         Matrix< DDRMat > tValFunction2( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                        Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyVal( 1, 1, 0.0);
             tPropertyVal = aCoeff( 0 ) + aCoeff( 1 ) * aFieldInterpolator( 0 )->val() + aCoeff( 2 ) * aFieldInterpolator( 1 )->val();
@@ -41,7 +44,8 @@ namespace moris
         }
 
         Matrix< DDRMat > tDerFunction2( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                        Geometry_Interpolator              * aGeometryInterpolator)
         {
             Matrix< DDRMat > tPropertyDer;
             tPropertyDer = aCoeff( 1 ) * aFieldInterpolator( 0 )->N();
@@ -49,7 +53,8 @@ namespace moris
         }
 
         Matrix< DDRMat > tDerFunction3( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                        Geometry_Interpolator              * aGeometryInterpolator )
         {
             Matrix< DDRMat > tPropertyDer;
             tPropertyDer = aCoeff( 2 ) * aFieldInterpolator( 1 )->N();
@@ -127,6 +132,15 @@ namespace moris
 
             // create an IWG with the factory for the ith IWG type
             fem::IWG* tIWG = tIWGFactory.create_IWGs( fem::IWG_Type::SPATIALDIFF_NEUMANN );
+
+            // set residual dof type
+            tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+
+            // set active dof types
+            tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+
+            // set active property type
+            tIWG->set_property_type_list( { fem::Property_Type::TEMP_NEUMANN } );
 
             // set IWG properties
             tIWG->set_properties( tProperties );

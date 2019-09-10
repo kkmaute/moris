@@ -73,8 +73,27 @@ namespace moris
         // boolean true if time side interpolation
         bool mTimeSideset = false;
 
-//        // Vertices ordinals for each face of the parent element
-//        moris::Cell< moris::Cell< moris::moris_index > > mVerticesPerFace;
+        // flag for evaluation
+        bool mNXiEval     = true;
+        bool mdNdXiEval   = true;
+        bool md2NdXi2Eval = true;
+        bool md3NdXi3Eval = true;
+
+        bool mNTauEval     = true;
+        bool mdNdTauEval   = true;
+        bool md2NdTau2Eval = true;
+        bool md3NdTau3Eval = true;
+
+        // storage
+        Matrix< DDRMat > mNXi;
+        Matrix< DDRMat > mdNdXi;
+        Matrix< DDRMat > md2NdXi2;
+        Matrix< DDRMat > md3NdXi3;
+
+        Matrix< DDRMat > mNTau;
+        Matrix< DDRMat > mdNdTau;
+        Matrix< DDRMat > md2NdTau2;
+        Matrix< DDRMat > md3NdTau3;
 
         // pointer to function for second derivative
         void ( * mSecondDerivativeMatricesSpace )( const Matrix< DDRMat > & aJt,
@@ -323,121 +342,125 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * evaluates the space shape functions at a given evaluation point
+         * gets the space shape functions at a given evaluation point
          * @param[ out ] aNXi shape functions ( 1 x <number of nodes> )
-         * @param[ in ]  aXi  evaluation point ( <number of dimensions> x 1 )
          */
-//        void NXi( const Matrix< DDRMat > & aXi,
-//                        Matrix< DDRMat > & aNXi) const;
-        void NXi( Matrix< DDRMat > & aNXi ) const;
+        const Matrix< DDRMat > & NXi();
+
+        /**
+         * evaluates the space shape functions at a given evaluation point
+         */
+        void eval_NXi();
 
 //------------------------------------------------------------------------------
         /**
-         * evaluates the time shape functions at a given evaluation point
+         * gets the time shape functions at a given evaluation point
          * @param[ out ] aNTau shape functions ( 1 x <number of nodes> )
-         * @param[ in ]  aTau  evaluation point ( <number of dimensions> x 1 )
          */
-//        void NTau( const Matrix< DDRMat > & aTau,
-//                         Matrix< DDRMat > & aNTau) const;
-        void NTau( Matrix< DDRMat > & aNTau) const;
+        const Matrix< DDRMat > & NTau();
+
+        /**
+         * evaluates the time shape functions at a given evaluation point
+         */
+        void eval_NTau();
 
 //------------------------------------------------------------------------------
+        /**
+         * gets the first derivatives of the space shape functions
+         * wrt parametric coordinates at a given evaluation point
+         * @param[ out ] adNdXi derivatives ( <number of dimensions> x <number of nodes> )
+         */
+        const Matrix< DDRMat > & dNdXi();
+
         /**
          * evaluates the first derivatives of the space shape functions
          * wrt parametric coordinates at a given evaluation point
-         * @param[ in ] adNdXi derivatives
-         *                      ( <number of dimensions> x <number of nodes> )
-         * @param[ in ]  aXi    evaluation point
-         *                      ( <number of dimensions>  x 1 )
          */
-//        void dNdXi( const Matrix< DDRMat > & aXi,
-//                          Matrix< DDRMat > & adNdXi ) const;
-        void dNdXi( Matrix< DDRMat > & adNdXi ) const;
+        void eval_dNdXi();
 
 //------------------------------------------------------------------------------
+        /**
+         * gets the first derivatives of the time shape functions
+         * wrt parametric coordinates at a given evaluation point
+         * @param[ out ] adNdTau first order derivatives ( <number of dimensions> x <number of nodes> )
+         */
+        const Matrix< DDRMat > & dNdTau();
+
         /**
          * evaluates the first derivatives of the time shape functions
          * wrt parametric coordinates at a given evaluation point
-         * @param[ in ] adNdTau first order derivatives
-         *                       ( <number of dimensions> x <number of nodes> )
-         * @param[ in ] aTau     evaluation point
-         *                       ( <number of dimensions>  x 1 )
          */
-        void dNdTau( Matrix< DDRMat > & adNdTau ) const;
+        void eval_dNdTau();
 
 //------------------------------------------------------------------------------
+        /**
+         * gets the second derivatives of the space shape functions
+         * wrt parametric coordinates at a given evaluation point
+         * @param[ out ] ad2NdXi2 second order derivatives ( <1D:1, 2D:3, 3D:6> x <number of nodes> )
+         */
+        const Matrix< DDRMat > & d2NdXi2();
+
         /**
          * evaluates the second derivatives of the space shape functions
-         *  wrt parametric coordinates at a given evaluation point
-         * @param[ in ] ad2NdXi2 second order derivatives
-         *                        ( <1D:1, 2D:3, 3D:6> x <number of nodes> )
-         * @param[ in ] aXi       evaluation point
-         *                        ( <number of dimensions>  x 1 )
+         * wrt parametric coordinates at a given evaluation point
          */
-        void d2NdXi2 ( Matrix< DDRMat > & ad2NdXi2 ) const;
+        void eval_d2NdXi2();
 
 //------------------------------------------------------------------------------
+        /**
+         * gets the third derivatives of the space shape functions
+         * wrt parametric coordinates at a given evaluation point
+         * @param[ in ] ad3NdXi3 third order derivatives ( <1D:1, 2D:4, 3D: 10> x <number of nodes> )
+         */
+        const Matrix< DDRMat > & d3NdXi3();
+
         /**
          * evaluates the third derivatives of the space shape functions
-         *  wrt parametric coordinates at a given evaluation point
-         * @param[ in ] ad3NdXi3 third order derivatives
-         *                        ( <1D:1, 2D:4, 3D: 10> x <number of nodes> )
-         * @param[ in ] aXi       evaluation point
-         *                        ( <number of dimensions>  x 1 )
+         * wrt parametric coordinates at a given evaluation point
          */
-        void d3NdXi3 ( Matrix< DDRMat > & ad3NdXi3 ) const;
+        void eval_d3NdXi3();
 
 //------------------------------------------------------------------------------
         /**
-         * evaluates the second derivatives of the time shape functions
-         *  wrt parametric coordinates at a given evaluation point
-         * @param[ in ] ad2NdTau2 second order derivatives
-         *                         ( <number of dimensions> x <number of nodes> )
-         * @param[ in ] aTau       evaluation point
-         *                         ( <number of dimensions>  x 1 )
+         * gets the second derivatives of the time shape functions
+         * wrt parametric coordinates at a given evaluation point
+         * @param[ in ] ad2NdTau2 second order derivatives ( <number of dimensions> x <number of nodes> )
          */
-        void d2NdTau2 ( Matrix< DDRMat > & ad2NdTau2 ) const;
+        const Matrix< DDRMat > & d2NdTau2();
+
+        /**
+         * evaluates the second derivatives of the time shape functions
+         * wrt parametric coordinates at a given evaluation point
+         */
+        void eval_d2NdTau2();
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the geometry Jacobian in space
          * @param[ in ] aJt     transposed of geometry Jacobian in space
-         * @param[ in ] adNdXi  first derivatives of space shape functions in
-         *                       parameter space
          */
-        void space_jacobian( const Matrix< DDRMat > & adNdXi,
-                                   Matrix< DDRMat > & aJt ) const;
+        void space_jacobian( Matrix< DDRMat > & aJt );
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the 2nd geometry Jacobian in space
-         *
          * @param[ in ] aJ2bt     2nd geometry Jacobian in space
-         * @param[ in ] ad2NdXi2  second derivatives of space shape functions in
-         *                        parameter space
          */
-        void second_space_jacobian( const Matrix< DDRMat > & adN2dXi2,
-                                          Matrix< DDRMat > & aJ2bt ) const;
+        void second_space_jacobian( Matrix< DDRMat > & aJ2bt );
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the geometry Jacobian in space
          * @param[ in ] aJ3ct     3rd geometry Jacobian in space
-         * @param[ in ] ad3NdXi3  third derivatives of space shape functions in
-         *                        parameter space
          */
-        void third_space_jacobian( const Matrix< DDRMat > & ad3NdXi3,
-                                         Matrix< DDRMat > & aJ3ct ) const;
+        void third_space_jacobian( Matrix< DDRMat > & aJ3ct );
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the geometry Jacobian in time
          * @param[ in ] aJt     transposed of geometry Jacobian in time
-         * @param[ in ] adNdTau first derivatives of time shape functions in
-         *                       parameter space
          */
-        void time_jacobian( const Matrix< DDRMat > & adNdTau,
-                                  Matrix< DDRMat > & aJt ) const;
+        void time_jacobian( Matrix< DDRMat > & aJt );
 
 //------------------------------------------------------------------------------
         /**
@@ -470,7 +493,7 @@ namespace moris
                                                                        Matrix< DDRMat > & aKt,
                                                                        Matrix< DDRMat > & aLt,
                                                                  const Matrix< DDRMat > & adNdXi,
-                                                                 const Matrix< DDRMat > & ad2NdXi2 ) const;
+                                                                 const Matrix< DDRMat > & ad2NdXi2 );
 
 
 //------------------------------------------------------------------------------
@@ -488,7 +511,7 @@ namespace moris
                                                                       Matrix< DDRMat > & aKt,
                                                                       Matrix< DDRMat > & aLt,
                                                                 const Matrix< DDRMat > & adNdTau,
-                                                                const Matrix< DDRMat > & ad2NdTau2 ) const;
+                                                                const Matrix< DDRMat > & ad2NdTau2 );
 
 //------------------------------------------------------------------------------
         /**
@@ -513,21 +536,21 @@ namespace moris
                                                                       Matrix< DDRMat > & aJ3ct,
                                                                 const Matrix< DDRMat > & adNdXi,
                                                                 const Matrix< DDRMat > & ad2NdXi2,
-                                                                const Matrix< DDRMat > & ad3NdXi3 ) const;
+                                                                const Matrix< DDRMat > & ad3NdXi3 );
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the space geometry field at a given evaluation point in space
-         * @param[ in ] aX   location in space
+         * @param[ out ] aX   location in space
          */
-        void valx( Matrix< DDRMat > & aX );
+        Matrix< DDRMat > valx();
 
 //------------------------------------------------------------------------------
         /**
          * evaluates the space geometry field at a given evaluation point in time
-         * @param[ in ] aT   location in time
+         * @param[ out ] aT   location in time
          */
-        void valt( Matrix< DDRMat > & aT );
+        Matrix< DDRMat > valt();
 
 //------------------------------------------------------------------------------
         /**

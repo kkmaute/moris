@@ -9,7 +9,8 @@ namespace moris
     {
 
         Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                            moris::Cell< Field_Interpolator* > & aFieldInterpolator )
+                                            moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                            fem::Geometry_Interpolator         * aGeometryInterpolator )
         {
             return aCoeff( 0 );
         }

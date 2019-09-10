@@ -12,17 +12,6 @@ namespace moris
 //------------------------------------------------------------------------------
         IWG_Isotropic_Spatial_Diffusion_Ghost::IWG_Isotropic_Spatial_Diffusion_Ghost()
         {
-            // set the residual dof type
-            mResidualDofType = { MSI::Dof_Type::TEMP };
-
-            // set the active dof type
-            mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
-            mSlaveDofTypes  = { { MSI::Dof_Type::TEMP } };
-
-            // set the active property types
-            mMasterPropTypes = { fem::Property_Type::CONDUCTIVITY };
-            mSlavePropTypes  = { fem::Property_Type::CONDUCTIVITY };
-
             // FIXME set a penalty
             mGammaGhost = 1.0;
 
@@ -34,10 +23,6 @@ namespace moris
             // Order must be fed to IWG from outside
             mOrder = 3;
 
-            //FIXME forced diffusion parameter
-            //      forced dimensions for 3D
-            eye( mSpaceDim, mSpaceDim, mKappa );
-            mKappa = 1.0 * mKappa;
         }
 
 //------------------------------------------------------------------------------

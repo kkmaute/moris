@@ -11,18 +11,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        IWG_Isotropic_Spatial_Diffusion_Neumann::IWG_Isotropic_Spatial_Diffusion_Neumann()
-        {
-
-            // set the residual dof type
-            mResidualDofType = { MSI::Dof_Type::TEMP };
-
-            // set the active dof type
-            mMasterDofTypes = { { MSI::Dof_Type::TEMP } };
-
-            // set the active mp type
-            mMasterPropTypes = { fem::Property_Type::TEMP_NEUMANN };
-        }
+        IWG_Isotropic_Spatial_Diffusion_Neumann::IWG_Isotropic_Spatial_Diffusion_Neumann(){}
 
 //------------------------------------------------------------------------------
 

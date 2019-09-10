@@ -20,8 +20,9 @@ namespace moris
 {
     namespace fem
     {
-    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator) > PropertyFunc;
+    typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                              fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
 //------------------------------------------------------------------------------
         /**
          * Property
@@ -51,6 +52,9 @@ namespace moris
             // derivative functions
             moris::Cell< PropertyFunc > mDerFunctions;
 
+            // geometry interpolator
+            Geometry_Interpolator* mGeometryInterpolator = nullptr;
+
             // flag for evaluation
             bool mPropEval = true;
             moris::Cell< bool > mPropDerEval;
@@ -67,7 +71,7 @@ namespace moris
             /**
              * constructor
              */
-            Property( fem::Property_Type aPropertyType,
+            Property( fem::Property_Type                          aPropertyType,
                       moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes ) : mPropertyType( aPropertyType ),
                                                                                 mDofTypes( aDofTypes )
             {};
@@ -76,6 +80,12 @@ namespace moris
                       moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                       PropertyFunc                                aValFunction,
                       moris::Cell< PropertyFunc >                 aDerFunctions );
+
+            Property( fem::Property_Type                          aPropertyType,
+                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                      PropertyFunc                                aValFunction,
+                      moris::Cell< PropertyFunc >                 aDerFunctions,
+                      Geometry_Interpolator*                      aGeometryInterpolator );
 
 //------------------------------------------------------------------------------
             /**
