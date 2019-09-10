@@ -19,7 +19,7 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     return norm( aPoint ) - 0.5;
 }
-TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
+TEST_CASE( "HMR Integration Mesh" , "[hmr],[IG_Mesh]")
 {
     //------------------------------------------------------------------------------
 
