@@ -2,7 +2,7 @@
  * cl_HMR_Database.hpp
  *
  *  Created on: Oct 1, 2018
- *      Author: messe
+ *      Author: schmidt
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
@@ -390,12 +390,12 @@ namespace moris
             /**
              * creates a union mesh of the input and the output patterns
              */
-            void create_union_pattern()
-            {
-                this->unite_patterns( mParameters->get_lagrange_input_pattern(),
-                                      mParameters->get_lagrange_output_pattern(),
-                                      mParameters->get_union_pattern() );
-            }
+//            void create_union_pattern()
+//            {
+//                this->unite_patterns( mParameters->get_lagrange_input_pattern(),
+//                                      mParameters->get_lagrange_output_pattern(),
+//                                      mParameters->get_union_pattern() );
+//            }
 
             void create_union_pattern( const uint aSourceA,
                                        const uint aSourceB,

@@ -200,8 +200,6 @@ namespace mtk
         // Call the function that handles the communication between stk and moris
         this->build_mesh( aMeshData );
 
-
-
         if(mVerbose)
         {
             std::cout<<"MTK: Create mesh from data completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;

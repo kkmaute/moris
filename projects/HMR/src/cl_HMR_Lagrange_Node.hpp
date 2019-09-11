@@ -33,7 +33,6 @@ namespace moris
             // Matrix< DDRMat >   mTMatrix;
 
             //! interpolator object
-//            Lagrange_Node_Interpolation** mInterpolations;
             moris::Cell< Lagrange_Node_Interpolation * > mInterpolations;
 
             //! bitset telling if interpolation is set
@@ -89,8 +88,6 @@ namespace moris
                     this->delete_edge_container();
                 }
 
-//                this->delete_interpolations();
-
                 if( mHaveInterpolationContainer )
                 {
                     // delete interpolation objects
@@ -116,31 +113,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-//            void delete_interpolations()
-//            {
-//                if( mHaveInterpolationContainer )
-//                {
-//                    // delete interpolation objects
-//                    for( uint k=0; k<gMaxBSplineOrder; ++k )
-//                    {
-//                        if( mHaveInterpolation.test( k ) )
-//                        {
-//                            delete mInterpolations[ k ];
-//                        }
-//                    }
-//
-//                    // delete container
-//                    delete [] mInterpolations;
-//                }
-//            }
-
-// ----------------------------------------------------------------------------
-
             void init_interpolation( const uint & aBSplineMeshIndex )
             {
                 if ( ! mHaveInterpolationContainer )
                 {
-//                    mInterpolations = new Lagrange_Node_Interpolation* [ gNumberOfMeshes ];    //FIXME make this size flexible to what is needed
                     mInterpolations.resize( gNumberOfMeshes, nullptr );    //FIXME make this size flexible to what is needed
                     mHaveInterpolationContainer = true;
                 }

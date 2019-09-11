@@ -75,6 +75,7 @@ namespace moris
         Database::Database( const std::string & aInputPath,
                             const std::string & aOutputPath ) : mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
         {
+            MORIS_ERROR(false, " Database(); constructor not updated yet");
             // create factory
             Factory tFactory;
 
@@ -92,7 +93,7 @@ namespace moris
             this->load_pattern_from_hdf5_file( aOutputPath, true );
 
             // create union mesh
-            this->create_union_pattern();
+//            this->create_union_pattern();  // FIXME
 
             mHaveRefinedAtLeastOneElement = true;
 
