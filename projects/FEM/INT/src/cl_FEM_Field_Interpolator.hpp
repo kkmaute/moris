@@ -273,6 +273,15 @@ class Property;
 
 //------------------------------------------------------------------------------
             /**
+             * return the nth order derivatives of the space time shape functions
+             * wrt time t
+             * @param[ in ]  aDerivativeOrder derivative order
+             * @param[ out ] dnNdtn           nth order time derivative of the shape functions
+             */
+            const Matrix< DDRMat > & dnNdtn( const uint & aDerivativeOrder );
+
+//------------------------------------------------------------------------------
+            /**
              * return the first derivative of the space time shape functions
              * wrt time t
              * @param[ out ] dNdt

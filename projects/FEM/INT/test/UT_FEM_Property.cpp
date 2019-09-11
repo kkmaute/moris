@@ -225,19 +225,19 @@ namespace moris
 
             //evaluate the property
             Matrix< DDRMat > tPropertyValue = tProperty.val();
-            //print( tPropertyValue, "tPropertyValue" );
+            CHECK( equal_to( tPropertyValue( 0, 0 ), 17.0 ) );
 
             // evaluate the property derivative wrt to TEMP (in dependencies)
             Matrix< DDRMat > tPropertyDerivative = tProperty.dPropdDOF( MSI::Dof_Type::TEMP );
-            //print( tPropertyDerivative, "tPropertyDerivative" );
+            CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.25 ) );
 
             // evaluate the property derivative wrt to UX (in dependencies)
             tPropertyDerivative = tProperty.dPropdDOF( MSI::Dof_Type::UX );
-            //print( tPropertyDerivative, "tPropertyDerivative" );
+            CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
             // evaluate the property derivative wrt to LS1 (not in dependencies)
             tPropertyDerivative = tProperty.dPropdDOF( MSI::Dof_Type::LS1 );
-            //print( tPropertyDerivative, "tPropertyDerivative" );
+            CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.0 ) );
 
             // clean up
             delete tGeomInterpolator;
@@ -245,6 +245,82 @@ namespace moris
             delete tFieldInterpolator( 1 );
 
         }/* TEST_CASE */
+
+        TEST_CASE( "Property_geometry", "[moris],[fem],[Property_geometry]" )
+        {
+            // create a list of dof dependencies for the property
+            Cell< Cell< MSI::Dof_Type > > tActiveDofTypes = {{ MSI::Dof_Type::TEMP }};
+
+            // create the function pointers for the value
+            fem::PropertyFunc tValFunction0 = tGeoValFunction;
+
+            // create the cell of function pointers for the derivatives
+            fem::PropertyFunc tDerFunction0 = tDerFunction;
+            Cell< fem::PropertyFunc > tDerFunctions( 1 );
+            tDerFunctions( 0 ) = tDerFunction0;
+
+            //create a quad4 space element
+            Matrix< DDRMat > tXHat( 4, 2 );
+            tXHat( 0, 0 ) = 0.0; tXHat( 0, 1 ) = 0.0;
+            tXHat( 1, 0 ) = 3.0; tXHat( 1, 1 ) = 0.0;
+            tXHat( 2, 0 ) = 3.0; tXHat( 2, 1 ) = 3.0;
+            tXHat( 3, 0 ) = 0.0; tXHat( 3, 1 ) = 3.0;
+
+            //create a line time element
+            Matrix< DDRMat > tTHat( 2, 1 );
+            tTHat( 0 ) = 0.0;
+            tTHat( 1 ) = 5.0;
+
+            //create a space geometry interpolation rule
+            Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR,
+                                                Interpolation_Type::LAGRANGE,
+                                                mtk::Interpolation_Order::LINEAR );
+
+            //create a space and a time geometry interpolator
+            Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );
+
+            //set the coefficients xHat, tHat
+            tGeomInterpolator->set_coeff( tXHat, tTHat );
+
+            //set the evaluation point tParamPoint
+            Matrix< DDRMat > tParamPoint = {{ 0.0 }, { 0.0 }, { 0.0 }};
+            tGeomInterpolator->set_space_time( tParamPoint );
+
+            // create a property object
+            fem::Property tProperty( fem::Property_Type::TEMP_DIRICHLET,
+                                     tActiveDofTypes,
+                                     tValFunction0,
+                                     tDerFunctions,
+                                     tGeomInterpolator );
+
+            // check property type
+            CHECK( equal_to( static_cast< uint >( tProperty.get_property_type() ), 1 ) );
+
+            //check dof dependencies
+            CHECK( equal_to( static_cast< uint >( tProperty.get_dof_type_list()( 0 )( 0 ) ), 3 ) );
+
+            // set coeffs
+            Cell< Matrix< DDRMat > > tCoeff( 1 );
+            tCoeff( 0 ) = {{ 1.0 }};
+            tProperty.set_coefficients( tCoeff );
+
+            // set field interpolators
+            Cell< Field_Interpolator* > tFieldInterpolator( 1 );
+            tFieldInterpolator( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP });
+            tProperty.set_field_interpolators( tFieldInterpolator );
+
+            // evaluate the property
+            Matrix< DDRMat > tPropertyValue = tProperty.val();
+
+            //check property value
+            CHECK( equal_to( tPropertyValue( 0, 0 ), 1.5 ) );
+
+            // clean up
+            delete tFieldInterpolator( 0 );
+            delete tGeomInterpolator;
+        }
 
 //        TEST_CASE( "Property_creation_model", "[moris],[fem],[Property_creation_model]" )
 //        {

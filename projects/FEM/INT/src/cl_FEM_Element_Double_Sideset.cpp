@@ -97,6 +97,12 @@ namespace moris
                 Matrix< DDRMat > tSlaveGlobalIntegPoint;
                 mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveGlobalIntegPoint );
 
+                // set evaluation point for master IP geometry interpolator
+                mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_time( tMasterGlobalIntegPoint );
+
+                // set evaluation point for master IP geometry interpolator
+                mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_time( tSlaveGlobalIntegPoint );
+
                 // set evaluation point for master and slave field interpolator
                 for ( uint iFI = 0; iFI < tMasterNumFI; iFI++ )
                 {
@@ -215,6 +221,12 @@ namespace moris
                 // get global integration point for the slave integration cell
                 Matrix< DDRMat > tSlaveGlobalIntegPoint;
                 mSet->get_IG_geometry_interpolator( mtk::Master_Slave::SLAVE )->map_integration_point( tSlaveGlobalIntegPoint );
+
+                // set evaluation point for master IP geometry interpolator
+                mSet->get_IP_geometry_interpolator( mtk::Master_Slave::MASTER )->set_space_time( tMasterGlobalIntegPoint );
+
+                // set evaluation point for master IP geometry interpolator
+                mSet->get_IP_geometry_interpolator( mtk::Master_Slave::SLAVE )->set_space_time( tSlaveGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
                 for ( uint iFI = 0; iFI < tMasterNumFI; iFI++ )

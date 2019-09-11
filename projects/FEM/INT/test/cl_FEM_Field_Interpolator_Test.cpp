@@ -98,6 +98,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         //set the evaluation point xi, tau
         tFieldInterpolator.set_space_time( tParamPoint );
 
+        //set the evaluation point xi, tau
+        tGeomInterpolator->set_space_time( tParamPoint );
+
         // check evaluations
         //------------------------------------------------------------------------------
         // real for check
@@ -214,6 +217,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             //set the evaluation point xi, tau
             tFieldInterpolator.set_space_time( tParamPoint );
 
+            //set the evaluation point xi, tau
+            tGeomInterpolator->set_space_time( tParamPoint );
+
             // hex8 for comparison
             //------------------------------------------------------------------------------
             // coefficients xHat for the HEX8,
@@ -272,6 +278,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
 
             //set the evaluation point xi
             tCheckFieldInterpolator.set_space_time( tCheckXi );
+
+            //set the evaluation point xi, tau
+            tCheckGeomInterpolator->set_space_time( tCheckXi );
 
             // check evaluations
             //------------------------------------------------------------------------------
@@ -402,6 +411,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
 
         //set the evaluation point xi, tau
         tFieldInterpolator.set_space_time( tParamPoint );
+
+        //set the evaluation point xi, tau
+        tGeomInterpolator->set_space_time( tParamPoint );
 
         // check
         //------------------------------------------------------------------------------
