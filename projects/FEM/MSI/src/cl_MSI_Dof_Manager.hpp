@@ -273,12 +273,24 @@ namespace moris
             Matrix< DDSMat > get_local_overlapping_adof_ids();
 
 //-----------------------------------------------------------------------------------------------------------
+
             //this function is for HMR use only. It creates a map between MSI adof inds and HMR adof inds
             Matrix< DDUMat > get_adof_ind_map();
+
+//-----------------------------------------------------------------------------------------------------------
 
             enum Dof_Type get_dof_type_enum( moris::uint aDofType )
             {
                 return mPdofTypeList( aDofType );
+            };
+
+//-----------------------------------------------------------------------------------------------------------
+
+            moris::uint get_num_dof_types()
+            {
+                MORIS_ASSERT( mPdofTypeList.size() != 0, "Dof_Manager::get_num_dof_types(), pdof type list not initialized yet");
+
+                return mPdofTypeList.size();
             };
 
         };

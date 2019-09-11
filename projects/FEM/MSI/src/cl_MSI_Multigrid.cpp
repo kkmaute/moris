@@ -136,7 +136,7 @@ namespace moris
                                                             ->get_typetime_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( Ii, 0 ), 0 );
 
                 // Get order of this dof type
-                moris::sint tDofOrder = mModelSolverInterface->get_adof_index_for_type(tDofType);
+                moris::sint tDofOrder = mModelSolverInterface->get_adof_index_for_type( tDofType );
 
                 // Get mesh index for this dof type
                 moris::sint tMeshIndex = mMeshOrderIndexMap( tDofOrder, 0 );
