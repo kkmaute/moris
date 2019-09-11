@@ -412,23 +412,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
     {
         gLogger.set_severity_level( 0 );
 
-//        moris::uint tBplineOrder = 1;
-//        moris::uint tLagrangeOrder = 1;
-//        moris::uint tMyCoeff = 1;
         std::string tFieldName = "Cylinder";
 
-//        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
-//
-//        tParameters.set( "number_of_elements_per_dimension", "2, 2, 4" );
-//        tParameters.set( "domain_dimensions", "2, 2, 4" );
-//        tParameters.set( "domain_offset", "-1.0, -1.0, -2.0" );
-//        tParameters.set( "domain_sidesets", "5,6");
-//        tParameters.set( "truncate_bsplines", 1 );
-//        tParameters.set( "bspline_orders", "1" );
-//        tParameters.set( "lagrange_orders", "1" );
-//        tParameters.set( "use_multigrid", 1 );
-//        tParameters.set( "refinement_buffer", 2 );
-//        tParameters.set( "staircase_buffer", 2 );
+        // start timer
+        tic tTimer_HMR;
 
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;
@@ -481,9 +468,17 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 
         tHMR.finalize();
 
+        // stop timer
+        real tElapsedTime = tTimer_HMR.toc<moris::chronos::milliseconds>().wall;
+
+        MORIS_LOG_INFO( " HMR took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
+
 //        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+
+        // start timer
+        tic tTimer_XTK;
 
         xtk::Geom_Field tFieldAsGeom(tField);
 
@@ -517,6 +512,11 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+
+        // stop timer
+        real tElapsedTime1 = tTimer_XTK.toc<moris::chronos::milliseconds>().wall;
+
+        MORIS_LOG_INFO( " XTK took %5.3f seconds.\n", ( double ) tElapsedTime1 / 1000);
 
         // create a list of IWG type
         Cell< Cell< fem::IWG_Type > >tIWGTypeList( 5 );
@@ -672,7 +672,10 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         CHECK( equal_to( tSolution( 461, 0 ), 17.06241419810062, 1.0e+08 ) );
         CHECK( equal_to( tSolution( 505, 0 ), 29.33523440842293, 1.0e+08 ) );
 
-        // Write to Integration mesh for visualization
+//        // start timer
+//        tic tTimer_XTK1;
+//
+//        // Write to Integration mesh for visualization
 //        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
 //
 //        // add solution field to integration mesh
@@ -681,6 +684,11 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        // output solution and meshes
 //        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
 //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//
+//        // stop timer
+//        real tElapsedTime2 = tTimer_XTK1.toc<moris::chronos::milliseconds>().wall;
+//
+//        MORIS_LOG_INFO( " output took %5.3f seconds.\n", ( double ) tElapsedTime2 / 1000);
 
         //    delete tInterpMesh1;
         delete tNonlinearProblem;
