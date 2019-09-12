@@ -665,6 +665,10 @@ namespace moris
             MORIS_ERROR( aPatterns.length() == mLagrangeOrders.length(),
                     "set_lagrange_patterns() : referred refinement pattern does not exist. Call set_lagrange_orders() first." );
 
+            MORIS_ERROR( aPatterns.max() < gNumberOfPatterns - 2,
+                    "set_lagrange_patterns() : Pattern %-5i and %-5i are reserved for union and working pattern. Choose different pattern or increase gNumberOfPatterns.",
+                    gNumberOfPatterns-2, gNumberOfPatterns-1 );
+
             mLagrangePatterns = aPatterns;
         }
 
@@ -682,119 +686,12 @@ namespace moris
             MORIS_ERROR( aPatterns.length() == mBSplineOrders.length(),
                     "set_bspline_patterns() : referred refinement pattern does not exist. Call set_bspline_orders() first." );
 
+            MORIS_ERROR( aPatterns.max() < gNumberOfPatterns - 2,
+                    "set_bspline_patterns() : Pattern %-5i and %-5i are reserved for union and working pattern. Choose different pattern or increase gNumberOfPatterns.",
+                    gNumberOfPatterns-2, gNumberOfPatterns-1 );
+
             mBSplinePatterns = aPatterns;
         }
-// -----------------------------------------------------------------------------
-
-        void Parameters::set_mesh_orders_simple( const uint & aMaxOrder )
-        {
-            // test if calling this function is allowed
-            this->error_if_locked( "set_mesh_orders_simple" );
-
-            Matrix< DDUMat > tOrder( 1, 1, aMaxOrder );
-
-            //this->set_mesh_orders( tOrder, tOrder );
-        }
-
-//--------------------------------------------------------------------------------
-
-//        void Parameters::set_mesh_orders( const Matrix< DDUMat > & aBSplineOrders,
-//                                          const Matrix< DDUMat > & aLagrangeOrders )
-//        {
-//            // test if calling this function is allowed
-//            this->error_if_locked( "set_mesh_orders" );
-//
-//            Matrix< DDUMat > tBSplineOrders;
-//            Matrix< DDUMat > tLagrangeOrders;
-//
-//            Matrix< DDUMat > tCombinedOrders( aBSplineOrders.length() + aLagrangeOrders.length(), 1 );
-//            uint tCount = 0;
-//
-//            for( uint k=0; k< aLagrangeOrders.length(); ++k )
-//            {
-//                tCombinedOrders( tCount++ ) = aLagrangeOrders( k );
-//            }
-//
-//            for( uint k=0; k< aBSplineOrders.length(); ++k )
-//            {
-//                tCombinedOrders( tCount++ ) = aBSplineOrders( k );
-//            }
-//
-//            // step 1: make both orders unique
-//            unique( aBSplineOrders, tBSplineOrders );
-//            unique( tCombinedOrders, tLagrangeOrders );
-//
-//            // step 2: make sure that input is sane
-//            MORIS_ERROR( tBSplineOrders.min() > 0, "Error in input, zero order B-Spline is not supported" );
-//
-//            MORIS_ERROR( tBSplineOrders.max() <= 3, "Error in input, B-Spline orders above 3 are not supported" );
-//
-//            MORIS_ERROR( tLagrangeOrders.min() > 0, "Error in input, zero order Lagrange is not supported" );
-//
-//            MORIS_ERROR( tLagrangeOrders.max() <= 3, "Error in input, B-Lagrange orders above 3 are not supported" );
-//
-//            // special case for cubic output
-//            bool tHaveCubicLagrange = tLagrangeOrders.max() == 3;
-//
-//            // step 2: number of meshes
-//            uint tNumberOfBSplineMeshes = tBSplineOrders.length();
-//            uint tNumberOfLagrangeMeshes = tLagrangeOrders.length();
-//
-//            // step 3 : allocate B-Spline orders and patterns
-//            mBSplineOrders.set_size( 2*tNumberOfBSplineMeshes, 1 );
-//            mBSplinePatterns.set_size( 2*tNumberOfBSplineMeshes, 1 );
-//
-//            // this map links orders with input B-Spline mesh
-//            mBSplineInputMap.set_size( 4, 1, MORIS_UINT_MAX );
-//
-//            // this map links orders with output B-Spline mesh
-//            mBSplineOutputMap.set_size( 4, 1, MORIS_UINT_MAX );
-//
-//            for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
-//            {
-//                mBSplineOrders( k ) = tBSplineOrders( k );
-//                mBSplinePatterns( k ) = this->get_bspline_input_pattern();
-//                mBSplineInputMap( tBSplineOrders( k ) ) = k;
-//
-//                mBSplineOrders( k+tNumberOfBSplineMeshes ) = tBSplineOrders( k );
-//                mBSplinePatterns( k+tNumberOfBSplineMeshes ) = this->get_bspline_output_pattern();
-//                mBSplineOutputMap( tBSplineOrders( k ) ) = k+tNumberOfBSplineMeshes;
-//            }
-//
-//            // step 4: allocate Lagrange orders
-//            mUnionMeshes.set_size( tLagrangeOrders.max(), 1, MORIS_UINT_MAX );
-//
-//            if( tHaveCubicLagrange )
-//            {
-//                mLagrangeOrders.set_size( 3*tNumberOfLagrangeMeshes + 1, 1 );
-//                mLagrangePatterns.set_size( 3*tNumberOfLagrangeMeshes + 1, 1 );
-//
-//                mRefinedOutputMesh = 3*tNumberOfLagrangeMeshes;
-//                mLagrangeOrders( mRefinedOutputMesh ) = 2;
-//
-//                // special pattern for output
-//                mLagrangePatterns( mRefinedOutputMesh ) = this->get_refined_output_pattern();
-//            }
-//            else
-//            {
-//                mLagrangeOrders.set_size( 3*tNumberOfLagrangeMeshes, 1 );
-//                mLagrangePatterns.set_size( 3*tNumberOfLagrangeMeshes, 1 );
-//                mRefinedOutputMesh = MORIS_UINT_MAX;
-//            }
-//            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
-//            {
-//                mLagrangeOrders( k ) = tLagrangeOrders( k );
-//                mLagrangePatterns( k ) = this->get_lagrange_input_pattern();
-//                mLagrangeOrders( k+tNumberOfLagrangeMeshes ) = tLagrangeOrders( k );
-//                mLagrangePatterns( k+tNumberOfLagrangeMeshes ) = this->get_lagrange_output_pattern();
-//                mLagrangeOrders( k+2*tNumberOfLagrangeMeshes ) = tLagrangeOrders( k );
-//                mLagrangePatterns( k+2*tNumberOfLagrangeMeshes ) = this->get_union_pattern();
-//                mUnionMeshes( k ) = k+2*tNumberOfLagrangeMeshes;
-//            }
-//
-//            // set value for padding
-//            mMaxPolynomial = std::max( mLagrangeOrders.max(), mBSplineOrders.max() );
-//        }
 
 //--------------------------------------------------------------------------------
 

@@ -32,6 +32,8 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
+#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -66,8 +68,17 @@ namespace moris
 {
     namespace mdl
     {
+
+        Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                            moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                            fem::Geometry_Interpolator              * aGeometryInterpolator )
+        {
+            return aCoeff( 0 );
+        }
+
         TEST_CASE( "Diffusion_Cut", "[moris],[mdl],[Diffusion_Cut]" )
         {
+
         uint p_rank = moris::par_rank();
         uint p_size = moris::par_size();
 
@@ -260,30 +271,101 @@ namespace moris
             tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
 
             // create a list of IWG type
-            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
+            Cell< Cell< fem::IWG_Type > >tIWGTypeList( 5 );
             tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
-            tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_GHOST );
+            tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
+            tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+            tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+            tIWGTypeList( 4 ).resize( 1, fem::IWG_Type::SPATIALDIFF_GHOST );
 
-            // create a list of active block-sets
-            moris::Cell< moris_index >  tBlocksetList = { 3, 4 };
+            // number of groups of IWgs
+            uint tNumSets = tIWGTypeList.size();
 
-            // create a list of active side-sets
-            moris::Cell< moris_index >  tSidesetList = { 1, 0 };
+            // list of residual dof type
+            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
+            tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
+            tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
+            tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
+            tResidualDofType( 3 ).resize( tIWGTypeList( 3 ).size(), { MSI::Dof_Type::TEMP } );
+            tResidualDofType( 4 ).resize( tIWGTypeList( 4 ).size(), { MSI::Dof_Type::TEMP } );
 
-            // create a list of BC type for the side-sets
-            moris::Cell< fem::BC_Type > tSidesetBCTypeList = { fem::BC_Type::DIRICHLET,
-                                                               fem::BC_Type::NEUMANN };
+            // list of IWG master dof dependencies
+            moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
+            tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
+            tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
+            tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
+            tMasterDofTypes( 3 ).resize( tIWGTypeList( 3 ).size(), {{ MSI::Dof_Type::TEMP }} );
+            tMasterDofTypes( 4 ).resize( tIWGTypeList( 4 ).size(), {{ MSI::Dof_Type::TEMP }} );
 
-            // create a list of active double side-sets
-            moris::Cell< moris_index >  tDoubleSidesetList = { 0 };
+            // list of IWG slave dof dependencies
+            moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tSlaveDofTypes( tNumSets );
+            tSlaveDofTypes( 4 ).resize( tIWGTypeList( 4 ).size(), {{ MSI::Dof_Type::TEMP }} );
+
+            // list of IWG master property dependencies
+            moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
+            tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+            tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+            tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
+            tMasterPropTypes( 3 ).resize( tIWGTypeList( 3 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
+            tMasterPropTypes( 4 ).resize( tIWGTypeList( 4 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+
+            // list of IWG master property dependencies
+            moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tSlavePropTypes( tNumSets );
+            tSlavePropTypes( 4 ).resize( tIWGTypeList( 4 ).size(), { fem::Property_Type::CONDUCTIVITY } );
+
+            // build an IWG user defined info
+            fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
+                                                            tResidualDofType,
+                                                            tMasterDofTypes, tMasterPropTypes,
+                                                            tSlaveDofTypes,  tSlavePropTypes );
+
+            // list of property type
+            Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
+                                                            { fem::Property_Type::TEMP_DIRICHLET },
+                                                            { fem::Property_Type::TEMP_NEUMANN   }};
+
+            // list of property dependencies
+            Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
+
+            // list of the property coefficients
+            Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
+            tCoeffList( 0 ).resize( 1 );
+            tCoeffList( 0 )( 0 ) = {{ 1.0 }};
+            tCoeffList( 1 ).resize( 1 );
+            tCoeffList( 1 )( 0 ) = {{ 5.0 }};
+            tCoeffList( 2 ).resize( 1 );
+            tCoeffList( 2 )( 0 ) = {{ 20.0 }};
+
+            // cast free function into std::function
+            fem::PropertyFunc tValFunction0 = tConstValFunction;
+
+            // create the list with function pointers for the value
+            Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
+
+            // create the list with cell of function pointers for the derivatives
+            Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
+
+            // collect properties info
+            fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
+                                                                      tPropertyDofList,
+                                                                      tCoeffList,
+                                                                      tValFuncList,
+                                                                      tDerFuncList );
+
+            // create a list of active sets
+            moris::Cell< moris_index >  tSetList = { 3, 4, 1, 0, 0 };
+
+            moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+                                                              fem::Element_Type::BULK,
+                                                              fem::Element_Type::SIDESET,
+                                                              fem::Element_Type::SIDESET,
+                                                              fem::Element_Type::DOUBLE_SIDESET };
 
             // create model
-            mdl::Model * tModel = new mdl::Model( &tMeshManager, 1, tIWGTypeList,
-                                                  tBlocksetList, tSidesetList,
-                                                  tSidesetBCTypeList,
-                                                  tDoubleSidesetList );
+            mdl::Model * tModel = new mdl::Model( &tMeshManager, 1,
+                                                  &tIWGUserDefinedInfo,
+                                                  tSetList, tSetTypeList,
+                                                  &tPropertyUserDefinedInfo );
 
             moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -351,8 +433,6 @@ namespace moris
             tTimeSolver.get_full_solution( tSolution11 );
 
 //            print(tSolution11,"tSolution11");
-
-
             delete tInterpMesh1;
             delete tIntegMesh1;
             delete tModel;

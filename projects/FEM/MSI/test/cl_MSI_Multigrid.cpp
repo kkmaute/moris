@@ -91,10 +91,10 @@ namespace moris
 
             // flag first element for refinement
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.finalize();
 
@@ -145,6 +145,15 @@ namespace moris
              Cell< fem::IWG* > tIWGs ( 1, nullptr );
              tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
+             // set residual dof type
+             tIWGs( 0 )->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+
+             // set active dof types
+             tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
+
+             // create property info
+             fem::Property_User_Defined_Info tPropertyUserDefinedInfo;
+
              map< moris_id, moris_index >   tCoefficientsMap;
              Cell< fem::Node_Base* >        tNodes;
              Cell< MSI::Equation_Object* >  tElements;
@@ -184,7 +193,7 @@ namespace moris
                  // create new fem set
                  tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                                   fem::Element_Type::BULK,
-                                                                  tIWGs, tNodes );
+                                                                  tIWGs, &tPropertyUserDefinedInfo, tNodes );
 
                  // collect equation objects associated with the block-set
                  tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );

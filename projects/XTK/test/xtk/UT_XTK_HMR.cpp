@@ -119,16 +119,15 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         for( uint k=0; k<2; ++k )
         {
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern(0 );
 
             tField->evaluate_scalar_function( LevelSetSphereCylinder );
         }
 
         tHMR.finalize();
 
-        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_interp.e" );
+//        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_interp.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 

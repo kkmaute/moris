@@ -87,7 +87,7 @@ void state_initialize_mesh( const Arguments & aArguments )
 
     if (tHMR->get_parameters()->get_refinement_interrelation() )
     {
-        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies.hdf5" );
+        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies.hdf5", 0, 0 );
     }
 
     // delete HMR object
@@ -143,8 +143,8 @@ void state_refine_mesh( const Arguments & aArguments )
                                  tParams.get_parameter_list() );
 
     // perform refinement
-    tHMR->perform_refinement( RefinementMode::LAGRANGE_REFINE );
-    tHMR->perform_refinement( RefinementMode::BSPLINE_REFINE );
+//    tHMR->perform_refinement_based_on_working_pattern( RefinementMode::LAGRANGE_REFINE );    FIXME
+//    tHMR->perform_refinement_based_on_working_pattern( RefinementMode::BSPLINE_REFINE );     FIXME
 
     // finalize mesh
     tHMR->finalize();
@@ -173,7 +173,7 @@ void state_refine_mesh( const Arguments & aArguments )
 
     if (tHMR->get_parameters()->get_refinement_interrelation() )
     {
-        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies.hdf5" );
+        tHMR->save_mesh_relations_to_hdf5_file( "Mesh_Dependencies.hdf5", 0, 0 );
     }
 
     // delete HMR object

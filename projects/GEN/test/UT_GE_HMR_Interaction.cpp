@@ -47,6 +47,12 @@ using namespace moris;
 using namespace hmr;
 using namespace ge;
 
+moris::real
+LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell< moris::real > aConst )
+{
+    return norm( aPoint ) - 0.9;
+}
+
 TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 {
     if(par_size() == 1)
@@ -140,7 +146,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
             tGeom->set_my_mesh( &tMesh );
             tGeom->set_my_constants(tCircleInputs);
 
-            tGeom->set_analytical_function(AnalyticType::CIRCLE);
+            tGeom->set_analytical_function( LevelSetFunction );
 
             GE_Core tGeometryEngine;
             moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom );
@@ -151,9 +157,9 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 
 //            print(tFieldData, "tFieldData");
 
-            tHMR.flag_surface_elements( tFieldData );
+            tHMR.based_on_field_put_elements_on_queue( tFieldData, tLagrangeMeshIndex );
 
-            tDatabase->get_background_mesh()->perform_refinement( 1);
+            tDatabase->get_background_mesh()->perform_refinement( 1 );
 
 
 //            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 1 );

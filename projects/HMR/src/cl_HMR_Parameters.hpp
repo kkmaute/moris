@@ -89,10 +89,10 @@ namespace moris
            Cell< Matrix< DDUMat > > mLagrangeToBSplineMesh;
 
            //! maps input orders with B-Splines
-           Matrix< DDUMat> mBSplineInputMap;
-           Matrix< DDUMat> mBSplineOutputMap;
+//           Matrix< DDUMat> mBSplineInputMap;
+//           Matrix< DDUMat> mBSplineOutputMap;
 
-           //! default input pattern
+           //! default input pattern     //FIXME delete these
            const      uint mBSplineInputPattern = 0;
            const      uint mLagrangeInputPattern = 1;
 
@@ -101,13 +101,13 @@ namespace moris
            const      uint mLagrangeOutputPattern = 3;
 
            //! default union pattern
-           uint mUnionPattern = 4;
-
-           //! default pattern for output refinement
-           const      uint mRefinedOutputPattern = 5;
+           uint mUnionPattern = gNumberOfPatterns - 2;
 
            //! default pattern for iterative refinement
-                 uint mWorkingPattern = 6;
+           uint mWorkingPattern = gNumberOfPatterns - 1;
+
+           //! default pattern for output refinement
+//           const      uint mRefinedOutputPattern = 5;
 
            //! Map Lagrange Meshes that are used for the unity meshes
            //! position 0: first order,
@@ -121,9 +121,6 @@ namespace moris
            Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
 
            Matrix< DDUMat >     mBSplineInputMeshes = { { } };
-
-           //! Lagrange Mesh that is used for the refined output
-           uint             mRefinedOutputMesh = 7;
 
            uint mInitialRefinementLevel = 0;
            uint mAdditionalLagrangeRefinementLevel = 0;
@@ -247,14 +244,6 @@ namespace moris
            {
                return mRefinementBuffer;
            }
-
-//--------------------------------------------------------------------------------
-
-           /**
-            * a function which sets orders for lagrange and B-Spline meshes
-            * in the most simple way
-            */
-           void set_mesh_orders_simple( const uint & aMaxOrder );
 
 //--------------------------------------------------------------------------------
            /**
@@ -488,17 +477,6 @@ namespace moris
 
                mBSplineInputMeshes = aBSplineInputMeshes;
            };
-
-//--------------------------------------------------------------------------------
-
-           /**
-            * returns the mesh for refined output
-            */
-           auto get_refined_output_mesh() const
-               -> decltype( mRefinedOutputMesh )
-           {
-               return mRefinedOutputMesh;
-           }
 
 //--------------------------------------------------------------------------------
 
@@ -819,16 +797,6 @@ namespace moris
 //-------------------------------------------------------------------------------
 
            /**
-            * returns the default pattern for union meshes
-            */
-           uint get_refined_output_pattern() const
-           {
-               return mRefinedOutputPattern;
-           }
-
-//-------------------------------------------------------------------------------
-
-           /**
             * returns the working pattern
             */
            uint get_working_pattern() const
@@ -893,31 +861,31 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-           Matrix< DDUMat> get_bspline_input_map() const
-           {
-               return mBSplineInputMap;
-           }
+//           Matrix< DDUMat> get_bspline_input_map() const
+//           {
+//               return mBSplineInputMap;
+//           }
 
  //-------------------------------------------------------------------------------
 
-           Matrix< DDUMat> get_bspline_output_map() const
-           {
-               return mBSplineOutputMap;
-           }
+//           Matrix< DDUMat> get_bspline_output_map() const
+//           {
+//               return mBSplineOutputMap;
+//           }
 
 //-------------------------------------------------------------------------------
 
-           void set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
-           {
-               mBSplineInputMap = aBSplineInputMap;
-           }
+//           void set_bspline_input_map( const Matrix< DDUMat> & aBSplineInputMap )
+//           {
+//               mBSplineInputMap = aBSplineInputMap;
+//           }
 
 //-------------------------------------------------------------------------------
 
-           void set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
-           {
-               mBSplineOutputMap = aBSplineOutputMap;
-           }
+//           void set_bspline_output_map( const Matrix< DDUMat> & aBSplineOutputMap )
+//           {
+//               mBSplineOutputMap = aBSplineOutputMap;
+//           }
 
 //-------------------------------------------------------------------------------
 

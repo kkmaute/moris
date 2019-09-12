@@ -103,7 +103,7 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                }
 //
 //                // update database etc
-//                tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );
+//                tDatabase->perform_refinement( 0, false );
 //
 //                // manually select output pattern
 //                tDatabase->get_background_mesh()->set_activation_pattern( tParameters.get_bspline_output_pattern() );
@@ -118,7 +118,7 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                    tDatabase->get_background_mesh()->perform_refinement();
 //                }
 //                // update database etc
-//                tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
+//                tDatabase->perform_refinement( 0 , false );
 //
 //                // manually create union
 //                tDatabase->unite_patterns( tParameters.get_bspline_input_pattern(),
@@ -262,7 +262,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         }
 
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE,0, false );
+        tDatabase->perform_refinement( 0, false );
 
         // manually select output pattern
         tDatabase->get_background_mesh()->set_activation_pattern( 1 );
@@ -277,7 +277,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
             tDatabase->get_background_mesh()->perform_refinement( 1 );
         }
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , 1, false );
+        tDatabase->perform_refinement( 1, false );
 
         // manually create union
         tDatabase->unite_patterns( 0,
@@ -419,8 +419,6 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
          // map input to output
          tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-//         tHMR.save_to_exodus( "LevelSet.exo" );
-
          auto tOutputMesh = tHMR.create_mesh( tOutputOrder, 2 );        // order , pattern
 
          // calculate exact value
@@ -503,9 +501,6 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-        // update database etc
-//        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );   //FIXME
-
        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
         // manually select output pattern
@@ -521,8 +516,6 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 1 );
         }
-        // update database etc
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
         // manually create union
         tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
@@ -549,8 +542,6 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 
         // map input to output
         tHMR.map_field_to_output_union( tField, tOutputOrder );
-
-        //tHMR.save_to_exodus( "LevelSet4.exo", tOutputOrder );
 
         auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
 
@@ -637,9 +628,6 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-        // update database etc
-//        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, false );   //FIXME
-
        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
 
         // manually select output pattern
@@ -655,8 +643,6 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 1 );
         }
-        // update database etc
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE , false );
 
         // manually create union
         tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
@@ -683,8 +669,6 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 
          // map input to output
          tHMR.map_field_to_output_union( tField, tOutputOrder );
-
-         //tHMR.save_to_exodus( "LevelSet4.exo", tOutputOrder );
 
          auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
 
@@ -820,8 +804,6 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
 
              // map input to output
              tHMR.map_field_to_output_union( tField, tOutputOrder );
-
-//             tHMR.save_to_exodus( "LevelSet2.exo", tOutputOrder );
 
              auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
 

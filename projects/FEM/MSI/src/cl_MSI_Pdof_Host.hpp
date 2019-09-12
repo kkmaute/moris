@@ -60,16 +60,15 @@ namespace moris
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );
 
     protected:
-        fem::Node_Base * mNodeObj; // FIXME replace base class bei FEM node
+        fem::Node_Base * mNodeObj;
         moris_id  mNodeID;
        //FIXME Add interpolation order
 
     public:
         Pdof_Host()
-        {
-        };
+        {};
 
-        Pdof_Host( const moris::uint   aNumUsedDofTypes,
+        Pdof_Host( const moris::uint      aNumUsedDofTypes,
                          fem::Node_Base * aNodeObj );
 
         ~Pdof_Host();

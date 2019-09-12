@@ -581,36 +581,38 @@ namespace moris
         {
             moris::uint tNumPdofHosts  = mPdofHostList.size();
 
-            moris::Matrix< DDSMat> tAdofOrderExists( 3, 1, -1 );     //FIXME num bpsline meshes
-            moris::Matrix< DDSMat> tAdofOrders( 3, 1, -1 );
-            moris::uint tOrderCounter = 0;
+            moris::sint tMaxNumAdofMeshInd = mModelSolverInterface->get_max_adof_index();
+
+            moris::Matrix< DDSMat> tAdofMeshIndexExists( tMaxNumAdofMeshInd, 1, -1 );
+            moris::Matrix< DDSMat> tAdofMeshIndex( tMaxNumAdofMeshInd, 1, -1 );
+            moris::uint tIndexCounter = 0;
 
             // Loop over all dof types. Determine the adof orders of these dof types and put them into a list. can be 1,2,3
             for ( moris::uint Ij = 0; Ij < mPdofTypeList.size() ; Ij++ )
             {
                 // Ask for adof order for this dof type
-                moris::uint tAdofMeshIndex = ( moris::uint ) mModelSolverInterface->get_adof_index_for_type( Ij );
+                moris::uint tAdofMeshInd = ( moris::uint ) mModelSolverInterface->get_adof_index_for_type( Ij );
 
-                if( tAdofOrderExists( tAdofMeshIndex, 0 ) == -1)
+                if( tAdofMeshIndexExists( tAdofMeshInd, 0 ) == -1)
                 {
-                     tAdofOrderExists( tAdofMeshIndex, 0 ) = 1;
+                    tAdofMeshIndexExists( tAdofMeshInd, 0 ) = 1;
 
-                     tAdofOrders( tOrderCounter++ ) = tAdofMeshIndex;
+                    tAdofMeshIndex( tIndexCounter++ ) = tAdofMeshInd;
                 }
             }
-            tAdofOrders.resize( tOrderCounter, 1 );
+            tAdofMeshIndex.resize( tIndexCounter, 1 );
 
             if ( tNumPdofHosts != 0 )
             {
-                for ( moris::uint Ia = 0; Ia < tAdofOrders.length() ; Ia++ )
+                for ( moris::uint Ia = 0; Ia < tAdofMeshIndex.numel() ; Ia++ )
                 {
-                    moris::uint tAdofOrder = tAdofOrders( Ia, 0 );
+                    moris::uint tAdofMeshInd = tAdofMeshIndex( Ia, 0 );
 
                     for ( moris::uint Ik = 0; Ik < tNumPdofHosts; Ik++ )
                     {
                         moris::fem::Node_Base * tNode = mPdofHostList( Ik )->get_node_obj_ptr();
 
-                        aMaxAdofInd = std::max( aMaxAdofInd, ( tNode->get_adof_indices( tAdofOrder ) ).max() );
+                        aMaxAdofInd = std::max( aMaxAdofInd, ( tNode->get_adof_indices( tAdofMeshInd ) ).max() );
                     }
                 }
             }
@@ -625,7 +627,9 @@ namespace moris
         //        {
         //            aMaxAdofInd = mPdofHostList.size();
         //        }
-        else { MORIS_ERROR( false, "MSI::Dof_Manager: Check number of adofs"); }
+        else {
+            MORIS_ERROR( false, "MSI::Dof_Manager: Check number of adofs");
+        }
     }
 
     //-----------------------------------------------------------------------------------------------------------
@@ -978,30 +982,32 @@ namespace moris
     //-----------------------------------------------------------------------------------------------------------
     moris::Matrix< DDSMat > Dof_Manager::get_unique_dof_type_orders()
     {
-        moris::Matrix< DDSMat> tAdofOrderExists( 3, 1, -1 );                 // FIXME Size flexible
-        moris::Matrix< DDSMat> tAdofOrders( 3, 1, -1 );                      // FIXME num Bspline meshes
-        moris::uint tOrderCounter = 0;
+        moris::sint tMaxNumAdofMeshInd = mModelSolverInterface->get_max_adof_index();
+
+        moris::Matrix< DDSMat> tAdofMeshIndexExists( tMaxNumAdofMeshInd, 1, -1 );
+        moris::Matrix< DDSMat> tAdofMeshIndex( tMaxNumAdofMeshInd, 1, -1 );
+        moris::uint tIndexCounter = 0;
 
         // Loop over all dof types. Determine the de adof orders of these dof types and put them into a list. can be 1,2,3
         for ( moris::uint Ij = 0; Ij < mPdofTypeList.size() ; Ij++ )
         {
             // Ask for adof order for this dof type
-            moris::uint tAdofMeshIndex = ( moris::uint ) mModelSolverInterface->get_adof_index_for_type( Ij );         //FIXME index instead of order
+            moris::uint tAdofMeshInd = ( moris::uint ) mModelSolverInterface->get_adof_index_for_type( Ij );
 
-            if( tAdofOrderExists( tAdofMeshIndex, 0 ) == -1)
+            if( tAdofMeshIndexExists( tAdofMeshInd, 0 ) == -1)
             {
-                 tAdofOrderExists( tAdofMeshIndex, 0 ) = 1;
+                tAdofMeshIndexExists( tAdofMeshInd, 0 ) = 1;
 
-                 tAdofOrders( tOrderCounter++ ) = tAdofMeshIndex;
+                tAdofMeshIndex( tIndexCounter++ ) = tAdofMeshInd;
             }
         }
-        tAdofOrders.resize( tOrderCounter, 1 );
+        tAdofMeshIndex.resize( tIndexCounter, 1 );
 
-        moris::Matrix< DDSMat> tAdofOrdersSorted;
+        moris::Matrix< DDSMat> tAdofMeshIndexSorted;
 
-        sort( tAdofOrders, tAdofOrdersSorted );
+        sort( tAdofMeshIndex, tAdofMeshIndexSorted );
 
-        return tAdofOrdersSorted;
+        return tAdofMeshIndexSorted;
     }
 
     //-----------------------------------------------------------------------------------------------------------
