@@ -103,14 +103,14 @@ namespace ge
 
         //------------------------------------------------------------------------------
         virtual void
-        set_analytical_function_dphi_dx( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ) )
+        set_analytical_function_dphi_dp( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ) )
         {
             MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_dphi_dx(): please specify your own analytic function dphi/dx");
         };
 
         //------------------------------------------------------------------------------
         virtual void
-        set_analytical_function_dphi_dx( AnalyticType aGeomType )
+        set_analytical_function_dphi_dp( AnalyticType aGeomType )
         {
             MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_dphi_dx(): please choose a valid dphi/dx function");
         };

@@ -34,7 +34,7 @@ circle_function( const Matrix< DDRMat > & aPoint,
 }
 //------------------------------------------------------------------------------
 Matrix< DDRMat >
-circle_function_dphi_dx( const Matrix< DDRMat > & aPoint,
+circle_function_dphi_dp( const Matrix< DDRMat > & aPoint,
                                Cell< real >       aInputs )
 {
     real tXc = aInputs(0);
@@ -89,8 +89,10 @@ real
 sphere_function( const Matrix< DDRMat > & aCoordinate,
                        Cell< real >       aInputs )
 {   /* aCoordinate = point vector to determine value at (x,y,z)
-     * aInputs(0)  = x location of center;      aInputs(1)  = y location of center
-     * aInputs(2)  = z location of center;      aInputs(3)  = radius of sphere */
+     * aInputs(0)  = x location of center;
+     * aInputs(1)  = y location of center;
+     * aInputs(2)  = z location of center;
+     * aInputs(3)  = radius of sphere */
     Matrix< DDRMat > tCenterVec(1,3);   // (x,y,z)
     tCenterVec(0,0) = aInputs(0);
     tCenterVec(0,1) = aInputs(1);
@@ -105,7 +107,7 @@ sphere_function( const Matrix< DDRMat > & aCoordinate,
 }
 //------------------------------------------------------------------------------
 Matrix< DDRMat >
-sphere_function_dphi_dx( const Matrix< DDRMat > & aCoordinate,
+sphere_function_dphi_dp( const Matrix< DDRMat > & aCoordinate,
                                Cell< real>        aInputs)
 {
     real tXc = aInputs(0);

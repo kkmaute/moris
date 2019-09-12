@@ -80,6 +80,7 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
     //------------------------------------------------------------------------------
     // CHECK if the node values returned are the same as the ones in the SDF field
     //------------------------------------------------------------------------------
+        //fixme needs to be updated to use the PDVInfoObject implementation
         uint tNumNodes = tSDF->get_my_mesh()->get_interpolation_mesh( 0 )->get_num_nodes();
         Matrix< DDRMat > tScalarMat(tNumNodes,1, 0.0);
         for(uint n=0; n < tNumNodes; ++n)

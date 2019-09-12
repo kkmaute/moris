@@ -5,8 +5,8 @@
  *      Author: sonne
  */
 
-#ifndef PROJECTS_GEN_SRC_CL_GE_NODAL_INFO_HPP_
-#define PROJECTS_GEN_SRC_CL_GE_NODAL_INFO_HPP_
+#ifndef PROJECTS_GEN_SRC_CL_GE_PDV_INFO_HPP_
+#define PROJECTS_GEN_SRC_CL_GE_PDV_INFO_HPP_
 
 #include "catch.hpp"
 #include "cl_Logger.hpp"
@@ -23,15 +23,15 @@ namespace ge
 /*
  * @brief this class contains all the relevant node information associated with a {geom_rep,mesh} pair
  */
-    class Nodal_Info
+    class PDV_Info
     {
     public:
         /*
          * The constructor will require a {geom_rep,mesh} pair and will create the initial information table
          * which can then be adjusted (e.g. if additional vertices are added).
          */
-        Nodal_Info(std::shared_ptr< Geometry > & aGeomPointer,
-                   moris_index aMyMeshIndex )
+        PDV_Info(std::shared_ptr< Geometry > & aGeomPointer,
+                                  moris_index  aMyMeshIndex = 0 )
         {
             mMyMeshIndex = aMyMeshIndex;
             mMyGeomRep   = aGeomPointer;
@@ -39,10 +39,11 @@ namespace ge
             this->initialize_data_tables( aGeomPointer );
         };
 
-        ~Nodal_Info()
+        ~PDV_Info()
         {
 
         };
+        //******************************* get functions ********************************
         //------------------------------------------------------------------------------
         /*
          * @brief returns the nodal field vals of the specified node
@@ -61,6 +62,21 @@ namespace ge
             auto tRowItt = mMyMap.find(aNodeIndex);
             MORIS_ASSERT( tRowItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
             return mMyNodalFieldVals.get_row( tRowItt->second );
+        };
+
+        /*
+         * @brief returns all the nodal field values
+         */
+        Matrix< DDRMat > get_field_vals(  )
+        {
+            uint tNumOfIPNodes = this->get_my_geom_rep()->get_my_mesh()->get_integration_mesh( mMyMeshIndex )->get_num_nodes();
+
+            Matrix< DDRMat > tLSVals(tNumOfIPNodes,1, 0.0);
+            for( uint n=0; n<tNumOfIPNodes; n++ )
+            {
+                tLSVals(n,0) = this->get_field_vals( n )( 0 );
+            }
+            return tLSVals;
         };
 
         //------------------------------------------------------------------------------
@@ -83,6 +99,20 @@ namespace ge
             return mMyNodalSensitivities( tCellItt->second );
         };
 
+        /*
+         * @brief returns all the nodal sensitivity values, dphi/dp
+         */
+        Cell< Matrix< DDRMat > > get_sensitivity_vals(  )
+        {
+            uint tNumOfIPNodes = this->get_my_geom_rep()->get_my_mesh()->get_integration_mesh( mMyMeshIndex )->get_num_nodes();
+
+            Cell< Matrix< DDRMat > > tSensitivities( tNumOfIPNodes );
+            for( uint n=0; n<tNumOfIPNodes; n++ )
+            {
+                tSensitivities(n) = this->get_sensitivity_vals( n );
+            }
+            return tSensitivities;
+        };
         //------------------------------------------------------------------------------
         /*
          * @brief returns the nodal normals of the specified node
@@ -97,6 +127,8 @@ namespace ge
             MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
             return mMyNodalNormals( tCellItt->second );
         };
+        //------------------------------------------------------------------------------
+
 
         //------------------------------------------------------------------------------
         /*
@@ -128,10 +160,16 @@ namespace ge
             }
             case(GeomType::DISCRETE):
             {
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the discrete geometry type                " );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
                 break;
             }
             case(GeomType::SDF):
             {
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the SDF geometry type                     " );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
                 break;
             }
             default :
@@ -152,12 +190,55 @@ namespace ge
         }
         //------------------------------------------------------------------------------
         /*
-         * @brief returns the intersection point of a geometry representation with a geometric primitive
+         * @brief returns the local intersection point of a geometry representation with a geometric primitive
          */
-        Matrix< DDRMat > get_intersection_point( Intersection_Object* aIntersectionObject,
-                                            moris_index          aWhichIntersection )
+        Matrix< DDRMat > get_intersection_point_local_coord( Intersection_Object* aIntersectionObject,
+                                                             moris_index          aWhichIntersection = 0 )
         {
-            return aIntersectionObject->get_intersection_point( aWhichIntersection );
+            return aIntersectionObject->get_intersection_point_local_coord( aWhichIntersection );
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief returns the global intersection point of a geometry representation with a geometric primitive
+         */
+        Matrix< DDRMat > get_intersection_point_global_coord( Intersection_Object* aIntersectionObject,
+                                                              moris_index          aWhichIntersection = 0 )
+        {
+            return aIntersectionObject->get_intersection_point_global_coord( aWhichIntersection );
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief determines the intersection sensitivity of a geometry representation with a geometric primitive
+         */
+        void compute_intersection_sensitivity( Intersection_Object* aIntersectionObject,
+                                               moris_index          aWhichIntersection = 0 )
+        {
+//            MORIS_ASSERT(  );
+            aIntersectionObject->compute_intersection_sensitivity( aWhichIntersection );
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief returns the intersection point sensitivity of a geometry representation with a field, dxgamma/dphi
+         */
+        Matrix< DDRMat > get_intersection_sensitivity( Intersection_Object* aIntersectionObject,
+                                                       moris_index          aWhichIntersection = 0 )
+        {
+            MORIS_ASSERT( aIntersectionObject->get_field_sens_vals_cell().size() > (uint)aWhichIntersection, "ge::Nodal_Info::get_intersection_sensitivity() - sensitivity values have not been calculated or the intersection index is out of bounds " );
+            return aIntersectionObject->get_field_sensitivity_vals( aWhichIntersection );
+        }
+        //------------------------------------------------------------------------------
+        /*
+         * @brief compute and return the intersection sensitivity wrt the pdv, dxgamma/dp = dxgamma/dphi * dphi/dp
+         */
+        Matrix< DDRMat > get_dxgamma_dp( Intersection_Object*  aIntersectionObject,
+                                         moris_index aWhichIntersection = 0 )
+        {
+            //fixme need an assert here to make sure the multiplication will work (dimension check)
+            Matrix<DDRMat> tdxgamma_dphi = this->get_intersection_sensitivity( aIntersectionObject, aWhichIntersection );
+            Matrix<DDRMat> tdphi_dp      = this->get_sensitivity_vals(  )( aWhichIntersection );
+print(tdxgamma_dphi, "tdxgamma_dphi");
+print(tdphi_dp, "tdphi_dp");
+            return tdxgamma_dphi*tdphi_dp;
         }
         //------------------------------------------------------------------------------
         /*
@@ -185,7 +266,7 @@ namespace ge
             // build relations map
             for(uint n=0; n<tNumNodes; ++n)
             {
-                mMyMap[n] = aGeomPointer->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_index();
+                mMyMap[n] = aGeomPointer->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_index();
             }
 
             //fixme need to check how many fields are on the mesh and initialize that many columns for the mMyNodalFieldVals matrix
@@ -215,14 +296,14 @@ namespace ge
                 {
                     for (uint n=0; n<aNumNodes; ++n)
                     {
-                        mMyNodalFieldVals( n,0 ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_coords() );
+                        mMyNodalFieldVals( n,0 ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_coords() );
                     }
                 }
                 break;
             }
             case(GeomType::DISCRETE) :
             {
-                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_val_table(): mapper for DISCRETE geom type is only set for an hmr mesh right now" );
+                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_val_table(): mapper for DISCRETE geom type is only set for an hmr mesh right now" );
                 /*
                  * terminology is kind of confusing:
                  *  *mMyGeomRep->get_target_field() gives the target field to map
@@ -297,13 +378,13 @@ namespace ge
                 MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
                 MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for SDF geom type, default values to zeros" );
                 MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
-                Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), 0.0);
+                Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_spatial_dim(), 0.0);
                 for (uint n=0; n<aNumNodes; ++n)
                 {
                     mMyNodalSensitivities(n) = tZeros;
                 }
 
-                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_sensitivity_tables():  currently only set for hmr meshes" );
+                MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_sensitivity_tables():  currently only set for hmr meshes" );
                 break;
             }
             default :
@@ -341,4 +422,4 @@ namespace ge
 } /* namespace gen */
 } /* namespace moris */
 
-#endif /* PROJECTS_GEN_SRC_CL_GE_NODAL_INFO_HPP_ */
+#endif /* PROJECTS_GEN_SRC_CL_GE_PDV_INFO_HPP_ */

@@ -57,8 +57,19 @@ public:
     //------------------------------------------------------------------------------
     moris_index compute_intersection( )
     {
+        //fixme what if there is no intersection?
         mMyIntersectionPoints.push_back({{(mMyFieldVals(0) + mMyFieldVals(1))/(mMyFieldVals(0) - mMyFieldVals(1))}});
+
+//        mMyIntersFieldSensVal = Cell<Matrix<DDRMat>>(mMyIntersectionPoints.size()-1, Matrix<DDRMat>(2,3));
+        mMyIntersFieldSensVal.push_back( {{0},{0}} );
         return mMyIntersectionPoints.size()-1;
+    }
+    //------------------------------------------------------------------------------
+    Matrix< DDRMat > get_intersection_point_global_coord( moris_index aMyIndex )
+    {
+        Matrix<moris::DDRMat> tN = {{0.5 * (1-mMyIntersectionPoints(aMyIndex)(0))},
+                                    {0.5 * (1+mMyIntersectionPoints(aMyIndex)(0))}};
+        return trans(tN)*this->get_my_global_coord();
     }
     //------------------------------------------------------------------------------
     /*
@@ -69,7 +80,8 @@ public:
     void compute_intersection_sensitivity( moris_index aMyIndex )
     {
         //fixme: decide where to allocate sensitivity
-//        MORIS_ASSERT(mMyIntersSensVal.size() == mMyIntersectionPoints.size(),"Sensitivity information not allocated");
+
+        MORIS_ASSERT( mMyIntersFieldSensVal.size() == mMyIntersectionPoints.size(),"ge::Intersection_Object_Line::compute_intersection_sensitivity() - sensitivity information not allocated");
 //        MORIS_ASSERT(mMyIntersSensInd.size() == mMyIntersectionPoints.size(),"Sensitivity information not allocated");
 
         // Local Coordinate of edge
@@ -79,12 +91,12 @@ public:
         moris::real const & tPhiB = mMyFieldVals(1);
 
         // linear shape function along edge
-        Matrix<moris::DDRMat> tN = {{0.5 * (1-tZeta)},
-                                    {0.5 * (1+tZeta)}};
+//        Matrix<moris::DDRMat> tN = {{0.5 * (1-tZeta)},
+//                                    {0.5 * (1+tZeta)}};
 
         // Derivatives of shape functions wrt global coordinate
         Matrix<moris::DDRMat> tdN_dzeta = {{-0.5},
-                                           {0.5}};
+                                           { 0.5}};
 
         // denominator (used throughout)
         moris::real tDenom = 1/std::pow((tPhiA-tPhiB),2);
@@ -94,14 +106,28 @@ public:
         moris::real tdzetagamma_dphiB =  2*tPhiA*tDenom;
 
         // derivative of x_gamma wrt p (of edge node 0)
-        Matrix<moris::DDRMat> tdxgamma_dphiA = moris::trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiA;
-        Matrix<moris::DDRMat> tdxgamma_dphiB = moris::trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiB;
+//        Matrix<moris::DDRMat> tdxgamma_dphiA = tdN_dzeta*trans(this->get_my_global_coord())*tdzetagamma_dphiA;
+        Matrix<moris::DDRMat> tdxgamma_dphiA = trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiA;
+//        Matrix<moris::DDRMat> tdxgamma_dphiB = tdN_dzeta*trans(this->get_my_global_coord())*tdzetagamma_dphiB;
+        Matrix<moris::DDRMat> tdxgamma_dphiB = trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiB;
 
         // Compute dx/dp
-        mMyIntersFieldSensVal(aMyIndex).resize(2,3);
+        if(this->get_my_global_coord().n_cols() == 2)
+        {
+            mMyIntersFieldSensVal(aMyIndex).resize(2,2);
+        }
+        else if(this->get_my_global_coord().n_cols() == 3)
+        {
+            mMyIntersFieldSensVal(aMyIndex).resize(2,3);
+        }
+        else
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object_Line::compute_intersection_sensitivity() - invalid global coordinate vector (check that this is a row vector?) " );
+        }
+//        mMyIntersFieldSensVal(aMyIndex).get_column(0) = tdxgamma_dphiA.get_column(1);
+//        mMyIntersFieldSensVal(aMyIndex).get_column(1) = tdxgamma_dphiB.get_column(1);
         mMyIntersFieldSensVal(aMyIndex).get_row(0) = tdxgamma_dphiA.get_row(0);
         mMyIntersFieldSensVal(aMyIndex).get_row(1) = tdxgamma_dphiB.get_row(0);
-
         //fixme: add field value indexes for sparse storage
     }
 
@@ -110,7 +136,7 @@ public:
     void set_coords_and_param_point( std::shared_ptr< Geometry > & aGeomPointer,
                                      Matrix<DDRMat> const & aGlobCoords,
                                      Matrix<DDRMat> const & aTimeCoords,
-                                     Matrix<DDRMat> const & aFieldVals,     // LS field vals need to come from the geometry engine
+                                     Matrix<DDRMat> const & aFieldVals,     // LS field vals need to come from the geometry engine?
                                      Matrix<DDRMat> const & aParamPoint = Matrix< DDRMat >({{-1},{0}}) )  // start at the beginning of the line(local coordinate xi=-1) and at t=0
     {
         fem::Interpolation_Rule tLevelSetInterpRule( this->get_my_geom_type(),
@@ -118,7 +144,7 @@ public:
                                                      aGeomPointer->get_my_space_interpolation_order(),
                                                      aGeomPointer->get_my_time_interpolation_type(),
                                                      aGeomPointer->get_my_time_interpolation_order() );
-        //fixme this is a default to just look at one LS field at a time, need to update this to look at all the LS fields,
+        //fixme this is a default to just look at one LS field at a time, should this be updated to look at all the LS fields?
         //      additionally, the geometry pointer information needs to be accessed in a better way
         uint tNumFields = 1;
         mMyFieldInterp = new fem::Field_Interpolator( tNumFields, tLevelSetInterpRule, mMyGeomInterp );
@@ -139,72 +165,69 @@ public:
     }
     //******************************* get functions ********************************
     //------------------------------------------------------------------------------
-    mtk::Geometry_Type
-    get_my_geom_type()
+    mtk::Geometry_Type get_my_geom_type()
     {
         return mtk::Geometry_Type::LINE;
     }
     //------------------------------------------------------------------------------
-    fem::Geometry_Interpolator*
-    get_my_geom_interp()
+    fem::Geometry_Interpolator* get_my_geom_interp()
     {
         return mMyGeomInterp;
     }
     //------------------------------------------------------------------------------
-    fem::Field_Interpolator*
-    get_my_field_interp()
+    fem::Field_Interpolator* get_my_field_interp()
     {
         return mMyFieldInterp;
     }
     //------------------------------------------------------------------------------
-    Matrix< DDRMat >
-    get_my_param_point()
+    Matrix< DDRMat > get_my_param_point()
     {
         return mMyParamPoint;
     }
     //------------------------------------------------------------------------------
-    Matrix< DDRMat >
-    get_my_global_coord()
+    Matrix< DDRMat > get_my_global_coord()
     {
         return mMyGlobalCoords;
     }
     //------------------------------------------------------------------------------
-    Matrix< DDRMat >
-    get_my_time_coord()
+    Matrix< DDRMat > get_my_time_coord()
     {
         return mMyTimeCoords;
     }
     //------------------------------------------------------------------------------
-    Matrix< DDRMat >
-    get_my_field_vals()
+    Matrix< DDRMat > get_my_field_vals()
     {
         return mMyFieldVals;
     }
     //------------------------------------------------------------------------------
-    bool
-    get_intersection_flag()
+    bool get_intersection_flag()
     {
         return mMyIntersectionFlag;
     }
     //------------------------------------------------------------------------------
-    Matrix< DDRMat >
-    get_intersection_point( moris_index aMyIndex )
+    Matrix< DDRMat > get_intersection_point_local_coord( moris_index aMyIndex )
     {
         return mMyIntersectionPoints(aMyIndex);
     }
     //------------------------------------------------------------------------------
-    uint
-    get_num_intersection_point( )
+    uint get_num_intersection_point( )
     {
         return mMyIntersectionPoints.size();
     }
     //------------------------------------------------------------------------------
-    Matrix< DDRMat >
-    get_field_sensitivity_vals( moris_index aMyIndex )
+    Matrix< DDRMat > get_field_sensitivity_vals( moris_index aMyIndex )
     {
-        MORIS_ASSERT( mMyIntersFieldSensVal( aMyIndex )( 0 ) >= 0.0, "get_field_sensitivity_vals() - value at given index is not set " );
+        MORIS_ASSERT( std::abs(mMyIntersFieldSensVal( aMyIndex )( 0,0 )) >= 0.0, "ge::Intersection_Object_Line::get_field_sensitivity_vals() - value at given index is not set " );
         return mMyIntersFieldSensVal( aMyIndex );
     }
+
+    //***************** get functions for asserts/debugs ***************************
+    //------------------------------------------------------------------------------
+    moris::Cell< Matrix< DDRMat > > get_field_sens_vals_cell()
+    {
+        return mMyIntersFieldSensVal;
+    }
+
 //------------------------------------------------------------------------------
 private:
     //------------------------------------------------------------------------------
@@ -214,13 +237,13 @@ private:
 
     Matrix<DDRMat> mMyGlobalCoords;
     Matrix<DDRMat> mMyTimeCoords;
-    Matrix<DDRMat> mMyFieldVals;
+    Matrix<DDRMat> mMyFieldVals;    // phi
     Matrix<DDRMat> mMyParamPoint;
 
     bool mMyIntersectionFlag;
 
     moris::Cell< Matrix< DDRMat > >   mMyIntersectionPoints;
-    moris::Cell< Matrix< DDRMat > >   mMyIntersFieldSensVal;    // dxgamma/dp
+    moris::Cell< Matrix< DDRMat > >   mMyIntersFieldSensVal;    // dxgamma/dphi
     moris::Cell< Matrix< DDRMat > >   mMyIntersSensVal;
     moris::Cell< Matrix< IndexMat > > mMyIntersSensInd;
 //------------------------------------------------------------------------------

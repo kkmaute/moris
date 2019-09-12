@@ -176,7 +176,7 @@ namespace moris{
              *
              */
             void
-            set_analytical_function_dphi_dx( Matrix< DDRMat > ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ) )
+            set_analytical_function_dphi_dp( Matrix< DDRMat > ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ) )
             {
                 mFuncAnalyticDphiDx = funcPointer;
             };
@@ -303,15 +303,15 @@ namespace moris{
              *
              */
             void
-            set_analytical_function_dphi_dx( AnalyticType aGeomType )
+            set_analytical_function_dphi_dp( AnalyticType aGeomType )
             {
                 switch(aGeomType)
                 {
                 case( AnalyticType::CIRCLE ):
                 {
                     MORIS_ASSERT( mMyConstants.size() == 3, "Analytic::set_analytical_function(): incorrect size for constants list, be sure to set the constants before setting the function itself (needs to be three constants for the circle function: 1) x_c, 2) y_c, 3) r " );
-                    MORIS_ASSERT( mMyConstants(2) > 0, "Geometry_Library::circle_function(): radius must be > 0" );
-                    this->set_analytical_function_dphi_dx( circle_function_dphi_dx );
+                    MORIS_ASSERT( mMyConstants(2) > 0, "Geometry_Library::circle_function_dphi_dp(): radius must be > 0" );
+                    this->set_analytical_function_dphi_dp( circle_function_dphi_dp );
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER ):
@@ -373,8 +373,8 @@ namespace moris{
 
                 {
                     MORIS_ASSERT( mMyConstants.size() == 4, "Analytic::set_analytical_function(): incorrect size for constants list (needs to be 4 constants for the circle function: 1) x_c, 2) y_c, 3) z_c, 4) r " );
-                    MORIS_ASSERT( mMyConstants(3) > 0, "Geometry_Library::circle_function(): radius must be > 0" );
-                    this->set_analytical_function_dphi_dx( sphere_function_dphi_dx );
+                    MORIS_ASSERT( mMyConstants(3) > 0, "Geometry_Library::sphere_function_dphi_dp(): radius must be > 0" );
+                    this->set_analytical_function_dphi_dp( sphere_function_dphi_dp );
                     break;
                 }
                 default:
