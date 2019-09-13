@@ -31,7 +31,7 @@ namespace moris
         {
         private:
             //! Number of multigrid levels
-            moris::sint mMultigridLevels = -1;
+            moris::uint mMultigridLevels = -1;
 
             //! Number of dofs which are on this level or coarser.
             moris::Matrix< DDUMat > mNumDofsRemain;

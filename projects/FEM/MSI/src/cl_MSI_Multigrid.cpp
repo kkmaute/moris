@@ -12,6 +12,7 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
 
+
 namespace moris
 {
     namespace MSI
@@ -22,6 +23,11 @@ namespace moris
     {
         // Set number of desired multigrid levels
         mMultigridLevels = 2;   //FIXME Input
+
+        for( uint Ik = 0; Ik < mMesh->get_HMR_lagrange_mesh()->get_number_of_bspline_meshes(); Ik ++)
+        {
+            MORIS_ERROR( mMultigridLevels <= mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( Ik )->get_max_level(), "Multigrid(), HMR levels < Multigrid levels" );
+        }
 
         mNumDofsRemain.set_size( mMultigridLevels, 1 );
 
@@ -103,7 +109,7 @@ namespace moris
         MORIS_ASSERT( tMaxMeshLevel != -1, "Multigrid::create_multigrid_level_dof_ordering(): tMaxMeshLevel is -1. check Multigrid::determine_mesh_index_by_order" );
 
         // Loop over all multigrid levels starting with the finest one
-        for ( moris::sint Ik = 0; Ik < mMultigridLevels; Ik++ )
+        for ( moris::uint Ik = 0; Ik < mMultigridLevels; Ik++ )
         {
             // get the number of the adofs on the actual level
             moris::uint tNumDofsOnLevel = mListAdofExtIndMap( Ik ).length();
@@ -143,7 +149,7 @@ namespace moris
                 //---------------------------------------------------------------------------------------------------
 
                 // Ask mesh for the level of this mesh index
-                moris::sint tDofLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+                moris::uint tDofLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
                                                                  ->get_basis_by_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
                                                                  ->get_level();
 
@@ -256,7 +262,7 @@ namespace moris
         mMultigridMap.resize( mMultigridLevels + 1 );
 
         // Loop over all multigrid levels
-        for ( moris::sint Ik = 0; Ik < mMultigridLevels + 1; Ik++ )
+        for ( moris::uint Ik = 0; Ik < mMultigridLevels + 1; Ik++ )
         {
             // Set the inner list number of types/time used.
             mMultigridMap( Ik ).resize( mMaxDofTypes );
@@ -318,7 +324,10 @@ namespace moris
     void Multigrid::determine_mesh_index_by_order()
     {
         // Get number of meshes
+//        mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( Ik )->get_max_level()
+
         moris::uint tNumMeshes = mMesh->get_HMR_database()->get_number_of_bspline_meshes();
+//        moris::uint tNumMeshes =  mMesh->get_HMR_lagrange_mesh()->get_number_of_bspline_meshes();
 
         // Set size of order to index map to 4. We only have maximal 3 orders in HMR
         mMeshOrderIndexMap.set_size( 4, 1 , -1);

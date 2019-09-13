@@ -985,10 +985,10 @@ namespace moris
         moris::sint tMaxNumAdofMeshInd = mModelSolverInterface->get_max_adof_index();
 
         moris::Matrix< DDSMat> tAdofMeshIndexExists( tMaxNumAdofMeshInd, 1, -1 );
-        moris::Matrix< DDSMat> tAdofMeshIndex( tMaxNumAdofMeshInd, 1, -1 );
+        moris::Matrix< DDSMat> tAdofMeshIndex( tMaxNumAdofMeshInd, 1, -1 );                   // FIXME might be initialized wrong? number of pdof types?
         moris::uint tIndexCounter = 0;
 
-        // Loop over all dof types. Determine the de adof orders of these dof types and put them into a list. can be 1,2,3
+        // Loop over all dof types. Determine the adof mesh index of these dofs
         for ( moris::uint Ij = 0; Ij < mPdofTypeList.size() ; Ij++ )
         {
             // Ask for adof order for this dof type

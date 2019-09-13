@@ -623,7 +623,7 @@ namespace moris
 
         std::shared_ptr< Interpolation_Mesh_HMR > HMR::create_interpolation_mesh( const uint & aLagrangeMeshIndex)
         {
-            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase,aLagrangeMeshIndex );
+            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase, aLagrangeMeshIndex );
         }
 
 
