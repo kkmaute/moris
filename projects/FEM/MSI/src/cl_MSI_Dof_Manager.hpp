@@ -247,7 +247,7 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-            moris::Matrix< DDSMat > get_unique_dof_type_orders();
+            moris::Matrix< DDSMat > get_unique_adof_mesh_indices();
 
             moris::Matrix< DDSMat > get_typetime_identifier_to_type_map()
             {

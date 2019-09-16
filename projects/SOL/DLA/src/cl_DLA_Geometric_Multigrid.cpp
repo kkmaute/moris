@@ -47,7 +47,9 @@ namespace dla
         }
 
         // Get the maximal mesh level
-        moris::uint tMaxMeshLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tAdofOrderHack )->get_max_level();
+        moris::uint tMaxMeshLevel = mMesh->get_HMR_lagrange_mesh()
+                                         ->get_bspline_mesh( tAdofOrderHack )
+                                         ->get_max_level();
 
         // Loop over all coarse levels
         for ( moris::uint Ik = 1; Ik < mListAdofExtIndMap.size(); Ik++ )
@@ -60,9 +62,9 @@ namespace dla
                 moris::uint tDofIdentifier = mListAdofTypeTimeIdentifier( Ik )( Ii, 0 );
 
                 // Ask mesh for the level of this dof index
-                moris::uint tDofLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tAdofOrderHack )
-                                                                 ->get_basis_by_index( tExtDofInd )
-                                                                 ->get_level();
+                moris::uint tDofLevel = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tAdofOrderHack )
+                                                                      ->get_basis_by_index( tExtDofInd )
+                                                                      ->get_level();
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
                 if( ( tDofLevel <= tMaxMeshLevel - Ik ) && ( Ii < tRemainingOldDofsOnLevel( Ik-1, 0 ) ) )
@@ -84,8 +86,8 @@ namespace dla
                     moris::Matrix< DDSMat > tRowMat( 1, 1, Ii );
 
                     // Get vector with external fine indices
-                    moris::Matrix< DDSMat > tIndices = mMesh->get_HMR_database()
-                                                            ->get_bspline_mesh_by_index( tAdofOrderHack )
+                    moris::Matrix< DDSMat > tIndices = mMesh->get_HMR_lagrange_mesh()
+                                                            ->get_bspline_mesh( tAdofOrderHack )
                                                             ->get_children_ind_for_basis( tExtDofInd );
 
                     // Initialize vector with col indices
@@ -98,8 +100,8 @@ namespace dla
                     }
 
                     // Get weights
-                    moris::Matrix< DDRMat > tWeights = mMesh->get_HMR_database()
-                                                            ->get_bspline_mesh_by_index( tAdofOrderHack )
+                    moris::Matrix< DDRMat > tWeights = mMesh->get_HMR_lagrange_mesh()
+                                                            ->get_bspline_mesh( tAdofOrderHack )
                                                             ->get_children_weights_for_parent( tExtDofInd );
 
                     // Fill weights in operator

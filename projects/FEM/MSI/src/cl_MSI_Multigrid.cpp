@@ -30,8 +30,6 @@ namespace moris
         }
 
         mNumDofsRemain.set_size( mMultigridLevels, 1 );
-
-        this->determine_mesh_index_by_order();
     }
 
 //------------------------------------------------------------------------------------------------------------------------------------
@@ -63,7 +61,7 @@ namespace moris
         }
 
         // get number if type/time identifiers
-        mMaxDofTypes = mListAdofTypeTimeIdentifier( 0 ).max()+1;
+        mMaxDofTypes = mListAdofTypeTimeIdentifier( 0 ).max() + 1;
 
         // Type time identifiers are initialize with -1. Check if all of them are set
         MORIS_ASSERT( mListAdofTypeTimeIdentifier( 0 ).min() != -1, "moris::MSI::Multigrid: Type/time identifier not specified");
@@ -77,33 +75,37 @@ namespace moris
 
     void Multigrid::create_multigrid_level_dof_ordering()
     {
-        // Get unique used dof type orders
-        moris::Matrix< DDSMat > tDofTypeOrders = mModelSolverInterface->get_dof_manager()->get_unique_dof_type_orders();
+        // Get unique used dof type orders // indices now
+        moris::Matrix< DDSMat > tDofTypeMeshIndices = mModelSolverInterface->get_dof_manager()->get_unique_adof_mesh_indices();
+
+        //-------------- Determine max level and max adof index for adof mesh ------------------------------
 
         moris::sint tMaxMeshLevel = -1;
         // Maximal existing basis index
         moris::sint tMaxIndex = -1;
 
         // Loop over all used dof type orders
-        for ( moris::uint Ia = 0; Ia < tDofTypeOrders.length(); Ia++ )
+        for ( moris::uint Ia = 0; Ia < tDofTypeMeshIndices.length(); Ia++ )
         {
             // Get mesh index for this mesh order
-            moris::sint tMeshIndex = mMeshOrderIndexMap( tDofTypeOrders( Ia, 0 ), 0 );
+            moris::sint tMeshIndex = tDofTypeMeshIndices( Ia, 0 );
 
-            MORIS_ASSERT( tMeshIndex != -1, "Multigrid::create_multigrid_level_dof_ordering(): tMeshIndex is -1. check Multigrid::determine_mesh_index_by_order" );
+            MORIS_ASSERT( tMeshIndex != -1, "Multigrid::create_multigrid_level_dof_ordering(): tMeshIndex is -1. " );
 
             // Gets the maximal mesh level for this order
-            moris::sint tMaxMeshLevelForOrder = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
-                                                                         ->get_max_level();
+            moris::sint tMaxMeshLevelForMeshIndex = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
+                                                                             ->get_max_level();
 
-            tMaxMeshLevel = std::max( tMaxMeshLevel, tMaxMeshLevelForOrder );
+            tMaxMeshLevel = std::max( tMaxMeshLevel, tMaxMeshLevelForMeshIndex );
 
             // get the maximal index of external indices. External indices are numbered consecutive.
-            moris::sint tMaxIndexForOrder = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
-                                                                     ->get_number_of_indexed_basis();
+            moris::sint tMaxIndexForMeshIndex = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
+                                                                         ->get_number_of_indexed_basis();
 
-            tMaxIndex = std::max( tMaxIndex, tMaxIndexForOrder );
+            tMaxIndex = std::max( tMaxIndex, tMaxIndexForMeshIndex );
         }
+
+        //-----------------------------------------------------------------------------------------------------------
 
         MORIS_ASSERT( tMaxIndex != -1    , "Multigrid::create_multigrid_level_dof_ordering(): tMaxIndex is -1. check Multigrid::determine_mesh_index_by_order" );
         MORIS_ASSERT( tMaxMeshLevel != -1, "Multigrid::create_multigrid_level_dof_ordering(): tMaxMeshLevel is -1. check Multigrid::determine_mesh_index_by_order" );
@@ -142,19 +144,15 @@ namespace moris
                                                             ->get_typetime_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( Ii, 0 ), 0 );
 
                 // Get order of this dof type
-                moris::sint tDofOrder = mModelSolverInterface->get_adof_index_for_type( tDofType );
-
-                // Get mesh index for this dof type
-                moris::sint tMeshIndex = mMeshOrderIndexMap( tDofOrder, 0 );
-                //---------------------------------------------------------------------------------------------------
+                moris::sint tMeshIndex = mModelSolverInterface->get_adof_index_for_type( tDofType );
 
                 // Ask mesh for the level of this mesh index
-                moris::uint tDofLevel = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
+                moris::uint tDofLevel = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
                                                                  ->get_basis_by_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
                                                                  ->get_level();
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
-                if( tDofLevel < tMaxMeshLevel - Ik )
+                if( tDofLevel < tMaxMeshLevel - Ik )                                                      // FIXME assumes that all max levels are the same
                 {
                     // Add external dof index to list
                     mListAdofExtIndMap( Ik + 1 )( tCounter ) = mListAdofExtIndMap( Ik )( Ii, 0 );
@@ -187,15 +185,11 @@ namespace moris
                                                             ->get_typetime_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ), 0 );
 
                 // Get order of this dof type
-                moris::sint tDofOrder = mModelSolverInterface->get_adof_index_for_type(tDofType);
-
-                // Get mesh index for this dof type
-                moris::sint tMeshIndex = mMeshOrderIndexMap( tDofOrder, 0 );
-                //---------------------------------------------------------------------------------------------------
+                moris::sint tMeshIndex = mModelSolverInterface->get_adof_index_for_type(tDofType);
 
                 // get basis pointer for adof which was too fine.
-                moris::hmr::Basis * tBasis = mMesh->get_HMR_database()
-                                                  ->get_bspline_mesh_by_index( tMeshIndex )
+                moris::hmr::Basis * tBasis = mMesh->get_HMR_lagrange_mesh()
+                                                  ->get_bspline_mesh( tMeshIndex )
                                                   ->get_basis_by_index( mListAdofExtIndMap( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ) );
 
                 // Get type/time identifier for this dof
@@ -238,22 +232,22 @@ namespace moris
     void Multigrid::create_multigrid_maps()
     {
         // Get unique used dof type orders
-        moris::Matrix< DDSMat > tDofTypeOrders = mModelSolverInterface->get_dof_manager()->get_unique_dof_type_orders();
+        moris::Matrix< DDSMat > tDofTypeMeshIndices = mModelSolverInterface->get_dof_manager()->get_unique_adof_mesh_indices();
 
         // Maximal existing basis index
         moris::sint tMaxIndex = -1;
 
         // Loop over all used dof type orders
-        for ( moris::uint Ia = 0; Ia < tDofTypeOrders.length(); Ia++ )
+        for ( moris::uint Ia = 0; Ia < tDofTypeMeshIndices.length(); Ia++ )
         {
             // Get mesh index for this mesh order
-            moris::sint tMeshIndex = mMeshOrderIndexMap( tDofTypeOrders( Ia, 0 ), 0 );
+            moris::sint tMeshIndex = tDofTypeMeshIndices( Ia, 0 );
 
-            MORIS_ASSERT( tMeshIndex != -1, "Multigrid::create_multigrid_level_dof_ordering(): tMeshIndex is -1. check Multigrid::determine_mesh_index_by_order" );
+            MORIS_ASSERT( tMeshIndex != -1, "Multigrid::create_multigrid_level_dof_ordering(): tMeshIndex is -1." );
 
             // get the maximal index of external indices. External indices are numbered consecutive.
-            moris::sint tMaxIndexForOrder = mMesh->get_HMR_database()->get_bspline_mesh_by_index( tMeshIndex )
-                                                                     ->get_number_of_indexed_basis();
+            moris::sint tMaxIndexForOrder = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
+                                                                          ->get_number_of_indexed_basis();
 
             tMaxIndex = std::max( tMaxIndex, tMaxIndexForOrder );
         }
@@ -316,26 +310,6 @@ namespace moris
         for ( moris::uint Ik = 0; Ik < tNumOfIndicesAsk; Ik++ )
         {
             aInternalFineIndices( Ik, 0 ) = mMultigridMap( aLevel )( aTypeTimeIdentifier )( aExtFineIndices( Ik, 0 ), 0 );
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------------------------------------------
-
-    void Multigrid::determine_mesh_index_by_order()
-    {
-        // Get number of meshes
-//        mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( Ik )->get_max_level()
-
-        moris::uint tNumMeshes = mMesh->get_HMR_database()->get_number_of_bspline_meshes();
-//        moris::uint tNumMeshes =  mMesh->get_HMR_lagrange_mesh()->get_number_of_bspline_meshes();
-
-        // Set size of order to index map to 4. We only have maximal 3 orders in HMR
-        mMeshOrderIndexMap.set_size( 4, 1 , -1);
-
-        // Loop over all meshes. Ask for the order of each index and create map.
-        for ( moris::uint Ik = 0; Ik < tNumMeshes; Ik++ )
-        {
-            mMeshOrderIndexMap( Ik, 0 ) = Ik;                         //FIXME  useless map
         }
     }
 
