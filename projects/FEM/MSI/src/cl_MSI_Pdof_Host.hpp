@@ -135,7 +135,7 @@ namespace moris
          void set_unique_adof_map()
          {
              //Get number of unique adofs of this equation object
-             moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
+             moris::uint tNumUniqueAdofs = mUniqueAdofList.numel();
 
              // Loop over all unique adofs of this equation object
              for ( moris::uint Ii = 0; Ii < tNumUniqueAdofs; Ii++ )

@@ -190,6 +190,18 @@ public:
         return mMat1;
     };
 
+    virtual const Matrix< DDSMat > & get_type_time_identifier_to_type_map()
+    {
+        MORIS_ERROR(false, "Solver_Interface::get_type_time_identifier_to_type_map, Only works with MSI and multigrid");
+        return mMat5;
+    };
+
+    virtual moris::sint get_adof_index_for_type( moris::uint aDofType )
+    {
+        MORIS_ERROR(false, "Solver_Interface::get_adof_index_for_type, Only works with MSI and multigrid");
+        return 0;
+    };
+
 //------------------------------------------------------------------------------
     void build_multigrid_operators()
     {

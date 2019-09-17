@@ -85,7 +85,7 @@ namespace moris
         moris::sint tMaxIndex = -1;
 
         // Loop over all used dof type orders
-        for ( moris::uint Ia = 0; Ia < tDofTypeMeshIndices.length(); Ia++ )
+        for ( moris::uint Ia = 0; Ia < tDofTypeMeshIndices.numel(); Ia++ )
         {
             // Get mesh index for this mesh order
             moris::sint tMeshIndex = tDofTypeMeshIndices( Ia, 0 );
@@ -94,13 +94,13 @@ namespace moris
 
             // Gets the maximal mesh level for this order
             moris::sint tMaxMeshLevelForMeshIndex = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
-                                                                             ->get_max_level();
+                                                                                  ->get_max_level();
 
             tMaxMeshLevel = std::max( tMaxMeshLevel, tMaxMeshLevelForMeshIndex );
 
             // get the maximal index of external indices. External indices are numbered consecutive.
             moris::sint tMaxIndexForMeshIndex = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
-                                                                         ->get_number_of_indexed_basis();
+                                                                              ->get_number_of_indexed_basis();
 
             tMaxIndex = std::max( tMaxIndex, tMaxIndexForMeshIndex );
         }
@@ -114,7 +114,7 @@ namespace moris
         for ( moris::uint Ik = 0; Ik < mMultigridLevels; Ik++ )
         {
             // get the number of the adofs on the actual level
-            moris::uint tNumDofsOnLevel = mListAdofExtIndMap( Ik ).length();
+            moris::uint tNumDofsOnLevel = mListAdofExtIndMap( Ik ).numel();
 
             // Create list of of doftypes/time to check if a coarse level adof was created earlier. 0 means it was not created
             moris::Cell < Matrix < DDUMat> > tCoarseDofExist( mMaxDofTypes );
@@ -148,8 +148,8 @@ namespace moris
 
                 // Ask mesh for the level of this mesh index
                 moris::uint tDofLevel = mMesh->get_HMR_lagrange_mesh()->get_bspline_mesh( tMeshIndex )
-                                                                 ->get_basis_by_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
-                                                                 ->get_level();
+                                                                     ->get_basis_by_index( mListAdofExtIndMap( Ik )( Ii, 0 ) )
+                                                                     ->get_level();
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
                 if( tDofLevel < tMaxMeshLevel - Ik )                                                      // FIXME assumes that all max levels are the same
@@ -185,7 +185,7 @@ namespace moris
                                                             ->get_typetime_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( tEntryOfTooFineDofs( Ij, 0 ), 0 ), 0 );
 
                 // Get order of this dof type
-                moris::sint tMeshIndex = mModelSolverInterface->get_adof_index_for_type(tDofType);
+                moris::sint tMeshIndex = mModelSolverInterface->get_adof_index_for_type( tDofType );
 
                 // get basis pointer for adof which was too fine.
                 moris::hmr::Basis * tBasis = mMesh->get_HMR_lagrange_mesh()
@@ -238,7 +238,7 @@ namespace moris
         moris::sint tMaxIndex = -1;
 
         // Loop over all used dof type orders
-        for ( moris::uint Ia = 0; Ia < tDofTypeMeshIndices.length(); Ia++ )
+        for ( moris::uint Ia = 0; Ia < tDofTypeMeshIndices.numel(); Ia++ )
         {
             // Get mesh index for this mesh order
             moris::sint tMeshIndex = tDofTypeMeshIndices( Ia, 0 );
@@ -273,7 +273,7 @@ namespace moris
         for ( moris::uint Ik = 0; Ik < mListAdofExtIndMap.size(); Ik++ )
         {
             // Loop over all dof types on this level
-            for ( moris::uint Ij = 0; Ij < mListAdofExtIndMap( Ik ).length(); Ij++ )
+            for ( moris::uint Ij = 0; Ij < mListAdofExtIndMap( Ik ).numel(); Ij++ )
             {
                 // Get type/time identifier and external index of this adof
                 moris::sint tTypeIdentifier = mListAdofTypeTimeIdentifier( Ik )( Ij, 0 );
@@ -303,7 +303,7 @@ namespace moris
                                          const moris::sint               aTypeTimeIdentifier,
                                                moris::Matrix< DDSMat > & aInternalFineIndices )
     {
-        moris::uint tNumOfIndicesAsk = aExtFineIndices.length();
+        moris::uint tNumOfIndicesAsk = aExtFineIndices.numel();
 
         aInternalFineIndices.set_size( tNumOfIndicesAsk, 1, -1 );
 

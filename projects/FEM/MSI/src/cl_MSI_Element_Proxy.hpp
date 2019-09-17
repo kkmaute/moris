@@ -63,7 +63,7 @@ namespace moris
 
             Matrix< DDRMat > tMyValues;
 
-            mSolVec->extract_my_values( mUniqueAdofList.length(), mUniqueAdofList, 0, tMyValues );
+            mSolVec->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
 
             tMyValues = tTMatrix * tMyValues;
 

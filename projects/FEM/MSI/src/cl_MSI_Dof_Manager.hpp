@@ -249,7 +249,7 @@ namespace moris
 
             moris::Matrix< DDSMat > get_unique_adof_mesh_indices();
 
-            moris::Matrix< DDSMat > get_typetime_identifier_to_type_map()
+            const moris::Matrix< DDSMat > & get_typetime_identifier_to_type_map()
             {
                 return mTypeTimeIndentifierToTypeMap;
             };
