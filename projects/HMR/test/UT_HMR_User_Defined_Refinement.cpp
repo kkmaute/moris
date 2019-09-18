@@ -113,7 +113,8 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-
+    if( par_size() ==0 )
+    {
     for( moris::uint tDimension=2; tDimension<=2; ++tDimension )
     {
     for( moris::uint tOrder=1; tOrder<=2; tOrder++ )
@@ -214,5 +215,6 @@ TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined
 //             REQUIRE( tNumCoeffs == 584 );
     }
     }
+}
 }
 
