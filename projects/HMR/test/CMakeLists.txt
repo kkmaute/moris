@@ -15,7 +15,8 @@ set(TEST_SOURCES
     cl_HMR_L2.cpp
     cl_HMR_Integration_Mesh.cpp
     cl_HMR_Lagrange_Elements.cpp
-    UT_HMR_IO.cpp )
+    UT_HMR_IO.cpp
+    UT_HMR_User_Defined_Refinement.cpp )
 
 set(TEST_DEPENDENCIES
     test-libs
