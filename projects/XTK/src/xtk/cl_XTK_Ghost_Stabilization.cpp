@@ -177,7 +177,7 @@ namespace xtk
 
                     // get elements attached to parent face
                     Matrix< IdMat > tChildElemIdsOnFace;
-                    tChildMesh.get_child_elements_connected_to_parent_face(aFacetIndex,tChildElemIdsOnFace,aChildMeshCellIndsOnFacet(iWChild),aChildMeshCellOnFacetOrdinals(iWChild));
+                    tChildMesh.get_child_elements_connected_to_parent_facet(aFacetIndex,tChildElemIdsOnFace,aChildMeshCellIndsOnFacet(iWChild),aChildMeshCellOnFacetOrdinals(iWChild));
 
 
                     // reference the child mesh element indexs

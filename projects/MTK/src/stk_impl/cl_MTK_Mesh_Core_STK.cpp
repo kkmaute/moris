@@ -336,25 +336,32 @@ namespace mtk
         stk::mesh::EntityId tStkEntityId = (stk::mesh::EntityId) tId ;
 
         // Call function that gets the connected entities
+        enum EntityRank tFacetRank = this->get_facet_rank();
+
         stk::mesh::EntityRank tStkInputRank  = stk::topology::ELEMENT_RANK;
         stk::mesh::EntityRank tStkOutputRank = stk::topology::FACE_RANK;
+        if(tFacetRank == EntityRank::EDGE)
+        {
+            tStkOutputRank = stk::topology::EDGE_RANK;
+        }
+
         stk::mesh::Entity tStkEntity = mSTKMeshData->mMtkMeshBulkData->get_entity(tStkInputRank, tStkEntityId);
 
-        std::vector<stk::mesh::Entity> tFacesInElem = this->entities_connected_to_entity_stk(&tStkEntity, tStkInputRank, tStkOutputRank);
+        std::vector<stk::mesh::Entity> tFacetsInElem = this->entities_connected_to_entity_stk(&tStkEntity, tStkInputRank, tStkOutputRank);
 
 
-        MORIS_ASSERT( ( tFacesInElem.size() != 0 ) || ( tFacesInElem.size() != 0 ),
+        MORIS_ASSERT( ( tFacetsInElem.size() != 0 ) || ( tFacetsInElem.size() != 0 ),
                 "No faces connected to element found. Maybe the CreateAllEdgesAndFaces flag is set to false. Check mesh struct." );
 
         // Then for each face get elements connected
         uint tCounter  = 0;
-        uint tNumFaces = tFacesInElem.size();
+        uint tNumFaces = tFacetsInElem.size();
 
         moris::Matrix< IndexMat > tElemsConnectedToElem(2, tNumFaces);
 
         for ( uint faceIt = 0; faceIt < tNumFaces; ++faceIt )
         {
-            std::vector<stk::mesh::Entity> tDummyConnectivity = this->entities_connected_to_entity_stk( &tFacesInElem[faceIt],stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
+            std::vector<stk::mesh::Entity> tDummyConnectivity = this->entities_connected_to_entity_stk( &tFacetsInElem[faceIt],tStkOutputRank, stk::topology::ELEMENT_RANK );
 
             // Faces in mesh boundaries do not have more than one element
             if ( tDummyConnectivity.size() > 0 )
@@ -363,7 +370,7 @@ namespace mtk
                      mSTKMeshData->mMtkMeshBulkData->identifier( tStkEntity ) )
                 {
                     tElemsConnectedToElem( 0,tCounter ) = (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tDummyConnectivity[0]);
-                    tElemsConnectedToElem( 1,tCounter ) =  (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tFacesInElem[faceIt]);;
+                    tElemsConnectedToElem( 1,tCounter ) =  (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tFacetsInElem[faceIt]);;
                     tCounter++;
                 }
             }
@@ -374,7 +381,7 @@ namespace mtk
                      mSTKMeshData->mMtkMeshBulkData->identifier(  tStkEntity ) )
                 {
                     tElemsConnectedToElem( 0,tCounter ) = (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tDummyConnectivity[1]);
-                    tElemsConnectedToElem( 1,tCounter ) =  (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tFacesInElem[faceIt]);;
+                    tElemsConnectedToElem( 1,tCounter ) =  (moris_index) mSTKMeshData->mMtkMeshBulkData->local_id(tFacetsInElem[faceIt]);;
                     tCounter++;
                 }
             }
@@ -482,6 +489,14 @@ namespace mtk
     }
 
     // ----------------------------------------------------------------------------
+    void
+    Mesh_Core_STK::get_elements_in_support_of_basis(const uint           aMeshIndex,
+                                                    const uint           aBasisIndex,
+                                                    Matrix< IndexMat > & aElementIndices )
+    {
+        aElementIndices = get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
+    }
+
 
     Matrix< IdMat >
     Mesh_Core_STK::get_element_connected_to_element_glob_ids(moris_id aElementId) const
@@ -569,7 +584,7 @@ namespace mtk
     Mesh_Core_STK::get_facet_ordinal_from_cell_and_facet_loc_inds(moris::moris_index aFaceIndex,
                                                              moris::moris_index aCellIndex) const
     {
-        moris_id tFaceId = this->get_glb_entity_id_from_entity_loc_index(aFaceIndex,EntityRank::FACE);
+        moris_id tFaceId = this->get_glb_entity_id_from_entity_loc_index(aFaceIndex,this->get_facet_rank());
         moris_id tCellId = this->get_glb_entity_id_from_entity_loc_index(aCellIndex,EntityRank::ELEMENT);
 
         return get_facet_ordinal_from_cell_and_facet_id_glob_ids(tFaceId,tCellId);
@@ -1650,26 +1665,61 @@ namespace mtk
 
         // allocate member data
         mSTKMeshData->mMtkCells = moris::Cell<mtk::Cell_STK>(tNumElems);
-        Matrix< IndexMat > tElementToNode;
 
-        for( moris_index iCellInd = 0; iCellInd<(moris_index)tNumElems; iCellInd++)
+
+        // connectivity factory
+        mtk::Cell_Info_Factory tFactory;
+
+        // iterate through buckets
+        const stk::mesh::BucketVector & tCellBuckets = mSTKMeshData->mMtkMeshBulkData->get_buckets(stk::topology::ELEMENT_RANK,mSTKMeshData->mMtkMeshMetaData->universal_part());
+
+        for(size_t iBucket = 0; iBucket < tCellBuckets.size(); iBucket++)
         {
-            tElementToNode = get_entity_connected_to_entity_loc_inds(iCellInd, EntityRank::ELEMENT, EntityRank::NODE);
+            // cell bucket
+            stk::mesh::Bucket & tCellBucket = *tCellBuckets[iBucket];
 
-            // setup vertices of cells
-            moris::Cell<Vertex*> tElementVertices(tElementToNode.numel());
-            for(uint iNodes = 0; iNodes<tElementToNode.numel(); iNodes++)
+            // stk bucket topology
+            stk::topology tSTKBucketTopo = tCellBucket.topology();
+
+            // moris topology
+            enum CellTopology tBucketTopo = this->stk_topo_to_moris_topo(tSTKBucketTopo);
+
+            // connectivity location
+            moris_index tInfoIndex = mSTKMeshData->mCellInfo.size();
+            mSTKMeshData->mCellInfo.push_back(tFactory.create_cell_info(tBucketTopo));
+
+            for(size_t iC = 0; iC < tCellBucket.size(); iC++)
             {
-                tElementVertices(iNodes) = &mSTKMeshData->mMtkVertices(tElementToNode(iNodes));
-            }
 
-            // Add cell to member data
-            mSTKMeshData->mMtkCells(iCellInd) = Cell_STK( CellTopology::HEX8,
-                                            this->get_glb_entity_id_from_entity_loc_index(iCellInd,EntityRank::ELEMENT),
-                                            iCellInd,
-                                            tElementVertices,
-                                            this);
+                // get the stk cell
+                stk::mesh::Entity tSTKCell = tCellBucket[iC];
+
+                // get the id
+                moris_id tId = mSTKMeshData->mMtkMeshBulkData->identifier(tSTKCell);
+
+                // local index
+                moris_index tIndex = this->get_loc_entity_ind_from_entity_glb_id(tId,EntityRank::ELEMENT);
+
+
+                Matrix<IndexMat> tElementToNode = get_entity_connected_to_entity_loc_inds(tIndex, EntityRank::ELEMENT, EntityRank::NODE);
+
+                // setup vertices of cells
+                moris::Cell<Vertex*> tElementVertices(tElementToNode.numel());
+                for(uint iNodes = 0; iNodes<tElementToNode.numel(); iNodes++)
+                {
+                    tElementVertices(iNodes) = &mSTKMeshData->mMtkVertices(tElementToNode(iNodes));
+                }
+
+                // Add cell to member data
+                mSTKMeshData->mMtkCells(tIndex) = Cell_STK( mSTKMeshData->mCellInfo(tInfoIndex),
+                                                            tId,
+                                                            tIndex,
+                                                            tElementVertices,
+                                                            this);
+
+            }
         }
+
     }
 // ----------------------------------------------------------------------------
 
@@ -1709,12 +1759,17 @@ namespace mtk
     {
         switch(aSTKTopo)
         {
-            case (stk::topology::TRI_3)   : return CellTopology::TRI3;   break;
-            case (stk::topology::QUAD_4)  : return CellTopology::QUAD4;  break;
-            case (stk::topology::TET_4)   : return CellTopology::TET4;   break;
-            case (stk::topology::TET_10)  : return CellTopology::TET10;  break;
-            case (stk::topology::HEX_8)   : return CellTopology::HEX8;   break;
-            case (stk::topology::WEDGE_6) : return CellTopology::PRISM6; break;
+            case (stk::topology::TRI_3)     : return CellTopology::TRI3;   break;
+            case (stk::topology::TRI_3_2D)  : return CellTopology::TRI3;   break;
+            case (stk::topology::QUAD_4)    : return CellTopology::QUAD4;  break;
+            case (stk::topology::QUAD_4_2D) : return CellTopology::QUAD4;  break;
+            case (stk::topology::QUAD_9)    : return CellTopology::QUAD9;  break;
+            case (stk::topology::QUAD_9_2D) : return CellTopology::QUAD9;  break;
+            case (stk::topology::TET_4)     : return CellTopology::TET4;   break;
+            case (stk::topology::TET_10)    : return CellTopology::TET10;  break;
+            case (stk::topology::HEX_8)     : return CellTopology::HEX8;   break;
+            case (stk::topology::HEX_27)     : return CellTopology::HEX27;   break;
+            case (stk::topology::WEDGE_6)   : return CellTopology::PRISM6; break;
             default: MORIS_ERROR(0,"Unhandled stk topology passed in, only ones currently used in MORIS have been added"); return CellTopology::INVALID; break;
 
         }
@@ -3171,15 +3226,31 @@ namespace mtk
     {
         stk::topology::topology_t tTopology = stk::topology::INVALID_TOPOLOGY;
 
+        moris::uint tSpatialDim = this->get_spatial_dim();
+
         // MTK supports the following 1D, 2D and 3D element topology temporarily
 
         switch(aMTKCellTopo)
         {
             case CellTopology::TRI3:
-                tTopology = stk::topology::TRI_3;
+                if(tSpatialDim == 2)
+                {
+                    tTopology = stk::topology::TRI_3_2D;
+                }
+                else if( tSpatialDim == 3 )
+                {
+                    tTopology = stk::topology::TRI_3;
+                }
                 break;
             case CellTopology::QUAD4:
-                tTopology = stk::topology::QUAD_4;
+                if(tSpatialDim == 2)
+                {
+                    tTopology = stk::topology::QUAD_4_2D;
+                }
+                else if( tSpatialDim == 3 )
+                {
+                    tTopology = stk::topology::QUAD_4;
+                }
                 break;
             case CellTopology::TET4:
                 tTopology = stk::topology::TET_4;

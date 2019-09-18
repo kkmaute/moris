@@ -17,7 +17,7 @@
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
 #include "fn_verify_tet_topology.hpp"
-#include "cl_MTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Tet4_Cell_Info.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 #include "fn_equal_to.hpp"
 
@@ -711,7 +711,8 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
 
 
             // Check Edge Ancestry
-              moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+            moris::mtk::Cell_Info_Tet4 tConn;
+              moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = tConn.get_node_to_edge_map();
               moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
               moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
               moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();
@@ -892,7 +893,8 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
 
 
             // Check Edge Ancestry
-            moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+              moris::mtk::Cell_Info_Tet4 tConn;
+              moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = tConn.get_node_to_edge_map();
             moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
             moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
             moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();
@@ -1051,7 +1053,8 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         CHECK(tChildFacewithParentFaceRank == 6);
 
         // Check Edge Ancestry
-        moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+        moris::mtk::Cell_Info_Tet4 tConn;
+        moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = tConn.get_node_to_edge_map();
         moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
         moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
         moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();
@@ -1217,7 +1220,8 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
         CHECK(tChildFacewithParentFaceRank == 8);
 
         // Check Edge Ancestry
-        moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = Tetra4_Connectivity::get_node_to_edge_map();
+        moris::mtk::Cell_Info_Tet4 tConn;
+        moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = tConn.get_node_to_edge_map();
         moris::Matrix< moris::IndexMat > const & tEdgeToNode      = tChildMesh.get_edge_to_node();
         moris::Matrix< moris::IndexMat > const & tEdgeParentInds  = tChildMesh.get_edge_parent_inds();
         moris::Matrix< moris::DDSTMat > const  & tEdgeParentRanks = tChildMesh.get_edge_parent_ranks();

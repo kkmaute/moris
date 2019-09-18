@@ -7,9 +7,9 @@
 #include "catch.hpp"
 
 #include "cl_HMR.hpp"
-#include "cl_MTK_Hex8_Connectivity.hpp"
-#include "cl_MTK_Hex27_Connectivity.hpp"
-#include "cl_MTK_Hex64_Connectivity.hpp"
+#include "cl_MTK_Hex8_Cell_Info.hpp"
+#include "cl_MTK_Hex27_Cell_Info.hpp"
+#include "cl_MTK_Hex64_Cell_Info.hpp"
 
 namespace moris
 {
@@ -56,7 +56,8 @@ TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
         std::cout<<tCell.get_index()<<std::endl;
 
         //Check that the vertices on side are correct
-        moris::Matrix<moris::IndexMat> tVertexToSideMap = Hex8::get_node_to_face_map();
+        moris::mtk::Cell_Info_Hex8 tConn;
+        moris::Matrix<moris::IndexMat> tVertexToSideMap = tConn.get_node_to_face_map();
 
         moris::Cell< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
 
@@ -124,7 +125,8 @@ TEST_CASE("Single Hex 27 Lagrange Mesh","[Lag_Hex27]")
         std::cout<<tCell.get_index()<<std::endl;
 
         //Check that the vertices on side are correct
-        moris::Matrix<moris::IndexMat> tVertexToSideMap = Hex27::get_node_to_face_map();
+        moris::mtk::Cell_Info_Hex27 tConn;
+        moris::Matrix<moris::IndexMat> tVertexToSideMap = tConn.get_node_to_face_map();
 
         moris::Cell< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
 
@@ -192,7 +194,8 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
         std::cout<<tCell.get_index()<<std::endl;
 
         //Check that the vertices on side are correct
-        moris::Matrix<moris::IndexMat> tVertexToSideMap = Hex64::get_node_to_face_map();
+        moris::mtk::Cell_Info_Hex64 tConn;
+        moris::Matrix<moris::IndexMat> tVertexToSideMap = tConn.get_node_to_face_map();
 
         moris::Cell< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
 

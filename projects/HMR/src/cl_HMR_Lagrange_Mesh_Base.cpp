@@ -1803,6 +1803,11 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
+        void Lagrange_Mesh_Base::create_facet_clusters()
+        {
+        }
+//------------------------------------------------------------------------------
+
         void Lagrange_Mesh_Base::create_edges()
         {
             tic tTimer;

@@ -226,6 +226,10 @@ public:
     moris::Matrix< moris::IndexMat > const &
     get_node_indices(moris::size_t aChildMeshIndex);
 
+
+    void
+    set_child_element_topology( enum CellTopology aChildCellTopo );
+
     enum CellTopology
     get_child_element_topology();
 
@@ -251,7 +255,7 @@ public:
      * @param[out] aChildrenElementCMInd   - Child element index local to child mesh
      * @param[out] aFaceOrdinal            - Face Ordinal relative to element
      */
-    void get_child_elements_connected_to_parent_face(moris::moris_index const & aChildMeshIndex,
+    void get_child_elements_connected_to_parent_facet(moris::moris_index const & aChildMeshIndex,
                                                      moris::moris_index const & aParentFaceIndex,
                                                      moris::Matrix< moris::IdMat > & aChildrenElementId,
                                                      moris::Matrix< moris::IndexMat > & aChildrenElementCMInd,
@@ -311,6 +315,24 @@ public:
     Child_Mesh &
     get_child_mesh(moris::size_t const & aChildMeshIndex);
 
+    void
+    set_num_subphases(moris::uint aNumSubPhases);
+
+    moris::uint
+    get_num_subphases();
+
+    void
+    setup_subphase_to_child_mesh_connectivity();
+
+    Matrix<IndexMat> const &
+    get_subphase_to_child_mesh_connectivity();
+
+    uint
+    get_bulk_phase_index(moris_index aSubPhaseIndex);
+
+
+    void
+    populate_subphase_vector(moris::Matrix<moris::IndexMat> & aSubphase);
 
 protected:
     /*
@@ -354,8 +376,10 @@ protected:
     Cell<moris_id> &
     get_not_owned_shared_child_owners();
 
-
 private:
+    // spatial dimension
+    moris::uint mSpatialDim;
+
     moris::size_t mNumberOfChildrenMesh;
 
     // All children meshes
@@ -380,6 +404,11 @@ private:
 
     // topology of child elements (i.e. TET4)
     enum CellTopology mChildElementTopo;
+
+    // number of subphases
+    moris::uint mNumSubPhases;
+    Matrix<IndexMat> mSubPhaseIndexToChildMesh;
+    Matrix<IndexMat> mSubPhaseIndexToChildMeshSubphaseIndex;
 
 private:
 

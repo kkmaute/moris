@@ -18,7 +18,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "assert.hpp"
 
-#include "cl_MTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Tet4_Cell_Info.hpp"
 
 //TODO:PUT THIS IN A MORE APPROPRIATE SPOT
 inline
@@ -29,7 +29,8 @@ get_nodes_on_face_map(moris::uint               aNumVertsPerElem,
 {
     if(aNumVertsPerElem == 4 && aGeometryType == moris::mtk::Geometry_Type::TET)
     {
-        return moris::Tetra4_Connectivity::get_node_to_face_map(aSideOrd);
+        moris::mtk::Cell_Info_Tet4 tTet4;
+        return tTet4.get_node_to_face_map(aSideOrd);
     }
     else
     {
@@ -143,25 +144,26 @@ public:
     moris::Matrix<moris::F31RMat>
     get_outward_normal(moris::uint aPairIndex) const
     {
-        MORIS_ASSERT(aPairIndex <mElementPairs.size(), "Pair Index provided is out of bounds");
+            MORIS_ASSERT(aPairIndex <mElementPairs.size(), "Pair Index provided is out of bounds");
 
-        // Vertex coordinates connected to cell
-        moris::Matrix<moris::DDRMat> tVertexCoords = mElementPairs(aPairIndex)->get_vertex_coords();
+            // Vertex coordinates connected to cell
+            moris::Matrix<moris::DDRMat> tVertexCoords = mElementPairs(aPairIndex)->get_vertex_coords();
 
-        // Get the nodes which need to be used to compute normal
-        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Tetra4_Connectivity::get_node_map_outward_normal(mElementSideOrdinals(aPairIndex));
+            // Get the nodes which need to be used to compute normal
+            moris::mtk::Cell_Info_Tet4 tTet4;
+            moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = tTet4.get_node_map_outward_normal(mElementSideOrdinals(aPairIndex));
 
-        // Get vector along these edges
-        moris::Matrix<moris::F31RMat> tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-        moris::Matrix<moris::F31RMat> tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
+            // Get vector along these edges
+            moris::Matrix<moris::F31RMat> tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+            moris::Matrix<moris::F31RMat> tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
 
-        // Take the cross product to get the normal
-        Matrix<F31RMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
+            // Take the cross product to get the normal
+            Matrix<F31RMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
 
-        // Normalize
-        Matrix<F31RMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
+            // Normalize
+            Matrix<F31RMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
 
-        return tUnitOutwardNormal;
+            return tUnitOutwardNormal;
     }
 
     /*

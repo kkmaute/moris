@@ -72,6 +72,19 @@ LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
     return -std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
 }
 
+moris::real
+LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+
+    real mXn = 0;
+    real mYn = 0;
+    real mZn = 1.0;
+    real mXc = 1.0;
+    real mYc = 1.0;
+    real mZc = 1.51;
+    return mXn*(aPoint(0)-mXc) + mYn*(aPoint(1)-mYc) + mZn*(aPoint(2)-mZc);
+}
+
 TEST_CASE("XTK HMR Test","[XTK_HMR]")
 {
     if(par_size() == 1)
@@ -83,7 +96,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         moris::hmr::Parameters tParameters;
 
-        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {4} } );
+        tParameters.set_number_of_elements_per_dimension( { {1}, {1}, {2} } );
         tParameters.set_domain_dimensions({ {2}, {2}, {4} });
         tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
         tParameters.set_bspline_truncation( true );
@@ -91,10 +104,10 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         tParameters.set_output_meshes( { {0} } );
 
-        tParameters.set_lagrange_orders  ( { {1} });
+        tParameters.set_lagrange_orders  ( { {3} });
         tParameters.set_lagrange_patterns({ {0} });
 
-        tParameters.set_bspline_orders   ( { {1} } );
+        tParameters.set_bspline_orders   ( { {3} } );
         tParameters.set_bspline_patterns ( { {0} } );
 
         tParameters.set_union_pattern( 2 );
@@ -123,14 +136,56 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
             tHMR.update_refinement_pattern( 0 );
 
-            tField->evaluate_scalar_function( LevelSetSphereCylinder );
+            tField->evaluate_scalar_function( LevelSetPlaneFunction );
         }
 
         tHMR.finalize();
 
-        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_interp.e" );
+//        tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_interp.e" );
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+
+
+        hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
+
+        std::cout<<"NumFacets = "<<tLMB->mFacets.size()<<std::endl;
+
+
+        for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
+        {
+            if(! (tLMB->mFacets(i) == nullptr) )
+            {
+                hmr::Element * tMaster = tLMB->mFacets(i)->get_hmr_master();
+                hmr::Element * tSlave  = tLMB->mFacets(i)->get_hmr_slave();
+
+                if(! (tMaster == nullptr) && ! (tSlave == nullptr)  )
+                {
+                    moris_id tMasterId = tMaster->get_index();
+                    moris_id tSlaveId  = tSlave->get_index();
+
+                    if(tMasterId != MORIS_INDEX_MAX)
+                    {
+                        tMasterId = tMasterId + 1;
+                    }
+
+                    if(tSlaveId != MORIS_INDEX_MAX)
+                    {
+                        tSlaveId = tSlaveId + 1;
+                    }
+
+                    std::cout<<"M Id = "   <<std::setw(12)<<tMasterId<< " L = "<<std::setw(2)<<tMaster->get_level();
+                    std::cout<<" A = "<<std::setw(2)<<tMaster->is_active()<<" R = "<<std::setw(2)<<tMaster->is_refined()<<" P = "<<std::setw(2)<<tMaster->is_padding();
+                    std::cout<<" | S Id = "<<std::setw(12)<<tSlaveId << " L = "<<std::setw(2)<<tSlave->get_level();
+                    std::cout<<" A = "<<std::setw(2)<<tSlave->is_active()<<" R = "<<std::setw(2)<<tSlave->is_refined()<<" P = "<<std::setw(2)<<tSlave->is_padding()<<std::endl;
+                }
+            }
+        }
+
+
+
+
+
+
 
         xtk::Geom_Field tFieldAsGeom(tField);
 
@@ -157,13 +212,17 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         xtk::Output_Options tOutputOptions;
         tOutputOptions.mAddNodeSets = false;
         tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = true;
+        tOutputOptions.mAddClusters = false;
 
         // add solution field to integration mesh
         std::string tIntegSolFieldName = "solution";
         tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
 
         moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+
+
+        std::string tOutputFile = "./xtk_exo/xtk_hmr_cut.exo";
+        tIntegMesh1->create_output_mesh(tOutputFile);
 
 
         delete tIntegMesh1;

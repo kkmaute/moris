@@ -16,7 +16,7 @@
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_XTK_Child_Mesh.hpp"
-#include "cl_MTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Tet4_Cell_Info.hpp"
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
@@ -161,7 +161,7 @@ public:
     Geometry_Type
     get_geometry_type() const
     {
-        return Geometry_Type::TET;
+        return mChildMeshPtr->get_child_geometry_type();
     }
 
     //------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ public:
     virtual Interpolation_Order
     get_interpolation_order() const
     {
-        return Interpolation_Order::LINEAR;
+        return mChildMeshPtr->get_child_interpolation_order();
     }
 
     //------------------------------------------------------------------------------
@@ -183,13 +183,14 @@ public:
 
         moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
 
-        MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type tet");
-        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Tetra4_Connectivity::get_node_to_face_map(aSideOrdinal);
+        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mChildMeshPtr->get_cell_info()->get_node_to_facet_map(aSideOrdinal);
 
-        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(3);
-        tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
-        tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
-        tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
+        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
+        for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
+        {
+            tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
+        }
+
         return tVerticesOnSide;
     }
 
@@ -198,26 +199,15 @@ public:
     moris::Matrix<moris::DDRMat>
     compute_outward_side_normal(moris::moris_index aSideOrdinal) const
     {
-
-        // Get vector along these edges
-        moris::Matrix<moris::DDRMat> tEdge0Vector(3,1);
-        moris::Matrix<moris::DDRMat> tEdge1Vector(3,1);
-
-
-        MORIS_ERROR(aSideOrdinal<4,"Side ordinal out of bounds.");
-
-#ifdef DEBUG
-        if(this->get_vertex_pointers().size() > 4)
-        {
-            MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
-        }
-#endif
-
         // get the vertex coordinates
         moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
 
+        // Get vector along these edges
+        moris::Matrix<moris::DDRMat> tEdge0Vector(tVertexCoords.numel(),1);
+        moris::Matrix<moris::DDRMat> tEdge1Vector(tVertexCoords.numel(),1);
+
         // Get the nodes which need to be used to compute normal
-        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Tetra4_Connectivity::get_node_map_outward_normal(aSideOrdinal);
+        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = mChildMeshPtr->get_cell_info()->get_node_map_outward_normal(aSideOrdinal);
 
         // Get vector along these edges
         tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));

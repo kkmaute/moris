@@ -100,34 +100,37 @@ geometry_parse_factory(XTK_Problem_Params & aXTKProblemParams)
     }
     case Geometry_Type::PLANE:
     {
+        moris::Matrix<moris::DDRMat> tCenters(3,1);
+        moris::Matrix<moris::DDRMat> tNormals(3,1);
+
         std::string tStr = "xc";
         moris_index tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tXc =aXTKProblemParams.mRealGeomParams(tPos);
+        tCenters(0) =aXTKProblemParams.mRealGeomParams(tPos);
 
         // find the yc in real parameters
         tStr = "yc";
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tYc = aXTKProblemParams.mRealGeomParams(tPos);
+        tCenters(1)= aXTKProblemParams.mRealGeomParams(tPos);
 
         // find the zc in real parameters
         tStr = "zc";
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tZc =aXTKProblemParams.mRealGeomParams(tPos);
+        tCenters(2) =aXTKProblemParams.mRealGeomParams(tPos);
 
         // find the x normal
         tStr = "xnorm";
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tXn = aXTKProblemParams.mRealGeomParams(tPos);
+        tNormals(0) = aXTKProblemParams.mRealGeomParams(tPos);
 
         tStr = "ynorm";
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tYn = aXTKProblemParams.mRealGeomParams(tPos);
+        tNormals(1) = aXTKProblemParams.mRealGeomParams(tPos);
 
         tStr = "znorm";
         tPos = get_index_in_cell(aXTKProblemParams.mRealGeomLabels,tStr);
-        moris::real tZn = aXTKProblemParams.mRealGeomParams(tPos);
+        tNormals(2) = aXTKProblemParams.mRealGeomParams(tPos);
 
-        tGeometry = new Plane(tXc,tYc,tZc,tXn,tYn,tZn);
+        tGeometry = new Plane<3>(tCenters,tNormals);
 
         break;
     }

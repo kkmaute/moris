@@ -39,11 +39,11 @@ Cell<moris::Matrix< moris::IndexMat >>
 prune_element_to_element(moris::Matrix< moris::IndexMat > const & aElementToElement,
                          moris::Matrix< moris::IndexMat > const & aElementsInPrunedGraph,
                          moris::Matrix< moris::IndexMat > const & aSharedFaces,
-                         moris::moris_index                       aDummyValue = std::numeric_limits<moris::moris_index>::max())
+                         moris::moris_index                       aDummyValue = MORIS_INDEX_MAX)
 {
 
     // Number of elements in to included in pruned graph
-    size_t tNumIncludedElems = aElementsInPrunedGraph.n_cols();
+    size_t tNumIncludedElems = aElementsInPrunedGraph.numel();
 
     MORIS_ASSERT(aElementToElement.n_rows()== tNumIncludedElems,"Included elements and number of element neighbor relationships in element to element graph do not match");
 
@@ -55,7 +55,7 @@ prune_element_to_element(moris::Matrix< moris::IndexMat > const & aElementToElem
     std::unordered_map<moris::moris_index,moris::moris_index> tElementMap(tNumIncludedElems);
     for(size_t iE = 0; iE<tNumIncludedElems; iE++)
     {
-        tElementMap[aElementsInPrunedGraph(0,iE)] = iE;
+        tElementMap[aElementsInPrunedGraph(iE)] = iE;
     }
 
     for(size_t iE = 0; iE< tNumIncludedElems; iE++)

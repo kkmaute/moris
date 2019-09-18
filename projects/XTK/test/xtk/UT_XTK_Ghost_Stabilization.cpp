@@ -23,13 +23,9 @@ namespace xtk
 
 TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 {
-    real tXCenter = 2.0;
-    real tYCenter = 2.0;
-    real tZCenter = 2.0;
-    real tXNormal = 1.0;
-    real tYNormal = 1.0;
-    real tZNormal = 1.0;
-    Plane tPlane(tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal);
+    moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.0 }};
+    moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
+    Plane<3> tPlane(tCenters,tNormals);
 
     Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
     Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);

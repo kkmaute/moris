@@ -17,6 +17,7 @@
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
+#include "cl_MTK_Facet.hpp"
 
 namespace moris
 {
@@ -477,6 +478,21 @@ public:
     {
         return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::NODE);
     }
+
+    /*
+     * Get elements interpolated into by a basis function. For a Lagrange mesh,
+     * the elements in support of basis is equivalent to the elements connected
+     * to a node. Therefore, a call to get_elements
+     */
+    virtual
+    void
+    get_elements_in_support_of_basis(const uint           aMeshIndex,
+                                     const uint           aBasisIndex,
+                                     Matrix< IndexMat > & aElementIndices )
+    {
+        MORIS_ERROR(0,"get_elements_in_support_of_basis not implemented");
+    }
+
     //------------------------------------------------------------------------------
     //##############################################
     // Coordinate Field Functions
@@ -533,34 +549,16 @@ public:
 
     //------------------------------------------------------------------------------
     //##############################################
-    // Face Cluster Access
+    // Facet Access
     //##############################################
 
-    /*
-     * Is this face a member of a face cluster?
-     */
     virtual
-    bool
-    has_face_cluster_membership(moris_index aFaceIndex) const
+    moris::mtk::Facet*
+    get_facet(moris_index)
     {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (has_face_cluster_membership is not implemented)");
-        return 0;
+        MORIS_ERROR(0,"get facet not implemented");
+        return nullptr;
     }
-
-    //------------------------------------------------------------------------------
-
-    /*
-     * Is this face a parent of a face cluster?
-     */
-    virtual
-    bool
-    is_face_cluster_a_parent(moris_index aFaceIndex)
-    {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (has_face_cluster_membership is not implemented)");
-        return 0;
-    }
-
-    //------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------
     //##############################################
@@ -957,7 +955,7 @@ public:
      */
     virtual
     uint
-    get_num_basis_functions()
+    get_num_basis_functions(const uint aMeshIndex = 0)
     {
         return this->get_num_nodes();
     }
@@ -1098,7 +1096,7 @@ public:
     {
         moris::uint tNumSideSetFaces = 0;
 
-        moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
+        moris::Cell<std::string> tSideSetsNames = this->get_set_names( this->get_facet_rank() );
 
         for( luint Ik=0; Ik < aSideSetIndex.size(); ++Ik )
         {
@@ -1106,7 +1104,7 @@ public:
             std::string tTreatedSideset = tSideSetsNames( aSideSetIndex ( Ik ) );
 
             // get the sideset face indices
-            Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tTreatedSideset );
+            Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( this->get_facet_rank(), tTreatedSideset );
 
             // add up the sideset number of faces
             tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
@@ -1126,6 +1124,31 @@ public:
         return moris::Cell<moris::mtk::Vertex const *> (0);
     }
 
+
+    virtual
+    enum EntityRank
+    get_facet_rank() const
+    {
+        uint tSpatialDim = this->get_spatial_dim();
+        if(tSpatialDim  == 1)
+        {
+            return EntityRank::NODE;
+        }
+        else if(tSpatialDim == 2)
+        {
+            return EntityRank::EDGE;
+        }
+        else if(tSpatialDim == 3)
+        {
+            return EntityRank::FACE;
+        }
+        else
+        {
+            MORIS_ASSERT(0,"Invalid Mesh dimension detected in get_facet_rank ");
+            return EntityRank::INVALID;
+        }
+
+    }
 
 protected:
     // Note these members are here only to allow for throwing in
