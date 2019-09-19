@@ -135,9 +135,9 @@ LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
 moris::real
 LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 1 ) );
+    moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 2 ) );
 
-    moris::real tLevelSetVaue = 0.5 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) );
+    moris::real tLevelSetVaue = 0.5 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aPoint( 0 ), 2 ) + std::pow( aPoint( 2 ), 2 ) );
 
     return tLevelSetVaue;
 }
@@ -723,7 +723,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //
 //        moris::hmr::Parameters tParameters;
 //
-//        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {1} } );
+//        tParameters.set_number_of_elements_per_dimension( { {2}, {1}, {2} } );
 //        tParameters.set_domain_dimensions({ {2}, {2}, {2} });
 //        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-1.0} });
 //        tParameters.set_bspline_truncation( true );
@@ -759,7 +759,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //
 //        tField->evaluate_scalar_function( LevelSetFunction_star );
 //
-//        for( uint k=0; k<6; ++k )
+//        for( uint k=0; k<4; ++k )
 //        {
 //            tHMR.flag_surface_elements_on_working_pattern( tField );
 //            tHMR.perform_refinement_based_on_working_pattern( 0 );
