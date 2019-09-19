@@ -148,7 +148,7 @@ namespace moris
          }
 
 //------------------------------------------------------------------------------
-         const Matrix< DDRMat > & Field_Interpolator::dnNdxn( const uint & aDerivativeOrder )
+         const Matrix< DDRMat > & Field_Interpolator::dnNdxn( uint aDerivativeOrder )
          {
              // switch on derivative order
              switch ( aDerivativeOrder )

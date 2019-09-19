@@ -48,6 +48,7 @@
 #include "cl_FEM_IWG_Factory.hpp"                //FEM/INT/src
 #include "cl_FEM_Property_User_Defined_Info.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_User_Defined_Info.hpp"      //FEM/INT/src
+#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -153,75 +154,73 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-        // create a list of IWG type
-        Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
-        tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-        tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        // create IWG user defined info
+        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 4 );
+        tIWGUserDefinedInfo( 0 ).resize( 1 );
+        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+        tIWGUserDefinedInfo( 1 ).resize( 1 );
+        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+        tIWGUserDefinedInfo( 2 ).resize( 1 );
+        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET },
+                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+        tIWGUserDefinedInfo( 3 ).resize( 1 );
+        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::TEMP_NEUMANN },
+                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
 
-        // number of groups of IWgs
-        uint tNumSets = tIWGTypeList.size();
+        // create property user defined info
+        Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 4 );
+        tPropertyUserDefinedInfo( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 1 ).resize( 1 );
+        tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 2 ).resize( 2 );
+        tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 2 )( 1 ) = fem::Property_User_Defined_Info( { fem::Property_Type::TEMP_DIRICHLET },
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 5.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 3 ).resize( 1 );
+        tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 20.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
 
-        // list of residual dof type
-        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
-        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
-        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
-        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
-        tResidualDofType( 3 ).resize( tIWGTypeList( 3 ).size(), { MSI::Dof_Type::TEMP } );
-
-        // list of IWG master dof dependencies
-        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
-        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
-        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
-        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
-        tMasterDofTypes( 3 ).resize( tIWGTypeList( 3 ).size(), {{ MSI::Dof_Type::TEMP }} );
-
-        // list of IWG master property dependencies
-        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
-        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
-        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY } );
-        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
-        tMasterPropTypes( 3 ).resize( tIWGTypeList( 3 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
-
-        // build an IWG user defined info
-        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
-                                                        tResidualDofType,
-                                                        tMasterDofTypes,
-                                                        tMasterPropTypes );
-
-        // list of property type
-        Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
-                                                        { fem::Property_Type::TEMP_DIRICHLET },
-                                                        { fem::Property_Type::TEMP_NEUMANN   }};
-
-        // list of property dependencies
-        Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
-
-        // list of the property coefficients
-        Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
-        tCoeffList( 0 ).resize( 1 );
-        tCoeffList( 0 )( 0 )= {{ 1.0 }};
-        tCoeffList( 1 ).resize( 1 );
-        tCoeffList( 1 )( 0 )= {{ 5.0 }};
-        tCoeffList( 2 ).resize( 1 );
-        tCoeffList( 2 )( 0 )= {{ 20.0 }};
-
-        // cast free function into std::function
-        fem::PropertyFunc tValFunction0 = tConstValFunction;
-
-        // create the list with function pointers for the value
-        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
-
-        // create the list with cell of function pointers for the derivatives
-        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
-
-        // collect properties info
-        fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
-                                                                  tPropertyDofList,
-                                                                  tCoeffList,
-                                                                  tValFuncList,
-                                                                  tDerFuncList );
+        // create constitutive user defined info
+        Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 4 );
+        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 0 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      3 );
 
         // create a list of active block-sets
         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index(tBulkBlockNamesNoChild),
@@ -236,9 +235,10 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager, 1,
-                                              &tIWGUserDefinedInfo,
+                                              tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
-                                              &tPropertyUserDefinedInfo );
+                                              tPropertyUserDefinedInfo,
+                                              tConstitutiveUserDefinedInfo );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -329,7 +329,6 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
 
         moris::print(tSolution11,"tSolution11");
 
-
         // verify solution
         CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 
@@ -408,75 +407,73 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(tInterpMesh1, tIntegMesh1);
 
-        // create a list of IWG type
-        Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
-        tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGTypeList( 1 ).resize( 1, fem::IWG_Type::SPATIALDIFF_BULK );
-        tIWGTypeList( 2 ).resize( 1, fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-        tIWGTypeList( 3 ).resize( 1, fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        // create IWG user defined info
+        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 4 );
+        tIWGUserDefinedInfo( 0 ).resize( 1 );
+        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+        tIWGUserDefinedInfo( 1 ).resize( 1 );
+        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+        tIWGUserDefinedInfo( 2 ).resize( 1 );
+        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET },
+                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+        tIWGUserDefinedInfo( 3 ).resize( 1 );
+        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, 3, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::TEMP_NEUMANN },
+                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
 
-        // number of groups of IWgs
-        uint tNumSets = tIWGTypeList.size();
+        // create property user defined info
+        Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 4 );
+        tPropertyUserDefinedInfo( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 1 ).resize( 1 );
+        tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 2 ).resize( 2 );
+        tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 2 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 5.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 3 ).resize( 1 );
+        tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 20.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
 
-        // list of residual dof type
-        moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( tNumSets );
-        tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::TEMP } );
-        tResidualDofType( 1 ).resize( tIWGTypeList( 1 ).size(), { MSI::Dof_Type::TEMP } );
-        tResidualDofType( 2 ).resize( tIWGTypeList( 2 ).size(), { MSI::Dof_Type::TEMP } );
-        tResidualDofType( 3 ).resize( tIWGTypeList( 3 ).size(), { MSI::Dof_Type::TEMP } );
-
-        // list of IWG master dof dependencies
-        moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( tNumSets );
-        tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::TEMP }} );
-        tMasterDofTypes( 1 ).resize( tIWGTypeList( 1 ).size(), {{ MSI::Dof_Type::TEMP }} );
-        tMasterDofTypes( 2 ).resize( tIWGTypeList( 2 ).size(), {{ MSI::Dof_Type::TEMP }} );
-        tMasterDofTypes( 3 ).resize( tIWGTypeList( 3 ).size(), {{ MSI::Dof_Type::TEMP }} );
-
-        // list of IWG master property dependencies
-        moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( tNumSets );
-        tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size(), { fem::Property_Type::CONDUCTIVITY } );
-        tMasterPropTypes( 1 ).resize( tIWGTypeList( 1 ).size(), { fem::Property_Type::CONDUCTIVITY } );
-        tMasterPropTypes( 2 ).resize( tIWGTypeList( 2 ).size(), { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET } );
-        tMasterPropTypes( 3 ).resize( tIWGTypeList( 3 ).size(), { fem::Property_Type::TEMP_NEUMANN } );
-
-        // build an IWG user defined info
-        fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
-                                                        tResidualDofType,
-                                                        tMasterDofTypes, tMasterPropTypes );
-
-        // list of property type
-        Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
-                                                        { fem::Property_Type::TEMP_DIRICHLET },
-                                                        { fem::Property_Type::TEMP_NEUMANN   }};
-
-        // list of property dependencies
-        Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
-
-        // list of the property coefficients
-        Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
-        tCoeffList( 0 ).resize( 1 );
-        tCoeffList( 0 )( 0 )= {{ 1.0 }};
-        tCoeffList( 1 ).resize( 1 );
-        tCoeffList( 1 )( 0 )= {{ 5.0 }};
-        tCoeffList( 2 ).resize( 1 );
-        tCoeffList( 2 )( 0 )= {{ 20.0 }};
-
-        // cast free function into std::function
-        fem::PropertyFunc tValFunction0 = tConstValFunction;
-
-        // create the list with function pointers for the value
-        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );
-
-        // create the list with cell of function pointers for the derivatives
-        Cell< Cell< fem::PropertyFunc > > tDerFuncList( 3 );
-
-        // collect properties info
-        fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
-                                                                  tPropertyDofList,
-                                                                  tCoeffList,
-                                                                  tValFuncList,
-                                                                  tDerFuncList );
-
+        // create constitutive user defined info
+        Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 4 );
+        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 0 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      3 );
 
         // create a list of active block-sets
         moris::Cell< moris_index >  tSetList = { 4, 5, 1, 0 };
@@ -488,9 +485,10 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager, 1,
-                                              &tIWGUserDefinedInfo,
+                                              tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
-                                              &tPropertyUserDefinedInfo );
+                                              tPropertyUserDefinedInfo,
+                                              tConstitutiveUserDefinedInfo );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 

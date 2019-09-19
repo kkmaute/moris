@@ -115,40 +115,54 @@ namespace moris
 
             //std::cout<<"Test create_properties"<<std::endl;
             //------------------------------------------------------------------------------
-                // list of property type
-                Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
-                                                                { fem::Property_Type::TEMP_DIRICHLET }};
 
-                // list of property dependencies
-                Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 2 );
-                tPropertyDofList( 0 ) = {{ MSI::Dof_Type::TEMP },
-                                         { MSI::Dof_Type::UX }};
+                Cell< fem::Property_User_Defined_Info > tPropertyUserDefinedInfo( 2 );
 
-                // list of the property coefficients
-                Cell< Cell< Matrix< DDRMat > > > tCoeffList( 2 );
-                tCoeffList( 0 ).resize( 1 );
-                tCoeffList( 0 )( 0 )= {{ 1.0 }};
-                tCoeffList( 1 ).resize( 1 );
-                tCoeffList( 1 )( 0 )= {{ 5.0 }};
+                tPropertyUserDefinedInfo( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
+                                                                            {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
+                                                                            {{{ 1.0 }}},
+                                                                            tConstValFunction,
+                                                                            Cell< PropertyFunc >( 0 ) );
 
-                // cast free function into std::function
-                PropertyFunc tValFunction0 = tConstValFunction;
-
-                // create the list with function pointers for the value
-                Cell< PropertyFunc > tValFuncList( 2, tValFunction0 );
-
-                // create the list with cell of function pointers for the derivatives
-                Cell< Cell< PropertyFunc > > tDerFuncList( 2 );
-
-                // collect properties info
-                fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
-                                                                          tPropertyDofList,
-                                                                          tCoeffList,
-                                                                          tValFuncList,
-                                                                          tDerFuncList );
+                tPropertyUserDefinedInfo( 1 ) = Property_User_Defined_Info( { fem::Property_Type::TEMP_DIRICHLET },
+                                                                            Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                            {{{ 5.0 }}},
+                                                                            tConstValFunction,
+                                                                            Cell< PropertyFunc >( 0 ) );
+//                // list of property type
+//                Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
+//                                                                { fem::Property_Type::TEMP_DIRICHLET }};
+//
+//                // list of property dependencies
+//                Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 2 );
+//                tPropertyDofList( 0 ) = {{ MSI::Dof_Type::TEMP },
+//                                         { MSI::Dof_Type::UX }};
+//
+//                // list of the property coefficients
+//                Cell< Cell< Matrix< DDRMat > > > tCoeffList( 2 );
+//                tCoeffList( 0 ).resize( 1 );
+//                tCoeffList( 0 )( 0 )= {{ 1.0 }};
+//                tCoeffList( 1 ).resize( 1 );
+//                tCoeffList( 1 )( 0 )= {{ 5.0 }};
+//
+//                // cast free function into std::function
+//                PropertyFunc tValFunction0 = tConstValFunction;
+//
+//                // create the list with function pointers for the value
+//                Cell< PropertyFunc > tValFuncList( 2, tValFunction0 );
+//
+//                // create the list with cell of function pointers for the derivatives
+//                Cell< Cell< PropertyFunc > > tDerFuncList( 2 );
+//
+//                // collect properties info
+//                fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
+//                                                                          tPropertyDofList,
+//                                                                          tCoeffList,
+//                                                                          tValFuncList,
+//                                                                          tDerFuncList );
 
                 // create the properties for the set
-                tSet.create_properties( &tPropertyUserDefinedInfo );
+                tSet.create_properties( tPropertyUserDefinedInfo );
 
                 // check mMasterProperties size
                 CHECK( equal_to( tSet.mMasterProperties.size(), 2 ) );
@@ -461,37 +475,46 @@ namespace moris
 
             //std::cout<<"Test create_properties"<<std::endl;
             //------------------------------------------------------------------------------
-                // list of property type
-                Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY }};
+//                // list of property type
+//                Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY }};
+//
+//                // list of property dependencies
+//                Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 1 );
+//                tPropertyDofList( 0 ) = {{ MSI::Dof_Type::TEMP },
+//                                         { MSI::Dof_Type::UX }};
+//
+//                // list of the property coefficients
+//                Cell< Cell< Matrix< DDRMat > > > tCoeffList( 1 );
+//                tCoeffList( 0 ).resize( 1 );
+//                tCoeffList( 0 )( 0 )= {{ 1.0 }};
+//
+//                // cast free function into std::function
+//                PropertyFunc tValFunction0 = tConstValFunction;
+//
+//                // create the list with function pointers for the value
+//                Cell< PropertyFunc > tValFuncList( 1, tValFunction0 );
+//
+//                // create the list with cell of function pointers for the derivatives
+//                Cell< Cell< PropertyFunc > > tDerFuncList( 1 );
+//
+//                // collect properties info
+//                fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
+//                                                                          tPropertyDofList,
+//                                                                          tCoeffList,
+//                                                                          tValFuncList,
+//                                                                          tDerFuncList );
 
-                // list of property dependencies
-                Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 1 );
-                tPropertyDofList( 0 ) = {{ MSI::Dof_Type::TEMP },
-                                         { MSI::Dof_Type::UX }};
+                Cell< fem::Property_User_Defined_Info > tPropertyUserDefinedInfo( 1 );
 
-                // list of the property coefficients
-                Cell< Cell< Matrix< DDRMat > > > tCoeffList( 1 );
-                tCoeffList( 0 ).resize( 1 );
-                tCoeffList( 0 )( 0 )= {{ 1.0 }};
+                tPropertyUserDefinedInfo( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
+                                                                            {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
+                                                                            {{{ 1.0 }}},
+                                                                            tConstValFunction,
+                                                                            { tConstValFunction, tConstValFunction } );
 
-                // cast free function into std::function
-                PropertyFunc tValFunction0 = tConstValFunction;
-
-                // create the list with function pointers for the value
-                Cell< PropertyFunc > tValFuncList( 1, tValFunction0 );
-
-                // create the list with cell of function pointers for the derivatives
-                Cell< Cell< PropertyFunc > > tDerFuncList( 1 );
-
-                // collect properties info
-                fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
-                                                                          tPropertyDofList,
-                                                                          tCoeffList,
-                                                                          tValFuncList,
-                                                                          tDerFuncList );
 
                 // create the properties for the set
-                tSet.create_properties( &tPropertyUserDefinedInfo );
+                tSet.create_properties( tPropertyUserDefinedInfo );
 
                 // check mMasterProperties size
                 CHECK( equal_to( tSet.mMasterProperties.size(), 1 ) );

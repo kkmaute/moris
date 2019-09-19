@@ -31,7 +31,7 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Neumann();
+            IWG_Isotropic_Spatial_Diffusion_Neumann(){};
 
 //------------------------------------------------------------------------------
             /**

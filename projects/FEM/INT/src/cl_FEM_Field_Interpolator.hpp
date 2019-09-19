@@ -224,7 +224,7 @@ class Property;
              * @param[ in ]  aDerivativeOrder derivative order
              * @param[ out ] dnNdxn           nth order spatial derivative of the shape functions
              */
-            const Matrix< DDRMat > & dnNdxn( const uint & aDerivativeOrder );
+            const Matrix< DDRMat > & dnNdxn( uint aDerivativeOrder );
 
 //------------------------------------------------------------------------------
             /**
