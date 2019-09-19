@@ -15,9 +15,15 @@ namespace xtk
 Enriched_Interpolation_Mesh::Enriched_Interpolation_Mesh(Model* aXTKModel):
     mXTKModel(aXTKModel),
     mNumVerts(0),
-    mNumVertsPerInterpCell(MORIS_UINT_MAX)
+    mNumVertsPerInterpCell(MORIS_UINT_MAX),
+    mCellInfo(nullptr)
 {
 
+}
+
+Enriched_Interpolation_Mesh::~Enriched_Interpolation_Mesh()
+{
+    if( mCellInfo!= nullptr ) { delete mCellInfo; }
 }
 //------------------------------------------------------------------------------
 MeshType

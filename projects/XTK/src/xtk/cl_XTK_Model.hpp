@@ -218,6 +218,9 @@ public:
     construct_neighborhood();
 
     void
+    construct_subphase_neighborhood();
+
+    void
     construct_cut_mesh_simple_neighborhood();
 
     void
@@ -234,6 +237,9 @@ public:
 
     void
     print_neighborhood();
+
+    void
+    print_subphase_neighborhood();
 
 
 
@@ -260,6 +266,31 @@ public:
     moris::uint
     get_num_elements_unzipped();
 
+    /*!
+     * Returns the element to element connecivity
+     */
+    moris::Cell<moris::Cell<moris::mtk::Cell*>> const &
+    get_element_to_element(){ return mElementToElement; };
+
+    moris_index
+    get_cell_xtk_index(moris_id aCellId);
+
+
+    moris::Cell<moris::Cell<moris_index>>  const &
+    get_subphase_to_subphase(){ return mSubphaseToSubPhase; };
+
+    bool
+    subphase_is_in_child_mesh(moris_index aSubphaseIndex);
+
+    /*
+     * Get bulk phase of subphase by index
+     */
+    uint
+    get_subphase_bulk_index(moris_index aSubPhaseIndex);
+
+
+    moris::Matrix<moris::IndexMat>
+    get_element_to_subphase();
 
     //--------------------------------------------------------------------------------
 
@@ -298,11 +329,16 @@ private:
     bool mUnzipped          = false; // Model has been unzipped
     bool mGhost             = false; // Model has setup ghost stabilization
 
+    // cell map
+    std::map< moris_id, moris_index> mCellGlbToLocalMap;
+
     // The midside nodes are stored here currently but this may change
     moris::Matrix< moris::IndexMat > mMidsideElementToNode;
 
     // element to element neighborhood
     moris::Cell<moris::Cell<moris::mtk::Cell*>> mElementToElement;
+
+    moris::Cell<moris::Cell<moris_index>> mSubphaseToSubPhase;
 
 
     // Private Functions
@@ -320,13 +356,19 @@ private:
 
 
     void
-    decompose_internal_reg_sub_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
-                                             moris::Matrix< moris::IndexMat > & tNewPairBool,
-                                             Decomposition_Data & tDecompData);
+    decompose_internal_reg_sub_hex8_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                             	  moris::Matrix< moris::IndexMat > & tNewPairBool,
+                                             	  Decomposition_Data 			   & tDecompData);
+
+    void
+    decompose_internal_reg_sub_quad4_make_requests(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                                             	   moris::Matrix< moris::IndexMat > & tNewPairBool,
+						   Decomposition_Data 				& tDecompData);
 
     void
     decompose_internal_set_new_nodes_in_child_mesh_reg_sub(moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
                                                            moris::Matrix< moris::IndexMat > & tNewPairBool,
+                                                           moris::real                        tNumParamCoords,
                                                            Decomposition_Data &               tDecompData);
 
     void
@@ -404,6 +446,12 @@ private:
      */
     void
     create_child_element_mtk_cells();
+
+    /*!
+     * setup cell id to index map
+     */
+    void
+    set_up_cell_glb_to_local_map();
 
     /*
     *
@@ -508,18 +556,20 @@ private:
     /*
      * Tells the XTK mesh about where it's children live in the cut mesh
      */
-    void set_downward_inheritance();
+    void
+    set_downward_inheritance();
 
 
     /*
      * This algorithm sets up the active child mesh indices and registers new pairs in the downward inheritance
      */
 
-    void  run_first_cut_routine(enum TemplateType const &          aTemplateType,
-                                moris::uint                        aGeomIndex,
-                                moris::size_t const &              aNumNodesPerElement,
-                                moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
-                                moris::Matrix< moris::IndexMat > & aNewPairBool);
+    void
+    run_first_cut_routine(enum TemplateType const &          aTemplateType,
+                          moris::uint                        aGeomIndex,
+                          moris::size_t const &              aNumNodesPerElement,
+                          moris::Matrix< moris::IndexMat > & aActiveChildMeshIndices,
+                          moris::Matrix< moris::IndexMat > & aNewPairBool);
 
     /*!
      * Constructs the output mesh using provided Output_Options
@@ -535,7 +585,6 @@ private:
                                          size_t                           aPhaseIndex,
                                          moris::Cell<std::string> const & aBoundingSideSets);
 
-public:
     moris::Cell< moris::Matrix < moris::DDRMat > >
     assemble_geometry_data_as_mesh_field(moris::Matrix<moris::IndexMat> const & aNodeIndsToOutput);
 
@@ -546,7 +595,6 @@ public:
     moris::Matrix<moris::IndexMat>
     get_node_map_restricted_to_output_phases(Output_Options const &           aOutputOptions,
                                              moris::Matrix<moris::IndexMat> & aOutputtedNodeInds);
-private:
 
     moris::Cell<std::string>
     assign_geometry_data_names();

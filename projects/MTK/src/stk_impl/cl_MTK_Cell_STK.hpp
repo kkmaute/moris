@@ -15,8 +15,8 @@
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_MTK_Mesh_Core.hpp"
-#include "cl_MTK_Tetra4_Connectivity.hpp"
-#include "cl_MTK_Hex8_Connectivity.hpp"
+#include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Factory.hpp"
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
@@ -35,7 +35,7 @@ namespace mtk
 
 class Cell_STK: public moris::mtk::Cell
 {
-    enum CellTopology    mCellType;
+    Cell_Info*           mCellInfo;
     moris_id             mCellId;
     moris_index          mCellInd;
     moris::Cell<Vertex*> mCellVertices;
@@ -48,25 +48,24 @@ public:
     /**
      * trivial constructor
      */
-    Cell_STK(){};
+    Cell_STK():mCellInfo(nullptr){};
 
     //------------------------------------------------------------------------------
 
     /**
      *  constructor
      */
-    Cell_STK( enum CellTopology               aCellType,
-                   moris_id               aCellId,
-                   moris_index            aCellInd,
-                   const moris::Cell<Vertex*> & aCellVertices,
-                   Mesh* aStkImplementation):
-                       mCellId(aCellId),
-                       mCellInd(aCellInd),
-                       mCellVertices(aCellVertices),
-                       mSTKMeshData(aStkImplementation)
-    {
-
-    };
+    Cell_STK( moris::mtk::Cell_Info*    aCellConn,
+              moris_id                     aCellId,
+              moris_index                  aCellInd,
+              const moris::Cell<Vertex*> & aCellVertices,
+              Mesh* aStkImplementation):
+                  mCellInfo(aCellConn),
+                  mCellId(aCellId),
+                  mCellInd(aCellInd),
+                  mCellVertices(aCellVertices),
+                  mSTKMeshData(aStkImplementation)
+    { };
     //------------------------------------------------------------------------------
 
     /**
@@ -74,7 +73,6 @@ public:
      */
     ~Cell_STK()
     {
-        //                delete mInterpolation;
     };
 
     //------------------------------------------------------------------------------
@@ -189,140 +187,46 @@ public:
     moris::Cell<moris::mtk::Vertex const *>
     get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
     {
-        Geometry_Type tGeomType = this->get_geometry_type();
-
         moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
 
-        switch(tGeomType)
+        moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mCellInfo->get_node_to_facet_map(aSideOrdinal);
+
+        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
+        for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
         {
-            case(Geometry_Type::TET):
-            {
-                if(this->get_number_of_vertices() == 4)
-                {
-                    MORIS_ASSERT(aSideOrdinal<4,"Side ordinal out of bounds for cell type tet");
-                    moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Tetra4_Connectivity::get_node_to_face_map(aSideOrdinal);
-
-                    moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(3);
-                    tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
-                    tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
-                    tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
-                    return tVerticesOnSide;
-                    break;
-                }
-                else
-                {
-                    MORIS_ERROR(0,"Invalid geometry type, currently only supports hex8 and tet4");
-                    return moris::Cell<moris::mtk::Vertex const *>(0);
-                    break;
-                }
-
-            }
-            case(Geometry_Type::HEX):
-            {
-
-                if(this->get_number_of_vertices() == 8)
-                {
-                    MORIS_ASSERT(aSideOrdinal<6,"Side ordinal out of bounds for cell type hex");
-                    moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Hex8::get_node_to_face_map(aSideOrdinal);
-
-                    moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(4);
-                    tVerticesOnSide(0) = tVertices(tNodeOrdsOnSide(0));
-                    tVerticesOnSide(1) = tVertices(tNodeOrdsOnSide(1));
-                    tVerticesOnSide(2) = tVertices(tNodeOrdsOnSide(2));
-                    tVerticesOnSide(3) = tVertices(tNodeOrdsOnSide(3));
-                    return tVerticesOnSide;
-                    break;
-                }
-                else
-                {
-                    MORIS_ERROR(0,"Invalid geometry type, currently only supports hex8 and tet4");
-                    return moris::Cell<moris::mtk::Vertex const *>(0);
-                    break;
-                }
-
-            }
-
-            default:
-                MORIS_ERROR(0,"Invalid geometry type, currently only supports hex8 and tet4");
-                return moris::Cell<moris::mtk::Vertex const *>(0);
-                break;
+            tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));
         }
+
+        return tVerticesOnSide;
     }
 
     moris::Matrix<moris::DDRMat>
-     compute_outward_side_normal(moris::moris_index aSideOrdinal) const
-     {
+    compute_outward_side_normal(moris::moris_index aSideOrdinal) const
+    {
+        // get the vertex coordinates
+        moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
 
-         enum Geometry_Type tGeomType = this->get_geometry_type();
+        // Get vector along these edges
+        moris::Matrix<moris::DDRMat> tEdge0Vector(tVertexCoords.numel(),1);
+        moris::Matrix<moris::DDRMat> tEdge1Vector(tVertexCoords.numel(),1);
 
-         // Get vector along these edges
-         moris::Matrix<moris::DDRMat> tEdge0Vector(3,1);
-         moris::Matrix<moris::DDRMat> tEdge1Vector(3,1);
+        // Get the nodes which need to be used to compute normal
+        moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = mCellInfo->get_node_map_outward_normal(aSideOrdinal);
 
+        // Get vector along these edges
+        tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
+        tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
 
-         switch(tGeomType)
-         {
-             case(Geometry_Type::HEX):
-             {
-                 MORIS_ERROR(aSideOrdinal<6,"Side ordinal out of bounds.");
+        // Take the cross product to get the normal
+        Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
 
- #ifdef DEBUG
-                 if(this->get_vertex_pointers().size() > 8)
-                 {
-                  MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
-                 }
- #endif
-
-                 // get the vertex coordinates
-                 moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
-
-                 // Get the nodes which need to be used to compute normal
-                 moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Hex8::get_node_map_outward_normal(aSideOrdinal);
-
-                 // Get vector along these edges
-                 tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-                 tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
-                 break;
-             }
-             case(Geometry_Type::TET):
-             {
-                 MORIS_ERROR(aSideOrdinal<4,"Side ordinal out of bounds.");
-
- #ifdef DEBUG
-                 if(this->get_vertex_pointers().size() > 4)
-                 {
-                  MORIS_LOG_DEBUG("Warning: this normal computation only valid for flat facets. Ensure your higher order element has flat facets");
-                 }
- #endif
-
-                 // get the vertex coordinates
-                 moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
-
-                 // Get the nodes which need to be used to compute normal
-                 moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Tetra4_Connectivity::get_node_map_outward_normal(aSideOrdinal);
-
-                 // Get vector along these edges
-                 tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));
-                 tEdge1Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,1)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,1)));
-
-                 break;
-             }
-
-             default:
-                 MORIS_ERROR(0,"Only implemented for hex8 compute_outward_side_normal");
-                 break;
-         }
-
-         // Take the cross product to get the normal
-         Matrix<DDRMat> tOutwardNormal = moris::cross(tEdge0Vector,tEdge1Vector);
-
-         // Normalize
-         Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
+        // Normalize
+        Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
 
 
-         return tUnitOutwardNormal;
+        return tUnitOutwardNormal;
 
-     }
+    }
 
     //------------------------------------------------------------------------------
 
@@ -332,60 +236,7 @@ public:
     Geometry_Type
     get_geometry_type() const
     {
-        //MORIS_ASSERT(false," Cell_STK::get_geometry_type - Not implemented");
-        //return Geometry_Type::UNDEFINED;
-
-        //FIXME: only for Lagrange LINE, QUAD, HEX, TET, TRI
-        switch ( mSTKMeshData->get_spatial_dim() )
-        {
-            case ( 1 ) :
-                return Geometry_Type::LINE;
-                break;
-
-            case ( 2 ) :
-            {
-                uint tNumEdges = mSTKMeshData->get_edges_connected_to_element_loc_inds( this->get_index() ).numel();
-                switch ( tNumEdges )
-                {
-                    case ( 3 ):
-                        return Geometry_Type::TRI;
-                        break;
-
-                    case ( 4 ):
-                        return Geometry_Type::QUAD;
-                        break;
-
-                    default:
-                        return Geometry_Type::UNDEFINED;
-                        break;
-                }
-                break;
-            }
-
-            case ( 3 ) :
-            {
-                uint tNumFaces = mSTKMeshData->get_faces_connected_to_element_loc_inds( this->get_index() ).numel();
-                switch ( tNumFaces )
-                {
-                    case ( 4 ):
-                        return Geometry_Type::TET;
-                        break;
-
-                    case ( 6 ):
-                        return Geometry_Type::HEX;
-                        break;
-
-                    default:
-                        return Geometry_Type::UNDEFINED;
-                        break;
-                }
-                break;
-            }
-
-            default :
-                return Geometry_Type::UNDEFINED;
-                break;
-        }
+        return mCellInfo->get_cell_geometry();
     }
 
     //------------------------------------------------------------------------------
@@ -396,32 +247,7 @@ public:
     Interpolation_Order
     get_interpolation_order() const
     {
-        Geometry_Type tGeomType = get_geometry_type();
-        moris::uint tNumNodes   = this->get_number_of_vertices();
-
-        switch (tGeomType)
-        {
-            case(Geometry_Type::HEX):
-            {
-                switch(tNumNodes)
-                {
-                    case(8):
-                            return Interpolation_Order::LINEAR;
-                    case(20):
-                            return Interpolation_Order::SERENDIPITY;
-                    case(27):
-                            return Interpolation_Order::QUADRATIC;
-                    default:
-                        MORIS_ASSERT(false,"Cell_STK::get_interpolation_order - Not implemented for provided cell geometry type");
-                        return Interpolation_Order::UNDEFINED;
-                }
-            }
-            default:
-                MORIS_ASSERT(false,"Cell_STK::get_interpolation_order - Not implemented for provided cell geometry type");
-                return Interpolation_Order::UNDEFINED;
-        }
-
-        return Interpolation_Order::UNDEFINED;
+        return mCellInfo->get_cell_interpolation_order();
     }
 
 };

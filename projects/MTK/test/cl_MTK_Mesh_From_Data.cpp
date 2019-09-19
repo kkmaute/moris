@@ -529,64 +529,6 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
     }
 }
 
-TEST_CASE("Surface mesh in 3d","[SURF_3D]")
-{
-    /*
-     * This mesh is a 3d mesh which consists of only tri 3s and quad 4s
-     */
 
-    // Node Coordinates
-    Matrix<DDRMat> tCoordinates = {{1.0,0.0,0.0},{0.0,1.0,0.0},{0.0,0.0,1.0}};
-
-    // Node Map
-    Matrix<IdMat> tNodeMap = {{1,2,3}};
-
-    // element to node connectivity
-    Matrix<IdMat> tCellToNode = {{1,2,3}};
-
-    // Element ids
-    Matrix<IdMat> tCellIds = {{1}};
-
-    // element topologies
-    enum CellTopology tTopo = CellTopology::TRI3;
-
-    // spatial dimension
-    uint tSpatialDim = 3;
-
-    // number of element types
-    uint tNumElemType = 1;
-
-    // allocate input data
-    moris::mtk::MtkMeshData aMeshData(tNumElemType);
-    aMeshData.SpatialDim              = &tSpatialDim;
-    aMeshData.ElemConn(0)             = &tCellToNode;
-    aMeshData.CellTopology(0)         = CellTopology::TRI3;
-    aMeshData.NodeCoords              = &tCoordinates;
-    aMeshData.LocaltoGlobalElemMap(0) = &tCellIds;
-    aMeshData.LocaltoGlobalNodeMap    = &tNodeMap;
-    aMeshData.CreateAllEdgesAndFaces  = false;
-
-    // Create mesh from data with the factory
-    moris::mtk::Mesh* tMesh = create_mesh( MeshType::STK, aMeshData );
-
-    std::cout<<"Num Elements = "<<tMesh->get_num_entities(EntityRank::ELEMENT)<<std::endl;
-    std::cout<<"Num Nodes = "<<tMesh->get_num_entities(EntityRank::NODE)<<std::endl;
-
-    Matrix<DDRMat> tNodeCoord0 = tMesh->get_node_coordinate(0);
-    moris::print(tNodeCoord0,"tNodeCoord0");
-    Matrix<DDRMat> tNodeCoord1 = tMesh->get_node_coordinate(1);
-    moris::print(tNodeCoord1,"tNodeCoord1");
-    Matrix<DDRMat> tNodeCoord2 = tMesh->get_node_coordinate(2);
-    moris::print(tNodeCoord2,"tNodeCoord2");
-
-    // dump
-    std::string tOutputFile = "./tri_3d_mesh.exo";
-    tMesh->create_output_mesh(tOutputFile);
-
-
-    delete tMesh;
-
-
-}
 }
 }

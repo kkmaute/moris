@@ -12,15 +12,14 @@
 namespace xtk
 {
 //------------------------------------------------------------------------------
-Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*        aBaseCell,
-                                                         moris_index              aSubphaseIndex,
-                                                         moris_index              aBulkPhaseIndex,
-                                                         moris_id                 aCellId,
-                                                         moris_index              aCellIndex,
-                                                         moris_id                 aCellOwner,
-                                                         mtk::Geometry_Type       aGeometryType,
-                                                         mtk::Interpolation_Order aInterpOrder):
-                Interpolation_Cell(aCellId,aCellIndex,aCellOwner,aGeometryType,aInterpOrder),
+Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*         aBaseCell,
+                                                         moris_index               aSubphaseIndex,
+                                                         moris_index               aBulkPhaseIndex,
+                                                         moris_id                  aCellId,
+                                                         moris_index               aCellIndex,
+                                                         moris_id                  aCellOwner,
+                                                         moris::mtk::Cell_Info* aConnectivity):
+                Interpolation_Cell(aCellId,aCellIndex,aCellOwner,aConnectivity),
                 mBaseCell(aBaseCell),
                 mSubPhaseIndex(aSubphaseIndex),
                 mBulkPhaseIndex(aBulkPhaseIndex)

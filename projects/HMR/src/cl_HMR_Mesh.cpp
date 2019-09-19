@@ -6,6 +6,8 @@
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Background_Element.hpp"
+#include "cl_HMR_Element.hpp"
 #include "MTK_Tools.hpp"
 #include "fn_sort.hpp"
 #include "fn_unique.hpp"
@@ -239,10 +241,10 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        Matrix< IndexMat > Mesh::get_bspline_inds_of_node_loc_ind( const moris_index aNodeIndex,
+        Matrix< IndexMat > Mesh::get_bspline_inds_of_node_loc_ind( const moris_index      aNodeIndex,
                                                                    const enum EntityRank  aBSplineRank )
         {
-            return mMesh->get_node_by_index( aNodeIndex ) ->get_interpolation( mtk::entity_rank_to_order( aBSplineRank ) )->get_indices();
+            return mMesh->get_node_by_index( aNodeIndex ) ->get_interpolation( 0)->get_indices();
         }
 
 //-----------------------------------------------------------------------------
@@ -264,7 +266,6 @@ namespace moris
                         case( EntityRank::EDGE ) :
                         {
                             Matrix<IndexMat> tNodeToEdge = this->get_nodes_connected_to_edge_loc_inds( aEntityIndex );
-                            tNodeToEdge.resize(2,1);
                             return tNodeToEdge;
 
                             break;
@@ -272,14 +273,12 @@ namespace moris
                         case( EntityRank::FACE ) :
                         {
                             Matrix<IndexMat> tNodeToFace = this->get_nodes_connected_to_face_loc_inds( aEntityIndex );
-                            tNodeToFace.resize(4,1);
                             return tNodeToFace;
                             break;
                         }
                         case( EntityRank::ELEMENT ) :
                         {
                             Matrix<IndexMat> tNodeToElement = this->get_nodes_connected_to_element_loc_inds( aEntityIndex );
-                            tNodeToElement.resize(8,1);
                             return tNodeToElement;
                             break;
                         }
@@ -315,7 +314,14 @@ namespace moris
                         }
                         case( EntityRank::ELEMENT ) :
                         {
+                            if(this->get_spatial_dim() == 3)
+                            {
                             return this->get_edges_connected_to_element_loc_inds ( aEntityIndex );
+                            }
+                            else
+                            {
+                                return this->get_faces_connected_to_element_loc_inds( aEntityIndex );
+                            }
                             break;
                         }
                         default :
@@ -709,11 +715,19 @@ namespace moris
 
 //-----------------------------------------------------------------------------
 
-        Matrix< IndexMat >
-        Mesh::get_elements_in_support_of_basis(moris_index aBasisIndex,
-                                               moris_index aInterpIndex)
+        void
+        Mesh::get_elements_in_support_of_basis(const uint           aMeshIndex,
+                                               const uint           aBasisIndex,
+                                               Matrix< IndexMat > & aElementIndices)
         {
-            return this->get_entity_connected_to_entity_loc_inds( aBasisIndex, EntityRank::BSPLINE_1,EntityRank::ELEMENT);
+
+            mMesh->get_my_elements_in_basis_support( aMeshIndex, aBasisIndex, aElementIndices );
+
+        }
+        uint
+        Mesh::get_num_basis_functions(const uint aMeshIndex)
+        {
+            return mMesh->get_bspline_mesh(aMeshIndex)->get_number_of_indexed_basis();
         }
 
 //-----------------------------------------------------------------------------
@@ -722,27 +736,35 @@ namespace moris
         {
             // collect memory indices of active neighbors
             Matrix< DDLUMat> tMemoryIndices;
+            Matrix< DDLUMat> tThisCellFacetsOrds;
             luint tNumberOfNeighbors;
 
             this->collect_memory_indices_of_active_element_neighbors( aElementIndex,
                                                                       tMemoryIndices,
+                                                                      tThisCellFacetsOrds,
                                                                       tNumberOfNeighbors );
-
             // reserve memory for output matrix
-            Matrix< IndexMat > tIndices( tNumberOfNeighbors, 1 );
+            Matrix< IndexMat > tIndices( 2, tNumberOfNeighbors);
+
+            // my cell
+            Element * tMyCell = mMesh->get_element( aElementIndex );
+
 
             // copy indices from pointers
             for( luint k=0; k<tNumberOfNeighbors; ++k )
             {
-                tIndices( k ) = mMesh->get_element_by_memory_index( tMemoryIndices( k ) )
-                                     ->get_index();
+
+                Element * tOtherCell = mMesh->get_element_by_memory_index( tMemoryIndices( k ) );
+                tIndices( 0, k ) = tOtherCell->get_index();
+
+                // verify the facet neighborhood makes sense
+                Facet * tFacet = tMyCell->get_hmr_facet(tThisCellFacetsOrds(k));
+
+
+                tIndices( 1, k ) = tFacet->get_index();
+
             }
-
-            Matrix< IndexMat > aIndices;
-
-            // make result unique
-            unique( tIndices, aIndices );
-            return aIndices;
+            return tIndices;
         }
 
 //-----------------------------------------------------------------------------
@@ -769,6 +791,7 @@ namespace moris
 
         void Mesh::collect_memory_indices_of_active_element_neighbors( const moris_index        aElementIndex,
                                                                              Matrix< DDLUMat> & aMemoryIndices,
+                                                                             Matrix< DDLUMat> & aThisCellFacetOrds,
                                                                              luint            & aCounter) const
         {
             // get active index of this mesh
@@ -806,9 +829,17 @@ namespace moris
 
             // allocate matrix with memory indices
             aMemoryIndices.set_size( aCounter, 1 );
+            aMemoryIndices.fill(MORIS_INDEX_MAX);
+
+            aThisCellFacetOrds.set_size( aCounter, 1 );
+            aThisCellFacetOrds.fill(MORIS_INDEX_MAX);
 
             // reset counter
             aCounter = 0;
+
+            // number of desecendents
+            moris::uint tStart = 0;
+            moris::uint tEnd = 0;
 
             // loop over all neighbors
             for( uint k=0; k<tNumberOfFacets; ++k )
@@ -820,10 +851,23 @@ namespace moris
                 {
                     if( tNeighbor->is_refined( tPattern ) )
                     {
+
+                        tStart = aCounter;
+
                         tNeighbor->collect_active_descendants_by_memory_index( tPattern,
                                                                                aMemoryIndices,
                                                                                aCounter,
                                                                                k );
+
+                        // mark facets that we share with other element
+                        tEnd = aCounter;
+
+                        for(moris::uint i = tStart; i < tEnd; i++)
+                        {
+                            aThisCellFacetOrds(i) = k;
+                        }
+
+
                     }
                     else
                     {
@@ -831,10 +875,15 @@ namespace moris
                         {
                             tNeighbor = tNeighbor->get_parent();
                         }
+
+                        aThisCellFacetOrds(aCounter) = k;
                         aMemoryIndices( aCounter++ ) = tNeighbor->get_memory_index();
                     }
                 }
             }
+
+            aMemoryIndices.resize(aCounter,1);
+            aThisCellFacetOrds.resize(aCounter,1);
         }
 
 //-----------------------------------------------------------------------------
@@ -987,7 +1036,14 @@ namespace moris
                 }
                 case( EntityRank::EDGE ) :
                 {
-                    return mMesh->get_edge( aEntityIndex )->get_owner();
+                    if(this->get_spatial_dim() == 3)
+                    {
+                        return mMesh->get_edge( aEntityIndex )->get_owner();
+                    }
+                    else
+                    {
+                        return mMesh->get_facet( aEntityIndex )->get_owner();
+                    }
                     break;
                 }
                 case( EntityRank::FACE ) :
@@ -1018,6 +1074,32 @@ namespace moris
 
             aProcsWhomShareEntity.resize(0,0);
         }
+
+        //-----------------------------------------------------------------------------
+
+        enum EntityRank
+        Mesh::get_facet_rank() const
+        {
+            return EntityRank::FACE;
+        }
+
+        //-----------------------------------------------------------------------------
+
+        moris::Cell<moris::mtk::Vertex const *>
+        Mesh::get_all_vertices() const
+        {
+            uint tNumVertices = this->get_num_entities(EntityRank::NODE);
+
+            moris::Cell<moris::mtk::Vertex const *> tVertices (tNumVertices);
+
+            for(moris::uint  i = 0; i < tNumVertices; i++)
+            {
+                tVertices(i) = &get_mtk_vertex((moris_index)i);
+            }
+
+            return tVertices;
+        }
+
 //-----------------------------------------------------------------------------
 
         void Mesh::get_adof_map( const uint                           aBSplineIndex,
@@ -1242,6 +1324,10 @@ namespace moris
                 {
                     return Cell<std::string>(0);
                 }
+            }
+            else if ( aSetEntityRank == EntityRank::NODE )
+            {
+                return Cell<std::string>(0);
             }
             else
             {

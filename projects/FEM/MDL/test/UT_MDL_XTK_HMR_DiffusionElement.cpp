@@ -8,7 +8,8 @@
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
-
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
@@ -149,7 +150,7 @@ Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aC
     return aCoeff( 0 );
 }
 
-TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF]")
+TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_DIFF]")
 {
     if(par_size() == 1)
     {
@@ -241,6 +242,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+
 
         // create a list of IWG type
         Cell< Cell< fem::IWG_Type > >tIWGTypeList( 4 );
@@ -395,19 +397,26 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
 
 
+//        moris::print_fancy(tIntegSol,"tIntegSol");
+
         // add solution field to integration mesh
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
 
 
-        Matrix<DDRMat> tFullSol;
-        tTimeSolver.get_full_solution(tFullSol);
+//        Matrix<DDRMat> tFullSol;
+//        tTimeSolver.get_full_solution(tFullSol);
+//
 //        print_fancy(tFullSol,"Full Solution");
 
         // verify solution
 //        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
+        tModel->output_solution( "Circle" );
+        tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
+        tHMR.save_to_exodus( 0, "./mdl_exo/xtk_hmr_stk_bar_plane_interp_l2_b2.e" );
+
 
         // output solution and meshes
-        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
+        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_stk_bar_hole_integ.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
         //    delete tInterpMesh1;
@@ -415,6 +424,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 1","[XTK_HMR_DIFF
         delete tIntegMesh1;
     }
 }
+
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_MULTIGRID]")
 {

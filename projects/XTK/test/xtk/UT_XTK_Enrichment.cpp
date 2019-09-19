@@ -118,8 +118,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         // get the enriched interpolation mesh
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
-        tEnrInterpMesh.print();
-
         Cell<Interpolation_Cell_Unzipped> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
 
 
@@ -130,13 +128,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         if(tOutputEnrichmentFields)
         {
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-        }
-
-//        moris::print(tEnrichment.get_enriched_basis_indices(),"enriched table");
-
-        for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
-        {
-            Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
         }
 
         // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.
@@ -209,23 +200,23 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
 
 
         // Bottom face
-        tLevelsetVal(tIndexOfNodeId1) = 1;
-        tLevelsetVal(tIndexOfNodeId3) = 1;
-        tLevelsetVal(tIndexOfNodeId7) = 1;
-        tLevelsetVal(tIndexOfNodeId9) = 1;
+        tLevelsetVal(tIndexOfNodeId1) = 1.1;
+        tLevelsetVal(tIndexOfNodeId3) = 1.1;
+        tLevelsetVal(tIndexOfNodeId7) = 1.1;
+        tLevelsetVal(tIndexOfNodeId9) = 1.1;
 
         // Top Face
-        tLevelsetVal(tIndexOfNodeId19) = 1;
-        tLevelsetVal(tIndexOfNodeId21) = 1;
-        tLevelsetVal(tIndexOfNodeId25) = 1;
-        tLevelsetVal(tIndexOfNodeId27) = 1;
+        tLevelsetVal(tIndexOfNodeId19) = 1.1;
+        tLevelsetVal(tIndexOfNodeId21) = 1.1;
+        tLevelsetVal(tIndexOfNodeId25) = 1.1;
+        tLevelsetVal(tIndexOfNodeId27) = 1.1;
 
-        tLevelsetVal(tIndexOfNodeId5) = 1;
-        tLevelsetVal(tIndexOfNodeId11) = 1;
-        tLevelsetVal(tIndexOfNodeId17) = 1;
-        tLevelsetVal(tIndexOfNodeId23) = 1;
-        tLevelsetVal(tIndexOfNodeId15) = 1;
-        tLevelsetVal(tIndexOfNodeId13) = 1;
+        tLevelsetVal(tIndexOfNodeId5) = 1.1;
+        tLevelsetVal(tIndexOfNodeId11) = 1.1;
+        tLevelsetVal(tIndexOfNodeId17) = 1.1;
+        tLevelsetVal(tIndexOfNodeId23) = 1.1;
+        tLevelsetVal(tIndexOfNodeId15) = 1.1;
+        tLevelsetVal(tIndexOfNodeId13) = 1.1;
 
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
@@ -261,9 +252,6 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         // get the enriched interpolation mesh
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
-        tEnrInterpMesh.print();
-
-
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         // declare cell enrichment fields in output mesh
@@ -271,11 +259,6 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         if(tOutputEnrichmentFields)
         {
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-        }
-
-        for(moris::moris_index iN = 0; iN<(moris::moris_index)tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE); iN++)
-        {
-            Vertex_Enrichment const & tVertEnrichment = tEnrichment.get_vertex_enrichment(iN);
         }
 
         Output_Options tOutputOptions;

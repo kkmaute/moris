@@ -42,7 +42,7 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
     moris::Matrix< moris::IndexMat > tUnintersectedElements = tXTKBMesh.get_all_non_intersected_elements_loc_inds();
 
     // Determine parent element topology (note: this assumes a uniform background mesh)
-    enum CellTopology tParentTopo = tXTKBMesh.get_XTK_mesh_element_topology();
+    enum CellTopology tParentTopo = tXTKBMesh.get_parent_cell_topology();
 
     moris::real tVolume = 0;
     for(size_t i = 0; i < tUnintersectedElements.numel(); i++)

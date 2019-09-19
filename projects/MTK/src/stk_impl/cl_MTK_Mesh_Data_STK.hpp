@@ -58,6 +58,15 @@ public:
         delete mMeshReader;
         delete mMtkMeshBulkData;
         delete mMtkMeshMetaData;
+
+        for(auto tIt:mCellInfo)
+        {
+            if(tIt !=nullptr)
+            {
+                delete tIt;
+            }
+        }
+        mCellInfo.clear();
     }
 
     // STK specific Member variables
@@ -95,6 +104,9 @@ public:
     moris::Cell<mtk::Cell_STK>               mMtkCells;
     moris::Cell<mtk::Vertex_Core_STK>             mMtkVertices;
     moris::Cell<mtk::Vertex_Interpolation_STK> mMtkVerticeInterpolation;
+
+    // cell connectivity
+    moris::Cell<mtk::Cell_Info*> mCellInfo;
 
     uint mMaxNumFields = 20;
     uint mNumDims = 0;

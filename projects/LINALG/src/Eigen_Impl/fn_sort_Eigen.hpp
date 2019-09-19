@@ -39,6 +39,17 @@ namespace moris
         std::sort(tData,tData+tLen);
     }
 
+    template< typename ET, typename Matrix_Type, typename Num_Type>
+    void
+    sort( const Eigen::MatrixBase<ET>  & aA,
+    	  moris::Matrix< Matrix_Type > & aSorted,
+    	  char const				   * aDirection,
+    	  Num_Type	 				   aDimension )
+    {
+    	MORIS::ERROR(false, "sort(mat, matSorted, dir, dim) in Eigen not implemented yet");
+    	// Not implemented because we might be removing Eigen from moris. (July, 2019)
+    }
+
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SORT_EIGEN_HPP_ */

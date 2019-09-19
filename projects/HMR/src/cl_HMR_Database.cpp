@@ -462,6 +462,9 @@ namespace moris
                     // create facets
                     tMesh->create_facets();
 
+                    // With the constructed facet information create facet clustering data
+                    tMesh->create_facet_clusters();
+
                     // create edges
                     if( mParameters->get_number_of_dimensions() == 3 )
                     {
