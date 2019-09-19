@@ -224,7 +224,8 @@ namespace moris
             /**
              * runs the refinement scheme
              */
-            void perform_refinement_based_on_working_pattern( const uint aPattern );
+            void perform_refinement_based_on_working_pattern( const uint aPattern,
+                                                              const bool aResetPattern = false );
 
             void perform_refinement( const uint aPattern );
 
@@ -444,7 +445,8 @@ namespace moris
                                                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
                                                                  ParameterList              & aParameters ),
                                         Cell< std::shared_ptr< Field > > & aFields,
-                                        ParameterList                    & aParameters );
+                                        ParameterList                    & aParameters,
+                                        const uint                       & aPattern );
 
 // -----------------------------------------------------------------------------
         }; /* HMR */

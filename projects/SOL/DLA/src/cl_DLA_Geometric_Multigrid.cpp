@@ -69,7 +69,7 @@ namespace dla
                 // Get this dof type
                 moris::sint tDofType = mSolverInterface->get_type_time_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( Ii ) );
 
-                // Get order of this dof type
+                // Get order of this dof typegit a
                 moris::sint tMeshIndex = mSolverInterface->get_adof_index_for_type( tDofType );
 
                 // Get external dof id and identifier of this dof
