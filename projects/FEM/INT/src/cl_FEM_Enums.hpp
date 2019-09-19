@@ -104,6 +104,7 @@ namespace moris
             UNDEFINED,
             TEMP_DIRICHLET,
             TEMP_NEUMANN,
+            CONDUCTIVITY,
             END_PROPERTY_TYPE
         };
 

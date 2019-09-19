@@ -24,12 +24,28 @@ namespace moris
 namespace hmr
 {
 class Database;
+class Lagrange_Mesh_Base;
 }
 
 namespace mtk
 {
 class Mesh :  public std::enable_shared_from_this< Mesh >
 {
+protected:
+    // Note these members are here only to allow for throwing in
+    // get_mtk_cell and get_mtk_vertex function
+    mtk::Vertex*     mDummyVertex;
+    mtk::Cell*       mDummyCells;
+    real             mDummyReal = 0.0;
+    Matrix<DDRMat>   mDummyMatrix;
+
+    //------------------------------------------------------------------------------
+    //! ref to hmr object for multigrid
+    std::shared_ptr< hmr::Database > mDatabase;
+
+    hmr::Lagrange_Mesh_Base * mMesh = nullptr;
+    //------------------------------------------------------------------------------
+
 public:
     // Verbose flag
     bool mVerbose = false;
@@ -905,12 +921,20 @@ public:
     /**
      * returns HMR database pointer if MTK is build with HMR
      */
-    std::shared_ptr< hmr::Database >
-    get_HMR_database( )
+    std::shared_ptr< hmr::Database > get_HMR_database( )
     {
         MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
         return mDatabase;
     }
+
+    hmr::Lagrange_Mesh_Base * get_HMR_lagrange_mesh( )
+    {
+        MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
+        MORIS_ERROR( mMesh != nullptr ,"get_HMR_lagrange_mesh(), Lagrange mesh is nullptr" );
+
+        return mMesh;
+    }
+
 
 
     //FIXME: MOVE THESE FUNCTIONS TO INTERPOLATION MESH BASE CLASS
@@ -1149,17 +1173,6 @@ public:
         }
 
     }
-
-protected:
-    // Note these members are here only to allow for throwing in
-    // get_mtk_cell and get_mtk_vertex function
-    mtk::Vertex*     mDummyVertex;
-    mtk::Cell*       mDummyCells;
-    real             mDummyReal = 0.0;
-    Matrix<DDRMat>   mDummyMatrix;
-
-    //! ref to hmr object
-    std::shared_ptr< hmr::Database > mDatabase;
 };
 }
 }

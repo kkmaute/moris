@@ -132,9 +132,8 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
         for( uint k=0; k<2; ++k )
         {
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern(0 );
 
             tField->evaluate_scalar_function( LevelSetPlaneFunction );
         }

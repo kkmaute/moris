@@ -31,7 +31,7 @@ namespace moris
         {
         private:
             //! Number of multigrid levels
-            moris::sint mMultigridLevels = -1;
+            moris::uint mMultigridLevels = -1;
 
             //! Number of dofs which are on this level or coarser.
             moris::Matrix< DDUMat > mNumDofsRemain;
@@ -44,8 +44,6 @@ namespace moris
 
             //! Map which maps external indices to internal MSI indices. List 1 = Level; List 2 = type/time;
             moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;
-
-            moris::Matrix< DDSMat > mMeshOrderIndexMap;
 
             // Mesh pointer
             mtk::Mesh * mMesh;
@@ -79,8 +77,6 @@ namespace moris
              *
              */
             void create_multigrid_maps();
-
-            void determine_mesh_index_by_order();
 
             /**
              * @brief Function to read internal numbering from multigrid maps based on external indices

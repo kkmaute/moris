@@ -26,9 +26,6 @@ namespace moris
         class IWG_Isotropic_Spatial_Diffusion_Bulk : public IWG
         {
 
-            // diffusion parameter
-            Matrix< DDRMat > mKappa;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
@@ -47,38 +44,26 @@ namespace moris
             /**
              * compute the residual
              * r =
-             *
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aResidual residual vector to fill
              */
-            void
-            compute_residual( Matrix< DDRMat >                   & aResidual,
-                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
              * j =
-             *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aJacobians list of jacobian matrices to fill
              */
-            void
-            compute_jacobian( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * @param[ in ] aJacobians list of jacobian matrices to fill
+             * @param[ in ] aResidual  residual vector to fill
              */
-            void
-            compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                           Matrix< DDRMat >                   & aResidual,
-                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
 
 //------------------------------------------------------------------------------
         };

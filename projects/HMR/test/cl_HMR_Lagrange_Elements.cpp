@@ -48,12 +48,10 @@ TEST_CASE("Single Hex 8 Lagrange Mesh","[Lag_Hex8]")
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        tHMR.save_to_exodus( tLagrangeMeshIndex, "hex8_hmr.exo" );
+//        tHMR.save_to_exodus( tLagrangeMeshIndex, "hex8_hmr.exo" );
 
         // get the cells
         moris::mtk::Cell & tCell = tMesh->get_mtk_cell(0);
-        std::cout<<tCell.get_id()<<std::endl;
-        std::cout<<tCell.get_index()<<std::endl;
 
         //Check that the vertices on side are correct
         moris::mtk::Cell_Info_Hex8 tConn;
@@ -117,12 +115,10 @@ TEST_CASE("Single Hex 27 Lagrange Mesh","[Lag_Hex27]")
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        tHMR.save_to_exodus( tLagrangeMeshIndex, "hex27_hmr.exo" );
+//        tHMR.save_to_exodus( tLagrangeMeshIndex, "hex27_hmr.exo" );
 
         // get the cells
         moris::mtk::Cell & tCell = tMesh->get_mtk_cell(0);
-        std::cout<<tCell.get_id()<<std::endl;
-        std::cout<<tCell.get_index()<<std::endl;
 
         //Check that the vertices on side are correct
         moris::mtk::Cell_Info_Hex27 tConn;

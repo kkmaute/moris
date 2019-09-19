@@ -200,8 +200,6 @@ namespace mtk
         // Call the function that handles the communication between stk and moris
         this->build_mesh( aMeshData );
 
-
-
         if(mVerbose)
         {
             std::cout<<"MTK: Create mesh from data completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
@@ -3148,6 +3146,11 @@ namespace mtk
         {
             switch ( aNumNodesInElem )
             {
+                case 3:
+                {
+                    tTopology = stk::topology::TRI_3;
+                    break;
+                }
             case 4:
             {
                 tTopology = stk::topology::TET_4;
@@ -3227,6 +3230,8 @@ namespace mtk
         stk::topology::topology_t tTopology = stk::topology::INVALID_TOPOLOGY;
 
         moris::uint tSpatialDim = this->get_spatial_dim();
+
+        std::cout<<"tSpatialDim = "<<tSpatialDim<<std::endl;
 
         // MTK supports the following 1D, 2D and 3D element topology temporarily
 

@@ -469,7 +469,7 @@ namespace moris
              */
             uint get_number_of_bspline_meshes() const
             {
-                return mBSplineMeshes.size();
+                return mNumBSplineMeshes;
             }
 
 // ----------------------------------------------------------------------------

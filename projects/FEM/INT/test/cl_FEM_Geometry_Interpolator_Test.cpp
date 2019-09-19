@@ -102,10 +102,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tTHatCheckBool );
 
         // check space jacobian
-        Matrix< DDRMat > tdNdXi;
-        tGeoInterpolator.dNdXi( tdNdXi );
+        Matrix< DDRMat > tdNdXi = tGeoInterpolator.dNdXi();
         Matrix< DDRMat > tSpaceJt;
-        tGeoInterpolator.space_jacobian( tdNdXi, tSpaceJt );
+        tGeoInterpolator.space_jacobian( tSpaceJt );
         Matrix< DDRMat > tSpaceJtMatlab( 1, 1, 2.0 );
 
         bool tSpaceJCheck = true;
@@ -119,10 +118,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tSpaceJCheck );
 
         // check time jacobian
-        Matrix< DDRMat > tdNdTau;
-        tGeoInterpolator.dNdTau( tdNdTau );
+        Matrix< DDRMat > tdNdTau = tGeoInterpolator.dNdTau();
         Matrix< DDRMat > tTimeJt;
-        tGeoInterpolator.time_jacobian( tdNdTau, tTimeJt );
+        tGeoInterpolator.time_jacobian( tTimeJt );
         Matrix< DDRMat > tTimeJtMatlab( 1, 1, 2.5 );
 
         bool tTimeJCheck = true;
@@ -137,8 +135,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check space jacobian and matrices for second derivatives
         Matrix< DDRMat > tSpaceKt, tSpaceLt;
-        Matrix< DDRMat > td2NdXi2;
-        tGeoInterpolator.d2NdXi2( td2NdXi2 );
+        Matrix< DDRMat > td2NdXi2 = tGeoInterpolator.d2NdXi2();
         tGeoInterpolator.space_jacobian_and_matrices_for_second_derivatives( tSpaceJt,
                                                                              tSpaceKt,
                                                                              tSpaceLt,
@@ -169,8 +166,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check time jacobian and matrices for second derivatives
         Matrix< DDRMat > tTimeKt, tTimeLt;
-        Matrix< DDRMat > td2NdTau2;
-        tGeoInterpolator.d2NdTau2( td2NdTau2 );
+        Matrix< DDRMat > td2NdTau2 = tGeoInterpolator.d2NdTau2();
         tGeoInterpolator.time_jacobian_and_matrices_for_second_derivatives( tTimeJt,
                                                                             tTimeKt,
                                                                             tTimeLt,
@@ -200,8 +196,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tTimeLCheck );
 
         // check space interpolation
-        Matrix< DDRMat > tx;
-        tGeoInterpolator.valx( tx );
+        Matrix< DDRMat > tx = tGeoInterpolator.valx();
         Matrix< DDRMat > txMatlab( 1, 1, 1.7 );
         bool txCheckBool = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_space_dimensions(); i++)
@@ -211,8 +206,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( txCheckBool );
 
         // check time interpolation
-        Matrix< DDRMat > tt;
-        tGeoInterpolator.valt( tt );
+        Matrix< DDRMat > tt = tGeoInterpolator.valt();
         Matrix< DDRMat > ttMatlab( 1, 1, 4.25 );
         bool ttCheckBool = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_time_dimensions(); i++)
@@ -324,10 +318,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tTHatCheckBool );
 
         // check space jacobian
-        Matrix< DDRMat > tdNdXi;
-        tGeoInterpolator.dNdXi( tdNdXi );
+        Matrix< DDRMat > tdNdXi = tGeoInterpolator.dNdXi();
         Matrix< DDRMat > tSpaceJt;
-        tGeoInterpolator.space_jacobian( tdNdXi, tSpaceJt );
+        tGeoInterpolator.space_jacobian( tSpaceJt );
         Matrix< DDRMat > tSpaceJtMatlab = {{ 1.593750000000000, 0.531250000000000 },
                                            { 0.668750000000000, 1.456250000000000}};
 
@@ -342,10 +335,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tSpaceJCheck );
 
         // check time jacobian
-        Matrix< DDRMat > tdNdTau;
-        tGeoInterpolator.dNdTau( tdNdTau );
+        Matrix< DDRMat > tdNdTau = tGeoInterpolator.dNdTau();
         Matrix< DDRMat > tTimeJt;
-        tGeoInterpolator.time_jacobian( tdNdTau, tTimeJt );
+        tGeoInterpolator.time_jacobian( tTimeJt );
         Matrix< DDRMat > tTimeJtMatlab( 1, 1, 2.5 );
 
         bool tTimeJCheck = true;
@@ -360,8 +352,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check space jacobian and matrices for second derivatives
         Matrix< DDRMat > tSpaceKt, tSpaceLt;
-        Matrix< DDRMat > td2NdXi2;
-        tGeoInterpolator.d2NdXi2( td2NdXi2 );
+        Matrix< DDRMat > td2NdXi2 = tGeoInterpolator.d2NdXi2();
         tGeoInterpolator.space_jacobian_and_matrices_for_second_derivatives( tSpaceJt,
                                                                              tSpaceKt,
                                                                              tSpaceLt,
@@ -400,8 +391,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check time jacobian and matrices for second derivatives
         Matrix< DDRMat > tTimeKt, tTimeLt;
-        Matrix< DDRMat > td2NdTau2;
-        tGeoInterpolator.d2NdTau2( td2NdTau2 );
+        Matrix< DDRMat > td2NdTau2 = tGeoInterpolator.d2NdTau2();
         tGeoInterpolator.time_jacobian_and_matrices_for_second_derivatives( tTimeJt,
                                                                             tTimeKt,
                                                                             tTimeLt,
@@ -431,8 +421,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tTimeLCheck );
 
         // check space interpolation
-        Matrix< DDRMat > tx;
-        tGeoInterpolator.valx( tx );
+        Matrix< DDRMat > tx = tGeoInterpolator.valx();
         Matrix< DDRMat > txMatlab = {
         { 2.526562500000000,   1.935937500000000 },
         };
@@ -445,8 +434,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( txCheckBool );
 
         // check time interpolation
-        Matrix< DDRMat > tt;
-        tGeoInterpolator.valt( tt );
+        Matrix< DDRMat > tt = tGeoInterpolator.valt();
         Matrix< DDRMat > ttMatlab( 1, 1, 4.25 );
         bool ttCheckBool = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_time_dimensions(); i++)
@@ -601,10 +589,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tTHatCheckBool );
 
         // check space jacobian
-        Matrix< DDRMat > tdNdXi;
-        tGeoInterpolator.dNdXi( tdNdXi );
+        Matrix< DDRMat > tdNdXi = tGeoInterpolator.dNdXi();
         Matrix< DDRMat > tSpaceJt;
-        tGeoInterpolator.space_jacobian( tdNdXi, tSpaceJt );
+        tGeoInterpolator.space_jacobian( tSpaceJt );
         Matrix< DDRMat > tSpaceJtMatlab = {
         { 1.593750000000000,   0.531250000000000,  -0.027187500000000},
         { 0.668750000000000,   1.456250000000000,   0.429562500000000},
@@ -621,10 +608,9 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tSpaceJCheck );
 
         // check time jacobian
-        Matrix< DDRMat > tdNdTau;
-        tGeoInterpolator.dNdTau( tdNdTau );
+        Matrix< DDRMat > tdNdTau = tGeoInterpolator.dNdTau();
         Matrix< DDRMat > tTimeJt;
-        tGeoInterpolator.time_jacobian( tdNdTau, tTimeJt );
+        tGeoInterpolator.time_jacobian( tTimeJt );
         Matrix< DDRMat > tTimeJtMatlab( 1, 1, 2.5 );
 
         bool tTimeJCheck = true;
@@ -639,8 +625,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check space jacobian and matrices for second derivatives
         Matrix< DDRMat > tSpaceKt, tSpaceLt;
-        Matrix< DDRMat > td2NdXi2;
-        tGeoInterpolator.d2NdXi2( td2NdXi2 );
+        Matrix< DDRMat > td2NdXi2 = tGeoInterpolator.d2NdXi2();
         tGeoInterpolator.space_jacobian_and_matrices_for_second_derivatives( tSpaceJt,
                                                                               tSpaceKt,
                                                                               tSpaceLt,
@@ -684,8 +669,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
 
         // check time jacobian and matrices for second derivatives
         Matrix< DDRMat > tTimeKt, tTimeLt;
-        Matrix< DDRMat > td2NdTau2;
-        tGeoInterpolator.d2NdTau2( td2NdTau2 );
+        Matrix< DDRMat > td2NdTau2 = tGeoInterpolator.d2NdTau2();
         tGeoInterpolator.time_jacobian_and_matrices_for_second_derivatives( tTimeJt,
                                                                              tTimeKt,
                                                                              tTimeLt,
@@ -715,8 +699,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( tTimeLCheck );
 
         // check space interpolation
-        Matrix< DDRMat > tx;
-        tGeoInterpolator.valx( tx );
+        Matrix< DDRMat > tx = tGeoInterpolator.valx();
         Matrix< DDRMat > txMatlab = {
         { 3.396562500000000,   2.805937500000000,   1.485796875000000 },
         };
@@ -729,8 +712,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( txCheckBool );
 
         // check time interpolation
-        Matrix< DDRMat > tt;
-        tGeoInterpolator.valt( tt );
+        Matrix< DDRMat > tt = tGeoInterpolator.valt();
         Matrix< DDRMat > ttMatlab( 1, 1, 4.25 );
         bool ttCheckBool = true;
         for ( uint i = 0; i < tGeoInterpolator.get_number_of_time_dimensions(); i++)

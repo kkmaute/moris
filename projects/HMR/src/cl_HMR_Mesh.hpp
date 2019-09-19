@@ -35,7 +35,7 @@ namespace moris
             //! describing label
             std::string mLabel;
 
-            Lagrange_Mesh_Base * mMesh = nullptr;
+//            Lagrange_Mesh_Base * mMesh = nullptr;
 
             moris::Cell< moris::hmr::BSpline_Mesh_Base* > mDummyBSplineMeshes;
 

@@ -77,11 +77,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         for ( moris::uint Ik = 0; Ik < tNTimeBases; Ik++ )
         {
             tGeomInterpolator->set_time( tTimeParamCoord.get_row(Ik) );
-            tGeomInterpolator->valt( t1 );
+            t1 = tGeomInterpolator->valt();
             for ( moris::uint Jk = 0; Jk < tNSpaceBases; Jk++ )
             {
                 tGeomInterpolator->set_space( tSpaceParamCoord.get_row( Jk ) );
-                tGeomInterpolator->valx( x1 );
+                x1 = tGeomInterpolator->valx();
                 tUHat( (Ik*tNSpaceBases)+Jk, 0 ) = a1 + b1*x1(0) + b2*t1(0) + c1*x1(0)*t1(0);
             }
         }
@@ -104,10 +104,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         real test;
 
         //evaluate space and time at xi, tau
-        Matrix< DDRMat > x;
-        tGeomInterpolator->valx( x );
-        Matrix< DDRMat > t;
-        tGeomInterpolator->valt( t );
+        Matrix< DDRMat > x = tGeomInterpolator->valx();
+        Matrix< DDRMat > t = tGeomInterpolator->valt();
 
         //check field value at xi, tau
         Matrix< DDRMat > u = tFieldInterpolator.val();
@@ -278,10 +276,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             // check evaluations
             //------------------------------------------------------------------------------
             //value of x and t at xi, tau
-            Matrix< DDRMat > x;
-            tGeomInterpolator->valx( x );
-            Matrix< DDRMat > t;
-            tGeomInterpolator->valt( t );
+            Matrix< DDRMat > x = tGeomInterpolator->valx();
+            Matrix< DDRMat > t = tGeomInterpolator->valt();
 
             //real for test
             double test1, test2, test3, test4;
@@ -386,11 +382,11 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         for ( moris::uint Ik = 0; Ik < tNTimeBases; Ik++ )
         {
             tGeomInterpolator->set_time( tTimeParamCoord.get_row(Ik) );
-            tGeomInterpolator->valt( t1 );
+            t1 = tGeomInterpolator->valt();
             for ( moris::uint Jk = 0; Jk < tNSpaceBases; Jk++ )
             {
                 tGeomInterpolator->set_space( tSpaceParamCoord.get_row( Jk ) );
-                tGeomInterpolator->valx( x1 );
+                x1 = tGeomInterpolator->valx();
                 tUHat( (Ik*tNSpaceBases)+Jk, 0 ) = a1 + b1*x1(0) + b2*t1(0) + c1*x1(0)*t1(0);
             }
         }
@@ -410,11 +406,9 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         // check
         //------------------------------------------------------------------------------
         // double for check, x and t for check at xi, tau
-        double test;
-        Matrix< DDRMat > t;
-        tGeomInterpolator->valt( t );
-        Matrix< DDRMat > x;
-        tGeomInterpolator->valx( x );
+        real test;
+        Matrix< DDRMat > t = tGeomInterpolator->valt();
+        Matrix< DDRMat > x = tGeomInterpolator->valx();
 
         //check field value at xi, tau
         Matrix< DDRMat > u = tFieldInterpolator.val();

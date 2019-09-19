@@ -101,6 +101,9 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_SpatialDiff]" )
         // create an IWG Helmholtz Bulk
         IWG_Isotropic_Spatial_Diffusion_Dirichlet tIWG;
 
+        // set field interpolators
+        tIWG.set_field_interpolators( tFieldInterpolators );
+
         // set the nodal weak bcs
         Matrix< DDRMat > tNodalWeakBCs( tNumOfBases, 1, 1.0 );
         tIWG.set_nodal_weak_bcs( tNodalWeakBCs );
@@ -113,14 +116,13 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_SpatialDiff]" )
         //------------------------------------------------------------------------------
         // evaluate the residual
         Matrix< DDRMat > tResidual;
-        tIWG.compute_residual( tResidual, tFieldInterpolators );
+        tIWG.compute_residual( tResidual );
 
         // check evaluation of the jacobian  by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian
         Cell< Matrix< DDRMat > > tJacobians;
-        tIWG.compute_jacobian( tJacobians,
-                               tFieldInterpolators );
+        tIWG.compute_jacobian( tJacobians );
 
         //define a boolean for check
         bool tCheckJacobian = true;
@@ -139,8 +141,7 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_SpatialDiff]" )
             tFieldInterpolators( 0 )->set_coeff( tTempHatPert );
 
             // compute the perturbed residual
-            tIWG.compute_residual( tResidualPert,
-                                   tFieldInterpolators );
+            tIWG.compute_residual( tResidualPert );
 
             // compute the jacobian by FD for the kth uHat
             tJacobianRow = ( tResidualPert - tResidual ) / tPert;

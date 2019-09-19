@@ -2,7 +2,7 @@
  * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp
  *
  *  Created on: May 2, 2019
- *      Author: wunsch
+ *      Author: wunsch/noel
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_GHOST_HPP_
@@ -54,46 +54,25 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * r =
-             *
-             * @param[ in ] aResidual                residual vector to fill
-             * @param[ in ] aLeftFieldInterpolators  list of active left field interpolators
-             * @param[ in ] aRightFieldInterpolators list of active right field interpolators
-             *
+             * @param[ in ] aResidual cell of residual vectors to fill
              */
-            void
-            compute_residual( Matrix< DDRMat >                   & aResidual,
-                              moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                              moris::Cell< Field_Interpolator* > & aRightFieldInterpolators );
+            void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * j =
-             *
-             * @param[ in ] aJacobians               list of jacobian matrices to fill
-             * @param[ in ] aLeftFieldInterpolators  list of active left field interpolators
-             * @param[ in ] aRightFieldInterpolators list of active right field interpolators
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
-            void
-            compute_jacobian( Cell< Matrix< DDRMat > >           & aJacobians,
-                              moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                              moris::Cell< Field_Interpolator* > & aRightFieldInterpolators );
+            void compute_jacobian( moris::Cell< Cell< Matrix< DDRMat > > > & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             *
-             * @param[ in ] aJacobians              list of jacobian matrices to fill
-             * @param[ in ] aResidual               residual vector to fill
-             * @param[ in ] aLeftFieldInterpolators  list of active left field interpolators
-             * @param[ in ] aRightFieldInterpolators list of active right field interpolators
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aResidual  cell of residual vectors to fill
              */
-            void
-            compute_jacobian_and_residual( Cell< Matrix< DDRMat > >           & aJacobians,
-                                           Matrix< DDRMat >                   & aResidual,
-                                           moris::Cell< Field_Interpolator* > & aLeftFieldInterpolators,
-                                           moris::Cell< Field_Interpolator* > & aRightFieldInterpolators );
+            void compute_jacobian_and_residual( moris::Cell< Cell< Matrix< DDRMat > > > & aJacobians,
+                                                moris::Cell< Matrix< DDRMat > >         & aResidual );
 
 
 //------------------------------------------------------------------------------
@@ -102,9 +81,7 @@ namespace moris
              * 2nd and 3rd order Ghost formulations
              * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
              */
-
-            Matrix<DDRMat> get_normal_matrix ( uint aOrderGhost );
-
+            Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
 
 //------------------------------------------------------------------------------
             /**

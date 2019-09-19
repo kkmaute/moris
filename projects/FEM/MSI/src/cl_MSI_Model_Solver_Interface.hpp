@@ -71,7 +71,7 @@ namespace moris
          * @param[in] aCommTable    Communication table for adofs.
          *
          */
-        Model_Solver_Interface(      Cell< MSI::Equation_Set * >                     & aElementBlocks,
+        Model_Solver_Interface(      Cell< MSI::Equation_Set * >                       & aElementBlocks,
                                const Matrix< IdMat >                                   & aCommTable,
                                const moris::map< moris::moris_id, moris::moris_index > & aAdofLocaltoGlobalMap,
                                const moris::uint                                         aNumMaxAdofs ) : mEquationBlocks( aElementBlocks ),
@@ -247,7 +247,20 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        /**
+         * @brief Returns the adof index for a given dof type index.
+         *
+         * @param[in] aDofType    Dof type index.
+         */
         moris::sint get_adof_index_for_type( moris::uint aDofType );
+
+//------------------------------------------------------------------------------
+
+        /**
+         * @brief determines the maximal underlying adof mesh index based on the used dof types.
+         *  Is not limited to underlying BSpline meshes.
+         */
+        moris::sint get_max_adof_index();
 
 //------------------------------------------------------------------------------
 

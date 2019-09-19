@@ -61,5 +61,25 @@ namespace moris
        }
     }
 
+    //------------------------------------------------------------------------------
+
+    moris::sint Model_Solver_Interface::get_max_adof_index()
+    {
+        // max BSpline mesh index. However, not limited to BSpline meshes.
+        sint tMaxAdofIndex = 0;
+
+        uint tNumDofTypes = mDofMgn.get_num_dof_types();
+
+        // loop over all used Ddf type indices
+        for( uint Ik = 0; Ik< tNumDofTypes; Ik++)
+        {
+            sint tIndex = this->get_adof_index_for_type( Ik );
+
+            tMaxAdofIndex = std::max( tIndex, tMaxAdofIndex );
+        }
+
+        return tMaxAdofIndex+1;
+    }
+
     }
 }

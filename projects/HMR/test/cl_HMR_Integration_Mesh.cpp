@@ -19,7 +19,7 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
     return norm( aPoint ) - 0.5;
 }
-TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
+TEST_CASE( "HMR Integration Mesh" , "[hmr],[IG_Mesh]")
 {
     //------------------------------------------------------------------------------
 
@@ -63,9 +63,8 @@ TEST_CASE( "HMR Integration Mesh" , "[IG_Mesh]")
     for( uint k=0; k<3; ++k )
     {
         tField->evaluate_scalar_function( LevelSetFunction );
-        tHMR.flag_surface_elements( tField );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-        tHMR.update_refinement_pattern( 0 );
+        tHMR.flag_surface_elements_on_working_pattern( tField );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
     }
 
     tHMR.finalize();
@@ -136,7 +135,10 @@ TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
             tDatabase->get_background_mesh()->perform_refinement(0);
         }
 
-        tDatabase->get_background_mesh()->save_to_vtk("Basis_support.vtk");
+        tDatabase->update_bspline_meshes();
+        tDatabase->update_lagrange_meshes();
+
+//        tDatabase->get_background_mesh()->save_to_vtk("Basis_support.vtk");
 
         tHMR.finalize();
 

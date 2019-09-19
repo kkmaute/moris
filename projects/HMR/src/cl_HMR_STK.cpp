@@ -176,16 +176,14 @@ namespace moris
             {
                 case( EntityRank::NODE ) :
                 {
-                    mRealScalarFields( f ).add_field_data(
-                            & mNodeLocalToGlobal,
-                            & mMesh->get_real_scalar_field_data( f ) );
+                    mRealScalarFields( f ).add_field_data( & mNodeLocalToGlobal,
+                                                           & mMesh->get_real_scalar_field_data( f ) );
                     break;
                 }
                 case( EntityRank::ELEMENT ) :
                 {
-                    mRealScalarFields( f ).add_field_data(
-                            & mElementLocalToGlobal,
-                            & mMesh->get_real_scalar_field_data( f ) );
+                    mRealScalarFields( f ).add_field_data( & mElementLocalToGlobal,
+                                                           & mMesh->get_real_scalar_field_data( f ) );
                     break;
                 }
                 default :

@@ -118,17 +118,18 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
         // create an IWG Helmholtz Bulk2
         IWG_Hamilton_Jacobi_Bulk2 tIWGHJBulk;
 
+        // set field interpolators
+        tIWGHJBulk.set_field_interpolators( tFieldInterpolators );
+
         // check evaluation of the jacobian by FD --------------------------------------
         // evaluate the residual from IWG
         Matrix< DDRMat > tResidualHJBulk;
-        tIWGHJBulk.compute_residual( tResidualHJBulk,
-                                     tFieldInterpolators );
+        tIWGHJBulk.compute_residual( tResidualHJBulk );
         //print( tResidualHJBulk, "r_phi" );
 
         // evaluate the jacobian from IWG
         Cell< Matrix< DDRMat > > tJacobiansHJBulk( 2 );
-        tIWGHJBulk.compute_jacobian( tJacobiansHJBulk,
-                                       tFieldInterpolators );
+        tIWGHJBulk.compute_jacobian( tJacobiansHJBulk );
         //print( tJacobiansHJBulk( 0 ), "j_phi_phi" );
         //print( tJacobiansHJBulk( 1 ), "j_phi_vN" );
 
@@ -148,8 +149,7 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualHJBulkPert;
-            tIWGHJBulk.compute_residual( tResidualHJBulkPert,
-                                         tFieldInterpolators );
+            tIWGHJBulk.compute_residual( tResidualHJBulkPert );
 
             // compute the jacobian by FD for the kth phiHat
             Matrix< DDRMat > tJacobianRow = ( tResidualHJBulkPert - tResidualHJBulk ) / tPert;
@@ -184,8 +184,7 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualHJBulkPert;
-            tIWGHJBulk.compute_residual( tResidualHJBulkPert,
-                                         tFieldInterpolators );
+            tIWGHJBulk.compute_residual( tResidualHJBulkPert );
 
             // compute the jacobian by FD for the kth uHat
             Matrix< DDRMat > tJacobianRow = ( tResidualHJBulkPert - tResidualHJBulk ) / tPert;

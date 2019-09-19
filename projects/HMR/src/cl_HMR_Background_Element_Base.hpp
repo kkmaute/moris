@@ -292,6 +292,7 @@ namespace moris
              */
             bool is_refined( const uint & aPattern ) const
             {
+                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_refined(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
                 return mRefinedFlags.test( aPattern );
             }
 
@@ -304,6 +305,7 @@ namespace moris
              */
             bool is_active( const uint & aPattern ) const
             {
+                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_active(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
                 return mActiveFlags.test( aPattern );
             }
 
@@ -314,6 +316,7 @@ namespace moris
              */
             bool is_deactive ( const uint & aPattern )
             {
+                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_deactive(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
                 return ! ( mActiveFlags.test( aPattern )|| mRefinedFlags.test( aPattern ) );
             }
 
