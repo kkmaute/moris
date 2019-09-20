@@ -271,9 +271,16 @@ namespace mtk
         moris_id tId = this->get_glb_entity_id_from_entity_loc_index(aElementIndex, EntityRank::ELEMENT);
         stk::mesh::EntityId tStkEntityId = (stk::mesh::EntityId) tId ;
 
+        enum EntityRank tFacetRank = this->get_facet_rank();
+
         // Call function that gets the connected entities
         stk::mesh::EntityRank tStkInputRank  = stk::topology::ELEMENT_RANK;
         stk::mesh::EntityRank tStkOutputRank = stk::topology::FACE_RANK;
+        if(tFacetRank == EntityRank::EDGE)
+        {
+            tStkOutputRank = stk::topology::EDGE_RANK;
+        }
+
         stk::mesh::Entity tStkEntity = mSTKMeshData->mMtkMeshBulkData->get_entity(tStkInputRank, tStkEntityId);
 
         std::vector<stk::mesh::Entity> tFacesInElem = this->entities_connected_to_entity_stk(&tStkEntity, tStkInputRank, tStkOutputRank);

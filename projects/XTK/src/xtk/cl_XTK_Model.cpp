@@ -2452,152 +2452,109 @@ Model::construct_subphase_neighborhood()
     // get the interpolation mesh
     moris::mtk::Interpolation_Mesh & tInterpMesh = mBackgroundMesh.get_mesh_data();
 
-    // get the facet rank
-    enum EntityRank tFacetRank = tInterpMesh.get_facet_rank();
-
     // allocate subphase to subphase connectivity
     mSubphaseToSubPhase = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
 
-    // get the subphase index to child mesh connectivity
-    // pointers for child meshes
-    Child_Mesh const * tCMCell      = nullptr;
-    Child_Mesh const * tCMOtherCell = nullptr;
-
     //iterate through facets
-    moris::uint tNumFacets = tInterpMesh.get_num_entities(tFacetRank);
-    for(moris::moris_index iF = 0; iF < (moris::moris_index)tNumFacets; iF++)
+    moris::uint tNumFacets = tInterpMesh.get_num_entities(EntityRank::ELEMENT);
+    for(moris::moris_index iC = 0; iC < (moris::moris_index)tNumFacets; iC++)
     {
+        // current cell
+        mtk::Cell const * tCurrentCell = & tInterpMesh.get_mtk_cell(iC);
+
         // get the cells attached to the facet
-        Matrix<IndexMat> tCellToFacet = tInterpMesh.get_entity_connected_to_entity_loc_inds(iF,tFacetRank,EntityRank::ELEMENT);
+        Matrix<IndexMat> tCellToCell = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds(iC);
 
-        // get the mtk cells attached to facet
-        Cell<mtk::Cell const *> tCells(tCellToFacet.numel());
-        for(moris::uint iC = 0; iC < tCellToFacet.numel(); iC++)
+        // get the neighboring cells
+        Cell<mtk::Cell const *> tCells(tCellToCell.numel());
+        tInterpMesh.get_mtk_cells(tCellToCell.get_row(0),tCells);
+
+        // iterate through neighbor
+        for(moris::uint iN = 0; iN < tCellToCell.n_cols(); iN++)
         {
-            tCells(iC) = & tInterpMesh.get_mtk_cell(tCellToFacet(iC));
-        }
+            // create subphase neighborhoods from high to low (so we dont do it more than once)
+            if(tCellToCell(0,iN) < iC)
+            {
+                continue;
+            }
 
-        // iterate through cells
-        for(moris::uint iC = 0; iC < tCellToFacet.numel(); iC++)
-        {
-            // current cell
-            mtk::Cell const * tCurrentCell = tCells(iC);
+            // facet ordinal shared for current neighbors
+            moris_index tFacetIndex      = tCellToCell(1,iN);
+            mtk::Cell const * tOtherCell =  & tInterpMesh.get_mtk_cell(tCellToCell(0,iN));
 
-            // Cell of subphase indices for the cell
-            Cell<moris::moris_index> tCellSubphaseBulkIndices(0);
+            // get the subphase indices attached to the facet which is connected to the current cell
             Cell<moris::moris_index> tCellSubphaseIndices(0);
+            Cell<moris::moris_index> tCellSubphaseBulkIndices(0);
+            this->collect_subphases_attached_to_facet_on_cell( tCurrentCell->get_index(), tFacetIndex, tCellSubphaseIndices, tCellSubphaseBulkIndices);
 
-            // set pointer to child mesh if it has children
-            if(mBackgroundMesh.entity_has_children(tCurrentCell->get_index(), EntityRank::ELEMENT))
+            // get the subphase indices attached to the facet which is connected to the other cell in the neighborhood
+            Cell<moris::moris_index> tCombinedSubphaseIndices(0);
+            Cell<moris::moris_index> tCombinedSubphaseBulkIndices(0);
+            this->collect_subphases_attached_to_facet_on_cell( tOtherCell->get_index(), tFacetIndex, tCombinedSubphaseIndices, tCombinedSubphaseBulkIndices);
+
+            // add subphases to neighborhood (only if bulk phase matches)
+            tCombinedSubphaseBulkIndices.append(tCellSubphaseBulkIndices);
+            tCombinedSubphaseIndices.append(tCellSubphaseIndices);
+
+            // iterate over subphases and add to neighborhood
+            for(moris::uint i = 0; i < tCombinedSubphaseIndices.size(); i++)
             {
-                // get the child mesh ptr
-                moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tCurrentCell->get_index(),EntityRank::ELEMENT);
-                tCMCell = & mCutMesh.get_child_mesh(tCMIndex);
-
-                // get subphases attached to facet
-                Cell<moris::moris_index> tCellCMSubphaseIndices;
-                tCMCell->get_subphases_attached_to_facet(iF, tCellCMSubphaseIndices);
-
-                // reference to subphase indices and bulkphases of subphases
-                Cell<moris::moris_index> const & tCMSubphaseBulkIndices = tCMCell->get_subphase_bin_bulk_phase();
-                Cell<moris::moris_index> const & tCMSubphaseIndices     = tCMCell->get_subphase_indices();
-
-                // put the information in processor local indices with bulk phase
-                tCellSubphaseBulkIndices.resize(tCellCMSubphaseIndices.size());
-                tCellSubphaseIndices.resize(tCellCMSubphaseIndices.size());
-
-                for(moris::uint i = 0; i < tCellCMSubphaseIndices.size(); i++)
+                for(moris::uint j = 0; j < tCombinedSubphaseIndices.size(); j++)
                 {
-                    tCellSubphaseBulkIndices(i) = tCMSubphaseBulkIndices(tCellCMSubphaseIndices(i));
-                    tCellSubphaseIndices(i) = tCMSubphaseIndices(tCellCMSubphaseIndices(i));
-                }
-
-            }
-            else
-            {
-                // get the cell subphase indices
-                tCellSubphaseBulkIndices = {{mBackgroundMesh.get_element_phase_index(tCurrentCell->get_index())}};
-                tCellSubphaseIndices     = {{tCurrentCell->get_index()}};
-            }
-
-            // iterate through the other cells
-            for(moris::uint iOC = 0; iOC < tCellToFacet.numel(); iOC ++)
-            {
-                // ignore the same cell
-                if(iOC == iC){ continue; }
-
-                // other cell
-                mtk::Cell const * tOtherCell = tCells(iOC);
-
-                // Other cell subphase
-                Cell<moris::moris_index> tCombinedSubphaseBulkIndices(0);
-                Cell<moris::moris_index> tCombinedSubphaseIndices(0);
-
-                // set child mesh pointer for other cell
-                if( mBackgroundMesh.entity_has_children(tOtherCell->get_index(), EntityRank::ELEMENT) )
-                {
-                    moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(tOtherCell->get_index(),EntityRank::ELEMENT);
-                    tCMOtherCell = & mCutMesh.get_child_mesh(tCMIndex);
-
-
-                    // get subphases attached to facet
-                    Cell<moris::moris_index> tCellCMSubphaseIndices;
-                    tCMOtherCell->get_subphases_attached_to_facet(iF, tCellCMSubphaseIndices);
-
-                    // reference to subphase indices and bulkphases of subphases
-                    Cell<moris::moris_index> const & tCMSubphaseBulkIndices = tCMOtherCell->get_subphase_bin_bulk_phase();
-                    Cell<moris::moris_index> const & tCMSubphaseIndices     = tCMOtherCell->get_subphase_indices();
-
-
-                    // put the information in processor local indices with bulk phase
-                    tCombinedSubphaseBulkIndices.resize(tCellCMSubphaseIndices.size());
-                    tCombinedSubphaseIndices.resize(tCellCMSubphaseIndices.size());
-
-                    for(moris::uint i = 0; i < tCellCMSubphaseIndices.size(); i++)
+                    if( i == j )
                     {
-                        tCombinedSubphaseBulkIndices(i) = tCMSubphaseBulkIndices(tCellCMSubphaseIndices(i));
-                        tCombinedSubphaseIndices(i) = tCMSubphaseIndices(tCellCMSubphaseIndices(i));
+                        continue;
                     }
 
-                }
-                else
-                {
-                    // get the cell subphase indices
-                    tCombinedSubphaseBulkIndices = {{mBackgroundMesh.get_element_phase_index(tOtherCell->get_index())}};
-                    tCombinedSubphaseIndices     = {{tOtherCell->get_index()}};
-                }
-
-                // only create the relationship form low to high background cell
-                if(tOtherCell->get_id() < tCurrentCell->get_id())
-                {
-                    // add subphases to neighborhood (only if bulk phase matches)
-                    tCombinedSubphaseBulkIndices.append(tCellSubphaseBulkIndices);
-                    tCombinedSubphaseIndices.append(tCellSubphaseIndices);
-
-                    // iterate over subphases and add to neighborhood
-                    for(moris::uint i = 0; i < tCombinedSubphaseIndices.size(); i++)
+                    if(tCombinedSubphaseBulkIndices(i) == tCombinedSubphaseBulkIndices(j))
                     {
-                        for(moris::uint j = 0; j < tCombinedSubphaseIndices.size(); j++)
-                        {
-                            if( i == j )
-                            {
-                                continue;
-                            }
-
-                            if(tCombinedSubphaseBulkIndices(i) == tCombinedSubphaseBulkIndices(j))
-                            {
-                                mSubphaseToSubPhase(tCombinedSubphaseIndices(i)).push_back(tCombinedSubphaseIndices(j));
-                            }
-                        }
+                        mSubphaseToSubPhase(tCombinedSubphaseIndices(i)).push_back(tCombinedSubphaseIndices(j));
                     }
                 }
-                // reset pointer
-                tCMOtherCell = nullptr;
             }
-            // reset pointer
-            tCMCell = nullptr;
         }
     }
+}
+
+void
+Model::collect_subphases_attached_to_facet_on_cell(moris::moris_index aCellIndex,
+                                                   moris::moris_index aFacetIndex,
+                                                   Cell<moris::moris_index> & aCellSubphaseIndices,
+                                                   Cell<moris::moris_index> & aCellSubphaseBulkIndices)
+{
+    // set pointer to child mesh if it has children
+    if(mBackgroundMesh.entity_has_children(aCellIndex, EntityRank::ELEMENT))
+    {
+        // get the child mesh ptr
+        moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(aCellIndex,EntityRank::ELEMENT);
+        Child_Mesh const * tCMCell = & mCutMesh.get_child_mesh(tCMIndex);
+
+        // get subphases attached to facet
+        Cell<moris::moris_index> tCellCMSubphaseIndices;
+        tCMCell->get_subphases_attached_to_facet(aFacetIndex, tCellCMSubphaseIndices);
+
+        // reference to subphase indices and bulkphases of subphases
+        Cell<moris::moris_index> const & tCMSubphaseBulkIndices = tCMCell->get_subphase_bin_bulk_phase();
+        Cell<moris::moris_index> const & tCMSubphaseIndices     = tCMCell->get_subphase_indices();
+
+        // put the information in processor local indices with bulk phase
+        aCellSubphaseIndices.resize(tCellCMSubphaseIndices.size());
+        aCellSubphaseBulkIndices.resize(tCellCMSubphaseIndices.size());
+
+        for(moris::uint i = 0; i < tCellCMSubphaseIndices.size(); i++)
+        {
+            aCellSubphaseBulkIndices(i) = tCMSubphaseBulkIndices(tCellCMSubphaseIndices(i));
+            aCellSubphaseIndices(i) = tCMSubphaseIndices(tCellCMSubphaseIndices(i));
+        }
+
+    }
+    else
+    {
+        // get the cell subphase indices
+        aCellSubphaseBulkIndices = {{mBackgroundMesh.get_element_phase_index(aCellIndex)}};
+        aCellSubphaseIndices     = {{aCellIndex}};
+    }
+
 }
 
 bool
