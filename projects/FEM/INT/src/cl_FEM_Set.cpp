@@ -20,14 +20,15 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        Set::Set( moris::mtk::Set                          * aMeshSet,
-                  enum fem::Element_Type                     aElementType,
-                  moris::Cell< IWG* >                      & aIWGs,
-                  const fem::Property_User_Defined_Info    * aPropertyUserDefinedInfo,
-                  moris::Cell< Node_Base* >                & aIPNodes ) : mMeshSet( aMeshSet ),
-                                                                          mNodes( aIPNodes ),
-                                                                          mIWGs( aIWGs ),
-                                                                          mElementType( aElementType )
+        Set::Set( moris::mtk::Set                                          * aMeshSet,
+                  enum fem::Element_Type                                     aElementType,
+                  moris::Cell< IWG* >                                      & aIWGs,
+                  const moris::Cell< fem::Property_User_Defined_Info >     & aPropertyUserDefinedInfo,
+                  const moris::Cell< fem::Constitutive_User_Defined_Info > & aConstitutiveUserDefinedInfo,
+                  moris::Cell< Node_Base* >                                & aIPNodes ) : mMeshSet( aMeshSet ),
+                                                                                          mNodes( aIPNodes ),
+                                                                                          mIWGs( aIWGs ),
+                                                                                          mElementType( aElementType )
         {
             // get mesh clusters on set
             mMeshClusterList = mMeshSet->get_clusters_on_set();
@@ -139,8 +140,23 @@ namespace moris
             // create the properties for the set
             this->create_properties( aPropertyUserDefinedInfo );
 
+            // create a unique constitutive type list
+            this->create_constitutive_type_list();
+
+            // create a constitutive type map
+            this->create_constitutive_type_map();
+
+            // create the properties for the set
+            this->create_constitutive_models( aConstitutiveUserDefinedInfo );
+
             // set properties for each IWG
             this->set_IWG_properties();
+
+            // set constitutive models for each IWG
+            this->set_IWG_constitutive_models();
+
+            // set properties for each CM
+            this->set_CM_properties();
 
             // create a unique dof type list for solver
             this->create_unique_dof_type_list();
@@ -173,25 +189,39 @@ namespace moris
     Set::~Set()
     {
         // delete the equation object pointers
-        for( auto tEquationObj : mEquationObjList )
+        for( MSI::Equation_Object* tEquationObj : mEquationObjList )
         {
             delete tEquationObj;
         }
         mEquationObjList.clear();
 
         // delete the master property pointers
-        for( auto tMasterProperty : mMasterProperties )
+        for( Property* tMasterProperty : mMasterProperties )
         {
             delete tMasterProperty;
         }
         mMasterProperties.clear();
 
         // delete the slave property pointers
-        for( auto tSlaveProperty : mSlaveProperties )
+        for( Property* tSlaveProperty : mSlaveProperties )
         {
             delete tSlaveProperty;
         }
         mSlaveProperties.clear();
+
+        // delete the master constitutive model pointers
+        for( Constitutive_Model* tMasterCM : mMasterCM )
+        {
+            delete tMasterCM;
+        }
+        mMasterCM.clear();
+
+        // delete the slave constitutive model pointers
+        for( Constitutive_Model* tSlaveCM : mSlaveCM )
+        {
+            delete tSlaveCM;
+        }
+        mSlaveCM.clear();
 
         // delete the master interpolation geometry interpolator pointer
         if ( mMasterIPGeometryInterpolator != nullptr )
@@ -227,14 +257,14 @@ namespace moris
     void Set::delete_pointers()
     {
         // delete the master field interpolator pointers
-        for( auto tMasterFieldInterpolator : mMasterFI )
+        for( Field_Interpolator* tMasterFieldInterpolator : mMasterFI )
         {
             delete tMasterFieldInterpolator;
         }
         mMasterFI.clear();
 
         // delete the slave field interpolator pointers
-        for( auto tSlaveFieldInterpolator : mSlaveFI )
+        for( Field_Interpolator* tSlaveFieldInterpolator : mSlaveFI )
         {
             delete tSlaveFieldInterpolator;
         }
@@ -261,6 +291,9 @@ namespace moris
 
         // set field interpolators for the properties
         this->set_properties_field_interpolators();
+
+        // set field interpolators for the contitutive models
+        this->set_CM_field_interpolators();
     }
 
 //------------------------------------------------------------------------------
@@ -407,6 +440,99 @@ namespace moris
         for( uint iProp = 0; iProp < mSlavePropTypes.size(); iProp++ )
         {
             mSlavePropTypeMap( static_cast< int >( mSlavePropTypes( iProp ) ), 0 ) = iProp;
+        }
+    }
+
+//------------------------------------------------------------------------------
+    void Set::create_constitutive_type_list()
+    {
+        // set counter for master and slave constitutive types
+        uint tMasterCMCounter = 0;
+        uint tSlaveCMCounter  = 0;
+
+        // loop over the IWGs
+        for ( IWG * tIWG : mIWGs )
+        {
+            // add the number of master property type
+            tMasterCMCounter += tIWG->get_constitutive_type_list( mtk::Master_Slave::MASTER ).size();
+
+            // add the number of slave property type
+            tSlaveCMCounter += tIWG->get_constitutive_type_list( mtk::Master_Slave::SLAVE ).size();
+        }
+
+        // set size for the master and slave constitutive type list
+        mMasterConstitutiveTypes.reserve( tMasterCMCounter );
+        mSlaveConstitutiveTypes.reserve( tSlaveCMCounter );
+
+        // loop over the IWGs
+        for ( IWG * tIWG : mIWGs )
+        {
+            // put the master constitutive types in the master constitutive type list
+            mMasterConstitutiveTypes.append( tIWG->get_constitutive_type_list( mtk::Master_Slave::MASTER ) );
+
+            // put the slave constitutive types in the slave constitutive type list
+            mSlaveConstitutiveTypes.append( tIWG->get_constitutive_type_list( mtk::Master_Slave::SLAVE ) );
+        }
+
+        // make the master constitutive list unique
+        std::sort( ( mMasterConstitutiveTypes.data() ).data(), ( mMasterConstitutiveTypes.data() ).data() + mMasterConstitutiveTypes.size() );
+        auto last = std::unique( ( mMasterConstitutiveTypes.data() ).data(), ( mMasterConstitutiveTypes.data() ).data() + mMasterConstitutiveTypes.size() );
+        auto pos  = std::distance( ( mMasterConstitutiveTypes.data() ).data(), last );
+        mMasterConstitutiveTypes.resize( pos );
+
+        // make the slave constitutive list unique
+        std::sort( ( mSlaveConstitutiveTypes.data() ).data(), ( mSlaveConstitutiveTypes.data() ).data() + mSlaveConstitutiveTypes.size() );
+        last = std::unique( ( mSlaveConstitutiveTypes.data() ).data(), ( mSlaveConstitutiveTypes.data() ).data() + mSlaveConstitutiveTypes.size() );
+        pos  = std::distance( ( mSlaveConstitutiveTypes.data() ).data(), last );
+        mSlaveConstitutiveTypes.resize( pos );
+    }
+
+//------------------------------------------------------------------------------
+    void Set::create_constitutive_type_map()
+    {
+        //MASTER------------------------------------------------------------------------
+        // init max enum for master constitutive type
+        sint tMaxEnum = -1;
+
+        // loop over the master constitutive types
+        for( uint iCM = 0; iCM < mMasterConstitutiveTypes.size(); iCM++ )
+        {
+            // check if enum is greater
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterConstitutiveTypes( iCM ) ) );
+        }
+
+        // +1 because 0 based
+        tMaxEnum++;
+
+        // set size for the constitutive map
+        mMasterConstitutiveTypeMap.set_size( tMaxEnum, 1, -1 );
+
+        // fill the constitutive map
+        for( uint iCM = 0; iCM < mMasterConstitutiveTypes.size(); iCM++ )
+        {
+            mMasterConstitutiveTypeMap( static_cast< int >( mMasterConstitutiveTypes( iCM ) ), 0 ) = iCM;
+        }
+
+        //SLAVE-------------------------------------------------------------------------
+        // reset max enum for slave constitutive type
+        tMaxEnum = -1;
+
+        // loop over the slave constitutive types
+        for( uint iCM = 0; iCM < mSlaveConstitutiveTypes.size(); iCM++ )
+        {
+            // check if enum is greater
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveConstitutiveTypes( iCM ) ) );
+        }
+        // +1 because 0 based
+        tMaxEnum++;
+
+        // set size for the constitutive map
+        mSlaveConstitutiveTypeMap.set_size( tMaxEnum, 1, -1 );
+
+        // fill the constitutive map
+        for( uint iCM = 0; iCM < mSlaveConstitutiveTypes.size(); iCM++ )
+        {
+            mSlaveConstitutiveTypeMap( static_cast< int >( mSlaveConstitutiveTypes( iCM ) ), 0 ) = iCM;
         }
     }
 
@@ -667,8 +793,34 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-    void Set::create_properties( const fem::Property_User_Defined_Info * aPropertyUserDefinedInfo )
+    void Set::create_properties( const moris::Cell< fem::Property_User_Defined_Info > & aPropertyUserDefinedInfo )
     {
+        // build an input property map--------------------------------------------------
+        //get the max enum for the properties to create a property map
+        sint tMaxEnum = 0;
+
+        // number of input properties
+        uint tInputProps = aPropertyUserDefinedInfo.size();
+
+        // loop over the property types
+        for( uint iProp = 0; iProp < tInputProps; iProp++ )
+        {
+            // check if enum is greater
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( aPropertyUserDefinedInfo( iProp ).get_property_type() ) );
+        }
+        // +1 because 0 based
+        tMaxEnum++;
+
+        // set the size of the property map
+        Matrix< DDSMat > tPropertyTypeMap( tMaxEnum, 1, -1 );
+
+        // loop over the property types
+        for( uint iProp = 0; iProp < tInputProps; iProp++ )
+        {
+            // fill the property map
+            tPropertyTypeMap( static_cast< int >( aPropertyUserDefinedInfo( iProp ).get_property_type() ), 0 ) = iProp;
+        }
+
         //MASTER------------------------------------------------------------------------
         // get number of master property types
         uint tMasterNumProp = this->get_number_of_properties();
@@ -680,17 +832,15 @@ namespace moris
         for( uint iProp = 0; iProp < tMasterNumProp; iProp++ )
         {
             // get the index of the treated property in the info
-            uint propIndex = aPropertyUserDefinedInfo->get_property_map()( static_cast< int >( mMasterPropTypes( iProp ) ) );
+            uint propIndex = tPropertyTypeMap( static_cast< int >( mMasterPropTypes( iProp ) ) );
 
             // create an property for the treated property type
             mMasterProperties( iProp ) = new Property( mMasterPropTypes( iProp ),
-                                                       aPropertyUserDefinedInfo->get_property_dof_type_list()( propIndex ),
-                                                       aPropertyUserDefinedInfo->get_property_valFunc_list()( propIndex ),
-                                                       aPropertyUserDefinedInfo->get_property_derFunc_list()( propIndex ),
+                                                       aPropertyUserDefinedInfo( propIndex ).get_property_dof_type_list(),
+                                                       aPropertyUserDefinedInfo( propIndex ).get_property_param_list(),
+                                                       aPropertyUserDefinedInfo( propIndex ).get_property_valFunc(),
+                                                       aPropertyUserDefinedInfo( propIndex ).get_property_derFunc_list(),
                                                        mMasterIPGeometryInterpolator );
-
-            // set the coefficients for the treated property
-            mMasterProperties( iProp )->set_coefficients( aPropertyUserDefinedInfo->get_property_coeff_list()( propIndex ) );
         }
 
         //SLAVE-------------------------------------------------------------------------
@@ -704,17 +854,100 @@ namespace moris
         for( uint iProp = 0; iProp < tSlaveNumProp; iProp++ )
         {
             // get the index of the treated property in the info
-            uint propIndex = aPropertyUserDefinedInfo->get_property_map()( static_cast< int >( mSlavePropTypes( iProp ) ) );
+            uint propIndex = tPropertyTypeMap( static_cast< int >( mSlavePropTypes( iProp ) ) );
 
             // create an property for the treated property type
             mSlaveProperties( iProp ) = new Property( mSlavePropTypes( iProp ),
-                                                      aPropertyUserDefinedInfo->get_property_dof_type_list()( propIndex ),
-                                                      aPropertyUserDefinedInfo->get_property_valFunc_list()( propIndex ),
-                                                      aPropertyUserDefinedInfo->get_property_derFunc_list()( propIndex ),
+                                                      aPropertyUserDefinedInfo( propIndex ).get_property_dof_type_list(),
+                                                      aPropertyUserDefinedInfo( propIndex ).get_property_param_list(),
+                                                      aPropertyUserDefinedInfo( propIndex ).get_property_valFunc(),
+                                                      aPropertyUserDefinedInfo( propIndex ).get_property_derFunc_list(),
                                                       mSlaveIPGeometryInterpolator );
+        }
+    }
 
-            // set the coefficients for the treated property
-            mSlaveProperties( iProp )->set_coefficients( aPropertyUserDefinedInfo->get_property_coeff_list()( propIndex ) );
+//------------------------------------------------------------------------------
+    void Set::create_constitutive_models( const moris::Cell< fem::Constitutive_User_Defined_Info > & aConstitutiveUserDefinedInfo )
+    {
+        // build an input constitutive map--------------------------------------------------
+        //get the max enum for the constitutive type to create a constitutive map
+        sint tMaxEnum = 0;
+
+        // number of input constitutive
+        uint tInputCMs = aConstitutiveUserDefinedInfo.size();
+
+        // loop over the constitutive types
+        for( uint iCM = 0; iCM < tInputCMs; iCM++ )
+        {
+            // check if enum is greater
+            tMaxEnum = std::max( tMaxEnum, static_cast< int >( aConstitutiveUserDefinedInfo( iCM ).get_constitutive_type() ) );
+        }
+        // +1 because 0 based
+        tMaxEnum++;
+
+        // set the size of the constitutive map
+        Matrix< DDSMat > tConstitutiveTypeMap( tMaxEnum, 1, -1 );
+
+        // loop over the constitutive types
+        for( uint iCM = 0; iCM < tInputCMs; iCM++ )
+        {
+            // fill the constitutive map
+            tConstitutiveTypeMap( static_cast< int >( aConstitutiveUserDefinedInfo( iCM ).get_constitutive_type() ), 0 ) = iCM;
+        }
+
+        // create a constitutive model factory
+        fem::CM_Factory tCMFactory;
+
+        //MASTER------------------------------------------------------------------------
+        // get number of master constitutive types
+        uint tMasterNumCM = this->get_number_of_constitutive_models();
+
+        // set size for the cell of constitutive models
+        mMasterCM.resize( tMasterNumCM, nullptr );
+
+        // create a property for each constitutive type
+        for( uint iCM = 0; iCM < tMasterNumCM; iCM++ )
+        {
+            // get the index of the treated constitutive model in the info
+            uint tCMIndex = tConstitutiveTypeMap( static_cast< int >( mMasterConstitutiveTypes( iCM ) ) );
+
+            // create an property for the treated property type
+            mMasterCM( iCM ) =  tCMFactory.create_CM( mMasterConstitutiveTypes( iCM ) );
+
+            // set space dim
+            mMasterCM( iCM )->set_space_dim( aConstitutiveUserDefinedInfo( tCMIndex ).get_constitutive_space_dim() );
+
+            // set dof types
+            mMasterCM( iCM )->set_dof_type_list( aConstitutiveUserDefinedInfo( tCMIndex ).get_constitutive_dof_type_list() );
+
+            // set property type
+            mMasterCM( iCM )->set_property_type_list( aConstitutiveUserDefinedInfo( tCMIndex ).get_constitutive_property_type_list() );
+        }
+
+        //SLAVE-------------------------------------------------------------------------
+        // get number of slave constitutive types
+        uint tSlaveNumCM = this->get_number_of_constitutive_models( mtk::Master_Slave::SLAVE );
+
+        // set size for the cell of constitutive models
+        mSlaveCM.resize( tSlaveNumCM, nullptr );
+
+        // create a constitutive model for each constitutive type
+        for( uint iCM = 0; iCM < tSlaveNumCM; iCM++ )
+        {
+            // get the index of the treated property in the info
+            uint tCMIndex = tConstitutiveTypeMap( static_cast< int >( mSlaveConstitutiveTypes( iCM ) ) );
+
+            // create an property for the treated property type
+            mSlaveCM( iCM ) = tCMFactory.create_CM( mSlaveConstitutiveTypes( iCM ) );
+
+            // set space dim
+            mSlaveCM( iCM )->set_space_dim( aConstitutiveUserDefinedInfo( tCMIndex ).get_constitutive_space_dim() );
+
+            // set dof types
+            mSlaveCM( iCM )->set_dof_type_list( aConstitutiveUserDefinedInfo( tCMIndex ).get_constitutive_dof_type_list() );
+
+            // set property type
+            mSlaveCM( iCM )->set_property_type_list( aConstitutiveUserDefinedInfo( tCMIndex ).get_constitutive_property_type_list() );
         }
     }
 
@@ -813,6 +1046,158 @@ namespace moris
             tIWG->set_field_interpolators( tIWGFI, mtk::Master_Slave::SLAVE );
         }
 
+    }
+
+//------------------------------------------------------------------------------
+    void Set::set_IWG_constitutive_models()
+    {
+        // loop over the IWGs
+        for ( IWG * tIWG : mIWGs )
+        {
+            //MASTER------------------------------------------------------------------------
+            // get the number of master property type
+            uint tMasterIWGNumCM = tIWG->get_constitutive_type_list().size();
+
+            // set size for cell of master properties
+            moris::Cell< fem::Constitutive_Model* > tIWGCM( tMasterIWGNumCM, nullptr );
+
+            // loop over the constitutive type
+            for( uint iCM = 0; iCM < tMasterIWGNumCM; iCM++ )
+            {
+                // get the property index
+                uint tCMIndex = mMasterConstitutiveTypeMap( static_cast< int >( tIWG->get_constitutive_type_list()( iCM ) ) );
+
+                // collect the constitutive models that are active for the IWG
+                tIWGCM( iCM ) = mMasterCM( tCMIndex );
+            }
+
+            // set the IWG constitutive models
+            tIWG->set_constitutive_models( tIWGCM );
+
+            //SLAVE-------------------------------------------------------------------------
+            // get the number of slave constitutive type
+            uint tSlaveIWGNumCM = tIWG->get_constitutive_type_list( mtk::Master_Slave::SLAVE ).size();
+
+            // reset size for cell of slave constitutive models
+            tIWGCM.resize( tSlaveIWGNumCM, nullptr );
+
+            // loop over the property type
+            for( uint iCM = 0; iCM < tSlaveIWGNumCM; iCM++ )
+            {
+                // get the property index
+                uint tCMIndex = mSlaveConstitutiveTypeMap( static_cast< int >( tIWG->get_constitutive_type_list( mtk::Master_Slave::SLAVE )( iCM ) ) );
+
+                // collect the properties that are active for the IWG
+                tIWGCM( iCM ) = mSlaveCM( tCMIndex );
+            }
+
+            // set the IWG properties
+            tIWG->set_constitutive_models( tIWGCM, mtk::Master_Slave::SLAVE );
+        }
+    }
+
+//------------------------------------------------------------------------------
+    void Set::set_CM_properties()
+    {
+        //MASTER-------------------------------------------------------------------------
+        // loop over the master constitutive models
+        for ( Constitutive_Model * tCM : mMasterCM )
+        {
+            // get the number of property type
+            uint tCMNumProp = tCM->get_property_type_list().size();
+
+            // set size for cell of master properties
+            moris::Cell< fem::Property* > tCMProp( tCMNumProp, nullptr );
+
+            // loop over the property type
+            for( uint iProp = 0; iProp < tCMNumProp; iProp++ )
+            {
+                // get the property index
+                uint propIndex = mMasterPropTypeMap( static_cast< int >( tCM->get_property_type_list()( iProp ) ) );
+
+                // collect the properties that are active for the CM
+                tCMProp( iProp ) = mMasterProperties( propIndex );
+            }
+
+            // set the CM properties
+            tCM->set_properties( tCMProp );
+        }
+
+        //SLAVE-------------------------------------------------------------------------
+        // loop over the slave constitutive models
+        for( Constitutive_Model * tCM : mSlaveCM )
+        {
+            // get the number of property type
+            uint tCMNumProp = tCM->get_property_type_list().size();
+
+            // set size for cell of properties
+            moris::Cell< fem::Property* > tCMProp( tCMNumProp, nullptr );
+
+            // loop over the property type
+            for( uint iProp = 0; iProp < tCMNumProp; iProp++ )
+            {
+                // get the property index
+                uint propIndex = mSlavePropTypeMap( static_cast< int >( tCM->get_property_type_list()( iProp ) ) );
+
+                // collect the properties that are active for the CM
+                tCMProp( iProp ) = mSlaveProperties( propIndex );
+            }
+
+            // set the CM properties
+            tCM->set_properties( tCMProp );
+        }
+    }
+
+//------------------------------------------------------------------------------
+    void Set::set_CM_field_interpolators()
+    {
+        //MASTER-----------------------------------------------------------------------------
+        // loop over the constitutive models
+        for ( Constitutive_Model* tCM: mMasterCM )
+        {
+            // get number of master dof type for constitutive model
+            uint tMasterNumDof = tCM->get_global_dof_type_list().size();
+
+            // set size for cell of field interpolator for master properties
+            moris::Cell< Field_Interpolator* > tCMMasterFI( tMasterNumDof, nullptr );
+
+            // select associated active interpolators
+            for( uint iDOF = 0; iDOF < tMasterNumDof; iDOF++ )
+            {
+                // find the index of the dof type in the list of set dof type
+                uint tDofIndex = mMasterDofTypeMap( static_cast< int >( tCM->get_global_dof_type_list()( iDOF )( 0 ) ) );
+
+                // add the corresponding field interpolator to the property list
+                tCMMasterFI( iDOF ) = mMasterFI( tDofIndex );
+            }
+
+            // set field interpolators for the property
+            tCM->set_field_interpolators( tCMMasterFI );
+        }
+
+        //SLAVE------------------------------------------------------------------------------
+
+        // loop over the constitutive model
+        for ( Constitutive_Model* tCM: mSlaveCM )
+        {
+            // get number of master dof type for property
+            uint tSlaveNumDof = tCM->get_global_dof_type_list().size();
+
+            // set size for cell of field interpolator for slave properties
+            moris::Cell< Field_Interpolator* > tCMSlaveFI( tSlaveNumDof, nullptr );
+
+            // select associated active interpolators
+            for( uint iDOF = 0; iDOF < tSlaveNumDof; iDOF++ )
+            {
+                // find the index of the dof type in the list of set dof type
+                uint tDofIndex = mSlaveDofTypeMap( static_cast< int >( tCM->get_global_dof_type_list()( iDOF )( 0 ) ) );
+
+                // add the corresponding field interpolator to the property list
+                tCMSlaveFI( iDOF ) = mSlaveFI( tDofIndex );
+            }
+                // set field interpolators for the property
+                tCM->set_field_interpolators( tCMSlaveFI );
+        }
     }
 
 //------------------------------------------------------------------------------

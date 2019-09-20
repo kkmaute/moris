@@ -2,20 +2,24 @@
  * cl_FEM_Set.hpp
  *
  *  Created on: Mar 10, 2019
- *      Author: schmidt
+ *      Author: schmidt/noel
  */
 
 #ifndef SRC_FEM_CL_FEM_SET_HPP_
 #define SRC_FEM_CL_FEM_SET_HPP_
 
 #include "assert.h"
+#include "cl_Communication_Tools.hpp"
+
 #include "cl_MTK_Enums.hpp"            //MTK
 #include "cl_MSI_Equation_Set.hpp"     //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"            //FEM/INT/src
 #include "cl_FEM_Node_Base.hpp"        //FEM/INT/src
-#include "cl_FEM_Property.hpp"             //FEM/INT/src
-#include "cl_FEM_Property_User_Defined_Info.hpp"             //FEM/INT/src
-#include "cl_Communication_Tools.hpp"
+#include "cl_FEM_Property.hpp"                       //FEM/INT/src
+#include "cl_FEM_Property_User_Defined_Info.hpp"     //FEM/INT/src
+#include "cl_FEM_Constitutive_Model.hpp"             //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"                     //FEM/INT/src
+#include "cl_FEM_Constitutive_User_Defined_Info.hpp" //FEM/INT/src
 
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
@@ -114,6 +118,18 @@ namespace MSI
         moris::Cell< Property* >  mMasterProperties;
         moris::Cell< Property* >  mSlaveProperties;
 
+        // lists of master and slave constitutive type for the set
+        moris::Cell< fem::Constitutive_Type > mMasterConstitutiveTypes;
+        moris::Cell< fem::Constitutive_Type > mSlaveConstitutiveTypes;
+
+        // maps for the master and slave constitutive type
+        Matrix< DDSMat > mMasterConstitutiveTypeMap;
+        Matrix< DDSMat > mSlaveConstitutiveTypeMap;
+
+        // list of property pointers for the set
+        moris::Cell< Constitutive_Model* >  mMasterCM;
+        moris::Cell< Constitutive_Model* >  mSlaveCM;
+
         // integration points
         Matrix< DDRMat > mIntegPoints;
 
@@ -136,17 +152,19 @@ namespace MSI
 //------------------------------------------------------------------------------
         /**
          * constructor
-         * @param[ in ] aMeshSet                 a set from the mesh
-         * @param[ in ] aElementType             enum for element type ( BULK, SIDESET, ...)
-         * @param[ in ] aIWGs                    cell of IWG pointers
-         * @param[ in ] aPropertyUserDefinedInfo user defined info to build the properties
-         * @param[ in ] aIPNodes                 cell of node pointers
+         * @param[ in ] aMeshSet                     a set from the mesh
+         * @param[ in ] aElementType                 enum for element type ( BULK, SIDESET, ...)
+         * @param[ in ] aIWGs                        cell of IWG pointers
+         * @param[ in ] aPropertyUserDefinedInfo     user defined info to build the properties
+         * @param[ in ] aConstitutiveUserDefinedInfo user defined info to build the constitutive models
+         * @param[ in ] aIPNodes                     cell of node pointers
          */
-        Set( moris::mtk::Set                       * aMeshSet,
-             Element_Type                            aElementType,
-             moris::Cell< IWG* >                   & aIWGs,
-             const fem::Property_User_Defined_Info * aPropertyUserDefinedInfo,
-             moris::Cell< Node_Base* >             & aIPNodes );
+        Set( moris::mtk::Set                                          * aMeshSet,
+             Element_Type                                               aElementType,
+             moris::Cell< IWG* >                                      & aIWGs,
+             const moris::Cell< fem::Property_User_Defined_Info >     & aPropertyUserDefinedInfo,
+             const moris::Cell< fem::Constitutive_User_Defined_Info > & aConstitutiveUserDefinedInfo,
+             moris::Cell< Node_Base* >                                & aIPNodes );
 
         /**
          * trivial constructor
@@ -199,16 +217,6 @@ namespace MSI
          * one for both master and slave
          */
         void create_unique_dof_type_list();
-
-//------------------------------------------------------------------------------
-        /**
-         * get unique dof type list for the solver
-         * Cell< MSI::Dof_Type >, no group of dof type
-         */
-        moris::Cell< enum MSI::Dof_Type > & get_unique_dof_type_list()
-        {
-            return mEqnObjDofTypeList;
-        }
 
 //------------------------------------------------------------------------------
         /**
@@ -270,6 +278,70 @@ namespace MSI
                 {
                     MORIS_ERROR( false, "Set::get_property_type_map - can only be MASTER or SLAVE.");
                     return mMasterPropTypeMap;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * create a unique constitutive type list for the set
+         * one for the master, one for the slave
+         */
+        void create_constitutive_type_list();
+
+//------------------------------------------------------------------------------
+        /**
+         * get constitutive type list
+         * @param[ in ] aIsMaster enum for master or slave
+         */
+        moris::Cell< fem::Constitutive_Type > & get_constitutive_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterConstitutiveTypes;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveConstitutiveTypes;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_constitutive_type_list - can only be MASTER or SLAVE");
+                    return mMasterConstitutiveTypes;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * create a map of the constitutive type for the set
+         * one for the master, one for the slave
+         */
+        void create_constitutive_type_map();
+
+//------------------------------------------------------------------------------
+        /**
+         * returns a map of the constitutive type for the set
+         * one for the master, one for the slave
+         */
+        Matrix< DDSMat > & get_constitutive_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterConstitutiveTypeMap;
+                }
+                case ( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveConstitutiveTypeMap;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Set::get_constitutive_type_map - can only be MASTER or SLAVE.");
+                    return mMasterConstitutiveTypeMap;
                 }
             }
         }
@@ -427,7 +499,7 @@ namespace MSI
          * create properties
          * @param[ in ] aPropertyUserDefinedInfo user defined properties
          */
-        void create_properties( const fem::Property_User_Defined_Info * aPropertyUserDefinedInfo );
+        void create_properties( const moris::Cell< fem::Property_User_Defined_Info > & aPropertyUserDefinedInfo );
 
 //------------------------------------------------------------------------------
         /**
@@ -485,6 +557,76 @@ namespace MSI
          */
         void set_properties_field_interpolators();
 
+
+//------------------------------------------------------------------------------
+        /**
+         * set the field interpolators for the constitutive models
+         */
+        void set_CM_field_interpolators();
+
+//------------------------------------------------------------------------------
+        /**
+         * set the properties for the constitutive models
+         */
+        void set_CM_properties();
+
+//------------------------------------------------------------------------------
+        /**
+         * create constitutive models
+         * @param[ in ] aConstitutiveUserDefinedInfo user defined constitutive models
+         */
+        void create_constitutive_models( const moris::Cell< fem::Constitutive_User_Defined_Info > & aConstitutiveUserDefinedInfo );
+
+//------------------------------------------------------------------------------
+        /**
+         * get constitutive models
+         * @param[ in ] aIsMaster enum for master or slave
+         */
+        moris::Cell< Constitutive_Model* > & get_constitutive_models( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterCM;
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveCM;
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_constitutive_models - can only be MASTER or SLAVE.");
+                    return mMasterCM;
+                }
+            }
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get number of constitutive models
+         * @param[ in ] aIsMaster enum for master or slave
+         */
+        uint get_number_of_constitutive_models( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+        {
+            switch ( aIsMaster )
+            {
+                case ( mtk::Master_Slave::MASTER ):
+                {
+                    return mMasterConstitutiveTypes.size();
+                }
+                case( mtk::Master_Slave::SLAVE ):
+                {
+                    return mSlaveConstitutiveTypes.size();
+                }
+                default:
+                {
+                    MORIS_ERROR(false, "Set::get_number_of_constitutive_models - can only be MASTER or SLAVE.");
+                    return mMasterConstitutiveTypes.size();
+                }
+            }
+        }
+
 //------------------------------------------------------------------------------
         /**
          * get number of IWGs
@@ -509,6 +651,12 @@ namespace MSI
          * set the properties for the IWGs
          */
         void set_IWG_properties();
+
+//------------------------------------------------------------------------------
+        /**
+         * set the constitutive models for the IWGs
+         */
+        void set_IWG_constitutive_models();
 
 //------------------------------------------------------------------------------
         /**

@@ -10,11 +10,6 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
-        IWG_Isotropic_Spatial_Diffusion_Neumann::IWG_Isotropic_Spatial_Diffusion_Neumann(){}
-
-//------------------------------------------------------------------------------
-
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators
@@ -31,7 +26,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check master field interpolators
@@ -40,13 +34,23 @@ namespace moris
             // set jacobian size
             this->set_jacobian( aJacobians );
 
-            // compute the jacobian
+            // compute the jacobian for direct IWG dof dependencies
             uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
             aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+
+            // compute the jacobian for indirect IWG dof dependencies through properties
+            for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
+            {
+                // if dependency in the dof type
+                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                      moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
@@ -65,9 +69,20 @@ namespace moris
             // set jacobian size
             this->set_jacobian( aJacobians );
 
-            // compute the jacobian j_T_T
+            // compute the jacobian for direct IWG dof dependencies
             uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
             aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+
+            // compute the jacobian for indirect IWG dof dependencies through properties
+            for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
+            {
+                // if dependency in the dof type
+                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                }
+            }
         }
 
 //------------------------------------------------------------------------------

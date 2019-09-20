@@ -22,6 +22,8 @@
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Property_User_Defined_Info.hpp"
 #include "cl_FEM_IWG_User_Defined_Info.hpp"
+#include "cl_FEM_Constitutive_Model.hpp"
+#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -54,14 +56,15 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-    Model::Model(       mtk::Mesh_Manager*                            aMeshManager,
-                  const uint                                          aBSplineIndex,
-                  const fem::IWG_User_Defined_Info                  * aIWGUserDefinedInfo,
-                  const moris::Cell< moris_index >                  & aSetList,
-                  const moris::Cell< fem::Element_Type >            & aSetTypeList,
-                  const fem::Property_User_Defined_Info             * aPropertyUserDefinedInfo,
-                  const moris_index                                 aMeshPairIndex,
-                  const bool                                        aUseMultigrid )
+    Model::Model(       mtk::Mesh_Manager*                                                  aMeshManager,
+                  const uint                                                                aBSplineIndex,
+                  const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >          & aIWGUserDefinedInfo,
+                  const moris::Cell< moris_index >                                        & aSetList,
+                  const moris::Cell< fem::Element_Type >                                  & aSetTypeList,
+                  const moris::Cell< moris::Cell< fem::Property_User_Defined_Info > >     & aPropertyUserDefinedInfo,
+                  const moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > & aConstitutiveUserDefinedInfo,
+                  const moris_index                                                         aMeshPairIndex,
+                  const bool                                                                aUseMultigrid )
         : mMeshManager( aMeshManager ),
           mMeshPairIndex( aMeshPairIndex ),
           mUseMultigrid( aUseMultigrid )
@@ -93,9 +96,9 @@ namespace moris
             // create node objects
             mIPNodes.resize(  tNumOfIPNodes, nullptr );
 
-            for( luint k = 0; k < tNumOfIPNodes; ++k )
+            for( uint iNode = 0; iNode < tNumOfIPNodes; iNode++ )
             {
-                mIPNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
+                mIPNodes( iNode ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( iNode ) );
             }
 
             if( par_rank() == 0)
@@ -113,34 +116,11 @@ namespace moris
             // STEP 1.5: create IWGs
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-//            // a factory to create the IWGs
-//            fem::IWG_Factory tIWGFactory;
-//
-//            // number of sets
-//            uint tNumSets = aSetList.size();
-//
-//            // create a cell of IWGs
-//            mIWGs.resize( tNumSets );
-//
-//            // loop over the sets
-//            for( uint iSet = 0; iSet < tNumSets; iSet++)
-//            {
-//                // set size for the cell of IWGs for the set
-//                mIWGs( iSet ).resize( aIWGTypeList( iSet ).size(), nullptr );
-//
-//                // loop over the IWG types for the set
-//                for( uint iIWG = 0; iIWG < aIWGTypeList( iSet ).size(); iIWG++)
-//                {
-//                    // create an IWG with the factory for the IWG type
-//                    mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWGs( aIWGTypeList( iSet )( iIWG ) );
-//                }
-//            }
-
             // a factory to create the IWGs
             fem::IWG_Factory tIWGFactory;
 
             // number of groups of IWGs
-            uint tNumGroupIWG = aIWGUserDefinedInfo->get_IWG_type_list().size();
+            uint tNumGroupIWG = aIWGUserDefinedInfo.size();
 
             // create a cell of IWGs
             // FIXME check tNumGroupIWG = tNumSets
@@ -149,33 +129,46 @@ namespace moris
             // loop over the sets
             for( uint iSet = 0; iSet < tNumGroupIWG; iSet++ )
             {
+                // number of IWG in set
+                uint tNumIWG = aIWGUserDefinedInfo( iSet ).size();
+
                 // set size for the cell of IWGs for the set
-                mIWGs( iSet ).resize( aIWGUserDefinedInfo->get_IWG_type_list()( iSet ).size(), nullptr );
+                mIWGs( iSet ).resize( tNumIWG, nullptr );
 
                 // loop over the IWG types for the set
-                for( uint iIWG = 0; iIWG < aIWGUserDefinedInfo->get_IWG_type_list()( iSet ).size(); iIWG++ )
+                for( uint iIWG = 0; iIWG < tNumIWG; iIWG++ )
                 {
                     // create an IWG with the factory for the IWG type
-                    mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWGs( aIWGUserDefinedInfo->get_IWG_type_list()( iSet )( iIWG ) );
+                    mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWGs( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_type() );
+
+                    // set space dimension
+                    mIWGs( iSet )( iIWG )->set_space_dim( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_space_dim() );
 
                     // set residual dof type
-                    mIWGs( iSet )( iIWG )->set_residual_dof_type( aIWGUserDefinedInfo->get_residual_dof_type()( iSet )( iIWG ) );
+                    mIWGs( iSet )( iIWG )->set_residual_dof_type( aIWGUserDefinedInfo( iSet )( iIWG ).get_residual_dof_type() );
 
                     // set active dof type
-                    mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo->get_dof_type_list()( iSet )( iIWG ) );
+                    mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_dof_type_list() );
 
                     // set active property type
-                    mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo->get_property_type_list()( iSet )( iIWG ) );
+                    mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_property_type_list() );
+
+                    // set active constitutive type
+                    mIWGs( iSet )( iIWG )->set_constitutive_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_constitutive_type_list() );
 
                     if( aSetTypeList( iSet ) == fem::Element_Type::DOUBLE_SIDESET )
                     {
                         // set active dof type
-                        mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo->get_dof_type_list( mtk::Master_Slave::SLAVE )( iSet )( iIWG ),
+                        mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_dof_type_list( mtk::Master_Slave::SLAVE ),
                                                                   mtk::Master_Slave::SLAVE );
 
                         // set active property type
-                        mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo->get_property_type_list( mtk::Master_Slave::SLAVE )( iSet )( iIWG ),
+                        mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_property_type_list( mtk::Master_Slave::SLAVE ),
                                                                        mtk::Master_Slave::SLAVE );
+
+                        // set active constitutive type
+                        mIWGs( iSet )( iIWG )->set_constitutive_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_constitutive_type_list( mtk::Master_Slave::SLAVE ),
+                                                                           mtk::Master_Slave::SLAVE );
                     }
                 }
             }
@@ -239,7 +232,8 @@ namespace moris
                 mFemSets( tFemSetCounter ) = new fem::Set( tMeshSet,
                                                            aSetTypeList( iSet ),
                                                            mIWGs( iSet ),
-                                                           aPropertyUserDefinedInfo,
+                                                           aPropertyUserDefinedInfo( iSet ),
+                                                           aConstitutiveUserDefinedInfo( iSet ),
                                                            mIPNodes );
 
                 // collect equation objects associated with the block-set
@@ -300,7 +294,7 @@ namespace moris
             moris::Cell< MSI::Equation_Set * > tEquationSets(mFemSets.size());
             for(moris::uint iSet = 0; iSet < mFemSets.size(); iSet++ )
             {
-                tEquationSets(iSet) = mFemSets(iSet);
+                tEquationSets( iSet ) = mFemSets( iSet );
             }
 
 
