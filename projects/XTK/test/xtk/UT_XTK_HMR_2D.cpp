@@ -110,7 +110,6 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tHMR.update_refinement_pattern( 0 );
 
              tField->evaluate_scalar_function( CircleFunc );
          }
@@ -206,7 +205,6 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tHMR.update_refinement_pattern( 0 );
 
              tField->evaluate_scalar_function( CircleFunc );
          }
