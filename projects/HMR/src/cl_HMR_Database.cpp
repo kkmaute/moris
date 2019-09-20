@@ -462,6 +462,9 @@ namespace moris
                     // create facets
                     tMesh->create_facets();
 
+                    // With the constructed facet information create facet clustering data
+                    tMesh->create_facet_clusters();
+
                     // create edges
                     if( mParameters->get_number_of_dimensions() == 3 )
                     {
@@ -1343,7 +1346,7 @@ namespace moris
 
             // manually put this element on the queue FIXME this function switches the mRefinementQueueFlag to true.
             // However, in set_refined_flag the mRefinementQueueFlag flag is set to false;
-//            mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
+            mBackgroundMesh->get_element( aIndex )->put_on_refinement_queue();
 
             // also remember this element on the working pattern
             mBackgroundMesh->get_element( aIndex )->set_refined_flag( mParameters->get_working_pattern() );

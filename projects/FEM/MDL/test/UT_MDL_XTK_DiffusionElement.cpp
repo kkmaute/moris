@@ -85,13 +85,10 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                 {
     if(par_size() == 1)
     {
-        moris::real tXCenter = 1.0;
-        moris::real tYCenter = 1.0;
-        moris::real tZCenter = 3.1;
-        moris::real tXNorm  = 0.0;
-        moris::real tYNorm  = 0.0;
-        moris::real tZNorm  = 1.0;
-        xtk::Plane tPlane(tXCenter, tYCenter, tZCenter, tXNorm, tYNorm, tZNorm);
+        moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
+        moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
+        xtk::Plane<3> tPlane(tCenters,tNormals);
+
         xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         xtk::Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
@@ -353,13 +350,9 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
 
     if(par_size() == 1)
     {
-        moris::real tXCenter = 1.0;
-        moris::real tYCenter = 1.0;
-        moris::real tZCenter = 3.51;
-        moris::real tXNorm  = 0.0;
-        moris::real tYNorm  = 0.0;
-        moris::real tZNorm  = 1.0;
-        xtk::Plane tPlane(tXCenter, tYCenter, tZCenter, tXNorm, tYNorm, tZNorm);
+        Matrix<DDRMat> tCenter = {{1.0,1.0,3.51}};
+        Matrix<DDRMat> tNorms  = {{0.0,0.0,1.0}};
+        xtk::Plane<3> tPlane(tCenter,tNorms);
         xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
         xtk::Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
@@ -600,3 +593,4 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
 
 
 }
+

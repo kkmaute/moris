@@ -23,87 +23,6 @@ namespace xtk
 {
 
 
-TEST_CASE("Child Mesh","[Child_Mesh]")
-{
-//
-//    size_t tMax = std::numeric_limits<size_t>::max();
-//    size_t tParentElementIndex = 1;
-//
-//    // Processor local node indices
-//    moris::Matrix< moris::IndexMat > tNodeInds({{1,2,3,4,5,6}});
-//
-//    // Locally indexed
-//    moris::Matrix< moris::IndexMat > tElementToNode({{1,2,3,4},
-//                                                     {2,5,3,4},
-//                                                     {1,2,3,6},
-//                                                     {1,4,2,5}});
-//
-//    // Processor local index
-//   moris::Matrix< moris::IndexMat > tElementEdgeParentInds({{0, 1, 2, 3, 4, 5},
-//                                                              {6, 7, 1, 4, 8, 5},
-//                                                              {0, 1, 2, 9,10,11},
-//                                                              {6, 7, 1,10,13,14}});
-//
-//   moris::Matrix< moris::DDSTMat > tElementEdgeParentRanks(4,6,1); // All rank 1
-//
-//   // Processor local index
-//   moris::Matrix< moris::IndexMat > tElementFaceParentInds({{0, 1, 2, 3},
-//                                                              {4, 5, 6, 1},
-//                                                              {0, 7, 8, 9},
-//                                                              {4,10,11, 7}});
-//
-//   moris::Matrix< moris::DDSTMat > tElementFaceParentRanks(4,4,2); // All rank 2
-//   moris::Matrix< moris::DDSTMat > tElementInferfaceSides(4,1,tMax);
-//
-//
-//
-//   Child_Mesh_Test tChildMesh(tParentElementIndex,
-//                                                                                      tNodeInds,
-//                                                                                      tElementToNode,
-//                                                                                      tElementEdgeParentInds,
-//                                                                                      tElementEdgeParentRanks,
-//                                                                                      tElementFaceParentInds,
-//                                                                                      tElementFaceParentRanks,
-//                                                                                      tElementInferfaceSides);
-//
-//
-//   // BEGIN TEMPLATE ---------------------------------------------------------------------------------------
-//   // Insert a template
-//   Mesh_Modification_Template<real,size_t,moris::DDRMat,moris::DDSTMat> tMeshTemplate;
-//   tMeshTemplate.mNumNewElem = 2;
-//   tMeshTemplate.mNumElemToReplace = 1;
-//   tMeshTemplate.mElemIndToReplace = 2;
-//   tMeshTemplate.mParentEdgeInds           = moris::Matrix< moris::IndexMat >({{2,4,5,7,8,9},
-//                                                                               {0,2,1,4,3,9}});
-//   tMeshTemplate.mParentEdgeRanks          = moris::Matrix< moris::DDSTMat >(2,6,1);
-//   tMeshTemplate.mParentFaceInds           = moris::Matrix< moris::IndexMat >({{2,4,5,7},
-//                                                                                 {0,2,1,4}});
-//   tMeshTemplate.mParentFaceRanks          = moris::Matrix< moris::DDSTMat >(2,4,2);
-//   tMeshTemplate.mNodeInds                 = moris::Matrix< moris::IndexMat >({{10,11,12,13,14,15,16}});
-//
-//   tMeshTemplate.mNewElementToNode         = moris::Matrix< moris::IndexMat >({{0,1,2,3},
-//                                                                                 {4,5,6,1}});
-//   tMeshTemplate.mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >(2,6,1);
-//
-//   tMeshTemplate.mNewParentEdgeOrdinals    = moris::Matrix< moris::IndexMat >({{0,1,2,3,4,5},
-//                                                                                 {0,1,2,3,4,5}});
-//   tMeshTemplate.mNewParentFaceRanks       = moris::Matrix< moris::DDSTMat >(2,4,2);
-//
-//   tMeshTemplate.mNewParentFaceOrdinals    = moris::Matrix< moris::IndexMat >({{0,1,2,3},
-//                                                                                 {3,2,1,0}});
-//   tMeshTemplate.mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{1},
-//                                                                             {tMax}});
-//      // END TEMPLATE -----------------------------------------------------------------------------------------
-//
-//   tChildMesh.add_node_indices(tMeshTemplate.mNodeInds);
-//
-//   // Insert template into mesh
-//   tChildMesh.allocate_more_elements(tMeshTemplate.mNumNewElem - tMeshTemplate.mNumElemToReplace);
-//   tChildMesh.insert_child_mesh_template(tMeshTemplate);
-//   tChildMesh.generate_connectivities(true,true,true);
-}
-
-
 /*
  * Test the transition between a regular subdivision hex to conformal node hierarchy mesh independently of the geometry engine
  */
@@ -166,6 +85,8 @@ TEST_CASE("Regular Subdivision to NH Transition","[RS_NH]")
 
      // Initialize child mesh with template
      Child_Mesh tChildMesh(tRegSubTemplate);
+
+     tChildMesh.add_new_geometry_interface(0);
 
     /*
      * Initialize New Node Ids Indices and auxiliary connectivity

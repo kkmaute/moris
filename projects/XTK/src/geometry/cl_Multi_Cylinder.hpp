@@ -93,7 +93,7 @@ private:
            moris::real radDist = std::pow(radDir(0)*radDir(0)+radDir(1)*radDir(1)+radDir(2)*radDir(2), 0.5);
            moris::real lsFromRad = radDist - aRad;
 
-           return -std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
+           return std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
        }
 
 };

@@ -107,12 +107,6 @@ public:
     get_mtk_vertex_xtk(moris::moris_index aVertexIndex);
 
     /*!
-     * Get an mtk vertex interpolation
-     */
-    moris::mtk::Vertex_Interpolation_XTK &
-    get_mtk_vertex_interpolation(moris::moris_index aVertexIndex);
-
-    /*!
      * Get an mtk cell
      */
     moris::mtk::Cell &
@@ -449,11 +443,9 @@ public:
     get_mesh_data() const;
     // -------------------------------------------------------------------
 
-    /*!
-     * Get the base topology of parent elements in the background mesh
-     */
     enum CellTopology
-    get_XTK_mesh_element_topology() const;
+    get_parent_cell_topology() const;
+
 
 private:
     // Background mesh data
@@ -477,8 +469,6 @@ private:
     // Vertex constructed by the decomposition process
     std::map< moris_id, moris_index> mVertexGlbToLocalMap;
     moris::Cell<moris::mtk::Vertex_XTK> mXtkMtkVertices;
-    moris::Cell<moris::mtk::Vertex_Interpolation_XTK> mXtkMtkVerticesInterpolation;
-
 
     // Associate external node indices to the child meshes they belong to
     // Row - External node index

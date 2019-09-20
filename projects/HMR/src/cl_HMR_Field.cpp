@@ -323,6 +323,7 @@ namespace moris
 
             // set size of node values
             tNodeValues.set_size( tNumberOfVertices, 1 );
+            tNodeValues.fill(0);
 
             // loop over all vertices
             for( uint k=0; k<tNumberOfVertices; ++k )

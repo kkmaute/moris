@@ -99,9 +99,11 @@ public:
 
     // Single geometry constructor
     Geometry_Engine(Geometry  & aGeometry,
-                    Phase_Table const & aPhaseTable) :
+                    Phase_Table const & aPhaseTable,
+                    moris::uint aSpatialDim = 3) :
         mThresholdValue(0),
         mComputeDxDp(false),
+        mSpatialDim(aSpatialDim),
         mActiveGeometryIndex(0),
         mGeometryObjects(),
         mPhaseTable(aPhaseTable)
@@ -112,9 +114,11 @@ public:
 
     // geometry vector constructor
     Geometry_Engine(Cell<Geometry*> const  & aGeometry,
-                    Phase_Table const & aPhaseTable) :
+                    Phase_Table const & aPhaseTable,
+                    moris::uint aSpatialDim = 3) :
         mThresholdValue(0),
         mComputeDxDp(false),
+        mSpatialDim(aSpatialDim),
         mActiveGeometryIndex(0),
         mGeometry(aGeometry),
         mPhaseTable(aPhaseTable)
@@ -131,7 +135,7 @@ public:
     moris::real mThresholdValue;
     moris::real mPerturbationValue;
     bool        mComputeDxDp; // Should be turned off if a sensitivity has not been implemented
-
+    moris::uint mSpatialDim;
 
     /*
      * Initiali allocation of geometry objects, this creates a geometry object for each node coordinate.
@@ -474,7 +478,7 @@ public:
         if(aComputeGlobalCoordinate)
         {
             // Place only the entity coordinates in a matrix
-            moris::Matrix< moris::DDRMat > tEntityCoordinates(2,3);
+            moris::Matrix< moris::DDRMat > tEntityCoordinates(2,mSpatialDim);
             replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityCoordinates);
             replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityCoordinates);
 
@@ -942,7 +946,7 @@ private:
             if(aCheckType == 1)
             {
                 moris::Matrix< moris::DDRMat > tIntersectLocalCoordinate(1,1);
-                moris::Matrix< moris::DDRMat > tIntersectGlobalCoordinate(1,3);
+                moris::Matrix< moris::DDRMat > tIntersectGlobalCoordinate(1,mSpatialDim);
                 get_intersection_location(mThresholdValue,
                                           mPerturbationValue,
                                           aNodeCoords,

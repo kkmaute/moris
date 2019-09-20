@@ -12,6 +12,8 @@
 #include "op_less_equal.hpp"
 #include "op_greater_equal.hpp"
 
+#include "fn_inv.hpp"
+
 #include "cl_FEM_Field_Interpolator.hpp" //FEM/INT/src
 
 namespace moris
@@ -237,7 +239,8 @@ namespace moris
             mGeometryInterpolator->space_jacobian( tJGeot );
 
             // compute first derivative of the SF wrt x
-            mBx = solve( tJGeot, tdNFielddXi );
+//            mBx = solve( tJGeot, tdNFielddXi );
+            mBx = inv( tJGeot ) * tdNFielddXi;
 
             // set bool for evaluation
             mBxEval = false;

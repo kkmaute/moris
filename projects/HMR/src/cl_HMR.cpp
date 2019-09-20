@@ -552,8 +552,14 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-        void HMR::perform_refinement_based_on_working_pattern( const uint aPattern )
+        void HMR::perform_refinement_based_on_working_pattern( const uint aPattern,
+                                                               const bool aResetPattern )
         {
+            if ( aResetPattern )
+            {
+                mDatabase->get_background_mesh()->reset_pattern( aPattern );
+            }
+
             // refine database and remember flag
             mDatabase->perform_refinement( aPattern, ! mPerformRefinementCalled );
 
@@ -623,7 +629,7 @@ namespace moris
 
         std::shared_ptr< Interpolation_Mesh_HMR > HMR::create_interpolation_mesh( const uint & aLagrangeMeshIndex)
         {
-            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase,aLagrangeMeshIndex );
+            return std::make_shared< Interpolation_Mesh_HMR >( mDatabase, aLagrangeMeshIndex );
         }
 
 
@@ -1034,25 +1040,21 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-        void HMR::user_defined_flagging(
-                        int ( *aFunction )(       Element                    * aElement,
-                                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
-                                                  ParameterList              & aParameters ),
-                        Cell< std::shared_ptr< Field > > & aFields,
-                        ParameterList              & aParameters )
+        void HMR::user_defined_flagging( int ( *aFunction )(       Element                    * aElement,
+                                                             const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                                                   ParameterList              & aParameters ),
+                                         Cell< std::shared_ptr< Field > > & aFields,
+                                         ParameterList                    & aParameters,
+                                         const uint                       & aPattern )
         {
-            MORIS_ERROR(false,"user_defined_flagging() not changed yet" );
             // remember current active scheme
             uint tActivePattern = mDatabase->get_activation_pattern();
 
-            // define patterns
-            uint tInputPattern = mParameters->get_lagrange_input_pattern();
-
             // set activation pattern to input
-            if( tActivePattern != tInputPattern )
+            if( tActivePattern != aPattern )
             {
                 // set active pattern to input mesh
-                mDatabase->set_activation_pattern( tInputPattern );
+                mDatabase->set_activation_pattern( aPattern );
             }
 
             // get number of fields
@@ -1065,8 +1067,7 @@ namespace moris
             Cell< Matrix< DDRMat> > tFields( tNumberOfFields, tEmpty );
 
             // get number of elements from input mesh
-            uint tNumberOfElements
-                = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
+            uint tNumberOfElements  = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
 
             // loop over all fields
             for( auto tField: aFields )
@@ -1081,11 +1082,13 @@ namespace moris
             // grab max level from settings
             uint tMaxLevel = mParameters->get_max_refinement_level();
 
+            uint tLagrangeInputMeshIndex = mParameters->get_lagrange_input_mesh()(0);             //FIXME this works only for one input mesh
+
             // loop over all elements
             for( uint e=0; e<tNumberOfElements; ++e )
             {
                 // get pointer to element
-                Element * tElement =  mInputMeshes( 0 )->get_lagrange_mesh()->get_element( e );
+                Element * tElement =  mMeshes( tLagrangeInputMeshIndex )->get_lagrange_mesh()->get_element( e );
 
                 // only consider element if level is below max specified level
 
@@ -1127,21 +1130,21 @@ namespace moris
                 }
             }
 
-            // get max level on this mesh
-            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
-
-            if( mParameters->get_refinement_buffer() > 0 )
-            {
-                // get number of levels
-                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
-                {
-                    // create extra buffer
-                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
-                }
-            }
+//            // get max level on this mesh
+//            uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+//
+//            if( mParameters->get_refinement_buffer() > 0 )
+//            {
+//                // get number of levels
+//                for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+//                {
+//                    // create extra buffer
+//                    mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+//                }
+//            }
 
             // reset activation pattern of database
-            if( tActivePattern != tInputPattern )
+            if( tActivePattern != aPattern )
             {
                 mDatabase->set_activation_pattern( tActivePattern );
             }

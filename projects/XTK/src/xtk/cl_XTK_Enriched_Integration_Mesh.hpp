@@ -9,6 +9,9 @@
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "typedefs.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Cell.hpp"
+#include "cl_XTK_Field.hpp"
 #include <unordered_map>
 
 using namespace moris;
@@ -19,6 +22,7 @@ class Model;
 class Cell_Cluster;
 class Side_Cluster;
 class Interpolation_Cell_Unzipped;
+
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 {
@@ -79,6 +83,9 @@ public:
     // end integration mesh functions
     //------------------------------------------------------------------------------
 
+    //------------------------------------------------------------------------------
+    // Additional Set Functions
+    //------------------------------------------------------------------------------
     /*
      * Get the side set name of the interface.
      */
@@ -87,21 +94,55 @@ public:
                                 moris_index aBulkPhaseIndex0,
                                 moris_index aBulkPhaseIndex1);
 
+    //------------------------------------------------------------------------------
+    // Additional Field Functions
+    //------------------------------------------------------------------------------
+    /*!
+     * Create a field in the enriched integration mesh. aBulkphaseIndex of MORIS_
+     * INDEX_MAX results in a field over all phases. (returns the field index)
+     */
+    moris::moris_index
+    create_field(std::string            aLabel,
+                 enum moris::EntityRank aEntityRank,
+                 moris::moris_index     aBulkPhaseIndex = MORIS_INDEX_MAX);
+    //------------------------------------------------------------------------------
+    /*!
+     * Returns the field index in the member data vector, more efficient to do
+     * this once and access the field directly through the index
+     */
+    moris::moris_index
+    get_field_index(std::string              aLabel,
+                    enum moris::EntityRank   aEntityRank);
+    //------------------------------------------------------------------------------
+    /*!
+     * Add field data to created field.
+     */
+    void
+    add_field_data(moris::moris_index       aFieldIndex,
+                   enum moris::EntityRank   aEntityRank,
+                   Matrix<DDRMat>  const  & aFieldData);
+
+    void
+    get_node_field_for_viz(moris::moris_index       aFieldIndex,
+                           enum moris::EntityRank   aEntityRank,
+                           moris::moris_index       aBulkPhase,
+                           Matrix<DDRMat>         & aVizFieldData) const;
 
     /*
      * Convenient helper functions
      */
     Matrix<IdMat> convert_indices_to_ids(Matrix<IndexMat> const & aIndices,
                                          enum EntityRank          aEntityRank) const;
-
+    //------------------------------------------------------------------------------
     Matrix<IndexMat> convert_ids_to_indices(Matrix<IdMat> const & aIds,
                                             enum EntityRank       aEntityRank) const;
-
+    //------------------------------------------------------------------------------
     moris::Cell<moris::mtk::Cell const *>
     get_mtk_cells_loc_inds(Matrix<IndexMat> const & aCellIndices);
-
+    //------------------------------------------------------------------------------
     moris::Cell<moris::mtk::Vertex const *>
     get_mtk_vertices_loc_inds(Matrix<IndexMat> const & aVertexIndices);
+    //------------------------------------------------------------------------------
 
     // Printing functions
     void print();
@@ -118,7 +159,7 @@ protected:
     moris::moris_index mMeshIndexInModel;
 
     // Cell Clusters
-    moris::Cell<xtk::Cell_Cluster * > mCellClusters;
+    moris::Cell< xtk::Cell_Cluster * > mCellClusters;
 
     // Block sets containing Cell Clusters
     std::unordered_map<std::string, moris_index>        mBlockSetLabelToOrd;
@@ -131,10 +172,16 @@ protected:
     moris::Cell<moris::Cell<xtk::Side_Cluster*>> mSideSets;
 
     // double side sets
-    std::unordered_map<std::string, moris_index>   mDoubleSideSetLabelToOrd;
-    moris::Cell<std::string>                       mDoubleSideSetLabels;
-    moris::Cell<moris::Cell<mtk::Cluster const*> > mDoubleSideSets;
-    moris::Cell<Side_Cluster*>                     mDoubleSideSetSideClusters;
+    std::unordered_map<std::string, moris_index>  mDoubleSideSetLabelToOrd;
+    moris::Cell<std::string>                      mDoubleSideSetLabels;
+    moris::Cell<moris::Cell<mtk::Cluster const*>> mDoubleSideSets;
+    moris::Cell<Side_Cluster*>                    mDoubleSideSetSideClusters;
+
+    // Fields
+    moris::Cell<xtk::Field> mFields;   /*Structure Node (0), Cell(1)*/
+    moris::Cell<std::unordered_map<std::string, moris_index>> mFieldLabelToIndex;
+
+
 
 private:
     void
@@ -172,6 +219,18 @@ private:
 
     void
     create_interface_side_sets_and_clusters();
+
+
+    //------------------------------------------------------------------------------
+    // Internal Additional Field Functions
+    //------------------------------------------------------------------------------
+    moris_index
+    get_entity_rank_field_index(enum moris::EntityRank   aEntityRank);
+    //------------------------------------------------------------------------------
+    bool
+    field_exists(std::string              aLabel,
+                 enum moris::EntityRank   aEntityRank);
+    //------------------------------------------------------------------------------
 };
 }
 

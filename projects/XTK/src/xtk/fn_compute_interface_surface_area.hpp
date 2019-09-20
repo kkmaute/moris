@@ -14,7 +14,7 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Model.hpp"
 #include "fn_tri_area.hpp"
-#include "cl_MTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Tet4_Cell_Info.hpp"
 
 namespace xtk
 {
@@ -29,7 +29,9 @@ compute_interface_surface_area(moris::Matrix<moris::DDRMat> const & aNodeCoordin
 
     moris::real tSurfArea = 0.0;
 
-    moris::Matrix<moris::IndexMat> tNodeMapOnFace = moris::Tetra4_Connectivity::get_node_to_face_map();
+
+    moris::mtk::Cell_Info_Tet4 tConn;
+    moris::Matrix<moris::IndexMat> tNodeMapOnFace = tConn.get_node_to_face_map();
 
     // iterate through tInterface sides
     for(moris::uint i = 0; i<tInterfaceElemIndandSideOrd.n_rows(); i++)

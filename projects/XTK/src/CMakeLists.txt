@@ -131,6 +131,7 @@ xtk/cl_XTK_Background_Mesh.cpp
 xtk/cl_XTK_Child_Mesh.cpp
 xtk/cl_XTK_Cut_Mesh.cpp
 xtk/cl_XTK_Enrichment.cpp
+xtk/cl_XTK_Field.cpp
 xtk/cl_XTK_Ghost_Stabilization.cpp
 xtk/cl_XTK_Hole_Seeder.cpp
 xtk/cl_XTK_Model.cpp

@@ -53,8 +53,12 @@ public:
 
     void set_node_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
-        MORIS_ASSERT(aNodeIndices.numel()==4,"Should be 4 associated with a quad 4 topology");
-        mNodeIndices = aNodeIndices.copy();
+        mNodeIndices.resize(1,4);
+
+        mNodeIndices(0) = aNodeIndices(0);
+        mNodeIndices(1) = aNodeIndices(1);
+        mNodeIndices(2) = aNodeIndices(2);
+        mNodeIndices(3) = aNodeIndices(3);
     }
 
     std::shared_ptr<Topology> copy() const

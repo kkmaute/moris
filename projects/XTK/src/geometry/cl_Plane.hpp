@@ -13,21 +13,14 @@
 
 namespace xtk
 {
+template< moris::uint SpatialDim >
 class Plane : public Geometry
 {
 public:
-    Plane(moris::real const & aXc,
-          moris::real const & aYc,
-          moris::real const & aZc,
-          moris::real const & aXn,
-          moris::real const & aYn,
-          moris::real const & aZn):
-              mXc(aXc),
-              mYc(aYc),
-              mZc(aZc),
-              mXn(aXn),
-              mYn(aYn),
-              mZn(aZn)
+    Plane(Matrix<moris::DDRMat> const & aCenters,
+          Matrix<moris::DDRMat> const & aNormals):
+              mCenters(aCenters),
+              mNormals(aNormals)
     {
     }
 
@@ -44,33 +37,29 @@ public:
 
 
     moris::real evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
-                                                     moris::Matrix< moris::DDRMat > const & aCoordinates) const
-    {
-        moris::real tDist = mXn*(aCoordinates(aRowIndex,0)-mXc) + mYn*(aCoordinates(aRowIndex,1)-mYc) + mZn*(aCoordinates(aRowIndex,2)-mZc);
-
-        return tDist;
-    }
-
-
-    void
-    get_plane_normal(moris::Matrix< moris::DDRMat > & aPlaneNormal)
-    {
-        aPlaneNormal(0,0) = mXn;
-        aPlaneNormal(1,0) = mYn;
-        aPlaneNormal(2,0) = mZn;
-    }
+                                                     moris::Matrix< moris::DDRMat > const & aCoordinates) const;
 
 
 private:
-
-    moris::real mXc;
-    moris::real mYc;
-    moris::real mZc;
-    moris::real mXn;
-    moris::real mYn;
-    moris::real mZn;
-
+    Matrix<moris::DDRMat> mCenters;
+    Matrix<moris::DDRMat> mNormals;
 };
+
+template<>
+moris::real Plane<3>::evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
+                                                 moris::Matrix< moris::DDRMat > const & aCoordinates) const
+{
+    moris::real tDist = mNormals(0)*(aCoordinates(aRowIndex,0)-mCenters(0)) + mNormals(1)*(aCoordinates(aRowIndex,1)-mCenters(1)) + mNormals(2)*(aCoordinates(aRowIndex,2)-mCenters(2));
+    return tDist;
+}
+template<>
+moris::real Plane<2>::evaluate_field_value_with_coordinate(moris::size_t const & aRowIndex,
+                                                 moris::Matrix< moris::DDRMat > const & aCoordinates) const
+{
+    moris::real tDist = mNormals(0)*(aCoordinates(aRowIndex,0)-mCenters(0)) + mNormals(1)*(aCoordinates(aRowIndex,1)-mCenters(1));
+    return tDist;
+}
+
 }
 
 

@@ -55,6 +55,15 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 0.9;
 }
 
+moris::real
+LevelSetFunction_1( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 1 ) );
+    moris::real tLevelSetVaue = 0.5 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) );
+
+    return tLevelSetVaue;
+}
+
 namespace moris
 {
 using namespace dla;

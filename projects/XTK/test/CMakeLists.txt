@@ -13,13 +13,18 @@ set(TEST_SOURCES
 	xtk/UT_XTK_Cut_Mesh.cpp
 	xtk/UT_XTK_Downward_Inheritance.cpp
 	xtk/UT_XTK_Enrichment.cpp
+	xtk/UT_XTK_Enrichment_2D.cpp
 	xtk/UT_XTK_Ghost_Stabilization.cpp
 	#xtk/cl_XTK_Multigrid.cpp
 	xtk/UT_XTK_Model.cpp
+	xtk/UT_XTK_Model_2D.cpp
+	xtk/UT_XTK_Child_Mesh_RegSub_2D.cpp
+	xtk/UT_XTK_Child_Mesh_Conform_2D.cpp
 	#xtk/UT_XTK_Model_Coincidence.cpp
 	#xtk/UT_XTK_Model_Recursion.cpp
 	#xtk/cl_XTK_Tetra4_Connectivity.cpp
 	xtk/UT_FRF_Matching.cpp
+	
 	xtk/UT_MTK_Cell_Cluster_XTK_Impl.cpp
 	#xtk/UT_XTK_Model_Unzip.cpp
 	xtk/UT_XTK_Model_Export.cpp
@@ -30,7 +35,8 @@ set(TEST_SOURCES
 	
 if(BUILD_HMR)
 set(XTK_HMR_TEST_SOURCES
-	xtk/UT_XTK_HMR.cpp)
+	xtk/UT_XTK_HMR.cpp
+	xtk/UT_XTK_HMR_2D.cpp)
 	
 	set(HMR_TEST_DEPENDENCIES
 	${HMR}-lib
