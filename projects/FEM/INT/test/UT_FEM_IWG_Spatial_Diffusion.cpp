@@ -7,6 +7,7 @@
 #include "cl_FEM_Enums.hpp"                                //FEM//INT/src
 #include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
 #include "cl_FEM_Property.hpp"                   //FEM//INT//src
+#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.hpp" //FEM//INT//src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp" //FEM//INT//src
 
@@ -64,6 +65,9 @@ TEST_CASE( "IWG_SpatialDiff", "[moris],[fem],[IWG_SpatialDiff]" )
 
     // set active property type
     tIWG.set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
+
+    // set active constitutive type
+    tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO } );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -160,11 +164,45 @@ TEST_CASE( "IWG_SpatialDiff", "[moris],[fem],[IWG_SpatialDiff]" )
                                             Cell< PropertyFunc > ( 0 ),
                                             tGI );
         }
+
+        // constitutive models
+        //------------------------------------------------------------------------------
+        // create a cell of properties for IWG
+        Cell< Constitutive_Model* > tCMs( tIWG.get_constitutive_type_list().size() );
+
+        // create a constitutive model factory
+        fem::CM_Factory tCMFactory;
+
+        // create a constitutive model for each constitutive type
+        for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list().size(); iCM++ )
+        {
+            // create a property
+            tCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list()( iCM ) );
+
+            // set space dim
+            tCMs( iCM )->set_space_dim( 3 );
+
+            // set dof types
+            tCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+
+            // set property type
+            tCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
+
+            // set properties
+            tCMs( iCM )->set_properties( tProps );
+
+            // set field interpolators
+            tCMs( iCM )->set_field_interpolators( tFIs );
+        }
+
         // set IWG properties
         tIWG.set_properties( tProps );
 
         // set IWG field interpolators
         tIWG.set_field_interpolators( tFIs );
+
+        // set IWG field interpolators
+        tIWG.set_constitutive_models( tCMs );
 
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------
@@ -230,11 +268,45 @@ TEST_CASE( "IWG_SpatialDiff", "[moris],[fem],[IWG_SpatialDiff]" )
                                                 Cell< PropertyFunc > ( 0 ),
                                                 tGI );
             }
+
+            // constitutive models
+            //------------------------------------------------------------------------------
+            // create a cell of properties for IWG
+            Cell< Constitutive_Model* > tCMs( tIWG.get_constitutive_type_list().size() );
+
+            // create a constitutive model factory
+            fem::CM_Factory tCMFactory;
+
+            // create a constitutive model for each constitutive type
+            for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list().size(); iCM++ )
+            {
+                // create a property
+                tCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list()( iCM ) );
+
+                // set space dim
+                tCMs( iCM )->set_space_dim( 3 );
+
+                // set dof types
+                tCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+
+                // set property type
+                tCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
+
+                // set properties
+                tCMs( iCM )->set_properties( tProps );
+
+                // set field interpolators
+                tCMs( iCM )->set_field_interpolators( tFIs );
+            }
+
             // set IWG properties
             tIWG.set_properties( tProps );
 
             // set IWG field interpolators
             tIWG.set_field_interpolators( tFIs );
+
+            // set IWG field interpolators
+            tIWG.set_constitutive_models( tCMs );
 
             // check evaluation of the residual for IWG Helmholtz Bulk ?
             //------------------------------------------------------------------------------
@@ -304,11 +376,45 @@ TEST_CASE( "IWG_SpatialDiff", "[moris],[fem],[IWG_SpatialDiff]" )
                 tProps( iProp )->set_field_interpolators( tFIs );
             }
 
+            // constitutive models
+            //------------------------------------------------------------------------------
+            // create a cell of properties for IWG
+            Cell< Constitutive_Model* > tCMs( tIWG.get_constitutive_type_list().size() );
+
+            // create a constitutive model factory
+            fem::CM_Factory tCMFactory;
+
+            // create a constitutive model for each constitutive type
+            for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list().size(); iCM++ )
+            {
+                // create a property
+                tCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list()( iCM ) );
+
+                // set space dim
+                tCMs( iCM )->set_space_dim( 3 );
+
+                // set dof types
+                tCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+
+                // set property type
+                tCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
+
+                // set properties
+                tCMs( iCM )->set_properties( tProps );
+
+                // set field interpolators
+                tCMs( iCM )->set_field_interpolators( tFIs );
+
+            }
+
             // set IWG properties
             tIWG.set_properties( tProps );
 
             // set IWG field interpolators
             tIWG.set_field_interpolators( tFIs );
+
+            // set IWG field interpolators
+            tIWG.set_constitutive_models( tCMs );
 
             // check evaluation of the residual for IWG Helmholtz Bulk ?
             //------------------------------------------------------------------------------
