@@ -36,11 +36,7 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 
             // set residual cell size
-            this->set_residual( aResidual );
-
-            // set master and slave residual sizes
-            aResidual( 0 ).set_size( mMasterFI( 0 )->get_number_of_space_time_coefficients(), 1, 0.0 );
-            aResidual( 1 ).set_size( mSlaveFI( 0 )->get_number_of_space_time_coefficients(),  1, 0.0 );
+            this->set_residual_double( aResidual );
 
             // loop over the interpolation order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -54,8 +50,8 @@ namespace moris
                                                * ( mMasterFI( 0 )->gradx( iOrder ) - mSlaveFI( 0 )->gradx( iOrder ) ); // jump in iOrder order spatial gradient
 
                  // compute master and slave residuals
-                 aResidual( 0 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply;
-                 aResidual( 1 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply;
+                 aResidual( 0 ).matrix_data() +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply;
+                 aResidual( 1 ).matrix_data() += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply;
             }
         }
 
@@ -70,16 +66,9 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 
             // set the jacobian cell size
-            this->set_jacobian( aJacobians );
+            this->set_jacobian_double( aJacobians );
 
-            // set the jacobian sizes
-            uint tMasterNumDof = mMasterFI( 0 )->get_number_of_space_time_bases();
-            uint tSlaveNumDof  = mSlaveFI( 0 )->get_number_of_space_time_bases();
-            aJacobians( 0 )( 0 ).set_size( tMasterNumDof, tMasterNumDof, 0.0 );
-            aJacobians( 0 )( 1 ).set_size( tMasterNumDof, tSlaveNumDof,  0.0 );
-            aJacobians( 1 )( 0 ).set_size( tSlaveNumDof,  tMasterNumDof, 0.0 );
-            aJacobians( 1 )( 1 ).set_size( tSlaveNumDof,  tSlaveNumDof,  0.0 );
-
+            // loop over the interpolation orders
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                 // get normal matrix
@@ -109,26 +98,12 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 
             // set residual cell size
-            this->set_residual( aResidual );
-
-            // master and slave number of DOfs
-            uint tMasterNumDof = mMasterFI( 0 )->get_number_of_space_time_bases();
-            uint tSlaveNumDof  = mSlaveFI( 0 )->get_number_of_space_time_bases();
-
-            // set master and slave residual sizes
-            aResidual( 0 ).set_size( tMasterNumDof, 1, 0.0 );
-            aResidual( 1 ).set_size( tSlaveNumDof,  1, 0.0 );
+            this->set_residual_double( aResidual );
 
             // set the jacobian cell size
-            this->set_jacobian( aJacobians );
+            this->set_jacobian_double( aJacobians );
 
-            // set the jacobian sizes
-            aJacobians( 0 )( 0 ).set_size( tMasterNumDof, tMasterNumDof, 0.0 );
-            aJacobians( 0 )( 1 ).set_size( tMasterNumDof, tSlaveNumDof,  0.0 );
-            aJacobians( 1 )( 0 ).set_size( tSlaveNumDof,  tMasterNumDof, 0.0 );
-            aJacobians( 1 )( 1 ).set_size( tSlaveNumDof,  tSlaveNumDof,  0.0 );
-
-            // loop over interpolation order
+            // loop over interpolation orders
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
                  // get normal matrix
