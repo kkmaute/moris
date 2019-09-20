@@ -289,7 +289,7 @@ namespace moris
                 {
                     mUserFunction = tSecond( k );
                 }
-                else if ( tKey == "initial_bspline_refinement" )
+                else if ( tKey == "initial_refinement" )
                 {
                     mInitialBSplineRefinement = stoi( tSecond( k ) );
                 }
@@ -350,9 +350,9 @@ namespace moris
                 {
                     mParameterList.set( "lagrange_orders", tSecond( k ) );
                 }
-                else if( tKey == "initial_bspline_refinement" )
+                else if( tKey == "initial_refinement" )
                 {
-                    mParameterList.set( "initial_bspline_refinement", ( sint ) std::stoi( tSecond( k ) ) );
+                    mParameterList.set( "initial_refinement", ( sint ) std::stoi( tSecond( k ) ) );
                 }
                 else if ( tKey == "severity_level" )
                 {
@@ -486,7 +486,7 @@ namespace moris
             // update B-SPline and Lagrange refinement levels
             if( mInitialBSplineRefinement >=0 )
             {
-                mParameterList.set( "initial_bspline_refinement", mInitialBSplineRefinement );
+                mParameterList.set( "initial_refinement", mInitialBSplineRefinement );
             }
             if( mAdditionalLagrangeRefinement >= 0 )
             {

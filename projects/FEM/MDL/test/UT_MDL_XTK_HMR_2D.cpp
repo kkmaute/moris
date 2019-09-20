@@ -49,6 +49,8 @@
 #include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
 
+#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
+
 #include "cl_MDL_Model.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
@@ -85,12 +87,19 @@ namespace moris
 
 moris::real LvlSetLin(const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    moris::real tOffset = 1.1;
+    moris::real tOffset = -0.6;
 
-    return    aPoint(0)- tOffset;
+    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
 }
 
-TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
+Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                    fem::Geometry_Interpolator             * aGeometryInterpolator )
+{
+    return aCoeff( 0 );
+}
+
+TEST_CASE("2D XTK WITH HMR 2D","[XTK_HMR_2D]")
 {
     if(par_size()<=1)
     {
@@ -99,35 +108,28 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          moris::uint tLagrangeMeshIndex = 0;
          moris::uint tBSplineMeshIndex = 0;
 
-         moris::hmr::Parameters tParameters;
+         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-         tParameters.set_number_of_elements_per_dimension( { {2}, {5}} );
-         tParameters.set_domain_dimensions({ {2}, {5} });
-         tParameters.set_domain_offset({ {-1.0}, {-2.5} });
-         tParameters.set_bspline_truncation( true );
+         tParameters.set( "number_of_elements_per_dimension", "5, 2" );
+         tParameters.set( "domain_dimensions", "5, 2" );
+         tParameters.set( "domain_offset", "-2.5, -1.0" );
+         tParameters.set( "domain_sidesets", "2, 4" );
+         tParameters.set( "lagrange_output_meshes", "0" );
 
-         tParameters.set_output_meshes( { {0} } );
+         tParameters.set( "lagrange_orders", "1" );
+         tParameters.set( "lagrange_pattern", "0" );
+         tParameters.set( "bspline_orders", "1" );
+         tParameters.set( "bspline_pattern", "0" );
 
-         tParameters.set_lagrange_orders  ( { {1} });
-         tParameters.set_lagrange_patterns({ {0} });
+         tParameters.set( "lagrange_to_bspline", "0" );
 
-         tParameters.set_bspline_orders   ( { {1} } );
-         tParameters.set_bspline_patterns ( { {0} } );
+         tParameters.set( "truncate_bsplines", 1 );
+         tParameters.set( "refinement_buffer", 2 );
+         tParameters.set( "staircase_buffer", 2 );
+         tParameters.set( "initial_refinement", 2 );
 
-         tParameters.set_side_sets({{1},{2},{3},{4} });
-
-         tParameters.set_union_pattern( 2 );
-         tParameters.set_working_pattern( 3 );
-
-         tParameters.set_refinement_buffer( 2 );
-         tParameters.set_staircase_buffer( 2);
-
-         tParameters.set_initial_refinement( 2 );
-
-         Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
-         tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+         tParameters.set( "use_multigrid", 0 );
+         tParameters.set( "severity_level", 2 );
 
          hmr::HMR tHMR( tParameters );
 
@@ -171,6 +173,10 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
 
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
 
+        // get meshes
+        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+
         // output to exodus file ----------------------------------------------------------
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -192,8 +198,245 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
 
         tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh1);
 
-        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_wi_ig.e";
+        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_cut.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
+
+        // end output -------------------------------------------------------
+
+        // place the pair in mesh manager
+        mtk::Mesh_Manager tMeshManager;
+        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+
+        uint tSpatialDimension = 2;
+
+        // create IWG user defined info
+        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 6 );
+        tIWGUserDefinedInfo( 0 ).resize( 1 );
+        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, tSpatialDimension, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+        tIWGUserDefinedInfo( 1 ).resize( 1 );
+        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, tSpatialDimension, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+
+        tIWGUserDefinedInfo( 2 ).resize( 1 );
+        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, tSpatialDimension, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+        tIWGUserDefinedInfo( 3 ).resize( 1 );
+        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, tSpatialDimension, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
+
+        tIWGUserDefinedInfo( 4 ).resize( 1 );
+        tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, tSpatialDimension, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET },
+                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+        tIWGUserDefinedInfo( 5 ).resize( 1 );
+        tIWGUserDefinedInfo( 5 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, tSpatialDimension, { MSI::Dof_Type::TEMP },
+                                                                    {{ MSI::Dof_Type::TEMP }},
+                                                                    { fem::Property_Type::TEMP_NEUMANN },
+                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+
+        // create property user defined info
+        Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 6 );
+        tPropertyUserDefinedInfo( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 1 ).resize( 1 );
+        tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+
+        tPropertyUserDefinedInfo( 2 ).resize( 1 );
+        tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 3 ).resize( 1 );
+        tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+
+        tPropertyUserDefinedInfo( 4 ).resize( 2 );
+        tPropertyUserDefinedInfo( 4 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 1.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 4 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
+                                                                             Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 5.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 5 ).resize( 1 );
+        tPropertyUserDefinedInfo( 5 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
+                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                              {{{ 20.0 }}},
+                                                                              tConstValFunction,
+                                                                              Cell< fem::PropertyFunc >( 0 ) );
+
+
+        // create constitutive user defined info
+        Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 6 );
+        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 0 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      tSpatialDimension );
+        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      tSpatialDimension );
+        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 2 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      tSpatialDimension );
+        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 4 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      tSpatialDimension );
+
+        // create a list of active block-sets
+//        moris::Cell< moris_index >  tSetList = { 4, 5, 1, 3 };
+
+        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
+
+        // create a list of active block-sets
+         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
+                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
+                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
+                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
+                                                  tEnrIntegMesh.get_side_set_index(tInterfaceSideSetName),
+                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p0")};
+
+        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+                                                          fem::Element_Type::BULK,
+                                                          fem::Element_Type::BULK,
+                                                          fem::Element_Type::BULK,
+                                                          fem::Element_Type::SIDESET,
+                                                          fem::Element_Type::SIDESET };
+
+        // create model
+        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
+                                              tIWGUserDefinedInfo,
+                                              tSetList, tSetTypeList,
+                                              tPropertyUserDefinedInfo,
+                                              tConstitutiveUserDefinedInfo );
+
+        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 1: create linear solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        dla::Solver_Factory  tSolFactory;
+        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
+
+        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
+
+        dla::Linear_Solver tLinSolver;
+
+        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 2: create nonlinear solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+
+//        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+//        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
+//        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+//        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+
+        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+
+        NLA::Nonlinear_Solver tNonlinearSolver;
+
+        tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 3: create time Solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        tsa::Time_Solver_Factory tTimeSolverFactory;
+        std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+
+        tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolver );
+
+        tsa::Time_Solver tTimeSolver;
+
+        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+
+        NLA::SOL_Warehouse tSolverWarehouse;
+
+        tSolverWarehouse.set_solver_interface(tModel->get_solver_interface());
+
+        tNonlinearSolver.set_solver_warehouse( &tSolverWarehouse );
+        tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+
+        tNonlinearSolver.set_dof_type_list( tDofTypes1 );
+        tTimeSolver.set_dof_type_list( tDofTypes1 );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 4: Solve and check
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        tTimeSolver.solve();
+
+
+        // TODO: add gold solution data for this problem
+
+        // Write to Integration mesh for visualization
+        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+
+
+//        moris::print_fancy(tIntegSol,"tIntegSol");
+
+        // add solution field to integration mesh
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
+
+
+//        Matrix<DDRMat> tFullSol;
+//        tTimeSolver.get_full_solution(tFullSol);
+//
+//        print_fancy(tFullSol,"Full Solution");
+
+        // verify solution
+//        CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
+        tModel->output_solution( "Circle" );
+        tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
+        tHMR.save_to_exodus( 0, "./mdl_exo/xtk_hmr_stk_bar_plane_interp_l2_b2.e" );
+
+
+        // output solution and meshes
+//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_stk_bar_hole_integ.e";
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+
+        //    delete tInterpMesh1;
+        delete tModel;
+
+
+
 
         delete tIntegMesh1;
     }
