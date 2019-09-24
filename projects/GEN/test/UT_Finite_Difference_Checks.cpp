@@ -193,7 +193,6 @@ TEST_CASE("Finite_Difference_Checks_01","[moris],[GE],[FD_on_circle]")
          * FD check on the pdv sensitivity dxgamma/dp
          */
         Matrix< DDRMat > tdXGamma_dp = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );    // initial dxgamma/dp
-print(tdXGamma_dp,"tdXGamma_dp");
         /*
          * purturb the first pdv up and recalculate xgamma
          */
@@ -228,8 +227,10 @@ print(tdXGamma_dp,"tdXGamma_dp");
         tGlobPoint_down = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd_down );
         //------------------------------------------------------------------------------
         Matrix< F31RMat > tdXGamma_dp_FD = (tGlobPoint_up-tGlobPoint_down)/(2*epsilon);
-print(tdXGamma_dp_FD,"tdXGamma_dp_FD");
+
+        REQUIRE( tdXGamma_dp_FD(0,0) == Approx(-tdXGamma_dp(0,0)) );
         //------------------------------------------------------------------------------
+        //TODO add test for y-intersection point
 //        std::string tOutputFile = "./ge_finite_diff_ut.exo";
 //        tInterpMesh1->create_output_mesh(tOutputFile);
         // clean up
@@ -392,6 +393,8 @@ TEST_CASE("Finite_Difference_Checks_02","[moris],[GE],[FD_on_sphere]")
         REQUIRE( tdXGamma_dphi_FD(0,0) == Approx(tdXGamma_dphi(1,0)));
         REQUIRE( tdXGamma_dphi_FD(0,1) == Approx(tdXGamma_dphi(1,1)));
         //------------------------------------------------------------------------------
+        //TODO add test for dxgamma/dp
+
 //        std::string tOutputFile = "./ge_finite_diff_ut.exo";
 //        tInterpMesh1->create_output_mesh(tOutputFile);
         // clean up

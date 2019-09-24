@@ -72,24 +72,22 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
         std::shared_ptr< Geometry > tSDF = tFactory.set_geometry_type(GeomType::SDF);
 
         tSDF->set_my_mesh( &tMeshManager );
-        tSDF->add_hmr_field( tField );
+        moris_index tSubIndex = tSDF->add_hmr_field( tField );
         tSDF->initialize_sdf( tObjectPath, tInterpolationMesh );
 
         GE_Core tGeomEng;
-        tGeomEng.set_geometry(tSDF);
+        moris_index tMyGeomIndex = tGeomEng.set_geometry(tSDF);
     //------------------------------------------------------------------------------
     // CHECK if the node values returned are the same as the ones in the SDF field
     //------------------------------------------------------------------------------
         //fixme needs to be updated to use the PDVInfoObject implementation
-        uint tNumNodes = tSDF->get_my_mesh()->get_interpolation_mesh( 0 )->get_num_nodes();
-        Matrix< DDRMat > tScalarMat(tNumNodes,1, 0.0);
-        for(uint n=0; n < tNumNodes; ++n)
-        {
-            Matrix< DDRMat > tTempMat = tGeomEng.get_field_vals(0,n);
-            tScalarMat(n) = tTempMat(0,0);
-        }
 
-        bool tMatrixMatch = all_true( tField->get_node_values() == tScalarMat );
+        PDV_Info* tPDVInfo = tGeomEng.get_pdv_info_pointer( tMyGeomIndex );
+
+        Matrix< DDRMat > tLSVals = tPDVInfo->get_field_vals( tSubIndex );           // phi
+
+
+        bool tMatrixMatch = all_true( tField->get_node_values() == tLSVals );
         CHECK( tMatrixMatch );
 
 //        tHMR.save_to_exodus( "SDF_test.exo" );

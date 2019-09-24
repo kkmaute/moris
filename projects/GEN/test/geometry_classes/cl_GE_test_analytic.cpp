@@ -155,6 +155,7 @@ TEST_CASE("analytic_functionalities_test_01","[GE],[analytic_functionalities_2D]
             tPDVInfo->add_vertex_and_value( tNewNode, tSubIndex );
 
             Matrix< DDRMat > tNodeVal = tGeometryEngine.get_field_vals( tMyGeomIndex,tNewNode.get_index(), tSubIndex );
+            print( tNodeVal, "tNodaVal" );
             REQUIRE( tNodeVal(0,0) == Approx( 0.1071 ) );
 
             //------------------------------------------------------------------------------

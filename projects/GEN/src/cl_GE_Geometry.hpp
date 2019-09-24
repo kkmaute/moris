@@ -234,10 +234,11 @@ namespace ge
          * ************************* SDF GEOMETRY FUNCTIONS ****************************
          * *****************************************************************************
          */
-        virtual void
+        virtual moris_index
         add_hmr_field( std::shared_ptr< hmr::Field > &aField )
         {
             MORIS_ASSERT(false, "ge::Geometry::add_hmr_field(): not implemented");
+            return 0;
         }
         //------------------------------------------------------------------------------
         virtual void

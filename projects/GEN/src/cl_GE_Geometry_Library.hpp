@@ -29,7 +29,8 @@ circle_function( const Matrix< DDRMat > & aPoint,
     Matrix< DDRMat > tCenter(1,2);
     tCenter(0) = aInputs(1); tCenter(1) = aInputs(2);
 
-    return aInputs(0) - norm(aPoint-tCenter);   // using this form linearizes the circle equation
+    return norm(aPoint-tCenter) - aInputs(0);   // using this form linearizes the circle equation
+//    return aInputs(0) - norm(aPoint-tCenter);   // using this form linearizes the circle equation
 //    return std::pow((aPoint(0,0) - aInputs(0)),2) + std::pow((aPoint(0,1) - aInputs(1)),2) - std::pow(aInputs(2),1);  // using this form results in a non-linear circle equaiton
 }
 //------------------------------------------------------------------------------
