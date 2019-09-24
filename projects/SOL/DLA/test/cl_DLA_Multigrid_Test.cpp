@@ -55,6 +55,15 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 0.9;
 }
 
+moris::real
+LevelSetFunction_1( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 1 ) );
+    moris::real tLevelSetVaue = 0.5 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) );
+
+    return tLevelSetVaue;
+}
+
 namespace moris
 {
 using namespace dla;
@@ -144,7 +153,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
 
         // create user defined info for properties
-        fem::Property_User_Defined_Info tPropertyUserDefinedInfo;
+        moris::Cell< fem::Property_User_Defined_Info > tPropertyUserDefinedInfo;
+
+        // create user defined info for constitutive models
+        moris::Cell< fem::Constitutive_User_Defined_Info > tConstitutiveUserDefinedInfo;
 
         map< moris_id, moris_index >   tCoefficientsMap;
         Cell< fem::Node_Base* >        tNodes;
@@ -185,7 +197,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                              fem::Element_Type::BULK,
                                                              tIWGs,
-                                                             &tPropertyUserDefinedInfo,
+                                                             tPropertyUserDefinedInfo,
+                                                             tConstitutiveUserDefinedInfo,
                                                              tNodes );
 
             // collect equation objects associated with the block-set

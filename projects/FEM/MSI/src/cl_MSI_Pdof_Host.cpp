@@ -119,7 +119,7 @@ namespace MSI
                  // since petsc requires int, the owner matrix must be casted
                  auto tOwners = mNodeObj->get_adof_owners( tAdofMeshIndex );
 
-                 moris::uint tNumberOfOwners = tOwners.length();
+                 moris::uint tNumberOfOwners = tOwners.numel();
 
                  Matrix< DDSMat > tAdofOwningProcessorList( tNumberOfOwners, 1 );
 
@@ -131,7 +131,7 @@ namespace MSI
                  for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
                  {
                     // Set size of vector with adpf ptr
-                    mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList.resize( tAdofMeshInd.length() );
+                    mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList.resize( tAdofMeshInd.numel() );
 
                     // Get pdof type Index
                     moris::uint tPdofTypeIndex = mListOfPdofTimePerType( Ii )( Ij )->mDofTypeIndex;
@@ -139,7 +139,7 @@ namespace MSI
                     moris::uint tAdofType = aTimeLevelOffsets( tPdofTypeIndex, 0 );
 
                     // loop over all adofs in the matrix and create an adof if it does not exist, yet.
-                    for ( moris::uint Ik = 0; Ik < tAdofMeshInd.length(); Ik++ )
+                    for ( moris::uint Ik = 0; Ik < tAdofMeshInd.numel(); Ik++ )
                     {
                         // Check if adof exists
                         if ( aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) ) == nullptr)
@@ -255,7 +255,7 @@ namespace MSI
         {
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
-                tAdofCounter = tAdofCounter + mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.length();
+                tAdofCounter = tAdofCounter + mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel();
             }
         }
 
@@ -268,7 +268,7 @@ namespace MSI
         {
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
-                for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.length(); Ik++)
+                for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel(); Ik++)
                 {
                     tUniqueAdofList( tCounter, 0 ) = mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 );
                     tCounter = tCounter + 1;

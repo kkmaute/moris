@@ -8,24 +8,18 @@ namespace moris
     {
 
 //------------------------------------------------------------------------------
-
         IWG_Hamilton_Jacobi_Bulk_Test::IWG_Hamilton_Jacobi_Bulk_Test()
         {
-            // set the residual dof type
-            mResidualDofType = { MSI::Dof_Type::LS1 };
-
-            // set the active dof type
-            mMasterDofTypes = {{ MSI::Dof_Type::LS1 }};
-
+//            // set the residual dof type
+//            mResidualDofType = { MSI::Dof_Type::LS1 };
+//
+//            // set the active dof type
+//            mMasterDofTypes = {{ MSI::Dof_Type::LS1 }};
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
-            // set field interpolators
-            Field_Interpolator* phi = mMasterFI( 0 );
-
             // velocity field value
             Matrix< DDRMat > aVN( 1, 3, 1.0 );
 
@@ -33,50 +27,41 @@ namespace moris
             this->set_residual( aResidual );
 
            //compute the residual
-           aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + aVN * phi->gradx( 1 ) );
+           aResidual( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->gradt( 1 ) + aVN * mMasterFI( 0 )->gradx( 1 ) );
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // set field interpolators
-            Field_Interpolator* phi = mMasterFI( 0 );
-
             // velocity field value
             Matrix< DDRMat > aVN( 1, 3, 1.0 );
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
-            // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + aVN * phi->Bx() );
+            // compute the jacobian
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->Bt() + aVN * mMasterFI( 0 )->Bx() );
 
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                            moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set field interpolators
-            Field_Interpolator* phi = mMasterFI( 0 );
-
             // velocity field value
             Matrix< DDRMat > aVN( 1, 3, 1.0 );
 
-            // set the jacobian size
+            // set the residual size
             this->set_residual( aResidual );
 
             //compute the residual
-            aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + aVN * phi->gradx( 1 ) );
+            aResidual( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->gradt( 1 ) + aVN * mMasterFI( 0 )->gradx( 1 ) );
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
-
-            // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + aVN * phi->Bx() );
+            // compute the jacobian
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->Bt() + aVN * mMasterFI( 0 )->Bx() );
         }
 
 //------------------------------------------------------------------------------

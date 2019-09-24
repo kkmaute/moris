@@ -13,7 +13,7 @@
 #include "linalg_typedefs.hpp"
 #include "fn_comp_abs.hpp"
 #include "tools/fn_tet_volume.hpp"
-
+#include "tools/fn_tri_area.hpp"
 
 
 namespace xtk
@@ -109,6 +109,35 @@ compute_val_at_tet_centroid(moris::Matrix< Real_Matrix > const & aNodeVals)
     return tValMat;
 }
 
+}
+
+moris::real
+compute_area_for_multiple_triangles(moris::Matrix< moris::DDRMat > 	 const & aAllNodeCoords,
+									moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity)
+{
+    size_t tNumTriangles = aElementToNodeConnectivity.n_rows();
+    size_t tSpacialDimension = aElementToNodeConnectivity.n_cols();
+    moris::Matrix< moris::DDRMat > tCoords(aElementToNodeConnectivity.n_cols(),2);
+    moris::Matrix< moris::DDRMat > tCoordRow(1,2);
+
+    moris::real tTotalArea = 0;
+    moris::real tSingleArea;
+    size_t k = 0;
+
+    for( size_t i = 0; i < tNumTriangles; i++ )
+    {
+        for( size_t j = 0; j < tSpacialDimension; j++ )
+        {
+            tCoordRow = aAllNodeCoords.get_row(aElementToNodeConnectivity(i,j));
+            tCoords.set_row(k,tCoordRow);
+            k++;
+        }
+        k=0;
+        tSingleArea =  xtk::area_tri_2D(tCoords);
+        tTotalArea  += tSingleArea;
+    }
+
+    return tTotalArea;
 }
 
 #endif /* SRC_GEOMENG_FN_TRIANGLE_GEOMETRY_HPP_ */

@@ -110,12 +110,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        enum class BC_Type
+        enum class Constitutive_Type
         {
             UNDEFINED,
-            DIRICHLET,
-            NEUMANN,
-            END_BC_TYPE
+            DIFF_LIN_ISO,
+            END_CONSTITUTIVE_TYPE
         };
 
 //------------------------------------------------------------------------------

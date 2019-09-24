@@ -28,16 +28,16 @@ namespace xtk
 class Interpolation_Cell: public mtk::Cell
 {
 public:
-    Interpolation_Cell(moris_id                 aCellId,
-                       moris_index              aCellIndex,
-                       moris_id                 aCellOwner,
-                       mtk::Geometry_Type       aGeometryType,
-                       mtk::Interpolation_Order aInterpOrder):
+    Interpolation_Cell(moris_id                  aCellId,
+                       moris_index               aCellIndex,
+                       moris_id                  aCellOwner,
+                       moris::mtk::Cell_Info* aConnectivity):
                            mCellId(aCellId),
                            mCellIndex(aCellIndex),
                            mCellOwner(aCellOwner),
-                           mGeometryType(aGeometryType),
-                           mInterpOrder(aInterpOrder){}
+                           mCellInfo(aConnectivity)
+    {
+    }
 
     Interpolation_Cell(){};
 
@@ -57,7 +57,7 @@ public:
     get_vertex_coords() const = 0;
 
     mtk::Geometry_Type
-    get_geometry_type() const { return mGeometryType; };
+    get_geometry_type() const { return mCellInfo->get_cell_geometry(); };
 
 
     moris::Cell<moris::mtk::Vertex const *>
@@ -67,14 +67,13 @@ public:
     compute_outward_side_normal(moris::moris_index aSideOrdinal) const;
 
     mtk::Interpolation_Order
-    get_interpolation_order() const{ return mInterpOrder;};
+    get_interpolation_order() const{ return mCellInfo->get_cell_interpolation_order();};
 
 private:
-    moris_id                      mCellId;
-    moris_id                      mCellIndex;
-    moris_id                      mCellOwner;
-    enum mtk::Geometry_Type       mGeometryType;
-    enum mtk::Interpolation_Order mInterpOrder;
+    moris_id               mCellId;
+    moris_id               mCellIndex;
+    moris_id               mCellOwner;
+    moris::mtk::Cell_Info* mCellInfo;
 };
 
 }

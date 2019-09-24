@@ -272,6 +272,20 @@ namespace mtk
              {
                  return mMSI->get_msi_multigrid_pointer()->get_number_remaining_dofs();
              };
+
+//------------------------------------------------------------------------------
+
+             const Matrix< DDSMat > & get_type_time_identifier_to_type_map()
+             {
+                 return mDofMgn->get_typetime_identifier_to_type_map();
+             };
+
+//------------------------------------------------------------------------------
+
+             moris::sint get_adof_index_for_type( moris::uint aDofType )
+             {
+                 return mMSI->get_adof_index_for_type( aDofType );;
+             };
         };
     }
 }

@@ -117,7 +117,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Geometry_Interpolator::set_coeff( const Matrix< DDRMat > & aXHat,
                                                const Matrix< DDRMat > & aTHat )
         {

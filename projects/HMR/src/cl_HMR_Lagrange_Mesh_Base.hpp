@@ -17,6 +17,7 @@
 #include "cl_HMR_Edge.hpp"
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Facet.hpp"
+#include "cl_HMR_Facet_Cluster.hpp"
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Side_Set.hpp"
@@ -70,8 +71,16 @@ namespace moris
             luint mNumberOfUsedAndOwnedNodes = 0;
             luint mNumberOfUsedNodes = 0;
 
+        public:
             //! Cell containing facets
             Cell< Facet * > mFacets;
+
+            //! Cell containing facet clusters
+            Cell< Facet_Cluster * > mFacetClusters;
+
+            //! Facet to Facet Cluster Relationship
+            Cell< Cell<Facet_Cluster * > > mFacetToFacetCluster;
+        private:
 
             //! Cell containing edges. Only populated in 3D
             Cell< Edge * >  mEdges;
@@ -410,6 +419,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+            void create_facet_clusters();
+
+// ----------------------------------------------------------------------------
+
             void create_edges();
 
 // ----------------------------------------------------------------------------
@@ -456,7 +469,7 @@ namespace moris
              */
             uint get_number_of_bspline_meshes() const
             {
-                return mBSplineMeshes.size();
+                return mNumBSplineMeshes;
             }
 
 // ----------------------------------------------------------------------------
@@ -510,7 +523,7 @@ namespace moris
 
                 Cell< Background_Element_Base * > tBackgroundActiveElements( tCount, nullptr );
 
-                aElementIndices.set_size( tCount, 1, MORIS_SINT_MAX );
+                aElementIndices.set_size(  1, tCount, MORIS_SINT_MAX );
 
                 tCount = 0;
 

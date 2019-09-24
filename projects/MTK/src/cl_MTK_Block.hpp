@@ -109,7 +109,8 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( moris::Cell<Cluster const *>  aBlockSetClusters ) : Set( aBlockSetClusters )
+            Block( std::string aName,
+                   moris::Cell<Cluster const *>  aBlockSetClusters ) : Set( aName, aBlockSetClusters )
             {
 //                mMyBlockSetClusterInds.set_size( aBlockSetClusters.size(), 1 );
 //

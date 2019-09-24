@@ -114,7 +114,8 @@ namespace moris
             /**
              * trivial constructor
              */
-            Double_Side_Set( moris::Cell<Cluster const *> aDoubleSideSetClusters ) : Set(aDoubleSideSetClusters)
+            Double_Side_Set(std::string aName,
+                            moris::Cell<Cluster const *> aDoubleSideSetClusters ) : Set(aName,aDoubleSideSetClusters)
             {
                  this->communicate_ig_geometry_type();
             };

@@ -26,6 +26,7 @@ class Enriched_Interpolation_Mesh: public mtk::Interpolation_Mesh
 {
 public:
     Enriched_Interpolation_Mesh(Model* aXTKModel);
+    ~Enriched_Interpolation_Mesh();
     //------------------------------------------------------------------------------
     // MTK Mesh Core Functionality (see base class mtk::Mesh for documentation)
     //------------------------------------------------------------------------------
@@ -135,6 +136,9 @@ protected:
 
     // base interpolation cells to their enriched interpolation cells
     moris::Cell<moris::Cell<Interpolation_Cell_Unzipped*>> mBaseCelltoEnrichedCell;
+
+    // a connecitivty pointer that all the enriched interpolation cells use
+    moris::mtk::Cell_Info* mCellInfo;
 
     // functions used by enrichment for construction of the mesh
     /*

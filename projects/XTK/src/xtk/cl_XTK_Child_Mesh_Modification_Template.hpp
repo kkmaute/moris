@@ -11,7 +11,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Enums.hpp"
-
+#include "cl_Mesh_Enums.hpp"
 namespace xtk
 {
 class Mesh_Modification_Template
@@ -34,11 +34,10 @@ public:
                                 enum TemplateType                        aTemplateType,
                                 moris::size_t                            aPermutationId = 0):
                                     mParentNodeInds(0,0),
-                                    mParentNodeRanks(0,0)
+                                    mParentNodeRanks(0,0),
+                                    mSpatialDimension(0),
+                                    mElementTopology(CellTopology::INVALID)
     {
-        MORIS_ASSERT(aTemplateType != TemplateType::REGULAR_SUBDIVISION_HEX8 || aTemplateType ==TemplateType::TET_4,
-                     "Entered no node inheritance constructor for template with node inheritance. Currently, only the regular subdivision hex8 and tet4 templates have node inheritance");
-
         mElemIndToReplace = aElemToReplace;
         mParentElemInd    = aParentElemInd;
         mNodeInds         = aNodeInds.copy();
@@ -54,7 +53,7 @@ public:
                                 moris::size_t                            aElemToReplace,
                                 moris::Matrix< moris::IndexMat > const & aNodeInds,
                                 moris::Matrix< moris::IndexMat > const & aParentNodeInds,
-                                moris::Matrix< moris::DDSTMat > const  & aParentNodeRanks,
+                                moris::Matrix< moris::DDSTMat >  const & aParentNodeRanks,
                                 moris::Matrix< moris::IndexMat > const & aParentEdgeInds,
                                 moris::Matrix< moris::DDSTMat >  const & aParentEdgeRanks,
                                 moris::Matrix< moris::IndexMat > const & aParentFaceInds,
@@ -62,9 +61,10 @@ public:
                                 enum TemplateType                        aTemplateType,
                                 moris::size_t                            aPermutationId = 0)
     {
-        MORIS_ASSERT(aTemplateType == TemplateType::REGULAR_SUBDIVISION_HEX8 || aTemplateType ==TemplateType::TET_4,
+        MORIS_ASSERT(aTemplateType == TemplateType::REGULAR_SUBDIVISION_HEX8 || aTemplateType == TemplateType::REGULAR_SUBDIVISION_QUAD4 || aTemplateType ==TemplateType::TET_4 || aTemplateType == TemplateType::TRI_3,
                      "Entered node inheritance constructor for template without node inheritance. Currently, only the regular subdivision hex8 and tet templates have node inheritance");
 
+        mTemplateType	  = aTemplateType;
         mElemIndToReplace = aElemToReplace;
         mParentElemInd    = aParentElemInd;
         mNodeInds         = aNodeInds.copy();
@@ -76,6 +76,38 @@ public:
         mParentFaceRanks  = aParentFaceRanks.copy();
         template_catalog(aPermutationId,aTemplateType);
     }
+
+    // Constructor for when the 2D template has node inheritance information
+    // Separate constructor could not be implemented because non-inheritance constructor has same parameters
+    /*Mesh_Modification_Template( moris::moris_index                       aParentElemInd,
+                                moris::size_t                            aElemToReplace,
+                                moris::Matrix< moris::IndexMat > const & aNodeInds,
+                                moris::Matrix< moris::IndexMat > const & aParentNodeInds,
+                                moris::Matrix< moris::DDSTMat >  const & aParentNodeRanks,
+                                moris::Matrix< moris::IndexMat > const & aParentEdgeInds,
+                                moris::Matrix< moris::DDSTMat >  const & aParentEdgeRanks,
+                                moris::Matrix< moris::IndexMat > const & aParentFaceInds,
+                                moris::Matrix< moris::DDSTMat >  const & aParentFaceRanks,
+                                enum TemplateType                        aTemplateType,
+                                moris::size_t                            aPermutationId = 0)
+    {
+        MORIS_ASSERT(aTemplateType == TemplateType::REGULAR_SUBDIVISION_QUAD4 || aTemplateType ==TemplateType::TRI_3,
+                     "Entered node inheritance constructor for template without node inheritance. Currently, only the regular subdivision quad4 and tri3 templates have node inheritance in 2D.");
+
+        mElemIndToReplace = aElemToReplace;
+        mParentElemInd    = aParentElemInd;
+        mNodeInds         = aNodeInds.copy();
+        mParentNodeInds   = aParentNodeInds.copy();
+        mParentNodeRanks  = aParentNodeRanks.copy();
+        mParentEdgeInds   = aParentEdgeInds.copy();
+        mParentEdgeRanks  = aParentEdgeRanks.copy();
+        mParentFaceInds   = aParentFaceInds.copy();
+        mParentFaceRanks  = aParentFaceRanks.copy();
+        template_catalog(aPermutationId,aTemplateType);
+    }*/
+
+    // Template type
+    enum TemplateType mTemplateType;
 
     // Number of elements to replace and number of new elements in the template
     moris::size_t                    mNumNewElem;
@@ -91,6 +123,12 @@ public:
     moris::Matrix< moris::DDSTMat  > mParentEdgeRanks;
     moris::Matrix< moris::IndexMat > mParentFaceInds;
     moris::Matrix< moris::DDSTMat  > mParentFaceRanks;
+
+    // spatial dimension of template
+    moris::uint mSpatialDimension;
+
+    // topology of children elements
+    enum CellTopology mElementTopology;
 
     // Node indices in the template
     moris::Matrix< moris::IndexMat > mNodeInds;
@@ -132,6 +170,22 @@ private:
              tet4_template();
              break;
          }
+        case(TemplateType::REGULAR_SUBDIVISION_QUAD4):
+        {
+           	quad_4_reg_sub_template();
+           	break;
+        }
+           case(TemplateType::TRI_3):
+        {
+           	tri3_template();
+           	break;
+        }
+        case(TemplateType::CONFORMAL_TRI3):
+        {
+            conformal_tri_template(aPermutationId);
+            break;
+        }
+
         case(TemplateType::HIERARCHY_TET4_3N):
          {
             hierarchy_tet4_3N(aPermutationId);
@@ -199,6 +253,8 @@ private:
                                                       {6, 13, 7, 14},
                                                       {4, 7, 13, 14}});
 
+        mSpatialDimension = 3;
+        mElementTopology = CellTopology::TET4;
         mNumNewElem = 24;
         mNumElemToReplace = 1;
         mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}});
@@ -216,7 +272,8 @@ private:
     void
     tet4_template()
     {
-
+        mSpatialDimension = 3;
+        mElementTopology          = CellTopology::TET4;
         mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,3}});
         mNumNewElem = 1;
         mNumElemToReplace = 0;
@@ -228,11 +285,105 @@ private:
 
     }
 
+    void
+	quad_4_reg_sub_template()
+    {
+        MORIS_ASSERT(mNodeInds.n_cols() == 5, "For a Quad4 regular subdivision template, there must be 5 node inds.");
+        mSpatialDimension = 2;
+        mElementTopology          = CellTopology::TRI3;
+        mNewElementToNode = {{0, 1, 4},
+                             {1, 2, 4},
+                             {2, 3, 4},
+                             {3, 0, 4}};
+
+        mNumNewElem 	  = 4;
+        mNumElemToReplace = 1;
+        mNewParentEdgeRanks    = {{1, 3, 3},
+                                  {1, 3, 3},
+                                  {1, 3, 3},
+                                  {1, 3, 3}};
+        mNewParentEdgeOrdinals = {{0, 0, 0},
+                                  {1, 0, 0},
+                                  {2, 0, 0},
+                                  {3, 0, 0}};
+        mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >(4, 1, std::numeric_limits<moris::size_t>::max());
+
+        // Mark template as having node inheritance
+        mHasNodeInheritance    = true;
+        mNewNodeParentRanks    = {{0, 0, 0, 0, 3}};
+        mNewNodeParentOrdinals = {{0, 1, 2, 3, 0}};
+
+        mElementTopology = CellTopology::TRI3;
+    }
+
+    void
+	tri3_template()
+    {
+        mSpatialDimension = 2;
+        mElementTopology          = CellTopology::TRI3;
+        mNewElementToNode 	  = {{0, 1, 2}};
+        mNumNewElem 		  = 1;
+        mNumElemToReplace 	  = 0;
+        mNewParentEdgeRanks 	  = {{1, 1, 1}};
+        mNewParentEdgeOrdinals 	  = {{0, 1, 2}};
+        mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >(1,1,std::numeric_limits<moris::size_t>::max());
+    }
+
+    void
+    conformal_tri_template(moris::size_t const & aPermutation)
+    {
+
+        mSpatialDimension = 2;
+        moris::size_t tMax = std::numeric_limits<moris::size_t>::max();
+
+        switch(aPermutation)
+        {
+            case(1):
+            {
+                mElementTopology          = CellTopology::TRI3;
+                mNewElementToNode         = {{0, 3, 2},{3,1,4},{3,4,2}};
+                mNumNewElem               = 3;
+                mNumElemToReplace         = 1;
+                mNewParentEdgeRanks       = {{1, 3, 1},{1, 1, 3},{3, 1, 3}};
+                mNewParentEdgeOrdinals    = {{0, 0, 2},{0, 1, 0},{0, 1, 0}};
+                mNewElementInterfaceSides = {{tMax},{2},{0}};
+                break;
+            }
+            case(2):
+            {
+                mElementTopology          = CellTopology::TRI3;
+                mNewElementToNode         = {{0,3,4},{3,2,4},{3,1,2}};
+                mNumNewElem               = 3;
+                mNumElemToReplace         = 1;
+                mNewParentEdgeRanks       = {{1,3,1},{3,1,3},{1,1,3}};
+                mNewParentEdgeOrdinals    = {{0,0,2},{0,2,0},{0,1,0}};
+                mNewElementInterfaceSides = {{1},{2},{tMax}};
+                break;
+            }
+            case(3):
+            {
+                mElementTopology          = CellTopology::TRI3;
+                mNewElementToNode         = {{0,1,3},{0,3,4},{3,2,4}};
+                mNumNewElem               = 3;
+                mNumElemToReplace         = 1;
+                mNewParentEdgeRanks       = {{1,1,3},{3,3,1},{1,1,3}};
+                mNewParentEdgeOrdinals    = {{0,1,0},{0,0,2},{1,2,0}};
+                mNewElementInterfaceSides = {{tMax},{1},{2}};
+                break;
+            }
+            default:
+                MORIS_ERROR(0,"Invalid conformal tri 3 permutation");
+                break;
+        }
+    }
+
 
     void
     hierarchy_tet4_3N(moris::size_t const & aPermutation)
     {
 
+        mSpatialDimension = 3;
+        mElementTopology          = CellTopology::TET4;
         switch(aPermutation)
         {
         case(320):
@@ -546,6 +697,8 @@ private:
     void
     hierarchy_tet4_4na(moris::size_t const & aPermutationId)
     {
+        mSpatialDimension = 3;
+        mElementTopology = CellTopology::TET4;
         switch(aPermutationId)
         {
          case(5420):
@@ -865,6 +1018,8 @@ private:
     void
     hierarchy_tet4_4nb(moris::size_t const & aPermutationId)
     {
+        mSpatialDimension = 3;
+        mElementTopology = CellTopology::TET4;
         switch(aPermutationId)
         {
         case(4250):
@@ -1177,7 +1332,8 @@ private:
     void
     hierarchy_tet4_4nc(moris::size_t const & aPermutationId)
     {
-
+        mSpatialDimension = 3;
+        mElementTopology = CellTopology::TET4;
         switch(aPermutationId)
         {
         case(4520):
@@ -1496,6 +1652,9 @@ private:
     void
     bisected_tet(moris::size_t const & aPermutationId)
     {
+        mSpatialDimension = 3;
+        mElementTopology = CellTopology::TET4;
+
         switch(aPermutationId)
         {
             case 0:
@@ -1591,6 +1750,9 @@ private:
     void
     hierarchy_tet4_2(moris::size_t const & aPermutationId)
     {
+        mSpatialDimension = 3;
+        mElementTopology = CellTopology::TET4;
+
         switch(aPermutationId)
         {
             case(14):

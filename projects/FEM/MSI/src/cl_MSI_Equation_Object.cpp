@@ -116,7 +116,7 @@ namespace moris
         for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
         {
             // Get Number of adofs cooresponding to this pdof
-            moris::uint tNumAdofForThisPdof = ( mFreePdofs( Ij )->mAdofIds ).length();
+            moris::uint tNumAdofForThisPdof = ( mFreePdofs( Ij )->mAdofIds ).numel();
             tNumMyAdofs = tNumMyAdofs + tNumAdofForThisPdof;
         }
 
@@ -128,10 +128,10 @@ namespace moris
         // Loop over all pdofs to get their adofs and put them into a unique list
         for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
         {
-            tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
+            tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
 
             // Add number if these adofs to number of assembled adofs
-            tAdofPosCounter = tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).length();
+            tAdofPosCounter = tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel();
         }
 
         // make list of unique Ids
@@ -142,7 +142,7 @@ namespace moris
     void Equation_Object::set_unique_adof_map()
     {
         //Get number of unique adofs of this equation object
-        moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
+        moris::uint tNumUniqueAdofs = mUniqueAdofList.numel();
 
         // Loop over all unique adofs of this equation object
         for ( moris::uint Ii = 0; Ii < tNumUniqueAdofs; Ii++ )
@@ -156,7 +156,7 @@ namespace moris
     void Equation_Object::build_PADofMap( Matrix< DDRMat > & aPADofMap )
     {
          //Get number of unique adofs of this equation object
-         moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
+         moris::uint tNumUniqueAdofs = mUniqueAdofList.numel();
 
          MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
 
@@ -174,7 +174,7 @@ namespace moris
              auto tPdof = mFreePdofs( Ii );
 
              // Loop over all adof Ids of this pdof
-             for ( moris::uint Ik = 0; Ik < tPdof->mAdofIds.length(); Ik++ )
+             for ( moris::uint Ik = 0; Ik < tPdof->mAdofIds.numel(); Ik++ )
              {
                  // Getting tPADofMap column entry for the corresponding value
                  moris::uint tColumnPos = mUniqueAdofMap[ tPdof->mAdofIds( Ik, 0 ) ];

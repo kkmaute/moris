@@ -50,12 +50,6 @@ public:
         return mSTKMeshData;
     }
 
-    Matrix< IndexMat >
-    get_elements_in_support_of_basis(moris_index aBasisIndex,
-                                     moris_index aInterpIndex = 0)
-    {
-        return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
-    }
 
 };
 }

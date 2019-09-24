@@ -13,53 +13,18 @@
 
 #include "cl_FEM_IWG_Factory.hpp"         //FEM/INT/src
 
+moris::Matrix< moris::DDRMat > tValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                             moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
+    moris::Matrix< moris::DDRMat > tPropertyVal( 1, 1, 1.0);
+    return tPropertyVal;
+}
+
 namespace moris
 {
     namespace fem
     {
-
-        Matrix< DDRMat > tValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator,
-                                       Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            Matrix< DDRMat > tPropertyVal( 1, 1, 1.0);
-            return tPropertyVal;
-        }
-
-        Matrix< DDRMat > tDerFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                       moris::Cell< Field_Interpolator* > & aFieldInterpolator,
-                                       Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            Matrix< DDRMat > tPropertyDer( 1, 1, 2.0);
-            return tPropertyDer;
-        }
-
-        Matrix< DDRMat > tValFunction2( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
-                                        Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            Matrix< DDRMat > tPropertyVal( 1, 1, 0.0);
-            tPropertyVal = aCoeff( 0 ) + aCoeff( 1 ) * aFieldInterpolator( 0 )->val() + aCoeff( 2 ) * aFieldInterpolator( 1 )->val();
-            return tPropertyVal;
-        }
-
-        Matrix< DDRMat > tDerFunction2( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
-                                        Geometry_Interpolator              * aGeometryInterpolator)
-        {
-            Matrix< DDRMat > tPropertyDer;
-            tPropertyDer = aCoeff( 1 ) * aFieldInterpolator( 0 )->N();
-            return tPropertyDer;
-        }
-
-        Matrix< DDRMat > tDerFunction3( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                        moris::Cell< Field_Interpolator* > & aFieldInterpolator,
-                                        Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            Matrix< DDRMat > tPropertyDer;
-            tPropertyDer = aCoeff( 2 ) * aFieldInterpolator( 1 )->N();
-            return tPropertyDer;
-        }
 
         TEST_CASE( "Property_with_IWG", "[moris],[fem],[Property_with_IWG]" )
         {
@@ -75,20 +40,6 @@ namespace moris
             tTHat( 0 ) = 0.0;
             tTHat( 1 ) = 5.0;
 
-            // create a list of dof dependencies for the property
-            Cell< Cell< MSI::Dof_Type > >  tActiveDofTypes = {{ MSI::Dof_Type::TEMP },
-                                                              { MSI::Dof_Type::VX }};
-
-            // create the function pointers for the value
-            fem::PropertyFunc tValFunction0 = tValFunction;
-            Cell< fem::PropertyFunc > tDerFunctions( 0 );
-
-            // create a property object
-            Cell< fem::Property* > tProperties( 1, nullptr );
-            tProperties( 0 ) = new Property( fem::Property_Type::TEMP_NEUMANN,
-                                             tActiveDofTypes,
-                                             tValFunction0, tDerFunctions );
-
             //create a space geometry interpolation rule
             Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
                                                 Interpolation_Type::LAGRANGE,
@@ -101,6 +52,15 @@ namespace moris
 
             //set the coefficients xHat, tHat
             tGeomInterpolator->set_coeff( tXHat, tTHat );
+
+            // create a property object
+            Cell< fem::Property* > tProperties( 1, nullptr );
+            tProperties( 0 ) = new Property( fem::Property_Type::TEMP_NEUMANN,
+                                             {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::VX }},
+                                             Cell< Matrix< DDRMat > >( 0 ),
+                                             tValFunction,
+                                             Cell< fem::PropertyFunc >( 0 ),
+                                             tGeomInterpolator );
 
             // create an interpolation rule
             Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
@@ -133,6 +93,9 @@ namespace moris
             // create an IWG with the factory for the ith IWG type
             fem::IWG* tIWG = tIWGFactory.create_IWGs( fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
+            // set space dim
+            tIWG->set_space_dim( 2 );
+
             // set residual dof type
             tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 
@@ -144,6 +107,7 @@ namespace moris
 
             // set IWG properties
             tIWG->set_properties( tProperties );
+
 
             // set IWG field interpolators
             tIWG->set_field_interpolators( tFieldInterpolators );

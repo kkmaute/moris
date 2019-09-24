@@ -19,7 +19,9 @@ namespace xtk
 Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel,
                                                      moris::moris_index aInterpIndex):
                 mModel(aXTKModel),
-                mMeshIndexInModel(aInterpIndex)
+                mMeshIndexInModel(aInterpIndex),
+                mFields(0),
+                mFieldLabelToIndex(2)
 {
 
     this->setup_cell_clusters();
@@ -27,7 +29,8 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(Model* aXTKModel,
     this->setup_side_set_clusters();
     this->setup_interface_side_sets();
     this->setup_double_side_set_clusters();
-    this->print();
+    this->print_block_sets();
+    this->print_side_sets();
 }
 //------------------------------------------------------------------------------
 Enriched_Integration_Mesh::~Enriched_Integration_Mesh()
@@ -86,7 +89,7 @@ Enriched_Integration_Mesh::get_num_entities( enum EntityRank aEntityRank ) const
     {
         case(EntityRank::NODE):
             {
-            return mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE);
+            return mModel->mBackgroundMesh.get_num_entities(EntityRank::NODE) + mModel->mEnrichedInterpMesh(mMeshIndexInModel)->get_num_entities(EntityRank::NODE);
             break;
             }
         case(EntityRank::ELEMENT):
@@ -206,8 +209,15 @@ Enriched_Integration_Mesh::get_set_names(enum EntityRank aSetEntityRank) const
 {
     switch(aSetEntityRank)
     {
+        case(EntityRank::EDGE):
+            {
+            MORIS_ASSERT(this->get_facet_rank() == EntityRank::EDGE,"side sets are defined on edges in 2d");
+            return mSideSetLabels;
+            break;
+            }
         case(EntityRank::FACE):
             {
+            MORIS_ASSERT(this->get_facet_rank() == EntityRank::FACE,"side sets are defined on faces in 3d");
             return mSideSetLabels;
             break;
             }
@@ -486,6 +496,40 @@ Enriched_Integration_Mesh::get_interface_side_set_name(moris_index aGeomIndex,
     return "iside_g_" + std::to_string(aGeomIndex) + "_b0_" + std::to_string(aBulkPhaseIndex0) + "_b1_" + std::to_string(aBulkPhaseIndex1);
 }
 //------------------------------------------------------------------------------
+moris::moris_index
+Enriched_Integration_Mesh::create_field(std::string            aLabel,
+                                        enum moris::EntityRank aEntityRank,
+                                        moris::moris_index     aBulkPhaseIndex)
+{
+    MORIS_ASSERT(!field_exists(aLabel,aEntityRank),"Field already created");
+
+    moris::moris_index tFieldIndex = mFields.size();
+    mFieldLabelToIndex(this->get_entity_rank_field_index(aEntityRank))[aLabel] = tFieldIndex;
+    mFields.push_back(Field(aLabel,aBulkPhaseIndex));
+
+    return tFieldIndex;
+}
+//------------------------------------------------------------------------------
+moris::moris_index
+Enriched_Integration_Mesh::get_field_index(std::string              aLabel,
+                                           enum moris::EntityRank   aEntityRank)
+{
+    MORIS_ASSERT(field_exists(aLabel,aEntityRank),"Field does not exist in mesh");
+
+    moris_index tIndex = get_entity_rank_field_index(aEntityRank);
+    auto tIter = mFieldLabelToIndex(tIndex).find(aLabel);
+    return tIter->second;
+}
+
+//------------------------------------------------------------------------------
+void
+Enriched_Integration_Mesh::add_field_data(moris::moris_index       aFieldIndex,
+                                          enum moris::EntityRank   aEntityRank,
+                                          Matrix<DDRMat>  const  & aFieldData)
+{
+    mFields(aFieldIndex).mFieldData = aFieldData.copy();
+}
+//------------------------------------------------------------------------------
 void
 Enriched_Integration_Mesh::setup_cell_clusters()
 {
@@ -637,7 +681,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
 
     for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
     {
-        mListofBlocks( Ik ) = new moris::mtk::Block( this->get_cell_clusters_in_set( Ik ));
+        mListofBlocks( Ik ) = new moris::mtk::Block( tBSNames(Ik), this->get_cell_clusters_in_set( Ik ));
     }
 }
 
@@ -651,8 +695,11 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
     Background_Mesh &            tBackgroundMesh = mModel->mBackgroundMesh;
     Cut_Mesh        &            tCutMesh        = mModel->mCutMesh;
 
+    // rank enum for facets
+    enum EntityRank tFacetRank = mModel->mBackgroundMesh.get_mesh_data().get_facet_rank();
+
     // get side sets (in background mesh data)
-    Cell<std::string> tSideSetNames = tBackgroundMesh.get_mesh_data().get_set_names(EntityRank::FACE);
+    Cell<std::string> tSideSetNames = tBackgroundMesh.get_mesh_data().get_set_names(tFacetRank);
 
     tSideSetNames = mModel->check_for_and_remove_internal_seacas_side_sets(tSideSetNames);
 
@@ -691,7 +738,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
             if(!tTrivial)
             {
                 // get the face index associated with the side ordinal
-                moris_index tSideIndex = tBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(tBaseCell->get_index(),EntityRank::ELEMENT,EntityRank::FACE)(tSideOrd);
+                moris_index tSideIndex = tBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(tBaseCell->get_index(),EntityRank::ELEMENT,tFacetRank)(tSideOrd);
 
                 // get the child mesh
                 moris_index tChildMeshIndex   = tBackgroundMesh.child_mesh_index(tBaseCell->get_index(),EntityRank::ELEMENT);
@@ -703,7 +750,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 Matrix<IdMat>    tChildCellIdsOnFace;
                 Matrix<IndexMat> tChildCellsCMIndOnFace;
                 Matrix<IndexMat> tChildCellsOnFaceOrdinal;
-                tChildMesh->get_child_elements_connected_to_parent_face(tSideIndex, tChildCellIdsOnFace, tChildCellsCMIndOnFace, tChildCellsOnFaceOrdinal);
+                tChildMesh->get_child_elements_connected_to_parent_facet(tSideIndex, tChildCellIdsOnFace, tChildCellsCMIndOnFace, tChildCellsOnFaceOrdinal);
 
                 // child cell indices
                 Matrix<IndexMat> const & tChildCellInds = tChildMesh->get_element_inds();
@@ -806,7 +853,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set( this->get_side_set_cluster( Ik ));
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik),this->get_side_set_cluster( Ik ));
     }
 
 }
@@ -1029,11 +1076,39 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
 
     for(moris::uint Ik = tCurrentSize; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set( this->get_side_set_cluster( Ik ));
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik), this->get_side_set_cluster( Ik ));
     }
 
 }
+//------------------------------------------------------------------------------
+bool
+Enriched_Integration_Mesh::field_exists(std::string              aLabel,
+                                        enum moris::EntityRank   aEntityRank)
+{
+    moris::moris_index tIndex = this->get_entity_rank_field_index(aEntityRank);
+    return mFieldLabelToIndex(tIndex).find(aLabel) != mFieldLabelToIndex(tIndex).end();
 
+}
+//------------------------------------------------------------------------------
+moris_index
+Enriched_Integration_Mesh::get_entity_rank_field_index(enum moris::EntityRank   aEntityRank)
+{
+    MORIS_ERROR(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only node and cell fields are supported");
+
+    moris_index tIndex = MORIS_INDEX_MAX;
+    if(aEntityRank == EntityRank::NODE)
+    {
+        tIndex = 0;
+    }
+
+    else if(aEntityRank == EntityRank::ELEMENT)
+    {
+        tIndex = 1;
+    }
+
+    return tIndex;
+
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

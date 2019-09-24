@@ -20,7 +20,6 @@ namespace moris
     {
     class Field_Interpolator;
     class Geometry_Interpolator;
-
     typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
                                               moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
                                               fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
@@ -32,23 +31,20 @@ namespace moris
         {
         protected :
 
-            // properties type list
-            moris::Cell< fem::Property_Type > mPropertyTypeList;
+        // property type
+        fem::Property_Type mPropertyType;
 
-            // properties dof type dependency list
-            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > mPropertyDofList;
+        // property dof type dependency list
+        moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
-            // properties coeff list
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > mCoeffList;
+        // property coeff list
+        moris::Cell< Matrix< DDRMat > > mParamList;
 
-            // properties value function list
-            moris::Cell< PropertyFunc > mValFuncList;
+        // property value function list
+        PropertyFunc mValFunc;
 
-            // properties derivative functions list
-            moris::Cell< moris::Cell< PropertyFunc > > mDerFuncList;
-
-            // property map
-            Matrix< DDSMat > mPropertyTypeMap;
+        // property derivative functions list
+        moris::Cell< PropertyFunc > mDerFuncList;
 
 //------------------------------------------------------------------------------
         public :
@@ -59,20 +55,17 @@ namespace moris
              */
             Property_User_Defined_Info(){};
 
-            Property_User_Defined_Info( const moris::Cell< fem::Property_Type >                          & aPropertyTypeList,
-                                        const moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > & aPropertyDofList,
-                                        const moris::Cell< moris::Cell< Matrix< DDRMat > > >             & aCoeffList,
-                                        const moris::Cell< PropertyFunc >                                & aValFuncList,
-                                        const moris::Cell< moris::Cell< PropertyFunc > >                 & aDerFuncList )
-            : mPropertyTypeList( aPropertyTypeList ),
-              mPropertyDofList( aPropertyDofList ),
-              mCoeffList( aCoeffList ),
-              mValFuncList( aValFuncList ),
+            Property_User_Defined_Info( fem::Property_Type                          aPropertyType,
+                                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                                        moris::Cell< Matrix< DDRMat > >             aParamList,
+                                        PropertyFunc                                aValFunc,
+                                        moris::Cell< PropertyFunc >                 aDerFuncList )
+            : mPropertyType( aPropertyType ),
+              mDofTypes( aDofTypes ),
+              mParamList( aParamList ),
+              mValFunc( aValFunc ),
               mDerFuncList( aDerFuncList )
-            {
-                // build the property map
-                this->build_property_map();
-            };
+            {};
 
 //------------------------------------------------------------------------------
             /**
@@ -80,87 +73,48 @@ namespace moris
              */
              ~Property_User_Defined_Info(){};
 
-//------------------------------------------------------------------------------
+////------------------------------------------------------------------------------
             /**
              * returns property type
              */
-            const moris::Cell< fem::Property_Type > & get_property_type_list() const
+            const fem::Property_Type & get_property_type() const
             {
-                return mPropertyTypeList;
+                return mPropertyType;
             };
 
 //------------------------------------------------------------------------------
             /**
-             * returns property dof type dependency list
+             * returns property dof type dependency
              */
-            const moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > & get_property_dof_type_list() const
+            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_property_dof_type_list() const
             {
-                return mPropertyDofList;
+                return mDofTypes;
             };
-
 //------------------------------------------------------------------------------
             /**
              * returns property coeff list
              */
-            const moris::Cell< moris::Cell< Matrix< DDRMat > > > & get_property_coeff_list() const
+            const moris::Cell< Matrix< DDRMat > > & get_property_param_list() const
             {
-                return mCoeffList;
+                return mParamList;
             };
 //------------------------------------------------------------------------------
             /**
-             * returns property value function list
+             * returns property value function
              */
-            const moris::Cell< PropertyFunc > & get_property_valFunc_list() const
+            const PropertyFunc & get_property_valFunc() const
             {
-                return mValFuncList;
+                return mValFunc;
             };
-
 //------------------------------------------------------------------------------
             /**
              * returns property derivative function list
              */
-            const moris::Cell< moris::Cell< PropertyFunc > > & get_property_derFunc_list() const
+            const moris::Cell< PropertyFunc > & get_property_derFunc_list() const
             {
                 return mDerFuncList;
             };
 
-//------------------------------------------------------------------------------
-            /**
-             * build a property map
-             */
-            void build_property_map()
-            {
-                // get the max enum for the properties to create a property map
-                sint tMaxEnum = 0;
-
-                // loop over the property types
-                for( uint iProp = 0; iProp < mPropertyTypeList.size(); iProp++ )
-                {
-                    // check if enum is greater
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mPropertyTypeList( iProp ) ) );
-                }
-                // +1 because 0 based
-                tMaxEnum++;
-
-                // set the size of the property map
-                mPropertyTypeMap.set_size( tMaxEnum, 1, -1 );
-
-                // loop over the property types
-                for( uint iProp = 0; iProp < mPropertyTypeList.size(); iProp++ )
-                {
-                    // fill the property map
-                    mPropertyTypeMap( static_cast< int >( mPropertyTypeList( iProp ) ), 0 ) = iProp;
-                }
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * get a property map
-             */
-            const Matrix< DDSMat > & get_property_map() const
-            {
-                return mPropertyTypeMap;
-            }
         };
 
 //------------------------------------------------------------------------------
