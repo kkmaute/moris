@@ -69,11 +69,11 @@ namespace moris
 {
     namespace mdl
     {
-        Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                            moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-                                            fem::Geometry_Interpolator              * aGeometryInterpolator )
+        Matrix< DDRMat > tConstValFunction_MDLCUT( moris::Cell< Matrix< DDRMat > >         & aParameters,
+                                                   moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                                   fem::Geometry_Interpolator              * aGeometryInterpolator )
         {
-            return aCoeff( 0 );
+            return aParameters( 0 );
         }
 
         TEST_CASE( "Diffusion_Cut", "[moris],[mdl],[Diffusion_Cut]" )
@@ -285,8 +285,8 @@ namespace moris
             tIWGUserDefinedInfo( 2 ).resize( 1 );
             tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
                                                                         {{ MSI::Dof_Type::TEMP }},
-                                                                        { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET },
-	                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+                                                                        { fem::Property_Type::TEMP_DIRICHLET },
+	                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
             tIWGUserDefinedInfo( 3 ).resize( 1 );
             tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, 3, { MSI::Dof_Type::TEMP },
                                                                         {{ MSI::Dof_Type::TEMP }},
@@ -307,36 +307,36 @@ namespace moris
             tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                                   {{{ 1.0 }}},
-                                                                                  tConstValFunction,
+                                                                                  tConstValFunction_MDLCUT,
                                                                                   Cell< fem::PropertyFunc >( 0 ) );
             tPropertyUserDefinedInfo( 1 ).resize( 1 );
             tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                                   {{{ 1.0 }}},
-                                                                                  tConstValFunction,
+                                                                                  tConstValFunction_MDLCUT,
                                                                                   Cell< fem::PropertyFunc >( 0 ) );
             tPropertyUserDefinedInfo( 2 ).resize( 2 );
             tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                                   {{{ 1.0 }}},
-                                                                                  tConstValFunction,
+                                                                                  tConstValFunction_MDLCUT,
                                                                                   Cell< fem::PropertyFunc >( 0 ) );
             tPropertyUserDefinedInfo( 2 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
                                                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                                   {{{ 5.0 }}},
-                                                                                  tConstValFunction,
+                                                                                  tConstValFunction_MDLCUT,
                                                                                   Cell< fem::PropertyFunc >( 0 ) );
             tPropertyUserDefinedInfo( 3 ).resize( 1 );
             tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
                                                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                                   {{{ 20.0 }}},
-                                                                                  tConstValFunction,
+                                                                                  tConstValFunction_MDLCUT,
                                                                                   Cell< fem::PropertyFunc >( 0 ) );
             tPropertyUserDefinedInfo( 4 ).resize( 1 );
             tPropertyUserDefinedInfo( 4 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                                   {{{ 1.0 }}},
-                                                                                  tConstValFunction,
+                                                                                  tConstValFunction_MDLCUT,
                                                                                   Cell< fem::PropertyFunc >( 0 ) );
 
             // create constitutive user defined info
@@ -348,6 +348,11 @@ namespace moris
                                                                                           3 );
             tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
             tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                          {{ MSI::Dof_Type::TEMP }},
+                                                                                          { fem::Property_Type::CONDUCTIVITY },
+                                                                                          3 );
+            tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
+            tConstitutiveUserDefinedInfo( 2 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
                                                                                           {{ MSI::Dof_Type::TEMP }},
                                                                                           { fem::Property_Type::CONDUCTIVITY },
                                                                                           3 );
@@ -433,7 +438,6 @@ namespace moris
             moris::Matrix< DDRMat > tSolution11;
             tTimeSolver.get_full_solution( tSolution11 );
 
-//            print(tSolution11,"tSolution11");
             delete tInterpMesh1;
             delete tIntegMesh1;
             delete tModel;

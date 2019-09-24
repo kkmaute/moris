@@ -130,6 +130,17 @@ namespace moris
                     break;
                 }
             }
+            // create a unique constitutive type list
+            this->create_constitutive_type_list();
+
+            // create a constitutive type map
+            this->create_constitutive_type_map();
+
+            // create the properties for the set
+            this->create_constitutive_models( aConstitutiveUserDefinedInfo );
+
+            // set constitutive models for each IWG
+            this->set_IWG_constitutive_models();
 
             // create a unique property type list for properties
             this->create_property_type_list();
@@ -140,20 +151,8 @@ namespace moris
             // create the properties for the set
             this->create_properties( aPropertyUserDefinedInfo );
 
-            // create a unique constitutive type list
-            this->create_constitutive_type_list();
-
-            // create a constitutive type map
-            this->create_constitutive_type_map();
-
-            // create the properties for the set
-            this->create_constitutive_models( aConstitutiveUserDefinedInfo );
-
             // set properties for each IWG
             this->set_IWG_properties();
-
-            // set constitutive models for each IWG
-            this->set_IWG_constitutive_models();
 
             // set properties for each CM
             this->set_CM_properties();
@@ -361,10 +360,10 @@ namespace moris
         for ( IWG * tIWG : mIWGs )
         {
             // add the number of master property type
-            tMasterPropCounter += tIWG->get_property_type_list( mtk::Master_Slave::MASTER ).size();
+            tMasterPropCounter += tIWG->get_global_property_type_list( mtk::Master_Slave::MASTER ).size();
 
             // add the number of slave property type
-            tSlavePropCounter += tIWG->get_property_type_list( mtk::Master_Slave::SLAVE ).size();
+            tSlavePropCounter += tIWG->get_global_property_type_list( mtk::Master_Slave::SLAVE ).size();
         }
 
         // set size for the master and slave property type list
@@ -375,10 +374,10 @@ namespace moris
         for ( IWG * tIWG : mIWGs )
         {
             // put the master property types in the master property type list
-            mMasterPropTypes.append( tIWG->get_property_type_list( mtk::Master_Slave::MASTER ) );
+            mMasterPropTypes.append( tIWG->get_global_property_type_list( mtk::Master_Slave::MASTER ) );
 
             // put the slave property types in the slave property type list
-            mSlavePropTypes.append( tIWG->get_property_type_list( mtk::Master_Slave::SLAVE ) );
+            mSlavePropTypes.append( tIWG->get_global_property_type_list( mtk::Master_Slave::SLAVE ) );
         }
 
         // make the master property list unique
@@ -406,7 +405,7 @@ namespace moris
         {
             // check if enum is greater
             tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterPropTypes( iProp ) ) );
-        }        //get number of integration points
+        }
 
         // +1 because 0 based
         tMaxEnum++;
@@ -959,7 +958,7 @@ namespace moris
          {
              //MASTER------------------------------------------------------------------------
              // get the number of master property type
-             uint tMasterIWGNumProp = tIWG->get_property_type_list().size();
+             uint tMasterIWGNumProp = tIWG->get_global_property_type_list().size();
 
              // set size for cell of master properties
              moris::Cell< fem::Property* > tIWGProp( tMasterIWGNumProp, nullptr );
@@ -968,7 +967,7 @@ namespace moris
              for( uint iProp = 0; iProp < tMasterIWGNumProp; iProp++ )
              {
                  // get the property index
-                 uint propIndex = mMasterPropTypeMap( static_cast< int >( tIWG->get_property_type_list()( iProp ) ) );
+                 uint propIndex = mMasterPropTypeMap( static_cast< int >( tIWG->get_global_property_type_list()( iProp ) ) );
 
                  // collect the properties that are active for the IWG
                  tIWGProp( iProp ) = mMasterProperties( propIndex );
@@ -979,7 +978,7 @@ namespace moris
 
              //SLAVE-------------------------------------------------------------------------
              // get the number of slave property type
-             uint tSlaveIWGNumProp = tIWG->get_property_type_list( mtk::Master_Slave::SLAVE ).size();
+             uint tSlaveIWGNumProp = tIWG->get_global_property_type_list( mtk::Master_Slave::SLAVE ).size();
 
              // reset size for cell of slave properties
              tIWGProp.resize( tSlaveIWGNumProp, nullptr );
@@ -988,7 +987,7 @@ namespace moris
              for( uint iProp = 0; iProp < tSlaveIWGNumProp; iProp++ )
              {
                  // get the property index
-                 uint propIndex = mSlavePropTypeMap( static_cast< int >( tIWG->get_property_type_list( mtk::Master_Slave::SLAVE )( iProp ) ) );
+                 uint propIndex = mSlavePropTypeMap( static_cast< int >( tIWG->get_global_property_type_list( mtk::Master_Slave::SLAVE )( iProp ) ) );
 
                  // collect the properties that are active for the IWG
                  tIWGProp( iProp ) = mSlaveProperties( propIndex );

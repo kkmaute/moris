@@ -65,13 +65,31 @@ namespace moris
              */
              ~Constitutive_User_Defined_Info(){};
 
-////------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+            /**
+             * sets constitutive type
+             */
+            void set_constitutive_type( fem::Constitutive_Type aConstitutiveType )
+            {
+                mConstitutiveType = aConstitutiveType;
+            };
+
+//------------------------------------------------------------------------------
             /**
              * returns constitutive type
              */
             const fem::Constitutive_Type & get_constitutive_type() const
             {
                 return mConstitutiveType;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * sets constitutive model dof types
+             */
+            void set_constitutive_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+            {
+                mDofTypes = aDofTypes;
             };
 
 //------------------------------------------------------------------------------
@@ -85,11 +103,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * sets constitutive model property types
+             */
+            void set_constitutive_property_type_list( moris::Cell< fem::Property_Type > & aPropTypes )
+            {
+                mPropTypes = aPropTypes;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * returns constitutive model property types
              */
             const moris::Cell< fem::Property_Type > & get_constitutive_property_type_list() const
             {
                 return mPropTypes;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * sets spatial dimension
+             */
+            void set_constitutive_space_dim( uint aSpaceDim )
+            {
+                mSpaceDim = aSpaceDim;
             };
 
 //------------------------------------------------------------------------------

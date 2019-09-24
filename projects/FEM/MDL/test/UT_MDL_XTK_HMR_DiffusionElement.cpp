@@ -144,7 +144,7 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
     return tLevelSetVaue;
 }
 
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+Matrix< DDRMat > tConstValFunction_MDL_XTK_HMR( moris::Cell< Matrix< DDRMat > >         & aCoeff,
                                     moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
                                     fem::Geometry_Interpolator             * aGeometryInterpolator )
 {
@@ -259,8 +259,8 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         tIWGUserDefinedInfo( 2 ).resize( 1 );
         tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+                                                                    { fem::Property_Type::TEMP_DIRICHLET },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 3 ).resize( 1 );
         tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, 3, { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
@@ -273,30 +273,30 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 1.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 1.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 2 ).resize( 2 );
         tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 1.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 2 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 5.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 3 ).resize( 1 );
         tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 20.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
 
 
@@ -309,6 +309,11 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
                                                                                       3 );
         tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
         tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 2 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
                                                                                       {{ MSI::Dof_Type::TEMP }},
                                                                                       { fem::Property_Type::CONDUCTIVITY },
                                                                                       3 );
@@ -548,13 +553,13 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tIWGUserDefinedInfo( 2 ).resize( 1 );
         tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+                                                                    { fem::Property_Type::TEMP_DIRICHLET },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 3 ).resize( 1 );
         tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::CONDUCTIVITY, fem::Property_Type::TEMP_DIRICHLET },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+                                                                    { fem::Property_Type::TEMP_DIRICHLET },
+                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 4 ).resize( 1 );
         tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, 3, { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
@@ -567,41 +572,41 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 1.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 1.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 2 ).resize( 2 );
         tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 1.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 2 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 5.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 3 ).resize( 2 );
         tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 1.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 3 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 5.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
         tPropertyUserDefinedInfo( 4 ).resize( 1 );
         tPropertyUserDefinedInfo( 4 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
                                                                               Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                                               {{{ 20.0 }}},
-                                                                              tConstValFunction,
+                                                                              tConstValFunction_MDL_XTK_HMR,
                                                                               Cell< fem::PropertyFunc >( 0 ) );
 
         // create constitutive user defined info
@@ -613,6 +618,16 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
                                                                                       3 );
         tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
         tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 2 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                                      { fem::Property_Type::CONDUCTIVITY },
+                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 3 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
                                                                                       {{ MSI::Dof_Type::TEMP }},
                                                                                       { fem::Property_Type::CONDUCTIVITY },
                                                                                       3 );
@@ -909,7 +924,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        tCoeffList( 2 )( 0 )= {{ 20.0 }};
 //
 //        // cast free function into std::function
-//        fem::PropertyFunc tValFunction0 = tConstValFunction;
+//        fem::PropertyFunc tValFunction0 = tConstValFunction_MDL_XTK_HMR;
 //
 //        // create the list with function pointers for the value
 //        Cell< fem::PropertyFunc > tValFuncList( 3, tValFunction0 );

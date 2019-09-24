@@ -50,6 +50,10 @@ namespace moris
             moris::Cell< fem::Property_Type > mMasterPropTypes;
             moris::Cell< fem::Property_Type > mSlavePropTypes;
 
+            // master and slave global property type lists
+            moris::Cell< fem::Property_Type > mMasterGlobalPropTypes;
+            moris::Cell< fem::Property_Type > mSlaveGlobalPropTypes;
+
             // master and slave properties
             moris::Cell< Property* > mMasterProp;
             moris::Cell< Property* > mSlaveProp;
@@ -413,14 +417,14 @@ namespace moris
                                   mtk::Master_Slave          aIsMaster = mtk::Master_Slave::MASTER )
              {
                  // check input size
-                 MORIS_ASSERT( aProperties.size() == this->get_property_type_list( aIsMaster ).size(),
+                 MORIS_ASSERT( aProperties.size() == this->get_global_property_type_list( aIsMaster ).size(),
                                "IWG::set_properties - master, wrong input size. " );
 
                  // check property type
                  bool tCheckProp = true;
                  for( uint iProp = 0; iProp < aProperties.size(); iProp++ )
                  {
-                     tCheckProp = tCheckProp && ( aProperties( iProp )->get_property_type() == this->get_property_type_list( aIsMaster)( iProp ) );
+                     tCheckProp = tCheckProp && ( aProperties( iProp )->get_property_type() == this->get_global_property_type_list( aIsMaster)( iProp ) );
                  }
                  MORIS_ASSERT( tCheckProp, "IWG::set_properties - wrong property type. ");
 
@@ -474,11 +478,11 @@ namespace moris
               void check_properties( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
               {
                   // check property cell size
-                  MORIS_ASSERT( this->get_properties( aIsMaster ).size() == this->get_property_type_list( aIsMaster ).size(),
+                  MORIS_ASSERT( this->get_properties( aIsMaster ).size() == this->get_global_property_type_list( aIsMaster ).size(),
                                 "IWG::check_properties - wrong property size. " );
 
                   // loop over all properties and check that they are assigned
-                  for( uint iProp = 0; iProp < this->get_property_type_list( aIsMaster ).size(); iProp++ )
+                  for( uint iProp = 0; iProp < this->get_global_property_type_list( aIsMaster ).size(); iProp++ )
                   {
                       MORIS_ASSERT( this->get_properties( aIsMaster )( iProp ) != nullptr,
                                     "IWG::check_properties - property missing. " );
@@ -509,6 +513,9 @@ namespace moris
 
                  // set constitutive models
                  this->get_constitutive_models( aIsMaster ) = aConstitutiveModels;
+
+                 // create a global property type list
+                 this->build_global_property_type_list( aIsMaster );
              }
 
 //------------------------------------------------------------------------------
@@ -687,6 +694,97 @@ namespace moris
               };
 
 //------------------------------------------------------------------------------
+              /**
+               * create a global property type list including IWG and constitutive model dependencies
+               * @param[ in ] aIsMaster enum master or slave
+               */
+              void build_global_property_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+              {
+                  // set the size of the dof type list
+                  uint tCounterMax = this->get_property_type_list( aIsMaster ).size();
+
+                  for ( Constitutive_Model* tCM : this->get_constitutive_models( aIsMaster ) )
+                  {
+                      tCounterMax += tCM->get_property_type_list().size();
+                  }
+                  this->get_global_property_type_list( aIsMaster ).resize( tCounterMax );
+                  moris::Cell< sint > tCheckList( tCounterMax, -1 );
+
+                  // init total property counter
+                  uint tCounter = 0;
+
+                  // get active property types from IWG
+                  for ( uint iProp = 0; iProp < this->get_property_type_list( aIsMaster ).size(); iProp++ )
+                  {
+                      tCheckList( tCounter ) = static_cast< uint >( this->get_property_type_list( aIsMaster )( iProp ) );
+                      this->get_global_property_type_list( aIsMaster )( tCounter ) = this->get_property_type_list( aIsMaster )( iProp );
+                      tCounter++;
+                  }
+
+                  // get active property types from IWG constitutive models
+                  for( Constitutive_Model* tCM : this->get_constitutive_models( aIsMaster ) )
+                  {
+                      // get active property type
+                      moris::Cell< fem::Property_Type > tPropertyType = tCM->get_property_type_list();
+
+                      for ( uint iProp = 0; iProp < tPropertyType.size(); iProp++ )
+                      {
+                          // check enum is not already in the list
+                          bool tCheck = false;
+                          for( uint i = 0; i < tCounter; i++ )
+                          {
+                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tPropertyType( iProp ) ) );
+                          }
+
+                          // if property enum not in the list
+                          if ( !tCheck )
+                          {
+                              tCheckList( tCounter ) = static_cast< uint >( tPropertyType( iProp ) );
+                              this->get_global_property_type_list( aIsMaster )( tCounter ) = tPropertyType( iProp );
+                              tCounter++;
+                          }
+                      }
+                  }
+
+                  // resize to number of unique property types
+                  this->get_global_property_type_list( aIsMaster ).resize( tCounter );
+              };
+
+//------------------------------------------------------------------------------
+              /**
+               * get global property type list
+               * @param[ in ] aIsMaster enum master or slave
+               */
+              moris::Cell< fem::Property_Type > & get_global_property_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+              {
+                  // switch on master/slave
+                  switch( aIsMaster )
+                  {
+                      // if master
+                      case( mtk::Master_Slave::MASTER ):
+                      {
+                          // return master global dof type list
+                          return mMasterGlobalPropTypes;
+                          break;
+                      }
+                      // if slave
+                      case( mtk::Master_Slave::SLAVE ):
+                      {
+                          // return slave global dof type list
+                          return mSlaveGlobalPropTypes;
+                          break;
+                      }
+                      // if none
+                      default:
+                      {
+                          MORIS_ASSERT( false, "IWG::get_global_property_type_list - can only be master or slave." );
+                          return mMasterGlobalPropTypes;
+                          break;
+                      }
+                  }
+              };
+
+//------------------------------------------------------------------------------
             /**
              * evaluates the residual
              * @param[ in ] aResidual matrix to fill with residual
@@ -789,6 +887,7 @@ namespace moris
                 }
             }
 
+//------------------------------------------------------------------------------
             /**
              * evaluates the Jacobian by finite difference double
              * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD

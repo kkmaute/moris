@@ -18,75 +18,89 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
-            // check master field interpolators
+            // check field interpolators, properties, constitutive models
             this->check_field_interpolators();
-
-            // check master properties
             this->check_properties();
+            this->check_constitutive_models();
+
+            // compute flux
+            Matrix< DDRMat > tStress;
+            mMasterCM( 0 )->eval_stress( tStress );
 
             // compute conductivity matrix
-            Matrix< DDRMat > I;
-            eye( mSpaceDim, mSpaceDim, I );
-            Matrix< DDRMat > K = mMasterProp( 0 )->val()( 0 ) * I;
+            Matrix< DDRMat > tK;
+            mMasterCM( 0 )->eval_const( tK );
+
+            // compute jump
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
 
             // set residual size
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( K * mMasterFI( 0 )->gradx( 1 ), mNormal )
-                             + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * K * mNormal * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) )
-                             + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) );
-
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tStress, mNormal )
+                             + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * tJump
+                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
         }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // check master field interpolators
+            // check field interpolators, properties, constitutive models
             this->check_field_interpolators();
-
-            // check master properties
             this->check_properties();
+            this->check_constitutive_models();
+
+            // compute flux
+            Matrix< DDRMat > tStress;
+            mMasterCM( 0 )->eval_stress( tStress );
 
             // compute conductivity matrix
-            Matrix< DDRMat > K;
-            eye( mSpaceDim, mSpaceDim, K );
-            K = mMasterProp( 0 )->val()( 0 ) * K;
+            Matrix< DDRMat > tK;
+            mMasterCM( 0 )->eval_const( tK );
+
+            // compute jump
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
-            // compute the jacobian for direct IWG dof dependencies
-            aJacobians( 0 )( 0 ) = - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * K * mMasterFI( 0 )->dnNdxn( 1 )
-                                   + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * K * mNormal * mMasterFI( 0 )->N()
-                                   + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
+            // compute the jacobian for direct dof dependencies
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterFI( 0 )->N()
+                                 + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
-            // compute the jacobian for indirect IWG dof dependencies through properties
-            for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
+            // compute the jacobian for indirect dof dependencies through properties
+            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
-                // if dependency in the dof type
+                // if dependency on the dof type
                 if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
-                    // compute property derivative
-                    // FIXME in a constitutive model
-                    Matrix< DDRMat > dK = mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
-
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() )  * trans( mNormal ) * mMasterFI( 0 )->gradx( 1 ) * dK
-                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * dK * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) );
+                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) )
+                       - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
                 }
+            }
 
-                // if dependency in the dof type
-                if ( mMasterProp( 1 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+            // compute the jacobian for indirect dof dependencies through constitutive models
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            {
+                // if dependency on the dof type
+                if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
+                    // evaluate derivative
+                    Matrix< DDRMat > tdStress;
+                    mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStress );
+                    Matrix< DDRMat > tdK;
+                    mMasterCM( 0 )->eval_dConstdDOF( mMasterGlobalDofTypes( iDOF ), tdK );
+
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * K * mNormal * mMasterProp( 1 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) )
-                       - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 1 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdStress
+                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * tdK * tJump( 0 ) ;
                 }
             }
         }
@@ -95,56 +109,67 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // check master field interpolators
+            // check field interpolators, properties, constitutive models
             this->check_field_interpolators();
-
-            // check master properties
             this->check_properties();
+            this->check_constitutive_models();
+
+            // compute flux
+            Matrix< DDRMat > tStress;
+            mMasterCM( 0 )->eval_stress( tStress );
 
             // compute conductivity matrix
-            Matrix< DDRMat > K;
-            eye( mSpaceDim, mSpaceDim, K );
-            K = mMasterProp( 0 )->val()( 0 ) * K;
+            Matrix< DDRMat > tK;
+            mMasterCM( 0 )->eval_const( tK );
 
-            // set the residual size
+            // compute jump
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
+
+            // set residual size
             this->set_residual( aResidual );
 
-            // compute the residual r_T
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( K * mMasterFI( 0 )->gradx( 1 ), mNormal )
-                           + trans( K * mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) )
-                           + mGamma * trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) );
+            // compute the residual
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tStress, mNormal )
+                             + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * tJump
+                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
-            // compute the jacobian for direct IWG dof dependencies
-            aJacobians( 0 )( 0 ) = - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * K * mMasterFI( 0 )->dnNdxn( 1 )
-                                 + trans( K * mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * mMasterFI( 0 )->N()
+            // compute the jacobian for direct dof dependencies
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterFI( 0 )->N()
                                  + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
-            // compute the jacobian for indirect IWG dof dependencies through properties
-            for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
+            // compute the jacobian for indirect dof dependencies through properties
+            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
-                // if dependency in the dof type
+                // if dependency on the dof type
                 if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
-                    // compute property derivative
-                    // FIXME in a constitutive model
-                    Matrix< DDRMat > dK = mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
-
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() )  * trans( mNormal ) * mMasterFI( 0 )->gradx( 1 ) * dK
-                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * dK * ( mMasterFI( 0 )->val()( 0 ) - mMasterProp( 1 )->val()( 0 ) );
+                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) )
+                       - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
                 }
+            }
 
-                // if dependency in the dof type
-                if ( mMasterProp( 1 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+            // compute the jacobian for indirect dof dependencies through constitutive models
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            {
+                // if dependency on the dof type
+                if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
+                    // evaluate derivatives
+                    Matrix< DDRMat > tdStress;
+                    mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStress );
+                    Matrix< DDRMat > tdK;
+                    mMasterCM( 0 )->eval_dConstdDOF( mMasterGlobalDofTypes( iDOF ), tdK );
+
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * K * mNormal * mMasterProp( 1 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) )
-                       - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 1 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdStress
+                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * tdK * tJump( 0 ) ;
                 }
             }
         }

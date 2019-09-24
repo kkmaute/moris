@@ -104,12 +104,30 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns IWG type list
+             * sets IWG type
              */
-           const fem::IWG_Type get_IWG_type() const
+           void set_IWG_type( fem::IWG_Type aIWGType )
+            {
+                mIWGType = aIWGType;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * returns IWG type
+             */
+            fem::IWG_Type get_IWG_type() const
             {
                 return mIWGType;
             };
+
+//------------------------------------------------------------------------------
+           /**
+            * sets IWG space dimension
+            */
+           void set_IWG_space_dim( uint aSpaceDim )
+           {
+               mSpaceDim = aSpaceDim;
+           };
 
 //------------------------------------------------------------------------------
            /**
@@ -122,11 +140,47 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * sets IWG residual dof type
+             */
+            void set_residual_dof_type( moris::Cell< MSI::Dof_Type > & aResidualDofType )
+            {
+                mResidualDofType = aResidualDofType;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * returns IWG residual dof type
              */
             const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
             {
                 return mResidualDofType;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * sets IWG dof type list
+             */
+            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
+                                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ):
+                    {
+                        mMasterDofTypes = aDofTypes;
+                        break;
+                    }
+                    case ( mtk::Master_Slave::SLAVE ):
+                    {
+                        mSlaveDofTypes = aDofTypes;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "IWG_User_Defined_Info::set_dof_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
             };
 
 //------------------------------------------------------------------------------
@@ -155,6 +209,33 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * sets IWG property type list
+             */
+            void set_property_type_list( moris::Cell< fem::Property_Type > & aPropTypes,
+                                         mtk::Master_Slave                   aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ):
+                    {
+                        mMasterPropTypes = aPropTypes;
+                        break;
+                    }
+                    case ( mtk::Master_Slave::SLAVE ):
+                    {
+                        mSlavePropTypes = aPropTypes;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "IWG_User_Defined_Info::set_property_type_list - can only be MASTER or SLAVE.");
+                        break;
+                    }
+                }
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * returns IWG property type list
              */
             const moris::Cell< fem::Property_Type > & get_property_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
@@ -173,6 +254,33 @@ namespace moris
                     {
                         MORIS_ERROR( false, "IWG_User_Defined_Info::get_property_type_list - can only be MASTER or SLAVE.");
                         return mMasterPropTypes;
+                    }
+                }
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * sets IWG constitutive type list
+             */
+            void set_constitutive_type_list( moris::Cell< fem::Constitutive_Type > & aConstitutiveTypes,
+                                             mtk::Master_Slave                       aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ):
+                    {
+                        mMasterConstitutiveTypes = aConstitutiveTypes;
+                        break;
+                    }
+                    case ( mtk::Master_Slave::SLAVE ):
+                    {
+                        mSlaveConstitutiveTypes = aConstitutiveTypes;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "IWG_User_Defined_Info::set_constitutive_type_list - can only be MASTER or SLAVE.");
+                        break;
                     }
                 }
             };

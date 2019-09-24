@@ -73,7 +73,16 @@ namespace moris
              */
              ~Property_User_Defined_Info(){};
 
-////------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+            /**
+             * sets property type
+             */
+            void set_property_type( fem::Property_Type aPropertyType )
+            {
+                mPropertyType = aPropertyType;
+            };
+
+//------------------------------------------------------------------------------
             /**
              * returns property type
              */
@@ -84,20 +93,49 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * sets property dof type dependency
+             */
+            void set_property_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+            {
+                mDofTypes = aDofTypes;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * returns property dof type dependency
              */
             const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_property_dof_type_list() const
             {
                 return mDofTypes;
             };
+
 //------------------------------------------------------------------------------
             /**
-             * returns property coeff list
+             * sets property parameter list
+             */
+            void set_property_param_list( moris::Cell< Matrix< DDRMat > > & aParamList )
+            {
+                mParamList = aParamList;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * returns property parameter list
              */
             const moris::Cell< Matrix< DDRMat > > & get_property_param_list() const
             {
                 return mParamList;
             };
+
+//------------------------------------------------------------------------------
+            /**
+             * sets property value function
+             */
+            void set_property_valFunc( PropertyFunc & aValFunc )
+            {
+                mValFunc = aValFunc;
+            };
+
 //------------------------------------------------------------------------------
             /**
              * returns property value function
@@ -106,6 +144,16 @@ namespace moris
             {
                 return mValFunc;
             };
+
+//------------------------------------------------------------------------------
+            /**
+             * sets property derivative function list
+             */
+            void set_property_derFunc_list( moris::Cell< PropertyFunc > & aDerFuncList )
+            {
+                mDerFuncList = aDerFuncList;
+            };
+
 //------------------------------------------------------------------------------
             /**
              * returns property derivative function list
@@ -115,6 +163,7 @@ namespace moris
                 return mDerFuncList;
             };
 
+//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------
