@@ -144,16 +144,15 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
             std::shared_ptr< Geometry > tGeom = tFactory.set_geometry_type( GeomType::ANALYTIC );
 
             tGeom->set_my_mesh( &tMesh );
-            tGeom->set_my_constants(tCircleInputs);
 
-            tGeom->set_analytical_function( LevelSetFunction );
+            moris_index tSubIndex = tGeom->set_analytical_function( LevelSetFunction, tCircleInputs );
 
             GE_Core tGeometryEngine;
             moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom );
 
             uint tNumOfIPNodes = tIntegrationMesh->get_num_nodes();
 
-            Matrix< DDRMat > tFieldData = tGeometryEngine.get_field_vals( tMyGeomIndex );
+            Matrix< DDRMat > tFieldData = tGeometryEngine.get_field_vals( tMyGeomIndex, tSubIndex );
 
 //            print(tFieldData, "tFieldData");
 

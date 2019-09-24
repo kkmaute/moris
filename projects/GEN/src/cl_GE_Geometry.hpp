@@ -49,12 +49,17 @@ namespace ge
 		 * ************************ ANALYTIC GEOMETRY FUNCTIONS ************************
 		 * *****************************************************************************
 		 */
+        virtual uint get_number_of_sub_types()
+        {
+            MORIS_ASSERT(false, "ge::Geometry::get_number_of_sub_types(): not implemented ");
+            return 0;
+        }
         //------------------------------------------------------------------------------
         /*
          * @brief check that the analytic function has been set before attempting to use
          */
         virtual bool
-        check_if_function_is_set()
+        check_if_function_is_set( moris_index aSubIndex )
         {
             MORIS_ASSERT(false, "ge::Geometry::check_if_function_is_set(): not implemented ");
             return false;
@@ -64,7 +69,7 @@ namespace ge
          * @brief check that the analytic function for sensitivity has been set before attempting to use
          */
         virtual bool
-        check_if_sensitivity_function_is_set()
+        check_if_sensitivity_function_is_set( moris_index aSubIndex )
         {
             MORIS_ASSERT(false,"ge::Geometry::check_if_sensitivity_function_is_set(): not implemented ");
             return false;
@@ -74,15 +79,16 @@ namespace ge
          * @brief sets the constants necessary for the specific geometry rep
          */
         virtual void
-        set_my_constants( moris::Cell< real > aMyConstants )
+        set_constants( moris::Cell< real > aMyConstants, moris_index aSubIndex )
         {
             MORIS_ASSERT(false, "ge::Geometry::set_my_constants(): not implemented for this type of geometry representaion");
         }
         //------------------------------------------------------------------------------
-		virtual void
-		set_analytical_function( real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ) )
+		virtual moris_index
+		set_analytical_function( real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ), moris::Cell< real > aConstants )
 		{
 		    MORIS_ASSERT(false,"ge::Geometry::set_analytical_function(): please specify your own analytic function");
+		    return 0;
 		};
 		//------------------------------------------------------------------------------
 		virtual void
@@ -95,29 +101,31 @@ namespace ge
 		    MORIS_ASSERT(false,"ge::Geometry::set_analytical_function(): please choose a valid function");
         };
         //------------------------------------------------------------------------------
-        virtual void
-        set_analytical_function( AnalyticType aGeomType )
+        virtual moris_index
+        set_analytical_function( AnalyticType aGeomType, moris::Cell< real > aConstants )
         {
             MORIS_ASSERT(false,"ge::Geometry::set_analytical_function(): please choose a valid function");
+            return 0;
         };
 
         //------------------------------------------------------------------------------
         virtual void
-        set_analytical_function_dphi_dx( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ) )
+        set_analytical_function_dphi_dp( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ) )
         {
             MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_dphi_dx(): please specify your own analytic function dphi/dx");
         };
 
         //------------------------------------------------------------------------------
         virtual void
-        set_analytical_function_dphi_dx( AnalyticType aGeomType )
+        set_analytical_function_dphi_dp( AnalyticType aGeomType )
         {
             MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_dphi_dx(): please choose a valid dphi/dx function");
         };
 
         //------------------------------------------------------------------------------
         virtual real
-        get_field_val_at_coordinate( const Matrix< DDRMat > & aPoint )
+        get_field_val_at_coordinate( const Matrix< DDRMat > & aPoint,
+                                     const moris_index aSubIndex = 0 )
         {
             MORIS_ASSERT(false,"ge::Geometry::get_field_val_at_coordinate(): function not implemented");
             return 0.0;
@@ -126,7 +134,8 @@ namespace ge
         //------------------------------------------------------------------------------
 
         virtual Matrix< DDRMat >
-        get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint )
+        get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint,
+                                               const moris_index aSubIndex = 0 )
         {
             MORIS_ASSERT(false,"ge::Geometry::get_sensitivity_dphi_dp_at_coordinate(): function not implemented");
             Matrix< DDRMat > tSensitivityDxDp(4, 3, 0.0);
@@ -225,10 +234,11 @@ namespace ge
          * ************************* SDF GEOMETRY FUNCTIONS ****************************
          * *****************************************************************************
          */
-        virtual void
+        virtual moris_index
         add_hmr_field( std::shared_ptr< hmr::Field > &aField )
         {
             MORIS_ASSERT(false, "ge::Geometry::add_hmr_field(): not implemented");
+            return 0;
         }
         //------------------------------------------------------------------------------
         virtual void
