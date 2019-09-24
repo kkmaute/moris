@@ -53,9 +53,9 @@ moris::Comm_Manager gMorisComm;
  *
  * 1) create a single-element mesh from mtk using the stk database
  *
- * 2) create an analytic geometry class
+ * 2) create an analytic geometry representation of a circle
  *
- * 3) create the geometry engine and compute information with it
+ * 3) use the geometry engine to determine the intersection point(s) and sensitivities of the circle geometry with the element
  *
  */
 
@@ -191,8 +191,8 @@ main( int    argc,
      * <b> Step 2: create the geometry representation </b>
      */
     /*!
-     * We first define a moris::Cell of reals which the analytic function uses for required constants (these values are the x,y coordinates of the center
-     * and the radius for the circle function being used, see cl_GE_Geometry_Library for other analytic functions).
+     * We first define a moris::Cell of reals which the analytic function uses for required constants (these values are the radius and x,y coordinates
+     * of the center, see cl_GE_Geometry_Library for other analytic functions).
      *
      * \code{.cpp}
      * moris::Cell< real > tCircleInputs(3);
@@ -203,9 +203,9 @@ main( int    argc,
      */
     // input parameters for the circle LS
     moris::Cell< real > tCircleInputs(3);
-    tCircleInputs(0) = 0.0;   // x center
+    tCircleInputs(0) = 0.6;   // radius
     tCircleInputs(1) = 0.0;   // y center
-    tCircleInputs(2) = 0.6;   // radius
+    tCircleInputs(2) = 0.0;   // y center
 
     /*!
      * Create and initialize the geometry representation; depending on the type of geometry representation, the initialization will require different steps.
@@ -213,24 +213,38 @@ main( int    argc,
      *
      * \code{.cpp}
      * Ge_Factory tFactory;
-     * std::shared_ptr< Geometry > tGeom1 = tFactory.set_geometry_type(GeomType::ANALYTIC);
-     * tGeom1->set_analytical_function(AnalyticType::CIRCLE);
-     * tGeom1->set_analytical_function_dphi_dx(AnalyticType::CIRCLE);
+     * std::shared_ptr< Geometry > tGeom1 = tFactory.set_geometry_type( GeomType::ANALYTIC );
+     * moris_index tSubIndex = tGeom1->set_analytical_function( AnalyticType::CIRCLE, tCircleInputs );
+     * \endcode
+     * This returns the index to the sub-type which has just been set.
+     *
+     * When the analytical function is set, additional parameters need to bee associated with it. Here the tCircleInput cell contains the radius,
+     * x location of the center, and y location of the center, respectively.
+     *
+     * We can also add other analytical functions to the geometry tGeom1. For example, if there were 3 different sized circle functions on the same mesh, then
+     * one could do:
+     *
+     * \code{.cpp}
+     * moris_index tSubIndex02 = tGeom1->set_analytical_function( AnalyticType::CIRCLE, tCircleInputs02 );
+     * moris_index tSubIndex03 = tGeom1->set_analytical_function( AnalyticType::CIRCLE, tCircleInputs03 );
+     * \endcode
+     *
+     * If the function is pulled from the geometry library, then the sensitivity function (if it is defined) will also be set with the above command. However,
+     * if the function is not pulled from the library, then the sensitivity function must also be set in a way similar to what is done below:
+     * \code{.cpp}
+     * tGeom1->set_analytical_function_dphi_dp( AnalyticType::CIRCLE );
      * \endcode
      */
     Ge_Factory tFactory;
     std::shared_ptr< Geometry > tGeom1 = tFactory.set_geometry_type(GeomType::ANALYTIC);
-    tGeom1->set_analytical_function(AnalyticType::CIRCLE);
-    tGeom1->set_analytical_function_dphi_dp(AnalyticType::CIRCLE);
+    moris_index tSubIndex = tGeom1->set_analytical_function( AnalyticType::CIRCLE, tCircleInputs );
     /*!
-     * The mesh needs to be set for all geometry representation types, additionally, the analytic type should have its constants set (otherwise, they are defaulted to zeros).
+     * The mesh needs to be set for all geometry representation types as the representation is linked to a specific mesh.
      * \code{.cpp}
      * tGeom1->set_my_mesh( &tMeshManager );
-     * tGeom1->set_my_constants( tCircleInputs );
      * \endcode
      */
     tGeom1->set_my_mesh( &tMeshManager );
-    tGeom1->set_my_constants( tCircleInputs );
 
     /*!
      * <b> Step 3: create the geometry engine and register the created geometry type </b>
@@ -242,8 +256,10 @@ main( int    argc,
      * moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom1 );
      * \endcode
      *
-     * When using the .set_geometry() function, a second argument can be passed in which tells the GE the index of the meshes to use in the mesh manager.
-     * For this example, there is only one mesh pair, so we use the defaulted value. This implementation would be the same (for this specific case) if we set the geometry using the mesh index from the manager:
+     * When using the .set_geometry() function, a second argument can be passed in which tells the GE the index of the meshes to use in the
+     * mesh manager (if there are more than a single interpolation/integration pair)..
+     * For this example, there is only one mesh pair, so we use the defaulted value. This implementation would be the same (for this
+     * specific case) if we set the geometry using the mesh index from the manager:
      * \code{.cpp}
      * moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom1,tMeshIndex );
      * \endcode
@@ -252,40 +268,49 @@ main( int    argc,
     moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom1 );
 
     /*!
-     * When someone form the outside wants information from the GE, there are two possible ways to approach this:
+     * When someone from the outside wants information from the GE, there are two possible ways to approach this:
      *
      * (1) ask the geometry engine directly using the index of the geometry representation object:
      *
      * \code{.cpp}
-     *      Matrix< DDRMat > tLSVals                = tGeometryEngine.get_field_vals( tMyGeomIndex );
-     *      Cell< Matrix< DDRMat > > tSensitivities = tGeometryEngine.get_sensitivity_vals( tMyGeomIndex );
-     *
+     *      Matrix< DDRMat > tLSVals                = tGeometryEngine.get_field_vals( tMyGeomIndex, tSubIndex );
+     *      Cell< Matrix< DDRMat > > tSensitivities = tGeometryEngine.get_sensitivity_vals( tMyGeomIndex, tSubIndex );
      * \endcode
-     * Where asking this returns the values at all the nodes. If you only want the value at a specific node, pass in the index:
+     * Note that the index of the sub-type must be passes in as well.
+     *
+     * Where asking this returns the values at all the nodes. If you only want the value at a specific node, pass in the index to the
+     * desired node:
      * \code{.cpp}
-     *      Matrix< DDRMat > tLSVals                = tGeometryEngine.get_field_vals( tMyGeomIndex, tVertexIndex );
-     *      Cell< Matrix< DDRMat > > tSensitivities = tGeometryEngine.get_sensitivity_vals( tMyGeomIndex, tVertexIndex );
+     *      Matrix< DDRMat > tLSVals                = tGeometryEngine.get_field_vals( tMyGeomIndex, tVertexIndex, tSubIndex );
+     *      Cell< Matrix< DDRMat > > tSensitivities = tGeometryEngine.get_sensitivity_vals( tMyGeomIndex, tVertexIndex, tSubIndex );
      * \endcode
      *
      * (2) ask the geometry engine for the PDV_Info pointer and use the pointer to access/compute all information directly:
      * \code{.cpp}
      *      PDV_Info* tPDVInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex );
      *
-     *      Matrix< DDRMat > tLSVals                = tPDVInfo->get_field_vals(  );
-     *      Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals(  );
+     *      Matrix< DDRMat > tLSVals                = tPDVInfo->get_field_vals( tSubIndex );
+     *      Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals( tSubIndex );
      * \endcode
+     * When creating the PDV_Info object, a flag can be passed in to have it compute the information (LS values, sensitivities, etc.)
+     * immediately,
+     * \code{.cpp}
+     *      PDV_Info* tPDVInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex, tMeshIndex, true  );
+     * \endcode
+     *
+     * or let it default to wait until it is asked for information.
+     *
      * Where you can ask for information pertaining to a specific node again by passing in the index.
      *
-     *
-     * For outputting purposes, this field (circle LS) can be added to the STK mesh as:
+     * For outputting purposes, this field (circle LS) can be added to the STK mesh by:
      * \code{.cpp}
      * tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);
      * \endcode
      */
     PDV_Info* tPDVInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex );
 
-    Matrix< DDRMat > tLSVals                = tPDVInfo->get_field_vals(  );           // phi
-    Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals(  );     // dphi/dp
+    Matrix< DDRMat > tLSVals                = tPDVInfo->get_field_vals( tSubIndex );           // phi
+    Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals( tSubIndex );     // dphi/dp
 
     tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);      // add the determined values as a field on the mesh (for output purposes)
 
@@ -307,27 +332,42 @@ main( int    argc,
     /*!
      *  We now specify the end points of the intersection object directly.
      *  Define global position, time if necessary (here is default constant in time), and "field" values.
-     *  The 1st edge has global coordinates ranging from x = 0 to x = 1.
      *  \code{.cpp}
-     *  Matrix< DDRMat > tGlobalPos = {{0},{1}};
+     *  Matrix< DDRMat > tGlobalPos = {{0,0},
+     *                                 {1,0}};
      *  \endcode
+     *
+     *  Another way to set the coordinates is to get them directly from the mesh if you know the indices of the points of interest:
+     *  \code{.cpp}
+     *  Matrix< DDRMat > tGlobalPos(2,2);
+     *  tGlobalPos.get_row( 0 ) = tGeom->get_my_mesh()->get_integration_mesh( 0 )->get_node_coordinate( 0 ).get_row(0);
+     *  tGlobalPos.get_row( 1 ) = tGeom->get_my_mesh()->get_integration_mesh( 0 )->get_node_coordinate( 1 ).get_row(0);
+     *  \endcode
+     *
      *  The time for this example is constant so we use the default t = 0 to t = 1.
      *  \code{.cpp}
-     *  Matrix< DDRMat > tTHat = {{0},{1}};
+     *  Matrix< DDRMat > tTHat = {{0},
+     *                            {1}};
      *  \endcode
+     *
      *  The field values are taken from the previously determined values.
      *  \code{.cpp}
-     *  Matrix< DDRMat > tUHat = {{ tLSVals(0) },{ tLSVals(1)}};
+     *  Matrix< DDRMat > tUHat = {{ tLSVals(0) },
+     *                            { tLSVals(1)}};
      *  \endcode
+     *
      *  Now, set the coordinates and parameter points of the intersection object to be available if needing to work with the FEM module.
      *  \code{.cpp}
      *  tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
      *  \endcode
      *
      */
-    Matrix< DDRMat > tGlobalPos = {{0},{1}};
-    Matrix< DDRMat > tTHat = {{0},{1}};
-    Matrix< DDRMat > tUHat = {{ tLSVals(0) },{ tLSVals(1) }};
+    Matrix< DDRMat > tGlobalPos = {{0,0},
+                                   {1,0}};
+    Matrix< DDRMat > tTHat = {{0},
+                              {1}};
+    Matrix< DDRMat > tUHat = {{ tLSVals(0) },
+                              { tLSVals(1) }};
 
     tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
 
@@ -335,35 +375,42 @@ main( int    argc,
      * The PDV_Info object can now be asked to compute the intersection. If there exists an intersection, an index is returned.
      *
      * \code{.CPP}
-     *  moris_index tXInd = tPDVInfo->compute_intersection( &tIntersectionObject );
+     * moris_index tXInd = tPDVInfo->compute_intersection( &tIntersectionObject );
      * \endcode
+     *
      * Again, this can be asked directly through the geometry engine by passing in the index of the specific geometry representation.
      * Now, ask for the intersection point.
      * \code{.cpp}
-     * Matrix< F31RMat > tIntersectionAlongX = tPDVInfo->get_intersection_point( &tIntersectionObject, tXInd );
+     * Matrix< F31RMat > tIntersectionAlongX = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd );
+     * \endcode
+     *
+     * This returns the global coordinate of the intersection with the bottom edge. Here, the intersection occurs at ( 0.6, 0 ).
+     * The local coordinates of the intersection can also be computed if asked for in a very similar way:
+     * \code{.cpp}
+     * Matrix< F31RMat > tLocalIntersection = tPDVInfo->get_intersection_point_local_coord( &tIntersectionObject, tXInd );
      * \endcode
      *
      * A similar structure is followed to compute the intersection sensitivity with respect to the field or the pdv.
      * \code{.cpp}
      * tPDVInfo->compute_intersection_sensitivity( &tIntersectionObject, tXInd );
      *
-     * Matrix< DDRMat > tTemp = tPDVInfo->get_intersection_sensitivity( &tIntersectionObject );
+     * Matrix< DDRMat > tIntersSensitivity = tPDVInfo->get_intersection_sensitivity( &tIntersectionObject );
      *
-     * Matrix< DDRMat > tTemp2 = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
+     * Matrix< DDRMat > tPDVSensitivity = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
      * \endcode
-     *
      *
      */
 
     moris_index tXInd = tPDVInfo->compute_intersection( &tIntersectionObject );
 
-    Matrix< F31RMat > tIntersectionAlongX = tPDVInfo->get_intersection_point( &tIntersectionObject, tXInd );
+    Matrix< F31RMat > tIntersectionAlongX = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd );
 
     tPDVInfo->compute_intersection_sensitivity( &tIntersectionObject, tXInd );
 
     Matrix< DDRMat > tIntersSensitivity = tPDVInfo->get_intersection_sensitivity( &tIntersectionObject );
 
     Matrix< DDRMat > tPDVSensitivity = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
+
 
     //------------------------------------------------------------------------------
     /*!

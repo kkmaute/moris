@@ -22,14 +22,14 @@ real
 circle_function( const Matrix< DDRMat > & aPoint,
                        Cell< real >       aInputs )
 {
-    // aInputs(0) = x location of center
-    // aInputs(1) = y location of center
-    // aInputs(2) = radius
+    // aInputs(0) = radius
+    // aInputs(1) = x location of center
+    // aInputs(2) = y location of center
 
     Matrix< DDRMat > tCenter(1,2);
-    tCenter(0) = aInputs(0); tCenter(1) = aInputs(1);
+    tCenter(0) = aInputs(1); tCenter(1) = aInputs(2);
 
-    return norm(aPoint-tCenter) - aInputs(2);   // using this form linearizes the circle equation
+    return aInputs(0) - norm(aPoint-tCenter);   // using this form linearizes the circle equation
 //    return std::pow((aPoint(0,0) - aInputs(0)),2) + std::pow((aPoint(0,1) - aInputs(1)),2) - std::pow(aInputs(2),1);  // using this form results in a non-linear circle equaiton
 }
 //------------------------------------------------------------------------------
@@ -37,15 +37,18 @@ Matrix< DDRMat >
 circle_function_dphi_dp( const Matrix< DDRMat > & aPoint,
                                Cell< real >       aInputs )
 {
-    real tXc = aInputs(0);
-    real tYc = aInputs(1);
-    real tR  = aInputs(2);
+    real tX = aPoint(0);
+    real tY = aPoint(1);
+
+    real tR  = aInputs(0);
+    real tXc = aInputs(1);
+    real tYc = aInputs(2);
 
     moris::Matrix< DDRMat > tSensitivity( 3, 2, 0.0 );
     moris::real tSign = 0.0;
 
-    // dx/dr = r/sqrt(r^2 - y^2)
-    moris::real tSqrt = tR*tR - std::pow((aPoint(1)-tYc),2);
+    // dx/dr = r/sqrt(r^2 - (y-yc)^2)
+    moris::real tSqrt = tR*tR - std::pow((tY-tYc),2);
     if(tSqrt < 0.0)
     {
         tSign = -1.0;
@@ -60,8 +63,8 @@ circle_function_dphi_dp( const Matrix< DDRMat > & aPoint,
     }
     tSensitivity(0,0) = tSign * tR / std::sqrt(std::abs(tSqrt));
 
-    // dy/dr = r/sqrt(r^2 - x^2)
-    tSqrt = tR*tR - std::pow((aPoint(0)-tXc),2);
+    // dy/dr = r/sqrt(r^2 - (x-xc)^2)
+    tSqrt = tR*tR - std::pow((tX-tXc),2);
     if(tSqrt < 0.0)
     {
         tSign = -1.0;
@@ -89,15 +92,15 @@ real
 sphere_function( const Matrix< DDRMat > & aCoordinate,
                        Cell< real >       aInputs )
 {   /* aCoordinate = point vector to determine value at (x,y,z)
-     * aInputs(0)  = x location of center;
-     * aInputs(1)  = y location of center;
-     * aInputs(2)  = z location of center;
-     * aInputs(3)  = radius of sphere */
+     * aInputs(0)  = radius of sphere;
+     * aInputs(1)  = x location of center;
+     * aInputs(2)  = y location of center;
+     * aInputs(3)  = z location of center */
     Matrix< DDRMat > tCenterVec(1,3);   // (x,y,z)
-    tCenterVec(0,0) = aInputs(0);
-    tCenterVec(0,1) = aInputs(1);
-    tCenterVec(0,2) = aInputs(2);
-    return norm( aCoordinate - tCenterVec ) - aInputs(3);     //linearized form of the sphere equation
+    tCenterVec(0,0) = aInputs(1);
+    tCenterVec(0,1) = aInputs(2);
+    tCenterVec(0,2) = aInputs(3);
+    return norm( aCoordinate - tCenterVec ) - aInputs(0);     //linearized form of the sphere equation
 
 //    real tFuncVal = (aCoordinate(0,0) - aInputs(0))*(aCoordinate(0,0) - aInputs(0)) +
 //                    (aCoordinate(0,1) - aInputs(1))*(aCoordinate(0,1) - aInputs(1)) +
@@ -110,17 +113,21 @@ Matrix< DDRMat >
 sphere_function_dphi_dp( const Matrix< DDRMat > & aCoordinate,
                                Cell< real>        aInputs)
 {
-    real tXc = aInputs(0);
-    real tYc = aInputs(1);
-    real tZc = aInputs(2);
-    real tR  = aInputs(3);
+    real tX = aCoordinate(0);
+    real tY = aCoordinate(1);
+    real tZ = aCoordinate(2);
+
+    real tR  = aInputs(0);
+    real tXc = aInputs(1);
+    real tYc = aInputs(2);
+    real tZc = aInputs(3);
     moris::Matrix< moris::DDRMat > tSensitivityDxDp(4, 3, 0.0);
 
     moris::real sign = 0.0;
 
     // dx/dr
-    moris::real tSqrt = tR * tR - (aCoordinate(1) - tYc) * (aCoordinate(1) - tYc)
-                                  - (aCoordinate(2) - tZc) * (aCoordinate(2) - tZc);
+    moris::real tSqrt = tR * tR - (tY - tYc) * (tY - tYc)
+                                - (tZ - tZc) * (tZ - tZc);
 
     if(tSqrt < 0.0)
     {
@@ -138,8 +145,8 @@ sphere_function_dphi_dp( const Matrix< DDRMat > & aCoordinate,
     tSensitivityDxDp(0, 0) = sign * tR/ std::sqrt(std::abs(tSqrt));
 
     //dy/dr
-    tSqrt = tR * tR - (aCoordinate(0) - tXc) * (aCoordinate(0) - tXc)
-                             - (aCoordinate(2) - tZc) * (aCoordinate(2) - tZc);
+    tSqrt = tR * tR - (tX - tXc) * (tX - tXc)
+                    - (tZ - tZc) * (tZ - tZc);
 
     if(tSqrt < 0.0)
     {
@@ -157,8 +164,8 @@ sphere_function_dphi_dp( const Matrix< DDRMat > & aCoordinate,
     tSensitivityDxDp(0, 1) = tR / std::sqrt(std::abs(tSqrt));
 
     //dz/dr
-    tSqrt = tR*tR - (aCoordinate(0) - tXc) * (aCoordinate(0) - tXc)
-                             - (aCoordinate(1) - tYc) * (aCoordinate(1) - tYc);
+    tSqrt = tR*tR - (tX - tXc) * (tX - tXc)
+                  - (tY - tYc) * (tY - tYc);
     if(tSqrt < 0.0)
     {
         sign = -1.0;

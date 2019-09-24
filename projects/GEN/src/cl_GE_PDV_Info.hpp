@@ -16,6 +16,9 @@
 #include "cl_GE_Intersection_Object.hpp"
 #include "cl_GE_Intersection_Object_Line.hpp"
 
+// LINALG includes
+#include "fn_inv.hpp"
+
 namespace moris
 {
 namespace ge
@@ -31,50 +34,75 @@ namespace ge
          * which can then be adjusted (e.g. if additional vertices are added).
          */
         PDV_Info(std::shared_ptr< Geometry > & aGeomPointer,
-                                  moris_index  aMyMeshIndex = 0 )
+                                  moris_index  aMyMeshIndex = 0,
+                                  bool         aInitialize  = false ) :
+                                      mMyGeomRep(aGeomPointer),
+                                      mMyMeshIndex(aMyMeshIndex),
+                                      mIsInitialized(aInitialize)
         {
-            mMyMeshIndex = aMyMeshIndex;
-            mMyGeomRep   = aGeomPointer;
-
-            this->initialize_data_tables( aGeomPointer );
+            if (aInitialize)
+            {
+                this->initialize_data_tables( aGeomPointer, aGeomPointer->get_number_of_sub_types() );
+            }
         };
 
         ~PDV_Info()
         {
 
         };
+        //------------------------------------------------------------------------------
+        bool check_if_initialized()
+        {
+            return mIsInitialized;
+        }
+        //------------------------------------------------------------------------------
+        void reinitialize_data_table( std::shared_ptr< Geometry > & aGeomPointer, moris_index aSubIndex )
+        {
+            this->initialize_data_tables( aGeomPointer, aSubIndex );
+        }
         //******************************* get functions ********************************
         //------------------------------------------------------------------------------
         /*
          * @brief returns the nodal field vals of the specified node
          *
-         *@param[in] aNodeIndex - index to the node whose information you want
-         *
-         *@param[out] requested information
+         * @param[in] aSubIndex  - index to the sub type of the geometry representation
+         * @param[in] aNodeIndex - index to the node whose information you want
+         *          *
+         * @param[out] requested information
          */
-        Matrix< DDRMat > get_field_vals( moris_index aNodeIndex )
+        Matrix< DDRMat > get_field_vals( moris_index aSubIndex, moris_index aNodeIndex )
         {
-            if( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC )
+            if (!mIsInitialized)
             {
-                MORIS_ASSERT( mMyGeomRep->check_if_function_is_set(),"ge::Nodal_Info::get_field_vals() - analytic function not set " );
+                this->initialize_data_tables( mMyGeomRep, aSubIndex );
             }
 
+            if( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC )
+            {
+                MORIS_ASSERT( mMyGeomRep->check_if_function_is_set( aSubIndex ),"ge::PDV_Info::get_field_vals() - analytic function not set " );
+            }
             auto tRowItt = mMyMap.find(aNodeIndex);
-            MORIS_ASSERT( tRowItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
+            MORIS_ASSERT( tRowItt != mMyMap.end(), "ge::PDV_Info::get_field_vals() - requested index not valid " );
             return mMyNodalFieldVals.get_row( tRowItt->second );
         };
 
         /*
          * @brief returns all the nodal field values
+         *
+         * @param[in] aSubIndex  - index to the sub type of the geometry representation
          */
-        Matrix< DDRMat > get_field_vals(  )
+        Matrix< DDRMat > get_field_vals( moris_index aSubIndex )
         {
+            if (!mIsInitialized)
+            {
+                this->initialize_data_tables( mMyGeomRep, aSubIndex );
+            }
             uint tNumOfIPNodes = this->get_my_geom_rep()->get_my_mesh()->get_integration_mesh( mMyMeshIndex )->get_num_nodes();
 
             Matrix< DDRMat > tLSVals(tNumOfIPNodes,1, 0.0);
             for( uint n=0; n<tNumOfIPNodes; n++ )
             {
-                tLSVals(n,0) = this->get_field_vals( n )( 0 );
+                tLSVals(n,0) = this->get_field_vals( aSubIndex, n )( 0 );
             }
             return tLSVals;
         };
@@ -83,33 +111,46 @@ namespace ge
         /*
          * @brief returns the nodal sensitivities of the specified node index
          *
-         *@param[in] aNodeIndex - index to the node whose information you want
+         * @param[in] aSubIndex  - index to the sub type of the geometry representation
+         * @param[in] aNodeIndex - index to the node whose information you want
          *
-         *@param[out] requested information
+         * @param[out] requested information
          */
-        Matrix< DDRMat > get_sensitivity_vals( moris_index aNodeIndex )
+        Matrix< DDRMat > get_sensitivity_vals( moris_index aSubIndex, moris_index aNodeIndex )
         {
+            if (!mIsInitialized)
+            {
+                this->initialize_data_tables( mMyGeomRep,aSubIndex );
+            }
+
             if( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC )
             {
-                MORIS_ASSERT( mMyGeomRep->check_if_sensitivity_function_is_set(),"ge::Nodal_Info::get_field_vals() - analytic sensitivity function not set " );
+                MORIS_ASSERT( mMyGeomRep->check_if_sensitivity_function_is_set( aSubIndex ),"ge::Nodal_Info::get_field_vals() - analytic sensitivity function not set " );
             }
 
             auto tCellItt = mMyMap.find(aNodeIndex);
             MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
-            return mMyNodalSensitivities( tCellItt->second );
+            return mMyNodalSensitivities(aSubIndex)( tCellItt->second );
         };
 
         /*
          * @brief returns all the nodal sensitivity values, dphi/dp
+         *
+         * @param[in] aSubIndex  - index to the sub type of the geometry representation
          */
-        Cell< Matrix< DDRMat > > get_sensitivity_vals(  )
+        Cell< Matrix< DDRMat > > get_sensitivity_vals( moris_index aSubIndex = 0 )
         {
+            if (!mIsInitialized)
+            {
+                this->initialize_data_tables( mMyGeomRep, aSubIndex );
+            }
+
             uint tNumOfIPNodes = this->get_my_geom_rep()->get_my_mesh()->get_integration_mesh( mMyMeshIndex )->get_num_nodes();
 
             Cell< Matrix< DDRMat > > tSensitivities( tNumOfIPNodes );
             for( uint n=0; n<tNumOfIPNodes; n++ )
             {
-                tSensitivities(n) = this->get_sensitivity_vals( n );
+                tSensitivities(n) = this->get_sensitivity_vals( aSubIndex, n );
             }
             return tSensitivities;
         };
@@ -117,12 +158,18 @@ namespace ge
         /*
          * @brief returns the nodal normals of the specified node
          *
-         *@param[in] aNodeIndex - index to the node whose information you want
+         * @param[in] aSubIndex  - index to the sub type of the geometry representation
+         * @param[in] aNodeIndex - index to the node whose information you want
          *
-         *@param[out] requested information
+         * @param[out] requested information
          */
-        Matrix< DDRMat > get_normal( moris_index aNodeIndex )
+        Matrix< DDRMat > get_normal( moris_index aSubIndex, moris_index aNodeIndex )
         {
+            if (!mIsInitialized)
+            {
+                this->initialize_data_tables( mMyGeomRep, aSubIndex );
+            }
+
             auto tCellItt = mMyMap.find(aNodeIndex);
             MORIS_ASSERT( tCellItt != mMyMap.end(), "ge::Nodal_Info::get_field_vals() - requested index not valid " );
             return mMyNodalNormals( tCellItt->second );
@@ -135,8 +182,13 @@ namespace ge
          * @brief add node and values to the tables
          *
          */
-        void add_vertex_and_value( mtk::Vertex & aVertex )
+        void add_vertex_and_value( mtk::Vertex & aVertex, moris_index aSubIndex )
         {
+            if (!mIsInitialized)
+            {
+                this->initialize_data_tables( mMyGeomRep, aSubIndex );
+            }
+
             MORIS_ASSERT( mMyGeomRep->get_geom_type() == GeomType::ANALYTIC, "ge::Nodal_Info::add_vertex_and_value(): currently only set up for analytic geometry type " );
 
             //fixme tNewInd == end of map
@@ -150,26 +202,24 @@ namespace ge
             {
             case(GeomType::ANALYTIC):
             {
-                mMyNodalFieldVals(tSize,0) = mMyGeomRep->get_field_val_at_coordinate( aVertex.get_coords() );
-    //            mMyNodalFieldVals(tSize,0) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(tNewInd).get_coords() );
-                mMyNodalSensitivities.push_back(mMyGeomRep->get_sensitivity_dphi_dp_at_coordinate( aVertex.get_coords() ));
-    //            mMyNodalSensitivities.push_back(mMyGeomRep->get_sensitivity_dphi_dp_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(tNewInd).get_coords() ));
+                mMyNodalFieldVals(tSize,aSubIndex) = mMyGeomRep->get_field_val_at_coordinate( aVertex.get_coords(), aSubIndex );
+                mMyNodalSensitivities( aSubIndex ).push_back(mMyGeomRep->get_sensitivity_dphi_dp_at_coordinate( aVertex.get_coords(), aSubIndex ));
                 // have not implemented node normals yet.....
     //            mMyNodalNormals.pushback( ) = ...
                 break;
             }
             case(GeomType::DISCRETE):
             {
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
-                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the discrete geometry type                " );
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the discrete geometry type                \n" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
                 break;
             }
             case(GeomType::SDF):
             {
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
-                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the SDF geometry type                     " );
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "note: add_vertex_and_value() - currently not set for the SDF geometry type                     \n" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
                 break;
             }
             default :
@@ -229,17 +279,35 @@ namespace ge
         //------------------------------------------------------------------------------
         /*
          * @brief compute and return the intersection sensitivity wrt the pdv, dxgamma/dp = dxgamma/dphi * dphi/dp
+         *
+         * @param[in] aIntersectionObject - intersection object
+         * @param[in] aWhichP             - which pdv to determine the sensitivity of the intersection point with
+         * @param[in] aWhichIntersection  - intersection point
+         *
+         * @param[out] intersection sensitivity w.r.t. chosen pdv
          */
+        //fixme this is only giving the dxgamma/dp of a single pdv, need to use a parameter list to determine the aWhichP index
         Matrix< DDRMat > get_dxgamma_dp( Intersection_Object*  aIntersectionObject,
-                                         moris_index aWhichIntersection = 0 )
+                                         moris_index aWhichP = 0,
+                                         moris_index aWhichIntersection  = 0 )
         {
-            //fixme need an assert here to make sure the multiplication will work (dimension check)
-            Matrix<DDRMat> tdxgamma_dphi = this->get_intersection_sensitivity( aIntersectionObject, aWhichIntersection );
-            Matrix<DDRMat> tdphi_dp      = this->get_sensitivity_vals(  )( aWhichIntersection );
-print(tdxgamma_dphi, "tdxgamma_dphi");
-print(tdphi_dp, "tdphi_dp");
-            return tdxgamma_dphi*tdphi_dp;
+            Matrix<DDRMat> tdxgamma_dphi   = this->get_intersection_sensitivity( aIntersectionObject, aWhichIntersection );
+            Cell< Matrix<DDRMat> >tdphi_dp = this->get_sensitivity_vals(  );
+//
+//print( tdxgamma_dphi,"tdxgamma_dphi" );
+//print( tdphi_dp(0),"tdphi_dp(0)" );
+//print( tdphi_dp(1), "tdphi_dp(1)" );
+//print( tdphi_dp(2), "tdphi_dp(2)" );
+//print( tdphi_dp(3), "tdphi_dp(3)" );
+
+            Matrix<DDRMat> tdxgamma_dp(1,1);
+            for(uint i=0; i<tdxgamma_dphi.n_rows(); ++i)
+            {
+                tdxgamma_dp = tdxgamma_dp + tdxgamma_dphi.get_row(i)*trans(tdphi_dp(i).get_row(aWhichP));
+            }
+            return tdxgamma_dp;
         }
+
         //------------------------------------------------------------------------------
         /*
          * @brief determine LS value at a point
@@ -260,7 +328,7 @@ print(tdphi_dp, "tdphi_dp");
          * @brief create data tables and relationship between nodes and data
          *
          */
-        void initialize_data_tables( std::shared_ptr< Geometry > & aGeomPointer )
+        void initialize_data_tables( std::shared_ptr< Geometry > & aGeomPointer, moris_index aSubIndex )
         {
             uint tNumNodes = aGeomPointer->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_num_nodes();
             // build relations map
@@ -268,15 +336,25 @@ print(tdphi_dp, "tdphi_dp");
             {
                 mMyMap[n] = aGeomPointer->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_index();
             }
+            //fixme get_number_of_sub_types() is set up for the analytic types, need to implement in the other geom rep types
+            mMyNodalFieldVals.set_size( tNumNodes, aGeomPointer->get_number_of_sub_types() );
 
-            //fixme need to check how many fields are on the mesh and initialize that many columns for the mMyNodalFieldVals matrix
-            mMyNodalFieldVals.set_size(tNumNodes,1);
-            mMyNodalSensitivities.resize(tNumNodes);
+            mMyNodalSensitivities.resize( aGeomPointer->get_number_of_sub_types() );
+            uint tSize = mMyNodalSensitivities.size();
+            for( uint i=0; i<tSize; ++i )
+            {
+                mMyNodalSensitivities(i).resize( tNumNodes, moris::Matrix<DDRMat>(0,0) );
+            }
+            uint tLength = aGeomPointer->get_number_of_sub_types();
+            for( uint i=0; i<tLength; ++i )
+            {
+                this->create_node_val_table( tNumNodes, i );
+                this->create_node_sensitivity_table( tNumNodes, i );
+            }
 
-            this->create_node_val_table( tNumNodes );
-            this->create_node_sensitivity_table( tNumNodes );
             // compute nodal normals currently not implemented
 //            this->create_nodal_normals_table();
+            mIsInitialized = true;
         };
 
         //------------------------------------------------------------------------------
@@ -285,18 +363,18 @@ print(tdphi_dp, "tdphi_dp");
          *        * compute field vals at nodes - store in table, register table
          *        * implementation is dependent on geom_rep type
          */
-        void create_node_val_table( uint aNumNodes )
+        void create_node_val_table( uint aNumNodes, moris_index aSubIndex )
         {
             switch(mMyGeomRep->get_geom_type())
             {
 
             case(GeomType::ANALYTIC) :
             {
-                if( mMyGeomRep->check_if_function_is_set() )
+                if( mMyGeomRep->check_if_function_is_set( aSubIndex ) )
                 {
                     for (uint n=0; n<aNumNodes; ++n)
                     {
-                        mMyNodalFieldVals( n,0 ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_coords() );
+                        mMyNodalFieldVals( n,aSubIndex ) = mMyGeomRep->get_field_val_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mtk_vertex(n).get_coords() );
                     }
                 }
                 break;
@@ -313,6 +391,7 @@ print(tdphi_dp, "tdphi_dp");
                 // default is to map from a node field to a B-spline field, this can be changed if necessary
                 tMyMapper.perform_mapping( mMyGeomRep->get_my_target_field()->get_label(), EntityRank::NODE, mMyGeomRep->get_my_output_field()->get_label(), mMyGeomRep->get_my_output_field()->get_bspline_rank() );
 
+                //fixme: get_coefficients() returns a matrix of values, need to incorporate these into the nodal value table somehow...
                 mMyNodalFieldVals = mMyGeomRep->get_my_output_field()->get_coefficients();
                 break;
             }
@@ -340,48 +419,45 @@ print(tdphi_dp, "tdphi_dp");
          *        * compute field sensitivities at nodes - store in table, register table
          *        * implementation is dependent on geom_rep type
          */
-        void create_node_sensitivity_table( uint aNumNodes )
+        void create_node_sensitivity_table( uint aNumNodes, moris_index aSubIndex )
         {
             switch(mMyGeomRep->get_geom_type())
             {
             case(GeomType::ANALYTIC) :
             {
-                if( mMyGeomRep->check_if_sensitivity_function_is_set() )
+
+                if( mMyGeomRep->check_if_sensitivity_function_is_set( aSubIndex ) )
                 {
                     for (uint n=0; n<aNumNodes; ++n)
                     {
-                        mMyNodalSensitivities( n ) = mMyGeomRep->get_sensitivity_dphi_dp_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_coords() );
+                        mMyNodalSensitivities( aSubIndex )( n ) = mMyGeomRep->get_sensitivity_dphi_dp_at_coordinate( mMyGeomRep->get_my_mesh()->get_interpolation_mesh(0)->get_mtk_vertex(n).get_coords() );
                     }
                 }
                 break;
             }
             case(GeomType::DISCRETE) :
             {
-                /*
-                 * need to be able to use finite differencing to compute derivatives for discrete class
-                 */
-                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------" );
-                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for DISCRETE geom type, default values to zeros" );
-                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------" );
+                //fixme: implement finite differencing to compute derivatives for discrete class
+                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for DISCRETE geom type, default values to zeros\n" );
+                MORIS_LOG_ERROR( "----------------------------------------------------------------------------------------------------\n" );
                 Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh(mMyMeshIndex)->get_spatial_dim(), 0.0);
                 for (uint n=0; n<aNumNodes; ++n)
                 {
-                    mMyNodalSensitivities(n) = tZeros;
+                    mMyNodalSensitivities( aSubIndex )(n) = tZeros;
                 }
                 break;
             }
             case(GeomType::SDF) :
             {
-                /*
-                 * not sure how getting the sensitivities from the SDF type will work (via raycast?)
-                 */
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
-                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for SDF geom type, default values to zeros" );
-                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------" );
+                //fixme: not sure how getting the sensitivities from the SDF type will work (via raycast?)
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
+                MORIS_LOG_ERROR( "note: sensitivity vals are currently not implemented for SDF geom type, default values to zeros\n" );
+                MORIS_LOG_ERROR( "-----------------------------------------------------------------------------------------------\n" );
                 Matrix< DDRMat > tZeros(mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_spatial_dim(), mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_spatial_dim(), 0.0);
                 for (uint n=0; n<aNumNodes; ++n)
                 {
-                    mMyNodalSensitivities(n) = tZeros;
+                    mMyNodalSensitivities( aSubIndex)(n) = tZeros;
                 }
 
                 MORIS_ASSERT( mMyGeomRep->get_my_mesh()->get_interpolation_mesh( mMyMeshIndex )->get_mesh_type() == MeshType::HMR, "Nodal_Info::create_node_sensitivity_tables():  currently only set for hmr meshes" );
@@ -413,8 +489,10 @@ print(tdphi_dp, "tdphi_dp");
         std::unordered_map< moris_index, moris_index > mMyMap; // (vertex index, row/cell index for data tables)
 
         Matrix< DDRMat >                mMyNodalFieldVals;
-        moris::Cell< Matrix< DDRMat > > mMyNodalSensitivities;
+        moris::Cell< moris::Cell< Matrix< DDRMat > > > mMyNodalSensitivities;
         moris::Cell< Matrix< DDRMat > > mMyNodalNormals;
+
+        bool mIsInitialized = false;
         //------------------------------------------------------------------------------
     protected:
 

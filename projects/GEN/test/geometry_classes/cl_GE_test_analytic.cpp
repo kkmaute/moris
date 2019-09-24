@@ -42,7 +42,7 @@
 using namespace moris;
 using namespace ge;
 
-TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]")
+TEST_CASE("analytic_functionalities_test_01","[GE],[analytic_functionalities_2D]")
         {
             /*
              * 1) create a single-element mesh
@@ -120,18 +120,17 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
              * --------------------------------------------------------
              */
             // input parameters for the circle LS
-            moris::Cell< real > tCircleInputs = {{0},{0},{0.6}};
+            moris::Cell< real > tCircleInputs = {{0.6}, // radius
+                                                 {0},   // x-center
+                                                 {0} }; // y-center
             //------------------------------------------------------------------------------
 
             Ge_Factory tFactory;
             std::shared_ptr< Geometry > tGeom1 = tFactory.set_geometry_type(GeomType::ANALYTIC);
 
-            tGeom1->set_my_mesh(&tMeshManager);
-            tGeom1->set_my_constants(tCircleInputs);
+            tGeom1->set_my_mesh( &tMeshManager );
 
-            tGeom1->set_analytical_function(AnalyticType::CIRCLE);
-            tGeom1->set_analytical_function_dphi_dp(AnalyticType::CIRCLE);
-
+            moris_index tSubIndex = tGeom1->set_analytical_function( AnalyticType::CIRCLE, tCircleInputs );
             GE_Core tGeometryEngine;
             moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom1 );
             /*
@@ -141,8 +140,8 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
              */
             PDV_Info* tPDVInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex );
 
-            Matrix< DDRMat > tLSVals                = tPDVInfo->get_field_vals(  );           // phi
-            Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals(  );     // dphi/dp
+            Matrix< DDRMat > tLSVals                = tPDVInfo->get_field_vals( tSubIndex );           // phi
+            Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals( tSubIndex );     // dphi/dp
 
             tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);      // add the determined values as a field on the mesh (for output purposes)
             /*
@@ -153,9 +152,9 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             Node tNewNode(0.5,0.5);
             tNewNode.set_index( 29 );
 
-            tPDVInfo->add_vertex_and_value( tNewNode );
+            tPDVInfo->add_vertex_and_value( tNewNode, tSubIndex );
 
-            Matrix< DDRMat > tNodeVal = tGeometryEngine.get_field_vals( tMyGeomIndex,tNewNode.get_index() );
+            Matrix< DDRMat > tNodeVal = tGeometryEngine.get_field_vals( tMyGeomIndex,tNewNode.get_index(), tSubIndex );
             REQUIRE( tNodeVal(0,0) == Approx( 0.1071 ) );
 
             //------------------------------------------------------------------------------
@@ -166,9 +165,8 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
              */
 
             // edge [1]:
-            Matrix< DDRMat > tGlobalPos = {{0,0},{1,0}};    // edge [1] goes form x=0 to x=1
+            Matrix< DDRMat > tGlobalPos = {{0,0},{1,0}};    // edge [1] goes form (0,0) to (1,0)
             Matrix< DDRMat > tTHat = {{0},{1}};
-//            Matrix< DDRMat > tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(1)(0,0) }};
             Matrix< DDRMat > tUHat = {{ tLSVals(0) },{ tLSVals(1) }};
 
             Intersection_Object_Line tIntersectionObject;
@@ -179,9 +177,8 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             Matrix< F31RMat > tIntersectionAlongX = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd );
 
             // edge [4]:
-            tGlobalPos = {{0,0},{0,1}};     // edge [2] goes from y=0 to y=1
+            tGlobalPos = {{0,0},{0,1}};     // edge [2] goes from (0,,0) to (0,1)
             tTHat = {{0},{1}};
-//            tUHat = {{ tLSVals(0)(0,0) },{ tLSVals(3)(0,0) }};
             tUHat = {{ tLSVals(0) },{ tLSVals(3) }};
 
             tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
@@ -219,14 +216,14 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
             CHECK( equal_to( tIntersectionAlongX(0,0), 0.6 ) );
             CHECK( equal_to( tIntersectionAlongY(0,1), 0.6 ) );
             //------------------------------------------------------------------------------
-
+            //fixme add checks for the sensitivities
             tPDVInfo->compute_intersection_sensitivity( &tIntersectionObject, tXInd );
 
-            Matrix< DDRMat > tTemp = tPDVInfo->get_intersection_sensitivity( &tIntersectionObject );
+            Matrix< DDRMat > tdxgamma_dphi = tPDVInfo->get_intersection_sensitivity( &tIntersectionObject );
+//            print( tTemp, "intersection sensitivities w.r.t the field, at x-intersection point" );
 
-//            Matrix< DDRMat > tTemp2 = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
+            Matrix< DDRMat > tdxgamma_dp = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
 
-            print( tTemp, "intersection sensitivities w.r.t the field, at x-intersection point" );
 //            print( tTemp2, "intersection sensitivity w.r.t pdv, at x-intersection point " );
 
 //            std::string tOutputFile = "./analytic_functionalities_2D.exo";
@@ -237,3 +234,117 @@ TEST_CASE("analytic_functionalities_test_2D","[GE],[analytic_functionalities_2D]
 
         }
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+TEST_CASE("analytic_functionalities_test_02","[GE],[analytic_functionalities_3D]")
+        {
+    uint aNumElemTypes = 1;     // hex
+    uint aNumDim = 3;           // specify number of spatial dimensions
+
+    Matrix< IdMat > aElementConnHex = {{ 1, 2, 3, 4, 5, 6, 7, 8 }};   // specify element connectivity of hex for mesh
+
+    Matrix< IdMat > aElemLocalToGlobalHex = {{ 1 }};      // specify the local to global element map for hexs
+
+    Matrix< DDRMat > aCoords = {{ 0.0, 0.0, 0.0 },
+                                { 1.0, 0.0, 0.0 },
+                                { 1.0, 0.0, 1.0 },
+                                { 0.0, 0.0, 1.0 },
+
+                                { 0.0, 1.0, 0.0 },
+                                { 1.0, 1.0, 0.0 },
+                                { 1.0, 1.0, 1.0 },
+                                { 0.0, 1.0, 1.0 }};             // Node coordinate matrix
+
+    Matrix< IdMat > aNodeLocalToGlobal = {{ 1, 2, 3, 4, 5, 6, 7, 8 }}; // specify the local to global map
+    //------------------------------------------------------------------------------
+    // create MORIS mesh using MTK database
+    mtk::MtkMeshData tMeshData( aNumElemTypes );
+    tMeshData.CreateAllEdgesAndFaces = true;
+    tMeshData.SpatialDim = & aNumDim;
+    tMeshData.ElemConn(0) = & aElementConnHex;
+    //------------------------------------------------------------------------------
+    tMeshData.NodeCoords = & aCoords;
+    tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalHex;
+    tMeshData.LocaltoGlobalNodeMap = & aNodeLocalToGlobal;
+    //------------------------------------------------------------------------------
+    // declare scalar node field for the circle LS
+    moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+    std::string tFieldName = "sphere";
+    tNodeField1.set_field_name(tFieldName);
+    tNodeField1.set_field_entity_rank(EntityRank::NODE);
+
+    // initialize field information container
+    moris::mtk::MtkFieldsInfo tFieldsInfo;
+    // Place the node field into the field info container
+    add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+
+    // declare some supplementary fields
+    tMeshData.FieldsInfo = &tFieldsInfo;
+
+    // create mesh pair
+    mtk::Interpolation_Mesh* tInterpMesh1 = create_interpolation_mesh( MeshType::STK, tMeshData );
+    mtk::Integration_Mesh*   tIntegMesh1  = create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
+
+    // place the pair in mesh manager
+    mtk::Mesh_Manager tMeshManager;
+    uint tMeshIndex = tMeshManager.register_mesh_pair(tInterpMesh1,tIntegMesh1);
+
+    // input parameters for the circle LS
+    moris::Cell< real > tSphereInputs = {{0.6},     // radius
+                                         {0.0},     // x-center
+                                         {0.0},     // y-center
+                                         {0.0}};    // z-center
+    //------------------------------------------------------------------------------
+
+    Ge_Factory tFactory;
+    std::shared_ptr< Geometry > tGeom = tFactory.set_geometry_type(GeomType::ANALYTIC);
+
+    tGeom->set_my_mesh(&tMeshManager);
+
+    moris_index tSubIndex = tGeom->set_analytical_function( AnalyticType::SPHERE, tSphereInputs );
+
+    GE_Core tGeometryEngine;
+    moris_index tMyGeomIndex = tGeometryEngine.set_geometry( tGeom, tMeshIndex, false );
+
+    PDV_Info* tPDVInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex );
+
+    Matrix< DDRMat > tLSVals                       = tPDVInfo->get_field_vals( tSubIndex );           // phi
+    moris::Cell< Matrix< DDRMat > > tSensitivities = tPDVInfo->get_sensitivity_vals( tSubIndex );     // dphi/dp
+    tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds( tFieldName, EntityRank::NODE, tLSVals );      // add the determined values as a field on the mesh (for output purposes)
+
+    // edge [1]:
+    Matrix< DDRMat > tGlobalPos(2,3);
+    tGlobalPos.get_row( 0 ) = tGeom->get_my_mesh()->get_integration_mesh( 0 )->get_node_coordinate( 0 ).get_row(0);
+    tGlobalPos.get_row( 1 ) = tGeom->get_my_mesh()->get_integration_mesh( 0 )->get_node_coordinate( 1 ).get_row(0);
+    Matrix< DDRMat > tTHat = {{0},
+                              {1}};
+    Matrix< DDRMat > tUHat = {{ tLSVals(0) },
+                              { tLSVals(1) }};
+
+    Intersection_Object_Line tIntersectionObject;
+
+    tIntersectionObject.set_coords_and_param_point( tGeom, tGlobalPos, tTHat, tUHat );
+    /*
+     * compute xgamma, dxgamma/dphi, and dxgamma/dp
+     */
+    moris_index tXInd = tPDVInfo->compute_intersection( &tIntersectionObject );
+
+    Matrix< F31RMat > tXGamma = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tXInd );
+
+    tPDVInfo->compute_intersection_sensitivity( &tIntersectionObject, tXInd );
+
+    Matrix< DDRMat > tdXGamma_dphi = tPDVInfo->get_intersection_sensitivity( &tIntersectionObject, tXInd );
+
+    Matrix< DDRMat > tdxgamma_dp = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
+
+//    print( tTemp2, "intersection sensitivity w.r.t pdv" );
+    //------------------------------------------------------------------------------
+//    std::string tOutputFile = "./ge_finite_diff_ut.exo";
+//    tInterpMesh1->create_output_mesh(tOutputFile);
+    // clean up
+    delete tInterpMesh1;
+    delete tIntegMesh1;
+        }
+//------------------------------------------------------------------------------
+
+

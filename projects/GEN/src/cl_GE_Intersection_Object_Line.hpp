@@ -67,8 +67,8 @@ public:
     //------------------------------------------------------------------------------
     Matrix< DDRMat > get_intersection_point_global_coord( moris_index aMyIndex )
     {
-        Matrix<moris::DDRMat> tN = {{0.5 * (1-mMyIntersectionPoints(aMyIndex)(0))},
-                                    {0.5 * (1+mMyIntersectionPoints(aMyIndex)(0))}};
+        Matrix<moris::DDRMat> tN = {{0.5 * (1-mMyIntersectionPoints(aMyIndex)(0))},     // 0.5*(1-zeta)
+                                    {0.5 * (1+mMyIntersectionPoints(aMyIndex)(0))}};    // 0.5*(1+zeta)
         return trans(tN)*this->get_my_global_coord();
     }
     //------------------------------------------------------------------------------
@@ -106,38 +106,27 @@ public:
         moris::real tdzetagamma_dphiB =  2*tPhiA*tDenom;
 
         // derivative of x_gamma wrt p (of edge node 0)
-//        Matrix<moris::DDRMat> tdxgamma_dphiA = tdN_dzeta*trans(this->get_my_global_coord())*tdzetagamma_dphiA;
         Matrix<moris::DDRMat> tdxgamma_dphiA = trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiA;
-//        Matrix<moris::DDRMat> tdxgamma_dphiB = tdN_dzeta*trans(this->get_my_global_coord())*tdzetagamma_dphiB;
         Matrix<moris::DDRMat> tdxgamma_dphiB = trans(tdN_dzeta)*this->get_my_global_coord()*tdzetagamma_dphiB;
 
-        // Compute dx/dp
-        if(this->get_my_global_coord().n_cols() == 2)
-        {
-            mMyIntersFieldSensVal(aMyIndex).resize(2,2);
-        }
-        else if(this->get_my_global_coord().n_cols() == 3)
-        {
-            mMyIntersFieldSensVal(aMyIndex).resize(2,3);
-        }
-        else
-        {
-            MORIS_ASSERT( false, "ge::Intersection_Object_Line::compute_intersection_sensitivity() - invalid global coordinate vector (check that this is a row vector?) " );
-        }
-//        mMyIntersFieldSensVal(aMyIndex).get_column(0) = tdxgamma_dphiA.get_column(1);
-//        mMyIntersFieldSensVal(aMyIndex).get_column(1) = tdxgamma_dphiB.get_column(1);
+        // Compute dx/dphi
+        mMyIntersFieldSensVal(aMyIndex).set_size(2,this->get_my_global_coord().n_cols());
+
+        MORIS_ASSERT( this->get_my_global_coord().n_cols() == 2 || this->get_my_global_coord().n_cols() == 3, "ge::Intersection_Object_Line::compute_intersection_sensitivity() - invalid global coordinate vector (check that this is a row vector?) " );
+
         mMyIntersFieldSensVal(aMyIndex).get_row(0) = tdxgamma_dphiA.get_row(0);
         mMyIntersFieldSensVal(aMyIndex).get_row(1) = tdxgamma_dphiB.get_row(0);
         //fixme: add field value indexes for sparse storage
     }
-
+    //------------------------------------------------------------------------------
     //******************************* set functions ********************************
     //------------------------------------------------------------------------------
     void set_coords_and_param_point( std::shared_ptr< Geometry > & aGeomPointer,
                                      Matrix<DDRMat> const & aGlobCoords,
                                      Matrix<DDRMat> const & aTimeCoords,
                                      Matrix<DDRMat> const & aFieldVals,     // LS field vals need to come from the geometry engine?
-                                     Matrix<DDRMat> const & aParamPoint = Matrix< DDRMat >({{-1},{0}}) )  // start at the beginning of the line(local coordinate xi=-1) and at t=0
+                                     Matrix<DDRMat> const & aParamPoint = Matrix< DDRMat >({{-1},
+                                                                                            {0}}) )  // start at the beginning of the line(local coordinate xi=-1) and at t=0
     {
         fem::Interpolation_Rule tLevelSetInterpRule( this->get_my_geom_type(),
                                                      aGeomPointer->get_my_space_interpolation_type(),
@@ -163,6 +152,7 @@ public:
     {
         mMyIntersectionPoints( aMyIndex ) = aPoint;
     }
+    //------------------------------------------------------------------------------
     //******************************* get functions ********************************
     //------------------------------------------------------------------------------
     mtk::Geometry_Type get_my_geom_type()
