@@ -106,7 +106,7 @@ namespace moris
             /**
              * returns IWG type list
              */
-           const fem::IWG_Type get_IWG_type() const
+           fem::IWG_Type get_IWG_type() const
             {
                 return mIWGType;
             };
