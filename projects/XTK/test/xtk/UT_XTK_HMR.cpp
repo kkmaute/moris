@@ -171,11 +171,11 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
                     {
                         tSlaveId = tSlaveId + 1;
                     }
-
-                    std::cout<<"M Id = "   <<std::setw(12)<<tMasterId<< " L = "<<std::setw(2)<<tMaster->get_level();
-                    std::cout<<" A = "<<std::setw(2)<<tMaster->is_active()<<" R = "<<std::setw(2)<<tMaster->is_refined()<<" P = "<<std::setw(2)<<tMaster->is_padding();
-                    std::cout<<" | S Id = "<<std::setw(12)<<tSlaveId << " L = "<<std::setw(2)<<tSlave->get_level();
-                    std::cout<<" A = "<<std::setw(2)<<tSlave->is_active()<<" R = "<<std::setw(2)<<tSlave->is_refined()<<" P = "<<std::setw(2)<<tSlave->is_padding()<<std::endl;
+//
+//                    std::cout<<"M Id = "   <<std::setw(12)<<tMasterId<< " L = "<<std::setw(2)<<tMaster->get_level();
+//                    std::cout<<" A = "<<std::setw(2)<<tMaster->is_active()<<" R = "<<std::setw(2)<<tMaster->is_refined()<<" P = "<<std::setw(2)<<tMaster->is_padding();
+//                    std::cout<<" | S Id = "<<std::setw(12)<<tSlaveId << " L = "<<std::setw(2)<<tSlave->get_level();
+//                    std::cout<<" A = "<<std::setw(2)<<tSlave->is_active()<<" R = "<<std::setw(2)<<tSlave->is_refined()<<" P = "<<std::setw(2)<<tSlave->is_padding()<<std::endl;
                 }
             }
         }
