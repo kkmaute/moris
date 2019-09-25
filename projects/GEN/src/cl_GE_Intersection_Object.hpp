@@ -67,80 +67,83 @@ class Intersection_Object
         }
         //******************************* get functions ********************************
         //------------------------------------------------------------------------------
-        virtual mtk::Geometry_Type
-        get_my_geom_type()
+        virtual mtk::Geometry_Type get_my_geom_type()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_my_geom_type() - not implemented " );
             return mtk::Geometry_Type::LINE;
         }
         //------------------------------------------------------------------------------
-        virtual fem::Geometry_Interpolator*
-        get_my_geom_interp()
+        virtual fem::Geometry_Interpolator* get_my_geom_interp()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_my_geom_interp() - not implemented " );
             return mDummyGeomInterp;
         }
         //------------------------------------------------------------------------------
-        virtual fem::Field_Interpolator*
-        get_my_field_interp()
+        virtual fem::Field_Interpolator* get_my_field_interp()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_my_field_interp() - not implemented " );
             return mDummmyFieldInterp;
         }
         //------------------------------------------------------------------------------
-        virtual Matrix<DDRMat>
-        get_my_param_point()
+        virtual Matrix<DDRMat> get_my_param_point()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_my_param_point() - not implemented " );
             return mDummyMat;
         }
         //------------------------------------------------------------------------------
-        virtual Matrix<DDRMat>
-        get_my_global_coord()
+        virtual Matrix<DDRMat> get_my_global_coord()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_my_global_coord() - not implemented " );
             return mDummyMat;
         }
         //------------------------------------------------------------------------------
-        virtual Matrix<DDRMat>
-        get_my_time_coord()
+        virtual Matrix<DDRMat> get_my_time_coord()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_my_time_coord() - not implemented " );
             return mDummyMat;
         }
         //------------------------------------------------------------------------------
-        virtual Matrix<DDRMat>
-        get_my_field_vals()
+        virtual Matrix<DDRMat> get_my_field_vals()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_my_field_vals() - not implemented " );
             return mDummyMat;
         }
         //------------------------------------------------------------------------------
-        virtual bool
-        get_intersection_flag()
+        virtual bool get_intersection_flag()
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_intersection_flag() - not implemented " );
             return false;
         }
         //------------------------------------------------------------------------------
-        virtual Matrix< DDRMat >
-        get_intersection_point( moris_index aMyIndex )
+        virtual Matrix< DDRMat > get_intersection_point_local_coord( moris_index aMyIndex )
         {
             return mDummyMat;
         }
         //------------------------------------------------------------------------------
-        virtual uint
-        get_num_intersection_point( )
+        virtual Matrix< DDRMat > get_intersection_point_global_coord( moris_index aMyIndex )
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_intersection_global_coord() - not implemented " );
+            return mDummyMat;
+        }
+        //------------------------------------------------------------------------------
+        virtual uint get_num_intersection_point( )
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_num_intersection_point() - not implemented " );
             return 0;
         }
         //------------------------------------------------------------------------------
-        Matrix< DDRMat >
-        get_field_sensitivity_vals( moris_index aMyIndex )
+        virtual Matrix< DDRMat > get_field_sensitivity_vals( moris_index aMyIndex )
         {
             MORIS_ASSERT( false, "ge::Intersection_Object::get_field_sensitivity_vals() - not implemented " );
             return mDummyMat;
+        }
+
+        //***************** get functions for asserts/debugs ***************************
+        //------------------------------------------------------------------------------
+        virtual moris::Cell< Matrix< DDRMat > > get_field_sens_vals_cell()
+        {
+            MORIS_ASSERT( false, "ge::Intersection_Object::get_field_sens_vals_cell() - not implemented " );
+            return mDummyCell;
         }
 //------------------------------------------------------------------------------
     private:
@@ -149,6 +152,7 @@ class Intersection_Object
         fem::Field_Interpolator*    mDummmyFieldInterp = nullptr;
 
         Matrix<DDRMat> mDummyMat;
+        Cell< Matrix<DDRMat> > mDummyCell;
 //------------------------------------------------------------------------------
     protected:
 

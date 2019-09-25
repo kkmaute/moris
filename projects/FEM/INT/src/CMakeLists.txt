@@ -95,6 +95,7 @@ set(HEADERS
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_Constitutive_User_Defined_Info.hpp
+    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -135,6 +136,7 @@ set(LIB_SOURCES
     cl_FEM_Property.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Factory.cpp
+    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
     )
 
 # List library dependencies

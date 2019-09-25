@@ -2,7 +2,7 @@
  * cl_FEM_IWG.hpp
  *
  *  Created on: Aug 13, 2018
- *      Author: messe
+ *      Author: messe/noel
  */
 #ifndef SRC_FEM_CL_FEM_IWG_HPP_
 #define SRC_FEM_CL_FEM_IWG_HPP_
@@ -698,42 +698,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set the residual size
-             * @param[ in ] aResidual matrix to fill with residual
-             */
-            void set_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
-            {
-                // FIXME should be 1 if no slave
-                aResidual.resize( 2 );
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * evaluates the Jacobian
              * @param[ in ] aJacobians cell of matrices to fill with Jacobians
              */
             virtual void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
             {
                 MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set the Jacobian
-             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
-             */
-            void set_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
-            {
-                // get number of dof types for the IWG
-                uint tMasterNumDofType = this->get_global_dof_type_list().size();
-                uint tSlaveNumDofType  = this->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-                uint tNumDofType = tMasterNumDofType + tSlaveNumDofType;
-
-                // FIXME should be 1 if no slave
-                aJacobians.resize( 2 );
-                aJacobians( 0 ).resize( tNumDofType );
-                aJacobians( 1 ).resize( tNumDofType );
-
             }
 
 //------------------------------------------------------------------------------
@@ -753,83 +723,24 @@ namespace moris
              * evaluates the Jacobian by finite difference
              * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
              * @param[ in ] aPerturbation real to perturb for FD
-             * @param[ in ] aIsMaster     enum master or slave
              */
             virtual void compute_jacobian_FD( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD,
-                                              real                                             aPerturbation,
-                                              mtk::Master_Slave                                aIsMaster = mtk::Master_Slave::MASTER )
+                                              real                                             aPerturbation )
             {
-                // get master and slave number of dof types
-                uint tMasterNumDofType = mMasterGlobalDofTypes.size();
-                uint tSlaveNumDofType  = mSlaveGlobalDofTypes.size();
-                uint tNumDofType       = tMasterNumDofType + tSlaveNumDofType;
-
-                // get the number of master residual dofs
-                uint tMasterResNumDof = this->get_field_interpolators()( 0 )->get_number_of_space_time_coefficients();
-                uint tSlaveResNumDof;
+                // get master number of dof types
+                uint tNumDofType = mMasterGlobalDofTypes.size();
 
                 // set the jacobian size
-                if ( tSlaveNumDofType > 0 )
-                {
-                    aJacobiansFD.resize( 2 );
-                    aJacobiansFD( 0 ).resize( tNumDofType );
-                    aJacobiansFD( 1 ).resize( tNumDofType );
-
-                    tSlaveResNumDof  = this->get_field_interpolators( mtk::Master_Slave::SLAVE )( 0 )->get_number_of_space_time_coefficients();
-                }
-                else
-                {
-                    aJacobiansFD.resize( 1 );
-                    aJacobiansFD( 0 ).resize( tNumDofType );
-                }
+                this->set_jacobian( aJacobiansFD );
 
                 // loop over the IWG dof types
                 for( uint iFI = 0; iFI < tNumDofType; iFI++ )
                 {
-                    // number of dofs for dof type wrt which derivative is computed
-                    uint tDerNumDof;
-
-                    // field interpolator wrt which derivative is computed
-                    Field_Interpolator* tFI;
+                    // get number of master dofs wrt which derivative is computed
+                    uint tDerNumDof = mMasterFI( iFI )->get_number_of_space_time_coefficients();
 
                     // coefficients for dof type wrt which derivative is computed
-                    Matrix< DDRMat > tCoeff;
-
-                    // derivative wrt master dof type
-                    if ( iFI < tMasterNumDofType )
-                    {
-                        // get field interpolator for derivative
-                        tFI = this->get_field_interpolators()( iFI );
-
-                        // get number of master dofs for derivative
-                        tDerNumDof = tFI->get_number_of_space_time_coefficients();
-
-                        // get coefficients for derivative
-                        tCoeff = tFI->get_coeff();
-
-                        // set size of the Jacobian
-                        aJacobiansFD( 0 )( iFI ).set_size( tMasterResNumDof, tDerNumDof, 0.0 );
-                        if( tSlaveNumDofType > 0 )
-                        {
-                            aJacobiansFD( 1 )( iFI ).set_size( tSlaveResNumDof, tDerNumDof, 0.0 );
-                        }
-                    }
-                    // derivative wrt slave dof type
-                    else
-                    {
-                        // get field interpolator for derivative
-                        tFI = this->get_field_interpolators( mtk::Master_Slave::SLAVE )( iFI - tMasterNumDofType );
-
-                        // get number of slave dofs for derivative
-                        tDerNumDof = tFI->get_number_of_space_time_coefficients();
-
-                        // get coefficients for derivative
-                        tCoeff = tFI->get_coeff();
-
-                        // set size of the Jacobian
-                        aJacobiansFD( 0 )( iFI ).set_size( tMasterResNumDof, tDerNumDof, 0.0 );
-                        aJacobiansFD( 1 )( iFI ).set_size( tSlaveResNumDof,  tDerNumDof, 0.0 );
-                    }
+                    Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
 
                     for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
                     {
@@ -838,20 +749,18 @@ namespace moris
                         tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
 
                         // setting the perturbed coefficients
-                        tFI->set_coeff( tCoeffPert );
+                        mMasterFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        for ( uint iProp = 0; iProp < mMasterPropTypes.size(); iProp++ )
+                        uint tNumProps = mMasterPropTypes.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mMasterProp( iProp )->reset_eval_flags();
-                        }
-                        for ( uint iProp = 0; iProp < mSlavePropTypes.size(); iProp++ )
-                        {
-                            mSlaveProp( iProp )->reset_eval_flags();
                         }
 
                         // evaluate the residual
                         moris::Cell< Matrix< DDRMat > > tResidual_Plus;
+                        this->set_residual( tResidual_Plus );
                         this->compute_residual( tResidual_Plus );
 
                         // perturbation of the coefficent
@@ -859,33 +768,269 @@ namespace moris
                         tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
 
                         // setting the perturbed coefficients
-                        tFI->set_coeff( tCoeffPert );
+                        mMasterFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        for ( uint iProp = 0; iProp < mMasterPropTypes.size(); iProp++ )
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mMasterProp( iProp )->reset_eval_flags();
                         }
-                        for ( uint iProp = 0; iProp < mSlavePropTypes.size(); iProp++ )
+
+                        // evaluate the residual
+                        moris::Cell< Matrix< DDRMat > > tResidual_Minus;
+                        this->set_residual( tResidual_Minus );
+                        this->compute_residual( tResidual_Minus );
+
+                        // evaluate Jacobian
+                        aJacobiansFD( 0 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
+                    }
+                    // reset the coefficients values
+                    mMasterFI( iFI )->set_coeff( tCoeff );
+                }
+            }
+
+            /**
+             * evaluates the Jacobian by finite difference double
+             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
+             * @param[ in ] aPerturbation real to perturb for FD
+             * @param[ in ] aIsMaster     enum master or slave
+             */
+            virtual void compute_jacobian_FD_double( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD,
+                                                     real                                             aPerturbation )
+            {
+                // get master and slave number of dof types
+                uint tMasterNumDofType = mMasterGlobalDofTypes.size();
+                uint tSlaveNumDofType  = mSlaveGlobalDofTypes.size();
+
+                // get master and slave number of property type
+                uint tMasterNumProps = mMasterPropTypes.size();
+                uint tSlaveNumProps  = mSlavePropTypes.size();
+
+                // set the jacobian size
+                this->set_jacobian_double( aJacobiansFD );
+
+                // loop over the master dof types
+                for( uint iFI = 0; iFI < tMasterNumDofType; iFI++ )
+                {
+                    // get number of master dofs for derivative
+                    uint tDerNumDof = mMasterFI( iFI )->get_number_of_space_time_coefficients();
+
+                    // coefficients for dof type wrt which derivative is computed
+                    Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
+
+                    // loop over the coefficients
+                    for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
+
+                        // setting the perturbed coefficients
+                        mMasterFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                        {
+                            mMasterProp( iProp )->reset_eval_flags();
+                        }
+                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
+                        {
+                            mSlaveProp( iProp )->reset_eval_flags();
+                        }
+
+                        // evaluate the residual
+                        moris::Cell< Matrix< DDRMat > > tResidual_Plus;
+                        this->set_residual_double( tResidual_Plus );
+                        this->compute_residual( tResidual_Plus );
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
+
+                        // setting the perturbed coefficients
+                        mMasterFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                        {
+                            mMasterProp( iProp )->reset_eval_flags();
+                        }
+                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
                         {
                             mSlaveProp( iProp )->reset_eval_flags();
                         }
 
                         // evaluate the residual
                         moris::Cell< Matrix< DDRMat > > tResidual_Minus;
+                        this->set_residual_double( tResidual_Minus );
                         this->compute_residual( tResidual_Minus );
 
                         // evaluate Jacobian
                         aJacobiansFD( 0 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
-                        if( tSlaveNumDofType > 0 )
-                        {
-                            aJacobiansFD( 1 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
-                        }
+                        aJacobiansFD( 1 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                     }
                     // reset the coefficients values
-                    tFI->set_coeff( tCoeff );
+                    mMasterFI( iFI )->set_coeff( tCoeff );
+                }
+
+                // loop over the slave dof types
+                for( uint iFI = 0; iFI < tSlaveNumDofType; iFI++ )
+                {
+                    // get number of master dofs for derivative
+                    uint tDerNumDof = mSlaveFI( iFI )->get_number_of_space_time_coefficients();
+
+                    // coefficients for dof type wrt which derivative is computed
+                    Matrix< DDRMat > tCoeff = mSlaveFI( iFI )->get_coeff();
+
+                    // loop over the coefficients
+                    for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                    {
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
+
+                        // setting the perturbed coefficients
+                        mSlaveFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                        {
+                            mMasterProp( iProp )->reset_eval_flags();
+                        }
+                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
+                        {
+                            mSlaveProp( iProp )->reset_eval_flags();
+                        }
+
+                        // evaluate the residual
+                        moris::Cell< Matrix< DDRMat > > tResidual_Plus;
+                        this->set_residual_double( tResidual_Plus );
+                        this->compute_residual( tResidual_Plus );
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
+
+                        // setting the perturbed coefficients
+                        mSlaveFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                        {
+                            mMasterProp( iProp )->reset_eval_flags();
+                        }
+                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
+                        {
+                            mSlaveProp( iProp )->reset_eval_flags();
+                        }
+
+                        // evaluate the residual
+                        moris::Cell< Matrix< DDRMat > > tResidual_Minus;
+                        this->set_residual_double( tResidual_Minus );
+                        this->compute_residual( tResidual_Minus );
+
+                        // evaluate Jacobian
+                        aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( iCoeff ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
+                        aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( iCoeff ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
+                    }
+                    // reset the coefficients values
+                    mSlaveFI( iFI )->set_coeff( tCoeff );
                 }
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * set the residual size
+             * @param[ in ] aResidual matrix to fill with residual
+             */
+            void set_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+            {
+                // set the size of the residual cell
+                aResidual.resize( 1 );
+
+                // set size of each residual matrix
+                aResidual( 0 ).set_size( mMasterFI( 0 )->get_number_of_space_time_coefficients(), 1, 0.0 );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set the residual size double
+             * @param[ in ] aResidual matrix to fill with residual
+             */
+            void set_residual_double( moris::Cell< Matrix< DDRMat > > & aResidual )
+            {
+                // set the size of the residual cell
+                aResidual.resize( 2 );
+
+                // set size of each residual matrix
+                aResidual( 0 ).set_size( mMasterFI( 0 )->get_number_of_space_time_coefficients(), 1, 0.0 );
+                aResidual( 1 ).set_size( mSlaveFI( 0 )->get_number_of_space_time_coefficients(), 1, 0.0 );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * sets the Jacobian size
+             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
+             */
+            void set_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+            {
+                // get number of dof types for the IWG
+                uint tNumDofType = this->get_global_dof_type_list().size();
+
+                // set the size of the jacobian cell
+                aJacobians.resize( 1 );
+                aJacobians( 0 ).resize( tNumDofType );
+
+                // get residual dof type number of dofs
+                uint tNumResDof = mMasterFI( 0 )->get_number_of_space_time_coefficients();
+
+                // loop over the master dof dependencies
+                for( uint iDOF = 0; iDOF < tNumDofType; iDOF++ )
+                {
+                    // set size for each jacobian matrix
+                    aJacobians( 0 )( iDOF ).set_size( tNumResDof, mMasterFI( iDOF )->get_number_of_space_time_coefficients(), 0.0 );
+                }
+            }
+
+//------------------------------------------------------------------------------
+            /**
+              * sets the Jacobian size double
+              * @param[ in ] aJacobians cell of matrices to fill with Jacobians
+              */
+             void set_jacobian_double( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+             {
+                 // get number of dof types for the IWG
+                 uint tMasterNumDofType = this->get_global_dof_type_list().size();
+                 uint tSlaveNumDofType  = this->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
+                 uint tNumDofType = tMasterNumDofType + tSlaveNumDofType;
+
+                 // get master residual number of dofs
+                 uint tMasterNumResDof = mMasterFI( 0 )->get_number_of_space_time_coefficients();
+
+                 // get slave residual number of dofs
+                 uint tSlaveNumResDof = mSlaveFI( 0 )->get_number_of_space_time_coefficients();
+
+                 // set the size of the jacobian cell
+                 aJacobians.resize( 2 );
+                 aJacobians( 0 ).resize( tNumDofType );
+                 aJacobians( 1 ).resize( tNumDofType );
+
+                 // loop over the master dof dependencies
+                 for( uint iMasterDOF = 0; iMasterDOF < tMasterNumDofType; iMasterDOF++ )
+                 {
+                     // set size for each residual matrix
+                     aJacobians( 0 )( iMasterDOF ).set_size( tMasterNumResDof, mMasterFI( iMasterDOF )->get_number_of_space_time_coefficients(), 0.0 );
+                     aJacobians( 1 )( iMasterDOF ).set_size( tSlaveNumResDof,  mMasterFI( iMasterDOF )->get_number_of_space_time_coefficients(), 0.0 );
+                 }
+
+                 // loop over the slave dof dependencies
+                 for( uint iSlaveDOF = 0; iSlaveDOF < tSlaveNumDofType; iSlaveDOF++ )
+                 {
+                     // set size for each residual matrix
+                     aJacobians( 0 )( tMasterNumDofType + iSlaveDOF ).set_size( tMasterNumResDof, mSlaveFI( iSlaveDOF )->get_number_of_space_time_coefficients(), 0.0 );
+                     aJacobians( 1 )( tMasterNumDofType + iSlaveDOF ).set_size( tSlaveNumResDof,  mSlaveFI( iSlaveDOF )->get_number_of_space_time_coefficients(), 0.0 );
+                 }
+             }
 
 //------------------------------------------------------------------------------
 //
