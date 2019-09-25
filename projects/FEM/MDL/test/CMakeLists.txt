@@ -10,6 +10,7 @@ set(TEST_SOURCES
     UT_MDL_XTK_DiffusionElement.cpp
     UT_MDL_XTK_HMR_DiffusionElement.cpp
     UT_MDL_XTK_HMR_2D.cpp
+    UT_MDL_XTK_HMR_Diffusion_Element_2D.cpp
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp

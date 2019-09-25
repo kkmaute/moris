@@ -195,8 +195,6 @@ namespace moris
 //            mFemClusters.reserve( tNumberOfEquationObjects );
             mFemClusters.reserve( 100000 ); //FIXME
 
-            //  Create Set  ---------------------------------------------------
-            std::cout<<" Create set "<<std::endl;
             //------------------------------------------------------------------------------
             // init the fem set counter
             moris::uint tFemSetCounter = 0;
@@ -463,112 +461,57 @@ namespace moris
 
         void Model::output_solution( const std::string & aFilePath )
         {
-            if ( mMeshManager->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR )
+            mSolHMR.set_size(mMeshManager->get_interpolation_mesh(0)->get_num_nodes(),1,0.0);
+
+            mtk::Interpolation_Mesh* tInterpMesh = mMeshManager->get_interpolation_mesh(0);
+
+            moris::Cell<std::string> tBlockSetsNames = tInterpMesh->get_set_names( EntityRank::ELEMENT);
+
+            // iterate through fem blocks
+            uint tNumFemSets = mFemSets.size();
+
+            for(moris::uint iSet = 0; iSet<tNumFemSets; iSet++)
             {
-                std::cout<<"HMR"<<std::endl;
-                mSolHMR.set_size(mMeshManager->get_interpolation_mesh(0)->get_num_nodes(),1,0.0);
+                // access set
+                fem::Set * tFemSet = mFemSets(iSet);
 
-                mtk::Interpolation_Mesh* tInterpMesh = mMeshManager->get_interpolation_mesh(0);
+                // access the element type in the set
+                enum fem::Element_Type tElementTypeInSet = tFemSet->get_element_type();
 
-                moris::Cell<std::string> tBlockSetsNames = tInterpMesh->get_set_names( EntityRank::ELEMENT);
-
-                moris::print(tBlockSetsNames,"tBlockSetsNames");
-
-                // iterate through fem blocks
-                uint tNumFemSets = mFemSets.size();
-
-                for(moris::uint iSet = 0; iSet<tNumFemSets; iSet++)
+                // if we are a bulk element, then we output the solution
+                if(tElementTypeInSet == fem::Element_Type::BULK)
                 {
-                    // access set
-                    fem::Set * tFemSet = mFemSets(iSet);
+                    // get mtk cell clusters in set
+                    moris::Cell< mtk::Cluster const* > tCellClustersInSet = tFemSet->get_clusters_on_set();
 
-                    // access the element type in the set
-                    enum fem::Element_Type tElementTypeInSet = tFemSet->get_element_type();
+                    // get coressponding equation objects
+                    moris::Cell< MSI::Equation_Object * > & tEquationObj = tFemSet->get_equation_object_list();
 
-                    // if we are a bulk element, then we output the solution
-                    if(tElementTypeInSet == fem::Element_Type::BULK)
+                    // iterate through clusters in set
+                    for(moris::uint iCl = 0; iCl < tCellClustersInSet.size(); iCl++)
                     {
-                        // get mtk cell clusters in set
-                        moris::Cell< mtk::Cluster const* > tCellClustersInSet = tFemSet->get_clusters_on_set();
+                        mtk::Cluster const * tCluster = tCellClustersInSet(iCl);
 
-                        // get coressponding equation objects
-                        moris::Cell< MSI::Equation_Object * > & tEquationObj = tFemSet->get_equation_object_list();
+                        moris::mtk::Cell const & tInterpCell = tCluster->get_interpolation_cell();
 
-                        // iterate through clusters in set
-                        for(moris::uint iCl = 0; iCl < tCellClustersInSet.size(); iCl++)
+                        uint tNumVert = tInterpCell.get_number_of_vertices();
+
+                        Matrix< DDRMat > & tPDofVals = tEquationObj(iCl)->get_pdof_values();
+
+                        moris::Cell<moris::mtk::Vertex *> tVertices = tInterpCell.get_vertex_pointers();
+
+                        for( luint Jk=0; Jk < tNumVert; ++Jk )
                         {
-                            mtk::Cluster const * tCluster = tCellClustersInSet(iCl);
-
-                            moris::mtk::Cell const & tInterpCell = tCluster->get_interpolation_cell();
-
-                            uint tNumVert = tInterpCell.get_number_of_vertices();
-
-                            Matrix< DDRMat > & tPDofVals = tEquationObj(iCl)->get_pdof_values();
-
-                            moris::Cell<moris::mtk::Vertex *> tVertices = tInterpCell.get_vertex_pointers();
-
-                            for( luint Jk=0; Jk < tNumVert; ++Jk )
-                            {
-                                mSolHMR(tVertices(Jk)->get_index()) = tPDofVals(Jk);
-                            }
+                            mSolHMR(tVertices(Jk)->get_index()) = tPDofVals(Jk);
                         }
                     }
-
                 }
-            }
-            else
-            {
-                // 8) Postprocessing
-                // dof type list for the solution to write on the mesh
-                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
 
-                uint tNumOfNodes = mIPNodes.size();
-
-                // create a matrix to be filled  with the solution
-                Matrix< DDRMat > tTempSolutionField( tNumOfNodes, 1 );
-
-                mtk::Interpolation_Mesh* tInterpMesh = mMeshManager->get_interpolation_mesh(0);
-
-                // loop over the nodes
-                for( uint i = 0; i < tNumOfNodes; i++ )
-                {
-                    // get a list of elements connected to the ith node
-                    Matrix<IndexMat> tConnectedElements =
-                            tInterpMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
-                                                                                  EntityRank::NODE,
-                                                                                  EntityRank::ELEMENT );
-
-                    // number of connected element
-                    uint tNumConnectElem = tConnectedElements.numel();
-
-                    // reset the nodal value
-                    real tNodeVal = 0.0;
-
-                    // loop over the connected elements
-                    for( uint j = 0; j < tNumConnectElem; j++ )
-                    {
-                        // extract the field value at the ith node for the jth connected element
-                        real tElemVal = mFemClusters( tConnectedElements( j ) )->get_element_nodal_pdof_value( i, tDofTypeList);
-                        // add up the contribution of each element to the node value
-                        tNodeVal = tNodeVal + tElemVal;
-                    }
-                    // fill the solution matrix with the node value
-                    tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
-                }
-                //print( tTempSolutionField, "tTempSolutionField" );
-
-                // add field to the mesh
-                tInterpMesh->add_mesh_field_real_scalar_data_loc_inds( aFilePath,
-                                                                       EntityRank::NODE,
-                                                                       tTempSolutionField );
-
-                // create output mesh
-                std::string tOutputFile = "./int_ElemDiff_test_11.exo";
-                tInterpMesh->create_output_mesh( tOutputFile );
             }
         }
 
-        Matrix<DDRMat> Model::get_solution_for_integration_mesh_output( enum MSI::Dof_Type aDofType )
+        Matrix<DDRMat>
+        Model::get_solution_for_integration_mesh_output( enum MSI::Dof_Type aDofType )
         {
             // number of vertices in integration mesh
             uint tNumVertsInIGMesh = mMeshManager->get_integration_mesh(mMeshPairIndex)->get_num_entities(EntityRank::NODE);
@@ -611,9 +554,8 @@ namespace moris
                             // get coressponding equation objects
                             moris::Cell< MSI::Equation_Object * > & tEquationObj = tFemSet->get_equation_object_list();
 
-                            // FIXME master and slave
                             // get the field interpolator
-                            fem::Field_Interpolator* tFieldInterp = tFemSet->get_dof_type_field_interpolators( aDofType );
+                            fem::Field_Interpolator* tFieldInterp = tFemSet->get_dof_type_field_interpolators(aDofType);
 
                             // iterate through clusters in set
                             for(moris::uint iCl = 0; iCl < tCellClustersInSet.size(); iCl++)
@@ -624,6 +566,7 @@ namespace moris
                                 // get the pdof values for this cluster
                                 Matrix< DDRMat > & tPDofVals = tEquationObj(iCl)->get_pdof_values();
 
+                                // set coefficients in field interpolator
                                 tFieldInterp->set_coeff(tPDofVals);
 
                                 // check if its trivial
@@ -647,7 +590,7 @@ namespace moris
                                          moris_index tVertIndex = tVerticesOnPrimaryCell(iVert)->get_index();
 
                                          // add to solution vector
-                                         tSolutionOnInteg(tVertIndex) = tSolutionOnInteg(tVertIndex) + tPDofVals(iVert);
+                                         tSolutionOnInteg(tVertIndex) = tPDofVals(iVert);
 
                                          // update count that this vertex has been encountered
                                          tVertexCount(tVertIndex) = tVertexCount(tVertIndex) + 1.0;
@@ -688,7 +631,7 @@ namespace moris
                                         moris_index tVertIndex = tVertices(iVert)->get_index();
 
                                         // add to solution vector
-                                        tSolutionOnInteg(tVertIndex) = tSolutionOnInteg(tVertIndex) + tSolFieldAtIntegPoint(0);
+                                        tSolutionOnInteg(tVertIndex) = tSolFieldAtIntegPoint(0);
 
                                         // update count that this vertex has been encountered
                                         tVertexCount(tVertIndex) = tVertexCount(tVertIndex) + 1.0;

@@ -5,12 +5,12 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_GeometryEngineFactory.cpp
     cl_GeometryObject.cpp
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
     cl_GE_test.cpp
+    UT_Finite_Difference_Checks.cpp
     UT_GE_HMR_Interaction.cpp
     geometry_classes/cl_GE_test_analytic.cpp
     geometry_classes/cl_GE_test_discrete.cpp

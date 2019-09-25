@@ -196,7 +196,7 @@ Enrichment::generate_pruned_subphase_graph_in_basis_support(moris::Matrix< moris
                                                             moris::Matrix< moris::IndexMat >       & aPrunedSubPhaseToSubphase)
  {
     // Construct full element neighbor graph in support and the corresponding shared faces
-    aPrunedSubPhaseToSubphase.resize(aSubphasesInSupport.numel(), 8);
+    aPrunedSubPhaseToSubphase.resize(aSubphasesInSupport.numel(), 24);
     aPrunedSubPhaseToSubphase.fill(MORIS_INDEX_MAX);
 
     // get subphase neighborhood information
@@ -311,7 +311,7 @@ Enrichment::unzip_subphase_bin_enrichment_into_element_enrichment(moris_index aB
 
 
             // add information to interp cells about which basis/enrichment level interpolates in it
-            mInterpCellBasis( aSubphasesInSupport(i)).push_back(aBasisIndex);
+            mInterpCellBasis( aSubphasesInSupport(i) ).push_back(aBasisIndex);
             mInterpCellBasisEnrLev(aSubphasesInSupport(i)).push_back(aSubPhaseBinEnrichmentVals(i));
         }
     }
@@ -616,7 +616,9 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
                 {
                     // Create interpolation vertex
                     tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex)
-                                = Interpolation_Vertex_Unzipped(tVertices(iEV),tVertId,tVertEnrichIndex,tVertices(iEV)->get_owner(),mInterpIndex,tVertexInterpolations(iEV));
+                                = Interpolation_Vertex_Unzipped(tVertices(iEV), tVertId, tVertEnrichIndex,
+                                                                tVertices(iEV)->get_owner(), mInterpIndex,
+                                                                tEnrInterpMesh->get_vertex_enrichment(tVertEnrichIndex));
 
                     tVertId++;
                     tVertexCount++;
@@ -626,7 +628,8 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             }
 
             // create new enriched interpolation cell
-            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = Interpolation_Cell_Unzipped(&tParentCell, 0, tBulkPhase, tCellId, tCellIndex, tOwner, tEnrInterpMesh->mCellInfo);
+            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = Interpolation_Cell_Unzipped(&tParentCell, tParentCell.get_index(),
+                                                                                           tBulkPhase, tCellId, tCellIndex, tOwner, tEnrInterpMesh->mCellInfo);
 
             // add enriched interpolation cell to base cell to enriched cell data
             tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(&tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));
@@ -663,6 +666,9 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
         // get bulkphase of subphases
         Cell<moris::moris_index> const & tSubPhaseBulkPhase =tCM.get_subphase_bin_bulk_phase();
 
+        //
+        Cell<moris_index> const & tSubphaseIndices = tCM.get_subphase_indices();
+
         // create a interpolation cell per subphase
         for(moris::uint iSP = 0; iSP<tCM.get_num_subphase_bins(); iSP++)
         {
@@ -690,8 +696,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
                 if(tNewVertFlag)
                 {
                     // Create interpolation vertex
-                    tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex)
-                                = Interpolation_Vertex_Unzipped(tVertices(iEV),tVertId,tVertEnrichIndex,tVertices(iEV)->get_owner(),mInterpIndex,tVertexInterpolations(iEV));
+                    tEnrInterpMesh->mEnrichedInterpVerts(tVertEnrichIndex) = Interpolation_Vertex_Unzipped(tVertices(iEV),tVertId,tVertEnrichIndex,tVertices(iEV)->get_owner(),mInterpIndex,tEnrInterpMesh->get_vertex_enrichment(tVertEnrichIndex));
 
                     tVertId ++;
                     tVertexCount++;
@@ -701,7 +706,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
             }
 
             // create new enriched interpolation cell
-            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = Interpolation_Cell_Unzipped(&tParentCell, (moris_index)iSP, tSubPhaseBulkPhase(iSP), tCellId, tCellIndex, tOwner, tEnrInterpMesh->mCellInfo );
+            tEnrInterpMesh->mEnrichedInterpCells(tCellIndex) = Interpolation_Cell_Unzipped(&tParentCell, tSubphaseIndices(iSP), tSubPhaseBulkPhase(iSP), tCellId, tCellIndex, tOwner, tEnrInterpMesh->mCellInfo );
 
             // add enriched interpolation cell to base cell to enriched cell data
             tEnrInterpMesh->mBaseCelltoEnrichedCell(tParentCell.get_index()).push_back(&tEnrInterpMesh->mEnrichedInterpCells(tCellIndex));

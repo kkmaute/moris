@@ -11,6 +11,7 @@
 
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Vertex_Interpolation.hpp"
 #include "fn_verify_tet_topology.hpp"
 #include "fn_write_element_ownership_as_field.hpp"
 
@@ -25,6 +26,8 @@
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
+#include "fn_all_true.hpp"
+#include "op_equal_equal.hpp"
 
 
 #include "geometry/cl_Discrete_Level_Set.hpp"
@@ -36,6 +39,10 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+#include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
+#include "cl_XTK_Cell_Cluster.hpp"
 
 namespace xtk
 {
@@ -114,11 +121,6 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
-        // get the enriched interpolation mesh
-        Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-
-        Cell<Interpolation_Cell_Unzipped> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
-
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -131,16 +133,116 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.
 
+
         // setup output mesh options with cell enrichment fields
         Output_Options tOutputOptions;
         tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 
+        // get the enriched meshes
+        Enriched_Integration_Mesh   const & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+        Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        tEnrIntegMesh.print();
+        tEnrInterpMesh.print();
 
+
+        // Check the basis to enriched basis table
+        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldCoeffToEnrCoeff(6);
+        tGoldCoeffToEnrCoeff(0) = {{0},{6},{7}};
+        tGoldCoeffToEnrCoeff(1) = {{1},{8},{9},{10}};
+        tGoldCoeffToEnrCoeff(2) = {{2},{11},{12},{13}};
+        tGoldCoeffToEnrCoeff(3) = {{3},{14},{15}};
+        tGoldCoeffToEnrCoeff(4) = {{4},{16},{17}};
+        tGoldCoeffToEnrCoeff(5) = {{5},{18},{19}};
+
+        for(moris::uint i = 0; i < tEnrInterpMesh.get_num_background_coefficients(); i++)
+        {
+            Matrix<IndexMat> const & tEnrichedCoeffs = tEnrInterpMesh.get_enriched_coefficients_at_background_coefficient((moris_index)i);
+            CHECK(all_true(tEnrichedCoeffs == tGoldCoeffToEnrCoeff(i)));
+        }
+
+        // verify there is one interpolation cell per subphase
+        moris::uint tExpectedNumSubphase = 6;
+        Cell<Interpolation_Cell_Unzipped> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
+        CHECK(tCells.size() == tExpectedNumSubphase);
+
+        // Expected primary cells in each cluster
+        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldPrimaryCellsInClusters(6);
+        tGoldPrimaryCellsInClusters(0) = {{3,13}};
+        tGoldPrimaryCellsInClusters(1) = {{4,6,7,8,10,11,12,14}};
+        tGoldPrimaryCellsInClusters(2) = {{5,9}};
+        tGoldPrimaryCellsInClusters(3) = {{15,17,20,21,22,24,25,26}};
+        tGoldPrimaryCellsInClusters(4) = {{16,19}};
+        tGoldPrimaryCellsInClusters(5) = {{18,23}};
+
+        // Expected void cells in each cluster
+        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldVoidCellsInClusters(6);
+        tGoldVoidCellsInClusters(0) = {{4,6,7,8,10,11,12,14,5,9}};
+        tGoldVoidCellsInClusters(1) = {{3,13,5,9}};
+        tGoldVoidCellsInClusters(2) = {{3,13,4,6,7,8,10,11,12,14}};
+        tGoldVoidCellsInClusters(3) = {{16,19,18,23}};
+        tGoldVoidCellsInClusters(4) = {{15,17,20,21,22,24,25,26,18,23}};
+        tGoldVoidCellsInClusters(5) = {{15,17,20,21,22,24,25,26,16,19}};
+
+        // Expected interpolation vertices
+        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
+        tGoldInterpCoeff(0) = {{0,10,2,3}};
+        tGoldInterpCoeff(1) = {{6,1,11,14}};
+        tGoldInterpCoeff(2) = {{7,9,12,15}};
+        tGoldInterpCoeff(3) = {{1,4,5,11}};
+        tGoldInterpCoeff(4) = {{8,16,18,13}};
+        tGoldInterpCoeff(5) = {{ 9,17,19,12}};
+
+
+        tGoldCoeffToEnrCoeff(0) = {{0},{6},{7}};
+        tGoldCoeffToEnrCoeff(1) = {{1},{8},{9},{10}};
+        tGoldCoeffToEnrCoeff(2) = {{2},{11},{12},{13}};
+        tGoldCoeffToEnrCoeff(3) = {{3},{14},{15}};
+        tGoldCoeffToEnrCoeff(4) = {{4},{16},{17}};
+        tGoldCoeffToEnrCoeff(5) = {{5},{18},{19}};
+        // iterate through cells and get cell clusters
+        for(moris::uint i = 0; i < tCells.size() ; i++ )
+        {
+            moris::mtk::Cell const & tInterpCell = tEnrInterpMesh.get_mtk_cell((moris_index)i);
+
+            xtk::Cell_Cluster const &           tXTKCellCluster = tEnrIntegMesh.get_xtk_cell_cluster(tInterpCell);
+            Interpolation_Cell_Unzipped const * tXTKInterpCell  = tXTKCellCluster.get_xtk_interpolation_cell();
+
+            // verify the interpolation cells are the same
+            CHECK(tInterpCell.get_id() == tXTKInterpCell->get_id());
+
+            // check the primary ids
+            Matrix<IdMat> tPrimaryCellIds = tXTKCellCluster.get_primary_cell_ids_in_cluster();
+            CHECK(all_true(tPrimaryCellIds == tGoldPrimaryCellsInClusters(i)));
+
+            // check the void ids
+            Matrix<IdMat> tVoidCellIds    = tXTKCellCluster.get_void_cell_ids_in_cluster();
+            CHECK(all_true(tVoidCellIds == tGoldVoidCellsInClusters(i)));
+
+            // check the vertices of the interpolation cell
+            Cell<moris::mtk::Vertex *> tVertices = tXTKInterpCell->get_vertex_pointers();
+
+            Matrix<IndexMat> tVertexInterpInds(1,4);
+            for(moris::uint j = 0; j < tVertices.size(); j++)
+            {
+                mtk::Vertex_Interpolation* tInterp = tVertices(j)->get_interpolation(0);
+
+                Matrix< IndexMat > tIndices  = tInterp->get_indices();
+
+                // since this is a lagrange mesh there should be a 1-1 relationship between interp vert and coefficient
+                // this does not necessarily imply they have the same index though
+                CHECK(tIndices.numel() == 1);
+
+                tVertexInterpInds(j) = tIndices(0);
+            }
+
+            CHECK(all_true(tVertexInterpInds == tGoldInterpCoeff(i)));
+        }
+
+
+        // outputting for visual check
         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
         tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
-
-        tXTKModel.print_subphase_neighborhood();
 
         std::string tMeshOutputFile = "./xtk_exo/enrich_2_element_ig.e";
         tCutMeshData->create_output_mesh(tMeshOutputFile);

@@ -22,6 +22,7 @@ class Child_Mesh;
 
 class Cell_Cluster : public mtk::Cell_Cluster
 {
+public:
     Cell_Cluster();
     ~Cell_Cluster();
     bool                                            is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
@@ -34,6 +35,11 @@ class Cell_Cluster : public mtk::Cell_Cluster
     moris_index                                     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const ;
 
     friend class Enriched_Integration_Mesh;
+
+    // functions for internal XTK use
+    Interpolation_Cell_Unzipped const * get_xtk_interpolation_cell() const;
+    Child_Mesh const *                  get_xtk_child_mesh() const;
+
 protected:
     bool                                    mTrivial;
     Interpolation_Cell_Unzipped const *     mInterpolationCell;

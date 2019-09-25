@@ -10,9 +10,6 @@
 
 // GE includes
 #include "cl_GE_Geometry.hpp"
-#include "cl_GE_Nodal_Info.hpp"
-
-// MTK includes
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
@@ -20,6 +17,7 @@
 
 // moris includes
 #include "cl_Cell.hpp"
+#include "cl_GE_PDV_Info.hpp"
 
 namespace moris
 {
@@ -36,6 +34,8 @@ namespace ge
             GE_Core(){};
 
             ~GE_Core(){};
+
+            //fixme need to organize this class and make sure the descructor is clearing all memory when out of scope
             //------------------------------------------------------------------------------
             /**
              *  @brief set the current geometry and threshold, associate mesh with geometry, initialize
@@ -43,22 +43,24 @@ namespace ge
              *
              *  @param[in] aGeometryPointer - pointer to geometry object
              *  @param[in] aMyMeshIndex     - index of the mesh within the geometry object
+             *  @param[in] aInitialize      - bool to initalize data tables or wait until asked for information
              *  @param[in] aThreshold       - threshold value for current geometry LS function
              *
              *  @param[out] index to the set geometry in the list of geometries
              */
             moris_index set_geometry( std::shared_ptr< Geometry > & aGeomPointer,
                                       moris_index                   aMyMeshIndex = 0,
-                                      real                          aThreshold = 0.0 )
+                                      bool                          aInitialize  = false,
+                                      real                          aThreshold   = 0.0 )
             {
 //                moris_index tGeomInd = mListOfGeoms.size();    //index of current geometry rep.
                 mListOfGeoms.push_back( aGeomPointer );
                 mThresholds.push_back( aThreshold );
 
                 // initialize nodal information
-                Nodal_Info tNodalInfo( aGeomPointer,aMyMeshIndex );
+                PDV_Info tNodalInfo( aGeomPointer,aMyMeshIndex,aInitialize );
 
-                mListOfNodalInfoObjects.push_back( tNodalInfo );
+                mListOfPDVInfoObjects.push_back( tNodalInfo );
                 return mListOfGeoms.size()-1;
             }
             //------------------------------------------------------------------------------
@@ -67,64 +69,77 @@ namespace ge
                 return mListOfGeoms( aWhichGeometry );
             }
             //------------------------------------------------------------------------------
+            PDV_Info* get_pdv_info_pointer( moris_index aWhichInfoObj )
+            {
+                return & mListOfPDVInfoObjects( aWhichInfoObj );
+            }
+            //------------------------------------------------------------------------------
             /*
              * @brief return the nodal field vals from the specified NodalInfoObject
              *
              * @param[in] aWhichGeom  - aWhich geometry representation
              * @param[in] aWhichIndex - node/location to get information from
+             * @param[in] aWhichSubGeom - index of the sub-type in the geometry rep
              *
              * @param[out] nodal information
              */
             Matrix< DDRMat > get_field_vals( moris_index aWhichGeom,
-                                             moris_index aWhichIndex )
+                                             moris_index aWhichIndex,
+                                             moris_index aWhichSubGeom )
             {
-                return mListOfNodalInfoObjects( aWhichGeom ).get_field_vals( aWhichIndex );
+                return mListOfPDVInfoObjects( aWhichGeom ).get_field_vals( aWhichSubGeom, aWhichIndex );
             };
 
             /*
              * @brief returns all the nodal field values
              */
-            Matrix< DDRMat > get_field_vals( moris_index aWhichGeom )
+            Matrix< DDRMat > get_field_vals( moris_index aWhichGeom,
+                                             moris_index aWhichSubGeom )
             {
-                uint tNumOfIPNodes = mListOfNodalInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
+                uint tNumOfIPNodes = mListOfPDVInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
 
                 Matrix< DDRMat > tLSVals(tNumOfIPNodes,1, 0.0);
                 for( uint n=0; n<tNumOfIPNodes; n++ )
                 {
-                    tLSVals(n) = this->get_field_vals( aWhichGeom, n )(0);
+                    tLSVals(n) = this->get_field_vals( aWhichGeom, n, aWhichSubGeom )(0);
                 }
                 return tLSVals;
             };
 
             //------------------------------------------------------------------------------
             /*
-             * @brief return the nodal sensitivity vals from the specified NodalInfoObject
+             * @brief return the nodal sensitivity vals from the specified NodalInfoObject, dphi/dp
              *
              * @param[in] aWhichGeom  - which geometry representation
              * @param[in] aWhichIndex - node/location to get information from
+             * @param[in] aWhichSubGeom - index of the sub-type in the geometry rep
              *
              * @param[out] nodal information
              */
             Matrix< DDRMat > get_sensitivity_vals( moris_index aWhichGeom,
-                                                   moris_index aWhichIndex )
+                                                   moris_index aWhichIndex,
+                                                   moris_index aWhichSubGeom )
             {
-                return mListOfNodalInfoObjects( aWhichGeom ).get_sensitivity_vals( aWhichIndex );
+                return mListOfPDVInfoObjects( aWhichGeom ).get_sensitivity_vals( aWhichSubGeom, aWhichIndex );
             };
 
             /*
-             * @brief returns all the nodal sensitivity values
+             * @brief returns all the nodal sensitivity values, dphi/dp
              */
-            Cell< Matrix< DDRMat > > get_sensitivity_vals( moris_index aWhichGeom )
+            Cell< Matrix< DDRMat > > get_sensitivity_vals( moris_index aWhichGeom,
+                                                           moris_index aWhichSubGeom )
             {
-                uint tNumOfIPNodes = mListOfNodalInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
+                uint tNumOfIPNodes = mListOfPDVInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh()->get_integration_mesh( 0 )->get_num_nodes();
 
                 Cell< Matrix< DDRMat > > tSensitivities( tNumOfIPNodes );
                 for( uint n=0; n<tNumOfIPNodes; n++ )
                 {
-                    tSensitivities(n) = this->get_sensitivity_vals( aWhichGeom, n );
+                    tSensitivities(n) = this->get_sensitivity_vals( aWhichGeom, n, aWhichSubGeom );
                 }
                 return tSensitivities;
             };
+
+            //------------------------------------------------------------------------------
 
             //------------------------------------------------------------------------------
             /*
@@ -136,10 +151,11 @@ namespace ge
              * @param[out] nodal information
              */
             Matrix< DDRMat > get_normal( moris_index aWhichGeom,
-                                         moris_index aWhichIndex )
+                                         moris_index aWhichIndex,
+                                         moris_index aWhichSubGeom )
             {
                 MORIS_ASSERT(false, "ge::GE_Core::get_nodal_normal(): currently not implemented yet");
-                return mListOfNodalInfoObjects( aWhichGeom ).get_normal( aWhichIndex );
+                return mListOfPDVInfoObjects( aWhichGeom ).get_normal( aWhichIndex, aWhichSubGeom );
             };
             //------------------------------------------------------------------------------
             /*
@@ -149,9 +165,10 @@ namespace ge
              * @param[in] aWhichGeom - which geometry representation this is being added to
              */
             void add_vertex_and_value( mtk::Vertex &aVertex,
-                                       moris_index  aWhichGeom )
+                                       moris_index  aWhichGeom,
+                                       moris_index  aSubIndex = 0)
             {
-                mListOfNodalInfoObjects( aWhichGeom ).add_vertex_and_value( aVertex );
+                mListOfPDVInfoObjects( aWhichGeom ).add_vertex_and_value( aVertex, aSubIndex );
             };
             //------------------------------------------------------------------------------
             /*
@@ -163,15 +180,15 @@ namespace ge
              * @param[out] index of the intersection point (if it exists)
              */
             //fixme this is currently giving the intersection of a single dimension, should this loop over all dimensions and
-                 // determine the full intersection point (x,y,z,t) or just return the local coordinates?
+            //      determine the full intersection point (x,y,z,t) or just return the local coordinates?
             moris_index compute_intersection( moris_index aWhichGeom,
                                               Intersection_Object*  aIntersectionObject )
             {
-                return mListOfNodalInfoObjects( aWhichGeom ).compute_intersection( aIntersectionObject );
+                return mListOfPDVInfoObjects( aWhichGeom ).compute_intersection( aIntersectionObject );
             };
             //------------------------------------------------------------------------------
             /*
-             * @brief returns the intersection point
+             * @brief returns the local intersection point
              *
              * @param[in] aWhichGeom          - Which geometry representation are we checking for intersection with?
              * @param[in] aIntersectionObject - intersection object to check with
@@ -179,12 +196,69 @@ namespace ge
              *
              * @param[out] intersection point
              */
-            Matrix< DDRMat > get_intersection_point( moris_index aWhichGeom,
-                                                     Intersection_Object*  aIntersectionObject,
-                                                     moris_index aWhichIntersection )
+            Matrix< DDRMat > get_intersection_point_local_coord( moris_index aWhichGeom,
+                                                                 Intersection_Object*  aIntersectionObject,
+                                                                 moris_index aWhichIntersection = 0 )
             {
-                return mListOfNodalInfoObjects( aWhichGeom ).get_intersection_point( aIntersectionObject,
-                                                                                     aWhichIntersection );
+                return mListOfPDVInfoObjects( aWhichGeom ).get_intersection_point_local_coord( aIntersectionObject,
+                                                                                               aWhichIntersection );
+            }
+            //------------------------------------------------------------------------------
+            /*
+             * @brief returns the global intersection point
+             *
+             * @param[in] aWhichGeom          - Which geometry representation are we checking for intersection with?
+             * @param[in] aIntersectionObject - intersection object to check with
+             * @param[in] aWhichIntersection  - index of the intersection point to obtain
+             *
+             * @param[out] intersection point
+             */
+            Matrix< DDRMat > get_intersection_point_global_coord( moris_index aWhichGeom,
+                                                                  Intersection_Object*  aIntersectionObject,
+                                                                  moris_index aWhichIntersection = 0 )
+            {
+                return mListOfPDVInfoObjects( aWhichGeom ).get_intersection_point_global_coord( aIntersectionObject,
+                                                                                                aWhichIntersection );
+            }
+            //------------------------------------------------------------------------------
+            /*
+             * @brief determines the sensitivity at a specified intersection
+             */
+            void compute_intersection_sensitivity( moris_index aWhichGeom,
+                                                   Intersection_Object*  aIntersectionObject,
+                                                   moris_index aWhichIntersection = 0 )
+            {
+                MORIS_ASSERT( mListOfPDVInfoObjects.size() > (uint)aWhichGeom, "ge::GE_Core::compute_intersection_sensitivity() - geometry index out of bounds " );
+                mListOfPDVInfoObjects( aWhichGeom ).compute_intersection_sensitivity( aIntersectionObject, aWhichIntersection );
+            };
+            //------------------------------------------------------------------------------
+            /*
+             * @brief returns the intersection point field sensitivity, dxgamma/dphi
+             *
+             * @param[in] aWhichGeom          - Which geometry representation are we checking for intersection with?
+             * @param[in] aIntersectionObject - intersection object to check with
+             * @param[in] aWhichIntersection  - index of the intersection point to obtain
+             *
+             * @param[out] intersection sensitivity
+             */
+            Matrix< DDRMat > get_intersection_sensitivity( moris_index aWhichGeom,
+                                                           Intersection_Object*  aIntersectionObject,
+                                                           moris_index aWhichIntersection = 0 )
+            {
+                MORIS_ASSERT( mListOfPDVInfoObjects.size() > (uint)aWhichGeom, "ge::GE_Core::get_intersection_sensitivity() - geometry index out of bounds " );
+                return mListOfPDVInfoObjects( aWhichGeom ).get_intersection_sensitivity( aIntersectionObject, aWhichIntersection );
+            }
+            //------------------------------------------------------------------------------
+            Matrix< DDRMat > get_dxgamma_dp( moris_index aWhichGeom,
+                                             Intersection_Object*  aIntersectionObject,
+                                             moris_index aWhichSubGeom = 0,
+                                             moris_index aWhichIntersection = 0 )
+            {
+                //fixme need an assert here to make sure the multiplication will work (dimension check)
+                Matrix<DDRMat> tdxgamma_dphi = this->get_intersection_sensitivity( aWhichGeom, aIntersectionObject, aWhichIntersection );
+                Matrix<DDRMat> tdphi_dp      = this->get_sensitivity_vals( aWhichGeom, aWhichSubGeom )(0);
+
+                return tdxgamma_dphi*tdphi_dp;
             }
             //------------------------------------------------------------------------------
             /*
@@ -197,7 +271,7 @@ namespace ge
                                          moris_index  aWhichGeom )
             {
                 MORIS_ASSERT( this->get_geometry_pointer(aWhichGeom)->get_geom_type() == GeomType::ANALYTIC, "ge::GE_Core::compute_value_at_point() - currently only implemented for analytic geometry representation" );
-                return mListOfNodalInfoObjects( aWhichGeom ).compute_value_at_point( aCoordinate );
+                return mListOfPDVInfoObjects( aWhichGeom ).compute_value_at_point( aCoordinate );
             };
 
 //------------------------------------------------------------------------------
@@ -334,7 +408,7 @@ namespace ge
             // all corresponding information has the same index in each list (e.g. geom*(0) has corresponding threshold(0) and nodal information(0))
             moris::Cell< std::shared_ptr< Geometry > > mListOfGeoms;
             moris::Cell< real > mThresholds;
-            moris::Cell< Nodal_Info > mListOfNodalInfoObjects;
+            moris::Cell< PDV_Info > mListOfPDVInfoObjects;
 
 //------------------------------------------------------------------------------
         protected:

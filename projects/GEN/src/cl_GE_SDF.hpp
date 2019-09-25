@@ -100,10 +100,16 @@ namespace ge
             return mMyMesh;
         }
         //------------------------------------------------------------------------------
-        void
-        add_hmr_field( std::shared_ptr< hmr::Field > &aField)
+        moris_index
+        add_hmr_field( std::shared_ptr< hmr::Field > &aField )
         {
-            mMyHMRFields.push_back( aField );
+            mHMRFields.push_back( aField );
+            return mHMRFields.size()-1;
+        }
+        //------------------------------------------------------------------------------
+        uint get_number_of_sub_types()
+        {
+            return mHMRFields.size();
         }
         //------------------------------------------------------------------------------
         /*
@@ -129,9 +135,9 @@ namespace ge
             //fixme implement a check to make sure there is a field at this index and that it is the right one
 //            tSdfGen.calculate_sdf( mMyMesh->get_interpolation_mesh(0), mMyHMRFields(aFieldIndex)->get_node_values() );
 
-            tSdfGen.calculate_sdf( aMTKMesh, mMyHMRFields(aFieldIndex)->get_node_values() );
+            tSdfGen.calculate_sdf( aMTKMesh, mHMRFields(aFieldIndex)->get_node_values() );
             //-----------------------------------------------------------
-            mMySDFVals = mMyHMRFields(aFieldIndex)->get_node_values();
+            mMySDFVals = mHMRFields(aFieldIndex)->get_node_values();
         }
         //------------------------------------------------------------------------------
         /*
@@ -149,7 +155,7 @@ namespace ge
 
         Matrix< DDRMat > mMySDFVals;
 
-        moris::Cell< std::shared_ptr< hmr::Field > > mMyHMRFields;
+        moris::Cell< std::shared_ptr< hmr::Field > > mHMRFields;
 
         fem::Interpolation_Type  mMySpaceInterpType;
         mtk::Interpolation_Order mMySpaceInterpOrder;

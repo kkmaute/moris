@@ -68,7 +68,7 @@ TEST_CASE("discrete_functionalities_test_01","[GE],[discrete_functionalities_hmr
 //        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
 //        tParameters.set( "bspline_orders", "2" );
 //        tParameters.set( "lagrange_orders", "2" );
-//        tParameters.set( "verbose", 0 );                    // displays debug info when turned on
+////        tParameters.set( "verbose", 0 );                    // displays debug info when turned on
 //        tParameters.set( "domain_dimensions", "2, 2" );     // if no dimensions set, hmr assumes 1x1
 //        tParameters.set( "domain_offset", "-1, -1" );       // offset so that the center node is at ( 0, 0 )
 //
@@ -78,8 +78,8 @@ TEST_CASE("discrete_functionalities_test_01","[GE],[discrete_functionalities_hmr
 //        std::shared_ptr< hmr::Field > tTargetField = tMesh->create_field( "targetField", tMeshOrder );
 //        std::shared_ptr< hmr::Field > tOutputField = tMesh->create_field( "outputField", tMeshOrder );
 //
-//        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tMeshOrder, tHMR.mParameters->get_lagrange_output_pattern());
-//        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh(tMeshOrder, tHMR.mParameters->get_lagrange_output_pattern());
+//        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh( tMeshOrder );
+//        std::shared_ptr< moris::hmr::Integration_Mesh_HMR >   tIntegrationMesh   = tHMR.create_integration_mesh( tMeshOrder, tHMR.mParameters->get_lagrange_output_pattern(), *tInterpolationMesh.get() );
 //
 //        // place the pair in mesh manager
 //        mtk::Mesh_Manager tMeshManager;
@@ -98,7 +98,7 @@ TEST_CASE("discrete_functionalities_test_01","[GE],[discrete_functionalities_hmr
 //        tCircle->set_my_target_field(tTargetField);
 //
 //        GE_Core tGeomEng;
-//        tGeomEng.set_geometry( tCircle );
+//        moris_index tGeomIndex = tGeomEng.set_geometry( tCircle );
 //
 ////print(tGeomEng.get_field_vals(0,15), "B-spline coefficient: ");
 //

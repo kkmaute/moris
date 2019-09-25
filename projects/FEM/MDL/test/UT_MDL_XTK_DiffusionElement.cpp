@@ -133,20 +133,6 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         std::string tBulkBlockNamesChild   = "block_1_c_p0";
         std::string tBulkBlockNamesNoChild = "block_1_n_p0";
 
-        std::cout<<"Dirichlet = "<<tDirchletSideName<<std::endl;
-        std::cout<<"Neumann = "<<tNeumannSideName<<std::endl;
-
-
-        // output to exodus file ----------------------------------------------------------
-        //        xtk::Output_Options tOutputOptions;
-        //        tOutputOptions.mAddNodeSets       = true;
-        //        tOutputOptions.mAddSideSets       = true;
-        //        tOutputOptions.mAddClusters       = true;
-        //        tOutputOptions.mAddParallelFields = true;
-        //
-        //        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
@@ -303,45 +289,73 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         tTimeSolver.get_full_solution( tSolution11 );
 
 
-        Matrix<DDRMat> tGoldSolution =  {{+2.50e+01},
-                                         {+2.50e+01},
-                                         {+2.50e+01},
-                                         {+2.50e+01},
-                                         {+4.50e+01},
-                                         {+4.50e+01},
-                                         {+4.50e+01},
-                                         {+4.50e+01},
-                                         {+6.50e+01},
-                                         {+6.50e+01},
-                                         {+6.50e+01},
-                                         {+6.50e+01},
-                                         {+8.50e+01},
-                                         {+8.50e+01},
-                                         {+8.50e+01},
-                                         {+8.50e+01},
-                                         {+5.00e+00},
-                                         {+5.00e+00},
-                                         {+5.00e+00},
-                                         {+5.00e+00}};
-
-        moris::print(tSolution11,"tSolution11");
+        Matrix<DDRMat> tGoldSolution = {{+2.50e+01},
+                                        {+2.50e+01},
+                                        {+2.50e+01},
+                                        {+2.50e+01},
+                                        {+4.50e+01},
+                                        {+4.50e+01},
+                                        {+4.50e+01},
+                                        {+4.50e+01},
+                                        {+5.00e+00},
+                                        {+5.00e+00},
+                                        {+5.00e+00},
+                                        {+5.00e+00},
+                                        {+6.50e+01},
+                                        {+6.50e+01},
+                                        {+6.50e+01},
+                                        {+6.50e+01},
+                                        {+8.50e+01},
+                                        {+8.50e+01},
+                                        {+8.50e+01},
+                                        {+8.50e+01}};
 
         // verify solution
         CHECK(norm(tSolution11 - tGoldSolution)<1e-08);
 
+
+        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
+
+        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+
         // output solution and meshes
+        xtk::Output_Options tOutputOptions;
+        tOutputOptions.mAddNodeSets = false;
+        tOutputOptions.mAddSideSets = true;
+        tOutputOptions.mAddClusters = false;
 
-        tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName1,EntityRank::NODE,tSolution11);
+        // add solution field to integration mesh
+        std::string tIntegSolFieldName = "solution";
+        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 
-        std::string tOutputInterp = "./mdl_exo/xtk_mdl_interp.exo";
-        tInterpMesh1->create_output_mesh(tOutputInterp);
+        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
 
-        //        std::string tMeshOutputFile = "./mdl_exo/xtk_bar_mesh.e";
-        //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh1);
+
+        // Write to Integration mesh for visualization
+        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+
+
+        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
+
+        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
+        {
+            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
+
+            tSTKIntegSol(i) = tIntegSol(tMyIndex);
+        }
+
+        // add solution field to integration mesh
+        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
+
+        std::string tOutputInteg = "./mdl_exo/xtk_mdl_enr_integ.exo";
+        tIntegMesh1->create_output_mesh(tOutputInteg);
 
         delete tInterpMesh1;
         delete tModel;
-        //        delete tIntegMesh1;
+        delete tIntegMesh1;
     }
                 }
 
@@ -584,6 +598,8 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
 
         std::string tMeshOutputFile = "./mdl_exo/xtk_bar_mesh.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
+
+
 
         delete tInterpMesh1;
         delete tIntegMesh1;

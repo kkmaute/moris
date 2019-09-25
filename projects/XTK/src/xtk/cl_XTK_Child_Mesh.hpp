@@ -584,7 +584,7 @@ public:
     }
 
     moris_index
-    get_subphase_loc_index(moris_index aSubPhaseIndex)
+    get_subphase_loc_index(moris_index aSubPhaseIndex) const
     {
         moris_index tLocSubIndex = MORIS_INDEX_MAX;
         for(moris::moris_index i = 0; i < (moris_index)mSubPhaseBinIndices.size(); i++)
@@ -1592,8 +1592,6 @@ private:
                     tNodesInTemplate({0,0},{0,2}) = this->get_element_to_node().get_row(iE);
                     tNodesInTemplate(3) = mNodeInds(tIntersectConnRow(1));
                     tNodesInTemplate(4) = mNodeInds(tIntersectConnRow(2));
-
-                    std::cout<<"tPermutationId = " <<tPermutationId<<std::endl;
 
                     // Setup template with this information
                     tTemplatesToAdd(tNumIntersected) = Mesh_Modification_Template

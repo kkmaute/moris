@@ -935,13 +935,6 @@ public:
         return mMesh;
     }
 
-
-
-    //FIXME: MOVE THESE FUNCTIONS TO INTERPOLATION MESH BASE CLASS
-public:
-
-
-    //FIXME: IMPLEMENT THIS FUNCTION IN STK,XTK
     /*
      * Get number of B-Spline coefficients
      */
@@ -1172,6 +1165,19 @@ public:
             return EntityRank::INVALID;
         }
 
+    }
+
+
+    void
+    get_mtk_cells( Matrix< IndexMat > aCellInds,
+                   moris::Cell<moris::mtk::Cell const *> & aCells) const
+    {
+        aCells = moris::Cell< mtk::Cell const * >(aCellInds.numel());
+
+        for(moris::uint i = 0 ; i < aCellInds.numel(); i++)
+        {
+            aCells(i) = &this->get_mtk_cell(aCellInds(i));
+        }
     }
 };
 }

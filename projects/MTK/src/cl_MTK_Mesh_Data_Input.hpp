@@ -185,10 +185,13 @@ namespace mtk
         void
         print_summary()
         {
-            std::cout<<"Processor Rank: "<<par_rank()<<std::endl;
-            std::cout<<"Spatial Dimension: "<<*SpatialDim<<std::endl;
-            std::cout<<"Number of cells: "<<this->get_num_elements()<<std::endl;
-            std::cout<<"Number of vertices: "<<this->get_num_nodes()<<std::endl;
+            std::cout<<"--------------------------------------------------------"<<std::endl;
+            std::cout<<"Mesh Data Output Summary: "<<std::endl;
+            std::cout<<"    Processor Rank: "<<par_rank()<<std::endl;
+            std::cout<<"    Spatial Dimension: "<<*SpatialDim<<std::endl;
+            std::cout<<"    Number of cells: "<<this->get_num_elements()<<std::endl;
+            std::cout<<"    Number of vertices: "<<this->get_num_nodes()<<std::endl;
+            std::cout<<"--------------------------------------------------------"<<std::endl;
         }
 
         void

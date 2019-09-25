@@ -41,6 +41,7 @@ Child_Mesh::Child_Mesh():
                     mElementPhaseIndices(0,0),
                     mElementBinIndex(0,0),
                     mBinBulkPhase(0),
+                    mSubPhaseBinIndices(0),
                     mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
             {}
 
@@ -86,6 +87,7 @@ Child_Mesh::Child_Mesh(moris::uint                        aSpatialDimension,
                         mElementPhaseIndices(0,0),
                         mElementBinIndex(0,0),
                         mBinBulkPhase(0),
+                        mSubPhaseBinIndices(0),
                         mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
 {
         // Check for row vector connectivity (if not it is transposed)
@@ -148,6 +150,7 @@ Child_Mesh::Child_Mesh(Mesh_Modification_Template & aMeshModTemplate):
                     mElementPhaseIndices(0,0),
                     mElementBinIndex(0,0),
                     mBinBulkPhase(0),
+                    mSubPhaseBinIndices(0),
                     mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
 {
 
