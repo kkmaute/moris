@@ -211,6 +211,10 @@ void Linear_Solver_PETSc::set_solver_internal_parameters( )
 
         // Set drop tolerance for Ilu
         PCFactorSetDropTolerance( mpc, mParameterList.get< moris::real >( "ILUTol" ), PETSC_DEFAULT, PETSC_DEFAULT );
+
+        PCSORSetOmega( mpc, 1 );
+
+        PCSORSetIterations( mpc, 10000 , 1 );
 }
 
 

@@ -6,6 +6,8 @@
  */
 #include "cl_VectorPETSc.hpp"
 
+#include <petscviewerhdf5.h>
+
 extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
@@ -42,10 +44,14 @@ Vector_PETSc::Vector_PETSc(       moris::Solver_Interface * aInput,
     VecSetUp( mPetscVector );
 }
 
+//-----------------------------------------------------------------------------
+
 Vector_PETSc::~Vector_PETSc()
 {
     VecDestroy( &mPetscVector );
 }
+
+//-----------------------------------------------------------------------------
 
 void Vector_PETSc::sum_into_global_values(const moris::uint             & aNumMyDof,
                                           const moris::Matrix< DDSMat > & aEleDofConectivity,
@@ -71,6 +77,8 @@ void Vector_PETSc::sum_into_global_values(const moris::uint             & aNumMy
     VecSetValues( mPetscVector, aNumMyDof, tTempElemDofs.data(), aRHSVal.data(), ADD_VALUES );
 }
 
+//-----------------------------------------------------------------------------
+
 void Vector_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                                         const moris::Matrix< DDUMat > & aMyConstraintDofs )
 {
@@ -81,6 +89,8 @@ void Vector_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichl
     }
 }
 
+//-----------------------------------------------------------------------------
+
 void Vector_PETSc::vector_global_asembly()
 {
     VecAssemblyBegin( mPetscVector );
@@ -89,27 +99,39 @@ void Vector_PETSc::vector_global_asembly()
     //VecView(mPetscVector, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD));
 }
 
+//-----------------------------------------------------------------------------
+
 void Vector_PETSc::vec_plus_vec( const moris::real & aScaleA,
                                        Dist_Vector & aVecA,
                                  const moris::real & aScaleThis )
 {
     PetscScalar tValueA = aScaleA;
+
     PetscScalar tValueThis = aScaleThis;
+
     VecAXPBY( mPetscVector, tValueA, tValueThis, aVecA.get_petsc_vector() );
 }
+
+//-----------------------------------------------------------------------------
 
 void Vector_PETSc::scale_vector( const moris::real & aValue,
                                  const moris::uint & aVecIndex )
 {
     PetscScalar tValue = aValue;
+
     VecScale( mPetscVector, tValue );
 }
+
+//-----------------------------------------------------------------------------
 
 void Vector_PETSc::vec_put_scalar( const moris::real & aValue )
 {
     PetscScalar tValue = aValue;
+
     VecSet( mPetscVector, tValue);
 }
+
+//-----------------------------------------------------------------------------
 
 moris::sint Vector_PETSc::vec_local_length() const
 {
@@ -118,12 +140,16 @@ moris::sint Vector_PETSc::vec_local_length() const
     return tVecLocSize;
 }
 
+//-----------------------------------------------------------------------------
+
 moris::sint Vector_PETSc::vec_global_length() const
 {
     moris::sint tVecSize = 0;
     VecGetSize( mPetscVector, &tVecSize );
     return  tVecSize;
 }
+
+//-----------------------------------------------------------------------------
 
 moris::real Vector_PETSc::vec_norm2()
 {
@@ -132,6 +158,8 @@ moris::real Vector_PETSc::vec_norm2()
     return tVecNorm;
 }
 
+//-----------------------------------------------------------------------------
+
 void Vector_PETSc::check_vector( )
 {
     if ( mEpetraVector != NULL )
@@ -139,6 +167,8 @@ void Vector_PETSc::check_vector( )
         MORIS_ASSERT( false, "epetra vector should not have any input on the petsc vector" );
     }
 }
+
+//-----------------------------------------------------------------------------
 
 void Vector_PETSc::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 {
@@ -173,6 +203,8 @@ void Vector_PETSc::extract_copy( moris::Matrix< DDRMat > & LHSValues )
     VecGetValues( mPetscVector, tVecLocSize, tVal.data(), LHSValues.data() );
 }
 
+//-----------------------------------------------------------------------------
+
 void Vector_PETSc::import_local_to_global( Dist_Vector & aSourceVec )
 {
     // FIXME change this to scatter thus that it works better in parallel
@@ -180,6 +212,8 @@ void Vector_PETSc::import_local_to_global( Dist_Vector & aSourceVec )
     PetscScalar tValueThis = 0;
     VecAXPBY( mPetscVector, tValueA, tValueThis, aSourceVec.get_petsc_vector() );
 }
+
+//-----------------------------------------------------------------------------
 
 void Vector_PETSc::extract_my_values( const moris::uint             & aNumIndices,
                                       const moris::Matrix< DDSMat > & aGlobalBlockRows,
@@ -191,4 +225,42 @@ void Vector_PETSc::extract_my_values( const moris::uint             & aNumIndice
     VecGetValues( mPetscVector, aNumIndices, aGlobalBlockRows.data(), LHSValues.data() );
 }
 
+//-----------------------------------------------------------------------------
+
+void Vector_PETSc::print() const
+{
+    VecView( mPetscVector, PETSC_VIEWER_STDOUT_WORLD );
+}
+
+//-----------------------------------------------------------------------------
+
+void Vector_PETSc::save_vector_to_HDF5( const char* aFilename )
+{
+    PetscViewer tViewer;
+
+    PetscViewerHDF5Open( PETSC_COMM_WORLD, aFilename, FILE_MODE_WRITE, &tViewer );
+
+    PetscObjectSetName( (PetscObject) mPetscVector, "Sol_Vec");
+
+    VecView( mPetscVector, tViewer );
+
+    PetscViewerDestroy( &tViewer );
+}
+
+//-----------------------------------------------------------------------------
+
+void Vector_PETSc::read_vector_from_HDF5( const char* aFilename )
+{
+    PetscViewer tViewer;
+
+    PetscViewerHDF5Open( PETSC_COMM_WORLD, aFilename, FILE_MODE_READ, &tViewer);
+
+    PetscObjectSetName( (PetscObject) mPetscVector, "Sol_Vec");
+
+    VecLoad( mPetscVector, tViewer );
+
+    PetscViewerDestroy( &tViewer );
+}
+
+//-----------------------------------------------------------------------------
 

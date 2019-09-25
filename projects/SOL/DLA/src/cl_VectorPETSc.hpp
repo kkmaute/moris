@@ -68,19 +68,15 @@ public:
                             const moris::uint             & aBlockRowOffsets,
                                   moris::Matrix< DDRMat > & LHSValues );
 
-    void print() const
-    {
-        VecView( mPetscVector, PETSC_VIEWER_STDOUT_WORLD );
-//        MORIS_ERROR( false, "not impelemented for petsc yet");
-    }
+    void print() const;
 
     void save_vector_to_matrix_market_file( const char* aFilename ){};
 
-    void save_vector_to_HDF5( const char* aFilename ){};
+    void save_vector_to_HDF5( const char* aFilename );
 
-    void read_vector_from_HDF5( const char* aFilename ){};
+    void read_vector_from_HDF5( const char* aFilename );
 
-    //-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
     void check_vector();
 };

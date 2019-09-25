@@ -251,17 +251,17 @@ namespace moris
             Matrix < DDRMat > tNormal;
 
             // if interpolation cell is linear
-            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-            {
-                // get normal from the mesh
-                tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
-            }
-            // if integration cell is higher order
-            else
-            {
+//            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+//            {
+//                // get normal from the mesh
+//                tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
+//            }
+//            // if integration cell is higher order
+//            else
+//            {
                 // get normal from the integration cell geometry interpolator
                 mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->get_normal( tNormal );
-            }
+//            }
 
             return tNormal;
         }

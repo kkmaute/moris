@@ -121,6 +121,10 @@ Nonlinear_Problem::Nonlinear_Problem(       Solver_Interface * aSolverInterface,
     // full vector
     mFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
+    mDummyFullVector = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );       // FIXME delete
+    mDummyFullVector->vec_put_scalar( 0.0 );
+    aSolverInterface->set_solution_vector_prev_time_step(mDummyFullVector);
+
     //---------------------------arc-length vectors---------------------------------
     mFext          = tMatFactory.create_vector( aSolverInterface, mMap, VectorType::FULL_OVERLAPPING );
 
@@ -190,6 +194,7 @@ Nonlinear_Problem::~Nonlinear_Problem()
 
     if( mIsMasterSystem )
     {
+        delete( mFullVector );
         delete( mFullVector );
 
         delete( mJacVals );

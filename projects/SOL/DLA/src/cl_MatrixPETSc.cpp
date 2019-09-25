@@ -175,7 +175,21 @@ void Matrix_PETSc::dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichl
 
 void Matrix_PETSc::print() const
 {
-    MatView(mPETScMat, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
+    MatView( mPETScMat, PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD) );
+}
+
+void Matrix_PETSc::save_matrix_to_matlab_file( const char* aFilename )
+{
+    PetscViewer tViewer;
+
+    PetscViewerCreate( PETSC_COMM_WORLD, &tViewer );
+    PetscViewerSetType( tViewer, PETSCVIEWERASCII );
+    PetscViewerPushFormat( tViewer, PETSC_VIEWER_ASCII_MATLAB );
+    PetscViewerFileSetName( tViewer, "Matrix_petsc.dat" );
+
+    MatView( mPETScMat, tViewer );
+
+    PetscViewerDestroy( &tViewer );
 }
 
 
