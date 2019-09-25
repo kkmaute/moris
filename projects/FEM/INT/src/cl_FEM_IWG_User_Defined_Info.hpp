@@ -12,7 +12,7 @@
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
-#include "cl_MTK_Enums.hpp"             //FEM/INT/src
+#include "cl_MTK_Enums.hpp"                 //FEM/INT/src
 
 namespace moris
 {
@@ -26,23 +26,32 @@ namespace moris
         {
         protected :
 
-            // IWGs type list
-            moris::Cell< moris::Cell< fem::IWG_Type > > mIWGTypeList;
+            // IWG type
+            fem::IWG_Type mIWGType;
 
-            // IWGs residual dof type
-            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > mResidualDofType;
+            // IWG space dimension
+            uint mSpaceDim;
 
-            // IWGs master dof type dependency list
-            moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > mMasterDofTypes;
+            // IWG residual dof type
+            moris::Cell< MSI::Dof_Type > mResidualDofType;
 
-            // IWGs master property type dependency list
-            moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > mMasterPropTypes;
+            // IWG master dof type dependency list
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
 
-            // IWGs slave dof type dependency list
-            moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > mSlaveDofTypes;
+            // IWG master property type dependency list
+            moris::Cell< fem::Property_Type > mMasterPropTypes;
 
-             // IWGs slave property type dependency list
-            moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > mSlavePropTypes;
+            // IWG master constitutive type dependency list
+            moris::Cell< fem::Constitutive_Type > mMasterConstitutiveTypes;
+
+            // IWG slave dof type dependency list
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
+
+            // IWG slave property type dependency list
+            moris::Cell< fem::Property_Type > mSlavePropTypes;
+
+            // IWG slave constitutive type dependency list
+            moris::Cell< fem::Constitutive_Type > mSlaveConstitutiveTypes;
 
 //------------------------------------------------------------------------------
         public :
@@ -53,28 +62,38 @@ namespace moris
              */
             IWG_User_Defined_Info(){};
 
-            IWG_User_Defined_Info( moris::Cell< moris::Cell< fem::IWG_Type > >                                    & aIWGTypeList,
-                                   moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > >                     & aResidualDofType,
-                                   moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > >      & aMasterDofTypes,
-                                   moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > >                & aMasterPropTypes,
-                                   moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > >      & aSlaveDofTypes,
-                                   moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > >                & aSlavePropTypes )
-                                 : mIWGTypeList( aIWGTypeList ),
+            IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
+                                   uint                                        aSpaceDim,
+                                   moris::Cell< MSI::Dof_Type >                aResidualDofType,
+                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
+                                   moris::Cell< fem::Property_Type >           aMasterPropTypes,
+                                   moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes,
+                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aSlaveDofTypes,
+                                   moris::Cell< fem::Property_Type >           aSlavePropTypes,
+                                   moris::Cell< fem::Constitutive_Type >       aSlaveConstitutiveTypes )
+                                 : mIWGType( aIWGType ),
+                                   mSpaceDim( aSpaceDim ),
                                    mResidualDofType( aResidualDofType ),
                                    mMasterDofTypes( aMasterDofTypes ),
                                    mMasterPropTypes( aMasterPropTypes ),
+                                   mMasterConstitutiveTypes( aMasterConstitutiveTypes ),
                                    mSlaveDofTypes( aSlaveDofTypes ),
-                                   mSlavePropTypes( aSlavePropTypes )
+                                   mSlavePropTypes( aSlavePropTypes ),
+                                   mSlaveConstitutiveTypes( aSlaveConstitutiveTypes )
             {};
 
-            IWG_User_Defined_Info( moris::Cell< moris::Cell< fem::IWG_Type > >                                    & aIWGTypeList,
-                                   moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > >                     & aResidualDofType,
-                                   moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > >      & aMasterDofTypes,
-                                   moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > >                & aMasterPropTypes )
-                                 : mIWGTypeList( aIWGTypeList ),
+            IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
+                                   uint                                        aSpaceDim,
+                                   moris::Cell< MSI::Dof_Type >                aResidualDofType,
+                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
+                                   moris::Cell< fem::Property_Type >           aMasterPropTypes,
+                                   moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes )
+                                 : mIWGType( aIWGType ),
+                                   mSpaceDim( aSpaceDim ),
                                    mResidualDofType( aResidualDofType ),
                                    mMasterDofTypes( aMasterDofTypes ),
-                                   mMasterPropTypes( aMasterPropTypes )
+                                   mMasterPropTypes( aMasterPropTypes ),
+                                   mMasterConstitutiveTypes( aMasterConstitutiveTypes )
             {};
 
 //------------------------------------------------------------------------------
@@ -87,16 +106,25 @@ namespace moris
             /**
              * returns IWG type list
              */
-           const moris::Cell< moris::Cell< fem::IWG_Type > > & get_IWG_type_list() const
+           const fem::IWG_Type get_IWG_type() const
             {
-                return mIWGTypeList;
+                return mIWGType;
             };
+
+//------------------------------------------------------------------------------
+           /**
+            * returns IWG space dimension
+            */
+           uint get_IWG_space_dim() const
+           {
+               return mSpaceDim;
+           };
 
 //------------------------------------------------------------------------------
             /**
              * returns IWG residual dof type
              */
-            const moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > & get_residual_dof_type() const
+            const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
             {
                 return mResidualDofType;
             };
@@ -105,7 +133,7 @@ namespace moris
             /**
              * returns IWG dof type list
              */
-            const moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
             {
                 switch ( aIsMaster )
                 {
@@ -129,7 +157,7 @@ namespace moris
             /**
              * returns IWG property type list
              */
-            const moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > & get_property_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            const moris::Cell< fem::Property_Type > & get_property_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
             {
                 switch ( aIsMaster )
                 {
@@ -145,6 +173,30 @@ namespace moris
                     {
                         MORIS_ERROR( false, "IWG_User_Defined_Info::get_property_type_list - can only be MASTER or SLAVE.");
                         return mMasterPropTypes;
+                    }
+                }
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * returns IWG constitutive type list
+             */
+            const moris::Cell< fem::Constitutive_Type > & get_constitutive_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            {
+                switch ( aIsMaster )
+                {
+                    case ( mtk::Master_Slave::MASTER ):
+                    {
+                        return mMasterConstitutiveTypes;
+                    }
+                    case ( mtk::Master_Slave::SLAVE ):
+                    {
+                        return mSlaveConstitutiveTypes;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "IWG_User_Defined_Info::get_constitutive_type_list - can only be MASTER or SLAVE.");
+                        return mMasterConstitutiveTypes;
                     }
                 }
             };

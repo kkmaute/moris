@@ -32,7 +32,7 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Bulk();
+            IWG_Isotropic_Spatial_Diffusion_Bulk(){};
 
 //------------------------------------------------------------------------------
             /**

@@ -48,7 +48,7 @@
 namespace xtk
 {
 moris::real
-CircleFunc(const moris::Matrix< moris::DDRMat > & aPoint )
+CircleFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
 {
 
     moris::real mXCenter = 0;
@@ -104,13 +104,13 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          // create field
          std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-         tField->evaluate_scalar_function( CircleFunc );
+         tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
 
          for( uint k=0; k<3; ++k )
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tField->evaluate_scalar_function( CircleFunc );
+             tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
          }
 
          tHMR.finalize();
@@ -198,13 +198,13 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          // create field
          std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-         tField->evaluate_scalar_function( CircleFunc );
+         tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
 
          for( uint k=0; k<2; ++k )
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
-             tField->evaluate_scalar_function( CircleFunc );
+             tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
          }
 
 

@@ -7,8 +7,6 @@
 
 
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
-#include "cl_XTK_Interpolation_Vertex_Unzipped.hpp"
-
 namespace xtk
 {
 //------------------------------------------------------------------------------
@@ -80,6 +78,11 @@ Interpolation_Cell_Unzipped::get_bulkphase_index() const
     return mBulkPhaseIndex;
 }
 //------------------------------------------------------------------------------
+moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
+Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices() const
+{
+    return mVertices;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

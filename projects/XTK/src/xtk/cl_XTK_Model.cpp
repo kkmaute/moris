@@ -159,6 +159,8 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
     if(moris::par_rank() == 0 && mVerbose)
     {
         std::cout<<"XTK: Decomposition completed in " <<(std::clock() - tTotalTime) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+        std::cout<<"--------------------------------------------------------"<<std::endl;
+
     }
 }
 
@@ -2295,7 +2297,14 @@ Model::perform_basis_enrichment(enum EntityRank  aBasisRank,
 
     if(moris::par_rank() == 0 && mVerbose)
     {
+        std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Basis enrichment computation completed in " <<(std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
+
+        std::cout<<"\nEnriched Integration Mesh Summary:"<<std::endl;
+        mEnrichedIntegMesh(0)->print_block_sets(0);
+        mEnrichedIntegMesh(0)->print_side_sets();
+        std::cout<<"--------------------------------------------------------"<<std::endl;
+
     }
 }
 
@@ -2473,10 +2482,10 @@ Model::construct_subphase_neighborhood()
         for(moris::uint iN = 0; iN < tCellToCell.n_cols(); iN++)
         {
             // create subphase neighborhoods from high to low (so we dont do it more than once)
-            if(tCellToCell(0,iN) < iC)
-            {
-                continue;
-            }
+//            if(tCellToCell(0,iN) > iC)
+//            {
+//                continue;
+//            }
 
             // facet ordinal shared for current neighbors
             moris_index tFacetIndex      = tCellToCell(1,iN);
@@ -2510,6 +2519,7 @@ Model::construct_subphase_neighborhood()
                     {
                         mSubphaseToSubPhase(tCombinedSubphaseIndices(i)).push_back(tCombinedSubphaseIndices(j));
                     }
+
                 }
             }
         }
@@ -4376,6 +4386,7 @@ Model::print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods)
 
     if(moris::par_rank() == 0 && mVerbose)
     {
+        std::cout<<"--------------------------------------------------------"<<std::endl;
         std::cout<<"XTK: Specified Decomposition Routines: ";
 
         for(moris::size_t i = 0 ; i<aMethods.size(); i++)

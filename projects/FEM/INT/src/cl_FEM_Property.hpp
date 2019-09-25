@@ -43,8 +43,8 @@ namespace moris
             // field interpolators
             moris::Cell< Field_Interpolator* > mFieldInterpolators;
 
-            // coefficients
-            moris::Cell< Matrix< DDRMat> > mCoeff;
+            // parameters
+            moris::Cell< Matrix< DDRMat> > mParameters;
 
             // value function
             PropertyFunc mValFunction = nullptr;
@@ -62,7 +62,6 @@ namespace moris
             // storage
             Matrix< DDRMat > mProp;
             moris::Cell< Matrix< DDRMat > > mPropDer;
-            Matrix< DDRMat > mPropDerZero;
 
 //------------------------------------------------------------------------------
         public :
@@ -78,11 +77,7 @@ namespace moris
 
             Property( fem::Property_Type                          aPropertyType,
                       moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                      PropertyFunc                                aValFunction,
-                      moris::Cell< PropertyFunc >                 aDerFunctions );
-
-            Property( fem::Property_Type                          aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                      moris::Cell< moris::Matrix< DDRMat > >      aParameters,
                       PropertyFunc                                aValFunction,
                       moris::Cell< PropertyFunc >                 aDerFunctions,
                       Geometry_Interpolator*                      aGeometryInterpolator );
@@ -119,6 +114,22 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * gets a dof type map
+             */
+            moris::Matrix< DDSMat > & get_dof_type_map()
+            {
+                return mDofTypeMap;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * check is the property depends on a particular group of dof type
+             * @param[ in ] aDofType cell of dof type
+             */
+            bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > aDofType );
+
+//------------------------------------------------------------------------------
+            /**
              * set field interpolators
              */
             void set_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators );
@@ -136,18 +147,11 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set coefficients
-             */
-            void set_coefficients( const moris::Cell< Matrix< DDRMat > > & aCoefficients );
-
-//------------------------------------------------------------------------------
-            /**
              * reset evaluation flags
              */
             void reset_eval_flags()
             {
                 mPropEval = true;
-
                 mPropDerEval.resize( mDofTypes.size(), true );
             }
 
@@ -167,13 +171,13 @@ namespace moris
             /**
              * evaluate property derivatives in terms of coefficients and variables
              */
-            const Matrix< DDRMat > & dPropdDOF( MSI::Dof_Type aDofType );
+            const Matrix< DDRMat > & dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate property derivatives in terms of coefficients and variables
              */
-            void eval_dPropdDOF( MSI::Dof_Type aDofType );
+            void eval_dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType );
 
         };
 

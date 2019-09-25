@@ -3,57 +3,44 @@
 #include "fn_equal_to.hpp"
 #include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 
+moris::Matrix< moris::DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                  moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
+    return aParameters( 0 );
+}
+
 namespace moris
 {
     namespace fem
     {
 
-        Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >    & aCoeff,
-                                            moris::Cell< Field_Interpolator* > & aFieldInterpolator,
-                                            fem::Geometry_Interpolator         * aGeometryInterpolator )
-        {
-            return aCoeff( 0 );
-        }
-
         TEST_CASE( "Property_User_Defined_Info", "[moris],[fem],[Property_User_Defined_Info]" )
         {
-            // list of property type
-            Cell< fem::Property_Type > tPropertyTypeList = {{ fem::Property_Type::CONDUCTIVITY   },
-                                                            { fem::Property_Type::TEMP_DIRICHLET },
-                                                            { fem::Property_Type::TEMP_NEUMANN   }};
 
-            // list of property dependencies
-            Cell< Cell< Cell< MSI::Dof_Type > > > tPropertyDofList( 3 );
+            // create property user defined info
+            fem::Property_User_Defined_Info tPropertyUserDefinedInfo( { fem::Property_Type::CONDUCTIVITY },
+                                                                      {{ MSI::Dof_Type::TEMP }},
+                                                                      {{{ 1.0 }}},
+                                                                      tConstValFunction,
+                                                                      { tConstValFunction } );
 
-            // list of the property coefficients
-            Cell< Cell< Matrix< DDRMat > > > tCoeffList( 3 );
-            tCoeffList( 0 ).resize( 1 );
-            tCoeffList( 0 )( 0 )= {{ 1.0 }};
-            tCoeffList( 1 ).resize( 1 );
-            tCoeffList( 1 )( 0 )= {{ 5.0 }};
-            tCoeffList( 2 ).resize( 1 );
-            tCoeffList( 2 )( 0 )= {{ 20.0 }};
+            //check property type
+            CHECK( equal_to( static_cast< uint >( tPropertyUserDefinedInfo.get_property_type() ), 3 ) );
 
-            // cast free function into std::function
-            PropertyFunc tValFunction0 = tConstValFunction;
+            //check number of dof type and dof type
+            CHECK( equal_to( tPropertyUserDefinedInfo.get_property_dof_type_list().size(), 1 ) );
+            CHECK( equal_to( static_cast< uint >( tPropertyUserDefinedInfo.get_property_dof_type_list()( 0 )( 0 ) ), 3 ) );
 
-            // create the list with function pointers for the value
-            Cell< PropertyFunc > tValFuncList( 3, tValFunction0 );
+            // check number of parameters and parameter values
+            CHECK( equal_to( tPropertyUserDefinedInfo.get_property_param_list().size(), 1.0 ) );
+            CHECK( equal_to( tPropertyUserDefinedInfo.get_property_param_list()( 0 )( 0, 0 ), 1.0 ) );
 
-            // create the list with cell of function pointers for the derivatives
-            Cell< Cell< PropertyFunc > > tDerFuncList( 3 );
+            // check number of valFunc
+            fem::PropertyFunc tValFunc = tPropertyUserDefinedInfo.get_property_valFunc();
 
-            // collect properties info
-            fem::Property_User_Defined_Info tPropertyUserDefinedInfo( tPropertyTypeList,
-                                                                      tPropertyDofList,
-                                                                      tCoeffList,
-                                                                      tValFuncList,
-                                                                      tDerFuncList );
-
-            //check property map content
-            CHECK( equal_to( tPropertyUserDefinedInfo.get_property_map()( 3, 0 ), 0 ) );
-            CHECK( equal_to( tPropertyUserDefinedInfo.get_property_map()( 1, 0 ), 1 ) );
-            CHECK( equal_to( tPropertyUserDefinedInfo.get_property_map()( 2, 0 ), 2 ) );
+            // check number of derFunc
+            CHECK( equal_to( tPropertyUserDefinedInfo.get_property_derFunc_list().size(), 1 ) );
 
         }/* TEST_CASE */
 

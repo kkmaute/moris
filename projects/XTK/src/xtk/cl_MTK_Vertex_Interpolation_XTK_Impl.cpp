@@ -24,7 +24,7 @@ Matrix< IndexMat >
 Vertex_Interpolation_XTK::get_indices() const
 {
     MORIS_ERROR(mVertexEnrichment != nullptr,"mVertexEnrichment not set in XTK vertex interpolation");
-    return mVertexEnrichment->get_basis_basis_indices();
+    return mVertexEnrichment->get_basis_indices();
 }
 
 const Matrix< DDRMat > *

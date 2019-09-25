@@ -53,6 +53,9 @@ namespace moris
                 Matrix< DDRMat > tGlobalIntegPoint;
                 mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
 
+                // set evaluation point for IP geometry interpolator
+                mSet->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
+
                 // set evaluation point for field interpolator
                 for ( uint iFI = 0; iFI < tNumFI; iFI++ )
                 {
@@ -133,6 +136,9 @@ namespace moris
                 // bring the ith integration point in the IP param space
                 Matrix< DDRMat > tGlobalIntegPoint;
                 mSet->get_IG_geometry_interpolator()->map_integration_point( tGlobalIntegPoint );
+
+                // set evaluation point for IP geometry interpolator
+                mSet->get_IP_geometry_interpolator()->set_space_time( tGlobalIntegPoint );
 
                 // set evaluation point for field interpolator
                 for ( uint iFI = 0; iFI < tNumFI; iFI++ )

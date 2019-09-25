@@ -4,8 +4,9 @@
 #include "cl_MTK_Mapper.hpp"
 
 #include "cl_FEM_Enums.hpp"
-#include "cl_FEM_Property_User_Defined_Info.hpp"
 #include "cl_FEM_IWG_User_Defined_Info.hpp"
+#include "cl_FEM_Property_User_Defined_Info.hpp"
+#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -70,40 +71,42 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Mapper::create_iwg_and_model( const real aAlpha )
         {
             if( ! mHaveIwgAndModel )
             {
-                // build a IWG User defined info
+                // init a IWG User defined info container
                 //FIXME should be provided to the function
-                Cell< Cell< fem::IWG_Type > >tIWGTypeList( 1 );
-                tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::L2 );
-                moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResidualDofType( 1 );
-                tResidualDofType( 0 ).resize( tIWGTypeList( 0 ).size(), { MSI::Dof_Type::L2 } );
-                moris::Cell< moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > > tMasterDofTypes( 1 );
-                tMasterDofTypes( 0 ).resize( tIWGTypeList( 0 ).size(), {{ MSI::Dof_Type::L2 }} );
-                moris::Cell< moris::Cell< moris::Cell< fem::Property_Type > > > tMasterPropTypes( 1 );
-                tMasterPropTypes( 0 ).resize( tIWGTypeList( 0 ).size() );
-                fem::IWG_User_Defined_Info tIWGUserDefinedInfo( tIWGTypeList,
-                                                                tResidualDofType,
-                                                                tMasterDofTypes, tMasterPropTypes );
+                moris::Cell< moris::Cell < fem::IWG_User_Defined_Info > > tIWGUserInfo( 1 );
+                tIWGUserInfo( 0 ).resize( 1 );
+                tIWGUserInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::L2,
+                                                                     3,
+                                                                     { MSI::Dof_Type::L2 },
+                                                                     {{ MSI::Dof_Type::L2 }},
+                                                                     moris::Cell< fem::Property_Type >( 0 ),
+                                                                     moris::Cell< fem::Constitutive_Type >( 0 ) );
 
-                // create a list of active block-sets
+                // create a list of active sets
                 //FIXME should be provided to the function
                 Cell< moris_index >  tSetList = { 0 };
                 Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK };
 
-                // create property info
-                fem::Property_User_Defined_Info tPropertyUserDefinedInfo;
+                // create property user defined info container
+                //FIXME should be provided to the function
+                moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserInfo( 1 );
+
+                // create constitutive user defined info container
+                //FIXME should be provided to the function
+                moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserInfo( 1 );
 
                 // create model
                 mModel = new mdl::Model( mMeshManager,
                                          mBSplineOrder,
-                                         &tIWGUserDefinedInfo,
+                                         tIWGUserInfo,
                                          tSetList,
                                          tSetTypeList,
-                                         &tPropertyUserDefinedInfo,
+                                         tPropertyUserInfo,
+                                         tConstitutiveUserInfo,
                                          mTargetMeshPairIndex );
                 mHaveIwgAndModel = true;
             }

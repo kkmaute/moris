@@ -3238,10 +3238,7 @@ namespace mtk
 
         moris::uint tSpatialDim = this->get_spatial_dim();
 
-        std::cout<<"tSpatialDim = "<<tSpatialDim<<std::endl;
-
         // MTK supports the following 1D, 2D and 3D element topology temporarily
-
         switch(aMTKCellTopo)
         {
             case CellTopology::TRI3:
