@@ -226,13 +226,20 @@ namespace moris
                         MORIS_ERROR( false, " Model - unknown fem::element_Type " );
                 }
 
-                // create new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tMeshSet,
-                                                           aSetTypeList( iSet ),
-                                                           mIWGs( iSet ),
-                                                           aPropertyUserDefinedInfo( iSet ),
-                                                           aConstitutiveUserDefinedInfo( iSet ),
-                                                           mIPNodes );
+                if ( tMeshSet->get_num_clusters_on_set() !=0 )
+                {
+                    // create new fem set
+                    mFemSets( tFemSetCounter ) = new fem::Set( tMeshSet,
+                                                               aSetTypeList( iSet ),
+                                                               mIWGs( iSet ),
+                                                               aPropertyUserDefinedInfo( iSet ),
+                                                               aConstitutiveUserDefinedInfo( iSet ),
+                                                               mIPNodes );
+                }
+                else
+                {
+                    mFemSets( tFemSetCounter ) = new fem::Set();
+                }
 
                 // collect equation objects associated with the block-set
                 mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );

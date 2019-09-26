@@ -214,7 +214,7 @@ void Linear_Solver_PETSc::set_solver_internal_parameters( )
 
         PCSORSetOmega( mpc, 1 );
 
-        PCSORSetIterations( mpc, 10000 , 1 );
+        PCSORSetIterations( mpc, 1 , 1 );
 }
 
 
