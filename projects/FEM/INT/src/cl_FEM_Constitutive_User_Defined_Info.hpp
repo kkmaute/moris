@@ -37,9 +37,6 @@ namespace moris
         // constitutive model property type list
         moris::Cell< fem::Property_Type > mPropTypes;
 
-        // spatial dimension
-        uint mSpaceDim;
-
 //------------------------------------------------------------------------------
         public :
 
@@ -51,12 +48,10 @@ namespace moris
 
             Constitutive_User_Defined_Info( fem::Constitutive_Type                      aConstitutiveType,
                                             moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                                            moris::Cell< fem::Property_Type >           aPropTypes,
-                                            uint                                        aSpaceDim )
+                                            moris::Cell< fem::Property_Type >           aPropTypes )
             : mConstitutiveType( aConstitutiveType ),
               mDofTypes( aDofTypes ),
-              mPropTypes( aPropTypes ),
-              mSpaceDim( aSpaceDim )
+              mPropTypes( aPropTypes )
             {};
 
 //------------------------------------------------------------------------------
@@ -117,24 +112,6 @@ namespace moris
             const moris::Cell< fem::Property_Type > & get_constitutive_property_type_list() const
             {
                 return mPropTypes;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * sets spatial dimension
-             */
-            void set_constitutive_space_dim( uint aSpaceDim )
-            {
-                mSpaceDim = aSpaceDim;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * returns spatial dimension
-             */
-            uint get_constitutive_space_dim() const
-            {
-                return mSpaceDim;
             };
 
         };

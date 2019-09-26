@@ -110,8 +110,9 @@ namespace moris
             /**
              * trivial constructor
              */
-            Side_Set(std::string aName,
-                     moris::Cell<Cluster const *>  aSideSetClusters ) : Set( aName, aSideSetClusters )
+            Side_Set(std::string                   aName,
+                     moris::Cell<Cluster const *>  aSideSetClusters,
+					 const uint                    aSpatialDim ) : Set( aName, aSideSetClusters, aSpatialDim )
             {
                  this->calculate_vertices_on_set();
 

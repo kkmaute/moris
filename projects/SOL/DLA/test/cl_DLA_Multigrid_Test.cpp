@@ -153,10 +153,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
 
         // create user defined info for properties
-        moris::Cell< fem::Property_User_Defined_Info > tPropertyUserDefinedInfo;
+        moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
 
         // create user defined info for constitutive models
-        moris::Cell< fem::Constitutive_User_Defined_Info > tConstitutiveUserDefinedInfo;
+        moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
 
         map< moris_id, moris_index >   tCoefficientsMap;
         Cell< fem::Node_Base* >        tNodes;

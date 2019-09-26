@@ -35,6 +35,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spatial_Diffusion_Bulk.cpp
     UT_FEM_IWG_Spatial_Diffusion_Dirichlet.cpp
     UT_FEM_IWG_Spatial_Diffusion_Interface.cpp
+    UT_FEM_Constitutive_User_Defined_Info.cpp
     )
 
 # List test dependencies

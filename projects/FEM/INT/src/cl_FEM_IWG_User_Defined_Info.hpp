@@ -29,8 +29,8 @@ namespace moris
             // IWG type
             fem::IWG_Type mIWGType;
 
-            // IWG space dimension
-            uint mSpaceDim;
+//            // IWG space dimension
+//            uint mSpaceDim;
 
             // IWG residual dof type
             moris::Cell< MSI::Dof_Type > mResidualDofType;
@@ -63,7 +63,7 @@ namespace moris
             IWG_User_Defined_Info(){};
 
             IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
-                                   uint                                        aSpaceDim,
+//                                   uint                                        aSpaceDim,
                                    moris::Cell< MSI::Dof_Type >                aResidualDofType,
                                    moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
                                    moris::Cell< fem::Property_Type >           aMasterPropTypes,
@@ -72,7 +72,7 @@ namespace moris
                                    moris::Cell< fem::Property_Type >           aSlavePropTypes,
                                    moris::Cell< fem::Constitutive_Type >       aSlaveConstitutiveTypes )
                                  : mIWGType( aIWGType ),
-                                   mSpaceDim( aSpaceDim ),
+//                                   mSpaceDim( aSpaceDim ),
                                    mResidualDofType( aResidualDofType ),
                                    mMasterDofTypes( aMasterDofTypes ),
                                    mMasterPropTypes( aMasterPropTypes ),
@@ -83,13 +83,13 @@ namespace moris
             {};
 
             IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
-                                   uint                                        aSpaceDim,
+//                                   uint                                        aSpaceDim,
                                    moris::Cell< MSI::Dof_Type >                aResidualDofType,
                                    moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
                                    moris::Cell< fem::Property_Type >           aMasterPropTypes,
                                    moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes )
                                  : mIWGType( aIWGType ),
-                                   mSpaceDim( aSpaceDim ),
+//                                   mSpaceDim( aSpaceDim ),
                                    mResidualDofType( aResidualDofType ),
                                    mMasterDofTypes( aMasterDofTypes ),
                                    mMasterPropTypes( aMasterPropTypes ),
@@ -120,23 +120,23 @@ namespace moris
                 return mIWGType;
             };
 
-//------------------------------------------------------------------------------
-           /**
-            * sets IWG space dimension
-            */
-           void set_IWG_space_dim( uint aSpaceDim )
-           {
-               mSpaceDim = aSpaceDim;
-           };
-
-//------------------------------------------------------------------------------
-           /**
-            * returns IWG space dimension
-            */
-           uint get_IWG_space_dim() const
-           {
-               return mSpaceDim;
-           };
+////------------------------------------------------------------------------------
+//           /**
+//            * sets IWG space dimension
+//            */
+//           void set_IWG_space_dim( uint aSpaceDim )
+//           {
+//               mSpaceDim = aSpaceDim;
+//           };
+//
+////------------------------------------------------------------------------------
+//           /**
+//            * returns IWG space dimension
+//            */
+//           uint get_IWG_space_dim() const
+//           {
+//               return mSpaceDim;
+//           };
 
 //------------------------------------------------------------------------------
             /**

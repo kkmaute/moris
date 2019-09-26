@@ -53,8 +53,8 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
     // create an IWG Spatial Difffusion Bulk
     IWG_Isotropic_Spatial_Diffusion_Bulk tIWG;
 
-    // set space dimension
-    tIWG.set_space_dim( 3 );
+//    // set space dimension
+//    tIWG.set_space_dim( 3 );
 
     // set residual dof type
     tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );

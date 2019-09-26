@@ -70,8 +70,8 @@ namespace moris
             moris::Cell< Constitutive_Model* > mMasterCM;
             moris::Cell< Constitutive_Model* > mSlaveCM;
 
-            // FIXME spatial dimensions
-            uint mSpaceDim;
+//            // FIXME spatial dimensions
+//            uint mSpaceDim;
 
 //------------------------------------------------------------------------------
         public :
@@ -108,17 +108,17 @@ namespace moris
                 mNormal = aNormal;
             }
 
-//------------------------------------------------------------------------------
-            /**
-             * set space dimension
-             * @param[ in ] aSpaceDim a spatial dimension
-             */
-            void set_space_dim( uint aSpaceDim )
-            {
-                MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "IWG::set_space_dim - wrong space dimension.");
-
-                mSpaceDim = aSpaceDim;
-            }
+////------------------------------------------------------------------------------
+//            /**
+//             * set space dimension
+//             * @param[ in ] aSpaceDim a spatial dimension
+//             */
+//            void set_space_dim( uint aSpaceDim )
+//            {
+//                MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "IWG::set_space_dim - wrong space dimension.");
+//
+//                mSpaceDim = aSpaceDim;
+//            }
 
 //------------------------------------------------------------------------------
             /**

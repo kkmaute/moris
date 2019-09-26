@@ -13,32 +13,25 @@
 #include "op_equal_equal.hpp"
 
 
-moris::Matrix< moris::DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tGeoValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                                moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return aParameters( 0 ) * aGeometryInterpolator->valx();
-}
-
-moris::Matrix< moris::DDRMat > tFIValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                               moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                           moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 ) * aFieldInterpolator( 0 )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                               moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                           moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aFieldInterpolator( 0 )->N();;
+    return aParameters( 0 ) * aFieldInterpolator( 0 )->N();
 }
 
 using namespace moris;
@@ -53,8 +46,8 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
     // create an IWG Spatial Difffusion Bulk
     IWG_Isotropic_Spatial_Diffusion_Interface tIWG;
 
-    // set space dimension
-    tIWG.set_space_dim( 3 );
+//    // set space dimension
+//    tIWG.set_space_dim( 3 );
 
     // set residual dof type
     tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );
@@ -191,11 +184,12 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         {
             // create a property
             tMasterProps( iProp ) = new Property( tIWG.get_property_type_list()( iProp ),
-                                            Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                            tPropCoeff,
-                                            tConstValFunction,
-                                            Cell< PropertyFunc > ( 0 ),
-                                            tGI );
+                                                  Cell< Cell< MSI::Dof_Type > > ( 0 ),
+                                                  tPropCoeff,
+                                                  tConstValFunction_UTInterface,
+                                                  Cell< PropertyFunc > ( 0 ),
+                                                  tGI );
+
         }
 
         // create a cell of properties for IWG
@@ -204,12 +198,15 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         for( uint iProp = 0; iProp < tIWG.get_property_type_list( mtk::Master_Slave::SLAVE ).size(); iProp++ )
         {
             // create a property
-        	tSlaveProps( iProp ) = new Property( tIWG.get_property_type_list( mtk::Master_Slave::SLAVE )( iProp ),
-                                            Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                            tPropCoeff,
-                                            tConstValFunction,
-                                            Cell< PropertyFunc > ( 0 ),
-                                            tGI );
+            tSlaveProps( iProp ) = new Property( tIWG.get_property_type_list( mtk::Master_Slave::SLAVE )( iProp ),
+                                                 {{ MSI::Dof_Type::TEMP }},
+                                                 tPropCoeff,
+                                                 tFIValFunction_UTInterface,
+                                                 { tFIDerFunction_UTInterface },
+                                                 tGI );
+
+            tSlaveProps( iProp )->set_field_interpolators( tSlaveFIs );
+
         }
 
         // constitutive models

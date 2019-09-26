@@ -247,76 +247,79 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         // create IWG user defined info
         Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 4 );
         tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    Cell< fem::Property_Type >( 0 ),
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    Cell< fem::Property_Type >( 0 ),
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
                                                                     { fem::Property_Type::TEMP_DIRICHLET },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
                                                                     { fem::Property_Type::TEMP_NEUMANN },
                                                                     moris::Cell< fem::Constitutive_Type >( 0 ) );
 
-        // create property user defined info
-        Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 4 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 1.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 1.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 2 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 1.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 2 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 5.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 20.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        // create the property user defined infos
+        fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
+                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                       {{{ 1.0 }}},
+                                                       tConstValFunction_MDL_XTK_HMR,
+                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
+                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                        {{{ 5.0 }}},
+                                                        tConstValFunction_MDL_XTK_HMR,
+                                                        Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempNeumann( fem::Property_Type::TEMP_NEUMANN,
+                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                      {{{ 20.0 }}},
+                                                      tConstValFunction_MDL_XTK_HMR,
+                                                      Cell< fem::PropertyFunc >( 0 ) );
 
+        // create property user defined info
+        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 4 );
+        tPropertyUserDefinedInfo( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 1 ).resize( 1 );
+        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 2 ).resize( 1 );
+        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
+        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tTempDirichlet;
+        tPropertyUserDefinedInfo( 3 ).resize( 1 );
+        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tTempNeumann;
 
         // create constitutive user defined info
-        Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 4 );
+        fem::Constitutive_User_Defined_Info tDiffLinIso( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                         {{ MSI::Dof_Type::TEMP }},
+                                                         { fem::Property_Type::CONDUCTIVITY } );
+        // create constitutive user defined info
+        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 4 );
         tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                                                      {{ MSI::Dof_Type::TEMP }},
-                                                                                      { fem::Property_Type::CONDUCTIVITY },
-                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tDiffLinIso;
         tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                                                      {{ MSI::Dof_Type::TEMP }},
-                                                                                      { fem::Property_Type::CONDUCTIVITY },
-                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tDiffLinIso;
         tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                                                      {{ MSI::Dof_Type::TEMP }},
-                                                                                      { fem::Property_Type::CONDUCTIVITY },
-                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tDiffLinIso;
+        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
 
         // create a list of active block-sets
         moris::Cell< moris_index >  tSetList = { 4, 5, 1, 3 };
@@ -328,8 +331,8 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
-                                              tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
+                                              tIWGUserDefinedInfo,
                                               tPropertyUserDefinedInfo,
                                               tConstitutiveUserDefinedInfo );
 
@@ -541,96 +544,93 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // create IWG user defined info
         Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 5 );
         tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    Cell< fem::Property_Type >( 0 ),
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::CONDUCTIVITY },
+                                                                    Cell< fem::Property_Type >( 0 ),
                                                                     {fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
                                                                     { fem::Property_Type::TEMP_DIRICHLET },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
                                                                     { fem::Property_Type::TEMP_DIRICHLET },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 4 ).resize( 1 );
-        tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN, 3, { MSI::Dof_Type::TEMP },
+        tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN,
+                                                                    { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
                                                                     { fem::Property_Type::TEMP_NEUMANN },
                                                                     moris::Cell< fem::Constitutive_Type >( 0 ) );
 
+        // create the property user defined infos
+        fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
+                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                       {{{ 1.0 }}},
+                                                       tConstValFunction_MDL_XTK_HMR,
+                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
+                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                        {{{ 5.0 }}},
+                                                        tConstValFunction_MDL_XTK_HMR,
+                                                        Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempNeumann( fem::Property_Type::TEMP_NEUMANN,
+                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                      {{{ 20.0 }}},
+                                                      tConstValFunction_MDL_XTK_HMR,
+                                                      Cell< fem::PropertyFunc >( 0 ) );
+
         // create property user defined info
-        Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 5 );
+        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 5 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 1.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 1.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 2 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 1.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 2 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 5.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 3 ).resize( 2 );
-        tPropertyUserDefinedInfo( 3 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::CONDUCTIVITY,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 1.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
-        tPropertyUserDefinedInfo( 3 )( 1 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_DIRICHLET,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 5.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 2 ).resize( 1 );
+        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
+        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tTempDirichlet;
+        tPropertyUserDefinedInfo( 3 ).resize( 1 );
+        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 2 );
+        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 3 )( 0 )( 1 ) = tTempDirichlet;
         tPropertyUserDefinedInfo( 4 ).resize( 1 );
-        tPropertyUserDefinedInfo( 4 )( 0 ) = fem::Property_User_Defined_Info( fem::Property_Type::TEMP_NEUMANN,
-                                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                              {{{ 20.0 }}},
-                                                                              tConstValFunction_MDL_XTK_HMR,
-                                                                              Cell< fem::PropertyFunc >( 0 ) );
+        tPropertyUserDefinedInfo( 4 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 4 )( 0 )( 0 ) = tTempNeumann;
 
         // create constitutive user defined info
-        Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 5 );
+        fem::Constitutive_User_Defined_Info tDiffLinIso( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                         {{ MSI::Dof_Type::TEMP }},
+                                                         { fem::Property_Type::CONDUCTIVITY } );
+        // create constitutive user defined info
+        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 5 );
         tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                                                      {{ MSI::Dof_Type::TEMP }},
-                                                                                      { fem::Property_Type::CONDUCTIVITY },
-                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tDiffLinIso;
         tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                                                      {{ MSI::Dof_Type::TEMP }},
-                                                                                      { fem::Property_Type::CONDUCTIVITY },
-                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tDiffLinIso;
         tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                                                      {{ MSI::Dof_Type::TEMP }},
-                                                                                      { fem::Property_Type::CONDUCTIVITY },
-                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tDiffLinIso;
         tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 ) = fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                                                      {{ MSI::Dof_Type::TEMP }},
-                                                                                      { fem::Property_Type::CONDUCTIVITY },
-                                                                                      3 );
+        tConstitutiveUserDefinedInfo( 3 )( 0 ).resize( 1 );
+        tConstitutiveUserDefinedInfo( 3 )( 0 )( 0 ) = tDiffLinIso;
+        tConstitutiveUserDefinedInfo( 4 ).resize( 1 );
+
         // stop timer
         real tElapsedTime1 = tTimer_XTK.toc<moris::chronos::milliseconds>().wall;
 
@@ -648,8 +648,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
                                               tBSplineMeshIndex,
-                                              tIWGUserDefinedInfo,
                                               tSetList, tSetTypeList,
+                                              tIWGUserDefinedInfo,
                                               tPropertyUserDefinedInfo,
                                               tConstitutiveUserDefinedInfo,
                                               0,

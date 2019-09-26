@@ -31,6 +31,9 @@ namespace moris
             //create a set
             Set tSet;
 
+            // set spatial dimension
+            tSet.mSpaceDim = 3;
+
             // list of IWG types
             moris::Cell< fem::IWG_Type >  tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_BULK ,
                                                           fem::IWG_Type::SPATIALDIFF_DIRICHLET,
@@ -121,12 +124,11 @@ namespace moris
             //std::cout<<"Test create_constitutive_models"<<std::endl;
             //------------------------------------------------------------------------------
 
-                Cell< fem::Constitutive_User_Defined_Info > tConstitutiveUserDefinedInfo( 1 );
-
-                tConstitutiveUserDefinedInfo( 0 ) = Constitutive_User_Defined_Info( { fem::Constitutive_Type::DIFF_LIN_ISO },
-                                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                                    { fem::Property_Type::CONDUCTIVITY },
-                                                                                    3 );
+                Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
+                tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
+                tConstitutiveUserDefinedInfo( 0 )( 0 ) = Constitutive_User_Defined_Info( { fem::Constitutive_Type::DIFF_LIN_ISO },
+                                                                                         {{ MSI::Dof_Type::TEMP }},
+                                                                                         { fem::Property_Type::CONDUCTIVITY } );
 
                 // create the properties for the set
                 tSet.create_constitutive_models( tConstitutiveUserDefinedInfo );
@@ -169,19 +171,18 @@ namespace moris
             //std::cout<<"Test create_properties"<<std::endl;
             //------------------------------------------------------------------------------
 
-                Cell< fem::Property_User_Defined_Info > tPropertyUserDefinedInfo( 2 );
-
-                tPropertyUserDefinedInfo( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
-                                                                            {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
-                                                                            {{{ 1.0 }}},
-                                                                            tConstValFunction_UTFEMSET,
-                                                                            Cell< PropertyFunc >( 0 ) );
-
-                tPropertyUserDefinedInfo( 1 ) = Property_User_Defined_Info( { fem::Property_Type::TEMP_DIRICHLET },
-                                                                            Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                                            {{{ 5.0 }}},
-                                                                            tConstValFunction_UTFEMSET,
-                                                                            Cell< PropertyFunc >( 0 ) );
+                Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
+                tPropertyUserDefinedInfo( 0 ).resize( 2 );
+                tPropertyUserDefinedInfo( 0 )( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
+                                                                                 {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
+                                                                                 {{{ 1.0 }}},
+                                                                                 tConstValFunction_UTFEMSET,
+                                                                                 Cell< PropertyFunc >( 0 ) );
+                tPropertyUserDefinedInfo( 0 )( 1 ) = Property_User_Defined_Info( { fem::Property_Type::TEMP_DIRICHLET },
+                                                                                 Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                                                 {{{ 5.0 }}},
+                                                                                 tConstValFunction_UTFEMSET,
+                                                                                 Cell< PropertyFunc >( 0 ) );
 
                 // create the properties for the set
                 tSet.create_properties( tPropertyUserDefinedInfo );
@@ -480,7 +481,7 @@ namespace moris
             //std::cout<<"Test create_constitutive_models"<<std::endl;
             //------------------------------------------------------------------------------
 
-                Cell< fem::Constitutive_User_Defined_Info > tConstitutiveUserDefinedInfo;
+                Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 2 );
 
                 // create the properties for the set
                 tSet.create_constitutive_models( tConstitutiveUserDefinedInfo );
@@ -537,15 +538,22 @@ namespace moris
             //------------------------------------------------------------------------------
 
                 // create a property user defined info container
-                Cell< fem::Property_User_Defined_Info > tPropertyUserDefinedInfo( 1 );
+                Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 2 );
 
-                // fill the property user defined info container
-                tPropertyUserDefinedInfo( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
-                                                                            {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
-                                                                            {{{ 1.0 }}},
-                                                                            tConstValFunction_UTFEMSET,
-                                                                            { tConstValFunction_UTFEMSET, tConstValFunction_UTFEMSET } );
-
+                // fill the master property user defined info container
+                tPropertyUserDefinedInfo( 0 ).resize( 1 );
+                tPropertyUserDefinedInfo( 0 )( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
+                                                                                 {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
+                                                                                 {{{ 1.0 }}},
+                                                                                 tConstValFunction_UTFEMSET,
+                                                                                 { tConstValFunction_UTFEMSET, tConstValFunction_UTFEMSET } );
+                // fill the slave property user defined info container
+                tPropertyUserDefinedInfo( 1 ).resize( 1 );
+                tPropertyUserDefinedInfo( 1 )( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
+                                                                                 {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
+                                                                                 {{{ 1.0 }}},
+                                                                                 tConstValFunction_UTFEMSET,
+                                                                                 { tConstValFunction_UTFEMSET, tConstValFunction_UTFEMSET } );
 
                 // create the properties for the set
                 tSet.create_properties( tPropertyUserDefinedInfo );
@@ -768,7 +776,6 @@ namespace moris
                 CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
 
                 // check each IWG received right number of slave field interpolators
-                std::cout<<tSet.mSlaveProperties.size()<<std::endl;
                 CHECK( equal_to( tSet.mSlaveProperties( 0 )->get_field_interpolators().size(), 2 ) );
 
                 // check each IWG received right slave dof types

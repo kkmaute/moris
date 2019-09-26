@@ -120,9 +120,6 @@ namespace moris
             // create an IWG with the factory for the ith IWG type
             fem::IWG* tIWG = tIWGFactory.create_IWGs( fem::IWG_Type::SPATIALDIFF_NEUMANN );
 
-            // set space dim
-            tIWG->set_space_dim( 2 );
-
             // set residual dof type
             tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 

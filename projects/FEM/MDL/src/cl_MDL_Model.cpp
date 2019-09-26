@@ -15,14 +15,11 @@
 #include "cl_FEM_Enums.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
-#include "cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_FEM_Property.hpp"
 #include "cl_FEM_Property_User_Defined_Info.hpp"
 #include "cl_FEM_IWG_User_Defined_Info.hpp"
-#include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Constitutive_User_Defined_Info.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
@@ -56,19 +53,36 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-    Model::Model(       mtk::Mesh_Manager*                                                  aMeshManager,
-                  const uint                                                                aBSplineIndex,
-                  const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >          & aIWGUserDefinedInfo,
-                  const moris::Cell< moris_index >                                        & aSetList,
-                  const moris::Cell< fem::Element_Type >                                  & aSetTypeList,
-                  const moris::Cell< moris::Cell< fem::Property_User_Defined_Info > >     & aPropertyUserDefinedInfo,
-                  const moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > & aConstitutiveUserDefinedInfo,
-                  const moris_index                                                         aMeshPairIndex,
-                  const bool                                                                aUseMultigrid )
+    Model::Model(       mtk::Mesh_Manager*                                                                 aMeshManager,
+                  const uint                                                                               aBSplineIndex,
+                  const moris::Cell< moris_index >                                                       & aSetList,
+                  const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
+                  const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
+                  const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
+                  const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
+                  const moris_index                                                                        aMeshPairIndex,
+                  const bool                                                                               aUseMultigrid )
         : mMeshManager( aMeshManager ),
           mMeshPairIndex( aMeshPairIndex ),
           mUseMultigrid( aUseMultigrid )
         {
+            // init the number of set
+            uint tNumFemSets = aSetList.size();
+
+            // number of groups of IWGs
+            uint tNumIWGGroups = aIWGUserDefinedInfo.size();
+
+            // number of groups of property types
+            uint tNumPropGroups = aPropertyUserDefinedInfo.size();
+
+            // number of groups of constitutive types
+            uint tNumCMGroups = aConstitutiveUserDefinedInfo.size();
+
+            // check input
+            MORIS_ERROR( tNumIWGGroups == tNumFemSets, " Model::Model - wrong number of IWG groups. " );
+            MORIS_ERROR( tNumPropGroups == tNumFemSets, " Model::Model - wrong number of property type groups. " );
+            MORIS_ERROR( tNumCMGroups == tNumFemSets, " Model::Model - wrong number of constitutive type groups. " );
+
             // start timer
             tic tTimer1;
 
@@ -119,15 +133,11 @@ namespace moris
             // a factory to create the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            // number of groups of IWGs
-            uint tNumGroupIWG = aIWGUserDefinedInfo.size();
-
             // create a cell of IWGs
-            // FIXME check tNumGroupIWG = tNumSets
-            mIWGs.resize( tNumGroupIWG );
+            mIWGs.resize( tNumIWGGroups );
 
             // loop over the sets
-            for( uint iSet = 0; iSet < tNumGroupIWG; iSet++ )
+            for( uint iSet = 0; iSet < tNumIWGGroups; iSet++ )
             {
                 // number of IWG in set
                 uint tNumIWG = aIWGUserDefinedInfo( iSet ).size();
@@ -140,9 +150,6 @@ namespace moris
                 {
                     // create an IWG with the factory for the IWG type
                     mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWGs( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_type() );
-
-                    // set space dimension
-                    mIWGs( iSet )( iIWG )->set_space_dim( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_space_dim() );
 
                     // set residual dof type
                     mIWGs( iSet )( iIWG )->set_residual_dof_type( aIWGUserDefinedInfo( iSet )( iIWG ).get_residual_dof_type() );
@@ -183,11 +190,8 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            // init the number of set
-            uint tNumberOfFemSet = aSetList.size();
-
             // create equation objects
-            mFemSets.resize( tNumberOfFemSet, nullptr );
+            mFemSets.resize( tNumFemSets, nullptr );
 
 //            // get the number of element to create
 //            luint tNumberOfEquationObjects = tIntegrationMesh->get_num_elems()
@@ -201,11 +205,8 @@ namespace moris
             // init the fem set counter
             moris::uint tFemSetCounter = 0;
 
-            // number of sets
-            uint tNumSets = aSetList.size();
-
-            // loop over the used mesh set
-            for( luint iSet = 0; iSet < tNumSets; iSet++ )
+            // loop over the used fem set
+            for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
             {
                 // create a list of clusters
                 moris::mtk::Set * tMeshSet;
