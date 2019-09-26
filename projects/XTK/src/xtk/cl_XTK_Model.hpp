@@ -730,6 +730,13 @@ private:
                                   moris::Matrix< moris::IndexMat > const & aElementToNodeIndex);
 
 
+    void
+    collect_subphases_attached_to_facet_on_cell(moris::moris_index aCellIndex,
+                                                moris::moris_index aFacetIndex,
+                                                Cell<moris::moris_index> & aCellSubphaseIndices,
+                                                Cell<moris::moris_index> & aCellSubphaseBulkIndices);
+
+
 };
 }
 
