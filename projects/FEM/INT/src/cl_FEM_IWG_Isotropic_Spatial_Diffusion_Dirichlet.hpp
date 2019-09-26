@@ -14,7 +14,6 @@
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
@@ -27,9 +26,6 @@ namespace moris
         {
             // Nitsche's penalty parameter
             real mGamma;
-
-            // diffusion tensor
-            Matrix< DDRMat > mKappa;
 
 //------------------------------------------------------------------------------
         public:
@@ -47,21 +43,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * compute the residual
+             * computes the residual
              * @param[ in ] aResidual cell of residual vectors to fill
              */
             void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
 
 //------------------------------------------------------------------------------
             /**
-             * compute the jacobian
+             * computes the jacobian
              * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
             void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
-             * compute the residual and the jacobian
+             * computes the residual and the jacobian
              * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              * @param[ in ] aResidual  cell of residual vectors to fill
              */

@@ -31,11 +31,10 @@ namespace moris
         class Cell;
         class Set;
         class Field_Interpolator;
-        class Property_User_Defined_Info;
         class IWG_User_Defined_Info;
         class Constitutive_User_Defined_Info;
+        class Property_User_Defined_Info;
         enum class IWG_Type;
-        enum class BC_Type;
         enum class Property_Type;
     }
 
@@ -73,25 +72,36 @@ namespace moris
         class Model
         {
             // pointer to reference mesh
-            mtk::Mesh_Manager*             mMeshManager;
-            moris_index mMeshPairIndex;
+            mtk::Mesh_Manager* mMeshManager;
+            moris_index        mMeshPairIndex;
 
+            // list of node pointers
             moris::Cell< fem::Node_Base* > mIPNodes;
-            moris::Cell< fem::Cell* >      mIPCells;
-            moris::Cell< fem::Cell* >      mIGCells;
 
-            moris::Cell< fem::Set * >               mFemSets;
-            moris::Cell< MSI::Equation_Object* >    mFemClusters;
+            // list of IP cell pointers
+            moris::Cell< fem::Cell* > mIPCells;
+
+            // list of IG cell pointers
+            moris::Cell< fem::Cell* > mIGCells;
+
+            // list of FEM sets
+            moris::Cell< fem::Set * > mFemSets;
+
+            // list of FEM clusters
+            moris::Cell< MSI::Equation_Object* > mFemClusters;
+
+            // list of groups of IWGs
             moris::Cell< moris::Cell< fem::IWG* > > mIWGs;
-
-            moris::Cell< fem::IWG* >         mIWGs1;
 
             // by default, this value is set to the order of the
             // Lagrange modes
             moris::uint                       mBSplineIndex = 0;
 
-            MSI::Model_Solver_Interface                   * mModelSolverInterface;
-            MSI::MSI_Solver_Interface                     * mSolverInterface;
+            // model solver interface pointer
+            MSI::Model_Solver_Interface * mModelSolverInterface;
+
+            // solver interface pointer
+            MSI::MSI_Solver_Interface   * mSolverInterface;
 
             // fixme: maybe introduce a cell of maps for different orders?
             map< moris_id, moris_index >      mCoefficientsMap;
@@ -110,23 +120,23 @@ namespace moris
             * constructor
             * @param[ in ] aMesh  Mesh for this problem
             * @param[ in ] aBSplineOrder            ???
-            * @param[ in ] aIWGUserDefinedInfo      cell of cell of IWG user defined info
             * @param[ in ] aSetList                 cell of mesh set indices
             * @param[ in ] aSetTypeList             cell of set type enum ( BULK, SIDESET, ...)
+            * @param[ in ] aIWGUserDefinedInfo      cell of cell of IWG user defined info
             * @param[ in ] aPropertyUserDefinedInfo cell of property user defined info
             * @param[ in ] aMeshPairIndex           ???
             * @param[ in ] aUseMultigrid            bool for multigrid use
             *
             */
-            Model(       mtk::Mesh_Manager*                                                  aMesh,
-                   const uint                                                                aBSplineOrder,
-                   const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >          & aIWGUserDefinedInfo,
-                   const moris::Cell< moris_index >                                        & aSetList,
-                   const moris::Cell< fem::Element_Type >                                  & aSetTypeList,
-                   const moris::Cell< moris::Cell< fem::Property_User_Defined_Info > >     & aPropertyUserDefinedInfo,
-                   const moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > & aConstitutiveUserDefinedInfo,
-                   const moris_index                                                         aMeshPairIndex = 0,
-                   const bool                                                                aUseMultigrid = false );
+            Model(       mtk::Mesh_Manager*                                                                 aMesh,
+                   const uint                                                                               aBSplineOrder,
+                   const moris::Cell< moris_index >                                                       & aSetList,
+                   const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
+                   const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
+                   const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
+                   const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
+                   const moris_index                                                                        aMeshPairIndex = 0,
+                   const bool                                                                               aUseMultigrid = false );
 
 //------------------------------------------------------------------------------
             /**

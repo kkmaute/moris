@@ -54,6 +54,9 @@ namespace MSI
         //! Mesh cluster
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
 
+        // space dimension
+        uint mSpaceDim;
+
         // interpolation mesh geometry type
         mtk::Geometry_Type mIPGeometryType;
 
@@ -159,12 +162,12 @@ namespace MSI
          * @param[ in ] aConstitutiveUserDefinedInfo user defined info to build the constitutive models
          * @param[ in ] aIPNodes                     cell of node pointers
          */
-        Set( moris::mtk::Set                                          * aMeshSet,
-             Element_Type                                               aElementType,
-             moris::Cell< IWG* >                                      & aIWGs,
-             const moris::Cell< fem::Property_User_Defined_Info >     & aPropertyUserDefinedInfo,
-             const moris::Cell< fem::Constitutive_User_Defined_Info > & aConstitutiveUserDefinedInfo,
-             moris::Cell< Node_Base* >                                & aIPNodes );
+        Set( moris::mtk::Set                                                         * aMeshSet,
+             Element_Type                                                              aElementType,
+             moris::Cell< IWG* >                                                     & aIWGs,
+             const moris::Cell< moris::Cell< fem::Property_User_Defined_Info > >     & aPropertyUserDefinedInfo,
+             const moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > & aConstitutiveUserDefinedInfo,
+             moris::Cell< Node_Base* >                                               & aIPNodes );
 
         /**
          * trivial constructor
@@ -499,7 +502,7 @@ namespace MSI
          * create properties
          * @param[ in ] aPropertyUserDefinedInfo user defined properties
          */
-        void create_properties( const moris::Cell< fem::Property_User_Defined_Info > & aPropertyUserDefinedInfo );
+        void create_properties( const moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > & aPropertyUserDefinedInfo );
 
 //------------------------------------------------------------------------------
         /**
@@ -575,7 +578,7 @@ namespace MSI
          * create constitutive models
          * @param[ in ] aConstitutiveUserDefinedInfo user defined constitutive models
          */
-        void create_constitutive_models( const moris::Cell< fem::Constitutive_User_Defined_Info > & aConstitutiveUserDefinedInfo );
+        void create_constitutive_models( const moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > & aConstitutiveUserDefinedInfo );
 
 //------------------------------------------------------------------------------
         /**

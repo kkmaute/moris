@@ -58,6 +58,7 @@ namespace moris
 //------------------------------------------------------------------------------
     public:
 //------------------------------------------------------------------------------
+        Element(){};
 
         Element( const mtk::Cell * aCell,
                  Set             * aSet,
@@ -115,12 +116,11 @@ namespace moris
         virtual void compute_jacobian_and_residual() = 0;
 
 //------------------------------------------------------------------------------
-    protected:
-//------------------------------------------------------------------------------
         /**
-         * compute element volume
+         * compute volume of the integration element
+         * @param[ in ] aIsMaster enum master or slave
          */
-        real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
+        real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
             //get number of integration points
             uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
@@ -132,24 +132,46 @@ namespace moris
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // set integration point for geometry interpolator
-                aGeometryInterpolator->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+                mSet->get_IG_geometry_interpolator()->set_space_time( mSet->get_integration_points().get_column( iGP ) );
 
-                // compute integration point weight x detJ
-                real tWStar = aGeometryInterpolator->det_J()
-                            * mSet->get_integration_weights()( iGP );
-
-                // add contribution to jacobian from evaluation point
-                //FIXME: include a thickness if 2D
-                tVolume += tWStar;
+                // compute and add integration point contribution to volume
+                tVolume += mSet->get_IG_geometry_interpolator()->det_J() * mSet->get_integration_weights()( iGP );
             }
 
-            // FIXME: compute the element size + switch 1D, 2D, 3D
-            //real he = std::pow( 6*tVolume/M_PI, 1.0/3.0 );
-            //real he = std::pow( 4*tVolume/M_PI, 1.0/2.0 );
-            //std::cout<<he<<std::endl;
-
+            // return the volume value
             return tVolume;
         }
+
+//------------------------------------------------------------------------------
+        /**
+          * compute size of the integration element
+          * @param[ in ] aSpaceDim space dimension
+          * FIXME should be held by the FEM Set
+          * @param[ in ] aIsMaster enum master or slave
+          */
+         real compute_size( uint              aSpaceDim,
+                            mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+         {
+             //evaluate the volume
+             real tVolume = this->compute_volume( aIsMaster );
+
+             // compute the element size
+             switch ( aSpaceDim )
+             {
+                 case ( 3 ):
+                     return std::pow( 6 * tVolume / M_PI, 1.0 / 3.0 );
+
+                 case ( 2 ):
+                     return std::pow( 4 * tVolume / M_PI, 1.0 / 2.0 );
+
+                 case ( 1 ):
+                     return tVolume;
+
+                 default:
+                     MORIS_ERROR( false, "Element::compute_size - space dimension can only be 1, 2, or 3. ");
+                     return tVolume;
+             }
+         }
 
 //------------------------------------------------------------------------------
     };

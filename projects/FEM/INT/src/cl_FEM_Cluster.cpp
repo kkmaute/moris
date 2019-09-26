@@ -14,12 +14,12 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        Cluster::Cluster( const Element_Type       aElementType,
-                 const mtk::Cluster              * aMeshCluster,
-                       moris::Cell< Node_Base* > & aNodes,
-                       Set                       * aSet ) : MSI::Equation_Object( aSet ),
-                                                            mSet( aSet ),
-                                                            mElementType( aElementType )
+        Cluster::Cluster( const Element_Type                aElementType,
+                          const mtk::Cluster              * aMeshCluster,
+                                moris::Cell< Node_Base* > & aNodes,
+                                Set                       * aSet ) : MSI::Equation_Object( aSet ),
+                                                                     mSet( aSet ),
+                                                                     mElementType( aElementType )
         {
             // fill the cell cluster pointer
             mMeshCluster = aMeshCluster;
@@ -431,7 +431,20 @@ namespace moris
          }
 
 //------------------------------------------------------------------------------
+        real Cluster::compute_volume()
+        {
+            // set cluster volume
+            real tClusterVolume = 0;
 
+            // loop over the elements in cluster
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // compute the volume for the element
+                tClusterVolume += mElements( iElem )->compute_volume();
+            }
+            // return cluster volume value
+            return tClusterVolume;
+        }
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

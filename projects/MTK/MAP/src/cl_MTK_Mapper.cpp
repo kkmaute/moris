@@ -75,12 +75,11 @@ namespace moris
         {
             if( ! mHaveIwgAndModel )
             {
-                // init a IWG User defined info container
+                // create an IWG User defined info container
                 //FIXME should be provided to the function
                 moris::Cell< moris::Cell < fem::IWG_User_Defined_Info > > tIWGUserInfo( 1 );
                 tIWGUserInfo( 0 ).resize( 1 );
                 tIWGUserInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::L2,
-                                                                     3,
                                                                      { MSI::Dof_Type::L2 },
                                                                      {{ MSI::Dof_Type::L2 }},
                                                                      moris::Cell< fem::Property_Type >( 0 ),
@@ -93,18 +92,20 @@ namespace moris
 
                 // create property user defined info container
                 //FIXME should be provided to the function
-                moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserInfo( 1 );
+                moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > > tPropertyUserInfo( 1 );
+                tPropertyUserInfo( 0 ).resize( 1 );
 
                 // create constitutive user defined info container
                 //FIXME should be provided to the function
-                moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserInfo( 1 );
+                moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserInfo( 1 );
+                tConstitutiveUserInfo( 0 ).resize( 1 );
 
                 // create model
                 mModel = new mdl::Model( mMeshManager,
                                          mBSplineOrder,
-                                         tIWGUserInfo,
                                          tSetList,
                                          tSetTypeList,
+                                         tIWGUserInfo,
                                          tPropertyUserInfo,
                                          tConstitutiveUserInfo,
                                          mTargetMeshPairIndex );

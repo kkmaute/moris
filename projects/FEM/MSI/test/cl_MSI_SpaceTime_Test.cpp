@@ -121,10 +121,10 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         moris::mtk::Set * tMeshSet = tIntegMesh->get_block_by_index( 0 );
 
         // create a property user defined info storage
-        moris::Cell< fem::Property_User_Defined_Info > tPropertyUserDefinedInfo;
+        moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
 
         // create a constitutive user defined info storage
-        moris::Cell< fem::Constitutive_User_Defined_Info > tConstitutiveUserDefinedInfo;
+        moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
 
         // create a set
         tFEMSets( 0 ) = new fem::Set( tMeshSet,

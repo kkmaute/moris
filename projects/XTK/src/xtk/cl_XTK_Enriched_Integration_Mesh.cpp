@@ -724,7 +724,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
 
     for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
     {
-        mListofBlocks( Ik ) = new moris::mtk::Block( tBSNames(Ik), this->get_cell_clusters_in_set( Ik ));
+        mListofBlocks( Ik ) = new moris::mtk::Block( tBSNames(Ik), this->get_cell_clusters_in_set( Ik ), this->get_spatial_dim() );
     }
 }
 
@@ -898,7 +898,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
 
     for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik),this->get_side_set_cluster( Ik ));
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik),this->get_side_set_cluster( Ik ), this->get_spatial_dim() );
     }
 
 }
@@ -1121,7 +1121,7 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
 
     for(moris::uint Ik = tCurrentSize; Ik<mListofSideSets.size(); Ik++)
     {
-        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik), this->get_side_set_cluster( Ik ));
+        mListofSideSets( Ik ) = new moris::mtk::Side_Set( mSideSetLabels(Ik), this->get_side_set_cluster( Ik ), this->get_spatial_dim() );
     }
 
 }

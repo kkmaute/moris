@@ -50,6 +50,9 @@ namespace moris
             // global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mGlobalDofTypes;
 
+            // global dof type map
+            Matrix< DDSMat > mGlobalDofTypeMap;
+
             // spatial dimensions
             uint mSpaceDim;
 
@@ -314,6 +317,10 @@ namespace moris
 
                 // get the number of unique dof type groups, i.e. the number of interpolators
                 mGlobalDofTypes.resize( tCounter );
+
+                // build global dof type map
+                this->build_global_dof_type_map();
+
             };
 
 //------------------------------------------------------------------------------
@@ -325,6 +332,48 @@ namespace moris
                 // return global dof type list
                 return mGlobalDofTypes;
             };
+
+//------------------------------------------------------------------------------
+            void build_global_dof_type_map()
+            {
+                // get number of global dof types
+                uint tNumDofTypes = mGlobalDofTypes.size();
+
+                // determine the max Dof_Type enum
+                sint tMaxEnum = 0;
+                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
+                {
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mGlobalDofTypes( iDOF )( 0 ) ) );
+                }
+                tMaxEnum++;
+
+                // set the Dof_Type map size
+                mGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
+
+                // fill the Dof_Type map
+                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
+                {
+                    // fill the property map
+                    mGlobalDofTypeMap( static_cast< int >( mGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
+                }
+            }
+
+
+//------------------------------------------------------------------------------
+        bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > & aDofType )
+        {
+            // set bool for dependency
+            bool tDofDependency = false;
+
+            // if aDofType is an active dof type for the property
+            if( static_cast< uint >( aDofType( 0 ) ) < mGlobalDofTypeMap.numel() && mGlobalDofTypeMap(static_cast< uint >( aDofType( 0 ) ) ) != -1 )
+            {
+                // bool is set to true
+                tDofDependency = true;
+            }
+            // return bool for dependency
+            return tDofDependency;
+        }
 
 //------------------------------------------------------------------------------
             /**

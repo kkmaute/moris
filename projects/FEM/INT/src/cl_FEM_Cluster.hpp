@@ -94,6 +94,7 @@ namespace moris
                  const mtk::Cluster              * aMeshCluster,
                        moris::Cell< Node_Base* > & aNodes,
                        Set                       * aSet );
+        Cluster(){};
 
 //------------------------------------------------------------------------------
         /**
@@ -164,7 +165,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         real get_element_nodal_pdof_value( moris_index   aVertexIndex,
                                            moris::Cell< MSI::Dof_Type > aDofType )
         {
@@ -195,38 +195,9 @@ namespace moris
     protected:
 //------------------------------------------------------------------------------
         /**
-         * FIXME we never used this + no check
-         * computes element volume
+         * computes the cluster volume
          */
-        real compute_element_volume( Geometry_Interpolator* aGeometryInterpolator )
-        {
-            //get number of integration points
-            uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
-
-            // init volume
-            real tVolume = 0;
-
-            // loop over integration points
-            for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-            {
-                // set integration point for geometry interpolator
-                mSet->get_IG_geometry_interpolator()->set_space_time( mSet->get_integration_points().get_column( iGP ) );
-
-                // compute integration point weight x detJ
-                real tWStar = mSet->get_IG_geometry_interpolator()->det_J() * mSet->get_integration_weights()( iGP );
-
-                // add contribution to jacobian from evaluation point
-                //FIXME: include a thickness if 2D
-                tVolume += tWStar;
-            }
-
-            // FIXME: compute the element size + switch 1D, 2D, 3D
-            //real he = std::pow( 6*tVolume/M_PI, 1.0/3.0 );
-            //real he = std::pow( 4*tVolume/M_PI, 1.0/2.0 );
-            //std::cout<<he<<std::endl;
-
-            return tVolume;
-        }
+        real compute_volume();
 
 //------------------------------------------------------------------------------
         /**

@@ -40,14 +40,12 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_dStressdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
                                                               Matrix< DDRMat >             & adStressdDOF )
         {
-
             // if direct dependency on the dof type
             if( static_cast< uint >( aDofTypes( 0 ) ) < mDofTypeMap.numel() && mDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) ) != -1 )
             {
                 // compute conductivity matrix
-                Matrix< DDRMat > I;
-                eye( mSpaceDim, mSpaceDim, I );
-                Matrix< DDRMat > K = mProperties( 0 )->val()( 0 ) * I;
+                Matrix< DDRMat > K;
+                this->eval_const( K );
 
                 // compute derivative with direct dependency
                 adStressdDOF = K * mFieldInterpolators( 0 )->dnNdxn( 1 );
@@ -75,6 +73,11 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_dStraindDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
                                                               Matrix< DDRMat >             & adStraindDOF )
         {
+            // get dof index
+            uint tDOFIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // init dConstdDOF
+            adStraindDOF.set_size( mSpaceDim, mFieldInterpolators( tDOFIndex )->get_number_of_space_time_coefficients(), 0.0 );
 
             // if direct dependency on the dof type
             if( static_cast< uint >( aDofTypes( 0 ) ) < mDofTypeMap.numel() && mDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) ) != -1 )
@@ -88,6 +91,12 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_dConstdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
                                                              Matrix< DDRMat >             & adConstdDOF )
         {
+            // get dof index
+            uint tDOFIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // init dConstdDOF
+            adConstdDOF.set_size( 1, mFieldInterpolators( tDOFIndex )->get_number_of_space_time_coefficients(), 0.0 );
+
             // if indirect dependency on the dof type
             if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
             {
