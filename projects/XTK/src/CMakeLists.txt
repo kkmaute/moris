@@ -27,6 +27,7 @@ set(HEADERS
     geometry/cl_Multi_Cylinder.hpp
     geometry/cl_Multi_Geometry.hpp
     geometry/cl_Plane.hpp
+    geometry/cl_Star.hpp
     geometry/cl_Sphere.hpp
     geometry/cl_SphereBox.hpp
     geometry/cl_Spiral.hpp

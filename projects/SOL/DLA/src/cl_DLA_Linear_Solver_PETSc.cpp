@@ -103,6 +103,12 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(        Linear_Problem * aL
     KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
     KSPSetFromOptions( mPetscKSPProblem );
 
+//    aLinearSystem->get_free_solver_LHS()->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
+//    aLinearSystem->get_free_solver_LHS()->print();
+
+    aLinearSystem->get_solver_RHS()->save_vector_to_HDF5( "Res_vec.h5" );
+//    aLinearSystem->get_solver_RHS()->print();
+
     // Solve System
     KSPSolve( mPetscKSPProblem, aLinearSystem->get_solver_RHS()->get_petsc_vector(), aLinearSystem->get_free_solver_LHS()->get_petsc_vector() );
 
@@ -193,6 +199,7 @@ void Linear_Solver_PETSc::set_solver_internal_parameters( )
 {
         // Set KSP type
         KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
+        KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
 
         // Set maxits and tolerance for ksp
         KSPSetTolerances( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPTol" ), PETSC_DEFAULT, PETSC_DEFAULT, mParameterList.get< moris::sint >( "KSPMaxits" ) );
