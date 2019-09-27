@@ -7,9 +7,9 @@
 #include "catch.hpp"
 
 #include "cl_HMR.hpp"
-#include "cl_MTK_Hex8_Cell_Info.hpp"
-#include "cl_MTK_Hex27_Cell_Info.hpp"
-#include "cl_MTK_Hex64_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "cl_MTK_Cell_Info_Hex27.hpp"
+#include "cl_MTK_Cell_Info_Hex64.hpp"
 
 namespace moris
 {

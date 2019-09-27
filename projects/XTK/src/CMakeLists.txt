@@ -86,6 +86,7 @@ set(HEADERS
     xtk/cl_XTK_Sensitivity.hpp
     xtk/cl_XTK_Side_Cluster.hpp
     xtk/fn_compute_interface_surface_area.hpp
+    xtk/fn_compute_xtk_model_areas.hpp
     xtk/fn_compute_xtk_model_volumes.hpp
     xtk/fn_create_edges_from_element_to_node.hpp
     xtk/fn_create_faces_from_element_to_node.hpp

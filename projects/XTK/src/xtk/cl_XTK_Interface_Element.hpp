@@ -18,7 +18,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "assert.hpp"
 
-#include "cl_MTK_Tet4_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 
 //TODO:PUT THIS IN A MORE APPROPRIATE SPOT
 inline
