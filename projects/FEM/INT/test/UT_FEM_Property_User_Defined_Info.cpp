@@ -3,9 +3,9 @@
 #include "fn_equal_to.hpp"
 #include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 
-moris::Matrix< moris::DDRMat > tConstValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                  moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tConstValFunction_UTPropContainer( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                                  moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                                  moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );
 }
@@ -22,8 +22,8 @@ namespace moris
             fem::Property_User_Defined_Info tPropertyUserDefinedInfo( { fem::Property_Type::CONDUCTIVITY },
                                                                       {{ MSI::Dof_Type::TEMP }},
                                                                       {{{ 1.0 }}},
-                                                                      tConstValFunction,
-                                                                      { tConstValFunction } );
+                                                                      tConstValFunction_UTPropContainer,
+                                                                      { tConstValFunction_UTPropContainer } );
 
             //check property type
             CHECK( equal_to( static_cast< uint >( tPropertyUserDefinedInfo.get_property_type() ), 3 ) );

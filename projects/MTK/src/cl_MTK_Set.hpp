@@ -58,6 +58,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+        private:
+
+            moris::uint mSpatialDim;
+
+//------------------------------------------------------------------------------
+
+        protected:
+
             void communicate_ip_geometry_type()
             {
                 mtk::Geometry_Type tIPGeometryType = mtk::Geometry_Type::UNDEFINED;
@@ -148,7 +156,10 @@ namespace moris
             { };
 
             Set(std::string                   aName,
-                moris::Cell<Cluster const *>  aBlockSetClusters) : mSetName(aName), mSetClusters( aBlockSetClusters )
+                moris::Cell<Cluster const *>  aBlockSetClusters,
+                const uint                    aSpatialDim ) : mSetName(aName),
+                                                              mSetClusters( aBlockSetClusters ),
+                                                              mSpatialDim( aSpatialDim )
             {
                 this->communicate_ip_geometry_type();
 
@@ -162,6 +173,14 @@ namespace moris
              */
             virtual
             ~Set(){};
+
+//------------------------------------------------------------------------------
+
+            uint get_spatial_dim() const
+            {
+                MORIS_ERROR( !(mSpatialDim < 1) || !(mSpatialDim > 3), "Set::get_spatial_dim(), Spatial dim < 1 or > 3" );
+                return mSpatialDim;
+            }
 
 //------------------------------------------------------------------------------
 

@@ -14,7 +14,6 @@
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
