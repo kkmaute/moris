@@ -9,7 +9,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX64_HPP_
 
 #include "cl_HMR_Lagrange_Element.hpp"
-#include "cl_MTK_Hex64_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Hex64.hpp"
 
 namespace moris
 {

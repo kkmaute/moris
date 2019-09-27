@@ -17,7 +17,7 @@
 #include "xtk/cl_XTK_Child_Mesh_Modification_Template.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
 #include "fn_verify_tet_topology.hpp"
-#include "cl_MTK_Tet4_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 #include "fn_equal_to.hpp"
 

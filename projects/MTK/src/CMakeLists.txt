@@ -24,9 +24,9 @@ cl_MTK_Enums.hpp
 cl_MTK_Exodus_IO_Helper.hpp
 cl_MTK_Facet.hpp
 cl_MTK_Fields_Info.hpp
-cl_MTK_Hex27_Cell_Info.hpp
-cl_MTK_Hex64_Cell_Info.hpp
-cl_MTK_Hex8_Cell_Info.hpp
+cl_MTK_Cell_Info_Hex8.hpp
+cl_MTK_Cell_Info_Hex27.hpp
+cl_MTK_Cell_Info_Hex64.hpp
 cl_MTK_Integration_Mesh.hpp
 cl_MTK_Interpolation_Mesh.hpp
 cl_MTK_Matrix_Field_Info.hpp
@@ -43,7 +43,8 @@ cl_MTK_Side_Cluster_Input.hpp
 cl_MTK_Side_Cluster.hpp
 cl_MTK_Side_Set.hpp
 cl_MTK_Side_Sets_Info.hpp
-cl_MTK_Tet4_Cell_Info.hpp
+cl_MTK_Cell_Info_Tet4.hpp
+cl_MTK_Cell_Info_Quad9.hpp
 cl_MTK_Topology.hpp
 cl_MTK_Vertex_Interpolation.hpp
 cl_MTK_Vertex_Proxy.hpp
@@ -68,7 +69,14 @@ stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
 stk_impl/cl_MTK_Cell_Cluster_STK.cpp
 stk_impl/cl_MTK_Side_Cluster_STK.cpp
 cl_MTK_Cell_Info_Factory.cpp
-cl_MTK_Block.cpp)
+cl_MTK_Block.cpp
+cl_MTK_Cell_Info_Hex8.cpp
+cl_MTK_Cell_Info_Hex27.cpp
+cl_MTK_Cell_Info_Hex64.cpp
+cl_MTK_Cell_Info_Tet4.cpp
+cl_MTK_Cell_Info_Tri3.cpp
+cl_MTK_Cell_Info_Quad4.cpp
+cl_MTK_Cell_Info_Quad9.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES

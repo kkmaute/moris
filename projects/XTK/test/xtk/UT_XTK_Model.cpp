@@ -165,11 +165,8 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION_MODEL]")
 }
 TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMAL_MODEL]")
 {
-    moris::Profiler tProfiler("./temp_profile");
-    int tProcRank = 0;
-    int tProcSize = 0;
-    MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
-    MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
+    int tProcRank = moris::par_rank();
+    int tProcSize = moris::par_size();
 
     if(tProcSize<=2)
     {
@@ -203,15 +200,6 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             Output_Options tOutputOptions;
             tOutputOptions.mAddNodeSets = true;
             tOutputOptions.mAddSideSets = true;
-
-//            // Specify there are 2 possible phases
-//            size_t tNumPhases = 2;
-//
-//            // Say I only want to output phase 0 (inside the cylinder)
-//            Cell<size_t> tPhasesToOutput = {1};
-//
-//            // Give this information to the output options
-//            tOutputOptions.change_phases_to_output(tNumPhases,tPhasesToOutput);
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
 
@@ -347,7 +335,6 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
 
             delete tCutMeshData;
             delete tMeshData;
-	tProfiler.stop();
         }
     }
 

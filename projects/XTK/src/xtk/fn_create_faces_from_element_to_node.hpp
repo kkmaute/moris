@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 #include "cl_Mesh_Enums.hpp"
-#include "cl_MTK_Tet4_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Cell_Info.hpp"

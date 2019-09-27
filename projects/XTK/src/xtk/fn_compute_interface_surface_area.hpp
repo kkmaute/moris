@@ -14,7 +14,7 @@
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Model.hpp"
 #include "fn_tri_area.hpp"
-#include "cl_MTK_Tet4_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 
 namespace xtk
 {
