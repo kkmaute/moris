@@ -13,11 +13,12 @@
 #include "linalg_typedefs.hpp"
 #include "assert.hpp"
 #include "cl_MTK_Enums.hpp"
-
 namespace moris
 {
 namespace mtk
 {
+
+class Cell;
 
 class Cell_Info
 {
@@ -83,7 +84,29 @@ class Cell_Info
 	    MORIS_ERROR(0,"get edge to face map not implemented for this CELL_INFO, this CELL_INFO currently used in XTK only for tets/tris");
 	    return moris::Matrix<moris::IndexMat>(0,0);
 	}
-
+	// ---------------------------------------------------------------------------------
+	/*!
+	 * Compute the volume of 3D cell or the surface area of 2d cell
+	 */
+	virtual
+	moris::real
+	compute_cell_size( moris::mtk::Cell const * aCell ) const = 0;
+	// ---------------------------------------------------------------------------------
+//        /*!
+//         * Compute the surface area of side of 3D cell or the arc length of side of 2d cell
+//         */
+//	virtual
+//        moris::real
+//        compute_cell_facet_size( moris::mtk::Cell* aCell,
+//                                 moris_index       aSideOrdinal) = 0;
+//
+//	/*!
+//	 * Compute the outward normal of a facet
+//	 */
+//	virtual
+//	moris::real
+//	compute_cell_outward_facet_normal( moris::mtk::Cell* aCell,
+//	                                   moris_index       aSideOrdinal) = 0;
 };
 
 }

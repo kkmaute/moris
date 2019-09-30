@@ -16,8 +16,8 @@
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
-#include "cl_MTK_Hex8_Cell_Info.hpp"
-#include "cl_MTK_Tet4_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"

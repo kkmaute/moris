@@ -16,7 +16,7 @@
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_XTK_Child_Mesh.hpp"
-#include "cl_MTK_Tet4_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
