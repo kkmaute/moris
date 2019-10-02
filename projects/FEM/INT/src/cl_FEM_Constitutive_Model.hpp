@@ -440,6 +440,141 @@ namespace moris
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dConstdDOF - This function does nothing. " );
             }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluates the constitutive model stress derivative wrt to a dof type
+             * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+             * @param[ in ] adStressdDOF_FD a matrix to fill with derivative evaluation
+             * @param[ in ] aPerturbation   real to perturb for FD
+             */
+            void eval_dStressdDOF_FD( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                      Matrix< DDRMat >             & adStressdDOF_FD,
+                                      real                           aPerturbation )
+            {
+                // get the index for the considered dof type
+                uint iFI = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ), 0 );
+
+                // get number of master dofs wrt which derivative is computed
+                uint tDerNumDof = mFieldInterpolators( iFI )->get_number_of_space_time_coefficients();
+
+                // set size for derivative
+                adStressdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = mFieldInterpolators( iFI )->get_coeff();
+
+                for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                {
+                    // perturbation of the coefficent
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
+
+                    // setting the perturbed coefficients
+                    mFieldInterpolators( iFI )->set_coeff( tCoeffPert );
+
+                    // reset properties
+                    uint tNumProps = mPropTypes.size();
+                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    {
+                        mProperties( iProp )->reset_eval_flags();
+                    }
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tStress_Plus;
+                    this->eval_stress( tStress_Plus );
+
+                    // perturbation of the coefficent
+                    tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
+
+                    // setting the perturbed coefficients
+                    mFieldInterpolators( iFI )->set_coeff( tCoeffPert );
+
+                    // reset properties
+                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    {
+                        mProperties( iProp )->reset_eval_flags();
+                    }
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tStress_Minus;
+                    this->eval_stress( tStress_Minus );
+
+                    // evaluate Jacobian
+                    adStressdDOF_FD.get_column( iCoeff ) = ( tStress_Plus - tStress_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
+                }
+                // reset the coefficients values
+                mFieldInterpolators( iFI )->set_coeff( tCoeff );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+            * evaluates the constitutive model strain derivative wrt to a dof type
+            * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+            * @param[ in ] adStraindDOF_FD a matrix to fill with derivative evaluation
+            * @param[ in ] aPerturbation   real to perturb for FD
+            */
+            void eval_dStraindDOF_FD( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                      Matrix< DDRMat >             & adStraindDOF_FD,
+                                      real                           aPerturbation )
+            {
+                // get the index for the considered dof type
+                uint iFI = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ), 0 );
+
+                // get number of master dofs wrt which derivative is computed
+                uint tDerNumDof = mFieldInterpolators( iFI )->get_number_of_space_time_coefficients();
+
+                // set size for derivative
+                adStraindDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+
+                // coefficients for dof type wrt which derivative is computed
+                Matrix< DDRMat > tCoeff = mFieldInterpolators( iFI )->get_coeff();
+
+                for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                {
+                    // perturbation of the coefficent
+                    Matrix< DDRMat > tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
+
+                    // setting the perturbed coefficients
+                    mFieldInterpolators( iFI )->set_coeff( tCoeffPert );
+
+                    // reset properties
+                    uint tNumProps = mPropTypes.size();
+                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    {
+                        mProperties( iProp )->reset_eval_flags();
+                    }
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tStrain_Plus;
+                    this->eval_strain( tStrain_Plus );
+
+                    // perturbation of the coefficent
+                    tCoeffPert = tCoeff;
+                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
+
+                    // setting the perturbed coefficients
+                    mFieldInterpolators( iFI )->set_coeff( tCoeffPert );
+
+                    // reset properties
+                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    {
+                        mProperties( iProp )->reset_eval_flags();
+                    }
+
+                    // evaluate the residual
+                    Matrix< DDRMat > tStrain_Minus;
+                    this->eval_strain( tStrain_Minus );
+
+                    // evaluate Jacobian
+                    adStraindDOF_FD.get_column( iCoeff ) = ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
+                }
+                // reset the coefficients values
+                mFieldInterpolators( iFI )->set_coeff( tCoeff );
+            }
+
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------

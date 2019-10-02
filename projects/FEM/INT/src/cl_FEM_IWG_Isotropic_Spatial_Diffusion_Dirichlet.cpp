@@ -83,17 +83,15 @@ namespace moris
                     += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) )
                        - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
                 }
-            }
 
-            // compute the jacobian for indirect dof dependencies through constitutive models
-            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
-            {
                 // if dependency on the dof type
                 if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
-                    // evaluate derivative
+                    // evaluate stress derivative
                     Matrix< DDRMat > tdStress;
                     mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStress );
+
+                    // evaluate constitutive matrix derivative
                     Matrix< DDRMat > tdK;
                     mMasterCM( 0 )->eval_dConstdDOF( mMasterGlobalDofTypes( iDOF ), tdK );
 
@@ -152,17 +150,15 @@ namespace moris
                     += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) )
                        - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
                 }
-            }
 
-            // compute the jacobian for indirect dof dependencies through constitutive models
-            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
-            {
                 // if dependency on the dof type
                 if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
-                    // evaluate derivatives
+                    // evaluate stress derivatives
                     Matrix< DDRMat > tdStress;
                     mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStress );
+
+                    // evaluate constitutive matrix derivatives
                     Matrix< DDRMat > tdK;
                     mMasterCM( 0 )->eval_dConstdDOF( mMasterGlobalDofTypes( iDOF ), tdK );
 

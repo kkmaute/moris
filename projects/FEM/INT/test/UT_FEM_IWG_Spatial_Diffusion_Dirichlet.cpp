@@ -53,9 +53,6 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
     // create an IWG Spatial Difffusion Bulk
     IWG_Isotropic_Spatial_Diffusion_Dirichlet tIWG;
 
-//    // set space dimension
-//    tIWG.set_space_dim( 3 );
-
     // set residual dof type
     tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 
@@ -457,11 +454,11 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             // evaluate the jacobian
             Cell< Cell< Matrix< DDRMat > > > tJacobians;
             tIWG.compute_jacobian( tJacobians );
-            //print( tJacobians( 0 )( 0 ),"tJacobians");
+            print( tJacobians( 0 )( 0 ),"tJacobians");
 
             Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
             tIWG.compute_jacobian_FD( tJacobiansFD, tPerturbation );
-            //print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD");
+            print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD");
 
             //define a boolean for check
             bool tCheckJacobian = true;

@@ -117,7 +117,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
         tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
@@ -148,12 +148,18 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
                                                       {{{ 20.0 }}},
                                                       tConstValFunction_MDLDIFF,
                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
+                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                   {{{ 0.0 }}},
+                                                   tConstValFunction_MDLDIFF,
+                                                   Cell< fem::PropertyFunc >( 0 ) );
 
         // create property user defined info
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 3 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
@@ -342,7 +348,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
         tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET, { MSI::Dof_Type::TEMP },
@@ -371,12 +377,18 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
                                                       {{{ 20.0 }}},
                                                       tConstValFunction_MDLDIFF,
                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
+                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                   {{{ 0.0 }}},
+                                                   tConstValFunction_MDLDIFF,
+                                                   Cell< fem::PropertyFunc >( 0 ) );
 
         // create property user defined info
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 3 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
@@ -575,7 +587,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
         tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
@@ -606,12 +618,18 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
                                                       {{{ 20.0 }}},
                                                       tConstValFunction_MDLDIFF,
                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
+                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                   {{{ 0.0 }}},
+                                                   tConstValFunction_MDLDIFF,
+                                                   Cell< fem::PropertyFunc >( 0 ) );
 
         // create property user defined info
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 3 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
@@ -845,7 +863,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
         tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
@@ -876,12 +894,18 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
                                                       {{{ 20.0 }}},
                                                       tConstValFunction_MDLDIFF,
                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
+                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                   {{{ 0.0 }}},
+                                                   tConstValFunction_MDLDIFF,
+                                                   Cell< fem::PropertyFunc >( 0 ) );
 
         // create property user defined info
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 3 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
@@ -1125,7 +1149,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
         tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
@@ -1156,12 +1180,18 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
                                                       {{{ 20.0 }}},
                                                       tConstValFunction_MDLDIFF,
                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
+                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                   {{{ 0.0 }}},
+                                                   tConstValFunction_MDLDIFF,
+                                                   Cell< fem::PropertyFunc >( 0 ) );
 
         // create property user defined info
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 3 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;

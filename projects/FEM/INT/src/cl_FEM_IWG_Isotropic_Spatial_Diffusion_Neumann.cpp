@@ -45,7 +45,8 @@ namespace moris
                 if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
                 }
             }
         }
@@ -80,7 +81,8 @@ namespace moris
                 if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
                 }
             }
         }

@@ -61,12 +61,6 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
     // set active constitutive type
     tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO }, mtk::Master_Slave::SLAVE );
 
-    // set master property type
-    //tIWG.set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
-
-    // set slave property type
-    //tIWG.set_property_type_list( { fem::Property_Type::CONDUCTIVITY }, mtk::Master_Slave::SLAVE );
-
     // set the normal
     Matrix< DDRMat > tNormal = {{1.0},{0.0},{0.0}};
     tIWG.set_normal( tNormal );
