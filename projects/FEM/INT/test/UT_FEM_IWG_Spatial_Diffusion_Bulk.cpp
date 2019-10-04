@@ -53,9 +53,6 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
     // create an IWG Spatial Difffusion Bulk
     IWG_Isotropic_Spatial_Diffusion_Bulk tIWG;
 
-//    // set space dimension
-//    tIWG.set_space_dim( 3 );
-
     // set residual dof type
     tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 
@@ -66,8 +63,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
     tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO } );
 
     // set active property type
-    tIWG.set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
-
+    tIWG.set_property_type_list( { fem::Property_Type::TEMP_LOAD } );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -148,22 +144,32 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
     {
         // properties
         //------------------------------------------------------------------------------
-        // create property coefficients
-        Cell< Matrix< DDRMat > > tPropCoeff = { {{1.0}} };
-
         // create a cell of properties for IWG
-        Cell< Property* > tProps( tIWG.get_property_type_list().size() );
+        Cell< Property* > tIWGProps( 2 );
+        // create a cell of properties for CM
+        Cell< Property* > tCMProps( 1 );
 
-        for( uint iProp = 0; iProp < tIWG.get_property_type_list().size(); iProp++ )
-        {
-            // create a property
-            tProps( iProp ) = new Property( tIWG.get_property_type_list()( iProp ),
-                                            Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                            tPropCoeff,
-                                            tConstValFunction_UTIWGDIFFBULK,
-                                            Cell< PropertyFunc > ( 0 ),
-                                            tGI );
-        }
+        // create a property for IWG
+        tIWGProps( 0 ) = new Property( fem::Property_Type::TEMP_LOAD,
+                                       Cell< Cell< MSI::Dof_Type > > ( 0 ),
+                                       {{{ 0.0 }}},
+                                       tConstValFunction_UTIWGDIFFBULK,
+                                       Cell< PropertyFunc > ( 0 ),
+                                       tGI );
+        tIWGProps( 1 ) = new Property( fem::Property_Type::CONDUCTIVITY,
+                                       Cell< Cell< MSI::Dof_Type > > ( 0 ),
+                                       {{{ 1.0 }}},
+                                       tConstValFunction_UTIWGDIFFBULK,
+                                       Cell< PropertyFunc > ( 0 ),
+                                       tGI );
+
+        // create a property for IWG
+        tCMProps( 0 ) = new Property( fem::Property_Type::CONDUCTIVITY,
+                                      Cell< Cell< MSI::Dof_Type > > ( 0 ),
+                                      {{{ 1.0 }}},
+                                      tConstValFunction_UTIWGDIFFBULK,
+                                      Cell< PropertyFunc > ( 0 ),
+                                      tGI );
 
         // constitutive models
         //------------------------------------------------------------------------------
@@ -189,7 +195,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
             tCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
 
             // set properties
-            tCMs( iCM )->set_properties( tProps );
+            tCMs( iCM )->set_properties( tCMProps );
 
             // set field interpolators
             tCMs( iCM )->set_field_interpolators( tFIs );
@@ -199,7 +205,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
         tIWG.set_constitutive_models( tCMs );
 
         // set IWG properties
-        tIWG.set_properties( tProps );
+        tIWG.set_properties( tIWGProps );
 
         // set IWG field interpolators
         tIWG.set_field_interpolators( tFIs );
@@ -240,11 +246,17 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
 
         REQUIRE( tCheckJacobian );
 
-        for( Property* tProp : tProps )
+        for( Property* tProp : tIWGProps )
         {
             delete tProp;
         }
-        tProps.clear();
+        tIWGProps.clear();
+
+        for( Property* tProp : tCMProps )
+        {
+            delete tProp;
+        }
+        tCMProps.clear();
 
     }/* END_SECTION */
 
@@ -252,22 +264,33 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
         {
             // properties
             //------------------------------------------------------------------------------
-            // create property coefficients
-            Cell< Matrix< DDRMat > > tPropCoeff = { {{1.0}} };
 
             // create a cell of properties for IWG
-            Cell< Property* > tProps( tIWG.get_property_type_list().size() );
+            Cell< Property* > tIWGProps( 2 );
+            // create a cell of properties for CM
+            Cell< Property* > tCMProps( 1 );
 
-            for( uint iProp = 0; iProp < tIWG.get_property_type_list().size(); iProp++ )
-            {
-                // create a property
-                tProps( iProp ) = new Property( tIWG.get_property_type_list()( iProp ),
-                                                Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                                tPropCoeff,
-                                                tGeoValFunction_UTIWGDIFFBULK,
-                                                Cell< PropertyFunc > ( 0 ),
-                                                tGI );
-            }
+            // create a property for IWG
+            tIWGProps( 0 ) = new Property( fem::Property_Type::TEMP_LOAD,
+                                           Cell< Cell< MSI::Dof_Type > > ( 0 ),
+	                                       {{{ 0.0 }}},
+                                           tConstValFunction_UTIWGDIFFBULK,
+                                           Cell< PropertyFunc > ( 0 ),
+                                           tGI );
+            tIWGProps( 1 ) = new Property( fem::Property_Type::CONDUCTIVITY,
+                                           Cell< Cell< MSI::Dof_Type > > ( 0 ),
+                                           {{{ 1.0 }}},
+                                           tConstValFunction_UTIWGDIFFBULK,
+                                           Cell< PropertyFunc > ( 0 ),
+                                           tGI );
+
+            // create a property for IWG
+            tCMProps( 0 ) = new Property( fem::Property_Type::CONDUCTIVITY,
+                                          Cell< Cell< MSI::Dof_Type > > ( 0 ),
+	                                      {{{ 1.0 }}},
+                                          tGeoValFunction_UTIWGDIFFBULK,
+                                          Cell< PropertyFunc > ( 0 ),
+                                          tGI );
 
             // constitutive models
             //------------------------------------------------------------------------------
@@ -293,7 +316,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
                 tCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
 
                 // set properties
-                tCMs( iCM )->set_properties( tProps );
+                tCMs( iCM )->set_properties( tCMProps );
 
                 // set field interpolators
                 tCMs( iCM )->set_field_interpolators( tFIs );
@@ -303,7 +326,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
             tIWG.set_constitutive_models( tCMs );
 
             // set IWG properties
-            tIWG.set_properties( tProps );
+            tIWG.set_properties( tIWGProps );
 
             // set IWG field interpolators
             tIWG.set_field_interpolators( tFIs );
@@ -345,11 +368,17 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
 
             REQUIRE( tCheckJacobian );
 
-            for( Property* tProp : tProps )
+            for( Property* tProp : tIWGProps )
             {
                 delete tProp;
             }
-            tProps.clear();
+            tIWGProps.clear();
+
+            for( Property* tProp : tCMProps )
+            {
+                delete tProp;
+            }
+            tCMProps.clear();
 
         }/* END_SECTION */
 
@@ -357,25 +386,33 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
         {
             // properties
             //------------------------------------------------------------------------------
-            // create property coefficients
-            Cell< Matrix< DDRMat > > tPropCoeff = { {{1.0}} };
 
             // create a cell of properties for IWG
-            Cell< Property* > tProps( tIWG.get_property_type_list().size() );
+            Cell< Property* > tIWGProps( 2 );
+            // create a cell of properties for CM
+            Cell< Property* > tCMProps( 1 );
 
-            for( uint iProp = 0; iProp < tIWG.get_property_type_list().size(); iProp++ )
-            {
-                // create a property
-                tProps( iProp ) = new Property( tIWG.get_property_type_list()( iProp ),
-                                                {{ MSI::Dof_Type::TEMP }},
-                                                tPropCoeff,
-                                                tFIValFunction_UTIWGDIFFBULK,
-                                                { tFIDerFunction_UTIWGDIFFBULK },
-                                                tGI );
+            // create a property for IWG
+            tIWGProps( 0 ) = new Property( fem::Property_Type::TEMP_LOAD,
+                                           Cell< Cell< MSI::Dof_Type >>( 0 ),
+                                           {{{ 1.0 }}},
+                                           tConstValFunction_UTIWGDIFFBULK,
+                                           Cell< PropertyFunc >( 0 ),
+                                           tGI );
+            tIWGProps( 1 ) = new Property( fem::Property_Type::CONDUCTIVITY,
+                                           {{ MSI::Dof_Type::TEMP}},
+                                           {{{ 2.0 }}},
+                                           tFIValFunction_UTIWGDIFFBULK,
+                                           { tFIDerFunction_UTIWGDIFFBULK },
+                                           tGI );
 
-                // set field interpolators
-                tProps( iProp )->set_field_interpolators( tFIs );
-            }
+            // create a property for IWG
+            tCMProps( 0 ) = tIWGProps( 1 );
+
+            // set field interpolators
+            //tIWGProps( 0 )->set_field_interpolators( tFIs );
+            tIWGProps( 1 )->set_field_interpolators( tFIs );
+            tCMProps( 0 )->set_field_interpolators( tFIs );
 
             // constitutive models
             //------------------------------------------------------------------------------
@@ -401,7 +438,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
                 tCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
 
                 // set properties
-                tCMs( iCM )->set_properties( tProps );
+                tCMs( iCM )->set_properties( tCMProps );
 
                 // set field interpolators
                 tCMs( iCM )->set_field_interpolators( tFIs );
@@ -412,7 +449,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
             tIWG.set_constitutive_models( tCMs );
 
             // set IWG properties
-            tIWG.set_properties( tProps );
+            tIWG.set_properties( tIWGProps );
 
             // set IWG field interpolators
             tIWG.set_field_interpolators( tFIs );
@@ -453,11 +490,11 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
 
             REQUIRE( tCheckJacobian );
 
-            for( Property* tProp : tProps )
+            for( Property* tProp : tIWGProps )
             {
                 delete tProp;
             }
-            tProps.clear();
+            tIWGProps.clear();
 
         }/* END_SECTION */
 

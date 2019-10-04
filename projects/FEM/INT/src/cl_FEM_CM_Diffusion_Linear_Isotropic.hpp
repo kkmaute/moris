@@ -46,10 +46,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model stress
-             * @param[ in ] aStress a matrix to fill with evaluation
+             * evaluate the constitutive model flux
+             * @param[ in ] aFlux a matrix to fill with evaluation
              */
-            void eval_stress( Matrix< DDRMat > & aStress );
+            void eval_flux( Matrix< DDRMat > & aFlux );
 
 //------------------------------------------------------------------------------
             /**
@@ -67,12 +67,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the constitutive model stress derivative wrt to a dof type
-             * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
-             * @param[ in ] adStressdDOF a matrix to fill with derivative evaluation
+             * evaluate the constitutive model flux derivative wrt to a dof type
+             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+             * @param[ in ] adFluxdDOF a matrix to fill with derivative evaluation
              */
-            void eval_dStressdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                   Matrix< DDRMat >             & adStressdDOF );
+            void eval_dFluxdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                 Matrix< DDRMat >             & adFluxdDOF );
 
 //------------------------------------------------------------------------------
             /**

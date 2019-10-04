@@ -105,6 +105,7 @@ namespace moris
             TEMP_DIRICHLET,
             TEMP_NEUMANN,
             CONDUCTIVITY,
+            TEMP_LOAD,
             END_PROPERTY_TYPE
         };
 

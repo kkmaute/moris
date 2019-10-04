@@ -32,6 +32,8 @@ namespace moris
     {
         TEST_CASE( "Constitutive_Model", "[moris],[fem],[CM]" )
         {
+            // real for check
+            real tEpsilon = 1E-6;
 
             // create a CM factory
             CM_Factory tCMFactory;
@@ -122,24 +124,53 @@ namespace moris
             CHECK( equal_to( static_cast< uint >( tCM->get_global_dof_type_list()( 0 )( 0 ) ), 3 ) ); //TEMP
 
             // evaluate the constitutive model stress
-            Matrix< DDRMat > tStress;
-            tCM->eval_stress( tStress );
-            print( tStress, "tStress");
+            Matrix< DDRMat > tFlux;
+            tCM->eval_flux( tFlux );
+            //print( tStress, "tStress");
 
             // evaluate the constitutive model stress derivative
-            Matrix< DDRMat > tdStressdDOF;
-            tCM->eval_dStressdDOF( { MSI::Dof_Type::TEMP }, tdStressdDOF );
-            print( tdStressdDOF, "tdStressdDOF" );
+            Matrix< DDRMat > tdFluxdDOF;
+            tCM->eval_dFluxdDOF( { MSI::Dof_Type::TEMP }, tdFluxdDOF );
+
+            // evaluate the constitutive model stress derivative by FD
+            Matrix< DDRMat > tdFluxdDOF_FD;
+            tCM->eval_dFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdFluxdDOF_FD, 1E-6 );
+
+            //check stress derivative
+            bool tCheckdStress = true;
+            for ( uint iStress = 0; iStress < tdFluxdDOF.n_rows(); iStress++ )
+            {
+                for( uint jStress = 0; jStress < tdFluxdDOF.n_cols(); jStress++ )
+                {
+                    tCheckdStress = tCheckdStress && ( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) < tEpsilon );
+                }
+            }
+            REQUIRE( tCheckdStress );
 
             // evaluate the constitutive model strain
             Matrix< DDRMat > tStrain;
             tCM->eval_strain( tStrain );
-            print( tStrain, "tStrain");
+            //print( tStrain, "tStrain");
 
             // evaluate the constitutive model strain derivative
             Matrix< DDRMat > tdStraindDOF;
             tCM->eval_dStraindDOF( { MSI::Dof_Type::TEMP }, tdStraindDOF );
-            print( tdStraindDOF, "tdStraindDOF" );
+            //print( tdStraindDOF, "tdStraindDOF" );
+
+            // evaluate the constitutive model strain derivative by FD
+            Matrix< DDRMat > tdStraindDOF_FD;
+            tCM->eval_dStraindDOF_FD( { MSI::Dof_Type::TEMP }, tdStraindDOF_FD, 1E-6 );
+
+            //check strain derivative
+            bool tCheckdStrain = true;
+            for ( uint iStress = 0; iStress < tdStraindDOF.n_rows(); iStress++ )
+            {
+                for( uint jStress = 0; jStress < tdStraindDOF.n_cols(); jStress++ )
+                {
+                    tCheckdStrain = tCheckdStrain && ( tdStraindDOF( iStress, jStress ) - tdStraindDOF_FD( iStress, jStress ) < tEpsilon );
+                }
+            }
+            REQUIRE( tCheckdStrain );
 
             // evaluate the constitutive model constitutive matrix
             Matrix< DDRMat > tConst;
