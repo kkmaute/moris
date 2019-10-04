@@ -235,14 +235,6 @@ public:
     void
     delete_neighborhood(){ mElementToElement.resize(0); };
 
-    void
-    print_neighborhood();
-
-    void
-    print_subphase_neighborhood();
-
-
-
     //--------------------------------------------------------------------------------
     // Data access functions
     //--------------------------------------------------------------------------------
@@ -307,6 +299,24 @@ public:
     std::shared_ptr< moris::mtk::Mesh > mHMRMesh = nullptr;
 
     //--------------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------------
+    // Printing Functions
+    //--------------------------------------------------------------------------------
+    void
+    print_cells();
+
+    void
+    print_vertex_geometry();
+
+    void
+    print_neighborhood();
+
+    void
+    print_subphase_neighborhood();
+
+    void
+    print_interface_vertices();
 
 protected:
     uint                               mModelDimension;
@@ -576,6 +586,14 @@ private:
      */
     moris::mtk::Integration_Mesh*
     construct_output_mesh( Output_Options const & aOutputOptions );
+
+    /*!
+     * Setup interface single sided side sets
+     */
+    void
+    setup_interface_single_side_sets(Output_Options const & aOutputOptions,
+                                     Cell<moris::Matrix<moris::IdMat>> & aCellIdsAndSideOrds,
+                                     Cell<std::string> &                 aInterfaceSetNames);
 
     /*!
      * extract surface internal function

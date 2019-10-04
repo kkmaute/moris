@@ -36,12 +36,12 @@ public:
 
     friend class Enriched_Integration_Mesh;
 protected:
-    bool                                    mTrivial;
-    Interpolation_Cell_Unzipped const *     mInterpolationCell;
-    Child_Mesh const *                      mChildMesh;
-    moris::Cell<moris::mtk::Cell const *>   mIntegrationCells;
-    moris::Matrix<moris::IndexMat>          mIntegrationCellSideOrdinals;
-    moris::Cell<moris::mtk::Vertex const *> mVerticesInCluster;
+    bool                                        mTrivial;
+    Interpolation_Cell_Unzipped const *         mInterpolationCell;
+    Child_Mesh const *                          mChildMesh;
+    moris::Cell<moris::mtk::Cell const *>       mIntegrationCells;
+    moris::Matrix<moris::IndexMat>              mIntegrationCellSideOrdinals;
+    moris::Cell<moris::mtk::Vertex const *>     mVerticesInCluster;
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
 
     void

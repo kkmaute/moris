@@ -42,8 +42,11 @@ public:
     mLeftSideCluster(nullptr),
     mRightSideCluster(nullptr){};
 
+    virtual
+    ~Double_Side_Cluster(){};
+
     Double_Side_Cluster(moris::mtk::Side_Cluster *                      aLeftSideCluster,
-                        moris::mtk::Side_Cluster *                     aRightSideCluster,
+                        moris::mtk::Side_Cluster *                      aRightSideCluster,
                         moris::Cell<moris::mtk::Vertex const *> const & aLeftToRightVertexPair):
         mLeftSideCluster(aLeftSideCluster),
         mRightSideCluster(aRightSideCluster)

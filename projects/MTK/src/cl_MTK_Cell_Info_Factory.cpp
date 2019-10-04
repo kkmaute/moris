@@ -84,8 +84,8 @@ Cell_Info_Factory::create_cell_info(enum Geometry_Type       aCellGeom,
             {
             switch(aInterpOrder)
             {
-                case(Interpolation_Order::LINEAR):{  tConn = new Cell_Info_Quad4(); break; }
-                //            case(Interpolation_Order::QUADRATIC):{  break; }
+                case(Interpolation_Order::LINEAR):   {  tConn = new Cell_Info_Quad4(); break; }
+                case(Interpolation_Order::QUADRATIC):{  tConn = new Cell_Info_Quad9(); break; }
                 //            case(Interpolation_Order::CUBIC):{  break; }
                 default:{MORIS_ERROR(0,"Invalid quad interpolation order"); break; }
             }
