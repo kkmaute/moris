@@ -12,11 +12,10 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
-            // check master field interpolators
+            // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
-
-            // check master properties
             this->check_properties();
+            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
@@ -28,15 +27,16 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // check master field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            // check master field interpolators, properties, constitutive models
+            this->check_field_interpolators();
+            this->check_properties();
+            this->check_constitutive_models();
 
             // set jacobian size
             this->set_jacobian( aJacobians );
 
             // compute the jacobian for direct IWG dof dependencies
-            uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
-            aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            // None
 
             // compute the jacobian for indirect IWG dof dependencies through properties
             for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
@@ -55,11 +55,10 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                      moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // check master field interpolators
+            // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
-
-            // check master properties
             this->check_properties();
+            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
@@ -71,11 +70,11 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian for direct IWG dof dependencies
-            uint tNumOfBases = mMasterFI( 0 )->get_number_of_space_time_bases();
-            aJacobians( 0 )( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            // None
 
             // compute the jacobian for indirect IWG dof dependencies through properties
-            for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
+            uint tNumFDofTypes = mMasterGlobalDofTypes.size();
+            for( uint iDOF = 0; iDOF < tNumFDofTypes; iDOF++ )
             {
                 // if dependency in the dof type
                 if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )

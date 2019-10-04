@@ -124,25 +124,25 @@ namespace moris
             CHECK( equal_to( static_cast< uint >( tCM->get_global_dof_type_list()( 0 )( 0 ) ), 3 ) ); //TEMP
 
             // evaluate the constitutive model stress
-            Matrix< DDRMat > tStress;
-            tCM->eval_stress( tStress );
+            Matrix< DDRMat > tFlux;
+            tCM->eval_flux( tFlux );
             //print( tStress, "tStress");
 
             // evaluate the constitutive model stress derivative
-            Matrix< DDRMat > tdStressdDOF;
-            tCM->eval_dStressdDOF( { MSI::Dof_Type::TEMP }, tdStressdDOF );
+            Matrix< DDRMat > tdFluxdDOF;
+            tCM->eval_dFluxdDOF( { MSI::Dof_Type::TEMP }, tdFluxdDOF );
 
             // evaluate the constitutive model stress derivative by FD
-            Matrix< DDRMat > tdStressdDOF_FD;
-            tCM->eval_dStressdDOF_FD( { MSI::Dof_Type::TEMP }, tdStressdDOF_FD, 1E-6 );
+            Matrix< DDRMat > tdFluxdDOF_FD;
+            tCM->eval_dFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdFluxdDOF_FD, 1E-6 );
 
             //check stress derivative
             bool tCheckdStress = true;
-            for ( uint iStress = 0; iStress < tdStressdDOF.n_rows(); iStress++ )
+            for ( uint iStress = 0; iStress < tdFluxdDOF.n_rows(); iStress++ )
             {
-                for( uint jStress = 0; jStress < tdStressdDOF.n_cols(); jStress++ )
+                for( uint jStress = 0; jStress < tdFluxdDOF.n_cols(); jStress++ )
                 {
-                    tCheckdStress = tCheckdStress && ( tdStressdDOF( iStress, jStress ) - tdStressdDOF_FD( iStress, jStress ) < tEpsilon );
+                    tCheckdStress = tCheckdStress && ( tdFluxdDOF( iStress, jStress ) - tdFluxdDOF_FD( iStress, jStress ) < tEpsilon );
                 }
             }
             REQUIRE( tCheckdStress );

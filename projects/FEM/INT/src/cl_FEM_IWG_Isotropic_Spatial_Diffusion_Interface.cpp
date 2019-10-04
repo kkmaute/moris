@@ -41,15 +41,15 @@ namespace moris
             this->set_residual_double( aResidual );
 
             // evaluate master flux
-            Matrix< DDRMat > tMasterStress;
-            mMasterCM( 0 )->eval_stress( tMasterStress );
+            Matrix< DDRMat > tMasterFlux;
+            mMasterCM( 0 )->eval_flux( tMasterFlux );
 
             // evaluate slave flux
-            Matrix< DDRMat > tSlaveStress;
-            mSlaveCM( 0 )->eval_stress( tSlaveStress );
+            Matrix< DDRMat > tSlaveFlux;
+            mSlaveCM( 0 )->eval_flux( tSlaveFlux );
 
             // evaluate average flux
-            Matrix< DDRMat > tStress = mMasterWeight * tMasterStress + mSlaveWeight * tSlaveStress;
+            Matrix< DDRMat > tFlux = mMasterWeight * tMasterFlux + mSlaveWeight * tSlaveFlux;
 
             // evaluate master conductivity matrix
             Matrix< DDRMat > tMasterK;
@@ -63,12 +63,12 @@ namespace moris
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
 
             // compute master residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tStress, mNormal )
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tFlux, mNormal )
                              +  trans( mMasterWeight * tMasterK * mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * tJump
                              + mGammaInterface * trans( mMasterFI( 0 )->N() ) * tJump;
 
             // compute slave residual
-            aResidual( 1 ) =   trans( mSlaveFI( 0 )->N() ) * dot( tStress, mNormal )
+            aResidual( 1 ) =   trans( mSlaveFI( 0 )->N() ) * dot( tFlux, mNormal )
                              + trans( mSlaveWeight * tSlaveK * mSlaveFI( 0 )->dnNdxn( 1 ) ) * mNormal * tJump
                              - mGammaInterface * trans( mSlaveFI( 0 )->N() ) * tJump;
         }
@@ -123,8 +123,8 @@ namespace moris
                 if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
                     // evaluate master flux
-                    Matrix< DDRMat > tMasterdStress;
-                    mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tMasterdStress );
+                    Matrix< DDRMat > tMasterdFlux;
+                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tMasterdFlux );
 
                     // evaluate master contitutive matrix
                     Matrix< DDRMat > tMasterdConst;
@@ -132,10 +132,10 @@ namespace moris
 
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                        += - trans( mMasterFI( 0 )->N() ) * mMasterWeight * trans( mNormal ) * tMasterdStress
+                        += - trans( mMasterFI( 0 )->N() ) * mMasterWeight * trans( mNormal ) * tMasterdFlux
                            + mMasterWeight * trans( tMasterdConst ) * trans( mNormal ) * mMasterFI( 0 )->dnNdxn( 1 ) * tJump( 0 );
                     aJacobians( 1 )( iDOF ).matrix_data()
-                        += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * trans( mNormal ) * tMasterdStress;
+                        += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * trans( mNormal ) * tMasterdFlux;
                 }
             }
 
@@ -147,8 +147,8 @@ namespace moris
                 if ( mSlaveCM( 0 )->check_dof_dependency( mSlaveGlobalDofTypes( iDOF ) ) )
                 {
                     // evaluate slave flux
-                    Matrix< DDRMat > tSlavedStress;
-                    mSlaveCM( 0 )->eval_dStressdDOF( mSlaveGlobalDofTypes( iDOF ), tSlavedStress );
+                    Matrix< DDRMat > tSlavedFlux;
+                    mSlaveCM( 0 )->eval_dFluxdDOF( mSlaveGlobalDofTypes( iDOF ), tSlavedFlux );
 
                     // evaluate slave contitutive matrix
                     Matrix< DDRMat > tSlavedConst;
@@ -156,9 +156,9 @@ namespace moris
 
                     // add contribution to jacobian
                     aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                        += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * trans( mNormal ) * tSlavedStress;
+                        += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * trans( mNormal ) * tSlavedFlux;
                     aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                        += trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * trans( mNormal ) * tSlavedStress
+                        += trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * trans( mNormal ) * tSlavedFlux
                            + mSlaveWeight * trans( tSlavedConst )* trans( mNormal ) * mSlaveFI( 0 )->dnNdxn( 1 ) * tJump( 0 );
                 }
             }

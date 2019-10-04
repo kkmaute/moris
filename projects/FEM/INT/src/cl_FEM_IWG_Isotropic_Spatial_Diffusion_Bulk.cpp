@@ -21,11 +21,11 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute flux
-            Matrix< DDRMat > tStress;
-            mMasterCM( 0 )->eval_stress( tStress );
+            Matrix< DDRMat > tFlux;
+            mMasterCM( 0 )->eval_flux( tFlux );
 
             // compute the residual
-            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tStress
+            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tFlux
                            - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val()( 0 );
         }
 
@@ -53,18 +53,17 @@ namespace moris
                     // compute the jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
                         += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
-                    //print(aJacobians( 0 )( iDOF ),"aJacobians( 0 )( iDOF )");
                 }
 
                 // if constitutive model has dependency on the dof type
                 if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
                     // compute flux derivative
-                    Matrix< DDRMat > tdStressdDOF;
-                    mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStressdDOF );
+                    Matrix< DDRMat > tdFluxdDOF;
+                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFluxdDOF );
 
                     // compute the jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data() += trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tdStressdDOF;
+                    aJacobians( 0 )( iDOF ).matrix_data() += trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tdFluxdDOF;
                 }
             }
         }
@@ -82,11 +81,11 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute flux
-            Matrix< DDRMat > tStress;
-            mMasterCM( 0 )->eval_stress( tStress );
+            Matrix< DDRMat > tFlux;
+            mMasterCM( 0 )->eval_flux( tFlux );
 
             // compute the residual
-            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tStress
+            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tFlux
                            - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
 
             // set the jacobian size
@@ -108,11 +107,11 @@ namespace moris
                 if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
                     // compute flux derivative
-                    Matrix< DDRMat > tdStressdDOF;
-                    mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStressdDOF );
+                    Matrix< DDRMat > tdFluxdDOF;
+                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFluxdDOF );
 
                     // compute the jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data() += trans( mMasterFI( 0 )->Bx() ) * tdStressdDOF;
+                    aJacobians( 0 )( iDOF ).matrix_data() += trans( mMasterFI( 0 )->Bx() ) * tdFluxdDOF;
                 }
             }
         }

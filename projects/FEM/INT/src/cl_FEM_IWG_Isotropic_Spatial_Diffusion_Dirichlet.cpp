@@ -26,8 +26,8 @@ namespace moris
             this->check_constitutive_models();
 
             // compute flux
-            Matrix< DDRMat > tStress;
-            mMasterCM( 0 )->eval_stress( tStress );
+            Matrix< DDRMat > tFlux;
+            mMasterCM( 0 )->eval_flux( tFlux );
 
             // compute conductivity matrix
             Matrix< DDRMat > tK;
@@ -40,7 +40,7 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tStress, mNormal )
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tFlux, mNormal )
                              + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * tJump
                              + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
         }
@@ -53,9 +53,9 @@ namespace moris
             this->check_properties();
             this->check_constitutive_models();
 
-            // compute flux
-            Matrix< DDRMat > tStress;
-            mMasterCM( 0 )->eval_stress( tStress );
+//            // compute flux
+//            Matrix< DDRMat > tFlux;
+//            mMasterCM( 0 )->eval_flux( tFlux );
 
             // compute conductivity matrix
             Matrix< DDRMat > tK;
@@ -88,8 +88,8 @@ namespace moris
                 if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
                     // evaluate stress derivative
-                    Matrix< DDRMat > tdStress;
-                    mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStress );
+                    Matrix< DDRMat > tdFlux;
+                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFlux );
 
                     // evaluate constitutive matrix derivative
                     Matrix< DDRMat > tdK;
@@ -97,7 +97,7 @@ namespace moris
 
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdStress
+                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdFlux
                        + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * tdK * tJump( 0 ) ;
                 }
             }
@@ -113,8 +113,8 @@ namespace moris
             this->check_constitutive_models();
 
             // compute flux
-            Matrix< DDRMat > tStress;
-            mMasterCM( 0 )->eval_stress( tStress );
+            Matrix< DDRMat > tFlux;
+            mMasterCM( 0 )->eval_flux( tFlux );
 
             // compute conductivity matrix
             Matrix< DDRMat > tK;
@@ -127,7 +127,7 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tStress, mNormal )
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( tFlux, mNormal )
                              + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tK * mNormal * tJump
                              + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
 
@@ -155,8 +155,8 @@ namespace moris
                 if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
                 {
                     // evaluate stress derivatives
-                    Matrix< DDRMat > tdStress;
-                    mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStress );
+                    Matrix< DDRMat > tdFlux;
+                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFlux );
 
                     // evaluate constitutive matrix derivatives
                     Matrix< DDRMat > tdK;
@@ -164,7 +164,7 @@ namespace moris
 
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdStress
+                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * tdFlux
                        + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * tdK * tJump( 0 ) ;
                 }
             }

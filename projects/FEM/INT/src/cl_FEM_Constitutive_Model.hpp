@@ -334,6 +334,9 @@ namespace moris
             };
 
 //------------------------------------------------------------------------------
+            /**
+             * builds global dof type list map
+             */
             void build_global_dof_type_map()
             {
                 // get number of global dof types
@@ -360,29 +363,35 @@ namespace moris
 
 
 //------------------------------------------------------------------------------
-        bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > & aDofType )
-        {
-            // set bool for dependency
-            bool tDofDependency = false;
-
-            // if aDofType is an active dof type for the property
-            if( static_cast< uint >( aDofType( 0 ) ) < mGlobalDofTypeMap.numel() && mGlobalDofTypeMap(static_cast< uint >( aDofType( 0 ) ) ) != -1 )
+            /**
+             * checks dependency on a given group of dof types
+             * @param[ in ]  aDofType       a group of dof types
+             * @param[ out ] tDofDependency a bool true if dependency on dof type
+             *
+             */
+            bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > & aDofType )
             {
-                // bool is set to true
-                tDofDependency = true;
+                // set bool for dependency
+                bool tDofDependency = false;
+
+                // if aDofType is an active dof type for the property
+                if( static_cast< uint >( aDofType( 0 ) ) < mGlobalDofTypeMap.numel() && mGlobalDofTypeMap(static_cast< uint >( aDofType( 0 ) ) ) != -1 )
+                {
+                    // bool is set to true
+                    tDofDependency = true;
+                }
+                // return bool for dependency
+                return tDofDependency;
             }
-            // return bool for dependency
-            return tDofDependency;
-        }
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the constitutive model stress
-             * @param[ in ] aStress a matrix to fill with stress evaluation
+             * evaluates the constitutive model flux
+             * @param[ in ] aFlux a matrix to fill with flux evaluation
              */
-            virtual void eval_stress( Matrix< DDRMat > & aStress )
+            virtual void eval_flux( Matrix< DDRMat > & aFlux )
             {
-                MORIS_ERROR( false, " Constitutive_Model::eval_stress - This function does nothing. " );
+                MORIS_ERROR( false, " Constitutive_Model::eval_flux - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
@@ -407,14 +416,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the constitutive model stress derivative wrt to a dof type
+             * evaluates the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
-             * @param[ in ] adStressdDOF a matrix to fill with derivative evaluation
+             * @param[ in ] adFluxdDOF a matrix to fill with derivative evaluation
              */
-            virtual void eval_dStressdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                           Matrix< DDRMat >             & adStressdDOF )
+            virtual void eval_dFluxdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                         Matrix< DDRMat >             & adFluxdDOF )
             {
-                MORIS_ERROR( false, " Constitutive_Model::eval_dStressdDOF - This function does nothing. " );
+                MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDOF - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
@@ -445,12 +454,12 @@ namespace moris
             /**
              * evaluates the constitutive model stress derivative wrt to a dof type
              * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
-             * @param[ in ] adStressdDOF_FD a matrix to fill with derivative evaluation
+             * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
              * @param[ in ] aPerturbation   real to perturb for FD
              */
-            void eval_dStressdDOF_FD( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                      Matrix< DDRMat >             & adStressdDOF_FD,
-                                      real                           aPerturbation )
+            void eval_dFluxdDOF_FD( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                      Matrix< DDRMat >           & adFluxdDOF_FD,
+                                      real                         aPerturbation )
             {
                 // get the index for the considered dof type
                 uint iFI = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ), 0 );
@@ -459,7 +468,7 @@ namespace moris
                 uint tDerNumDof = mFieldInterpolators( iFI )->get_number_of_space_time_coefficients();
 
                 // set size for derivative
-                adStressdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
+                adFluxdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
 
                 // coefficients for dof type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = mFieldInterpolators( iFI )->get_coeff();
@@ -481,8 +490,8 @@ namespace moris
                     }
 
                     // evaluate the residual
-                    Matrix< DDRMat > tStress_Plus;
-                    this->eval_stress( tStress_Plus );
+                    Matrix< DDRMat > tFlux_Plus;
+                    this->eval_flux( tFlux_Plus );
 
                     // perturbation of the coefficent
                     tCoeffPert = tCoeff;
@@ -498,11 +507,11 @@ namespace moris
                     }
 
                     // evaluate the residual
-                    Matrix< DDRMat > tStress_Minus;
-                    this->eval_stress( tStress_Minus );
+                    Matrix< DDRMat > tFlux_Minus;
+                    this->eval_flux( tFlux_Minus );
 
                     // evaluate Jacobian
-                    adStressdDOF_FD.get_column( iCoeff ) = ( tStress_Plus - tStress_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
+                    adFluxdDOF_FD.get_column( iCoeff ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                 }
                 // reset the coefficients values
                 mFieldInterpolators( iFI )->set_coeff( tCoeff );

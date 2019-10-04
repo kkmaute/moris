@@ -10,14 +10,14 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_stress( Matrix< DDRMat > & aStress )
+        void CM_Diffusion_Linear_Isotropic::eval_flux( Matrix< DDRMat > & aFlux )
         {
             // compute conductivity matrix
             Matrix< DDRMat > K;
             this->eval_const( K );
 
             // compute flux
-            aStress = K * mFieldInterpolators( 0 )->gradx( 1 );
+            aFlux = K * mFieldInterpolators( 0 )->gradx( 1 );
         }
 
 //------------------------------------------------------------------------------
@@ -37,8 +37,8 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void CM_Diffusion_Linear_Isotropic::eval_dStressdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                                              Matrix< DDRMat >             & adStressdDOF )
+        void CM_Diffusion_Linear_Isotropic::eval_dFluxdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
+                                                            Matrix< DDRMat >             & adFluxdDOF )
         {
             // if direct dependency on the dof type
             if( static_cast< uint >( aDofTypes( 0 ) ) < mDofTypeMap.numel() && mDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) ) != -1 )
@@ -48,24 +48,24 @@ namespace moris
                 this->eval_const( K );
 
                 // compute derivative with direct dependency
-                adStressdDOF = K * mFieldInterpolators( 0 )->dnNdxn( 1 );
+                adFluxdDOF = K * mFieldInterpolators( 0 )->dnNdxn( 1 );
             }
 
             // if indirect dependency on the dof type
             if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
             {
                 // init matrix size
-                if( adStressdDOF.numel() < 1 )
+                if( adFluxdDOF.numel() < 1 )
                 {
                     uint tFIIndex = mProperties( 0 )->get_dof_type_map()( static_cast< uint >( aDofTypes( 0 ) ), 0 );
 
                     Field_Interpolator* tFI = mProperties( 0 )->get_field_interpolators()( tFIIndex ) ;
 
-                    adStressdDOF.set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
+                    adFluxdDOF.set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
                 }
 
                 // compute derivative with indirect dependency through properties
-                adStressdDOF.matrix_data() += mFieldInterpolators( 0 )->gradx( 1 ) * mProperties( 0 )->dPropdDOF( aDofTypes );
+                adFluxdDOF.matrix_data() += mFieldInterpolators( 0 )->gradx( 1 ) * mProperties( 0 )->dPropdDOF( aDofTypes );
             }
         }
 
