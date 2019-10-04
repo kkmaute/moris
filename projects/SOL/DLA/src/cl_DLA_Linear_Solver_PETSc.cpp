@@ -199,7 +199,7 @@ void Linear_Solver_PETSc::set_solver_internal_parameters( )
 {
         // Set KSP type
         KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
-        KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
+//        KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
 
         // Set maxits and tolerance for ksp
         KSPSetTolerances( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPTol" ), PETSC_DEFAULT, PETSC_DEFAULT, mParameterList.get< moris::sint >( "KSPMaxits" ) );

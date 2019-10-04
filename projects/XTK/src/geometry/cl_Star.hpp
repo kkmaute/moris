@@ -38,9 +38,9 @@ public:
                                                      moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
 
-        moris::real tPhi = std::atan2( aCoordinates( 0 ), aCoordinates( 1 ) );
+        moris::real tPhi = std::atan2( aCoordinates( aRowIndex,0 ), aCoordinates( aRowIndex,1 ) );
 
-        moris::real tFunctionValue = 0.5 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aCoordinates( 0 ), 2 ) + std::pow( aCoordinates( 1 ), 2 ) );
+        moris::real tFunctionValue = 0.501 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aCoordinates( aRowIndex, 0 ), 2 ) + std::pow( aCoordinates( aRowIndex,1 ), 2 ) );
 
         return tFunctionValue;
     }

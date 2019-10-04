@@ -63,7 +63,7 @@ namespace mtk
 
             void get_exact_solution_from_hdf5_and_calculate_error( const char* aFilename );
 
-            void get_residual_vecor_for_output( const char* aFilename );
+            void get_residual_vector_for_output( const char* aFilename );
 
 
 //------------------------------------------------------------------------------

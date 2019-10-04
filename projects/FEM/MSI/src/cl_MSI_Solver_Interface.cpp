@@ -20,9 +20,10 @@ namespace moris
         mSolutionVector->vec_plus_vec( 1.0, *mPrevSolutionVector, -1.0 );
     }
 
-    void MSI_Solver_Interface::get_residual_vecor_for_output( const char* aFilename )
+    void MSI_Solver_Interface::get_residual_vector_for_output( const char* aFilename )
     {
-        mPrevSolutionVector->read_vector_from_HDF5( aFilename );
+//        mPrevSolutionVector->read_vector_from_HDF5( aFilename );
+        mPrevSolutionVector->vec_put_scalar( 5.0 );
 
         mSolutionVector->vec_plus_vec( 1.0, *mPrevSolutionVector, 0.0 );
     }

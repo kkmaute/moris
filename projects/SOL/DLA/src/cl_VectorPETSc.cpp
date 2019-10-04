@@ -240,7 +240,7 @@ void Vector_PETSc::save_vector_to_HDF5( const char* aFilename )
 
     PetscViewerHDF5Open( PETSC_COMM_WORLD, aFilename, FILE_MODE_WRITE, &tViewer );
 
-    PetscObjectSetName( (PetscObject) mPetscVector, "Sol_Vec");
+    PetscObjectSetName( (PetscObject) mPetscVector, "Res_Vec");
 
     VecView( mPetscVector, tViewer );
 
@@ -255,7 +255,7 @@ void Vector_PETSc::read_vector_from_HDF5( const char* aFilename )
 
     PetscViewerHDF5Open( PETSC_COMM_WORLD, aFilename, FILE_MODE_READ, &tViewer);
 
-    PetscObjectSetName( (PetscObject) mPetscVector, "Sol_Vec");
+    PetscObjectSetName( (PetscObject) mPetscVector, "Res_Vec");
 
     VecLoad( mPetscVector, tViewer );
 
