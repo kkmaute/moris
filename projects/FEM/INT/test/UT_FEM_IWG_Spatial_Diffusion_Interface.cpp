@@ -46,9 +46,6 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
     // create an IWG Spatial Difffusion Bulk
     IWG_Isotropic_Spatial_Diffusion_Interface tIWG;
 
-//    // set space dimension
-//    tIWG.set_space_dim( 3 );
-
     // set residual dof type
     tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 
@@ -63,12 +60,6 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
 
     // set active constitutive type
     tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO }, mtk::Master_Slave::SLAVE );
-
-    // set master property type
-    tIWG.set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
-
-    // set slave property type
-    tIWG.set_property_type_list( { fem::Property_Type::CONDUCTIVITY }, mtk::Master_Slave::SLAVE );
 
     // set the normal
     Matrix< DDRMat > tNormal = {{1.0},{0.0},{0.0}};
@@ -178,12 +169,12 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         Cell< Matrix< DDRMat > > tPropCoeff = { {{1.0}} };
 
         // create a cell of properties for IWG
-        Cell< Property* > tMasterProps( tIWG.get_property_type_list().size() );
+        Cell< Property* > tMasterProps( 1 );
 
-        for( uint iProp = 0; iProp < tIWG.get_property_type_list().size(); iProp++ )
+        for( uint iProp = 0; iProp < 1; iProp++ )
         {
             // create a property
-            tMasterProps( iProp ) = new Property( tIWG.get_property_type_list()( iProp ),
+            tMasterProps( iProp ) = new Property( fem::Property_Type::CONDUCTIVITY,
                                                   Cell< Cell< MSI::Dof_Type > > ( 0 ),
                                                   tPropCoeff,
                                                   tConstValFunction_UTInterface,
@@ -193,12 +184,12 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         }
 
         // create a cell of properties for IWG
-        Cell< Property* > tSlaveProps( tIWG.get_property_type_list( mtk::Master_Slave::SLAVE ).size() );
+        Cell< Property* > tSlaveProps( 1 );
 
-        for( uint iProp = 0; iProp < tIWG.get_property_type_list( mtk::Master_Slave::SLAVE ).size(); iProp++ )
+        for( uint iProp = 0; iProp < 1; iProp++ )
         {
             // create a property
-            tSlaveProps( iProp ) = new Property( tIWG.get_property_type_list( mtk::Master_Slave::SLAVE )( iProp ),
+            tSlaveProps( iProp ) = new Property( fem::Property_Type::CONDUCTIVITY,
                                                  {{ MSI::Dof_Type::TEMP }},
                                                  tPropCoeff,
                                                  tFIValFunction_UTInterface,

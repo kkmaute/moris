@@ -90,9 +90,7 @@ namespace moris
             mFieldInterpolators = aFieldInterpolators;
         }
 
-        /**
-         * check that field interpolators were assigned
-         */
+//------------------------------------------------------------------------------
         void Property::check_field_interpolators()
         {
             // check field interpolators cell size
@@ -109,9 +107,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        /**
-         * get the property value
-         */
         const Matrix< DDRMat > & Property::val()
         {
             // if the property was not evaluated
@@ -125,9 +120,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        /**
-         * evaluate property in terms of coefficients and variables
-         */
         void Property::eval_Prop()
         {
             // check that mValFunc was assigned
@@ -147,9 +139,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        /**
-         * evaluate property derivatives in terms of coefficients and variables
-         */
         const Matrix< DDRMat > & Property::dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType )
         {
            // if aDofType is not an active dof type for the property
@@ -167,9 +156,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        /**
-         * evaluate property derivatives in terms of coefficients and variables
-         */
         void Property::eval_dPropdDOF( const moris::Cell< MSI::Dof_Type > aDofType )
         {
             // check that mDerFunctions was assigned

@@ -12,9 +12,6 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
-            //FIXME heat load enforced
-            Matrix< DDRMat > tQ( 1, 1, 0.0 );
-
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
             this->check_properties();
@@ -24,38 +21,50 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute flux
-            Matrix< DDRMat > tStress;
-            mMasterCM( 0 )->eval_stress( tStress );
+            Matrix< DDRMat > tFlux;
+            mMasterCM( 0 )->eval_flux( tFlux );
 
             // compute the residual
-            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tStress - trans( mMasterFI( 0 )->N() ) * tQ;
+            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tFlux
+                           - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val()( 0 );
         }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // check master field interpolators
+            // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
-
-            // check master properties
             this->check_properties();
-
-            // check master constitutive models
             this->check_constitutive_models();
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
-            // loop over the dof dependencies
-            uint tNumDofTypes = mMasterGlobalDofTypes.size();
-            for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-            {
-                // compute flux derivative
-                Matrix< DDRMat > tdStressdDOF;
-                mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStressdDOF );
+            // compute the jacobian for direct dof dependencies
+            // Here no direct dependencies
 
-                // compute the jacobian
-                aJacobians( 0 )( iDOF ) = trans( mMasterFI( 0 )->Bx() ) * tdStressdDOF;
+            // compute the jacobian for indirect dof dependencies through properties and constitutive model
+            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            {
+                // if property has dependency on the dof type
+                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // compute the jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                        += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
+                }
+
+                // if constitutive model has dependency on the dof type
+                if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // compute flux derivative
+                    Matrix< DDRMat > tdFluxdDOF;
+                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFluxdDOF );
+
+                    // compute the jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data() += trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * tdFluxdDOF;
+                }
             }
         }
 
@@ -63,9 +72,6 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                   moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            //FIXME heat load enforced
-            Matrix< DDRMat > tQ( 1, 1, 0.0 );
-
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
             this->check_properties();
@@ -75,25 +81,38 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute flux
-            Matrix< DDRMat > tStress;
-            mMasterCM( 0 )->eval_stress( tStress );
+            Matrix< DDRMat > tFlux;
+            mMasterCM( 0 )->eval_flux( tFlux );
 
             // compute the residual
-            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tStress - trans( mMasterFI( 0 )->N() ) * tQ;
+            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tFlux
+                           - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
-            // loop over dof dependencies
-            uint tNumDofTypes = mMasterGlobalDofTypes.size();
-            for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
+            // compute the jacobian for indirect dof dependencies through properties and constitutive model
+            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
+            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
-                // compute flux derivative
-                Matrix< DDRMat > tdStressdDOF;
-                mMasterCM( 0 )->eval_dStressdDOF( mMasterGlobalDofTypes( iDOF ), tdStressdDOF );
+                // if property has dependency on the dof type
+                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // compute the jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                        += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
+                }
 
-                // compute jacobian
-                aJacobians( 0 )( iDOF ) = trans( mMasterFI( 0 )->Bx() ) * tdStressdDOF;
+                // if constitutive model has dependency on the dof type
+                if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // compute flux derivative
+                    Matrix< DDRMat > tdFluxdDOF;
+                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFluxdDOF );
+
+                    // compute the jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data() += trans( mMasterFI( 0 )->Bx() ) * tdFluxdDOF;
+                }
             }
         }
 

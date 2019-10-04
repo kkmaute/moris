@@ -142,13 +142,13 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    moris::Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
         tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    moris::Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 2 ).resize( 1 );
         tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
@@ -179,15 +179,22 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
                                                       {{{ 20.0 }}},
                                                       tConstValFunction_MDL_XTK,
                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
+                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                   {{{ 0.0 }}},
+                                                   tConstValFunction_MDL_XTK,
+                                                   Cell< fem::PropertyFunc >( 0 ) );
 
         // create property user defined info
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 4 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 2 ).resize( 1 );
         tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity;
@@ -428,13 +435,13 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 1 ).resize( 1 );
         tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
                                                                     { MSI::Dof_Type::TEMP },
                                                                     {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
+                                                                    { fem::Property_Type::TEMP_LOAD },
                                                                     { fem::Constitutive_Type::DIFF_LIN_ISO } );
         tIWGUserDefinedInfo( 2 ).resize( 1 );
         tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
@@ -465,15 +472,22 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
                                                       {{{ 20.0 }}},
                                                       tConstValFunction_MDL_XTK,
                                                       Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
+                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
+                                                   {{{ 0.0 }}},
+                                                   tConstValFunction_MDL_XTK,
+                                                   Cell< fem::PropertyFunc >( 0 ) );
 
         // create property user defined info
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 4 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 1 );
+        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
+        tPropertyUserDefinedInfo( 1 ).resize( 2 );
+        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
+        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tTempLoad;
         tPropertyUserDefinedInfo( 2 ).resize( 1 );
         tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
         tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity;

@@ -70,9 +70,6 @@ namespace moris
             moris::Cell< Constitutive_Model* > mMasterCM;
             moris::Cell< Constitutive_Model* > mSlaveCM;
 
-//            // FIXME spatial dimensions
-//            uint mSpaceDim;
-
 //------------------------------------------------------------------------------
         public :
 
@@ -107,18 +104,6 @@ namespace moris
             {
                 mNormal = aNormal;
             }
-
-////------------------------------------------------------------------------------
-//            /**
-//             * set space dimension
-//             * @param[ in ] aSpaceDim a spatial dimension
-//             */
-//            void set_space_dim( uint aSpaceDim )
-//            {
-//                MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4, "IWG::set_space_dim - wrong space dimension.");
-//
-//                mSpaceDim = aSpaceDim;
-//            }
 
 //------------------------------------------------------------------------------
             /**
@@ -828,6 +813,9 @@ namespace moris
                 // get master number of dof types
                 uint tNumDofType = mMasterGlobalDofTypes.size();
 
+                // get master number of property types
+                uint tNumProps = mMasterGlobalPropTypes.size();
+
                 // set the jacobian size
                 this->set_jacobian( aJacobiansFD );
 
@@ -850,7 +838,6 @@ namespace moris
                         mMasterFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mMasterPropTypes.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mMasterProp( iProp )->reset_eval_flags();
@@ -902,8 +889,8 @@ namespace moris
                 uint tSlaveNumDofType  = mSlaveGlobalDofTypes.size();
 
                 // get master and slave number of property type
-                uint tMasterNumProps = mMasterPropTypes.size();
-                uint tSlaveNumProps  = mSlavePropTypes.size();
+                uint tMasterNumProps = mMasterGlobalPropTypes.size();
+                uint tSlaveNumProps  = mSlaveGlobalPropTypes.size();
 
                 // set the jacobian size
                 this->set_jacobian_double( aJacobiansFD );
