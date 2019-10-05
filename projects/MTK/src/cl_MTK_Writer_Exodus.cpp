@@ -6,16 +6,10 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
-Writer_Exodus::Writer_Exodus(moris::mtk::Mesh* aMeshPointer, std::string aFilePath, const std::string& aFileName) //TODO remove path
+Writer_Exodus::Writer_Exodus(moris::mtk::Mesh* aMeshPointer)
     : mMesh(aMeshPointer)
 {
     mExoid = 0;
-    if (!aFilePath.empty())
-    {
-        aFilePath += "/";
-    }
-    mTempFileName = aFilePath + "temp.exo";
-    mPermFileName = aFilePath + aFileName;
 }
 
 Writer_Exodus::~Writer_Exodus()
@@ -26,16 +20,16 @@ void Writer_Exodus::set_error_options(bool abort, bool debug, bool verbose)
     ex_opts(abort * EX_ABORT | debug * EX_DEBUG | verbose * EX_VERBOSE);
 }
 
-void Writer_Exodus::write_mesh()
+void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileName)
 {
-    Writer_Exodus::create_file();
+    Writer_Exodus::create_file(aFilePath, aFileName);
     Writer_Exodus::write_nodes();
     Writer_Exodus::write_node_sets();
     Writer_Exodus::write_blocks();
     Writer_Exodus::close_file();
 }
 
-void Writer_Exodus::create_file() {
+void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileName) {
     int                         tCPUWordSize = sizeof(moris::real),
                                 tIOWordSize = 0;
     moris::uint                 tNumDimensions = mMesh->get_spatial_dim(),
@@ -47,6 +41,14 @@ void Writer_Exodus::create_file() {
     moris::Cell<std::string>    tElementBlockNames,
                                 tNodeSetNames,
                                 tSideSetNames;
+
+    // Construct temporary and permanent file paths
+    if (!aFilePath.empty())
+    {
+        aFilePath += "/";
+    }
+    mTempFileName = aFilePath + "temp.exo";
+    mPermFileName = aFilePath + aFileName;
 
     // Element Blocks
     tElementBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);

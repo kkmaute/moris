@@ -289,9 +289,9 @@ namespace moris
 
             Integration_Mesh* tIntegMeshData = moris::mtk::create_integration_mesh( MeshType::STK, tMeshDataInput );
 
-            Writer_Exodus writer(tIntegMeshData, "", "final_name.exo");
+            Writer_Exodus writer(tIntegMeshData);
             writer.set_error_options(true, true, true);
-            writer.write_mesh();
+            writer.write_mesh("", "final_name.exo");
 
 
 //            if(par_size() == 2)

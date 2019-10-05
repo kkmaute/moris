@@ -23,7 +23,7 @@ public:
     *  @post   don't know what this is
     *  @throw  also not sure what this is
     */
-    Writer_Exodus(moris::mtk::Mesh* aMeshPointer, std::string aFilePath, const std::string& aFileName);
+    explicit Writer_Exodus(moris::mtk::Mesh* aMeshPointer);
 
     /** Destructor */
     ~Writer_Exodus();
@@ -39,7 +39,7 @@ public:
     /**
      *  Creates an Exodus file and writes everything MTK provides about the mesh.
      */
-    void write_mesh();
+    void write_mesh(std::string aFilePath, const std::string& aFileName);
 
 private:
     /**
@@ -48,7 +48,7 @@ private:
      *  @note This will not write anything in the MTK mesh to the database, only the parameters that define it
      *  (e.g. number of nodes).
      */
-    void create_file();
+    void create_file(std::string aFilePath, const std::string& aFileName);
 
     /**
      *  Opens an Exodus file and stores the ID for future operations
