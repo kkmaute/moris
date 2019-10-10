@@ -2485,6 +2485,8 @@ Child_Mesh::modify_child_mesh_internal(enum TemplateType aTemplate)
         // Insert the template in the mesh
         insert_child_mesh_template(tRegSubTemplate);
 
+        mElementTopology = CellTopology::TET4;
+
         // generate face, edge and element to element connectivity
         generate_connectivities(true,true,true);
 

@@ -1006,13 +1006,9 @@ Model::decompose_internal_set_new_nodes_in_child_mesh_reg_sub(moris::Matrix< mor
             // retrieve child mesh
             Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
 
-            // get vertex
-            Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tCMNewNodeInds);
-
             // add node indices, ids, and vertices to child mesh
             tChildMesh.add_node_indices(tCMNewNodeInds);
             tChildMesh.add_node_ids(tCMNewNodeIds);
-            tChildMesh.add_vertices(tVertices);
 
             // allocate space for parametric coordinates
             tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,tNumParamCoords);
@@ -1062,13 +1058,10 @@ Model::decompose_internal_set_new_nodes_in_child_mesh_nh(moris::Matrix< moris::I
         // retrieve child mesh
         Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
 
-        // get vertex
-        Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tCMNewNodeInds);
 
         // add node indices, ids, and vertices to child mesh
         tChildMesh.add_node_indices(tCMNewNodeInds);
         tChildMesh.add_node_ids(tCMNewNodeIds);
-        tChildMesh.add_vertices(tVertices);
 
         // allocate space for parametric coordinate
 
@@ -1493,6 +1486,9 @@ Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
     // creates mtk cells for all child elements (parent elements are assumed to have mtk cells in the mtk mesh)
     this->create_child_element_mtk_cells();
 
+    // add vertices to child meshes
+    this->add_vertices_to_child_meshes();
+
     // identify local subphases in child mesh
     this->identify_local_subphase_clusters_in_child_meshes();
 
@@ -1866,6 +1862,21 @@ Model::create_child_element_mtk_cells()
         }
 
     }
+}
+
+void
+Model::add_vertices_to_child_meshes()
+{
+  moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
+
+  for(moris::uint i=0; i<tNumChildMeshes; i++)
+  {
+      Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(i);
+      Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tChildMesh.get_node_indices());
+      tChildMesh.add_vertices(tVertices);
+
+  }
+
 }
 
 void
@@ -3546,19 +3557,20 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     moris::Cell<Matrix<IdMat>>     tInterfaceCellIdsandSideOrds;     // side cluster ids and side ordinals
     moris::Cell<Matrix<DDRMat>>    tInterfaceSideClusterParamCoords; // side cluster vertex parametric coordinates
 //
-//    if(aOutputOptions.mAddClusters)
-//    {
-//        // cell clustering
-//        this->setup_cell_clusters_for_output(tCellClusterInput,aOutputOptions,tClusterCellIds);
-//
-//        tMeshDataInput.CellClusterInput = &tCellClusterInput;
-//
-//
-//        //fixme: support changes to interface side
-//        this->setup_interface_side_cluster(tInterfaceSideSet.mSideSetName, tInterfaceSideClusterInput, aOutputOptions, tInterfaceCellIdsandSideOrds, tInterfaceSideClusterParamCoords);
-//
-//        tMeshDataInput.SideClusterInput = &tInterfaceSideClusterInput;
-//    }
+    if(aOutputOptions.mAddClusters)
+    {
+        // cell clustering
+        this->setup_cell_clusters_for_output(tCellClusterInput,aOutputOptions,tClusterCellIds);
+
+        tMeshDataInput.CellClusterInput = &tCellClusterInput;
+
+        MORIS_ASSERT(mGeometryEngine.get_num_geometries() == 1,"This has not been setup for multi geometry problems.");
+
+        //fixme: support changes to interface side
+        this->setup_interface_side_cluster(tInterfaceNames(0), tInterfaceSideClusterInput, aOutputOptions, tInterfaceCellIdsandSideOrds, tInterfaceSideClusterParamCoords);
+
+        tMeshDataInput.SideClusterInput = &tInterfaceSideClusterInput;
+    }
 
     // Interface elements
     if(mUnzipped)

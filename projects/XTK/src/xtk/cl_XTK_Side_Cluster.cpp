@@ -97,6 +97,25 @@ Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) con
 }
 //----------------------------------------------------------------
 moris_index
+Side_Cluster::get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster, moris::mtk::Vertex const * aVertex ) const
+{
+    moris_index tSideOrd = mIntegrationCellSideOrdinals(aCellIndexInCluster);
+
+
+    moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = mIntegrationCells(aCellIndexInCluster)->get_vertices_on_side_ordinal(tSideOrd);
+
+    // iterate through vertices and see if the ids match
+    for(moris::moris_index i = 0; i < (moris_index)tVerticesOnSide.size(); i++)
+    {
+        if(tVerticesOnSide(i)->get_id() == aVertex->get_id())
+        {
+            return i;
+        }
+    }
+    return MORIS_INDEX_MAX;
+}
+//----------------------------------------------------------------
+moris_index
 Side_Cluster::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster) const
 {
     return this->get_vertices_local_coordinates_wrt_interp_cell(aIsMaster).n_cols();

@@ -48,7 +48,7 @@ Cell_Info_Tet4::get_num_verts_per_facet() const
 moris::Matrix<moris::IndexMat>
 Cell_Info_Tet4::get_node_to_face_map() const
 {
-    return {{0, 1, 3}, {1, 2, 3}, {2, 0, 3}, {0, 2, 1}};
+    return {{ 0, 1, 3 },{ 1, 2, 3 }, { 0, 3, 2 }, { 0, 2, 1 }};
 }
 // ----------------------------------------------------------------------------------
 moris::Matrix<moris::IndexMat>
@@ -91,8 +91,8 @@ Cell_Info_Tet4::get_node_to_face_map(moris::uint aSideOrdinal) const
     switch (aSideOrdinal)
     {
         case(0):{ return {{0, 1, 3}}; break; }
-        case(1):{ return {{2, 1, 3}}; break; }
-        case(2):{ return {{0, 2, 3}}; break; }
+        case(1):{ return {{1, 2, 3}}; break; }
+        case(2):{ return {{0, 3, 2}}; break; }
         case(3):{ return {{0, 2, 1}}; break; }
         default:{ MORIS_ASSERT(0,"Invalid side ordinal specified"); return moris::Matrix<moris::IndexMat>(0,0); break;}
     }

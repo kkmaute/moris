@@ -164,8 +164,8 @@ public:
     void print_cell_clusters(moris::uint aVerbosityLevel = 0) const;
     void print_block_sets(moris::uint aVerbosityLevel = 0) const;
     void print_side_sets() const;
-    void print_double_side_sets() const;
-
+    void print_double_side_sets(moris::uint aVerbosityLevel = 0) const;
+    void print_double_side_clusters(moris::uint aVerbosityLevel = 0) const;
 
     friend class Enrichment;
 protected:

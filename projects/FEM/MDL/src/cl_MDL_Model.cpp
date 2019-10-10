@@ -601,7 +601,7 @@ namespace moris
                                 else
                                 {
                                     // get the vertices in the cluster
-                                    moris::Cell<moris::mtk::Vertex const *> const & tVertices = tCluster->get_vertices_in_cluster();
+                                    moris::Cell<moris::mtk::Vertex *> tVertices = tCluster->get_primary_vertices_in_cluster();
 
                                     // iterate through vertices in cluster
                                     for(moris::uint iVert =0; iVert<tVertices.size(); iVert++)

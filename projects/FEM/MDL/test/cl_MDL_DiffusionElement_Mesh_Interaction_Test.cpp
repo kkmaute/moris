@@ -275,7 +275,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
                                                 45.0,  5.0, 45.0 }};
 
         // define an epsilon environment
-        real tEpsilon = 1E-3;
+        real tEpsilon = 1E-6;
 
         // define a bool for solution check
         bool tCheckNodalSolution = true;
@@ -499,7 +499,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         Matrix< DDRMat > tExpectedSolution( 1, 25, 2.5e+01 );
 
         // define an epsilon environment
-        real tEpsilon = 1E-3;
+        real tEpsilon = 1E-6;
 
         // define a bool for solution check
         bool tCheckNodalSolution = true;
@@ -778,7 +778,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         }
 
         // define an epsilon environment
-        double tEpsilon = 1E-3;
+        double tEpsilon = 1E-6;
 
         // define a bool for solution check
         bool tCheckNodalSolution = true;
@@ -1067,7 +1067,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         else {} // end expected solutions for parallel
 
         // define an epsilon environment
-        real tEpsilon = 1E-2;
+        real tEpsilon = 1E-6;
 
         // define a bool for solution check
         bool tCheckNodalSolution = true;
@@ -1302,8 +1302,6 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         moris::Matrix< DDRMat > tSolution11;
         tTimeSolver.get_full_solution( tSolution11 );
 
-        //print(tSolution11,"tSolution11");
-
         tModel->output_solution( "Circle" );
 
         tField->put_scalar_values_on_field( tModel->get_mSolHMR() );
@@ -1320,12 +1318,12 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
                                                 +4.5e+01 }};
 
         // define an epsilon environment
-        real tEpsilon = 1E-2;
+        real tEpsilon = 1E-6;
 
         // define a bool for solution check
         bool tCheckNodalSolution = true;
 
-        // loop over the node and check solution
+        // loop over the node and check solution of the first 25 values
         for ( uint i = 0; i < 25; i++ )
         {
             // check solution

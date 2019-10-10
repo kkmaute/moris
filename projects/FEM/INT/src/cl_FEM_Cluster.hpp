@@ -134,7 +134,10 @@ namespace moris
          * gets the index of the vertex associated with a given master vertex
          * @param[ in ] aLeftVertex mesh vertex pointer
          */
-        moris::moris_index get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex );
+        moris::mtk::Vertex const * get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex );
+
+        moris::moris_index get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
+                                                             moris::mtk::Vertex const * aVertex );
 
 //------------------------------------------------------------------------------
         /**

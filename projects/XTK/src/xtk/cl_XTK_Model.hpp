@@ -458,6 +458,12 @@ private:
     create_child_element_mtk_cells();
 
     /*!
+    * Add the vertex pointer to child meshes
+    */
+    void
+    add_vertices_to_child_meshes();
+
+    /*!
      * setup cell id to index map
      */
     void

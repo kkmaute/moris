@@ -551,16 +551,39 @@ Enriched_Integration_Mesh::print_side_sets() const
 }
 //------------------------------------------------------------------------------
 void
-Enriched_Integration_Mesh::print_double_side_sets() const
+Enriched_Integration_Mesh::print_double_side_sets(moris::uint aVerbosityLevel) const
 {
     std::cout<<"\nDouble Side Sets:"<<std::endl;
     std::cout<<"    Num Side Sets: "<<this->get_num_double_side_set()<<std::endl;
 
     for(moris::uint iSS = 0; iSS < this->get_num_double_side_set(); iSS++)
     {
-        std::cout<<"    Dbl Side Set Name: "<<std::setw(20)<<mDoubleSideSetLabels(iSS)<<" | Dbl Side Set Ord: "<<std::setw(9)<<iSS<<" | Num Cell Clusters: "<<std::setw(9)<<this->mDoubleSideSets(iSS).size()<<std::endl;
+        std::cout<<"    Dbl Side Set Name: "<<std::setw(20)<<mDoubleSideSetLabels(iSS)<<" | Dbl Side Set Ord: "<<std::setw(9)<<iSS<<" | Num Cell Clusters: "<<std::setw(9)<<this->mDoubleSideSets(iSS).size();
+
+        if(aVerbosityLevel>0)
+        {
+            for(moris::uint  i = 0; i < mDoubleSideSets(iSS).size(); i++)
+            {
+             std::cout<<"\n      Master Interpolation Cell: "<<std::setw(9)<<mDoubleSideSets(iSS)(i)->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id();
+             std::cout<<" | Slave Interpolation Cell: "<<std::setw(9)<<mDoubleSideSets(iSS)(i)->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id();
+            }
+        }
+
+        std::cout<<std::endl;
     }
 }
+void
+Enriched_Integration_Mesh::print_double_side_clusters(moris::uint aVerbosityLevel) const
+{
+    std::cout<<"\nDouble Side Clusters:"<<std::endl;
+    std::cout<<"    Num Double Side Clusters: "<<mDoubleSideClusters.size()<<std::endl;
+
+    for(moris::uint i = 0; i < mDoubleSideClusters.size(); i++)
+    {
+        std::cout<<mDoubleSideClusters(i)<<std::endl;
+    }
+}
+
 //------------------------------------------------------------------------------
 std::string
 Enriched_Integration_Mesh::get_interface_side_set_name(moris_index aGeomIndex,
@@ -1193,7 +1216,7 @@ Enriched_Integration_Mesh::register_double_side_set_names(moris::Cell<std::strin
     // iterate and add sets
     for(moris::uint i = 0; i < tNumSetsToRegister; i++)
     {
-        tDblSideSetOrds(i) = mDoubleSideSets.size();
+        tDblSideSetOrds(i) = mDoubleSideSets.size()+i;
 
         mDoubleSideSetLabels.push_back(aDblSideSetNames(i));
         MORIS_ASSERT(mDoubleSideSetLabelToOrd.find(aDblSideSetNames(i)) ==  mDoubleSideSetLabelToOrd.end(),"Duplicate double side set in mesh");
