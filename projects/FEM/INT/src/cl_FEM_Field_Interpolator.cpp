@@ -56,6 +56,40 @@ namespace moris
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
         }
 
+        Field_Interpolator::Field_Interpolator( const uint                         & aNumberOfFields,
+                                                const Interpolation_Rule           & aFieldInterpolationRule,
+                                                      Geometry_Interpolator*         aGeometryInterpolator,
+                                                const moris::Cell< MSI::Dv_Type >    aDvType )
+                                              : mNumberOfFields( aNumberOfFields ),
+                                                mGeometryInterpolator( aGeometryInterpolator ),
+                                                mDvType( aDvType )
+        {
+            // create space and time interpolation function
+            mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
+            mTimeInterpolation  = aFieldInterpolationRule.create_time_interpolation_function();
+
+            // get number of space, time dimensions
+            mNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
+            mNTimeDim  = mTimeInterpolation ->get_number_of_dimensions();
+
+            // get number of space parametric dimensions
+            mNSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
+
+            // check dimensions consistency
+            MORIS_ERROR( ( mNSpaceDim == mGeometryInterpolator->get_number_of_space_dimensions() ) ,
+                         "Field_Interpolator - Space dimension inconsistency." );
+            MORIS_ERROR( ( mNTimeDim  == mGeometryInterpolator->get_number_of_time_dimensions() ),
+                         "Field_Interpolator - Time dimension inconsistency.");
+
+            // get number of space, time, and space time basis
+            mNSpaceBases = mSpaceInterpolation->get_number_of_bases();
+            mNTimeBases  = mTimeInterpolation->get_number_of_bases();
+            mNFieldBases = mNSpaceBases * mNTimeBases;
+
+            // get number of coefficients
+            mNFieldCoeff = mNFieldBases * mNumberOfFields;
+        }
+
 //------------------------------------------------------------------------------
 
         Field_Interpolator::~Field_Interpolator()

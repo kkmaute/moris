@@ -38,6 +38,7 @@ namespace moris
             // get number of field interpolator and properties
             uint tNumFI   = mSet->get_number_of_field_interpolators();
             uint tNumProp = mSet->get_number_of_properties();
+            uint tNumCM   = mSet->get_number_of_constitutive_models();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -69,6 +70,12 @@ namespace moris
                 for ( uint iProp = 0; iProp < tNumProp; iProp++ )
                 {
                     mSet->get_properties()( iProp )->reset_eval_flags();
+                }
+
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
                 }
 
                 // compute the integration point weight
@@ -119,6 +126,7 @@ namespace moris
             // get number of field interpolator and properties
             uint tNumFI   = mSet->get_number_of_field_interpolators();
             uint tNumProp = mSet->get_number_of_properties();
+            uint tNumCM   = mSet->get_number_of_constitutive_models();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -150,6 +158,12 @@ namespace moris
                 for ( uint iProp = 0; iProp < tNumProp; iProp++ )
                 {
                     mSet->get_properties()( iProp )->reset_eval_flags();
+                }
+
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
                 }
 
                 // compute integration point weight

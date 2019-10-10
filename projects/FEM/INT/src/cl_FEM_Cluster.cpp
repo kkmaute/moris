@@ -300,6 +300,7 @@ namespace moris
                  uint tMasterNumCoeff = mSet->get_field_interpolators()( iDOF )->get_number_of_space_time_coefficients();
 
                  // set the field coefficients
+                 // FIXME if group of dof type, e.g. UX, UY, UZ
                  mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff( { 0, tMasterNumCoeff - 1 }, { 0, 0 } ) );
              }
 
@@ -323,6 +324,7 @@ namespace moris
                  uint tSlaveNumCoeff = mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->get_number_of_space_time_coefficients();
 
                  // set the field coefficients
+                 // FIXME if group of dof type, e.g. UX, UY, UZ
                  mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff( { tNumCoeff - tSlaveNumCoeff, tNumCoeff - 1 }, { 0, 0 } ) );
              }
          }

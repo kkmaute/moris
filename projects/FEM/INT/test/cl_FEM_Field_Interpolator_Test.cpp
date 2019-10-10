@@ -55,7 +55,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         uint tNumberOfFields = 1;
         Field_Interpolator tFieldInterpolator( tNumberOfFields,
                                                tInterpolationRule,
-                                               tGeomInterpolator );
+                                               tGeomInterpolator,
+                                               { MSI::Dof_Type::UX } );
 
         //create scalar field discretized value tUHat
         Interpolation_Function_Base * tSpaceInterpolation = tInterpolationRule.create_space_interpolation_function();
@@ -188,7 +189,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             uint tNumberOfFields = 1;
             Field_Interpolator tFieldInterpolator( tNumberOfFields,
                                                    tInterpolationRule,
-                                                   tGeomInterpolator );
+                                                   tGeomInterpolator,
+                                                   { MSI::Dof_Type::UX } );
 
             //create scalar field coefficients tUHat
             uint tNSpaceTimeBases = tFieldInterpolator.get_number_of_space_time_bases();
@@ -263,7 +265,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             //create a space field interpolator
             Field_Interpolator tCheckFieldInterpolator( tNumberOfFields,
                                                         tCheckFieldRule,
-                                                        tCheckGeomInterpolator );
+                                                        tCheckGeomInterpolator,
+                                                        { MSI::Dof_Type::UX } );
 
             //set the coefficients uHat
             tCheckFieldInterpolator.set_coeff( tUHat );
@@ -367,7 +370,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         uint tNumberOfFields = 1;
         Field_Interpolator tFieldInterpolator( tNumberOfFields,
                                                tInterpolationRule,
-                                               tGeomInterpolator );
+                                               tGeomInterpolator,
+                                               { MSI::Dof_Type::UX } );
 
         //create scalar field discretized value tUHat
         Interpolation_Function_Base * tSpaceInterpolation = tInterpolationRule.create_space_interpolation_function();

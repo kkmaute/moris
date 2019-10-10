@@ -32,8 +32,10 @@ namespace moris
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual - Ghost stabilization for this order not supported yet. " );
 
             // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
             // check master and slave properties
             this->check_properties( mtk::Master_Slave::MASTER );
@@ -70,8 +72,10 @@ namespace moris
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian - Ghost stabilization for this order not supported yet. " );
 
             // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
             // check master and slave properties
             this->check_properties( mtk::Master_Slave::MASTER );
@@ -110,8 +114,10 @@ namespace moris
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual - Ghost stabilization for this order not supported yet. " );
 
             // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
             // check master and slave properties
             this->check_properties( mtk::Master_Slave::MASTER );
@@ -171,6 +177,7 @@ namespace moris
 
                 case ( 2 ):
                 {
+                    //fixme
                     // set the normal matrix size
                     tNormalMatrix.set_size( 3, 6, 0.0 );
 
@@ -179,14 +186,23 @@ namespace moris
                     tNormalMatrix( 1, 1 ) = mNormal( 1 );
                     tNormalMatrix( 2, 2 ) = mNormal( 2 );
 
-                    tNormalMatrix( 0, 3 ) = mNormal( 1 );
+//                    tNormalMatrix( 0, 3 ) = mNormal( 1 );
+//                    tNormalMatrix( 0, 4 ) = mNormal( 2 );
+//
+//                    tNormalMatrix( 1, 3 ) = mNormal( 0 );
+//                    tNormalMatrix( 1, 5 ) = mNormal( 2 );
+//
+//                    tNormalMatrix( 2, 4 ) = mNormal( 1 );
+//                    tNormalMatrix( 2, 5 ) = mNormal( 0 );
+
+                    tNormalMatrix( 0, 5 ) = mNormal( 1 );
                     tNormalMatrix( 0, 4 ) = mNormal( 2 );
 
-                    tNormalMatrix( 1, 3 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 5 ) = mNormal( 2 );
+                    tNormalMatrix( 1, 5 ) = mNormal( 0 );
+                    tNormalMatrix( 1, 3 ) = mNormal( 2 );
 
-                    tNormalMatrix( 2, 4 ) = mNormal( 1 );
-                    tNormalMatrix( 2, 5 ) = mNormal( 0 );
+                    tNormalMatrix( 2, 4 ) = mNormal( 0 );
+                    tNormalMatrix( 2, 3 ) = mNormal( 1 );
 
                     return tNormalMatrix;
                     break;

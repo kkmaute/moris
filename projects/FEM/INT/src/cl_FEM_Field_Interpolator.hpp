@@ -61,6 +61,9 @@ class Property;
             // field interpolator dof type
             moris::Cell< MSI::Dof_Type > mDofType;
 
+            // field interpolator dv type
+            moris::Cell< MSI::Dv_Type > mDvType;
+
             // flag for evaluation
             bool mNEval      = true;
             bool mBxEval     = true;
@@ -86,22 +89,43 @@ class Property;
              * @param[ in ] aFieldInterpolationRule   field interpolation rule
              * @param[ in ] aGeometryInterpolator     pointer to geometry interpolator object
              * @param[ in ] aDofType                  dof type for the interpolated fields
-             *
              */
             Field_Interpolator( const uint                         & aNumberOfFields,
                                 const Interpolation_Rule           & aFieldInterpolationRule,
                                       Geometry_Interpolator*         aGeometryInterpolator,
-                                const moris::Cell< MSI::Dof_Type >   aDofType = { MSI::Dof_Type::UNDEFINED } );
+                                const moris::Cell< MSI::Dof_Type >   aDofType );
+
+            /**
+             * constructor
+             * @param[ in ] aNumberOfFields           number of interpolated fields
+             * @param[ in ] aFieldInterpolationRule   field interpolation rule
+             * @param[ in ] aGeometryInterpolator     pointer to geometry interpolator object
+             * @param[ in ] aDvType                   dv type for the interpolated fields
+             */
+            Field_Interpolator( const uint                         & aNumberOfFields,
+                                const Interpolation_Rule           & aFieldInterpolationRule,
+                                      Geometry_Interpolator*         aGeometryInterpolator,
+                                const moris::Cell< MSI::Dv_Type >    aDvType );
 
             /**
              * trivial constructor for unit test
              */
             Field_Interpolator( const uint & aNumberOfFields,
-                                const moris::Cell< MSI::Dof_Type >   aDofType = { MSI::Dof_Type::UNDEFINED }) : mNumberOfFields( aNumberOfFields ),
-                                                                                                                mDofType( aDofType )
+                                const moris::Cell< MSI::Dof_Type >   aDofType ) : mNumberOfFields( aNumberOfFields ),
+                                                                                  mDofType( aDofType )
             {
                 mNFieldCoeff = mNumberOfFields;
             };
+
+            /**
+              * trivial constructor for unit test
+              */
+             Field_Interpolator( const uint                        & aNumberOfFields,
+                                 const moris::Cell< MSI::Dv_Type >   aDvType ) : mNumberOfFields( aNumberOfFields ),
+                                                                                 mDvType( aDvType )
+             {
+                 mNFieldCoeff = mNumberOfFields;
+             };
 
 //------------------------------------------------------------------------------
             /**
@@ -116,6 +140,15 @@ class Property;
             const moris::Cell< MSI::Dof_Type > & get_dof_type() const
             {
                 return mDofType;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get dof type
+             */
+            const moris::Cell< MSI::Dv_Type > & get_dv_type() const
+            {
+                return mDvType;
             }
 
 //------------------------------------------------------------------------------

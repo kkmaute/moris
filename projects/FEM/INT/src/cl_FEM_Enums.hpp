@@ -94,6 +94,7 @@ namespace moris
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
+            SPATIALDIFF_INTERFACE, // spatial diffusion interface
             END_IWG_TYPE
         };
 

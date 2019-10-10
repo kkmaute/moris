@@ -27,7 +27,8 @@ namespace moris
         void IWG_LSNormal_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // set field interpolators
             Field_Interpolator* nPhi = mMasterFI( 0 );
@@ -60,7 +61,8 @@ namespace moris
         void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check master field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // set field interpolators
             Field_Interpolator* nPhi = mMasterFI( 0 );
@@ -103,7 +105,8 @@ namespace moris
                                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             // check master field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // set field interpolators
             Field_Interpolator* nPhi = mMasterFI( 0 );

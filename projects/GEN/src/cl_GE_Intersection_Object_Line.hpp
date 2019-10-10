@@ -136,7 +136,7 @@ public:
         //fixme this is a default to just look at one LS field at a time, should this be updated to look at all the LS fields?
         //      additionally, the geometry pointer information needs to be accessed in a better way
         uint tNumFields = 1;
-        mMyFieldInterp = new fem::Field_Interpolator( tNumFields, tLevelSetInterpRule, mMyGeomInterp );
+        mMyFieldInterp = new fem::Field_Interpolator( tNumFields, tLevelSetInterpRule, mMyGeomInterp, { MSI::Dv_Type::UNDEFINED } );
 
         mMyParamPoint   = aParamPoint; // set the parameter point where the interpolation begins
         mMyGlobalCoords = aGlobCoords;
