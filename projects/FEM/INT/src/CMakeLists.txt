@@ -135,8 +135,12 @@ set(LIB_SOURCES
     cl_FEM_Integrator_Test_Polynomial.cpp
     cl_FEM_Property.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
+    cl_FEM_CM_Struc_Linear_Isotropic.cpp
     cl_FEM_CM_Factory.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     )
 
 # List library dependencies

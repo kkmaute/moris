@@ -293,14 +293,21 @@ namespace moris
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
 
                  // get the pdof values for the ith dof type group
+                 Cell< Matrix< DDRMat > > tCoeff_Original;
                  Matrix< DDRMat > tCoeff;
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
+
+                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original );
+
+                 // reshape tCoeffs into the order the cluster expects them
+                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                  // get number of coefficients for master
-                 uint tMasterNumCoeff = mSet->get_field_interpolators()( iDOF )->get_number_of_space_time_coefficients();
+                 uint tMasterNumCoeff = mSet->get_field_interpolators()( iDOF )->get_number_of_space_time_bases();
+
+                 uint tMasterNumFields = mSet->get_field_interpolators()( iDOF )->get_number_of_fields();
 
                  // set the field coefficients
-                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff( { 0, tMasterNumCoeff - 1 }, { 0, 0 } ) );
+                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff( { 0, tMasterNumCoeff - 1 }, { 0, tMasterNumFields -1  } ) );
              }
 
              // get number of slave dof types
@@ -313,8 +320,13 @@ namespace moris
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
 
                  // get the pdof values for the ith dof type group
+                 Cell< Matrix< DDRMat > > tCoeff_Original;
                  Matrix< DDRMat > tCoeff;
-                 this->get_my_pdof_values( tDofTypeGroup, tCoeff );
+
+                 this->get_my_pdof_values( tDofTypeGroup, tCoeff_Original );
+
+                 // reshape tCoeffs into the order the cluster expects them
+                 this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                  // get total number of coefficients
                  uint tNumCoeff = tCoeff.numel();
@@ -445,6 +457,25 @@ namespace moris
             // return cluster volume value
             return tClusterVolume;
         }
+
+//------------------------------------------------------------------------------
+
+        void Cluster::reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
+                                                 Matrix< DDRMat >         & aReshapedPdofValues )
+        {
+            MORIS_ASSERT( aPdofValues.size() != 0, "Cluster::reshape_pdof_values(), pdof value vector is empty");
+
+            uint tCols = aPdofValues.size();
+            uint tRows = aPdofValues( 0 ).numel();
+
+            aReshapedPdofValues.set_size( tRows, tCols );
+
+            for( uint Ik = 0; Ik < tCols; Ik++ )
+            {
+                aReshapedPdofValues( { 0, tRows - 1 }, { Ik, Ik } ) = aPdofValues( Ik ).matrix_data();
+            }
+        }
+
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */

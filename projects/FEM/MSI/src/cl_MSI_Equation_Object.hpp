@@ -174,7 +174,7 @@ class Dist_Vector;
              * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
              */
             void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
-                                           Matrix< DDRMat >             & aRequestedPdofValues);
+                                           Cell< Matrix< DDRMat > >     & aRequestedPdofValues);
 
 //-------------------------------------------------------------------------------------------------
 

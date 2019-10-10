@@ -406,6 +406,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * evaluates the constitutive model test strain
+             * @param[ in ] aTestStrain a matrix to fill with test strain evaluation
+             */
+            virtual void eval_test_strain( Matrix< DDRMat > & aTestStrain )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_test_strain - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * evaluates the constitutive model constitutive matrix
              * @param[ in ] aConst a matrix to fill with constitutive matrix evaluation
              */

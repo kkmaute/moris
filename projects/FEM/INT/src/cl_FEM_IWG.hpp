@@ -16,6 +16,7 @@
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
+#include "fn_reshape.hpp"                 //FEM/MSI/src
 
 namespace moris
 {
@@ -827,15 +828,19 @@ namespace moris
 
                     // coefficients for dof type wrt which derivative is computed
                     Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
+                    tCoeff = reshape( tCoeff, tDerNumDof, 1 );
+
+                    // setting the perturbed coefficients
+                    uint tNumBases =  mMasterFI( iFI )->get_number_of_space_time_bases();
+                    uint tNumFields =  mMasterFI( iFI )->get_number_of_fields();
 
                     for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
                     {
                         // perturbation of the coefficent
                         Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
+                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;// * tCoeffPert( iCoeff );
 
-                        // setting the perturbed coefficients
-                        mMasterFI( iFI )->set_coeff( tCoeffPert );
+                        mMasterFI( iFI )->set_coeff( reshape( tCoeffPert, tNumBases, tNumFields) );
 
                         // reset properties
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
@@ -853,7 +858,7 @@ namespace moris
                         tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
 
                         // setting the perturbed coefficients
-                        mMasterFI( iFI )->set_coeff( tCoeffPert );
+                        mMasterFI( iFI )->set_coeff( reshape( tCoeffPert, tNumBases, tNumFields) );
 
                         // reset properties
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
@@ -870,7 +875,7 @@ namespace moris
                         aJacobiansFD( 0 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                     }
                     // reset the coefficients values
-                    mMasterFI( iFI )->set_coeff( tCoeff );
+                    mMasterFI( iFI )->set_coeff( reshape( tCoeff, tNumBases, tNumFields ) );
                 }
             }
 

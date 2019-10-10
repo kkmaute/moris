@@ -94,6 +94,9 @@ namespace moris
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
+            STRUC_LINEAR_BULK,
+            STRUC_LINEAR_DIRICHLET,
+            STRUC_LINEAR_NEUMANN,
             END_IWG_TYPE
         };
 
@@ -106,6 +109,10 @@ namespace moris
             TEMP_NEUMANN,
             CONDUCTIVITY,
             TEMP_LOAD,
+            STRUC_DIRICHLET,
+            STRUC_NEUMANN,
+            YOUNGS_MODULUS,
+            POISSONS_RATIO,
             END_PROPERTY_TYPE
         };
 
@@ -115,6 +122,7 @@ namespace moris
         {
             UNDEFINED,
             DIFF_LIN_ISO,
+            STRUC_LIN_ISO,
             END_CONSTITUTIVE_TYPE
         };
 

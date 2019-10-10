@@ -120,21 +120,24 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
 
+    std::cout<< " number of blocks residual " << numBlocks<<std::endl;
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
         moris::uint tNumEquationOnjOnBlock = this->get_num_my_elements_on_block( Ii );
-
+        std::cout<< " number of residual eqn " << tNumEquationOnjOnBlock<<"  on block "<<Ii<<std::endl;
         for ( moris::uint Ik=0; Ik < tNumEquationOnjOnBlock; Ik++ )
         {
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-//        print(tElementRHS,"tElementRHS");
 //        print(tElementTopology,"tElementTopology");
 
             Matrix< DDRMat > tElementRHS;
             this->get_element_rhs( Ii, Ik, tElementRHS );
+
+//            print(tElementRHS,"tElementRHS");
+
 
             //print(tElementTopology,"tElementTopology");
 
@@ -182,6 +185,8 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
 
+    std::cout<< " number of blocks jacobian " << numBlocks<<std::endl;
+
 //#ifdef WITHGPERFTOOLS
 //     ProfilerStart("./main.prof");
 //#endif
@@ -196,10 +201,12 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-            //print(tElementTopology,"tElementTopology");
+            print(tElementTopology,"tElementTopology");
 
             Matrix< DDRMat > tElementMatrix;
             this->get_element_matrix( Ii, Ik, tElementMatrix );
+
+            print(tElementMatrix,"tElementMatrix");
 
             // Fill element in distributed matrix
             aMat->fill_matrix( tElementTopology.length(),
