@@ -56,11 +56,13 @@ namespace moris
 
             // get first corresponding node from master to slave
             //FIXME not sure it works, seems right
-            moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+            moris::mtk::Vertex const * tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+            moris_index                tSlaveNodeOrdOnSide = mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode);
+
 
             // get rotation matrix from left to right
             Matrix< DDRMat> tR;
-            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode, tR );
+            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
 
             // get number of field interpolator and properties for master and slave
             uint tMasterNumFI   = mSet->get_number_of_field_interpolators();
@@ -181,11 +183,12 @@ namespace moris
 
             // get first corresponding node from master to slave
             //FIXME not sure it works or provide the right thing
-            moris::moris_index tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+            moris::mtk::Vertex const * tSlaveNode = mCluster->get_left_vertex_pair( mMasterCell->get_vertices_on_side_ordinal( tMasterSideOrd )( 0 ) );
+            moris_index                tSlaveNodeOrdOnSide = mCluster->get_right_vertex_ordinal_on_facet(mCellIndexInCluster,tSlaveNode);
 
             // get rotation matrix from left to right
             Matrix< DDRMat> tR;
-            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNode, tR );
+            rotation_matrix( mSet->get_IG_geometry_type(), tSlaveNodeOrdOnSide, tR );
 
             // get number of field interpolator and properties for master and slave
             uint tMasterNumFI   = mSet->get_number_of_field_interpolators();

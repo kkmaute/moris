@@ -15,6 +15,9 @@
 #include "fn_unique.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_sort.hpp"
+#include "fn_iscol.hpp"
+#include "fn_trans.hpp"
+#include "fn_equal_to.hpp"
 #include "fn_generate_element_to_element.hpp"
 #include "fn_create_faces_from_element_to_node.hpp"
 #include "fn_create_edges_from_element_to_node.hpp"
@@ -133,7 +136,7 @@ Model::decompose(Cell<enum Subdivision_Method> aMethods,
             std::clock_t start = std::clock();
 
             // Perform subdivision
-            this->decompose_internal(aMethods(iDecomp), iDecomp, tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
+            this->decompose_internal(aMethods(iDecomp), iGeom, tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
 
             // Change the first subdivision flag as false
             tFirstSubdivisionFlag = false;
@@ -475,6 +478,16 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             for(moris::uint i = 0; i <tDecompData.tNewNodeId.size(); i++)
             {
                 mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
+
+                // determine if this vertex is on other interfaces
+                for(moris::uint j = 0; j < mGeometryEngine.get_num_geometries(); j++)
+                {
+                    moris::real const & tPhaseVal = mGeometryEngine.get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
+                    if(moris::equal_to(0.0,tPhaseVal))
+                    {
+                        mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
+                    }
+                }
             }
 
 
@@ -678,9 +691,19 @@ Model::decompose_internal(enum Subdivision_Method    const & aSubdivisionMethod,
             moris_index tGeomIndex = mGeometryEngine.get_active_geometry_index();
             for(moris::uint i = 0; i <tDecompData.tNewNodeId.size(); i++)
             {
+                // this node is always on the geometry interface of current so mark this
                 mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),tGeomIndex);
-            }
 
+                // determine if this vertex is on other interfaces
+                for(moris::uint j = 0; j < mGeometryEngine.get_num_geometries(); j++)
+                {
+                    moris::real const & tPhaseVal = mGeometryEngine.get_entity_phase_val(tDecompData.tNewNodeIndex(i),(moris_index)j);
+                    if(moris::equal_to(0.0,tPhaseVal))
+                    {
+                        mBackgroundMesh.mark_node_as_interface_node(tDecompData.tNewNodeIndex(i),j);
+                    }
+                }
+            }
 
             // Set Node Ids and tell the child mesh to update
             for (moris::size_t j = 0; j < aActiveChildMeshIndices.n_cols(); j++)
@@ -983,13 +1006,9 @@ Model::decompose_internal_set_new_nodes_in_child_mesh_reg_sub(moris::Matrix< mor
             // retrieve child mesh
             Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
 
-            // get vertex
-            Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tCMNewNodeInds);
-
             // add node indices, ids, and vertices to child mesh
             tChildMesh.add_node_indices(tCMNewNodeInds);
             tChildMesh.add_node_ids(tCMNewNodeIds);
-            tChildMesh.add_vertices(tVertices);
 
             // allocate space for parametric coordinates
             tChildMesh.allocate_parametric_coordinates(tNumNewNodesForCM,tNumParamCoords);
@@ -1039,13 +1058,10 @@ Model::decompose_internal_set_new_nodes_in_child_mesh_nh(moris::Matrix< moris::I
         // retrieve child mesh
         Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(aActiveChildMeshIndices(i));
 
-        // get vertex
-        Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tCMNewNodeInds);
 
         // add node indices, ids, and vertices to child mesh
         tChildMesh.add_node_indices(tCMNewNodeInds);
         tChildMesh.add_node_ids(tCMNewNodeIds);
-        tChildMesh.add_vertices(tVertices);
 
         // allocate space for parametric coordinate
 
@@ -1470,6 +1486,9 @@ Model::finalize_decomp_in_xtk_mesh(bool aSetPhase)
     // creates mtk cells for all child elements (parent elements are assumed to have mtk cells in the mtk mesh)
     this->create_child_element_mtk_cells();
 
+    // add vertices to child meshes
+    this->add_vertices_to_child_meshes();
+
     // identify local subphases in child mesh
     this->identify_local_subphase_clusters_in_child_meshes();
 
@@ -1669,6 +1688,11 @@ Model::set_element_phases()
         {
             moris::Matrix< moris::IndexMat > tElementNodes = mBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(i,moris::EntityRank::ELEMENT, moris::EntityRank::NODE);
 
+            if(iscol(tElementNodes))
+            {
+                tElementNodes = trans(tElementNodes);
+            }
+
             moris::size_t tElemPhaseIndex = determine_element_phase_index(0,tElementNodes);
 
             mBackgroundMesh.set_element_phase_index(i,tElemPhaseIndex);
@@ -1838,6 +1862,21 @@ Model::create_child_element_mtk_cells()
         }
 
     }
+}
+
+void
+Model::add_vertices_to_child_meshes()
+{
+  moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
+
+  for(moris::uint i=0; i<tNumChildMeshes; i++)
+  {
+      Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(i);
+      Cell<moris::mtk::Vertex const *> tVertices = mBackgroundMesh.get_mtk_vertices(tChildMesh.get_node_indices());
+      tChildMesh.add_vertices(tVertices);
+
+  }
+
 }
 
 void
@@ -2732,6 +2771,48 @@ Model::print_neighborhood()
 
 
 void
+Model::print_cells()
+{
+    for(moris::uint  i = 0; i < this->get_num_elements_total(); i++ )
+    {
+        mtk::Cell & tCell = mBackgroundMesh.get_mtk_cell((moris_index)i);
+
+        moris::Cell<moris::mtk::Vertex *> tVertices = tCell.get_vertex_pointers();
+
+        std::cout<<"Cell Id: "<<std::setw(8)<<tCell.get_id();
+        std::cout<<" | Cell Index: "<<std::setw(8)<<tCell.get_index();
+        std::cout<<" | Phase: "<<std::setw(8)<<mBackgroundMesh.get_element_phase_index(i) << " | Verts: ";
+        for(moris::uint j = 0; j < tVertices.size(); j++)
+        {
+            std::cout<<std::setw(8)<<tVertices(j)->get_id();
+        }
+        std::cout<<std::endl;
+    }
+}
+
+void
+Model::print_vertex_geometry()
+{
+        for(moris::uint  i = 0; i < mBackgroundMesh.get_num_entities(EntityRank::NODE); i++)
+    {
+        moris::mtk::Vertex & tVertex = mBackgroundMesh.get_mtk_vertex(i);
+
+        std::cout<<"Vertex Id: "<<std::setw(8)<<tVertex.get_id()<<" | ";
+        for(moris::uint j = 0; j < mGeometryEngine.get_num_geometries(); j++)
+        {
+            std::cout<<std::setw(12)<<mGeometryEngine.get_entity_phase_val(tVertex.get_index(),j)<<" , ";
+        }
+        std::cout<<std::endl;
+    }
+}
+
+
+void
+Model::print_interface_vertices()
+{
+    mBackgroundMesh.print_interface_node_flags();
+}
+void
 Model::print_subphase_neighborhood()
 {
     for(moris::uint iC = 0; iC<mSubphaseToSubPhase.size(); iC++ )
@@ -3154,9 +3235,6 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     // Get rank of the geometry data field
     moris::Cell < enum moris::EntityRank > tFieldRanks =  assign_geometry_data_field_ranks();
 
-    // Get the packaged interface side sets from the cut mesh
-    moris::Matrix<moris::IdMat> tInterfaceElemIdandSideOrd = mCutMesh.pack_interface_sides(0,0,1);
-
     // number of phases being output
     moris::uint tNumPhasesOutput = get_num_phases_to_output(aOutputOptions);
 
@@ -3337,14 +3415,21 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
         }
     }
 
-    moris::mtk::MtkSideSetInfo tInterfaceSideSet;
+    // Get the packaged interface side sets from the cut mesh
+    Cell<moris::Matrix<moris::IdMat>> tInterfaceElemIdandSideOrd;
+    Cell<std::string> tInterfaceNames;
+    Cell<moris::mtk::MtkSideSetInfo> tInterfaceSideSets;
     if(aOutputOptions.mHaveInterface)
     {
-        tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
-        tInterfaceSideSet.mSideSetName        = "iside_0" ;
+        this->setup_interface_single_side_sets(aOutputOptions,tInterfaceElemIdandSideOrd,tInterfaceNames);
 
-        // Add side side set to mesh sets
-        tMtkMeshSets.add_side_set(&tInterfaceSideSet);
+        tInterfaceSideSets.resize(tInterfaceElemIdandSideOrd.size());
+        for(moris::uint i = 0; i < tInterfaceElemIdandSideOrd.size(); i++)
+        {
+            tInterfaceSideSets(i).mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd(i);
+            tInterfaceSideSets(i).mSideSetName        = tInterfaceNames(i);
+            tMtkMeshSets.add_side_set(&tInterfaceSideSets(i));
+        }
     }
 
 
@@ -3471,7 +3556,7 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
     moris::mtk::Side_Cluster_Input tInterfaceSideClusterInput;       // Side clusters
     moris::Cell<Matrix<IdMat>>     tInterfaceCellIdsandSideOrds;     // side cluster ids and side ordinals
     moris::Cell<Matrix<DDRMat>>    tInterfaceSideClusterParamCoords; // side cluster vertex parametric coordinates
-
+//
     if(aOutputOptions.mAddClusters)
     {
         // cell clustering
@@ -3479,8 +3564,10 @@ Model::construct_output_mesh( Output_Options const & aOutputOptions )
 
         tMeshDataInput.CellClusterInput = &tCellClusterInput;
 
+        MORIS_ASSERT(mGeometryEngine.get_num_geometries() == 1,"This has not been setup for multi geometry problems.");
 
-        setup_interface_side_cluster(tInterfaceSideSet.mSideSetName, tInterfaceSideClusterInput, aOutputOptions, tInterfaceCellIdsandSideOrds, tInterfaceSideClusterParamCoords);
+        //fixme: support changes to interface side
+        this->setup_interface_side_cluster(tInterfaceNames(0), tInterfaceSideClusterInput, aOutputOptions, tInterfaceCellIdsandSideOrds, tInterfaceSideClusterParamCoords);
 
         tMeshDataInput.SideClusterInput = &tInterfaceSideClusterInput;
     }
@@ -3590,6 +3677,32 @@ Model::get_node_map_restricted_to_output_phases(Output_Options const & aOutputOp
         return tRestrictedNodeMap;
     }
 
+}
+
+//------------------------------------------------------------------------------
+void
+Model::setup_interface_single_side_sets(Output_Options const & aOutputOptions,
+                                        Cell<moris::Matrix<moris::IdMat>> & aCellIdsAndSideOrds,
+                                        Cell<std::string> &                 aInterfaceSetNames)
+{
+    std::string tSetNameBase = "iside_";
+
+    for(moris_index iG = 0; iG< (moris_index)mGeometryEngine.get_num_geometries(); iG++)
+    {
+        for(moris_index iP0 = 0; iP0 < (moris_index)mGeometryEngine.get_num_bulk_phase(); iP0++)
+        {
+            for(moris_index iP1 = iP0+1; iP1 < (moris_index)mGeometryEngine.get_num_bulk_phase(); iP1++)
+            {
+                if(aOutputOptions.output_phase(iP0) && aOutputOptions.output_phase(iP1))
+                {
+                    std::string tSetName = tSetNameBase+"g_"+ std::to_string(iG) + "_p0_"+std::to_string(iP0)+"_p1_"+std::to_string(iP1);
+
+                    aInterfaceSetNames.push_back(tSetName);
+                    aCellIdsAndSideOrds.push_back(mCutMesh.pack_interface_sides(iG,iP0,iP1));
+                }
+            }
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -4353,6 +4466,7 @@ Model::determine_element_phase_index(moris::size_t aRowIndex,
     moris::size_t tNumNodesPerElem = aElementToNodeIndex.n_cols();
     moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,INTEGER_MAX);
 
+
     for(moris::size_t i = 0; i<tNumGeom; i++)
     {
         bool tFoundNonInterfaceNode = false;
@@ -4362,14 +4476,14 @@ Model::determine_element_phase_index(moris::size_t aRowIndex,
             {
                 tNodalPhaseVals(0,i) = mGeometryEngine.get_node_phase_index_wrt_a_geometry(aElementToNodeIndex(aRowIndex,j),i);
                 tFoundNonInterfaceNode = true;
-
+                break;
             }
         }
 
         if(!tFoundNonInterfaceNode)
         {
             std::cout<<"Did not find a non-interface node for this element"<<std::endl;
-            tNodalPhaseVals(0,i) = 1;
+            tNodalPhaseVals(0,i) = 1001;
         }
     }
 

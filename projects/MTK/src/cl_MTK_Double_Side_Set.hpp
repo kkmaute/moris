@@ -98,7 +98,7 @@ namespace moris
 
                  mIGGeometryType = get_auto_side_geometry_type( mIGGeometryType );
 
-                 MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
+//                 MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
              };
 
 //------------------------------------------------------------------------------

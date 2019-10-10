@@ -42,6 +42,15 @@ public:
     }
 
     virtual
+    moris::moris_index
+    get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
+                                 moris::mtk::Vertex const * aVertex ) const
+    {
+        MORIS_ERROR(false, "get_vertex_ordinal_on_facet(): not implemented for this cluster type");
+        return 0;
+    }
+
+    virtual
     moris::Cell<moris::mtk::Cell const *> const &
     get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
@@ -84,6 +93,15 @@ public:
     {
         MORIS_ERROR(false, "get_left_vertex_pair(): not implemented for this cluster type");
         return nullptr;
+    }
+
+    virtual
+    moris_index
+    get_right_vertex_ord_on_facet( moris_index  aCellClusterIndex,
+                                   moris::mtk::Vertex const * aRightVertex) const
+    {
+        MORIS_ERROR(false, "get_right_vertex_ord_on_facet(): not implemented for this cluster type");
+        return 0;
     }
 
     //##############################################
@@ -248,6 +266,20 @@ public:
     {
         MORIS_ERROR(false, "get_num_vertices_in_cluster(): not implemented for this cluster type");
         return 0;
+    }
+
+    moris::Cell<moris::mtk::Vertex *>
+    get_primary_vertices_in_cluster() const
+    {
+        moris::Cell<moris::mtk::Vertex *> tPrimaryVertices;
+
+        moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = this->get_primary_cells_in_cluster();
+
+        for(moris::uint  i = 0 ; i < tPrimaryCells.size(); i++)
+        {
+            tPrimaryVertices.append(tPrimaryCells(i)->get_vertex_pointers());
+        }
+        return tPrimaryVertices;
     }
 
 

@@ -734,15 +734,16 @@ namespace moris
                                            const bool aResetPattern )
         {
             // flag for output
-
             bool tFlag = mHaveRefinedAtLeastOneElement;
 
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
             // minimum refinement level. Is zero by default
-//            uint tMinLevel = mParameters->get_initial_refinement();     FIXME add min refinement elvel
+//            uint tMinLevel = mParameters->get_initial_refinement();     FIXME add min refinement level
             uint tMinLevel = 0;
+
+            uint tMaxAllowLevel = mParameters->get_max_refinement_level();
 
             // this function resets the working pattern
             if ( aResetPattern )
@@ -769,10 +770,13 @@ namespace moris
                 for( Background_Element_Base* tElement : tElementList )
                 {
                     // flag this element
-                    tElement->put_on_refinement_queue();
+                    if(tElement->get_level() < tMaxAllowLevel)
+                    {
+                        tElement->put_on_refinement_queue();
 
-                    // update minumum level of element
-                    tElement->update_min_refimenent_level( tMinLevel );
+                        // update minumum level of element
+                        tElement->update_min_refimenent_level( tMinLevel );
+                    }
                 }
             }
 
@@ -789,7 +793,7 @@ namespace moris
                 for( Background_Element_Base* tElement : tElementList )
                 {
                     // test if element is marked on working pattern
-                    if ( tElement->is_refined( tWorkingPattern ) )
+                    if ( tElement->is_refined( tWorkingPattern ) && tElement->get_level() < tMaxAllowLevel)
                     {
                         // flag this element
                         tElement->put_on_refinement_queue();

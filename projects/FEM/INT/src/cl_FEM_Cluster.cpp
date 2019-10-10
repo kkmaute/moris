@@ -250,7 +250,12 @@ namespace moris
             // init normal
             Matrix < DDRMat > tNormal;
 
+<<<<<<< HEAD
             // if interpolation cell is linear
+=======
+//FIXME: UNCOMMENT ONCE WE HAVE THE 2D NORMALS WORKING
+//            // if interpolation cell is linear
+>>>>>>> b9d533e198e3d7ef2c3d4fc52159422e81b0ee11
 //            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
 //            {
 //                // get normal from the mesh
@@ -267,17 +272,27 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        moris::moris_index Cluster::get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex )
+        moris::mtk::Vertex const * Cluster::get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex )
         {
             // check that a double sided cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
                           "Cluster::get_left_vertex_pair - not a double side cluster.");
 
             // get the paired vertex on the right
-            moris::mtk::Vertex const * tRightVertex = mMeshCluster->get_left_vertex_pair( aLeftVertex );
+            return mMeshCluster->get_left_vertex_pair( aLeftVertex );
+
+        }
+
+        moris::moris_index Cluster::get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
+                                                                     moris::mtk::Vertex const * aVertex )
+        {
+            // check that a double sided cluster
+            MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
+                          "Cluster::get_left_vertex_pair - not a double side cluster.");
+
 
             // return the index of the paired vertex on the right
-            return mMeshCluster->get_vertex_cluster_index( tRightVertex, mtk::Master_Slave::SLAVE );
+            return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
         }
 
 //------------------------------------------------------------------------------

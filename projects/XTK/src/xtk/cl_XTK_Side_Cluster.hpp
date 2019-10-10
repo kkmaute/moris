@@ -31,17 +31,19 @@ public:
     moris::Cell<moris::mtk::Vertex const *> const & get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
     moris::Matrix<moris::DDRMat> const &            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
     moris::moris_index                              get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const;
+    moris_index                                     get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster, moris::mtk::Vertex const * aVertex ) const;
     moris::Matrix<moris::DDRMat>                    get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex, const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const ;
     moris_index                                     get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const ;
 
+
     friend class Enriched_Integration_Mesh;
 protected:
-    bool                                    mTrivial;
-    Interpolation_Cell_Unzipped const *     mInterpolationCell;
-    Child_Mesh const *                      mChildMesh;
-    moris::Cell<moris::mtk::Cell const *>   mIntegrationCells;
-    moris::Matrix<moris::IndexMat>          mIntegrationCellSideOrdinals;
-    moris::Cell<moris::mtk::Vertex const *> mVerticesInCluster;
+    bool                                        mTrivial;
+    Interpolation_Cell_Unzipped const *         mInterpolationCell;
+    Child_Mesh const *                          mChildMesh;
+    moris::Cell<moris::mtk::Cell const *>       mIntegrationCells;
+    moris::Matrix<moris::IndexMat>              mIntegrationCellSideOrdinals;
+    moris::Cell<moris::mtk::Vertex const *>     mVerticesInCluster;
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
 
     void

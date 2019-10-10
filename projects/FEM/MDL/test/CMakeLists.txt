@@ -11,7 +11,12 @@ set(TEST_SOURCES
     UT_MDL_XTK_HMR_DiffusionElement.cpp
     UT_MDL_XTK_HMR_2D.cpp
     UT_MDL_XTK_HMR_Diffusion_Element_2D.cpp
+<<<<<<< HEAD
     UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
+=======
+    UT_MDL_XTK_HMR_2_Material_Bar_Plane.cpp
+    UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
+>>>>>>> b9d533e198e3d7ef2c3d4fc52159422e81b0ee11
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp
