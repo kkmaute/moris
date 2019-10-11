@@ -250,12 +250,7 @@ namespace moris
             // init normal
             Matrix < DDRMat > tNormal;
 
-<<<<<<< HEAD
             // if interpolation cell is linear
-=======
-//FIXME: UNCOMMENT ONCE WE HAVE THE 2D NORMALS WORKING
-//            // if interpolation cell is linear
->>>>>>> b9d533e198e3d7ef2c3d4fc52159422e81b0ee11
 //            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
 //            {
 //                // get normal from the mesh
@@ -344,13 +339,15 @@ namespace moris
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
                  // get total number of coefficients
-                 uint tNumCoeff = tCoeff.numel();
+                 uint tNumCoeff = tCoeff.n_rows();
 
-                 // get number of coefficients for slave
-                 uint tSlaveNumCoeff = mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->get_number_of_space_time_coefficients();
+                 // get number of coefficients for master
+                 uint tSlaveNumCoeff = mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->get_number_of_space_time_bases();
+
+                 uint tSlaveNumFields = mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->get_number_of_fields();
 
                  // set the field coefficients
-                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff( { tNumCoeff - tSlaveNumCoeff, tNumCoeff - 1 }, { 0, 0 } ) );
+                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff( { tNumCoeff - tSlaveNumCoeff, tNumCoeff - 1 }, { 0, tSlaveNumFields -1  } ) );
              }
          }
 

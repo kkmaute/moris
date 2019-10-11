@@ -192,7 +192,7 @@ namespace moris
                 }
             }
 //            // print jacobian for check
-            print( mSet->mJacobian, " mJacobian " );
+//            print( mSet->mJacobian, " mJacobian " );
         }
 
 //------------------------------------------------------------------------------

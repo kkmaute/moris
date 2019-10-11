@@ -838,7 +838,7 @@ namespace moris
                     {
                         // perturbation of the coefficent
                         Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation;// * tCoeffPert( iCoeff );
+                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
 
                         mMasterFI( iFI )->set_coeff( reshape( tCoeffPert, tNumBases, tNumFields) );
 
@@ -904,61 +904,67 @@ namespace moris
                 for( uint iFI = 0; iFI < tMasterNumDofType; iFI++ )
                 {
                     // get number of master dofs for derivative
-                    uint tDerNumDof = mMasterFI( iFI )->get_number_of_space_time_coefficients();
+//                    uint tDerNumDof = mMasterFI( iFI )->get_number_of_space_time_coefficients();
 
                     // coefficients for dof type wrt which derivative is computed
                     Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
 
+                    uint tCounter = 0;
                     // loop over the coefficients
-                    for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                    for( uint iCoeffCol = 0; iCoeffCol < tCoeff.n_cols(); iCoeffCol++ )
                     {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
-
-                        // setting the perturbed coefficients
-                        mMasterFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                        for( uint iCoeffRow = 0; iCoeffRow < tCoeff.n_rows(); iCoeffRow++ )
                         {
-                            mMasterProp( iProp )->reset_eval_flags();
+                            // perturbation of the coefficent
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            mMasterFI( iFI )->set_coeff( tCoeffPert );
+
+                            // reset properties
+                            for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                            {
+                                mMasterProp( iProp )->reset_eval_flags();
+                            }
+                            for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
+                            {
+                                mSlaveProp( iProp )->reset_eval_flags();
+                            }
+
+                            // evaluate the residual
+                            moris::Cell< Matrix< DDRMat > > tResidual_Plus;
+                            this->set_residual_double( tResidual_Plus );
+                            this->compute_residual( tResidual_Plus );
+
+                            // perturbation of the coefficent
+                            tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol  ) = tCoeffPert( iCoeffRow, iCoeffCol  ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            mMasterFI( iFI )->set_coeff( tCoeffPert );
+
+                            // reset properties
+                            for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                            {
+                                mMasterProp( iProp )->reset_eval_flags();
+                            }
+                            for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
+                            {
+                                mSlaveProp( iProp )->reset_eval_flags();
+                            }
+
+                            // evaluate the residual
+                            moris::Cell< Matrix< DDRMat > > tResidual_Minus;
+                            this->set_residual_double( tResidual_Minus );
+                            this->compute_residual( tResidual_Minus );
+
+                            // evaluate Jacobian
+                            aJacobiansFD( 0 )( iFI ).get_column( tCounter ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                            aJacobiansFD( 1 )( iFI ).get_column( tCounter ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                            tCounter++;
                         }
-                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
-                        {
-                            mSlaveProp( iProp )->reset_eval_flags();
-                        }
-
-                        // evaluate the residual
-                        moris::Cell< Matrix< DDRMat > > tResidual_Plus;
-                        this->set_residual_double( tResidual_Plus );
-                        this->compute_residual( tResidual_Plus );
-
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
-
-                        // setting the perturbed coefficients
-                        mMasterFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
-                        {
-                            mMasterProp( iProp )->reset_eval_flags();
-                        }
-                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
-                        {
-                            mSlaveProp( iProp )->reset_eval_flags();
-                        }
-
-                        // evaluate the residual
-                        moris::Cell< Matrix< DDRMat > > tResidual_Minus;
-                        this->set_residual_double( tResidual_Minus );
-                        this->compute_residual( tResidual_Minus );
-
-                        // evaluate Jacobian
-                        aJacobiansFD( 0 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
-                        aJacobiansFD( 1 )( iFI ).get_column( iCoeff ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                     }
                     // reset the coefficients values
                     mMasterFI( iFI )->set_coeff( tCoeff );
@@ -968,61 +974,67 @@ namespace moris
                 for( uint iFI = 0; iFI < tSlaveNumDofType; iFI++ )
                 {
                     // get number of master dofs for derivative
-                    uint tDerNumDof = mSlaveFI( iFI )->get_number_of_space_time_coefficients();
+//                    uint tDerNumDof = mSlaveFI( iFI )->get_number_of_space_time_coefficients();
 
                     // coefficients for dof type wrt which derivative is computed
                     Matrix< DDRMat > tCoeff = mSlaveFI( iFI )->get_coeff();
 
+                    uint tCounter = 0;
                     // loop over the coefficients
-                    for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                    for( uint iCoeffCol = 0; iCoeffCol < tCoeff.n_cols(); iCoeffCol++ )
                     {
-                        // perturbation of the coefficent
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
-
-                        // setting the perturbed coefficients
-                        mSlaveFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                        for( uint iCoeffRow = 0; iCoeffRow < tCoeff.n_rows(); iCoeffRow++ )
                         {
-                            mMasterProp( iProp )->reset_eval_flags();
+                            // perturbation of the coefficent
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            mSlaveFI( iFI )->set_coeff( tCoeffPert );
+
+                            // reset properties
+                            for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                            {
+                                mMasterProp( iProp )->reset_eval_flags();
+                            }
+                            for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
+                            {
+                                mSlaveProp( iProp )->reset_eval_flags();
+                            }
+
+                            // evaluate the residual
+                            moris::Cell< Matrix< DDRMat > > tResidual_Plus;
+                            this->set_residual_double( tResidual_Plus );
+                            this->compute_residual( tResidual_Plus );
+
+                            // perturbation of the coefficent
+                            tCoeffPert = tCoeff;
+                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                            // setting the perturbed coefficients
+                            mSlaveFI( iFI )->set_coeff( tCoeffPert );
+
+                            // reset properties
+                            for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
+                            {
+                                mMasterProp( iProp )->reset_eval_flags();
+                            }
+                            for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
+                            {
+                                mSlaveProp( iProp )->reset_eval_flags();
+                            }
+
+                            // evaluate the residual
+                            moris::Cell< Matrix< DDRMat > > tResidual_Minus;
+                            this->set_residual_double( tResidual_Minus );
+                            this->compute_residual( tResidual_Minus );
+
+                            // evaluate Jacobian
+                            aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( tCounter ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+                            aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( tCounter ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ));
+
+                            tCounter++;
                         }
-                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
-                        {
-                            mSlaveProp( iProp )->reset_eval_flags();
-                        }
-
-                        // evaluate the residual
-                        moris::Cell< Matrix< DDRMat > > tResidual_Plus;
-                        this->set_residual_double( tResidual_Plus );
-                        this->compute_residual( tResidual_Plus );
-
-                        // perturbation of the coefficent
-                        tCoeffPert = tCoeff;
-                        tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
-
-                        // setting the perturbed coefficients
-                        mSlaveFI( iFI )->set_coeff( tCoeffPert );
-
-                        // reset properties
-                        for ( uint iProp = 0; iProp < tMasterNumProps; iProp++ )
-                        {
-                            mMasterProp( iProp )->reset_eval_flags();
-                        }
-                        for ( uint iProp = 0; iProp < tSlaveNumProps; iProp++ )
-                        {
-                            mSlaveProp( iProp )->reset_eval_flags();
-                        }
-
-                        // evaluate the residual
-                        moris::Cell< Matrix< DDRMat > > tResidual_Minus;
-                        this->set_residual_double( tResidual_Minus );
-                        this->compute_residual( tResidual_Minus );
-
-                        // evaluate Jacobian
-                        aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( iCoeff ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
-                        aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( iCoeff ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                     }
                     // reset the coefficients values
                     mSlaveFI( iFI )->set_coeff( tCoeff );

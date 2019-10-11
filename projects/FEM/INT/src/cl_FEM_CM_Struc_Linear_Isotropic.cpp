@@ -47,24 +47,31 @@ namespace moris
             tdnNdxn = mFieldInterpolators( 0 )->dnNdxn( 1 );
 
             aTestStrain.set_size( 3, 8 , 0.0 );
+            aTestStrain( {0,0},{0,3} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({0,0},{0,3});
+            aTestStrain( {2,2},{0,3} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({1,1},{0,3});
 
-            aTestStrain( 0, 0 ) = tdnNdxn( 0, 0 );
-            aTestStrain( 2, 0 ) = tdnNdxn( 1, 0 );
-            aTestStrain( 0, 1 ) = tdnNdxn( 0, 1 );
-            aTestStrain( 2, 1 ) = tdnNdxn( 1, 1 );
-            aTestStrain( 0, 2 ) = tdnNdxn( 0, 2 );
-            aTestStrain( 2, 2 ) = tdnNdxn( 1, 2 );
-            aTestStrain( 0, 3 ) = tdnNdxn( 0, 3 );
-            aTestStrain( 2, 3 ) = tdnNdxn( 1, 3 );
+            aTestStrain( {1,1},{4,7} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({1,1},{0,3});
+            aTestStrain( {2,2},{4,7} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({0,0},{0,3});
 
-            aTestStrain( 1, 4 ) = tdnNdxn( 1, 0 );
-            aTestStrain( 2, 4 ) = tdnNdxn( 0, 0 );
-            aTestStrain( 1, 5 ) = tdnNdxn( 1, 1 );
-            aTestStrain( 2, 5 ) = tdnNdxn( 0, 1 );
-            aTestStrain( 1, 6 ) = tdnNdxn( 1, 2 );
-            aTestStrain( 2, 6 ) = tdnNdxn( 0, 2 );
-            aTestStrain( 1, 7 ) = tdnNdxn( 1, 3 );
-            aTestStrain( 2, 7 ) = tdnNdxn( 0, 3 );
+
+
+//            aTestStrain( 0, 0 ) = tdnNdxn( 0, 0 );
+//            aTestStrain( 2, 0 ) = tdnNdxn( 1, 0 );
+//            aTestStrain( 0, 1 ) = tdnNdxn( 0, 1 );
+//            aTestStrain( 2, 1 ) = tdnNdxn( 1, 1 );
+//            aTestStrain( 0, 2 ) = tdnNdxn( 0, 2 );
+//            aTestStrain( 2, 2 ) = tdnNdxn( 1, 2 );
+//            aTestStrain( 0, 3 ) = tdnNdxn( 0, 3 );
+//            aTestStrain( 2, 3 ) = tdnNdxn( 1, 3 );
+//
+//            aTestStrain( 1, 4 ) = tdnNdxn( 1, 0 );
+//            aTestStrain( 2, 4 ) = tdnNdxn( 0, 0 );
+//            aTestStrain( 1, 5 ) = tdnNdxn( 1, 1 );
+//            aTestStrain( 2, 5 ) = tdnNdxn( 0, 1 );
+//            aTestStrain( 1, 6 ) = tdnNdxn( 1, 2 );
+//            aTestStrain( 2, 6 ) = tdnNdxn( 0, 2 );
+//            aTestStrain( 1, 7 ) = tdnNdxn( 1, 3 );
+//            aTestStrain( 2, 7 ) = tdnNdxn( 0, 3 );
 
 
 //            aTestStrain( 0, 0 ) = tdnNdxn( 0, 0 );

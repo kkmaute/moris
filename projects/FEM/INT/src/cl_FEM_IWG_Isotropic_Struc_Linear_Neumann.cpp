@@ -30,8 +30,6 @@ namespace moris
             tShapeFunc2D( 1, 6 ) = mMasterFI( 0 )->N()( 0, 2 );
             tShapeFunc2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
 
-            print(mMasterProp( 0 )->val(),"mMasterProp( 0 )->val()");
-
             // compute the residual r_U
             aResidual( 0 ) = - trans( tShapeFunc2D ) * trans( mMasterProp( 0 )->val() );
         }
@@ -77,35 +75,7 @@ namespace moris
         void IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                      moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            // check master field interpolators, properties, constitutive models
-//            this->check_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
-//
-//            // set residual size
-//            this->set_residual( aResidual );
-//
-//            // compute the residual r_T
-//            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
-//
-//            // set jacobian size
-//            this->set_jacobian( aJacobians );
-//
-//            // compute the jacobian for direct IWG dof dependencies
-//            // None
-//
-//            // compute the jacobian for indirect IWG dof dependencies through properties
-//            uint tNumFDofTypes = mMasterGlobalDofTypes.size();
-//            for( uint iDOF = 0; iDOF < tNumFDofTypes; iDOF++ )
-//            {
-//                // if dependency in the dof type
-//                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
-//                {
-//                    // add contribution to jacobian
-//                    aJacobians( 0 )( iDOF ).matrix_data()
-//                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
-//                }
-//            }
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian_and_residual - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

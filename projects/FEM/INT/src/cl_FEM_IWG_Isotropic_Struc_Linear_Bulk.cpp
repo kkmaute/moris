@@ -95,48 +95,7 @@ namespace moris
         void IWG_Isotropic_Struc_Linear_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                   moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            // check master field interpolators, properties and constitutive models
-//            this->check_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
-//
-//            // set the residual size
-//            this->set_residual( aResidual );
-//
-//            // compute flux
-//            Matrix< DDRMat > tFlux;
-//            mMasterCM( 0 )->eval_flux( tFlux );
-//
-//            // compute the residual
-//            aResidual( 0 ) = trans( mMasterFI( 0 )->Bx() ) * tFlux
-//                           - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
-//
-//            // set the jacobian size
-//            this->set_jacobian( aJacobians );
-//
-//            // compute the jacobian for indirect dof dependencies through properties and constitutive model
-//            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
-//            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
-//            {
-//                // if property has dependency on the dof type
-//                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
-//                {
-//                    // compute the jacobian
-//                    aJacobians( 0 )( iDOF ).matrix_data()
-//                        += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( iDOF ) );
-//                }
-//
-//                // if constitutive model has dependency on the dof type
-//                if ( mMasterCM( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
-//                {
-//                    // compute flux derivative
-//                    Matrix< DDRMat > tdFluxdDOF;
-//                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdFluxdDOF );
-//
-//                    // compute the jacobian
-//                    aJacobians( 0 )( iDOF ).matrix_data() += trans( mMasterFI( 0 )->Bx() ) * tdFluxdDOF;
-//                }
-//            }
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Bulk::compute_jacobian_and_residual - This function does nothing.");
         }
 
 //------------------------------------------------------------------------------

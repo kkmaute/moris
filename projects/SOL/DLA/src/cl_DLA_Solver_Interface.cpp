@@ -201,12 +201,12 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-            print(tElementTopology,"tElementTopology");
+            //print(tElementTopology,"tElementTopology");
 
             Matrix< DDRMat > tElementMatrix;
             this->get_element_matrix( Ii, Ik, tElementMatrix );
 
-            print(tElementMatrix,"tElementMatrix");
+            //print(tElementMatrix,"tElementMatrix");
 
             // Fill element in distributed matrix
             aMat->fill_matrix( tElementTopology.length(),

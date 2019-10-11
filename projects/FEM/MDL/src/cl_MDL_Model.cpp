@@ -562,8 +562,14 @@ namespace moris
                             // get coressponding equation objects
                             moris::Cell< MSI::Equation_Object * > & tEquationObj = tFemSet->get_equation_object_list();
 
+                            enum MSI::Dof_Type tDofType = MSI::Dof_Type::UX;
+                            if ( aDofType == MSI::Dof_Type::TEMP)
+                            {
+                                tDofType = MSI::Dof_Type::TEMP;
+                            }
+
                             // get the field interpolator
-                            fem::Field_Interpolator* tFieldInterp = tFemSet->get_dof_type_field_interpolators(aDofType);
+                            fem::Field_Interpolator* tFieldInterp = tFemSet->get_dof_type_field_interpolators(tDofType);
 
                             // iterate through clusters in set
                             for(moris::uint iCl = 0; iCl < tCellClustersInSet.size(); iCl++)
@@ -572,10 +578,35 @@ namespace moris
                                 mtk::Cluster const * tCluster = tCellClustersInSet(iCl);
 
                                 // get the pdof values for this cluster
-                                Matrix< DDRMat > & tPDofVals = tEquationObj(iCl)->get_pdof_values();
+                                Cell < Matrix< DDRMat > >  tPDofVals;
+                                tEquationObj(iCl)->get_my_pdof_values( tFieldInterp->get_dof_type(), tPDofVals);
+
+                                //---------------------------------------------------------------------------------
+                                uint tCols = tPDofVals.size();
+                                uint tRows = tPDofVals( 0 ).numel();
+
+                                Matrix< DDRMat > tReshapedPdofValues( tRows, tCols );
+
+                                for( uint Ik = 0; Ik < tCols; Ik++ )
+                                {
+                                    tReshapedPdofValues( { 0, tRows - 1 }, { Ik, Ik } ) = tPDofVals( Ik ).matrix_data();
+                                }
+
+                                moris_index tDofIndex = 0;
+
+                                for( uint Ik = 0; Ik < tFieldInterp->get_dof_type().size(); Ik ++ )
+                                {
+                                    if( aDofType == tFieldInterp->get_dof_type()( Ik ) )
+                                    {
+                                        tDofIndex = Ik;
+                                    }
+                                }
+                                //---------------------------------------------------------------------------------
 
                                 // set coefficients in field interpolator
-                                tFieldInterp->set_coeff(tPDofVals);
+                                tFieldInterp->set_coeff(tReshapedPdofValues);
+
+
 
                                 // check if its trivial
                                 bool tTrivialCluster = tCluster->is_trivial();
@@ -598,7 +629,7 @@ namespace moris
                                          moris_index tVertIndex = tVerticesOnPrimaryCell(iVert)->get_index();
 
                                          // add to solution vector
-                                         tSolutionOnInteg(tVertIndex) = tPDofVals(iVert);
+                                         tSolutionOnInteg(tVertIndex) = tPDofVals( tDofIndex )(iVert);
 
                                          // update count that this vertex has been encountered
                                          tVertexCount(tVertIndex) = tVertexCount(tVertIndex) + 1.0;
@@ -639,7 +670,7 @@ namespace moris
                                         moris_index tVertIndex = tVertices(iVert)->get_index();
 
                                         // add to solution vector
-                                        tSolutionOnInteg(tVertIndex) = tSolFieldAtIntegPoint(0);
+                                        tSolutionOnInteg(tVertIndex) = tSolFieldAtIntegPoint(tDofIndex);
 
                                         // update count that this vertex has been encountered
                                         tVertexCount(tVertIndex) = tVertexCount(tVertIndex) + 1.0;

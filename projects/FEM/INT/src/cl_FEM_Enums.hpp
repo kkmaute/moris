@@ -94,13 +94,11 @@ namespace moris
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
-<<<<<<< HEAD
             STRUC_LINEAR_BULK,
             STRUC_LINEAR_DIRICHLET,
+            STRUC_LINEAR_INTERFACE,
             STRUC_LINEAR_NEUMANN,
-=======
             SPATIALDIFF_INTERFACE,
->>>>>>> b9d533e198e3d7ef2c3d4fc52159422e81b0ee11
             END_IWG_TYPE
         };
 
