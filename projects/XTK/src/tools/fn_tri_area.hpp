@@ -27,6 +27,18 @@ area_tri(moris::Matrix< moris::DDRMat >  & aCoords)
 
     return norm(cross(tABVec,tACVec))/2;
 }
+
+inline
+moris::real
+area_tri_2D(moris::Matrix< moris::DDRMat >  & aCoords)
+{
+    MORIS_ASSERT(aCoords.n_rows() == 3," triangle needs three node coordinates");
+
+    Matrix<DDRMat> tABVec = aCoords.get_row(0) - aCoords.get_row(1);
+    Matrix<DDRMat> tACVec = aCoords.get_row(0) - aCoords.get_row(2);
+
+    return std::abs(tABVec(0,0)*tACVec(0,1) - tABVec(0,1)*tACVec(0,0))/2;
+}
 }
 
 

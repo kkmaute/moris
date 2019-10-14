@@ -16,11 +16,16 @@ Vertex_Enrichment::Vertex_Enrichment():
  mNodeIndex(MORIS_INDEX_MAX)
 {}
 //------------------------------------------------------------------------------
+Matrix< IdMat >
+Vertex_Enrichment::get_ids() const
+{
+    return mBasisIds;
+}
 //------------------------------------------------------------------------------
 Matrix< IndexMat >
 Vertex_Enrichment::get_indices() const
 {
-    return this->get_basis_basis_indices();
+    return this->get_basis_indices();
 }
 //------------------------------------------------------------------------------
 const Matrix< DDRMat > *
@@ -119,7 +124,7 @@ Vertex_Enrichment::condense_out_basis_with_0_weight()
 }
 //------------------------------------------------------------------------------
 moris::Matrix< moris::IndexMat > const &
-Vertex_Enrichment::get_basis_basis_indices() const
+Vertex_Enrichment::get_basis_indices() const
 {
     return mBasisIndices;
 }

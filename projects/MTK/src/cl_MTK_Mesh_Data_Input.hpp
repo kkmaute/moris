@@ -183,14 +183,20 @@ namespace mtk
             }
         }
         void
-        print_details()
+        print_summary()
         {
-            std::cout<<"Processor Rank: "<<par_rank()<<std::endl;
-            std::cout<<"Spatial Dimension: "<<*SpatialDim<<std::endl;
-            std::cout<<"Number of cells: "<<this->get_num_elements()<<std::endl;
-            std::cout<<"Number of vertices: "<<this->get_num_nodes()<<std::endl;
+            std::cout<<"--------------------------------------------------------"<<std::endl;
+            std::cout<<"Mesh Data Output Summary: "<<std::endl;
+            std::cout<<"    Processor Rank: "<<par_rank()<<std::endl;
+            std::cout<<"    Spatial Dimension: "<<*SpatialDim<<std::endl;
+            std::cout<<"    Number of cells: "<<this->get_num_elements()<<std::endl;
+            std::cout<<"    Number of vertices: "<<this->get_num_nodes()<<std::endl;
+            std::cout<<"--------------------------------------------------------"<<std::endl;
+        }
 
-            std::cout<<"-------------------------------------------------------------------------"<<std::endl;
+        void
+        print_vertex_coordinates()
+        {
             std::cout<<"Vertex Coordinates:"<< std::endl;
             for(moris::uint i = 0; i < NodeCoords->n_rows(); i++)
             {
@@ -202,8 +208,11 @@ namespace mtk
 
                 std::cout<<std::endl;
             }
-            std::cout<<"-------------------------------------------------------------------------"<<std::endl;
+        }
 
+        void
+        print_vertex_sharing()
+        {
             std::cout<<"Vertex Sharing:"<<std::endl;
             if(NodeProcsShared != nullptr)
             {
@@ -226,11 +235,11 @@ namespace mtk
             {
                 std::cout<<"No Vertex Sharing provided"<<std::endl;
             }
+        }
 
-            std::cout<<"-------------------------------------------------------------------------"<<std::endl;
-
-
-
+        void
+        print_cell_to_node()
+        {
             for(moris::uint  iType = 0; iType < ElemConn.size(); iType++)
             {
                 std::cout<<"\nNumber of elements: "<<ElemConn(iType)->n_rows()<<" | Cell Topology: "<<get_enum_str(CellTopology(iType))<<std::endl;
@@ -247,7 +256,11 @@ namespace mtk
                 }
                 std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
             }
+        }
 
+        void
+        print_sets()
+        {
             if(SetsInfo !=nullptr)
             {
                 SetsInfo->print();
@@ -257,9 +270,11 @@ namespace mtk
                 std::cout<<"Side sets: 0"<<std::endl;
                 std::cout<<"Vertex sets: 0"<<std::endl;
             }
+        }
 
-            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
-
+        void
+        print_fields()
+        {
             if(FieldsInfo != nullptr)
             {
                 FieldsInfo->print();
@@ -267,9 +282,11 @@ namespace mtk
             else{
                 std::cout<<"No Fields Information Provided"<<std::endl;
             }
+        }
 
-            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
-
+        void
+        print_cell_clusters()
+        {
             if(CellClusterInput != nullptr)
             {
                 CellClusterInput->print();
@@ -278,11 +295,11 @@ namespace mtk
             {
                 std::cout<<"No Cell Cluster Information Provided"<<std::endl;
             }
-            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+        }
 
-
-            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
-
+        void
+        print_side_cluster()
+        {
             if(SideClusterInput != nullptr)
             {
                 SideClusterInput->print();
@@ -291,8 +308,27 @@ namespace mtk
             {
                 std::cout<<"No Side Cluster Information Provided"<<std::endl;
             }
-            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+        }
 
+        void
+        print_full_details()
+        {
+            print_summary();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            print_vertex_coordinates();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            print_vertex_sharing();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            print_cell_to_node();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            print_sets();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            print_fields();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            print_cell_clusters();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
+            print_side_cluster();
+            std::cout<<"\n-------------------------------------------------------------------------"<<std::endl;
         }
 
     };

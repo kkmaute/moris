@@ -197,12 +197,6 @@ public:
     get_all_vertices() const;
 
 
-    Matrix< IndexMat >
-    get_elements_in_support_of_basis(moris_index aBasisIndex)
-    {
-        return get_entity_connected_to_entity_loc_inds(aBasisIndex, EntityRank::NODE, EntityRank::ELEMENT);
-    }
-
 
     //##############################################
     // global id functions
@@ -241,6 +235,12 @@ public:
      */
     Matrix< IdMat >
     get_element_connected_to_element_glob_ids(moris_index aElementId) const;
+
+    void
+    get_elements_in_support_of_basis(const uint           aMeshIndex,
+                                     const uint           aBasisIndex,
+                                     Matrix< IndexMat > & aElementIndices );
+
 
     /*
      * Get the ordinal of a facet relative to a cell, using global identifiers
@@ -956,29 +956,6 @@ public:
     }
 
     //------------------------------------------------------------------------------
-
-    enum EntityRank
-    get_facet_rank() const
-    {
-        if(mSTKMeshData->mNumDims == 1)
-        {
-            return EntityRank::NODE;
-        }
-        else if(mSTKMeshData->mNumDims == 2)
-        {
-            return EntityRank::EDGE;
-        }
-        else if(mSTKMeshData->mNumDims == 3)
-        {
-            return EntityRank::FACE;
-        }
-        else
-        {
-            MORIS_ASSERT(0,"Invalid Mesh dimension detected in get_facet_rank ");
-            return EntityRank::INVALID;
-        }
-
-    }
 
     typedef stk::mesh::Field<real>    Field1CompReal;
     typedef stk::mesh::Field<real,stk::mesh::Cartesian2d>  Field2CompReal;

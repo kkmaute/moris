@@ -48,8 +48,18 @@ public:
 
     void set_node_indices(moris::Matrix< moris::IndexMat > const & aNodeIndices)
     {
-        MORIS_ASSERT(aNodeIndices.numel()==8 && moris::isvector(aNodeIndices),"Should be 8 associated with a HEX8 topology");
-        mNodeIndices = aNodeIndices.copy();
+        MORIS_ASSERT(aNodeIndices.numel()>=8 && moris::isvector(aNodeIndices),"Should be 8 associated with a HEX8 topology");
+
+        mNodeIndices.resize(1,8);
+
+        mNodeIndices(0) = aNodeIndices(0);
+        mNodeIndices(1) = aNodeIndices(1);
+        mNodeIndices(2) = aNodeIndices(2);
+        mNodeIndices(3) = aNodeIndices(3);
+        mNodeIndices(4) = aNodeIndices(4);
+        mNodeIndices(5) = aNodeIndices(5);
+        mNodeIndices(6) = aNodeIndices(6);
+        mNodeIndices(7) = aNodeIndices(7);
     }
 
 

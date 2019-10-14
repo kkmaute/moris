@@ -12,11 +12,12 @@
 // base class
 #include"cl_Mesh_Factory.hpp"
 #include"cl_MTK_Cell.hpp"
-#include "cl_MTK_Mesh_STK.hpp"
+#include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
-#include "cl_MTK_Hex8_Connectivity.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 
 // linalg includes
 #include "cl_Matrix.hpp"
@@ -34,7 +35,7 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
     {
         // construct a mesh
         std::string tFilename = "generated:2x2x2";
-        Mesh_STK tMesh1( tFilename, NULL );
+        Mesh_Core_STK tMesh1( tFilename, NULL );
 
         // get vertex information attached to element with index 0
         Matrix< IndexMat > tNodeIndices = tMesh1.get_entity_connected_to_entity_loc_inds(0, EntityRank::ELEMENT,EntityRank::NODE);
@@ -48,7 +49,8 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
         }
 
         // Setup cell associated with element index 0
-        Cell_STK tCell(CellTopology::HEX8,
+        Cell_Info_Hex8 tConn;
+        Cell_STK tCell(&tConn,
                        1,
                        0,
                        tElementVertices,
@@ -132,7 +134,8 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
         // iterate through sides and verify normal
         for(moris::uint i = 0; i < 6 ; i ++)
         {
-            moris::Matrix<moris::IndexMat> tNodeToFaceMap = Hex8::get_node_to_face_map(i);
+            Cell_Info_Hex8 tHex8;
+            moris::Matrix<moris::IndexMat> tNodeToFaceMap = tHex8.get_node_to_face_map(i);
 
             moris::Matrix<moris::IndexMat> tNodeIdsOnFace = reindex_mat(tNodeToFaceMap,0,tIdMat);
 
@@ -196,11 +199,8 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
         }
 
         // Setup cell associated with element index 0
-        Cell_STK tCell(CellTopology::TET4,
-                       1,
-                       0,
-                       tElementVertices,
-                       tMesh1);
+        Cell_Info_Tet4 tTet4Con;
+        Cell_STK tCell(&tTet4Con, 1, 0, tElementVertices, tMesh1);
 
         REQUIRE(tCell.get_id() == 1);
         REQUIRE(tCell.get_index() == 0);

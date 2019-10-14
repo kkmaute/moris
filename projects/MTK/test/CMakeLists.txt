@@ -17,6 +17,7 @@ set(TEST_SOURCES
 	cl_MTK_Cell_Cluster.cpp
 	cl_MTK_Double_Side_Cluster.cpp
 	cl_MTK_Writer_Exodus_Test.cpp
+	UT_MTK_Connectivity.cpp
 	UT_MTK_Mesh_Comm_Maps.cpp)
 
 # List additional includes

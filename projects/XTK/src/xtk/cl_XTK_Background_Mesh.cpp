@@ -7,6 +7,7 @@
 
 #include "cl_XTK_Background_Mesh.hpp"
 #include "fn_unique.hpp"
+#include "cl_MTK_Enums.hpp"
 
 namespace xtk
 {
@@ -18,7 +19,6 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData):
     mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
     mXtkMtkVertices(0),
-    mXtkMtkVerticesInterpolation(0),
     mNodeIndexToChildMeshIndex(0,0)
 
 {
@@ -36,7 +36,6 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
     mEntityLocaltoGlobalMap(4),
     mChildMtkCells(0),
     mXtkMtkVertices(0),
-    mXtkMtkVerticesInterpolation(0),
     mNodeIndexToChildMeshIndex(0,0)
 {
     intialize_downward_inheritance();
@@ -161,6 +160,7 @@ moris::mtk::Vertex &
 Background_Mesh::get_mtk_vertex(moris::moris_index aVertexIndex)
 {
     MORIS_ASSERT(aVertexIndex <(moris::moris_index) mXtkMtkVertices.size(),"Vertex index is out of bounds");
+
     return mXtkMtkVertices(aVertexIndex);
 }
 
@@ -172,13 +172,6 @@ Background_Mesh::get_mtk_vertex_xtk(moris::moris_index aVertexIndex)
     return mXtkMtkVertices(aVertexIndex);
 }
 // ----------------------------------------------------------------------------------
-
-moris::mtk::Vertex_Interpolation_XTK &
-Background_Mesh::get_mtk_vertex_interpolation(moris::moris_index aVertexIndex)
-{
-    MORIS_ASSERT(aVertexIndex <(moris::moris_index) mXtkMtkVerticesInterpolation.size(),"Vertex index is out of bounds");
-    return mXtkMtkVerticesInterpolation(aVertexIndex);
-}
 
 // ----------------------------------------------------------------------------------
 moris::mtk::Cell &
@@ -255,9 +248,6 @@ Background_Mesh::batch_create_new_nodes(Cell<moris_index>                    con
 
     moris::uint tNumNewNodes = aNewNodeIds.size();
 
-    // Allocate space in the vertex interpolations
-    mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
-
     // allocate space in the local to global node map
     mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
 
@@ -309,9 +299,6 @@ Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(moris::Matrix< mo
 
     // allocate space in the local to global node map
     mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes,1);
-
-    // Allocate space in the vertex interpolations
-    mXtkMtkVerticesInterpolation.resize(mXtkMtkVerticesInterpolation.size() + tNumNewNodes);
 
     for(moris::uint i = 0; i <tNumNewNodes; i++)
     {
@@ -485,7 +472,7 @@ Background_Mesh::get_all_node_coordinates_loc_inds() const
     moris::size_t tNumBGNodes = mMeshData->get_num_entities((moris::EntityRank)EntityRank::NODE);
 
     moris::Matrix< moris::DDRMat > tAllNodeCoordinates = this->get_all_node_coordinates_loc_inds_background_mesh();
-    tAllNodeCoordinates.resize(tNumNodes,3);
+    tAllNodeCoordinates.resize(tNumNodes,mMeshData->get_spatial_dim());
     // Get node coordinates from external entities
     mExternalMeshData.get_all_node_coordinates_loc_inds_external_data(tNumBGNodes,tAllNodeCoordinates);
     return tAllNodeCoordinates;
@@ -520,7 +507,12 @@ Background_Mesh::get_selected_node_coordinates_loc_inds(moris::Matrix< moris::In
 
         else
         {
-            tSelectedNodesCoords.set_row(n,mMeshData->get_node_coordinate((moris_index)aNodeIndices(n)));
+            Matrix<DDRMat> tNodeCoord = mMeshData->get_node_coordinate((moris_index)aNodeIndices(n));
+
+            for(moris::uint iDim = 0; iDim < tSpatialDimension; iDim++)
+            {
+                tSelectedNodesCoords(n,iDim) = tNodeCoord(iDim);
+            }
         }
     }
 
@@ -573,7 +565,7 @@ moris::Matrix<moris::IdMat>
 Background_Mesh::get_full_non_intersected_node_to_element_glob_ids() const
 {
     moris::size_t tNumElementsBG        = this->get_num_entities(EntityRank::ELEMENT);
-    enum CellTopology tElemTopo = get_XTK_mesh_element_topology();
+    enum CellTopology tElemTopo = this->get_parent_cell_topology();
 
     moris::size_t tNumNodesPerElem = 0;
     if(tElemTopo == CellTopology::TET4)
@@ -616,7 +608,7 @@ Cell<moris::Matrix<moris::IdMat>>
 Background_Mesh::get_non_intersected_element_to_node_by_phase(moris::uint aNumPhases)
 {
     moris::size_t tNumElementsBG  = this->get_num_entities(EntityRank::ELEMENT);
-    enum CellTopology tElemTopo   = this->get_XTK_mesh_element_topology();
+    enum CellTopology tElemTopo   = this->get_parent_cell_topology();
 
     moris::size_t tNumNodesPerElem = 0;
     if(tElemTopo == CellTopology::TET4)
@@ -626,6 +618,10 @@ Background_Mesh::get_non_intersected_element_to_node_by_phase(moris::uint aNumPh
     else if(tElemTopo == CellTopology::HEX8)
     {
         tNumNodesPerElem = 8;
+    }
+    else if(tElemTopo == CellTopology::QUAD4)
+    {
+        tNumNodesPerElem = 4;
     }
     else
     {
@@ -644,15 +640,13 @@ Background_Mesh::get_non_intersected_element_to_node_by_phase(moris::uint aNumPh
             moris::Matrix< moris::IdMat >tElementToNodeId = mMeshData->get_entity_connected_to_entity_glob_ids(tId,EntityRank::ELEMENT,EntityRank::NODE);
 
             moris::moris_index tPhaseIndex = this->get_element_phase_index(i);
-            if(mMeshData->get_mesh_type() == MeshType::HMR)
+
+
+            for(moris::uint  j = 0 ; j < tNumNodesPerElem; j++ )
             {
-                tElementToNodeByPhase(tPhaseIndex).get_row(tPhaseCount(tPhaseIndex)) = moris::trans(tElementToNodeId);
+                tElementToNodeByPhase(tPhaseIndex)(tPhaseCount(tPhaseIndex),j) = tElementToNodeId(j);
             }
 
-            else
-            {
-                tElementToNodeByPhase(tPhaseIndex).get_row(tPhaseCount(tPhaseIndex)) = tElementToNodeId.matrix_data();
-            }
             tPhaseCount(tPhaseIndex)++;
         }
     }
@@ -957,7 +951,7 @@ Background_Mesh::print_interface_node_flags()
 {
     for(moris::size_t i = 0; i<mInterfaceNodeFlag.n_rows(); i++)
     {
-        std::cout<<this->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" | ";
+        std::cout<<"Vertex Id: "<<std::setw(8)<<this->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" | ";
         for(moris::size_t j = 0; j<mInterfaceNodeFlag.n_cols(); j++)
         {
             std::cout<<mInterfaceNodeFlag(i,j)<<" ";
@@ -972,7 +966,7 @@ Background_Mesh::print_interface_node_flags()
 void
 Background_Mesh::initialize_element_phase_indices(moris::size_t const & aNumElements)
 {
-    mElementPhaseIndex = moris::Matrix< moris::IndexMat >(aNumElements,1);
+    mElementPhaseIndex = moris::Matrix< moris::IndexMat >(aNumElements,1,-1);
 }
 
 // ----------------------------------------------------------------------------------
@@ -1107,7 +1101,7 @@ Background_Mesh::get_child_element_mtk_cell(moris::moris_index aElementIndex) co
 
 // ----------------------------------------------------------------------------------
 
-moris::mtk::Mesh &
+moris::mtk::Interpolation_Mesh &
 Background_Mesh::get_mesh_data()
 {
     return *mMeshData;
@@ -1115,7 +1109,7 @@ Background_Mesh::get_mesh_data()
 
 // ----------------------------------------------------------------------------------
 
-moris::mtk::Mesh const &
+moris::mtk::Interpolation_Mesh const &
 Background_Mesh::get_mesh_data() const
 {
     return *mMeshData;
@@ -1123,27 +1117,32 @@ Background_Mesh::get_mesh_data() const
 
 // ----------------------------------------------------------------------------------
 enum CellTopology
-Background_Mesh::get_XTK_mesh_element_topology() const
+Background_Mesh::get_parent_cell_topology() const
 {
-    enum CellTopology tElementTopology = CellTopology::INVALID;
-    moris::Matrix<  moris::IndexMat  > tElementNodes = mMeshData->get_entity_connected_to_entity_loc_inds(0,(moris::EntityRank)EntityRank::ELEMENT, (moris::EntityRank)EntityRank::NODE);
-    if(tElementNodes.numel() == 8 && moris::isvector(tElementNodes))
-    {
-        tElementTopology = CellTopology::HEX8;
+    mtk::Cell & tCell = mMeshData->get_mtk_cell(0);
+    enum moris::mtk::Geometry_Type tGeomType = tCell.get_geometry_type();
 
-    }
-    else if (tElementNodes.numel() == 4 && moris::isvector(tElementNodes))
+    enum CellTopology tTopo = CellTopology::INVALID;
+    if(tGeomType == moris::mtk::Geometry_Type::HEX)
     {
-        tElementTopology = CellTopology::TET4;
+        tTopo = CellTopology::HEX8;
+    }
+    else if(tGeomType == moris::mtk::Geometry_Type::TET)
+    {
+        tTopo = CellTopology::TET4;
+    }
+    else if(tGeomType == moris::mtk::Geometry_Type::QUAD)
+    {
+        tTopo = CellTopology::QUAD4;
     }
     else
     {
-        std::cout<<"Topology not recognized in parent mesh";
+        MORIS_ERROR(0,"Provided parent cell topology not implemented.");
     }
 
-    return tElementTopology;
-}
 
+    return tTopo;
+}
 // ----------------------------------------------------------------------------------
 
 moris::Matrix< moris::DDRMat >
@@ -1174,8 +1173,6 @@ void
 Background_Mesh::initialize_background_mesh_vertices()
 {
     moris::uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
-
-    mXtkMtkVerticesInterpolation = moris::Cell<moris::mtk::Vertex_Interpolation_XTK>(tNumNodes);
 
     for(moris::uint  i = 0; i <tNumNodes; i++)
     {

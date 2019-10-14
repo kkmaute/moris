@@ -35,7 +35,7 @@ namespace moris
             //! describing label
             std::string mLabel;
 
-            Lagrange_Mesh_Base * mMesh = nullptr;
+//            Lagrange_Mesh_Base * mMesh = nullptr;
 
             moris::Cell< moris::hmr::BSpline_Mesh_Base* > mDummyBSplineMeshes;
 
@@ -218,6 +218,13 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+            void get_elements_in_support_of_basis(const uint           aMeshIndex,
+                                                  const uint           aBasisIndex,
+                                                  Matrix< IndexMat > & aElementIndices);
+//-------------------------------------------------------------------------------
+            uint get_num_basis_functions(const uint aMeshIndex);
+//-------------------------------------------------------------------------------
+
             /*
              * Since the connectivity between entities of the same rank are considered
              * invalid by STK standards, we need a separate function for element to element
@@ -264,6 +271,10 @@ namespace moris
             get_processors_whom_share_entity(moris_index       aEntityIndex,
                                              enum EntityRank   aEntityRank,
                                              Matrix< IdMat > & aProcsWhomShareEntity) const;
+
+
+            enum EntityRank
+            get_facet_rank() const;
 
 //-------------------------------------------------------------------------------
 //           Set Functions
@@ -314,20 +325,17 @@ namespace moris
             }
 //-------------------------------------------------------------------------------
 
-            moris::Cell<moris::mtk::Vertex const *>
-            get_all_vertices() const
+            moris::mtk::Facet*
+            get_facet(moris_index aFacetIndex)
             {
-                uint tNumVertices = this->get_num_entities(EntityRank::NODE);
-
-                moris::Cell<moris::mtk::Vertex const *> tVertices (tNumVertices);
-
-                for(moris::uint  i = 0; i < tNumVertices; i++)
-                {
-                    tVertices(i) = &get_mtk_vertex((moris_index)i);
-                }
-
-                return tVertices;
+                return mMesh->get_facet(aFacetIndex);
             }
+
+//-------------------------------------------------------------------------------
+
+
+            moris::Cell<moris::mtk::Vertex const *>
+            get_all_vertices() const;
 
 //-------------------------------------------------------------------------------
 
@@ -377,6 +385,7 @@ namespace moris
             void collect_memory_indices_of_active_element_neighbors(
                     const moris_index  aElementIndex,
                     Matrix< DDLUMat> & aMemoryIndices,
+                    Matrix< DDLUMat> & aThisCellFacetOrds,
                     luint            & aCounter ) const;
 
 //-------------------------------------------------------------------------------
@@ -394,7 +403,7 @@ public:
                     const moris_index aNodeIndex,
                     const enum EntityRank  aBSplineRank )
             {
-                return *mMesh->get_node_by_index( aNodeIndex )->get_interpolation( mtk::entity_rank_to_order( aBSplineRank ) )
+                return *mMesh->get_node_by_index( aNodeIndex )->get_interpolation( 0)
                                                               ->get_weights();
             }
 private:

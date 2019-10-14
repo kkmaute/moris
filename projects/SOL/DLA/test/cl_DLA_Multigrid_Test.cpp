@@ -55,6 +55,15 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
     return norm( aPoint ) - 0.9;
 }
 
+moris::real
+LevelSetFunction_1( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+    moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 1 ) );
+    moris::real tLevelSetVaue = 0.5 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) );
+
+    return tLevelSetVaue;
+}
+
 namespace moris
 {
 using namespace dla;
@@ -104,10 +113,10 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         // flag first element for refinement
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0 );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
         tHMR.flag_element( 0 );
-        tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0 );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
         tHMR.finalize();
 
@@ -137,7 +146,17 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         Cell< fem::IWG* > tIWGs( 1, nullptr );
         tIWGs( 0 ) = tIWGFactory.create_IWGs( fem::IWG_Type::L2 );
 
-//        tIWGs( 0 ) = new moris::fem::IWG_L2( );
+        // set residual dof type
+        tIWGs( 0 )->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+
+        // set active dof types
+        tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
+
+        // create user defined info for properties
+        moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
+
+        // create user defined info for constitutive models
+        moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
 
         map< moris_id, moris_index >   tCoefficientsMap;
         Cell< fem::Node_Base* >        tNodes;
@@ -178,6 +197,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
             tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                              fem::Element_Type::BULK,
                                                              tIWGs,
+                                                             tPropertyUserDefinedInfo,
+                                                             tConstitutiveUserDefinedInfo,
                                                              tNodes );
 
             // collect equation objects associated with the block-set
@@ -289,9 +310,9 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          CHECK( equal_to( tSolution( 8, 0 ), -0.14904048484, 1.0e+08 ) );
 
          // dump mesh
-         tHMR.save_to_exodus ( 0,  // index in database
-                               "Mesh.exo",  // path
-                               0.0 );       // timestep
+//         tHMR.save_to_exodus ( 0,  // index in database
+//                               "Mesh.exo",  // path
+//                               0.0 );       // timestep
 
          delete ( tMSI );
          delete ( tIWGs( 0 ) );
@@ -340,17 +361,14 @@ TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
         for( uint k=0; k<2; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern(0 );
         }
 
         tHMR.finalize();
 
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
-
-        tHMR.save_to_exodus( "Circle.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
@@ -542,9 +560,8 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         for( uint k=0; k<3; ++k )
         {
             tField->evaluate_scalar_function( LevelSetFunction );
-            tHMR.flag_surface_elements( tField );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0 );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
 
         tHMR.finalize();
@@ -552,7 +569,7 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
         // evaluate node values
         tField->evaluate_scalar_function( LevelSetFunction );
 
-        tHMR.save_to_exodus( 0,"Sphere11.exo" );
+//        tHMR.save_to_exodus( 0,"Sphere11.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 
@@ -743,9 +760,7 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
                 tHMR.flag_element( tSurfaceElements( e ) );
             }
 
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
-
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.perform_refinement_based_on_working_pattern( 0  );
         }
 
         tHMR.finalize();
@@ -754,8 +769,6 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
         auto tField = tMesh->create_field( "SDF", 1);
 
         tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
-
-        tHMR.save_to_exodus( "SDF.exo" );
 
          //tHMR.save_bsplines_to_vtk("BSplines.vtk");
 

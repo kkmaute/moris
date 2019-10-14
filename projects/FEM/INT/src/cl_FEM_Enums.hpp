@@ -94,6 +94,7 @@ namespace moris
             SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
+            SPATIALDIFF_INTERFACE,
             END_IWG_TYPE
         };
 
@@ -104,17 +105,18 @@ namespace moris
             UNDEFINED,
             TEMP_DIRICHLET,
             TEMP_NEUMANN,
+            CONDUCTIVITY,
+            TEMP_LOAD,
             END_PROPERTY_TYPE
         };
 
 //------------------------------------------------------------------------------
 
-        enum class BC_Type
+        enum class Constitutive_Type
         {
             UNDEFINED,
-            DIRICHLET,
-            NEUMANN,
-            END_BC_TYPE
+            DIFF_LIN_ISO,
+            END_CONSTITUTIVE_TYPE
         };
 
 //------------------------------------------------------------------------------

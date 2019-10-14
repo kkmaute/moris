@@ -37,6 +37,16 @@ namespace moris
         sort( aA.matrix_data(), aSorted );
     }
 
+    template< typename Matrix_Type, typename Num_Type >
+    void
+	sort( Matrix< Matrix_Type > const & aA,
+		  Matrix< Matrix_Type > & aSorted,
+		  char const* aDirection,
+		  Num_Type aDimension)
+    {
+    	sort( aA.matrix_data(), aSorted, aDirection, aDimension);
+    }
+
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_SORT_HPP_ */

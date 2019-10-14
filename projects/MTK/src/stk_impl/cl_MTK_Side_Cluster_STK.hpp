@@ -99,6 +99,11 @@ public:
 
     //----------------------------------------------------------------
 
+    moris_index
+    get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster, moris::mtk::Vertex const * aVertex ) const;
+
+    //----------------------------------------------------------------
+
     moris::Matrix<moris::DDRMat>
     get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
             const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;

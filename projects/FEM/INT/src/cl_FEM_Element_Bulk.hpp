@@ -34,10 +34,12 @@ namespace moris
          * @param[ in ]     cell of pointer to fem nodes
          * @param[ in ]     Pointer to element block
          */
-        Element_Bulk( mtk::Cell    const *        aCell,
+        Element_Bulk(){};
+        Element_Bulk( mtk::Cell    const * aCell,
                       Set                * aElementBlock,
                       Cluster            * aCluster,
                       moris::moris_index   aCellIndexInCluster );
+
 //------------------------------------------------------------------------------
         /**
          * trivial destructor

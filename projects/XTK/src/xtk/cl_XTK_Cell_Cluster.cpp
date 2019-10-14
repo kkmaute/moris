@@ -14,6 +14,7 @@ namespace xtk
 Cell_Cluster::Cell_Cluster():
     mTrivial(true),
     mInterpolationCell(nullptr),
+    mChildMesh(nullptr),
     mPrimaryIntegrationCells(0,nullptr),
     mVoidIntegrationCells(0,nullptr),
     mVerticesInCluster(0,nullptr)
@@ -81,7 +82,19 @@ Cell_Cluster::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster) const
 }
 
 //----------------------------------------------------------------
+Interpolation_Cell_Unzipped const *
+Cell_Cluster::get_xtk_interpolation_cell() const
+{
+    return mInterpolationCell;
+}
 //----------------------------------------------------------------
+Child_Mesh const *
+Cell_Cluster::get_xtk_child_mesh() const
+{
+    MORIS_ASSERT(!this->is_trivial(),"Trivial xtk cell clusters do not have a child mesh.");
+
+    return mChildMesh;
+}
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 //----------------------------------------------------------------

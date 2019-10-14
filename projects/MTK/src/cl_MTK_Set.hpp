@@ -29,6 +29,8 @@ namespace moris
         class Set
         {
         private :
+            // name of the set
+            std::string mSetName;
 
             // interpolation mesh geometry type
             mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
@@ -55,6 +57,14 @@ namespace moris
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
 //------------------------------------------------------------------------------
+
+        private:
+
+            moris::uint mSpatialDim;
+
+//------------------------------------------------------------------------------
+
+        protected:
 
             void communicate_ip_geometry_type()
             {
@@ -89,12 +99,10 @@ namespace moris
                 if( mSetClusters.size() > 0 )
                 {
                     // interpolation order for IP cells fixme
-                    tIPInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_number_of_vertices(),
-                                                                                mIPGeometryType );
+                    tIPInterpolationOrder = mSetClusters( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_interpolation_order();
 
                     // interpolation order for IG cells fixme
-                    tIGInterpolationOrder = this->get_auto_interpolation_order( mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_number_of_vertices(),
-                                                                                mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_geometry_type() );
+                    tIGInterpolationOrder = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_interpolation_order();
                 }
 
                 uint tRecIPInterpolationOrder = (uint) mtk::Interpolation_Order::UNDEFINED;
@@ -147,7 +155,11 @@ namespace moris
             Set()
             { };
 
-            Set(moris::Cell<Cluster const *>  aBlockSetClusters) : mSetClusters( aBlockSetClusters )
+            Set(std::string                   aName,
+                moris::Cell<Cluster const *>  aBlockSetClusters,
+                const uint                    aSpatialDim ) : mSetName(aName),
+                                                              mSetClusters( aBlockSetClusters ),
+                                                              mSpatialDim( aSpatialDim )
             {
                 this->communicate_ip_geometry_type();
 
@@ -161,6 +173,14 @@ namespace moris
              */
             virtual
             ~Set(){};
+
+//------------------------------------------------------------------------------
+
+            uint get_spatial_dim() const
+            {
+                MORIS_ERROR( !(mSpatialDim < 1) || !(mSpatialDim > 3), "Set::get_spatial_dim(), Spatial dim < 1 or > 3" );
+                return mSpatialDim;
+            }
 
 //------------------------------------------------------------------------------
 

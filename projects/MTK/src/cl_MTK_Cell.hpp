@@ -15,7 +15,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_MTK_Hex8_Connectivity.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
 
 //------------------------------------------------------------------------------
 namespace moris
@@ -254,17 +254,6 @@ public:
      */
     virtual Interpolation_Order
     get_interpolation_order() const = 0;
-
-    //------------------------------------------------------------------------------
-
-    /**
-     * special function for HMR
-     */
-    virtual luint
-    get_memory_index_of_background_element() const
-    {
-        return 0;
-    }
 
     //------------------------------------------------------------------------------
 };

@@ -26,8 +26,9 @@ class Enriched_Interpolation_Mesh: public mtk::Interpolation_Mesh
 {
 public:
     Enriched_Interpolation_Mesh(Model* aXTKModel);
+    ~Enriched_Interpolation_Mesh();
     //------------------------------------------------------------------------------
-    // MTK Mesh Core Functionality (see base class mtk::Mesh for documentation)
+    // MTK Mesh Core Impl (see base class mtk::Mesh for function descriptions)
     //------------------------------------------------------------------------------
     MeshType                  get_mesh_type() const;
     moris::uint               get_spatial_dim() const;
@@ -41,6 +42,7 @@ public:
     Matrix< DDRMat >          get_node_coordinate( moris_index aNodeIndex ) const;
     mtk::Vertex &             get_mtk_vertex( moris_index aVertexIndex );
     mtk::Vertex const &       get_mtk_vertex( moris_index aVertexIndex ) const;
+    mtk::Cell   const &       get_mtk_cell( moris_index aElementIndex ) const;
     mtk::Cell &               get_writable_mtk_cell( moris_index aElementIndex );
     Matrix< IdMat >           get_communication_table() const;
     uint                      get_num_elements();
@@ -49,57 +51,79 @@ public:
     //------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------
-    // MTK Interpolation Mesh Functions
-    // see base class mtk::Integration_Mesh for documentation
+    // MTK Interpolation Mesh Impl
+    // see base class mtk::Interpolation_Mesh for function descriptions
     //------------------------------------------------------------------------------
     // PLACEHOLDER
     //------------------------------------------------------------------------------
     // end interpolation mesh functions
     //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    // Accessor functions of XTK specific data structures
+    //------------------------------------------------------------------------------
+    /*!
+     * Get the enriched interpolation coefficients associated with a background coefficient
+     */
+    Matrix<IndexMat> const &
+    get_enriched_coefficients_at_background_coefficient(moris_index aBackgroundCoeffIndex) const;
 
+    uint
+    get_num_background_coefficients() const;
 
     /*!
      * Returns the number of vertices per interpolation cell
      */
     uint
     get_num_verts_per_interp_cell();
-
+    //------------------------------------------------------------------------------
     /*
      * Returns the interpolation vertex unzipped for provided vertex index
      */
     Interpolation_Vertex_Unzipped*
     get_unzipped_vertex_pointer(moris_index aVertexIndex);
-
+    //------------------------------------------------------------------------------
     /*!
      * Return the enriched interpolation cells
      */
     Cell<Interpolation_Cell_Unzipped> const &
     get_enriched_interpolation_cells() const;
-
+    //------------------------------------------------------------------------------
     /*
      * Provided pointers to base interpolation cells, return all the enriched interpolation cells attached to these
      * cells
      */
     moris::Cell<Interpolation_Cell_Unzipped const*>
     get_enriched_cells_from_base_cells(moris::Cell<moris::mtk::Cell const*> const & aBaseCells) const;
-
+    //------------------------------------------------------------------------------
+    /*!
+     *  Single cell version of above
+     */
     moris::Cell<Interpolation_Cell_Unzipped const*>
     get_enriched_cells_from_base_cell(moris::mtk::Cell const * aBaseCells) const;
-
+    //------------------------------------------------------------------------------
+    Interpolation_Vertex_Unzipped const &
+    get_xtk_interp_vertex(moris::uint aVertexIndex) const;
+    //------------------------------------------------------------------------------
     /*
-     * Convenient helper functions
+     * Convert a entity indices to entity ids
      */
     Matrix<IdMat> convert_indices_to_ids(Matrix<IndexMat> const & aIndices,
                                          enum EntityRank          aEntityRank) const;
-
+    //------------------------------------------------------------------------------
+    /*
+     * Convert a entity ids to entity indices
+     */
     Matrix<IndexMat> convert_ids_to_indices(Matrix<IdMat> const & aIds,
                                             enum EntityRank       aEntityRank) const;
+    //------------------------------------------------------------------------------
 
     // Print functions
     void print() const;
     void print_enriched_cells() const;
     void print_vertex_maps() const;
     void print_enriched_cell_maps() const;
+    void print_basis_to_enriched_basis() const;
+    void print_vertex_interpolation() const;
 
 
     // friend class
@@ -121,7 +145,7 @@ protected:
     Cell<Cell<moris_index>> mBaseInterpVertToVertEnrichmentIndex;
 
     // vertex enrichments
-    Cell<Vertex_Enrichment> mInterpVertEnrichment;
+    Cell<Vertex_Enrichment *> mInterpVertEnrichment;
 
     // vertex enrichment to parent vertex index (these are enriched interpolation vertex indices)
     Cell<moris_index>       mVertexEnrichmentParentVertexIndex;
@@ -136,6 +160,9 @@ protected:
     // base interpolation cells to their enriched interpolation cells
     moris::Cell<moris::Cell<Interpolation_Cell_Unzipped*>> mBaseCelltoEnrichedCell;
 
+    // a connecitivty pointer that all the enriched interpolation cells use
+    moris::mtk::Cell_Info* mCellInfo;
+
     // functions used by enrichment for construction of the mesh
     /*
      * Add a vertex enrichment to the member data. returns the index of the vertex enrichment.
@@ -145,13 +172,13 @@ protected:
     add_vertex_enrichment( mtk::Vertex *       aBaseInterpVertex,
                            Vertex_Enrichment & aVertexEnrichment,
                            bool              & aNewVertex);
-
+    //------------------------------------------------------------------------------
     /*
      * Get the pointer to the vertex enrichment provided the vertex enrichment index.
      */
     Vertex_Enrichment*
     get_vertex_enrichment(moris_index aVertexEnrichmentIndex);
-
+    //------------------------------------------------------------------------------
     /*
      * Returns the vertex index corresponding to the vertex enrichment
      */
@@ -161,12 +188,13 @@ protected:
     void
     finalize_setup();
 
+    void
+    assign_vertex_interpolation_ids();
+
     // map setup
     void setup_local_to_global_maps();
     void setup_vertex_maps();
     void setup_cell_maps();
-
-
 };
 
 

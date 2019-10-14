@@ -39,44 +39,6 @@ namespace moris
                                                                                                              mBSplineMeshes( aBSplineMeshes )
         {
             mNumBSplineMeshes = mBSplineMeshes.size();
-//            // reset B-Spline container
-//            mBSplineMeshes.resize( gMaxBSplineOrder+1, nullptr );
-//
-//            // set B-Spline pattern
-//            uint tBSplinePattern;
-//
-//            if( aActivationPattern == aParameters->get_lagrange_output_pattern() )
-//            {
-//                tBSplinePattern = aParameters->get_bspline_output_pattern();
-//            }
-//            else if ( aActivationPattern ==  aParameters->get_union_pattern() )
-//            {
-//                tBSplinePattern = aParameters->get_bspline_output_pattern();
-//            }
-//            else if ( aActivationPattern ==  aParameters->get_lagrange_input_pattern() )
-//            {
-//                tBSplinePattern = aParameters->get_bspline_input_pattern();
-//            }
-//            else if( aActivationPattern ==  aParameters->get_refined_output_pattern() )
-//            {
-//                tBSplinePattern = aParameters->get_bspline_output_pattern();
-//            }
-//            else
-//            {
-//                //MORIS_ERROR( false, "Invalid Lagrange pattern passed to Lagrange mesh constructor" );
-//                tBSplinePattern = gNumberOfPatterns;
-//            }
-//
-//            // link B-Spline meshes
-//            for( BSpline_Mesh_Base * tMesh : aBSplineMeshes )
-//            {
-//                // test if pattern is the same
-//                if( tMesh->get_activation_pattern() == tBSplinePattern )
-//                {
-//                    // add mesh to stack
-//                    mBSplineMeshes( tMesh->get_order() ) = tMesh;
-//                }
-//            }
 
             // allocate T-Matrix cell
 //            mTMatrix.resize( gMaxBSplineOrder+1, nullptr );
@@ -1800,6 +1762,11 @@ namespace moris
             MORIS_LOG_INFO( "%s Created Faces for Lagrange Mesh.\n               Creation %5.3f seconds.\n\n",
                     proc_string().c_str(),
                     ( double ) tElapsedTime / 1000 );
+        }
+//------------------------------------------------------------------------------
+
+        void Lagrange_Mesh_Base::create_facet_clusters()
+        {
         }
 //------------------------------------------------------------------------------
 

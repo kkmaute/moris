@@ -78,14 +78,10 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
                 }
                 // refine mesh
                 tBackgroundMesh->perform_refinement(tPattern);
-
             }
 
             for ( uint p=1; p<=3; ++p )
             {
-                // set max order to 3
-                tParameters->set_mesh_orders_simple( p );
-
                 // create first order Lagrange mesh
                 moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
                                                                                                 tBackgroundMesh,
@@ -125,9 +121,6 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
-
-            // set max order to 3
-            tParameters->set_mesh_orders_simple( 3 );
 
             // create factory
             moris::hmr::Factory tFactory;
@@ -252,11 +245,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
-        // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+//        // update database etc
+//        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -303,6 +296,8 @@ TEST_CASE("HMR_T_Matrix_Perturb_lin", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
+
+//        tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
 //
 //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
 //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
@@ -351,7 +346,7 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         auto tDatabase = tHMR.get_database();
 
         // manually select output pattern
-        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
+//        tDatabase->get_background_mesh()->set_activation_pattern( tHMR.get_parameters()->get_lagrange_output_pattern() );
 
         tHMR.perform_initial_refinement( 0 );
 
@@ -364,20 +359,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
         // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
-
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::LAGRANGE_REFINE, false );
-        //tDatabase->perform_refinement( moris::hmr::RefinementMode::BSPLINE_REFINE, false );
-
-//        tHMR.flag_element( 0 );
-//        tHMR.get_database()->get_background_mesh()->get_element( 0 )->set_min_refimenent_level( 4 );
-//
-//        tHMR.perform_refinement(  moris::hmr::RefinementMode::LAGRANGE_REFINE );
-//        tHMR.perform_refinement(  moris::hmr::RefinementMode::BSPLINE_REFINE );
+        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -424,13 +410,12 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         }
         //tHMR.flag_volume_and_surface_elements( tField );
 
-        //tHMR.perform_refinement_and_map_fields();
 
         //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh1.exo" );
         //tHMR.save_bsplines_to_vtk("Basis.vtk");
-        //tHMR.save_last_step_to_exodus( "LastStep.exo" );
+        //tHMR.save_last_step_to_exodus( 0, "LastStep.exo" );
         //tHMR.save_to_hdf5( "Database.hdf5" );
-        //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5" );
+        //tHMR.save_coeffs_to_hdf5_file( "TMatrix.hdf5",0 );
     }
 }
 
@@ -484,11 +469,11 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
         {
             tDatabase->flag_element( 0 );
 
-            tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+            tDatabase->perform_refinement( 0, false );
         }
 
-        // update database etc
-        tDatabase->perform_refinement( moris::hmr::RefinementMode::SIMPLE, 0, false );
+//        // update database etc
+//        tDatabase->perform_refinement( 0, false );
 
         tHMR.finalize();
 
@@ -537,8 +522,6 @@ TEST_CASE("HMR_T_Matrix_Perturb_qub", "[moris],[mesh],[hmr],[hmr_t_matrix_pertur
 
             CHECK( norm( tNodalFieldValues - tNodalRefFieldValues ) < 1e-12 );
         }
-
-        //tHMR.save_to_exodus( "Mesh_qub.exo" );
     }
 }
 
@@ -734,7 +717,6 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
 
         REQUIRE( tLagrangeMesh_1->get_number_of_nodes_on_proc()  == 43 );
         REQUIRE( tLagrangeMesh_2->get_number_of_nodes_on_proc()  == 30 );
-
 
         // output to exodus
         STK * tSTK = tLagrangeMesh_2->create_stk_object(0);

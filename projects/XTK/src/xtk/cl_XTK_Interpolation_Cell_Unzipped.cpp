@@ -7,20 +7,17 @@
 
 
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
-#include "cl_XTK_Interpolation_Vertex_Unzipped.hpp"
-
 namespace xtk
 {
 //------------------------------------------------------------------------------
-Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*        aBaseCell,
-                                                         moris_index              aSubphaseIndex,
-                                                         moris_index              aBulkPhaseIndex,
-                                                         moris_id                 aCellId,
-                                                         moris_index              aCellIndex,
-                                                         moris_id                 aCellOwner,
-                                                         mtk::Geometry_Type       aGeometryType,
-                                                         mtk::Interpolation_Order aInterpOrder):
-                Interpolation_Cell(aCellId,aCellIndex,aCellOwner,aGeometryType,aInterpOrder),
+Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*         aBaseCell,
+                                                         moris_index               aSubphaseIndex,
+                                                         moris_index               aBulkPhaseIndex,
+                                                         moris_id                  aCellId,
+                                                         moris_index               aCellIndex,
+                                                         moris_id                  aCellOwner,
+                                                         moris::mtk::Cell_Info* aConnectivity):
+                Interpolation_Cell(aCellId,aCellIndex,aCellOwner,aConnectivity),
                 mBaseCell(aBaseCell),
                 mSubPhaseIndex(aSubphaseIndex),
                 mBulkPhaseIndex(aBulkPhaseIndex)
@@ -81,6 +78,11 @@ Interpolation_Cell_Unzipped::get_bulkphase_index() const
     return mBulkPhaseIndex;
 }
 //------------------------------------------------------------------------------
+moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
+Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices() const
+{
+    return mVertices;
+}
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

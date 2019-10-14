@@ -10,72 +10,80 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
-        IWG_Isotropic_Spatial_Diffusion_Neumann::IWG_Isotropic_Spatial_Diffusion_Neumann()
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
+            // check master field interpolators, properties, constitutive models
+            this->check_field_interpolators();
+            this->check_properties();
+            this->check_constitutive_models();
 
-            // set the residual dof type
-            mResidualDofType = { MSI::Dof_Type::TEMP };
-
-            // set the active dof type
-            mActiveDofTypes = { { MSI::Dof_Type::TEMP } };
-
-            // set the active mp type
-            mActivePropertyTypes = { fem::Property_Type::TEMP_NEUMANN };
-        }
-
-//------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual
-            ( Matrix< DDRMat >                   & aResidual,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
-        {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
-
-            // compute the normal flux
-            Matrix < DDRMat > tNormalFlux = tTemp->N() * mNodalWeakBCs;
+            // set residual size
+            this->set_residual( aResidual );
 
             // compute the residual r_T
-            aResidual = - trans( tTemp->N() ) * tNormalFlux;
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
         }
 
 //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian
-            ( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+            // check master field interpolators, properties, constitutive models
+            this->check_field_interpolators();
+            this->check_properties();
+            this->check_constitutive_models();
 
-            // set the jacobian size
-            aJacobians.resize( 1 );
+            // set jacobian size
+            this->set_jacobian( aJacobians );
 
-            // compute the jacobian j_T_T
-            uint tNumOfBases = tTemp->get_number_of_space_time_bases();
-            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            // compute the jacobian for direct IWG dof dependencies
+            // None
+
+            // compute the jacobian for indirect IWG dof dependencies through properties
+            for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
+            {
+                // if dependency in the dof type
+                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
-
-        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual
-            ( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-              Matrix< DDRMat >                   & aResidual,
-              moris::Cell< Field_Interpolator* > & aFieldInterpolators )
+        void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                                                     moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set field interpolator
-            Field_Interpolator* tTemp = aFieldInterpolators( 0 );
+            // check master field interpolators, properties, constitutive models
+            this->check_field_interpolators();
+            this->check_properties();
+            this->check_constitutive_models();
+
+            // set residual size
+            this->set_residual( aResidual );
 
             // compute the residual r_T
-            aResidual = - trans( tTemp->N() ) * tTemp->N() * mNodalWeakBCs;
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
 
-            // set the jacobian size
-            aJacobians.resize( 1 );
+            // set jacobian size
+            this->set_jacobian( aJacobians );
 
-            // compute the jacobian j_T_T
-            uint tNumOfBases = tTemp->get_number_of_space_time_bases();
-            aJacobians( 0 ).set_size( tNumOfBases, tNumOfBases, 0.0 );
+            // compute the jacobian for direct IWG dof dependencies
+            // None
+
+            // compute the jacobian for indirect IWG dof dependencies through properties
+            uint tNumFDofTypes = mMasterGlobalDofTypes.size();
+            for( uint iDOF = 0; iDOF < tNumFDofTypes; iDOF++ )
+            {
+                // if dependency in the dof type
+                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                }
+            }
         }
 
 //------------------------------------------------------------------------------

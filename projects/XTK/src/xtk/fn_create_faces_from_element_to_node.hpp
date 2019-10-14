@@ -11,10 +11,10 @@
 #include <unordered_map>
 
 #include "cl_Mesh_Enums.hpp"
-#include "cl_MTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_MTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Cell_Info.hpp"
 namespace xtk
 {
 
@@ -24,7 +24,7 @@ namespace xtk
  */
 inline
 void
-create_faces_from_element_to_node(enum CellTopology                        aElementTopology,
+create_faces_from_element_to_node(moris::mtk::Cell_Info*                   aCellConnectivity,
                                   moris::size_t                            aNumNodes,
                                   moris::Matrix< moris::IndexMat > const & aElementToNode,
                                   moris::Matrix< moris::IndexMat >       & aElementToFace,
@@ -32,16 +32,14 @@ create_faces_from_element_to_node(enum CellTopology                        aElem
                                   moris::Matrix< moris::IndexMat >       & aNodeToFace,
                                   moris::Matrix< moris::IndexMat >       & aFaceToElement)
 {
-    MORIS_ASSERT(aElementTopology == CellTopology::TET4,"This function has only been tested with tet4 topology");
-
     //hardcoded values could be provided as a function input
     moris::size_t tMaxFacePerNode = 40;
     moris::size_t tMaxUsed = 0;
 
     // Initialize
     moris::size_t tNumElements = aElementToNode.n_rows();
-    moris::size_t tNumFacesPerElem   = 4;
-    moris::size_t tNumNodesPerFace   = 3;
+    moris::size_t tNumFacesPerElem   = aCellConnectivity->get_num_facets();
+    moris::size_t tNumNodesPerFace   = aCellConnectivity->get_num_verts_per_facet();
     moris::size_t tNumFaceCreated    = 0;
     moris::size_t tMaxNumFaces       = tNumElements*tNumFacesPerElem;
     moris::Matrix< moris::IndexMat > tNodeToFaceCounter(1,aNumNodes,0);
@@ -61,11 +59,11 @@ create_faces_from_element_to_node(enum CellTopology                        aElem
     aFaceToElement.fill(MORIS_INDEX_MAX);
 
     // TET4 specific topology map
-    moris::Matrix< moris::IndexMat > tNodeToFaceMap =  moris::Tetra4_Connectivity::get_node_to_face_map();
+    moris::Matrix< moris::IndexMat > tNodeToFaceMap =  aCellConnectivity->get_node_to_facet_map();
 
 
     // Single Element Face To Nodes
-    moris::Matrix< moris::IndexMat > tElementFaceToNode(1,4);
+    moris::Matrix< moris::IndexMat > tElementFaceToNode(1,tNumNodesPerFace);
 
 
     moris::Cell<moris::size_t> tPotentialFaces;

@@ -13,7 +13,7 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
-#include "cl_MTK_Tetra4_Connectivity.hpp"
+#include "cl_MTK_Cell_Info_Tet4.hpp"
 
 namespace xtk
 {
@@ -32,15 +32,48 @@ create_edges_from_element_to_node(enum CellTopology                 aElementTopo
                                   moris::Matrix< moris::IdMat >       & aNodeToEdge,
                                   moris::Matrix< moris::IdMat >       & aEdgeToElement)
 {
-    MORIS_ASSERT(aElementTopology == CellTopology::TET4,"This function has only been implemented for tet4 topology");
-
     //hardcoded values could be provided as a function input
     Integer tMaxEdgePerNode = 100;
     Integer tMaxEdgeToElement = 50;
 
     // Initialize
+    Integer tNumEdgePerElem = 0;
+    moris::Matrix< moris::IdMat > tElementEdgeToNodeMap(0,0);
+    switch(aElementTopology)
+    {
+		case(CellTopology::TET4):
+		{
+			tNumEdgePerElem = 6;
+
+			// TET4 specific topology map
+			tElementEdgeToNodeMap = {
+				{0,1},
+				{1,2},
+				{0,2},
+				{0,3},
+				{1,3},
+				{2,3}};
+
+			break;
+		}
+		case(CellTopology::TRI3):
+		{
+			tNumEdgePerElem = 3;
+
+			// QUAD4 specific topology map
+			tElementEdgeToNodeMap = {{0,1},
+									 {1,2},
+									 {0,2}};
+
+			break;
+		}
+		default:
+		{
+			MORIS_ASSERT(0, "This function has only been implemented for tet4 and tri3 topology.");
+		}
+    }
+
     Integer tNumElements = aElementToNode.n_rows();
-    Integer tNumEdgePerElem    = 6;
     Integer tNumNodesPerEdge   = 2;
     Integer tNumEdgeCreated    = 0;
     Integer tMaxNumEdges       = tNumElements*tNumEdgePerElem;
@@ -59,11 +92,10 @@ create_edges_from_element_to_node(enum CellTopology                 aElementTopo
     aEdgeToElement.resize(tMaxNumEdges,tMaxEdgeToElement);
     aEdgeToElement.fill(std::numeric_limits<moris::moris_index>::max());
 
-    // TET4 specific topology map
-    moris::Matrix< moris::IdMat > tElementEdgeToNodeMap = moris::Tetra4_Connectivity::get_node_to_edge_map();
+
 
     // Single Element Face To Nodes
-    moris::Matrix< moris::IdMat > tElementEdgeToNode(6,2);
+    moris::Matrix< moris::IdMat > tElementEdgeToNode(tNumEdgePerElem,tNumNodesPerEdge);
 
 
     moris::Cell<Integer> tPotentialEdges;
@@ -77,29 +109,29 @@ create_edges_from_element_to_node(enum CellTopology                 aElementTopo
     {
         tElementEdgeToNode = reindex_matrix(tElementEdgeToNodeMap,i, aElementToNode);
 
-        // iterate over faces in element
+        // iterate over edges in element
         for( Integer j = 0; j<tNumEdgePerElem; j++)
         {
 
             tEdgeIndex = 0;
 
-            // potential faces (all the ones attached to first node here
+            // potential edges (all the ones attached to first node here)
             tNodeInd = tElementEdgeToNode(j,tFirstInd);
 
-            // Assemble potential face vector
-            Integer tNumPotentialFaces1 = tNodeToEdgeCounter(0,tNodeInd);
-            for(Integer k = 0; k< tNumPotentialFaces1; k++)
+            // Assemble potential edge vector
+            Integer tNumPotentialEdges1 = tNodeToEdgeCounter(0,tNodeInd);
+            for(Integer k = 0; k< tNumPotentialEdges1; k++)
             {
                 tPotentialEdges1.push_back(aNodeToEdge(tNodeInd,k));
             }
 
-            // iterate over nodes on the face j
+            // iterate over nodes on the edge j
             for(Integer k = 1; k<tNumNodesPerEdge; k++)
             {
                 tNodeInd = tElementEdgeToNode(j,k);
 
-                Integer tNumPotentialFaces2 = tNodeToEdgeCounter(0,tNodeInd);
-                for(Integer l = 0; l< tNumPotentialFaces2; l++)
+                Integer tNumPotentialEdges2 = tNodeToEdgeCounter(0,tNodeInd);
+                for(Integer l = 0; l< tNumPotentialEdges2; l++)
                 {
                     tPotentialEdges2.push_back(aNodeToEdge(tNodeInd,l));
                 }
@@ -116,10 +148,10 @@ create_edges_from_element_to_node(enum CellTopology                 aElementTopo
 
             }
 
-            // If there are no potential faces then create the face
+            // If there are no potential edges then create the edge
             if(tPotentialEdges1.size() == 0)
             {
-                // Add node to face
+                // Add node to edge
                 for(Integer k = 0; k<tNumNodesPerEdge; k++)
                 {
                     tNodeInd = tElementEdgeToNode(j,k);
@@ -133,10 +165,10 @@ create_edges_from_element_to_node(enum CellTopology                 aElementTopo
                 tNumEdgeCreated++;
             }
 
-            // if there are two potential faces at this stage that is an issue
+            // if there are two potential edges at this stage that is an issue
             else if(tPotentialEdges1.size() >1)
             {
-                std::cout<<"Invalid number of faces found"<<std::endl;
+                std::cout<<"Invalid number of edges found"<<std::endl;
             }
             else
             {

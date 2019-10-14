@@ -50,7 +50,12 @@ namespace dla
     {
         mVectorRHS->vec_put_scalar( 0.0 );
 
+        // start timer
+        tic tTimer;
         mInput->assemble_RHS( mVectorRHS, aFullSolutionVector );
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+        MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
 
         //mVectorRHS->print();
     }
@@ -75,7 +80,7 @@ namespace dla
        // stop timer
        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-       MORIS_LOG_INFO( " Assembly of linear system on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+       MORIS_LOG_INFO( " Assembly of jacobianon processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
     }
 
 //----------------------------------------------------------------------------------------

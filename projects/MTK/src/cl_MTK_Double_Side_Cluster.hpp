@@ -42,8 +42,11 @@ public:
     mLeftSideCluster(nullptr),
     mRightSideCluster(nullptr){};
 
+    virtual
+    ~Double_Side_Cluster(){};
+
     Double_Side_Cluster(moris::mtk::Side_Cluster *                      aLeftSideCluster,
-                        moris::mtk::Side_Cluster *                     aRightSideCluster,
+                        moris::mtk::Side_Cluster *                      aRightSideCluster,
                         moris::Cell<moris::mtk::Vertex const *> const & aLeftToRightVertexPair):
         mLeftSideCluster(aLeftSideCluster),
         mRightSideCluster(aRightSideCluster)
@@ -145,6 +148,8 @@ public:
 
         return mLeftToRightVertexPairs(tLeftClusterIndex);
     }
+
+
 
     //----------------------------------------------------------------
 
@@ -381,6 +386,14 @@ public:
          return this->get_right_side_cluster().get_vertices_in_cluster();
     }
 
+    moris_index
+    get_right_vertex_ord_on_facet( moris_index  aCellClusterIndex,
+                                   moris::mtk::Vertex const * aRightVertex) const
+    {
+        return mRightSideCluster->get_vertex_ordinal_on_facet(aCellClusterIndex,aRightVertex);
+    }
+
+
     //##############################################
     // Local Coordinate Access
     //##############################################
@@ -590,6 +603,39 @@ public:
 
 
 };
+
+inline
+std::ostream &
+operator<<(std::ostream & os, const Double_Side_Cluster & dt)
+{
+    os<<"\n  Master Interpolation Cell: "<<std::setw(9)<<dt.get_left_side_cluster().get_interpolation_cell().get_id();
+    os<<" | Slave Interpolation Cell: "<<std::setw(9)<<dt.get_right_side_cluster().get_interpolation_cell().get_id();
+
+
+    moris::Cell<mtk::Cell const *> const & tLeftIGCells =dt.get_left_side_cluster().get_primary_cells_in_cluster( );
+    moris::Matrix<moris::IndexMat>         tLeftIGCellSideOrds = dt.get_left_side_cluster().get_cell_side_ordinals();
+    moris::Cell<mtk::Cell const *> const & tRightIGCells = dt.get_right_side_cluster().get_primary_cells_in_cluster( );
+    moris::Matrix<moris::IndexMat>         tRightIGCellSideOrds = dt.get_right_side_cluster().get_cell_side_ordinals();
+
+    os<<"   Cell Pairs: "<<std::endl;
+
+    for(moris::uint  i = 0; i < tLeftIGCells.size(); i++)
+    {
+        std::cout<<"  Master Cell ID/Ord: "<<std::setw(9)<<tLeftIGCells(i)->get_id()<<std::setw(9)<<tLeftIGCellSideOrds(i);
+        std::cout<<"  Slave Cell ID/Ord: "<<std::setw(9)<<tRightIGCells(i)->get_id()<<std::setw(9)<<tRightIGCellSideOrds(i)<<std::endl;
+    }
+    return os;
+}
+
+inline
+std::ostream &
+operator<<(std::ostream & os, Double_Side_Cluster const * const & dt)
+{
+    os<<*dt;
+
+    return os;
+}
+
 }
 }
 

@@ -99,7 +99,7 @@ namespace MSI
 //-----------------------------------------------------------------------------------------------------------
     void Pdof_Host::create_adofs_based_on_Tmatrix( const Matrix< DDUMat >                     & aTimeLevelOffsets,
                                                          moris::Cell< moris::Cell< Adof * > > & aAdofList,
-                                                         Model_Solver_Interface * aModelSolverInterface )
+                                                         Model_Solver_Interface               * aModelSolverInterface )
     {
         //Get number of pdof Types in this pdof host
         moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
@@ -108,18 +108,18 @@ namespace MSI
         for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
         {
             // Ask for adof order for this dof type
-            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_index_for_type( Ii );
+            moris::uint tAdofMeshIndex = ( moris::uint ) aModelSolverInterface->get_adof_index_for_type( Ii );
 
             if ( mListOfPdofTimePerType( Ii ).size() != 0 )
             {
                  // Get mesh Ids for the used adofs
-                 Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids( tAdofOrder );
-                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofOrder );
+                 Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids( tAdofMeshIndex );
+                 Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofMeshIndex );
 
                  // since petsc requires int, the owner matrix must be casted
-                 auto tOwners = mNodeObj->get_adof_owners( tAdofOrder );
+                 auto tOwners = mNodeObj->get_adof_owners( tAdofMeshIndex );
 
-                 moris::uint tNumberOfOwners = tOwners.length();
+                 moris::uint tNumberOfOwners = tOwners.numel();
 
                  Matrix< DDSMat > tAdofOwningProcessorList( tNumberOfOwners, 1 );
 
@@ -131,7 +131,7 @@ namespace MSI
                  for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
                  {
                     // Set size of vector with adpf ptr
-                    mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList.resize( tAdofMeshInd.length() );
+                    mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList.resize( tAdofMeshInd.numel() );
 
                     // Get pdof type Index
                     moris::uint tPdofTypeIndex = mListOfPdofTimePerType( Ii )( Ij )->mDofTypeIndex;
@@ -139,7 +139,7 @@ namespace MSI
                     moris::uint tAdofType = aTimeLevelOffsets( tPdofTypeIndex, 0 );
 
                     // loop over all adofs in the matrix and create an adof if it does not exist, yet.
-                    for ( moris::uint Ik = 0; Ik < tAdofMeshInd.length(); Ik++ )
+                    for ( moris::uint Ik = 0; Ik < tAdofMeshInd.numel(); Ik++ )
                     {
                         // Check if adof exists
                         if ( aAdofList( tAdofType + Ij )( tAdofMeshInd( Ik ) ) == nullptr)
@@ -255,7 +255,7 @@ namespace MSI
         {
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
-                tAdofCounter = tAdofCounter + mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.length();
+                tAdofCounter = tAdofCounter + mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel();
             }
         }
 
@@ -268,7 +268,7 @@ namespace MSI
         {
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
-                for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.length(); Ik++)
+                for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel(); Ik++)
                 {
                     tUniqueAdofList( tCounter, 0 ) = mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 );
                     tCounter = tCounter + 1;
@@ -291,15 +291,15 @@ namespace MSI
         // Loop over all pdof types and times to add T matrices
         for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
         {
-            // Ask for adof order for this dof type
-            moris::uint tAdofOrder = ( moris::uint ) aModelSolverInterface->get_adof_index_for_type( Ii );
+            // Ask for adof mesh index for this dof type
+            moris::uint tAdofMeshIndex = ( moris::uint ) aModelSolverInterface->get_adof_index_for_type( Ii );
 
             for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
             {
                 if ( aUseHMR )
                 {
                     // Get TMatrix. Add Tmatrix to type and time list
-                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix( tAdofOrder );  // fixme: #ADOFORDERHACK
+                    const Matrix< DDRMat > * tTmatrix = mNodeObj->get_t_matrix( tAdofMeshIndex );
                     mListOfPdofTimePerType( Ii )( Ij )->mTmatrix = tTmatrix->matrix_data();
                 }
                 else

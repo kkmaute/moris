@@ -2,7 +2,7 @@
  * cl_HMR.hpp
  *
  *  Created on: May 5, 2018
- *      Author: messe
+ *      Author: schmidt
  */
 
 #ifndef SRC_HMR_CL_HMR_HPP_
@@ -48,6 +48,35 @@ namespace moris
 
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
+
+            /*
+             * @brief determines elements (cells) intersected by the level set
+             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aLowerBound   - lower bound of LS
+             * @param[in] aUpperBound   - upper bound of LS
+             */
+            void find_cells_intersected_by_levelset(        Cell< hmr::Element * > & aCells,
+                                                            Cell< hmr::Element * > & aCandidates,
+                                                     const  Matrix< DDRMat >    & aVertexValues,
+                                                     const  real                  aLowerBound = -0.0001,
+                                                     const  real                  aUpperBound =  0.0001);
+
+            /*
+             * @brief determines volume elements (cells)
+             *
+             * @param[in] aCells        - elements to be flagged for refinement
+             * @param[in] aCandidates   - candidates for refinement
+             * @param[in] aVertexValues - vertex values of scalar field
+             * @param[in] aUpperBound   - upper bound of LS
+             */
+            void find_cells_within_levelset(        Cell< hmr::Element * > & aCells,
+                                                    Cell< hmr::Element * > & aCandidates,
+                                             const  Matrix< DDRMat >    & aVertexValues,
+                                             const  uint                  aUpperBound = 0.0 );
+
 
 // -----------------------------------------------------------------------------
         public :
@@ -112,52 +141,34 @@ namespace moris
             /**
              * save the mesh to an exodus file
              */
-            void save_to_exodus( const std::string & aPath,
-                                 const uint          aOutputOrder = 0,
-                                 const double        aTimeStep = 0.0 );
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * renumber nodes for femdoc and save the mesh to an exodus file. HACK with consent of Kurt
-             */
-            void renumber_and_save_to_exodus( const std::string & aPath,
-                                              const double        aTimeStep = 0.0,
-                                              const uint          aOutputOrder = 0 );
-
-// -----------------------------------------------------------------------------
-
-            /**
-             * save the mesh to an exodus file
-             */
-            void save_last_step_to_exodus( const std::string & aPath,
-                                           const double        aTimeStep = 0.0,
-                                           const uint          aOutputOrder = 0 );
+            void save_last_step_to_exodus( const uint          aIndex,
+                                           const std::string & aPath,
+                                           const double        aTimeStep = 0.0 );
 
 // -----------------------------------------------------------------------------
 
             /**
              * save the mesh to an hdf5 file
              */
-            void save_to_hdf5( const std::string & aPath );
+            void save_to_hdf5( const std::string & aPath,
+                               const uint          aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
             /**
              * store the T-Matrices and B-Spline IDs into a file
              */
-            void save_coeffs_to_hdf5_file( const std::string & aFilePath );
-
-// -----------------------------------------------------------------------------
-
-            void renumber_and_save_coeffs_to_hdf5_file_HACK( const std::string & aFilePath );
+            void save_coeffs_to_hdf5_file( const std::string & aFilePath,
+                                           const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
             /**
              * store the T-Matrices and B-Spline IDs into a file
              */
-            void save_mesh_relations_to_hdf5_file ( const std::string & aFilePath );
+            void save_mesh_relations_to_hdf5_file ( const std::string & aFilePath,
+                                                    const uint        & aLagrangeMeshIndex,
+                                                    const uint        & aBsplineMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -167,35 +178,36 @@ namespace moris
              */
             std::shared_ptr< Field > load_field_from_hdf5_file( const std::string & aLabel,
                                                                 const std::string & aFilePath,
-                                                                const uint          aLagrangeOrder=0,
-                                                                const uint          aBSpineOrder=0 );
+                                                                const uint          aLagrangeIndex = 0,
+                                                                const uint          aBSpineIndex = 0 );
 
 // -----------------------------------------------------------------------------
 
             std::shared_ptr< Field > load_field_from_exo_file( const std::string & aLabel,
                                                                const std::string & aFilePath,
-                                                               const uint          aLagrangeOrder=0,
-                                                               const uint          aBSpineOrder=0 );
+                                                               const uint          aLagrangeIndex=0,
+                                                               const uint          aBSpineIndex=0 );
 
 // -----------------------------------------------------------------------------
 
             std::shared_ptr< Field > load_field_from_file( const std::string & aLabel,
                                                            const std::string & aFilePath,
-                                                           const uint          aLagrangeOrder=0,
-                                                           const uint          aBSpineOrder=0 );
+                                                           const uint          aLagrangeIndex=0,
+                                                           const uint          aBSpineIndex=0 );
+
+// -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 
             /**
-             * flags active elements
+             * flags active elements on working pattern
              *
              * @param[ in ]   aElements            element pointers that are to be flagged
-             *  @param[ in ]  aLagrangeSwitch      off: flag b-spline elements, on: flag lagrange elements
              * @param[ in ]   aMinRefinementLevel  if the level of the child is less than this value
              *                                     the child is automatically flagged in the next iteration
              */
-            void flag_elements(       Cell< mtk::Cell* > & aElements,
-                                const uint                 aMinRefinementLevel = 0 );
+            void flag_elements_on_working_pattern(       Cell< hmr::Element* > & aElements,
+                                                   const uint                 aMinRefinementLevel = 0 );
 
 // -----------------------------------------------------------------------------
 
@@ -212,8 +224,14 @@ namespace moris
             /**
              * runs the refinement scheme
              */
-            void perform_refinement( const enum RefinementMode aRefinementMode,
-                                     const uint                aPattern = 0);                // FIXME get rid of default
+            void perform_refinement_based_on_working_pattern( const uint aPattern,
+                                                              const bool aResetPattern = false );
+
+            void perform_refinement( const uint aPattern );
+
+// -----------------------------------------------------------------------------
+
+            void put_elements_on_refinment_queue( Cell< hmr::Element* > & aElements);
 
 // -----------------------------------------------------------------------------
 
@@ -314,9 +332,8 @@ namespace moris
             /**
              * for flagging
              */
-            void get_candidates_for_refinement(       Cell< mtk::Cell* > & aCandidates,
-                                                const uint                 aLagrangeMeshIndex,
-                                                const uint                 aMaxLevel = gMaxNumberOfLevels );
+            void get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
+                                                const uint                    aLagrangeMeshIndex);
 
 
 // -----------------------------------------------------------------------------
@@ -324,21 +341,24 @@ namespace moris
             /**
              * flags elements on the surface and inside of a level set
              */
-            uint flag_volume_and_surface_elements( const std::shared_ptr<Field> aScalarField );
+            uint flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField );
 
 // -----------------------------------------------------------------------------
 
             /**
              * flags elements on the surface of a level set
              */
-            uint flag_surface_elements( const std::shared_ptr<Field> aScalarField );
+            uint flag_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField );
+
+            uint based_on_field_put_elements_on_queue( const Matrix< DDRMat > & aFieldValues,
+                                                       const uint             & aLagrangeMeshIndex);
 
 // -----------------------------------------------------------------------------
 
             /**
              * special function for tutorial
              */
-            void perform_refinement_and_map_fields();
+//            void perform_refinement_and_map_fields( const uint aPattern );
 
 // -----------------------------------------------------------------------------
 
@@ -377,7 +397,9 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_bsplines_to_vtk( const std::string & aFilePath );
+            void save_bsplines_to_vtk( const std::string & aFilePath,
+                                       const uint        & aLagrangeMeshIndex,
+                                       const uint        & aBsplineMeshIndex  );
 
 // -----------------------------------------------------------------------------
 
@@ -386,7 +408,8 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_faces_to_vtk( const std::string & aFilePath );
+            void save_faces_to_vtk( const std::string & aFilePath,
+                                    const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -395,7 +418,8 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_edges_to_vtk( const std::string & aFilePath );
+            void save_edges_to_vtk( const std::string & aFilePath,
+                                    const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -404,7 +428,8 @@ namespace moris
              *
              * @param[ in ] aFilePath  path of VTK file
              */
-            void save_mesh_to_vtk( const std::string & aFilePath );
+            void save_mesh_to_vtk( const std::string & aFilePath,
+                                   const uint        & aLagrangeMeshIndex );
 
 // -----------------------------------------------------------------------------
 
@@ -420,11 +445,8 @@ namespace moris
                                                            const Cell< Matrix< DDRMat > >   & aElementLocalValues,
                                                                  ParameterList              & aParameters ),
                                         Cell< std::shared_ptr< Field > > & aFields,
-                                        ParameterList                    & aParameters );
-
-// -----------------------------------------------------------------------------
-
-            uint get_mesh_index( const uint aOrder, const uint aPattern );
+                                        ParameterList                    & aParameters,
+                                        const uint                       & aPattern );
 
 // -----------------------------------------------------------------------------
         }; /* HMR */

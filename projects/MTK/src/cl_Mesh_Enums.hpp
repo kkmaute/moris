@@ -25,11 +25,15 @@ enum class MeshType
 
 enum class CellTopology
 {
+    LINE2,
     TRI3,
     QUAD4,
+    QUAD9,
     TET4,
     TET10,
     HEX8,
+    HEX27,
+    HEX64,
     PRISM6,
     INVALID,
     END_ENUM
@@ -46,6 +50,8 @@ const std::string get_enum_str(enum CellTopology aCellTopoEnum)
         case CellTopology::TET4:  return "TET4";
         case CellTopology::TET10: return "TET10";
         case CellTopology::HEX8: return "HEX8";
+        case CellTopology::HEX27: return "HEX27";
+        case CellTopology::HEX64: return "HEX64";
         case CellTopology::PRISM6: return "PRISM6";
         case CellTopology::INVALID: return "INVALID";
         case CellTopology::END_ENUM: return "END_ENUM";

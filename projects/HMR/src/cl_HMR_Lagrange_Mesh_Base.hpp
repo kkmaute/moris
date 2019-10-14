@@ -17,6 +17,7 @@
 #include "cl_HMR_Edge.hpp"
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Facet.hpp"
+#include "cl_HMR_Facet_Cluster.hpp"
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Side_Set.hpp"
@@ -70,8 +71,16 @@ namespace moris
             luint mNumberOfUsedAndOwnedNodes = 0;
             luint mNumberOfUsedNodes = 0;
 
+        public:
             //! Cell containing facets
             Cell< Facet * > mFacets;
+
+            //! Cell containing facet clusters
+            Cell< Facet_Cluster * > mFacetClusters;
+
+            //! Facet to Facet Cluster Relationship
+            Cell< Cell<Facet_Cluster * > > mFacetToFacetCluster;
+        private:
 
             //! Cell containing edges. Only populated in 3D
             Cell< Edge * >  mEdges;
@@ -410,6 +419,10 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+            void create_facet_clusters();
+
+// ----------------------------------------------------------------------------
+
             void create_edges();
 
 // ----------------------------------------------------------------------------
@@ -456,7 +469,7 @@ namespace moris
              */
             uint get_number_of_bspline_meshes() const
             {
-                return mBSplineMeshes.size();
+                return mNumBSplineMeshes;
             }
 
 // ----------------------------------------------------------------------------
@@ -484,6 +497,112 @@ namespace moris
             const BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshIndex ) const
             {
                 return mBSplineMeshes( aMeshIndex );
+            }
+
+            // ----------------------------------------------------------------------------
+
+            /**
+             * return the lagrange elements in the support of this basis
+             */
+            void get_my_elements_in_basis_support( const uint                    aMeshIndex,
+                                                   const uint                    aBasisIndex,
+                                                         Matrix< IndexMat > & aElementIndices )
+            {
+                Basis * tBasis = mBSplineMeshes( aMeshIndex )->get_basis_by_index( aBasisIndex );
+
+                uint tNumElements = tBasis->get_num_elements();
+
+                uint tCount = 0;
+
+                for( uint Ik = 0; Ik < tNumElements; Ik ++ )
+                {
+                    Background_Element_Base * tBackgroundElement = tBasis->get_element( Ik )->get_background_element();
+
+                    this->get_num_active_elements( tBackgroundElement, tCount );
+                }
+
+                Cell< Background_Element_Base * > tBackgroundActiveElements( tCount, nullptr );
+
+                aElementIndices.set_size(  1, tCount, MORIS_SINT_MAX );
+
+                tCount = 0;
+
+                for( uint Ik = 0; Ik < tNumElements; Ik ++ )
+                {
+                    Background_Element_Base * tBackgroundElement = tBasis->get_element( Ik )->get_background_element();
+
+                    this->get_active_elements( tBackgroundElement, tBackgroundActiveElements, tCount );
+                }
+
+                for( uint Ik = 0; Ik < tBackgroundActiveElements.size(); Ik ++ )
+                {
+                    Element * tElement = this->get_element_by_memory_index( tBackgroundActiveElements( Ik )->get_memory_index() );
+
+                    aElementIndices( Ik ) = tElement->get_index();
+                }
+
+                MORIS_ASSERT( aElementIndices.max() != MORIS_SINT_MAX, "get_my_elements_in_basis_support(); Some invalid indices in list");
+
+            }
+// ----------------------------------------------------------------------------
+
+            void get_num_active_elements( Background_Element_Base * aBackgroundElement,
+                                          uint                    & aCounter )
+            {
+                MORIS_ASSERT( aBackgroundElement != nullptr, "get_num_active_elements(); Background element is nullptr");
+
+                bool tIsPadding = aBackgroundElement->is_padding();
+
+                if( !tIsPadding )
+                {
+                    bool tIsActive = aBackgroundElement->is_active( mActivationPattern );
+
+                    if( !tIsActive )
+                    {
+                        uint tNumChildren = aBackgroundElement->get_num_children();
+
+                        for( uint Ii = 0; Ii < tNumChildren; Ii ++ )
+                        {
+                            Background_Element_Base * tBackgroundElement = aBackgroundElement->get_child( Ii );
+
+                            this->get_num_active_elements( tBackgroundElement, aCounter );
+                        }
+                    }
+                    else
+                    {
+                        aCounter++;
+                    }
+                }
+            }
+
+// ----------------------------------------------------------------------------
+
+            void get_active_elements( Background_Element_Base           * aBackgroundElement,
+                                      Cell< Background_Element_Base * > & aActiveBackgroundElements,
+                                      uint                              & aCounter )
+            {
+                bool tIsPadding = aBackgroundElement->is_padding();
+
+                if( !tIsPadding )
+                {
+                    bool tIsActive = aBackgroundElement->is_active( mActivationPattern );
+
+                    if( !tIsActive )
+                    {
+                        uint tNumChildren = aBackgroundElement->get_num_children();
+
+                        for( uint Ii = 0; Ii < tNumChildren; Ii ++ )
+                        {
+                            Background_Element_Base * tBackgroundElement = aBackgroundElement->get_child( Ii );
+
+                            this->get_active_elements( tBackgroundElement, aActiveBackgroundElements, aCounter );
+                        }
+                    }
+                    else
+                    {
+                        aActiveBackgroundElements( aCounter++) = aBackgroundElement;
+                    }
+                }
             }
 
 // ----------------------------------------------------------------------------

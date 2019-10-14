@@ -87,7 +87,6 @@ main(
     tParameters.set_number_of_elements_per_dimension( { { 1 }, { 1 } } );
     tParameters.set_multigrid( true );
     tParameters.set_bspline_truncation( true );
-    tParameters.set_mesh_orders_simple( tOrder );
 
     // create HMR object
     moris::hmr::HMR tHMR( tParameters );

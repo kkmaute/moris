@@ -167,7 +167,6 @@ namespace moris
         const std::string & Field::get_label() const
         {
             return mLagrangeMesh->get_real_scalar_field_label( mFieldIndex );
-
         }
 
 //------------------------------------------------------------------------------
@@ -312,6 +311,8 @@ namespace moris
             }
         }
 
+//------------------------------------------------------------------------------
+
         void Field::put_scalar_values_on_field( const Matrix< DDRMat > & aValues )
         {
             // get pointer to node values
@@ -322,6 +323,7 @@ namespace moris
 
             // set size of node values
             tNodeValues.set_size( tNumberOfVertices, 1 );
+            tNodeValues.fill(0);
 
             // loop over all vertices
             for( uint k=0; k<tNumberOfVertices; ++k )

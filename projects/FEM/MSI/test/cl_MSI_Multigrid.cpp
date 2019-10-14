@@ -91,10 +91,10 @@ namespace moris
 
             // flag first element for refinement
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tHMR.finalize();
 
@@ -145,6 +145,18 @@ namespace moris
              Cell< fem::IWG* > tIWGs ( 1, nullptr );
              tIWGs( 0 ) = new moris::fem::IWG_L2( );
 
+             // set residual dof type
+             tIWGs( 0 )->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+
+             // set active dof types
+             tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
+
+             // create property info
+             moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
+
+             // create constitutive info
+             moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
+
              map< moris_id, moris_index >   tCoefficientsMap;
              Cell< fem::Node_Base* >        tNodes;
              Cell< MSI::Equation_Object* >  tElements;
@@ -179,12 +191,14 @@ namespace moris
              {
                  // create a list of cell clusters (this needs to stay in scope somehow)
                  moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( 0 );
-//                 moris::Cell<mtk::Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_cell_clusters_in_set( 0 );
 
                  // create new fem set
                  tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
                                                                   fem::Element_Type::BULK,
-                                                                  tIWGs, tNodes );
+                                                                  tIWGs,
+                                                                  tPropertyUserDefinedInfo,
+                                                                  tConstitutiveUserDefinedInfo,
+                                                                  tNodes );
 
                  // collect equation objects associated with the block-set
                  tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );
@@ -192,26 +206,6 @@ namespace moris
                  // update fem set counter
                  tFemSetCounter++;
              }
-
-
-//             // ask mesh about number of elements on proc
-//             moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
-//
-//             moris::Cell<mtk::Cell const*> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
-//
-//             for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
-//             {
-//                 Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
-//
-//                 for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
-//                 {
-//                     tBlockSetElement( k ) = & tMesh->get_mtk_cell( k );
-//                 }
-//
-//             }
-//             tElementBlocks( 0 ) = new fem::Set( tBlockSetElement, fem::Element_Type::BULK, tIWGs, tNodes );
-
-//             tElements.append( tElementBlocks( 0 )->get_equation_object_list() );
 
              MSI::Model_Solver_Interface * tMSI = new moris::MSI::Model_Solver_Interface( tElementBlocks,
                                                                                           tInterpolationMesh->get_communication_table(),

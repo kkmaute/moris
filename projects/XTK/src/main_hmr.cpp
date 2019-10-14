@@ -35,7 +35,6 @@
 //------------------------------------------------------------------------------
 // XTK
 #include "cl_XTK_Model.hpp"
-#include "fn_XTK_IO_Utilities.hpp"
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "xtk_typedefs.hpp"
 #include "cl_Geom_Field.hpp"
@@ -118,20 +117,13 @@ main(
 
     for( uint k=0; k<3; ++k )
     {
-            tHMR.flag_surface_elements( tField );
-//            tHMR.flag_surface_elements( tField2 );
-
-            //tDatabase->flag_element( 0 );
-            tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE );
-            tHMR.update_refinement_pattern( 0 );
+            tHMR.flag_surface_elements_on_working_pattern( tField );
+            tHMR.perform_refinement_based_on_working_pattern( 0 );
 
             tField->evaluate_scalar_function( LevelSetFunction );
-//            tField2->evaluate_scalar_function( LevelSetFunction2 );
     }
 
     tHMR.finalize();
-
-    tHMR.save_to_exodus( "./xtk_exo/xtk_hmr_bm.exo" );
 
     std::shared_ptr< Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeOrder, tHMR.mParameters->get_lagrange_output_pattern()  );
 
@@ -140,7 +132,6 @@ main(
 
     xtk::Geom_Field tFieldAsGeom(tField);
 //    xtk::Geom_Field tFieldAsGeom2(tField2);
-
 
         moris::Cell<Geometry*> tGeometryVector = {&tFieldAsGeom};
 

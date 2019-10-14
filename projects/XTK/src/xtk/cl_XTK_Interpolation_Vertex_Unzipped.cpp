@@ -19,7 +19,7 @@ Interpolation_Vertex_Unzipped::Interpolation_Vertex_Unzipped(mtk::Vertex*       
                                                              moris_index                aVertexIndex,
                                                              moris_index                aVertexOwner,
                                                              uint                       aInterpolationOrder,
-                                                             mtk::Vertex_Interpolation* aVertexInterp):
+                                                             Vertex_Enrichment* aVertexInterp):
                                                                      mBaseInterpVertex(aBaseInterpVertex),
                                                                      mVertexId(aVertexId),
                                                                      mVertexIndex(aVertexIndex),
@@ -27,7 +27,6 @@ Interpolation_Vertex_Unzipped::Interpolation_Vertex_Unzipped(mtk::Vertex*       
                                                                      mOrder(aInterpolationOrder),
                                                                      mInterpolation(aVertexInterp)
 {
-
 }
 //------------------------------------------------------------------------------
 Matrix< DDRMat >
@@ -66,8 +65,22 @@ Interpolation_Vertex_Unzipped::get_interpolation( const uint aOrder ) const
     return mInterpolation;
 }
 //------------------------------------------------------------------------------
+Vertex_Enrichment *
+Interpolation_Vertex_Unzipped::get_xtk_interpolation( const uint aOrder )
+{
+    return mInterpolation;
+}
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+Vertex_Enrichment const *
+Interpolation_Vertex_Unzipped::get_xtk_interpolation( const uint aOrder ) const
+{
+    return mInterpolation;
+}//------------------------------------------------------------------------------
+mtk::Vertex const *
+Interpolation_Vertex_Unzipped::get_base_vertex(  ) const
+{
+    return mBaseInterpVertex;
+}
 //------------------------------------------------------------------------------
 
 }

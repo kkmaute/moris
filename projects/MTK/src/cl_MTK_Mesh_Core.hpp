@@ -17,18 +17,35 @@
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp" //MTK/src
 #include "cl_MTK_Cell.hpp" //MTK/src
+#include "cl_MTK_Facet.hpp"
 
 namespace moris
 {
 namespace hmr
 {
 class Database;
+class Lagrange_Mesh_Base;
 }
 
 namespace mtk
 {
 class Mesh :  public std::enable_shared_from_this< Mesh >
 {
+protected:
+    // Note these members are here only to allow for throwing in
+    // get_mtk_cell and get_mtk_vertex function
+    mtk::Vertex*     mDummyVertex;
+    mtk::Cell*       mDummyCells;
+    real             mDummyReal = 0.0;
+    Matrix<DDRMat>   mDummyMatrix;
+
+    //------------------------------------------------------------------------------
+    //! ref to hmr object for multigrid
+    std::shared_ptr< hmr::Database > mDatabase;
+
+    hmr::Lagrange_Mesh_Base * mMesh = nullptr;
+    //------------------------------------------------------------------------------
+
 public:
     // Verbose flag
     bool mVerbose = false;
@@ -477,6 +494,21 @@ public:
     {
         return get_entity_connected_to_entity_glob_ids(aElementId,EntityRank::ELEMENT, EntityRank::NODE);
     }
+
+    /*
+     * Get elements interpolated into by a basis function. For a Lagrange mesh,
+     * the elements in support of basis is equivalent to the elements connected
+     * to a node. Therefore, a call to get_elements
+     */
+    virtual
+    void
+    get_elements_in_support_of_basis(const uint           aMeshIndex,
+                                     const uint           aBasisIndex,
+                                     Matrix< IndexMat > & aElementIndices )
+    {
+        MORIS_ERROR(0,"get_elements_in_support_of_basis not implemented");
+    }
+
     //------------------------------------------------------------------------------
     //##############################################
     // Coordinate Field Functions
@@ -533,34 +565,16 @@ public:
 
     //------------------------------------------------------------------------------
     //##############################################
-    // Face Cluster Access
+    // Facet Access
     //##############################################
 
-    /*
-     * Is this face a member of a face cluster?
-     */
     virtual
-    bool
-    has_face_cluster_membership(moris_index aFaceIndex) const
+    moris::mtk::Facet*
+    get_facet(moris_index)
     {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (has_face_cluster_membership is not implemented)");
-        return 0;
+        MORIS_ERROR(0,"get facet not implemented");
+        return nullptr;
     }
-
-    //------------------------------------------------------------------------------
-
-    /*
-     * Is this face a parent of a face cluster?
-     */
-    virtual
-    bool
-    is_face_cluster_a_parent(moris_index aFaceIndex)
-    {
-        MORIS_ERROR(0,"Entered virtual function in Mesh base class, (has_face_cluster_membership is not implemented)");
-        return 0;
-    }
-
-    //------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------
     //##############################################
@@ -907,31 +921,20 @@ public:
     /**
      * returns HMR database pointer if MTK is build with HMR
      */
-    std::shared_ptr< hmr::Database >
-    get_HMR_database( )
+    std::shared_ptr< hmr::Database > get_HMR_database( )
     {
         MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
         return mDatabase;
     }
 
-
-    //FIXME: MOVE THESE FUNCTIONS TO INTERPOLATION MESH BASE CLASS
-public:
-
-    /*
-     * Get elements interpolated into by a basis function. For a Lagrange mesh,
-     * the elements in support of basis is equivalent to the elements connected
-     * to a node. Therefore, a call to get_elements
-     */
-    virtual
-    Matrix< IndexMat >
-    get_elements_in_support_of_basis(moris_index aBasisIndex)
+    hmr::Lagrange_Mesh_Base * get_HMR_lagrange_mesh( )
     {
-        MORIS_ERROR( false, "get_elements_in_support_of_basis() not implemented for this mesh" );
-        return Matrix<IndexMat>(0,0);
+        MORIS_ERROR( this->get_mesh_type() == MeshType::HMR ,"Not HMR" );
+        MORIS_ERROR( mMesh != nullptr ,"get_HMR_lagrange_mesh(), Lagrange mesh is nullptr" );
+
+        return mMesh;
     }
 
-    //FIXME: IMPLEMENT THIS FUNCTION IN STK,XTK
     /*
      * Get number of B-Spline coefficients
      */
@@ -969,7 +972,7 @@ public:
      */
     virtual
     uint
-    get_num_basis_functions()
+    get_num_basis_functions(const uint aMeshIndex = 0)
     {
         return this->get_num_nodes();
     }
@@ -1110,7 +1113,7 @@ public:
     {
         moris::uint tNumSideSetFaces = 0;
 
-        moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
+        moris::Cell<std::string> tSideSetsNames = this->get_set_names( this->get_facet_rank() );
 
         for( luint Ik=0; Ik < aSideSetIndex.size(); ++Ik )
         {
@@ -1118,7 +1121,7 @@ public:
             std::string tTreatedSideset = tSideSetsNames( aSideSetIndex ( Ik ) );
 
             // get the sideset face indices
-            Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( EntityRank::FACE, tTreatedSideset );
+            Matrix< IndexMat > tSideSetElementInd = this->get_set_entity_loc_inds( this->get_facet_rank(), tTreatedSideset );
 
             // add up the sideset number of faces
             tNumSideSetFaces = tNumSideSetFaces + tSideSetElementInd.numel();
@@ -1139,16 +1142,43 @@ public:
     }
 
 
-protected:
-    // Note these members are here only to allow for throwing in
-    // get_mtk_cell and get_mtk_vertex function
-    mtk::Vertex*     mDummyVertex;
-    mtk::Cell*       mDummyCells;
-    real             mDummyReal = 0.0;
-    Matrix<DDRMat>   mDummyMatrix;
+    virtual
+    enum EntityRank
+    get_facet_rank() const
+    {
+        uint tSpatialDim = this->get_spatial_dim();
+        if(tSpatialDim  == 1)
+        {
+            return EntityRank::NODE;
+        }
+        else if(tSpatialDim == 2)
+        {
+            return EntityRank::EDGE;
+        }
+        else if(tSpatialDim == 3)
+        {
+            return EntityRank::FACE;
+        }
+        else
+        {
+            MORIS_ASSERT(0,"Invalid Mesh dimension detected in get_facet_rank ");
+            return EntityRank::INVALID;
+        }
 
-    //! ref to hmr object
-    std::shared_ptr< hmr::Database > mDatabase;
+    }
+
+
+    void
+    get_mtk_cells( Matrix< IndexMat > aCellInds,
+                   moris::Cell<moris::mtk::Cell const *> & aCells) const
+    {
+        aCells = moris::Cell< mtk::Cell const * >(aCellInds.numel());
+
+        for(moris::uint i = 0 ; i < aCellInds.numel(); i++)
+        {
+            aCells(i) = &this->get_mtk_cell(aCellInds(i));
+        }
+    }
 };
 }
 }

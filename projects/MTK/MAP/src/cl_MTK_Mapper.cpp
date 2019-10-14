@@ -4,6 +4,10 @@
 #include "cl_MTK_Mapper.hpp"
 
 #include "cl_FEM_Enums.hpp"
+#include "cl_FEM_IWG_User_Defined_Info.hpp"
+#include "cl_FEM_Property_User_Defined_Info.hpp"
+#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
+
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
@@ -67,36 +71,43 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Mapper::create_iwg_and_model( const real aAlpha )
         {
             if( ! mHaveIwgAndModel )
             {
-                // create a list of IWG types
-                Cell< Cell< fem::IWG_Type > >tIWGTypeList( 1 );
-                tIWGTypeList( 0 ).resize( 1, fem::IWG_Type::L2 );
-
-                // create a list of active block-sets
+                // create an IWG User defined info container
                 //FIXME should be provided to the function
-                Cell< moris_index >  tBlocksetList = { 0 };
+                moris::Cell< moris::Cell < fem::IWG_User_Defined_Info > > tIWGUserInfo( 1 );
+                tIWGUserInfo( 0 ).resize( 1 );
+                tIWGUserInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::L2,
+                                                                     { MSI::Dof_Type::L2 },
+                                                                     {{ MSI::Dof_Type::L2 }},
+                                                                     moris::Cell< fem::Property_Type >( 0 ),
+                                                                     moris::Cell< fem::Constitutive_Type >( 0 ) );
 
-                // create a list of active side-sets
-                Cell< moris_index >  tSidesetList;
+                // create a list of active sets
+                //FIXME should be provided to the function
+                Cell< moris_index >  tSetList = { 0 };
+                Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK };
 
-                // create a list of BC type for the side-sets
-                Cell< fem::BC_Type > tSidesetBCTypeList;
+                // create property user defined info container
+                //FIXME should be provided to the function
+                moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > > tPropertyUserInfo( 1 );
+                tPropertyUserInfo( 0 ).resize( 1 );
 
-                // create a list of active double side-sets
-                Cell< moris_index >  tDoubleSidesetList;
+                // create constitutive user defined info container
+                //FIXME should be provided to the function
+                moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserInfo( 1 );
+                tConstitutiveUserInfo( 0 ).resize( 1 );
 
                 // create model
                 mModel = new mdl::Model( mMeshManager,
                                          mBSplineOrder,
-                                         tIWGTypeList,
-                                         tBlocksetList,
-                                         tSidesetList,
-                                         tSidesetBCTypeList,
-                                         tDoubleSidesetList,
+                                         tSetList,
+                                         tSetTypeList,
+                                         tIWGUserInfo,
+                                         tPropertyUserInfo,
+                                         tConstitutiveUserInfo,
                                          mTargetMeshPairIndex );
                 mHaveIwgAndModel = true;
             }

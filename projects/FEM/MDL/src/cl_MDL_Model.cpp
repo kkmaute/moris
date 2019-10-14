@@ -15,10 +15,12 @@
 #include "cl_FEM_Enums.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
-#include "cl_FEM_Element_Bulk.hpp"               //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Property_User_Defined_Info.hpp"
+#include "cl_FEM_IWG_User_Defined_Info.hpp"
+#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -51,23 +53,41 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        Model::Model(       mtk::Mesh_Manager*                          aMeshManager,
-                      const uint                                        aBSplineIndex,
-                            moris::Cell< moris::Cell< fem::IWG_Type > > aIWGTypeList,
-                      const moris::Cell< moris_index >                  & aBlocksetList,
-                      const moris::Cell< moris_index >                  aSidesetList,
-                      const moris::Cell< fem::BC_Type >                 aSidesetBCTypeList,
-                      const moris::Cell< moris_index >                  aDoubleSidesetList,
-                      const moris_index                                 aMeshPairIndex,
-                      const bool                                        aUseMultigrid) : mMeshManager( aMeshManager ),
-                                                                                          mMeshPairIndex( aMeshPairIndex ),
-                                                                                          mUseMultigrid(aUseMultigrid)
+    Model::Model(       mtk::Mesh_Manager*                                                                 aMeshManager,
+                  const uint                                                                               aBSplineIndex,
+                  const moris::Cell< moris_index >                                                       & aSetList,
+                  const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
+                  const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
+                  const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
+                  const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
+                  const moris_index                                                                        aMeshPairIndex,
+                  const bool                                                                               aUseMultigrid )
+        : mMeshManager( aMeshManager ),
+          mMeshPairIndex( aMeshPairIndex ),
+          mUseMultigrid( aUseMultigrid )
         {
+            // init the number of set
+            uint tNumFemSets = aSetList.size();
+
+            // number of groups of IWGs
+            uint tNumIWGGroups = aIWGUserDefinedInfo.size();
+
+            // number of groups of property types
+            uint tNumPropGroups = aPropertyUserDefinedInfo.size();
+
+            // number of groups of constitutive types
+            uint tNumCMGroups = aConstitutiveUserDefinedInfo.size();
+
+            // check input
+            MORIS_ERROR( tNumIWGGroups == tNumFemSets, " Model::Model - wrong number of IWG groups. " );
+            MORIS_ERROR( tNumPropGroups == tNumFemSets, " Model::Model - wrong number of property type groups. " );
+            MORIS_ERROR( tNumCMGroups == tNumFemSets, " Model::Model - wrong number of constitutive type groups. " );
+
             // start timer
             tic tTimer1;
 
-            mBSplineIndex = aBSplineIndex;
 
+            mBSplineIndex = aBSplineIndex;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: initialize
@@ -90,9 +110,9 @@ namespace moris
             // create node objects
             mIPNodes.resize(  tNumOfIPNodes, nullptr );
 
-            for( luint k = 0; k < tNumOfIPNodes; ++k )
+            for( uint iNode = 0; iNode < tNumOfIPNodes; iNode++ )
             {
-                mIPNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
+                mIPNodes( iNode ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( iNode ) );
             }
 
             if( par_rank() == 0)
@@ -110,24 +130,53 @@ namespace moris
             // STEP 1.5: create IWGs
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            // number of IWGs to be created
-            uint tNumOfIWGs = aIWGTypeList.size();
-
             // a factory to create the IWGs
             fem::IWG_Factory tIWGFactory;
 
-            // create a cell of IWGs for the problem considered
-            mIWGs.resize( tNumOfIWGs );
+            // create a cell of IWGs
+            mIWGs.resize( tNumIWGGroups );
 
-            // loop over the IWG types
-            for( uint i = 0; i < tNumOfIWGs; i++)
+            // loop over the sets
+            for( uint iSet = 0; iSet < tNumIWGGroups; iSet++ )
             {
-                mIWGs( i ).resize( aIWGTypeList( i ).size(), nullptr );
+                // number of IWG in set
+                uint tNumIWG = aIWGUserDefinedInfo( iSet ).size();
 
-                for( uint Ki = 0; Ki < aIWGTypeList( i ).size(); Ki++)
+                // set size for the cell of IWGs for the set
+                mIWGs( iSet ).resize( tNumIWG, nullptr );
+
+                // loop over the IWG types for the set
+                for( uint iIWG = 0; iIWG < tNumIWG; iIWG++ )
                 {
-                    // create an IWG with the factory for the ith IWG type
-                    mIWGs( i )( Ki ) = tIWGFactory.create_IWGs( aIWGTypeList( i )( Ki ) );
+                    // create an IWG with the factory for the IWG type
+                    mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWGs( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_type() );
+
+                    // set residual dof type
+                    mIWGs( iSet )( iIWG )->set_residual_dof_type( aIWGUserDefinedInfo( iSet )( iIWG ).get_residual_dof_type() );
+
+                    // set active dof type
+                    mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_dof_type_list() );
+
+                    // set active property type
+                    mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_property_type_list() );
+
+                    // set active constitutive type
+                    mIWGs( iSet )( iIWG )->set_constitutive_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_constitutive_type_list() );
+
+                    if( aSetTypeList( iSet ) == fem::Element_Type::DOUBLE_SIDESET )
+                    {
+                        // set active dof type
+                        mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_dof_type_list( mtk::Master_Slave::SLAVE ),
+                                                                  mtk::Master_Slave::SLAVE );
+
+                        // set active property type
+                        mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_property_type_list( mtk::Master_Slave::SLAVE ),
+                                                                       mtk::Master_Slave::SLAVE );
+
+                        // set active constitutive type
+                        mIWGs( iSet )( iIWG )->set_constitutive_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_constitutive_type_list( mtk::Master_Slave::SLAVE ),
+                                                                           mtk::Master_Slave::SLAVE );
+                    }
                 }
             }
 
@@ -141,35 +190,49 @@ namespace moris
             // a factory to create the elements
             fem::Element_Factory tElementFactory;
 
-            // get the number of element to create
-            luint tNumberOfEquationObjects = tIntegrationMesh->get_num_elems()
-                                           + tIntegrationMesh->get_sidesets_num_faces( aSidesetList );
-
-            // init the number of set
-            uint tNumberOfFemSet = aBlocksetList.size() + aSidesetList.size() + aDoubleSidesetList.size();
-
             // create equation objects
-            mFemSets.resize( tNumberOfFemSet, nullptr );
-            mFemClusters.reserve( tNumberOfEquationObjects );
+            mFemSets.resize( tNumFemSets, nullptr );
 
-            //  Create Blockset Elements ---------------------------------------------------
-            std::cout<<" Create Block-set Elements "<<std::endl;
+//            // get the number of element to create
+//            luint tNumberOfEquationObjects = tIntegrationMesh->get_num_elems()
+//                                           + tIntegrationMesh->get_sidesets_num_faces( aSidesetList );
+//            mFemClusters.reserve( tNumberOfEquationObjects );
+            mFemClusters.reserve( 100000 ); //FIXME
+
             //------------------------------------------------------------------------------
             // init the fem set counter
             moris::uint tFemSetCounter = 0;
 
-            // loop over the used mesh block-set
-            for( luint Ik = 0; Ik < aBlocksetList.size(); ++Ik )
+            // loop over the used fem set
+            for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
             {
-                // create a list of cell clusters (this needs to stay in scope somehow)
-                moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( aBlocksetList( Ik ) );
-//                moris::Cell<mtk::Cluster const*> tBlockSetClusterList = tIntegrationMesh->get_block_by_index( aBlocksetList( Ik ) )
-//                                                                                        ->get_clusters_on_set();
+                // create a list of clusters
+                moris::mtk::Set * tMeshSet;
+
+                switch ( aSetTypeList( iSet ) )
+                {
+                    case( fem::Element_Type::BULK ):
+                        tMeshSet = tIntegrationMesh->get_block_by_index( aSetList( iSet ) );
+                        break;
+
+                    case( fem::Element_Type::SIDESET ):
+                        tMeshSet = tIntegrationMesh->get_side_set_by_index( aSetList( iSet ) );
+                        break;
+
+                    case( fem::Element_Type::DOUBLE_SIDESET ):
+                        tMeshSet = tIntegrationMesh->get_double_side_set_by_index( aSetList( iSet ) );
+                        break;
+
+                    default:
+                        MORIS_ERROR( false, " Model - unknown fem::element_Type " );
+                }
 
                 // create new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tBlockSet,
-                                                           fem::Element_Type::BULK,
-                                                           mIWGs( 0 ),
+                mFemSets( tFemSetCounter ) = new fem::Set( tMeshSet,
+                                                           aSetTypeList( iSet ),
+                                                           mIWGs( iSet ),
+                                                           aPropertyUserDefinedInfo( iSet ),
+                                                           aConstitutiveUserDefinedInfo( iSet ),
                                                            mIPNodes );
 
                 // collect equation objects associated with the block-set
@@ -178,67 +241,7 @@ namespace moris
                 // update fem set counter
                 tFemSetCounter++;
             }
-
-            // FIXME for setting the BC in the model, will be ultimately removed
-            moris::uint tEquationObjectCounter = mFemClusters.size();
-
-            //  Create Sideset Elements ---------------------------------------------------
-            std::cout<<" Create Side-set Elements "<<std::endl;
-            //------------------------------------------------------------------------------
-            // loop over the used mesh side-set
-            for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
-            {
-                // create a list of side clusters
-                moris::mtk::Set * tSideSet = tIntegrationMesh->get_side_set_by_index( aSidesetList( Ik ) );
-
-                if (aSidesetBCTypeList(Ik) ==fem::BC_Type::DIRICHLET)
-                {
-                    // create a new fem set
-                    mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
-                                                               fem::Element_Type::SIDESET,
-                                                               mIWGs( 1 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
-                                                               mIPNodes );
-                }
-                if (aSidesetBCTypeList(Ik) ==fem::BC_Type::NEUMANN)
-                {
-                    // create a new fem set
-                    mFemSets( tFemSetCounter ) = new fem::Set( tSideSet,
-                                                               fem::Element_Type::SIDESET,
-                                                               mIWGs( 2 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
-                                                               mIPNodes );
-                }
-
-                // collect equation objects associated with the side-set
-                mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
-
-                // update fem set counter
-                tFemSetCounter++;
-            }
-
-            //  Create Double Side-set Elements ---------------------------------------------
-            std::cout<<" Create Double Side-set Elements "<<std::endl;
-            //------------------------------------------------------------------------------
-
-            // loop over the used mesh double side-set
-            for( luint Ik = 0; Ik < aDoubleSidesetList.size(); ++Ik )
-            {
-                // create a list of double side clusters
-                moris::mtk::Set * tDoubleSideSet = tIntegrationMesh->get_double_side_set_by_index( aDoubleSidesetList( Ik ) );
-//                moris::Cell<mtk::Cluster const*> tDoubleSideSetClusterList = tIntegrationMesh->get_double_side_set_by_index( aDoubleSidesetList( Ik ) )
-//                                                                                        ->get_clusters_on_set();
-
-                // create a new fem set
-                mFemSets( tFemSetCounter ) = new fem::Set( tDoubleSideSet,
-                                                           fem::Element_Type::DOUBLE_SIDESET,
-                                                           mIWGs( 3 ), //FIXME this is why we had a problem with Dirichlet and Neumann order
-                                                           mIPNodes );
-
-                // collect equation objects associated with the side-set
-                mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
-
-                // update fem set counter
-                tFemSetCounter++;
-            }
+            mFemClusters.shrink_to_fit();
 
             if( par_rank() == 0)
             {
@@ -290,7 +293,7 @@ namespace moris
             moris::Cell< MSI::Equation_Set * > tEquationSets(mFemSets.size());
             for(moris::uint iSet = 0; iSet < mFemSets.size(); iSet++ )
             {
-                tEquationSets(iSet) = mFemSets(iSet);
+                tEquationSets( iSet ) = mFemSets( iSet );
             }
 
 
@@ -314,57 +317,6 @@ namespace moris
                 // finalize the fem sets
                 mFemSets( Ik )->finalize( mModelSolverInterface );
             }
-
-            //------------------------------------------------------------------------------
-            // FIXME Imposing boundary conditions
-            //------------------------------------------------------------------------------
-
-            // get the side-set names
-            moris::Cell<std::string> tSidesetNames = tIntegrationMesh->get_set_names( EntityRank::FACE );
-
-            // loop over the side-set cluster
-            for( luint Ik = 0; Ik < aSidesetList.size(); ++Ik )
-            {
-                // get the treated sideset name
-                std::string tTreatedSidesetName = tSidesetNames( aSidesetList( Ik ) );
-
-                std::cout<<tSidesetNames( aSidesetList( Ik ) )<<std::endl;
-
-                // get the sideset ordinal
-                moris_index tSideSetOrd = tIntegrationMesh->get_side_set_index( tTreatedSidesetName );
-
-                // get the side-sets clusters
-                moris::Cell<moris::mtk::Cluster const *> tClustersInSideSet = tIntegrationMesh->get_side_set_cluster(tSideSetOrd);
-
-                for( luint k = 0; k < tClustersInSideSet.size(); ++k )
-                {
-                    // get the nodal weak bcs of the element
-                    Matrix< DDRMat > & tNodalWeakBCs = mFemClusters( tEquationObjectCounter )->get_weak_bcs();
-
-                    // get the element number of nodes
-                    uint tNumberOfNodes = mFemClusters( tEquationObjectCounter++ )->get_num_nodes();
-
-                    // set size of the element nodal weak bc
-                    tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
-
-                    //--------------------------------------------------------------------------------------------
-                    for( uint l = 0; l < tNumberOfNodes; l++ )
-                    {
-                        if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::DIRICHLET )
-                        {
-                        // copy weak bc into element
-                        tNodalWeakBCs( l ) = 5.0;
-                        }
-                        else if ( aSidesetBCTypeList( Ik ) == fem::BC_Type::NEUMANN )
-                        {
-                            // copy weak bc into element
-                            tNodalWeakBCs( l ) = 20.0;
-                        }
-                    }
-                }
-            }
-
-            //------------------------------------------------------------------------------------------
 
             mModelSolverInterface->finalize( mUseMultigrid );
 
@@ -429,8 +381,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Model::set_weak_bcs( const Matrix<DDRMat> & aWeakBCs )
+        void Model::set_weak_bcs( const Matrix<DDRMat> & aWeakBCs )
         {
             // set weak BCs
             for( auto tElement : mFemClusters )
@@ -449,8 +400,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
+        void Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
         {
             for( auto tElement : mFemClusters )
             {
@@ -471,8 +421,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        real
-        Model::compute_integration_error(
+        real Model::compute_integration_error(
                 real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
         {
             real aError = 0.0;
@@ -496,8 +445,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void
-        Model::set_dof_order( const uint aBSplineIndex )
+        void Model::set_dof_order( const uint aBSplineIndex )
         {
             mBSplineIndex = aBSplineIndex;
 //            MORIS_ASSERT( aOrder == mBSplineIndex,
@@ -505,94 +453,61 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        real
-        Model::compute_element_average( const uint aElementIndex )
+        real Model::compute_element_average( const uint aElementIndex )
         {
             return mFemClusters( aElementIndex )->compute_element_average_of_scalar_field();
         }
 
 //------------------------------------------------------------------------------
 
-        void
-        Model::output_solution( const std::string & aFilePath )
+        void Model::output_solution( const std::string & aFilePath )
         {
-            if ( mMeshManager->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR )
-            {
-                mSolHMR.set_size(mMeshManager->get_interpolation_mesh(0)->get_num_nodes(),1,-1.0);
-
-                mtk::Interpolation_Mesh* tInterpMesh = mMeshManager->get_interpolation_mesh(0);
-
-                moris::Cell<std::string> tBlockSetsNames = tInterpMesh->get_set_names( EntityRank::ELEMENT);
-
-                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
-                {
-                    Matrix< IndexMat > tBlockSetElementInd
-                        = tInterpMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
-
-                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
-                    {
-                       uint tNumVert = tInterpMesh->get_mtk_cell( k ).get_number_of_vertices();
-
-                       //print( mElements(k)->get_pdof_values(), "Element");
-
-                       for( luint Jk=0; Jk < tNumVert; ++Jk )
-                       {
-                           moris_index tID= tInterpMesh->get_mtk_cell( k ).get_vertex_pointers()( Jk) ->get_index();
-
-                           mSolHMR(tID) = mFemClusters(k)->get_pdof_values()(Jk);
-                       }
-                    }
-                }
-            }
-            else
-            {
-            // 8) Postprocessing
-            // dof type list for the solution to write on the mesh
-            moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
-
-            uint tNumOfNodes = mIPNodes.size();
-
-            // create a matrix to be filled  with the solution
-            Matrix< DDRMat > tTempSolutionField( tNumOfNodes, 1 );
+            mSolHMR.set_size(mMeshManager->get_interpolation_mesh(0)->get_num_nodes(),1,0.0);
 
             mtk::Interpolation_Mesh* tInterpMesh = mMeshManager->get_interpolation_mesh(0);
 
-            // loop over the nodes
-            for( uint i = 0; i < tNumOfNodes; i++ )
+            moris::Cell<std::string> tBlockSetsNames = tInterpMesh->get_set_names( EntityRank::ELEMENT);
+
+            // iterate through fem blocks
+            uint tNumFemSets = mFemSets.size();
+
+            for(moris::uint iSet = 0; iSet<tNumFemSets; iSet++)
             {
-                // get a list of elements connected to the ith node
-                Matrix<IndexMat> tConnectedElements =
-                        tInterpMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
-                                                                    EntityRank::NODE,
-                                                                    EntityRank::ELEMENT );
+                // access set
+                fem::Set * tFemSet = mFemSets(iSet);
 
-                // number of connected element
-                uint tNumConnectElem = tConnectedElements.numel();
+                // access the element type in the set
+                enum fem::Element_Type tElementTypeInSet = tFemSet->get_element_type();
 
-                // reset the nodal value
-                real tNodeVal = 0.0;
-
-                // loop over the connected elements
-                for( uint j = 0; j < tNumConnectElem; j++ )
+                // if we are a bulk element, then we output the solution
+                if(tElementTypeInSet == fem::Element_Type::BULK)
                 {
-                    // extract the field value at the ith node for the jth connected element
-                    real tElemVal = mFemClusters( tConnectedElements( j ) )->get_element_nodal_pdof_value( i, tDofTypeList);
-                    // add up the contribution of each element to the node value
-                    tNodeVal = tNodeVal + tElemVal;
+                    // get mtk cell clusters in set
+                    moris::Cell< mtk::Cluster const* > tCellClustersInSet = tFemSet->get_clusters_on_set();
+
+                    // get coressponding equation objects
+                    moris::Cell< MSI::Equation_Object * > & tEquationObj = tFemSet->get_equation_object_list();
+
+                    // iterate through clusters in set
+                    for(moris::uint iCl = 0; iCl < tCellClustersInSet.size(); iCl++)
+                    {
+                        mtk::Cluster const * tCluster = tCellClustersInSet(iCl);
+
+                        moris::mtk::Cell const & tInterpCell = tCluster->get_interpolation_cell();
+
+                        uint tNumVert = tInterpCell.get_number_of_vertices();
+
+                        Matrix< DDRMat > & tPDofVals = tEquationObj(iCl)->get_pdof_values();
+
+                        moris::Cell<moris::mtk::Vertex *> tVertices = tInterpCell.get_vertex_pointers();
+
+                        for( luint Jk=0; Jk < tNumVert; ++Jk )
+                        {
+                            mSolHMR(tVertices(Jk)->get_index()) = tPDofVals(Jk);
+                        }
+                    }
                 }
-                // fill the solution matrix with the node value
-                tTempSolutionField( i ) = tNodeVal/tNumConnectElem;
-            }
-            //print( tTempSolutionField, "tTempSolutionField" );
 
-            // add field to the mesh
-            tInterpMesh->add_mesh_field_real_scalar_data_loc_inds( aFilePath,
-                                                             EntityRank::NODE,
-                                                             tTempSolutionField );
-
-            // create output mesh
-            std::string tOutputFile = "./int_ElemDiff_test_11.exo";
-            tInterpMesh->create_output_mesh( tOutputFile );
             }
         }
 
@@ -608,8 +523,8 @@ namespace moris
             // keep track of how many times I have added to a given node
             Matrix<DDRMat> tVertexCount ( tNumVertsInIGMesh,1,0.0);
 
-            if ( mMeshManager->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR )
-            {
+//            if ( mMeshManager->get_interpolation_mesh(0)->get_mesh_type() == MeshType::HMR )
+//            {
 
                 // iterate through fem blocks
                 uint tNumFemSets = mFemSets.size();
@@ -620,7 +535,7 @@ namespace moris
                     fem::Set * tFemSet = mFemSets(iSet);
 
                     // access the element type in the set
-                    enum fem::Element_Type tElementTypeInSet = tFemSet->get_set_element_type();
+                    enum fem::Element_Type tElementTypeInSet = tFemSet->get_element_type();
 
                     // if we are a bulk element, then we output the solution
                     if(tElementTypeInSet == fem::Element_Type::BULK)
@@ -652,13 +567,11 @@ namespace moris
                                 // get the pdof values for this cluster
                                 Matrix< DDRMat > & tPDofVals = tEquationObj(iCl)->get_pdof_values();
 
+                                // set coefficients in field interpolator
                                 tFieldInterp->set_coeff(tPDofVals);
 
                                 // check if its trivial
                                 bool tTrivialCluster = tCluster->is_trivial();
-
-                                // get the vertices in the cluster
-                                moris::Cell<moris::mtk::Vertex const *> const & tVertices = tCluster->get_vertices_in_cluster();
 
                                 // in the trivial case, the interp pdofs, correspond to the integration vertices in clusters
                                 if(tTrivialCluster)
@@ -678,7 +591,7 @@ namespace moris
                                          moris_index tVertIndex = tVerticesOnPrimaryCell(iVert)->get_index();
 
                                          // add to solution vector
-                                         tSolutionOnInteg(tVertIndex) = tSolutionOnInteg(tVertIndex) + tPDofVals(iVert);
+                                         tSolutionOnInteg(tVertIndex) = tPDofVals(iVert);
 
                                          // update count that this vertex has been encountered
                                          tVertexCount(tVertIndex) = tVertexCount(tVertIndex) + 1.0;
@@ -687,6 +600,9 @@ namespace moris
                                 }
                                 else
                                 {
+                                    // get the vertices in the cluster
+                                    moris::Cell<moris::mtk::Vertex *> tVertices = tCluster->get_primary_vertices_in_cluster();
+
                                     // iterate through vertices in cluster
                                     for(moris::uint iVert =0; iVert<tVertices.size(); iVert++)
                                     {
@@ -694,7 +610,7 @@ namespace moris
                                         moris::Matrix<moris::DDRMat> tVertParamCoords = tCluster->get_vertex_local_coordinate_wrt_interp_cell(tVertices(iVert));
 
                                         // fixme: figure out how to not need this transpose
-                                        if(iscol(tVertParamCoords))
+                                        if(isrow(tVertParamCoords))
                                         {
                                             tVertParamCoords = trans(tVertParamCoords);
                                         }
@@ -716,7 +632,7 @@ namespace moris
                                         moris_index tVertIndex = tVertices(iVert)->get_index();
 
                                         // add to solution vector
-                                        tSolutionOnInteg(tVertIndex) = tSolutionOnInteg(tVertIndex) + tSolFieldAtIntegPoint(0);
+                                        tSolutionOnInteg(tVertIndex) = tSolFieldAtIntegPoint(0);
 
                                         // update count that this vertex has been encountered
                                         tVertexCount(tVertIndex) = tVertexCount(tVertIndex) + 1.0;
@@ -731,22 +647,21 @@ namespace moris
                 }
 
                 // iterate through and divide by the number of times a vertex has been added to solution field
-                for(moris::uint iVert =0; iVert<tNumVertsInIGMesh; iVert++)
-                {
-                    if(tVertexCount(iVert) > 0.0)
-                    {
-                        tSolutionOnInteg(iVert) = tSolutionOnInteg(iVert)/tVertexCount(iVert);
-                    }
-                }
+//                for(moris::uint iVert =0; iVert<tNumVertsInIGMesh; iVert++)
+//                {
+//                    if(tVertexCount(iVert) > 0.0)
+//                    {
+//                        tSolutionOnInteg(iVert) = tSolutionOnInteg(iVert)/tVertexCount(iVert);
+//                    }
+//                }
 
-            }
+//            }
 
             return tSolutionOnInteg;
         }
 
-        bool
-        Model::dof_type_is_in_list( enum MSI::Dof_Type aDofTypeToFind,
-                                    moris::Cell< enum MSI::Dof_Type > & aDofList)
+        bool Model::dof_type_is_in_list( enum MSI::Dof_Type aDofTypeToFind,
+                                         moris::Cell< enum MSI::Dof_Type > & aDofList)
         {
             bool tDofInList = false;
 

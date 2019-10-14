@@ -129,6 +129,9 @@ option(MORIS_HAVE_PARALLEL
 set(MORIS_MPI_LIBS "MPICH" "OPENMPI")
 set(MORIS_USE_MPI "OPENMPI" CACHE STRING "Set MPI package: ${MORIS_MPI_LIBS}")
 
+# MPI execution command
+set(MORIS_EXECUTE_COMMAND "mpirun" CACHE STRING "The command used to execute MORIS tests.")
+
 option(MORIS_USE_ARMA
     "Use the Armadillo library as the dense linear algebra package." ON )
 
@@ -280,7 +283,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 if (USE_TACC)
     # openmp should be taken out when we can figure this out
-    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt -lrt -ldl -lssl -lcrypto")
+    list(APPEND MORIS_BASE_LIBS "-lifcore -lifcoremt  -lgfortran -lrt -ldl -lssl -lcrypto")
 #     list(APPEND MORIS_BASE_LIBS "-lgfortran -lrt -ldl")
 else()
    list(APPEND MORIS_BASE_LIBS "-lmpi_mpifh -lgfortran -ldl -lssl -lcrypto")
@@ -414,6 +417,7 @@ if (USE_GPERFTOOLS)
     set( MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -I$ENV{APPS}/gperftools/include -DWITHGPERFTOOLS -g" )
 
     #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -lprofiler -ltcmalloc" )
+    #list(APPEND MORIS_BASE_LIBS "-L$ENV{APPS}/gperftools/lib64/ -L$ENV{APPS}/gperftools/lib/ -Wl,--no-as-needed -lprofiler -Wl,--as-needed -ltcmalloc" )
     list(APPEND MORIS_BASE_LIBS "$ENV{APPS}/gperftools/lib/libtcmalloc_and_profiler.a" )
 endif()
 

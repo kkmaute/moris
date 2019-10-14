@@ -926,7 +926,7 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 
-        void Background_Mesh_Base::count_elements()
+        void Background_Mesh_Base::count_elements()          //FIXME see where this is called
         {
             // reset lookup table
             mNumberOfElementsPerLevel[ 0 ] = mCoarsestElements.size();

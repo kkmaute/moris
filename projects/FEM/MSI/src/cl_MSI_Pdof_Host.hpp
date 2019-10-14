@@ -60,16 +60,15 @@ namespace moris
                                                 moris::Cell< moris::Cell< Adof * > > & aAdofList );
 
     protected:
-        fem::Node_Base * mNodeObj; // FIXME replace base class bei FEM node
+        fem::Node_Base * mNodeObj;
         moris_id  mNodeID;
        //FIXME Add interpolation order
 
     public:
         Pdof_Host()
-        {
-        };
+        {};
 
-        Pdof_Host( const moris::uint   aNumUsedDofTypes,
+        Pdof_Host( const moris::uint      aNumUsedDofTypes,
                          fem::Node_Base * aNodeObj );
 
         ~Pdof_Host();
@@ -136,7 +135,7 @@ namespace moris
          void set_unique_adof_map()
          {
              //Get number of unique adofs of this equation object
-             moris::uint tNumUniqueAdofs = mUniqueAdofList.length();
+             moris::uint tNumUniqueAdofs = mUniqueAdofList.numel();
 
              // Loop over all unique adofs of this equation object
              for ( moris::uint Ii = 0; Ii < tNumUniqueAdofs; Ii++ )

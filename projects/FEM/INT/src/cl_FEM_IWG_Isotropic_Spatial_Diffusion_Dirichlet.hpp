@@ -14,7 +14,6 @@
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
@@ -28,14 +27,11 @@ namespace moris
             // Nitsche's penalty parameter
             real mGamma;
 
-            // diffusion tensor
-            Matrix< DDRMat > mKappa;
-
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
             /*
-             *  constructor
+             * constructor
              */
             IWG_Isotropic_Spatial_Diffusion_Dirichlet();
 
@@ -47,40 +43,26 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * compute the residual
-             * r =
-             *
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * computes the residual
+             * @param[ in ] aResidual cell of residual vectors to fill
              */
-            void
-            compute_residual( Matrix< DDRMat >                   & aResidual,
-                              moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
 
 //------------------------------------------------------------------------------
             /**
-             * compute the jacobian
-             * j =
-             *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * computes the jacobian
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
-            void
-            compute_jacobian( moris::Cell< Matrix< DDRMat > >     & aJacobians,
-                               moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
 
 //------------------------------------------------------------------------------
             /**
-             * compute the residual and the jacobian
-             *
-             * @param[ in ] aJacobians           list of jacobian matrices to fill
-             * @param[ in ] aResidual            residual vector to fill
-             * @param[ in ] aFieldInterpolators  list of active field interpolators
+             * computes the residual and the jacobian
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aResidual  cell of residual vectors to fill
              */
-            void
-            compute_jacobian_and_residual( moris::Cell< Matrix< DDRMat > >    & aJacobians,
-                                           Matrix< DDRMat >                   & aResidual,
-                                           moris::Cell< Field_Interpolator* > & aFieldInterpolators );
+            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
 
 //------------------------------------------------------------------------------
         };

@@ -120,17 +120,18 @@ TEST_CASE( "IWG_Helmholtz2", "[moris],[fem],[IWG_Helmholtz2]" )
         // create an IWG Helmholtz Bulk2
         IWG_Helmholtz_Bulk2 tIWGHelmBulk;
 
+        // set field interpolators
+        tIWGHelmBulk.set_field_interpolators( tFieldInterpolators );
+
         // check evaluation of the jacobian by FD --------------------------------------
         // evaluate the residual from IWG_Helmholtz_Bulk
         Matrix< DDRMat > tResidualHelmBulk;
-        tIWGHelmBulk.compute_residual( tResidualHelmBulk,
-                                       tFieldInterpolators );
+        tIWGHelmBulk.compute_residual( tResidualHelmBulk );
         //print( tResidualHelmBulk, "r_vN" );
 
         // evaluate the jacobian from IWG
         Cell< Matrix< DDRMat > > tJacobiansHelmBulk( 2 );
-        tIWGHelmBulk.compute_jacobian( tJacobiansHelmBulk,
-                                       tFieldInterpolators );
+        tIWGHelmBulk.compute_jacobian( tJacobiansHelmBulk );
         //print( tJacobiansHelmBulk( 0 ), "j_vN_vN" );
         //print( tJacobiansHelmBulk( 1 ), "j_vN_phi" );
 
@@ -150,8 +151,7 @@ TEST_CASE( "IWG_Helmholtz2", "[moris],[fem],[IWG_Helmholtz2]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualHelmBulkPert;
-            tIWGHelmBulk.compute_residual( tResidualHelmBulkPert,
-                                           tFieldInterpolators );
+            tIWGHelmBulk.compute_residual( tResidualHelmBulkPert );
 
             // compute the jacobian by FD for the kth uHat
             Matrix< DDRMat > tJacobianRow = ( tResidualHelmBulkPert - tResidualHelmBulk ) / tPert;
@@ -186,8 +186,7 @@ TEST_CASE( "IWG_Helmholtz2", "[moris],[fem],[IWG_Helmholtz2]" )
 
             // compute the perturbed residual
             Matrix< DDRMat > tResidualHelmBulkPert;
-            tIWGHelmBulk.compute_residual( tResidualHelmBulkPert,
-                                           tFieldInterpolators );
+            tIWGHelmBulk.compute_residual( tResidualHelmBulkPert );
 
             // compute the jacobian by FD for the kth uHat
             Matrix< DDRMat > tJacobianRow = ( tResidualHelmBulkPert - tResidualHelmBulk ) / tPert;

@@ -9,7 +9,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX64_HPP_
 
 #include "cl_HMR_Lagrange_Element.hpp"
-#include "cl_MTK_Hex64_Connectivity.hpp"
+#include "cl_MTK_Cell_Info_Hex64.hpp"
 
 namespace moris
 {
@@ -554,7 +554,9 @@ namespace moris
         Lagrange_Element< 3, 64 >::get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
             MORIS_ASSERT(aSideOrdinal<6,"Side ordinal out of bounds for cell type hex");
-            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = moris::Hex64::get_node_to_face_map(aSideOrdinal);
+            moris::mtk::Cell_Info_Hex64 tConn;
+
+            moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = tConn.get_node_to_face_map(aSideOrdinal);
             moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
             moris::Cell< moris::mtk::Vertex const *> tVerticesOnSide(16);
             tVerticesOnSide(0)  = tVertices(tNodeOrdsOnSide(0));
@@ -597,7 +599,8 @@ namespace moris
         	moris::Matrix<moris::DDRMat> tVertexCoords = this->get_vertex_coords();
 
         	// Get the nodes which need to be used to compute normal
-        	moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = Hex8::get_node_map_outward_normal(aSideOrdinal);
+                moris::mtk::Cell_Info_Hex64 tConn;
+                moris::Matrix<moris::IndexMat> tEdgeNodesForNormal = tConn.get_node_map_outward_normal(aSideOrdinal);
 
         	// Get vector along these edges
         	moris::Matrix<moris::DDRMat> tEdge0Vector = moris::linalg_internal::trans(tVertexCoords.get_row(tEdgeNodesForNormal(1,0)) - tVertexCoords.get_row(tEdgeNodesForNormal(0,0)));

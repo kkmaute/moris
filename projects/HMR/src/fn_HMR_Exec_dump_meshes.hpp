@@ -28,13 +28,13 @@ namespace moris
             // test if an output database path is given
             if( aParamfile.get_output_db_path().size() > 0 )
             {
-                aHMR->save_to_hdf5( aParamfile.get_output_db_path() );
+                aHMR->save_to_hdf5( aParamfile.get_output_db_path(),0 ); //FIXME
             }
 
             // test if coefficient path is given
             if( aParamfile.get_coefficient_db_path().size() > 0 )
             {
-                aHMR->save_coeffs_to_hdf5_file( aParamfile.get_coefficient_db_path() );
+                aHMR->save_coeffs_to_hdf5_file( aParamfile.get_coefficient_db_path(), 0 );
             }
 
             // loop over all output meshes

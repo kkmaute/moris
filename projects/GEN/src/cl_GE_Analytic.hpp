@@ -18,6 +18,18 @@
 namespace moris{
     namespace ge{
 
+    typedef std::function< moris::real ( const Matrix< DDRMat >    & aPoint,
+                                         const moris::Cell< real >   aConstant ) > AnalyticFunction;
+
+//    typedef std::function< moris::real ( const Matrix< DDRMat >         & aCoordinates,
+//                                               Cell<Cell<moris::real>>  & aCenter,
+//                                               Cell<moris::real>        & aRadius,
+//                                               Cell<moris::real>        & aLength,
+//                                               Cell<Cell<moris::real>>  & aAxis ) > AnalyticFunction;       // special case of the analytic function
+
+    typedef std::function< Matrix< DDRMat > ( const Matrix< DDRMat >    & aPoint,
+                                              const moris::Cell< real >   aConstant ) > AnalyticFunctionDphiDp;
+
 		class Analytic : public Geometry
 		{
 		public:
@@ -45,18 +57,42 @@ namespace moris{
 		        return GeomType::ANALYTIC;
 		    }
 		    //------------------------------------------------------------------------------
-		    void
-		    check_if_functions_are_set()
+		    bool
+		    check_if_function_is_set( moris_index aSubIndex )
 		    {
-		        MORIS_ASSERT(mFuncAnalytic != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic function not set ");
-		        MORIS_ASSERT(mFuncAnalyticDphiDx != nullptr,"ge::GE_Analytic::check_if_functions_are_set(): analytic sensitivity function not set ");
+		        bool tBool;
+		        if ( mAnalyticFunctions.size()-1 == (uint)aSubIndex )
+		        {
+		            tBool = true;
+		        }
+		        else
+		        {
+		            tBool = false;
+		        }
+		        return tBool;
+		    }
+		    //------------------------------------------------------------------------------
+		    bool
+		    check_if_sensitivity_function_is_set( moris_index aSubIndex )
+		    {
+                bool tBool;
+                if ( mAnalyticFunctionsDphiDp.size()-1 == (uint)aSubIndex )
+                {
+                    tBool = true;
+                }
+                else
+                {
+                    tBool = false;
+                }
+                return tBool;
 		    }
 		    //------------------------------------------------------------------------------
 		    void
-		    set_my_constants( moris::Cell< real > aMyConstants )
-		            {
-		                mMyConstants = aMyConstants;
-		            }
+		    set_constants( moris::Cell< real > aConstants,
+		                          moris_index  aSubIndex )
+		    {
+		        mConstantsList( aSubIndex ) = aConstants;
+		    }
 		    //------------------------------------------------------------------------------
 	        void
 	        set_my_mesh(mtk::Mesh_Manager* aMyMesh)
@@ -116,12 +152,19 @@ namespace moris{
 			 * @brief sets the analytic function \phi for the analytic geometry class
 			 *
 			 * @param[in] *funcPointer - pointer to the user defined function
+			 * @param[in] aConstants - list of constants for the function to use
+			 *
+			 * @param[out] index to the sub-type
 			 *
 			 */
-            void
-            set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ) )
+            moris_index
+            set_analytical_function( real ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ), moris::Cell< real > aConstants )
             {
-                mFuncAnalytic = funcPointer;
+                mAnalyticFunctions.push_back( funcPointer );
+                mConstantsList.push_back( aConstants );
+
+                return mAnalyticFunctions.size()-1;
+//                mFuncAnalytic = funcPointer;
             };
 
             //------------------------------------------------------------------------------
@@ -151,9 +194,11 @@ namespace moris{
              *
              */
             void
-            set_analytical_function_dphi_dx( Matrix< DDRMat > ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ) )
+            set_analytical_function_dphi_dp( Matrix< DDRMat > ( *funcPointer )( const Matrix< DDRMat > & aCoordinate, Cell< real > aConst ) )
             {
-                mFuncAnalyticDphiDx = funcPointer;
+                mAnalyticFunctionsDphiDp.push_back( funcPointer );
+//                return mAnalyticFunctionsDphiDp.size()-1;
+//                mFuncAnalyticDphiDx = funcPointer;
             };
 
 			//------------------------------------------------------------------------------
@@ -168,102 +213,124 @@ namespace moris{
              *
              * @param[in] aGeomType - enum which names a function from the list of known standardized functions
              *
+             * @param[out] index of the function in the list of functions
+             *
              */
-            void
-            set_analytical_function( AnalyticType aGeomType )
+            moris_index
+            set_analytical_function( AnalyticType aGeomType, moris::Cell< real > aConstants )
             {
+                moris_index tFuncIndex = 0;
                 switch(aGeomType)
                 {
                 case(AnalyticType::CIRCLE):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 3, "Analytic::set_analytical_function(): incorrect size for constants list (needs to be 3 constants for the circle function: 1) x_c, 2) y_c, 3) r " );
-                    MORIS_ASSERT( mMyConstants(2) > 0, "Geometry_Library::circle_function(): radius must be > 0" );
-                    this->set_analytical_function( circle_function );
+                    MORIS_ASSERT( aConstants.size() == 3, "Analytic::set_analytical_function(): incorrect size for constants list (needs to be 3 constants for the circle function: 1) r, 2) x_c, 3) y_c " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Geometry_Library::circle_function(): radius must be > 0" );
+                    tFuncIndex = this->set_analytical_function( circle_function, aConstants );
+                                 this->set_analytical_function_dphi_dp( circle_function_dphi_dp );
+//                    this->set_analytical_function_dphi_dp( circle_function_dphi_dp );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( composite_fiber_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( composite_fiber_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER_STRAIGHT_1 ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( composite_fiber_straight_1_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( composite_fiber_straight_1_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER_STRAIGHT_2 ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( composite_fiber_straight_2_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( composite_fiber_straight_2_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER_STRAIGHT_3 ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( composite_fiber_straight_3_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( composite_fiber_straight_3_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER_WAVE_1 ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( composite_fiber_wave_1_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( composite_fiber_wave_1_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER_WAVE_2 ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( composite_fiber_wave_2_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( composite_fiber_wave_2_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER_WAVE_3 ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( composite_fiber_wave_3_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( composite_fiber_wave_3_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::GYROID ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 0, "Analytic::set_analytical_function(): gyroid function does not require a list of constants " );
-                    this->set_analytical_function( gyroid_function );
+                    MORIS_ASSERT( aConstants.size() == 0, "Analytic::set_analytical_function() - gyroid function does not require a list of constants " );
+                    tFuncIndex = this->set_analytical_function( gyroid_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::MULTI_CYLINDER ):
                 {
-                        this->set_analytical_function( multi_cylinder_function );
-                        break;
+                    // TODO make this guy play nice with the rest of the implementation
+                    MORIS_ASSERT( false, "Analytic::set_analytical_function() -  MULTI_CYLINDER is not currently implemented " );
+                    this->set_analytical_function( multi_cylinder_function );
+                    return 0;
+                    break;
                 }
                 case( AnalyticType::PLANE ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 6, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                        this->set_analytical_function( plane_function );
-                        break;
+                    MORIS_ASSERT( aConstants.size() == 6, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    tFuncIndex = this->set_analytical_function( plane_function, aConstants );
+                    return tFuncIndex;
+                    break;
                 }
                 case( AnalyticType::SPHERE ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 4, "Analytic::set_analytical_function(): incorrect size for constants list (needs to be 4 constants for the sphere function: 1) x_c, 2) y_c, 3) z_c, 4) r " );
-                    MORIS_ASSERT( mMyConstants(3) > 0, "Geometry_Library::sphere_function(): radius must be > 0" );
-                    this->set_analytical_function( sphere_function );
+                    MORIS_ASSERT( aConstants.size() == 4, "Analytic::set_analytical_function() - incorrect size for constants list (needs to be 4 constants for the sphere function: 1) r, 2) x_c, 3) y_c, 4) z_c " );
+                    MORIS_ASSERT( aConstants(0) > 0, "Geometry_Library::sphere_function() - radius must be > 0" );
+                    tFuncIndex = this->set_analytical_function( sphere_function, aConstants );
+                                 this->set_analytical_function_dphi_dp( sphere_function_dphi_dp );
+                    return tFuncIndex;
                     break;
                 }
                 case( AnalyticType::SPIRAL ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 10, "Analytic::set_analytical_function(): incorrect size for constants list " );
-                    MORIS_ASSERT( mMyConstants(1) > 0, "Analytic::set_analytical_function(): fiber radius must be > 0 " );
-                    this->set_analytical_function( spiral_function );
+                    MORIS_ASSERT( aConstants.size() == 10, "Analytic::set_analytical_function() - incorrect size for constants list " );
+                    MORIS_ASSERT( aConstants(1) > 0, "Analytic::set_analytical_function() - fiber radius must be > 0 " );
+                    tFuncIndex = this->set_analytical_function( spiral_function, aConstants );
+                    return tFuncIndex;
                     break;
                 }
                 default:
                 {
-                        MORIS_ERROR(false, "cl_GE_Analytical::set_analytical_function() please choose from standardized functions or pass in your own function");
+                        MORIS_ERROR(false, "cl_GE_Analytical::set_analytical_function() - please choose from standardized functions or pass in your own function");
+                        return tFuncIndex;
                         break;
                 }
 
@@ -278,15 +345,13 @@ namespace moris{
              *
              */
             void
-            set_analytical_function_dphi_dx( AnalyticType aGeomType )
+            set_analytical_function_dphi_dp( AnalyticType aGeomType )
             {
                 switch(aGeomType)
                 {
                 case( AnalyticType::CIRCLE ):
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 3, "Analytic::set_analytical_function(): incorrect size for constants list, be sure to set the constants before setting the function itself (needs to be three constants for the circle function: 1) x_c, 2) y_c, 3) r " );
-                    MORIS_ASSERT( mMyConstants(2) > 0, "Geometry_Library::circle_function(): radius must be > 0" );
-                    this->set_analytical_function_dphi_dx( circle_function_dphi_dx );
+                    this->set_analytical_function_dphi_dp( circle_function_dphi_dp );
                     break;
                 }
                 case( AnalyticType::COMPOSITE_FIBER ):
@@ -347,9 +412,7 @@ namespace moris{
                 case( AnalyticType::SPHERE ):
 
                 {
-                    MORIS_ASSERT( mMyConstants.size() == 4, "Analytic::set_analytical_function(): incorrect size for constants list (needs to be 4 constants for the circle function: 1) x_c, 2) y_c, 3) z_c, 4) r " );
-                    MORIS_ASSERT( mMyConstants(3) > 0, "Geometry_Library::circle_function(): radius must be > 0" );
-                    this->set_analytical_function_dphi_dx( sphere_function_dphi_dx );
+                    this->set_analytical_function_dphi_dp( sphere_function_dphi_dp );
                     break;
                 }
                 default:
@@ -364,16 +427,17 @@ namespace moris{
             //------------------------------------------------------------------------------
             /*
              * @brief determines the value of the function at a specified coordinate
-             *
+             *index
              * @param[in] aPoint - point for value to be determined at
-             * @oaram[in] aConst - cell of real values which describe functional constants (such as the radius of a sphere)
+             * @oaram[in] aSubIndex - index to the sub type which is to be evaluated
              *
              * @param[out] real - function value at specified coordinate
              */
 			real
-			get_field_val_at_coordinate( const Matrix< DDRMat >  & aPoint )
+			get_field_val_at_coordinate( const Matrix< DDRMat >  & aPoint,
+			                             const moris_index aSubIndex = 0 )
 			{
-				return mFuncAnalytic( aPoint, mMyConstants );
+				return mAnalyticFunctions(aSubIndex)( aPoint, mConstantsList(aSubIndex) );
 			};
 
             //------------------------------------------------------------------------------
@@ -387,7 +451,7 @@ namespace moris{
              * @param[out] real - function value at specified coordinate
              *
              */
-			//fixme update/add default argument values if needed
+			//TODO update/add default argument values if needed
             real
             get_field_val_at_coordinate( const Matrix< DDRMat >        & aCoordinates,
                                                Cell<Cell<moris::real>> & aCenter,
@@ -402,22 +466,26 @@ namespace moris{
              * @brief determines the sensitivity value of the function at a specified coordinate
              *
              * @param[in] aPoint - point for value to be determined at
-             * @oaram[in] aConst - cell of real values which describe functional constants (such as the radius of a sphere)
+             * @oaram[in] aSubIndex - index to the sub-type which is to be evaluated
              *
-             * @param[out] real - function sensitivty value at specified coordinate
+             * @param[out] real - function sensitivity value at specified coordinate
              */
 			Matrix< DDRMat >
-			get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint )
+			get_sensitivity_dphi_dp_at_coordinate( const Matrix< DDRMat >  & aPoint,
+			                                       const moris_index aSubIndex = 0 )
             {
-			    return mFuncAnalyticDphiDx( aPoint, mMyConstants );
+			    return mAnalyticFunctionsDphiDp(aSubIndex)( aPoint, mConstantsList(aSubIndex) );
             };
-
-
+			//------------------------------------------------------------------------------
+			uint get_number_of_sub_types()
+			{
+			    return mAnalyticFunctions.size();
+			}
 			//------------------------------------------------------------------------------
 
         private:
 
-			moris::Cell< real > mMyConstants;
+			moris::Cell< real > mConstants;
 			mtk::Mesh_Manager*  mMyMesh = nullptr;
 
             real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ) = nullptr;
@@ -435,6 +503,10 @@ namespace moris{
             mtk::Interpolation_Order mMySpaceInterpOrder;
             fem::Interpolation_Type  mMyTimeInterpType;
             mtk::Interpolation_Order mMyTimeInterpOrder;
+
+            moris::Cell< moris::Cell< real > >mConstantsList;
+            moris::Cell< AnalyticFunction > mAnalyticFunctions;
+            moris::Cell< AnalyticFunctionDphiDp > mAnalyticFunctionsDphiDp;
             //------------------------------------------------------------------------------
 
         protected:

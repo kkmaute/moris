@@ -17,6 +17,11 @@ using namespace moris;
 
 namespace xtk
 {
+class Enriched_Interpolation_Mesh;
+}
+
+namespace xtk
+{
 class Vertex_Enrichment : public mtk::Vertex_Interpolation
 {
 public:
@@ -29,11 +34,7 @@ public:
      * returns the IDs of the interpolation coefficients
      */
     Matrix< IdMat >
-    get_ids() const
-    {
-        MORIS_ERROR(0,"get_ids not implemented in xtk vertex interpolation");
-        return moris::Matrix<IdMat>(0,0);
-    }
+    get_ids() const;
 
     //------------------------------------------------------------------------------
 
@@ -51,8 +52,7 @@ public:
     Matrix< IdMat >
     get_owners() const
     {
-        MORIS_ERROR(0,"get_owners not implemented in xtk vertex interpolation");
-        return moris::Matrix<IdMat>(0,0);
+        return Matrix< IdMat >(1,mBasisIndices.numel(),0);
     }
 
     //------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ public:
     condense_out_basis_with_0_weight();
 
     moris::Matrix< moris::IndexMat > const &
-    get_basis_basis_indices() const;
+    get_basis_indices() const;
 
     moris::Matrix< moris::DDRMat > const &
     get_basis_weights() const;
@@ -157,10 +157,12 @@ public:
     bool
     basis_exists_in_enrichment(moris_index aBasisIndex) const;
 
+    friend class Enriched_Interpolation_Mesh;
 
-private:
+protected:
     moris::moris_index               mNodeIndex;
     moris::Matrix< moris::IndexMat > mBasisIndices;
+    moris::Matrix< moris::IndexMat > mBasisIds;
     moris::Matrix< moris::DDRMat >   mBasisWeights;
     std::unordered_map<moris::moris_index, moris::moris_index> mBasisMap; /*From basis to local index*/
 
@@ -175,8 +177,8 @@ operator==(const Vertex_Enrichment & aA,
            const Vertex_Enrichment & aB )
 {
     // get basis indices of aA,aB
-    moris::Matrix< moris::IndexMat > const & tBasisIndicesA = aA.get_basis_basis_indices();
-    moris::Matrix< moris::IndexMat > const & tBasisIndicesB = aB.get_basis_basis_indices();
+    moris::Matrix< moris::IndexMat > const & tBasisIndicesA = aA.get_basis_indices();
+    moris::Matrix< moris::IndexMat > const & tBasisIndicesB = aB.get_basis_indices();
 
     // if they do not have the same number of basis they cannot be equal
     if(tBasisIndicesA.numel() != tBasisIndicesB.numel())
@@ -202,6 +204,23 @@ operator==(const Vertex_Enrichment & aA,
 
     return true;
 }
+
+
+inline
+std::ostream &
+operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
+{
+    moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
+    moris::Matrix< moris::DDRMat >   const & tBasisWeights = dt.get_basis_weights();
+
+    for(moris::uint i = 0; i < tBasisIndices.numel(); i++)
+    {
+        os<<"Basis Index: "<<std::setw(9)<<tBasisIndices(i)<<" | Basis Weight: "<<std::setw(9)<<tBasisWeights(i)<<std::endl;
+    }
+
+    return os;
+}
+
 }
 
 

@@ -50,51 +50,6 @@ public:
         return mSTKMeshData;
     }
 
-//    /*
-//     * Get elements interpolated into by a basis function. For a Lagrange mesh,
-//     * the elements in support of basis is equivalent to the elements connected
-//     * to a node. Therefore, a call to get_elements
-//     */
-//    Matrix< IndexMat >
-//    get_elements_in_support_of_basis(moris_index aBasisIndex);
-//
-//    //FIXME: IMPLEMENT THIS FUNCTION IN STK,XTK
-//    /*
-//     * Get number of B-Spline coefficients
-//     */
-//    uint
-//    get_num_coeffs(const uint aOrder) const;
-//
-//    //------------------------------------------------------------------------------
-//    const Matrix< DDRMat > &
-//    get_t_matrix_of_node_loc_ind(
-//            const moris_index aNodeIndex,
-//            const EntityRank  aBSplineRank );
-//
-//    Matrix< IndexMat >
-//    get_bspline_inds_of_node_loc_ind(
-//            const moris_index aNodeIndex,
-//            const EntityRank  aBSplineRank );
-//
-//    /*
-//     * Get number of basis functions. For Lagrange meshes, the number of basis functions and the number of nodes
-//     * are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
-//     */
-//    uint
-//    get_num_basis_functions();
-//
-//    //FIXME: Rename or use get loc entity id from global entity id
-//    void
-//    get_adof_map( const uint aOrder,
-//                  map< moris_id, moris_index > & aAdofMap ) const;
-//
-//    /**
-//     * return the interpolation order of this field
-//     */
-//    uint
-//    get_order_of_field(
-//            const moris_index     aFieldIndex,
-//            const enum EntityRank aEntityRank );
 
 };
 }

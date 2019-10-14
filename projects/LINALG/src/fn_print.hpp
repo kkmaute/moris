@@ -31,7 +31,7 @@ namespace moris
         {
             for(size_t c = 0; c < tNumColumns; c++)
             {
-                std::cout << aMat(r, c) << " ";
+                std::cout<< std::setw(22) << aMat(r, c);
             }
 
             std::cout << "\n";
@@ -77,7 +77,7 @@ namespace moris
 
                 for(size_t c = 0; c < tNumColumns; c++)
                 {
-                    std::cout << aMat(r, c) << " ";
+                    std::cout<< std::setw(12) << aMat(r, c);
                 }
 
                 std::cout << "\n";
