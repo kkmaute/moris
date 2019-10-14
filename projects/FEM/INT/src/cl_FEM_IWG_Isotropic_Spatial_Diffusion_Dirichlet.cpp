@@ -26,15 +26,15 @@ namespace moris
             this->check_properties();
             this->check_constitutive_models();
 
-            // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
-
             // set residual size
             this->set_residual( aResidual );
 
+            // compute jump
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
+
             // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( mMasterCM( 0 )->flux(), mNormal )
-                             + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterCM( 0 )->constitutive() * mNormal * tJump
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal )
+                             + mMasterCM( 0 )->testTraction( mNormal ) * tJump
                              + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
         }
 
@@ -47,14 +47,14 @@ namespace moris
             this->check_properties();
             this->check_constitutive_models();
 
-            // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
-
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
+            // compute jump
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
+
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterCM( 0 )->constitutive() * mNormal * mMasterFI( 0 )->N()
+            aJacobians( 0 )( 0 ) = mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
                                  + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
             // compute the jacobian for indirect dof dependencies through properties
@@ -69,7 +69,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterCM( 0 )->constitutive() * mNormal * mMasterProp( 0 )->dPropdDOF( tDofType )
+                    += -1.0 * mMasterCM( 0 )->testTraction( mNormal ) * mMasterProp( 0 )->dPropdDOF( tDofType )
                        - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
                 }
 
@@ -78,8 +78,8 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * mMasterCM( 0 )->dFluxdDOF( tDofType )
-                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * mMasterCM( 0 )->dConstdDOF( tDofType ) * tJump( 0 ) ;
+                    += - trans( mMasterFI( 0 )->N() ) * trans( mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
+                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
                 }
             }
         }
@@ -94,22 +94,22 @@ namespace moris
             this->check_properties();
             this->check_constitutive_models();
 
-            // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
-
             // set residual size
             this->set_residual( aResidual );
-
-            // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * dot( mMasterCM( 0 )->flux(), mNormal )
-                             + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterCM( 0 )->constitutive() * mNormal * tJump
-                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
+            // compute jump
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
+
+            // compute the residual
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal )
+                             + mMasterCM( 0 )->testTraction( mNormal ) * tJump
+                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
+
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterCM( 0 )->constitutive() * mNormal * mMasterFI( 0 )->N()
+            aJacobians( 0 )( 0 ) = mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
                                  + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
             // compute the jacobian for indirect dof dependencies through properties
@@ -124,7 +124,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterCM( 0 )->constitutive() * mNormal * mMasterProp( 0 )->dPropdDOF( tDofType )
+                    += -1.0 * mMasterCM( 0 )->testTraction( mNormal ) * mMasterProp( 0 )->dPropdDOF( tDofType )
                        - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
                 }
 
@@ -133,8 +133,8 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * trans( mNormal ) * mMasterCM( 0 )->dFluxdDOF( tDofType )
-                       + trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mNormal * mMasterCM( 0 )->dConstdDOF( tDofType ) * tJump( 0 ) ;
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
+                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ;
                 }
             }
         }

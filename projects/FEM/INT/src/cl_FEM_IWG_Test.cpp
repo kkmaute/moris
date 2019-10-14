@@ -69,19 +69,19 @@ namespace moris
             }
             else if ( aSpaceDerivativeOrder == 1 && aTimeDerivativeOrder == 0 )
             {
-                tduduHat = mFieldInterpolator->Bx();
+                tduduHat = mFieldInterpolator->dnNdxn( 1 );
             }
             else if ( aSpaceDerivativeOrder == 2 && aTimeDerivativeOrder == 0 )
             {
-                tduduHat = mFieldInterpolator->d2Ndx2();
+                tduduHat = mFieldInterpolator->dnNdxn( 2 );
             }
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 1 )
             {
-                tduduHat = mFieldInterpolator->Bt();
+                tduduHat = mFieldInterpolator->dnNdtn( 1 );
             }
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 2 )
             {
-                tduduHat = mFieldInterpolator->d2Ndt2();
+                tduduHat = mFieldInterpolator->dnNdtn( 2 );
             }
             else
             {
@@ -110,22 +110,22 @@ namespace moris
             else if ( aSpaceDerivativeOrder == 1 && aTimeDerivativeOrder == 0 )
             {
                 tu       = mFieldInterpolator->gradx( aSpaceDerivativeOrder );
-                tduduHat = mFieldInterpolator->Bx();
+                tduduHat = mFieldInterpolator->dnNdxn( 1 );
             }
             else if ( aSpaceDerivativeOrder == 2 && aTimeDerivativeOrder == 0 )
             {
                 tu       = mFieldInterpolator->gradx( aSpaceDerivativeOrder );
-                tduduHat = mFieldInterpolator->d2Ndx2();
+                tduduHat = mFieldInterpolator->dnNdxn( 2 );
             }
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 1 )
             {
                 tu       = mFieldInterpolator->gradt( aTimeDerivativeOrder );
-                tduduHat = mFieldInterpolator->Bt();
+                tduduHat = mFieldInterpolator->dnNdtn( 1 );
             }
             else if ( aSpaceDerivativeOrder == 0 && aTimeDerivativeOrder == 2 )
             {
                 tu       = mFieldInterpolator->gradt( aTimeDerivativeOrder );
-                tduduHat = mFieldInterpolator->d2Ndt2();
+                tduduHat = mFieldInterpolator->dnNdtn( 2 );
             }
             else
             {

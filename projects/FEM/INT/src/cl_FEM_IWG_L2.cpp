@@ -102,7 +102,7 @@ namespace moris
             // compute Jacobian
             aJacobians( 0 ).resize( 1 );
             aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N()
-                            + mAlpha * ( trans( mMasterFI( 0 )->Bx() ) * mMasterFI( 0 )->Bx() );
+                            + mAlpha * ( trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterFI( 0 )->dnNdxn( 1 ) );
 
             // set the residual size
             aResidual.resize( 1 );
@@ -181,7 +181,7 @@ namespace moris
             // compute Jacobian
             aJacobians( 0 ).resize( 1 );
             aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N()
-                                 + mAlpha * ( trans( mMasterFI( 0 )->Bx() ) * mMasterFI( 0 )->Bx() );
+                                 + mAlpha * ( trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterFI( 0 )->dnNdxn( 1 ) );
         }
 
 //------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ namespace moris
             // compute residual
             //FIXME mNodalWeakBCs
             aResidual( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->val() - mMasterFI( 0 )->N() * mNodalWeakBCs )
-                           + mAlpha * trans( mMasterFI( 0 )->Bx() ) * ( mMasterFI( 0 )->gradx( 1 ) - mMasterFI( 0 )->Bx() * mNodalWeakBCs );
+                           + mAlpha * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * ( mMasterFI( 0 )->gradx( 1 ) - mMasterFI( 0 )->dnNdxn( 1 ) * mNodalWeakBCs );
         }
 
 //------------------------------------------------------------------------------

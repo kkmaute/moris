@@ -47,7 +47,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val() * phi->Bx() );
+            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val() * phi->dnNdxn( 1 ) );
 
             // compute the jacobian JphivN
             uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();
@@ -73,7 +73,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val() * phi->Bx() );
+            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val() * phi->dnNdxn( 1 ) );
 
             // compute the jacobian JphivN
             uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();

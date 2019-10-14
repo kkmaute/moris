@@ -22,7 +22,7 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ).matrix_data() += trans( mMasterFI( 0 )->Bx() ) * mMasterCM( 0 )->flux();
+            aResidual( 0 ).matrix_data() += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->flux();
 
             // if body load
             if ( mMasterPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
@@ -70,7 +70,8 @@ namespace moris
                 {
                     // compute the jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
+                    += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
+                    // fixme add derivative of the test strain
                 }
             }
         }
@@ -89,7 +90,7 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ).matrix_data() += trans( mMasterFI( 0 )->Bx() ) * mMasterCM( 0 )->flux();
+            aResidual( 0 ).matrix_data() += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->flux();
 
             // compute residual due to body load
             if ( mMasterProp( 0 )->get_property_type() == fem::Property_Type::TEMP_LOAD )
@@ -124,7 +125,8 @@ namespace moris
                 {
                     // compute the jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += trans( mMasterFI( 0 )->Bx() ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
+                    += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
+                    // fixme add test strain derivative
                 }
             }
         }

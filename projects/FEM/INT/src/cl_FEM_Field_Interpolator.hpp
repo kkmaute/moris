@@ -58,26 +58,26 @@ class Property;
             // matrix of field coefficients uHat
             Matrix < DDRMat > mUHat;
 
-            // field interpolator dof type
+            // dof type
             moris::Cell< MSI::Dof_Type > mDofType;
 
-            // field interpolator dv type
+            // dv type
             moris::Cell< MSI::Dv_Type > mDvType;
 
             // flag for evaluation
             bool mNEval      = true;
-            bool mBxEval     = true;
+            bool mdNdxEval     = true;
             bool md2Ndx2Eval = true;
             bool md3Ndx3Eval = true;
-            bool mBtEval     = true;
+            bool mdNdtEval     = true;
             bool md2Ndt2Eval = true;
 
             // storage
             Matrix< DDRMat > mN;
-            Matrix< DDRMat > mBx;
+            Matrix< DDRMat > mdNdx;
             Matrix< DDRMat > md2Ndx2;
             Matrix< DDRMat > md3Ndx3;
-            Matrix< DDRMat > mBt;
+            Matrix< DDRMat > mdNdt;
             Matrix< DDRMat > md2Ndt2;
 
 //------------------------------------------------------------------------------
@@ -241,10 +241,11 @@ class Property;
             /**
              * return the space time shape functions
              * @param[ out ] shape functions matrix
-             *               ( 1 x <number of basis> )
+             *               ( 1 x <number of bases> )
              */
             const Matrix < DDRMat > & N();
 
+//------------------------------------------------------------------------------
             /**
              * evaluates the space time shape functions
              */
@@ -257,32 +258,16 @@ class Property;
              * @param[ in ]  aDerivativeOrder derivative order
              * @param[ out ] dnNdxn           nth order spatial derivative of the shape functions
              */
-            const Matrix< DDRMat > & dnNdxn( uint aDerivativeOrder );
+            const Matrix< DDRMat > & dnNdxn( const uint & aDerivativeOrder );
 
 //------------------------------------------------------------------------------
-            /**
-             * return the first derivatives of the space time shape functions
-             * wrt space x
-             * @param[ out ] dNdx
-             *               ( < number of space dimensions > x <number of space time basis > )
-             */
-            const Matrix< DDRMat > & Bx();
-
             /**
              * evaluates the first derivatives of the space time shape functions
              * wrt space x
              */
-            void eval_Bx();
+            void eval_d1Ndx1();
 
 //------------------------------------------------------------------------------
-            /**
-             * return the second derivatives of the space time shape functions
-             * wrt space x
-             * @param[ out ] d2Ndx2
-             *               ( < 1D:1, 2D:3, 3D:6 > x <number of space time basis > )
-             */
-            const Matrix< DDRMat > & d2Ndx2();
-
             /**
              * evaluates the second derivatives of the space time shape functions
              * wrt space x
@@ -290,14 +275,6 @@ class Property;
             void eval_d2Ndx2();
 
 //------------------------------------------------------------------------------
-            /**
-             * return the third derivatives of the space time shape functions
-             * wrt space x
-             * @param[ out ] d3Ndx3
-             *               ( < 1D:1, 2D:4, 3D:10 > x <number of space time basis > )
-             */
-            const Matrix< DDRMat > & d3Ndx3();
-
             /**
              * evaluates the third derivatives of the space time shape functions
              * wrt space x
@@ -315,28 +292,12 @@ class Property;
 
 //------------------------------------------------------------------------------
             /**
-             * return the first derivative of the space time shape functions
-             * wrt time t
-             * @param[ out ] dNdt
-             *               ( < number of time dimensions > x <number of space time basis > )
-             */
-            const Matrix< DDRMat > & Bt();
-
-            /**
              * evaluates the first derivative of the space time shape functions
              * wrt time t
              */
-            void eval_Bt();
+            void eval_d1Ndt1();
 
 //------------------------------------------------------------------------------
-            /**
-             * return the second derivative of the space time shape functions
-             * wrt time t
-             * @param[ out ] d2Ndt2
-             *               ( < number of time dimensions > x <number of space time basis > )
-             */
-            const Matrix< DDRMat > & d2Ndt2();
-
             /**
             * evaluates the second derivative of the space time shape functions
             * wrt time t

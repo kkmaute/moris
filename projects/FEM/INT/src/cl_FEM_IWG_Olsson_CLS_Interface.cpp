@@ -73,7 +73,7 @@ namespace moris
 
             // compute the jacobian
             aJacobians( 0 )( 0 ) = trans( phi->N() )
-                                 * ( ( mPhiLB + mPhiUB - 2 * phi->val()( 0 ) ) * phi->N() - mEpsilon * trans( nPhi->val() ) * phi->Bx() )
+                                 * ( ( mPhiLB + mPhiUB - 2 * phi->val()( 0 ) ) * phi->N() - mEpsilon * trans( nPhi->val() ) * phi->dnNdxn( 1 ) )
                                  * dot( nPhi->val(), aInterfaceNormal ) ;
 
             aJacobians( 0 )( 1 ) = trans( phi->N() ) * ( ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) )
@@ -109,7 +109,7 @@ namespace moris
 
             // compute the jacobian
             aJacobians( 0 )( 0 ) = phi->N()
-                                 * ( ( mPhiLB + mPhiUB - 2 * phi->val()( 0 ) ) * phi->N() - mEpsilon * trans( nPhi->val() ) * phi->Bx() )
+                                 * ( ( mPhiLB + mPhiUB - 2 * phi->val()( 0 ) ) * phi->N() - mEpsilon * trans( nPhi->val() ) * phi->dnNdxn( 1 ) )
                                  * dot( nPhi->val(), aInterfaceNormal ) ;
 
             aJacobians( 0 )( 1 ) = trans( phi->N() ) * ( ( ( phi->val()( 0 ) - mPhiLB ) * ( mPhiUB - phi->val()( 0 ) )

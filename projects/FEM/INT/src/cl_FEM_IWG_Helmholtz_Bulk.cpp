@@ -32,7 +32,7 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+            aResidual( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
                            + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
         }
 
@@ -46,7 +46,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian
-            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 )
                                  + trans( vN->N() ) * vN->N();
         }
 
@@ -64,14 +64,14 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+            aResidual( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
                            + trans( vN->N() ) * ( vN->val() - vN->N() * tVHat );
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
             // compute the residual
-            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx()
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 )
                                  + trans( vN->N() ) * vN->N();
         }
 

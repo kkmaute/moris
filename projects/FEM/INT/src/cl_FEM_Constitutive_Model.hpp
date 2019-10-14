@@ -73,25 +73,49 @@ namespace moris
 
             // flag for evaluation
             bool mFluxEval = true;
-            bool mStrainEval = true;
-            bool mConstEval  = true;
-            moris::Cell< bool > mFluxDofDerEval;
-            moris::Cell< bool > mFluxDvDerEval;
-            moris::Cell< bool > mStrainDofDerEval;
-            moris::Cell< bool > mStrainDvDerEval;
-            moris::Cell< bool > mConstDofDerEval;
-            moris::Cell< bool > mConstDvDerEval;
+            moris::Cell< bool > mdFluxdDofEval;
+            moris::Cell< bool > mdFluxdDvEval;
+
+            bool mTractionEval   = true;
+            moris::Cell< bool > mdTractiondDofEval;
+            moris::Cell< bool > mdTractiondDvEval;
+
+            bool mTestTractionEval   = true;
+            moris::Cell< bool > mdTestTractiondDofEval;
+            moris::Cell< bool > mdTestTractiondDvEval;
+
+            bool mStrainEval     = true;
+            moris::Cell< bool > mdStraindDofEval;
+            moris::Cell< bool > mdStraindDvEval;
+
+            bool mTestStrainEval = true;
+
+            bool mConstEval      = true;
+            moris::Cell< bool > mdConstdDofEval;
+            moris::Cell< bool > mdConstdDvEval;
 
             // storage for evaluation
             Matrix< DDRMat > mFlux;
+            moris::Cell< Matrix< DDRMat > > mdFluxdDof;
+            moris::Cell< Matrix< DDRMat > > mdFluxdDv;
+
+            Matrix< DDRMat > mTraction;
+            moris::Cell< Matrix< DDRMat > > mdTractiondDof;
+            moris::Cell< Matrix< DDRMat > > mdTractiondDv;
+
+            Matrix< DDRMat > mTestTraction;
+            moris::Cell< Matrix< DDRMat > > mdTestTractiondDof;
+            moris::Cell< Matrix< DDRMat > > mdTestTractiondDv;
+
             Matrix< DDRMat > mStrain;
+            moris::Cell< Matrix< DDRMat > > mdStraindDof;
+            moris::Cell< Matrix< DDRMat > > mdStraindDv;
+
+            Matrix< DDRMat > mTestStrain;
+
             Matrix< DDRMat > mConst;
-            moris::Cell< Matrix< DDRMat > > mFluxDofDer;
-            moris::Cell< Matrix< DDRMat > > mFluxDvDer;
-            moris::Cell< Matrix< DDRMat > > mStrainDofDer;
-            moris::Cell< Matrix< DDRMat > > mStrainDvDer;
-            moris::Cell< Matrix< DDRMat > > mConstDofDer;
-            moris::Cell< Matrix< DDRMat > > mConstDvDer;
+            moris::Cell< Matrix< DDRMat > > mdConstdDof;
+            moris::Cell< Matrix< DDRMat > > mdConstdDv;
 
 //------------------------------------------------------------------------------
         public :
@@ -149,21 +173,28 @@ namespace moris
             void reset_eval_flags()
             {
                 // reset the value flag
-                mFluxEval = true;
-                mStrainEval = true;
-                mConstEval  = true;
+                mFluxEval         = true;
+                mTractionEval     = true;
+                mTestTractionEval = true;
+                mStrainEval       = true;
+                mTestStrainEval   = true;
+                mConstEval        = true;
 
                 // reset the dof derivative flag
                 uint tNumDofTypes = mGlobalDofTypes.size();
-                mFluxDofDerEval.resize( tNumDofTypes, true );
-                mStrainDofDerEval.resize( tNumDofTypes, true );
-                mConstDofDerEval.resize( tNumDofTypes, true );
+                mdFluxdDofEval.resize( tNumDofTypes, true );
+                mdTractiondDofEval.resize( tNumDofTypes, true );
+                mdTestTractiondDofEval.resize( tNumDofTypes, true );
+                mdStraindDofEval.resize( tNumDofTypes, true );
+                mdConstdDofEval.resize( tNumDofTypes, true );
 
                 // reset the dv derivative flag
                 uint tNumDvTypes = mGlobalDvTypes.size();
-                mFluxDvDerEval.resize( tNumDvTypes, true );
-                mStrainDvDerEval.resize( tNumDvTypes, true );
-                mConstDvDerEval.resize( tNumDvTypes, true );
+                mdFluxdDvEval.resize( tNumDvTypes, true );
+                mdTractiondDvEval.resize( tNumDvTypes, true );
+                mdTestTractiondDvEval.resize( tNumDvTypes, true );
+                mdStraindDvEval.resize( tNumDvTypes, true );
+                mdConstdDvEval.resize( tNumDvTypes, true );
             }
 
 //------------------------------------------------------------------------------
@@ -550,14 +581,18 @@ namespace moris
                 uint tNumGlobalDofTypes = mGlobalDofTypes.size();
 
                 // set flag for evaluation
-                mFluxDofDerEval.resize( tNumGlobalDofTypes, true );
-                mStrainDofDerEval.resize( tNumGlobalDofTypes, true );
-                mConstDofDerEval.resize( tNumGlobalDofTypes, true );
+                mdFluxdDofEval.resize( tNumGlobalDofTypes, true );
+                mdTractiondDofEval.resize( tNumGlobalDofTypes, true );
+                mdTestTractiondDofEval.resize( tNumGlobalDofTypes, true );
+                mdStraindDofEval.resize( tNumGlobalDofTypes, true );
+                mdConstdDofEval.resize( tNumGlobalDofTypes, true );
 
                 // set storage for evaluation
-                mFluxDofDer.resize( tNumGlobalDofTypes );
-                mStrainDofDer.resize( tNumGlobalDofTypes );
-                mConstDofDer.resize( tNumGlobalDofTypes );
+                mdFluxdDof.resize( tNumGlobalDofTypes );
+                mdTractiondDof.resize( tNumGlobalDofTypes );
+                mdTestTractiondDof.resize( tNumGlobalDofTypes );
+                mdStraindDof.resize( tNumGlobalDofTypes );
+                mdConstdDof.resize( tNumGlobalDofTypes );
 
             };
 
@@ -698,14 +733,18 @@ namespace moris
                 uint tNumGlobalDvTypes = mGlobalDvTypes.size();
 
                 // set flag for evaluation
-                mFluxDvDerEval.resize( tNumGlobalDvTypes, true );
-                mStrainDvDerEval.resize( tNumGlobalDvTypes, true );
-                mConstDvDerEval.resize( tNumGlobalDvTypes, true );
+                mdFluxdDvEval.resize( tNumGlobalDvTypes, true );
+                mdTractiondDvEval.resize( tNumGlobalDvTypes, true );
+                mdTestTractiondDvEval.resize( tNumGlobalDvTypes, true );
+                mdStraindDvEval.resize( tNumGlobalDvTypes, true );
+                mdConstdDvEval.resize( tNumGlobalDvTypes, true );
 
                 // set storage for evaluation
-                mFluxDvDer.resize( tNumGlobalDvTypes );
-                mStrainDvDer.resize( tNumGlobalDvTypes );
-                mConstDvDer.resize( tNumGlobalDvTypes );
+                mdFluxdDv.resize( tNumGlobalDvTypes );
+                mdTractiondDv.resize( tNumGlobalDvTypes );
+                mdTestTractiondDv.resize( tNumGlobalDvTypes );
+                mdStraindDv.resize( tNumGlobalDvTypes );
+                mdConstdDv.resize( tNumGlobalDvTypes );
             };
 
 //------------------------------------------------------------------------------
@@ -784,7 +823,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * get the constitutive model flux
-             * @param[ out ] mFlux constituitve model flux
+             * @param[ out ] mFlux constitutive model flux
              */
             const Matrix< DDRMat > & flux()
             {
@@ -805,6 +844,62 @@ namespace moris
             virtual void eval_flux()
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_flux - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the constitutive model traction
+             * @param[ in ]  aNormal   normal
+             * @param[ out ] mTraction constitutive model traction
+             */
+            const Matrix< DDRMat > & traction( const Matrix< DDRMat > & aNormal )
+            {
+                // if the traction was not evaluated
+                if( mTractionEval )
+                {
+                    // evaluate the traction
+                    this->eval_traction( aNormal );
+                }
+                // return the traction value
+                return mTraction;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model traction
+             * @param[ in ]  aNormal normal
+             */
+            virtual void eval_traction( const Matrix< DDRMat > & aNormal )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_traction - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the constitutive model test traction
+             * @param[ in ]  aNormal       normal
+             * @param[ out ] mTestTraction constitutive model test traction
+             */
+            const Matrix< DDRMat > & testTraction( const Matrix< DDRMat > & aNormal )
+            {
+                // if the test traction was not evaluated
+                if( mTestTractionEval )
+                {
+                    // evaluate the test traction
+                    this->eval_testTraction( aNormal );
+                }
+                // return the test traction value
+                return mTestTraction;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test traction
+             * @param[ in ]  aNormal normal
+             */
+            virtual void eval_testTraction( const Matrix< DDRMat > & aNormal )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_testTraction - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
@@ -831,6 +926,32 @@ namespace moris
             virtual void eval_strain()
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_strain - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the constitutive model test strain
+             * @param[ out ] mTestStrain constitutive model test strain
+             */
+            const Matrix< DDRMat > & testStrain()
+            {
+                // if the test strain was not evaluated
+                if( mTestStrainEval )
+                {
+                    // evaluate the test strain
+                    this->eval_testStrain();
+                }
+                // return the test strain value
+                return mTestStrain;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test strain
+             */
+            virtual void eval_testStrain()
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_testStrain - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
@@ -864,7 +985,7 @@ namespace moris
              * get the derivative of the flux wrt dof
              * @param[ out ] mFluxDofDer derivative of the flux wrt dof
              */
-            const Matrix< DDRMat > & dFluxdDOF( const moris::Cell< MSI::Dof_Type > aDofType )
+            const Matrix< DDRMat > & dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
             {
                // if aDofType is not an active dof type for the property
                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dFluxdDOF - no dependency in this dof type." );
@@ -873,33 +994,111 @@ namespace moris
                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
                // if the derivative has not been evaluated yet
-               if( mFluxDofDerEval( tDofIndex ) )
+               if( mdFluxdDofEval( tDofIndex ) )
                {
                    // evaluate the derivative
                    this->eval_dFluxdDOF( aDofType );
                }
 
                // return the derivative
-               return mFluxDofDer( tDofIndex );
+               return mdFluxdDof( tDofIndex );
             }
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-             * @param[ in ] adFluxdDOF a matrix to fill with derivative evaluation
              */
-            virtual void eval_dFluxdDOF( moris::Cell< MSI::Dof_Type > aDofTypes )
+            virtual void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDOF - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
             /**
-             * get the derivative of the strain wrt dof
-             * @param[ out ] mStrainDofDer derivative of the strain wrt dof
+             * get the derivative of the traction wrt dof
+             * @param[ in ]  aDofType        group of dof type
+             * @param[ in ]  aNormal         normal
+             * @param[ out ] mTractionDofDer derivative of the traction wrt dof
              */
-            const Matrix< DDRMat > & dStraindDOF( const moris::Cell< MSI::Dof_Type > aDofType )
+            const Matrix< DDRMat > & dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
+                                                    const Matrix< DDRMat >             & aNormal )
+            {
+               // if aDofType is not an active dof type for the property
+               MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTractiondDOF - no dependency in this dof type." );
+
+               // get the dof index
+               uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+               // if the derivative has not been evaluated yet
+               if( mdTractiondDofEval( tDofIndex ) )
+               {
+                   // evaluate the derivative
+                   this->eval_dTractiondDOF( aDofType, aNormal );
+               }
+
+               // return the derivative
+               return mdTractiondDof( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model traction derivative wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * @param[ in ] aNormal   normal
+             */
+            virtual void eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                             const Matrix< DDRMat >             & aNormal )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dTractiondDOF - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the test traction wrt dof
+             * @param[ in ]  aDofType           group of dof type
+             * @param[ in ]  aNormal            normal
+             * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
+             */
+            const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
+                                                        const Matrix< DDRMat >             & aNormal )
+            {
+               // if aDofType is not an active dof type for the property
+               MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTestTractiondDOF - no dependency in this dof type." );
+
+               // get the dof index
+               uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+               // if the derivative has not been evaluated yet
+               if( mdTestTractiondDofEval( tDofIndex ) )
+               {
+                   // evaluate the derivative
+                   this->eval_dTestTractiondDOF( aDofType, aNormal );
+               }
+
+               // return the derivative
+               return mdTestTractiondDof( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test traction derivative wrt to a dof type
+             * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
+             * @param[ in ] adTractiondDOF a matrix to fill with derivative evaluation
+             */
+            virtual void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                 const Matrix< DDRMat >             & aNormal )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * get the derivative of the strain wrt dof
+             * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
+             * @param[ out ] mdStraindDof derivative of the strain wrt dof
+             */
+            const Matrix< DDRMat > & dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
             {
                // if aDofType is not an active dof type for the property
                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dStraindDOF - no dependency in this dof type." );
@@ -908,32 +1107,33 @@ namespace moris
                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
                // if the derivative has not been evaluated yet
-               if( mStrainDofDerEval( tDofIndex ) )
+               if( mdStraindDofEval( tDofIndex ) )
                {
                    // evaluate the derivative
                    this->eval_dStraindDOF( aDofType );
                }
 
                // return the derivative
-               return mStrainDofDer( tDofIndex );
+               return mdStraindDof( tDofIndex );
             }
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain derivative wrt to a dof type
-             * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dStraindDOF( moris::Cell< MSI::Dof_Type > aDofTypes )
+            virtual void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dStraindDOF - This function does nothing. " );
             }
 
 //------------------------------------------------------------------------------
             /**
-             * get the derivative of the constituitve matrix wrt dof
-             * @param[ out ] mConstDofDer derivative of the constitutive matrix wrt dof
+             * get the derivative of the constitutive matrix wrt dof
+             * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
+             * @param[ out ] mdConstdDof derivative of the constitutive matrix wrt dof
              */
-            const Matrix< DDRMat > & dConstdDOF( const moris::Cell< MSI::Dof_Type > aDofType )
+            const Matrix< DDRMat > & dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
             {
                // if aDofType is not an active dof type for the property
                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dConstdDOF - no dependency in this dof type." );
@@ -942,22 +1142,22 @@ namespace moris
                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
                // if the derivative has not been evaluated yet
-               if( mConstDofDerEval( tDofIndex ) )
+               if( mdConstdDofEval( tDofIndex ) )
                {
                    // evaluate the derivative
                    this->eval_dConstdDOF( aDofType );
                }
 
                // return the derivative
-               return mConstDofDer( tDofIndex );
+               return mdConstdDof( tDofIndex );
             }
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model constitutive matrix derivative wrt to a dof type
-             * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dConstdDOF( moris::Cell< MSI::Dof_Type > aDofTypes )
+            virtual void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dConstdDOF - This function does nothing. " );
             }
@@ -965,9 +1165,10 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * get the derivative of the flux wrt dv
-             * @param[ out ] mFluxDvDer derivative of the flux wrt dv
+             * @param[ in ]  aDvTypes  a dv type wrt which the derivative is evaluated
+             * @param[ out ] mdFluxdDv derivative of the flux wrt dv
              */
-            const Matrix< DDRMat > & dFluxdDV( const moris::Cell< MSI::Dv_Type > aDvType )
+            const Matrix< DDRMat > & dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDvType )
             {
                // if aDvType is not an active dv type
                MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dFluxdDV - no dependency in this dv type." );
@@ -976,14 +1177,14 @@ namespace moris
                uint tDvIndex = mGlobalDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );
 
                // if the derivative has not been evaluated yet
-               if( mFluxDvDerEval( tDvIndex ) )
+               if( mdFluxdDvEval( tDvIndex ) )
                {
                    // evaluate the derivative
                    this->eval_dFluxdDV( aDvType );
                }
 
                // return the derivative
-               return mFluxDvDer( tDvIndex );
+               return mdFluxdDv( tDvIndex );
             }
 
 //------------------------------------------------------------------------------
@@ -991,7 +1192,7 @@ namespace moris
              * evaluate the constitutive model flux derivative wrt to a dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            virtual void eval_dFluxdDV( moris::Cell< MSI::Dv_Type > aDvTypes )
+            virtual void eval_dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dFluxdDV - This function does nothing. " );
             }
@@ -999,9 +1200,10 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * get the derivative of the strain wrt dv
-             * @param[ out ] mStrainDvDer derivative of the strain wrt dv
+             * @param[ in ]  aDvTypes    a dv type wrt which the derivative is evaluated
+             * @param[ out ] mdStraindDv derivative of the strain wrt dv
              */
-            const Matrix< DDRMat > & dStraindDV( const moris::Cell< MSI::Dv_Type > aDvType )
+            const Matrix< DDRMat > & dStraindDV( const moris::Cell< MSI::Dv_Type > & aDvType )
             {
                // if aDvType is not an active dv type for the property
                MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dStraindDV - no dependency in this dv type." );
@@ -1010,14 +1212,14 @@ namespace moris
                uint tDvIndex = mGlobalDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );
 
                // if the derivative has not been evaluated yet
-               if( mStrainDvDerEval( tDvIndex ) )
+               if( mdStraindDvEval( tDvIndex ) )
                {
                    // evaluate the derivative
                    this->eval_dStraindDV( aDvType );
                }
 
                // return the derivative
-               return mStrainDvDer( tDvIndex );
+               return mdStraindDv( tDvIndex );
             }
 
 //------------------------------------------------------------------------------
@@ -1025,7 +1227,7 @@ namespace moris
              * evaluate the constitutive model strain derivative wrt to a dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
-            virtual void eval_dStraindDV( moris::Cell< MSI::Dv_Type > aDvTypes )
+            virtual void eval_dStraindDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dStraindDV - This function does nothing. " );
             }
@@ -1033,9 +1235,10 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * get the derivative of the constitutive matrix wrt dv
-             * @param[ out ] mConstDvDer derivative of the constitutive matrix wrt dv
+             * @param[ in ]  aDvTypes   a dv type wrt which the derivative is evaluated
+             * @param[ out ] mdConstdDv derivative of the constitutive matrix wrt dv
              */
-            const Matrix< DDRMat > & dConstdDV( const moris::Cell< MSI::Dv_Type > aDvType )
+            const Matrix< DDRMat > & dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvType )
             {
                // if aDvType is not an active dv type for the property
                MORIS_ERROR( this->check_dv_dependency( aDvType ), "Constitutive_Model::dConstdDV - no dependency in this dv type." );
@@ -1044,26 +1247,25 @@ namespace moris
                uint tDvIndex = mGlobalDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );
 
                // if the derivative has not been evaluated yet
-               if( mConstDvDerEval( tDvIndex ) )
+               if( mdConstdDvEval( tDvIndex ) )
                {
                    // evaluate the derivative
                    this->eval_dConstdDV( aDvType );
                }
 
                // return the derivative
-               return mConstDvDer( tDvIndex );
+               return mdConstdDv( tDvIndex );
             }
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model constitutive matrix derivative wrt to a dv type
-             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * @param[ in ] aDvTypes a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dConstdDV( moris::Cell< MSI::Dv_Type >   aDvTypes )
+            virtual void eval_dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dConstdDV - This function does nothing. " );
             }
-
 
 //------------------------------------------------------------------------------
             /**
@@ -1072,65 +1274,79 @@ namespace moris
              * @param[ in ] adFluxdDOF_FD a matrix to fill with derivative evaluation
              * @param[ in ] aPerturbation   real to perturb for FD
              */
-            void eval_dFluxdDOF_FD( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                      Matrix< DDRMat >           & adFluxdDOF_FD,
-                                      real                         aPerturbation )
+            void eval_dFluxdDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                    Matrix< DDRMat >                   & adFluxdDOF_FD,
+                                    real                                 aPerturbation )
             {
                 // get the index for the considered dof type
                 uint iFI = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ), 0 );
 
-                // get number of master dofs wrt which derivative is computed
-                uint tDerNumDof = mDofFI( iFI )->get_number_of_space_time_coefficients();
+                // get number of coefficients, fields and bases for the considered FI
+                uint tDerNumDof    = mDofFI( iFI )->get_number_of_space_time_coefficients();
+                uint tDerNumBases  = mDofFI( iFI )->get_number_of_space_time_bases();
+                uint tDerNumFields = mDofFI( iFI )->get_number_of_fields();
 
+                // FIXME works only for diffusion
                 // set size for derivative
                 adFluxdDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
 
                 // coefficients for dof type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = mDofFI( iFI )->get_coeff();
 
-                for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                // init dof counter
+                uint tDofCounter = 0;
+
+                // loop over coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
                 {
-                    // perturbation of the coefficent
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    uint tNumProps = mPropTypes.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    // loop over coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                     {
-                        mProperties( iProp )->reset_eval_flags();
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDofFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        uint tNumProps = mPropTypes.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tFlux_Plus = this->flux();
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDofFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tFlux_Minus = this->flux();
+
+                        // evaluate Jacobian
+                        adFluxdDOF_FD.get_column( tDofCounter ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
                     }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tFlux_Plus = this->flux();
-
-                    // perturbation of the coefficent
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tFlux_Minus = this->flux();
-
-                    // evaluate Jacobian
-                    adFluxdDOF_FD.get_column( iCoeff ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                 }
                 // reset the coefficients values
                 mDofFI( iFI )->set_coeff( tCoeff );
@@ -1143,65 +1359,79 @@ namespace moris
             * @param[ in ] adStraindDOF_FD a matrix to fill with derivative evaluation
             * @param[ in ] aPerturbation   real to perturb for FD
             */
-            void eval_dStraindDOF_FD( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                      Matrix< DDRMat >             & adStraindDOF_FD,
-                                      real                           aPerturbation )
+            void eval_dStraindDOF_FD( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                      Matrix< DDRMat >                   & adStraindDOF_FD,
+                                      real                                 aPerturbation )
             {
                 // get the index for the considered dof type
                 uint iFI = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ), 0 );
 
                 // get number of master dofs wrt which derivative is computed
-                uint tDerNumDof = mDofFI( iFI )->get_number_of_space_time_coefficients();
+                uint tDerNumDof    = mDofFI( iFI )->get_number_of_space_time_coefficients();
+                uint tDerNumBases  = mDofFI( iFI )->get_number_of_space_time_bases();
+                uint tDerNumFields = mDofFI( iFI )->get_number_of_fields();
 
+                // FIXME works only for diffusion
                 // set size for derivative
                 adStraindDOF_FD.set_size( mSpaceDim, tDerNumDof, 0.0 );
 
                 // coefficients for dof type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = mDofFI( iFI )->get_coeff();
 
-                for( uint iCoeff = 0; iCoeff < tDerNumDof; iCoeff++ )
+                // init dof counter
+                uint tDofCounter = 0;
+
+                // loop over coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
                 {
-                    // perturbation of the coefficent
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    uint tNumProps = mPropTypes.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    // loop over coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                     {
-                        mProperties( iProp )->reset_eval_flags();
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDofFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        uint tNumProps = mPropTypes.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tStrain_Plus = this->strain();
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDofFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tStrain_Minus = this->strain();
+
+                        // evaluate Jacobian
+                        adStraindDOF_FD.get_column( tDofCounter ) = ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dof counter
+                        tDofCounter++;
                     }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tStrain_Plus = this->strain();
-
-                    // perturbation of the coefficent
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDofFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tStrain_Minus = this->strain();
-
-                    // evaluate Jacobian
-                    adStraindDOF_FD.get_column( iCoeff ) = ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                 }
                 // reset the coefficients values
                 mDofFI( iFI )->set_coeff( tCoeff );
@@ -1214,65 +1444,79 @@ namespace moris
              * @param[ in ] adFluxdDV_FD  a matrix to fill with derivative evaluation
              * @param[ in ] aPerturbation real to perturb for FD
              */
-            void eval_dFluxdDOF_FD( moris::Cell< MSI::Dv_Type >   aDvTypes,
-                                      Matrix< DDRMat >          & adFluxdDV_FD,
-                                      real                        aPerturbation )
+            void eval_dFluxdDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
+                                    Matrix< DDRMat >                  & adFluxdDV_FD,
+                                    real                                aPerturbation )
             {
                 // get the index for the considered dv type
                 uint iFI = mGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ), 0 );
 
-                // get number of master dvs wrt which derivative is computed
-                uint tDerNumDv = mDvFI( iFI )->get_number_of_space_time_coefficients();
+                // get number of coefficients, fields and bases for the considered FI
+                uint tDerNumDv     = mDvFI( iFI )->get_number_of_space_time_coefficients();
+                uint tDerNumBases  = mDvFI( iFI )->get_number_of_space_time_bases();
+                uint tDerNumFields = mDvFI( iFI )->get_number_of_fields();
 
+                // FIXME works only for diffusion
                 // set size for derivative
                 adFluxdDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
 
                 // coefficients for dv type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = mDvFI( iFI )->get_coeff();
 
-                for( uint iCoeff = 0; iCoeff < tDerNumDv; iCoeff++ )
+                // init dv counter
+                uint tDvCounter = 0;
+
+                // loop over coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
                 {
-                    // perturbation of the coefficent
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    uint tNumProps = mPropTypes.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    // loop over coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                     {
-                        mProperties( iProp )->reset_eval_flags();
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDvFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        uint tNumProps = mPropTypes.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tFlux_Plus = this->flux();
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDvFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tFlux_Minus = this->flux();
+
+                        // evaluate Jacobian
+                        adFluxdDV_FD.get_column( tDvCounter ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dv counter
+                        tDvCounter++;
                     }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tFlux_Plus = this->flux();
-
-                    // perturbation of the coefficent
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tFlux_Minus = this->flux();
-
-                    // evaluate Jacobian
-                    adFluxdDV_FD.get_column( iCoeff ) = ( tFlux_Plus - tFlux_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                 }
                 // reset the coefficients values
                 mDvFI( iFI )->set_coeff( tCoeff );
@@ -1285,65 +1529,79 @@ namespace moris
             * @param[ in ] adStraindDV_FD a matrix to fill with derivative evaluation
             * @param[ in ] aPerturbation  real to perturb for FD
             */
-            void eval_dStraindDV_FD( moris::Cell< MSI::Dv_Type >   aDvTypes,
-                                     Matrix< DDRMat >             & adStraindDV_FD,
-                                     real                           aPerturbation )
+            void eval_dStraindDV_FD( const moris::Cell< MSI::Dv_Type > & aDvTypes,
+                                     Matrix< DDRMat >                  & adStraindDV_FD,
+                                     real                                aPerturbation )
             {
                 // get the index for the considered dof type
                 uint iFI = mGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ), 0 );
 
-                // get number of master dvs wrt which derivative is computed
-                uint tDerNumDv = mDvFI( iFI )->get_number_of_space_time_coefficients();
+                // get number of coefficients, fields and bases for the considered FI
+                uint tDerNumDv     = mDvFI( iFI )->get_number_of_space_time_coefficients();
+                uint tDerNumBases  = mDvFI( iFI )->get_number_of_space_time_bases();
+                uint tDerNumFields = mDvFI( iFI )->get_number_of_fields();
 
+                // FIXME works only for diffusion
                 // set size for derivative
                 adStraindDV_FD.set_size( mSpaceDim, tDerNumDv, 0.0 );
 
                 // coefficients for dv type wrt which derivative is computed
                 Matrix< DDRMat > tCoeff = mDvFI( iFI )->get_coeff();
 
-                for( uint iCoeff = 0; iCoeff < tDerNumDv; iCoeff++ )
+                // init dv counter
+                uint tDvCounter = 0;
+
+                // loop over coefficients columns
+                for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
                 {
-                    // perturbation of the coefficent
-                    Matrix< DDRMat > tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) + aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    uint tNumProps = mPropTypes.size();
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                    // loop over coefficients rows
+                    for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
                     {
-                        mProperties( iProp )->reset_eval_flags();
+                        // perturbation of the coefficent
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDvFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        uint tNumProps = mPropTypes.size();
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tStrain_Plus = this->strain();
+
+                        // perturbation of the coefficent
+                        tCoeffPert = tCoeff;
+                        tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
+
+                        // setting the perturbed coefficients
+                        mDvFI( iFI )->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
+                        {
+                            mProperties( iProp )->reset_eval_flags();
+                        }
+
+                        // reset constitutive model
+                        this->reset_eval_flags();
+
+                        // evaluate the residual
+                        Matrix< DDRMat > tStrain_Minus = this->strain();
+
+                        // evaluate Jacobian
+                        adStraindDV_FD.get_column( tDvCounter ) = ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
+
+                        // update dv counter
+                        tDvCounter++;
                     }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tStrain_Plus = this->strain();
-
-                    // perturbation of the coefficent
-                    tCoeffPert = tCoeff;
-                    tCoeffPert( iCoeff ) = tCoeffPert( iCoeff ) - aPerturbation * tCoeffPert( iCoeff );
-
-                    // setting the perturbed coefficients
-                    mDvFI( iFI )->set_coeff( tCoeffPert );
-
-                    // reset properties
-                    for ( uint iProp = 0; iProp < tNumProps; iProp++ )
-                    {
-                        mProperties( iProp )->reset_eval_flags();
-                    }
-
-                    // reset constitutive model
-                    this->reset_eval_flags();
-
-                    // evaluate the residual
-                    Matrix< DDRMat > tStrain_Minus = this->strain();
-
-                    // evaluate Jacobian
-                    adStraindDV_FD.get_column( iCoeff ) = ( tStrain_Plus - tStrain_Minus ) / ( 2.0 * aPerturbation * tCoeff( iCoeff ) );
                 }
                 // reset the coefficients values
                 mDvFI( iFI )->set_coeff( tCoeff );
