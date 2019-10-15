@@ -6,6 +6,7 @@ set(HEADERS
     cl_Logger.hpp
 	cl_XML_Parser.hpp
 	fn_Parsing_Tools.hpp
+	fn_Exec_load_user_library.hpp
 	fn_Logger.hpp
 	fn_to_stdio.hpp
 	HDF5_Tools.hpp

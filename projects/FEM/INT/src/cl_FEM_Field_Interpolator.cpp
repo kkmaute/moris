@@ -127,6 +127,7 @@ namespace moris
 
             // set bool for evaluation
             mNEval      = true;
+            mNBuildEval      = true;
             mdNdxEval   = true;
             md2Ndx2Eval = true;
             md3Ndx3Eval = true;
@@ -146,25 +147,25 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Field_Interpolator::N()
+        const Matrix< DDRMat > & Field_Interpolator::NBuild()
         {
             // if shape functions need to be evaluated
-            if( mNEval )
+            if( mNBuildEval )
             {
                 // evaluate the shape functions
-                this->eval_N();
+                this->eval_NBuild();
             }
 
             // return member value
-            return mN;
+            return mNBuild;
         }
 
 //------------------------------------------------------------------------------
-         void Field_Interpolator::eval_N()
+         void Field_Interpolator::eval_NBuild()
          {
              // check that mXi and mTau are set
-             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::eval_N - mXi  is not set." );
-             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::eval_N - mTau is not set." );
+             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::eval_NBuild - mXi  is not set." );
+             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::eval_NBuild - mTau is not set." );
 
              //evaluate space and time SF at Xi, Tau
              Matrix < DDRMat > tNSpace;
@@ -173,10 +174,38 @@ namespace moris
              mTimeInterpolation ->eval_N( mTau, tNTime );
 
              //evaluate space time SF by multiplying space and time SF
-             mN = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
+             mNBuild = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
 
              // set bool for evaluation
-             mNEval = false;
+             mNBuildEval = false;
+         }
+
+//------------------------------------------------------------------------------
+         const Matrix < SDRMat > & Field_Interpolator::N()
+         {
+             // if shape functions need to be evaluated
+             if( mNEval )
+             {
+                 // evaluate the shape functions
+                 this->eval_N();
+             }
+
+             // return member value
+             return mN;
+         }
+
+//------------------------------------------------------------------------------
+         void Field_Interpolator::eval_N()
+         {
+             // init matrix
+             mN.set_size( mNumberOfFields, mNFieldCoeff, 0.0 );
+
+             // loop over the fields
+             for( uint iField = 0; iField < mNumberOfFields; iField++ )
+             {
+                 // fill the matrix for each field
+                 mN( { iField, iField }, { iField * mNFieldBases, ( iField + 1 ) * mNFieldBases - 1 } ) = this->NBuild().matrix_data();
+             }
          }
 
 //------------------------------------------------------------------------------
@@ -491,7 +520,7 @@ namespace moris
             MORIS_ASSERT( mUHat.numel() > 0, "Field_Interpolator::val - mUHat is not set." );
 
             //evaluate the field value
-            return this->N() * mUHat ;
+            return this->NBuild() * mUHat ;
         }
 
 //------------------------------------------------------------------------------

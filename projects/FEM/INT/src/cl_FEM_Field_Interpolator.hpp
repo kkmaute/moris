@@ -65,15 +65,17 @@ class Property;
             moris::Cell< MSI::Dv_Type > mDvType;
 
             // flag for evaluation
+            bool mNBuildEval = true;
             bool mNEval      = true;
-            bool mdNdxEval     = true;
+            bool mdNdxEval   = true;
             bool md2Ndx2Eval = true;
             bool md3Ndx3Eval = true;
-            bool mdNdtEval     = true;
+            bool mdNdtEval   = true;
             bool md2Ndt2Eval = true;
 
             // storage
-            Matrix< DDRMat > mN;
+            Matrix< DDRMat > mNBuild;
+            Matrix< SDRMat > mN;
             Matrix< DDRMat > mdNdx;
             Matrix< DDRMat > md2Ndx2;
             Matrix< DDRMat > md3Ndx3;
@@ -243,13 +245,27 @@ class Property;
              * @param[ out ] shape functions matrix
              *               ( 1 x <number of bases> )
              */
-            const Matrix < DDRMat > & N();
+            const Matrix < DDRMat > & NBuild();
 
 //------------------------------------------------------------------------------
             /**
-             * evaluates the space time shape functions
+             * evaluate the space time shape functions
              */
-            void eval_N();
+            void eval_NBuild();
+
+//------------------------------------------------------------------------------
+            /**
+             * return the N for vectorial field ( space time shape functions )
+             * @param[ out ] ( nNumberOfFields x mNFieldCoeff )
+             */
+             const Matrix < SDRMat > & N();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the N for vectorial field ( space time shape functions )
+             * @param[ out ] ( nNumberOfFields x mNFieldCoeff )
+             */
+             void eval_N();
 
 //------------------------------------------------------------------------------
             /**

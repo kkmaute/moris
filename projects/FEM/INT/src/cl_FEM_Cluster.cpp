@@ -250,34 +250,45 @@ namespace moris
             // init normal
             Matrix < DDRMat > tNormal;
 
-            // if interpolation cell is linear
-            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-            {
-                // get normal from the mesh
-                tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
-            }
-            // if integration cell is higher order
-            else
-            {
+//FIXME: UNCOMMENT ONCE WE HAVE THE 2D NORMALS WORKING
+//            // if interpolation cell is linear
+//            if( mSet->get_IG_space_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+//            {
+//                // get normal from the mesh
+//                tNormal = aCell->compute_outward_side_normal( aSideOrdinal );
+//            }
+//            // if integration cell is higher order
+//            else
+//            {
                 // get normal from the integration cell geometry interpolator
                 mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->get_normal( tNormal );
-            }
+//            }
 
             return tNormal;
         }
 
 //------------------------------------------------------------------------------
-        moris::moris_index Cluster::get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex )
+        moris::mtk::Vertex const * Cluster::get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex )
         {
             // check that a double sided cluster
             MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
                           "Cluster::get_left_vertex_pair - not a double side cluster.");
 
             // get the paired vertex on the right
-            moris::mtk::Vertex const * tRightVertex = mMeshCluster->get_left_vertex_pair( aLeftVertex );
+            return mMeshCluster->get_left_vertex_pair( aLeftVertex );
+
+        }
+
+        moris::moris_index Cluster::get_right_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
+                                                                     moris::mtk::Vertex const * aVertex )
+        {
+            // check that a double sided cluster
+            MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
+                          "Cluster::get_left_vertex_pair - not a double side cluster.");
+
 
             // return the index of the paired vertex on the right
-            return mMeshCluster->get_vertex_cluster_index( tRightVertex, mtk::Master_Slave::SLAVE );
+            return mMeshCluster->get_right_vertex_ord_on_facet(aCellIndexInCluster, aVertex);
         }
 
 //------------------------------------------------------------------------------

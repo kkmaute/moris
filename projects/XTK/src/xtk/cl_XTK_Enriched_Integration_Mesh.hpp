@@ -91,6 +91,9 @@ public:
                                 moris_index aBulkPhaseIndex0,
                                 moris_index aBulkPhaseIndex1);
 
+    std::string
+    get_dbl_interface_side_set_name(moris_index aBulkPhaseIndex0,
+                                    moris_index aBulkPhaseIndex1);
     //------------------------------------------------------------------------------
     // Additional Field Functions
     //------------------------------------------------------------------------------
@@ -158,10 +161,11 @@ public:
     // Printing
     //------------------------------------------------------------------------------
     void print() const;
-    void print_cell_clusters() const;
+    void print_cell_clusters(moris::uint aVerbosityLevel = 0) const;
     void print_block_sets(moris::uint aVerbosityLevel = 0) const;
     void print_side_sets() const;
-
+    void print_double_side_sets(moris::uint aVerbosityLevel = 0) const;
+    void print_double_side_clusters(moris::uint aVerbosityLevel = 0) const;
 
     friend class Enrichment;
 protected:
@@ -187,7 +191,9 @@ protected:
     std::unordered_map<std::string, moris_index>  mDoubleSideSetLabelToOrd;
     moris::Cell<std::string>                      mDoubleSideSetLabels;
     moris::Cell<moris::Cell<mtk::Cluster const*>> mDoubleSideSets;
-    moris::Cell<Side_Cluster*>                    mDoubleSideSetSideClusters;
+    moris::Cell<mtk::Double_Side_Cluster*>        mDoubleSideClusters;
+    moris::Cell<Side_Cluster*>                    mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
+    moris::Matrix<moris::IndexMat>                mBulkPhaseToDblSideIndex;
 
     // Fields
     moris::Cell<xtk::Field> mFields;   /*Structure Node (0), Cell(1)*/
@@ -209,6 +215,19 @@ private:
     void
     setup_double_side_set_clusters();
     //------------------------------------------------------------------------------
+    void
+    setup_double_sided_interface_sides();
+    //------------------------------------------------------------------------------
+    void
+    declare_interface_double_side_sets();
+    //------------------------------------------------------------------------------
+    moris_index
+    get_dbl_side_set_index(moris_index aPhase0,
+                           moris_index aPhase1);
+    //------------------------------------------------------------------------------
+    void
+    create_interface_double_side_sets_and_clusters();
+    //------------------------------------------------------------------------------
     moris::Cell<std::string>
     split_set_name_by_bulk_phase(std::string aBaseName);
     //------------------------------------------------------------------------------
@@ -220,6 +239,9 @@ private:
     //------------------------------------------------------------------------------
     Cell<moris_index>
     register_side_set_names(moris::Cell<std::string> const & aSideSetNames);
+    //------------------------------------------------------------------------------
+    Cell<moris_index>
+    register_double_side_set_names(moris::Cell<std::string> const & aDblSideSetNames);
     //------------------------------------------------------------------------------
     void
     setup_interface_side_sets();

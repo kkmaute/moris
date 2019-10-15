@@ -121,7 +121,7 @@ namespace moris
                 real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout, "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
                         ( unsigned int ) tNumOfIPNodes,
                         ( double ) tElapsedTime / 1000 );
             }
@@ -250,7 +250,7 @@ namespace moris
 
                 // print output
 
-                std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created %u FEM elements in %5.3f seconds.\n\n",
                         ( unsigned int ) mFemClusters.size(),
                         ( double ) tElapsedTime / 1000 );
             }
@@ -335,7 +335,7 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout,"Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
                         ( double ) tElapsedTime / 1000 );
             }
         }
@@ -601,7 +601,7 @@ namespace moris
                                 else
                                 {
                                     // get the vertices in the cluster
-                                    moris::Cell<moris::mtk::Vertex const *> const & tVertices = tCluster->get_vertices_in_cluster();
+                                    moris::Cell<moris::mtk::Vertex *> tVertices = tCluster->get_primary_vertices_in_cluster();
 
                                     // iterate through vertices in cluster
                                     for(moris::uint iVert =0; iVert<tVertices.size(); iVert++)

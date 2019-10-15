@@ -951,7 +951,7 @@ Background_Mesh::print_interface_node_flags()
 {
     for(moris::size_t i = 0; i<mInterfaceNodeFlag.n_rows(); i++)
     {
-        std::cout<<this->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" | ";
+        std::cout<<"Vertex Id: "<<std::setw(8)<<this->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE)<<" | ";
         for(moris::size_t j = 0; j<mInterfaceNodeFlag.n_cols(); j++)
         {
             std::cout<<mInterfaceNodeFlag(i,j)<<" ";
@@ -966,7 +966,7 @@ Background_Mesh::print_interface_node_flags()
 void
 Background_Mesh::initialize_element_phase_indices(moris::size_t const & aNumElements)
 {
-    mElementPhaseIndex = moris::Matrix< moris::IndexMat >(aNumElements,1);
+    mElementPhaseIndex = moris::Matrix< moris::IndexMat >(aNumElements,1,-1);
 }
 
 // ----------------------------------------------------------------------------------

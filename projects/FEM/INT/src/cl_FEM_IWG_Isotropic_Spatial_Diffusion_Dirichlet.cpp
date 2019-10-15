@@ -14,7 +14,7 @@ namespace moris
         IWG_Isotropic_Spatial_Diffusion_Dirichlet::IWG_Isotropic_Spatial_Diffusion_Dirichlet()
         {
             // FIXME set a penalty
-            mGamma = 1.0;
+            mGamma = 1000.0;
         }
 
 //------------------------------------------------------------------------------

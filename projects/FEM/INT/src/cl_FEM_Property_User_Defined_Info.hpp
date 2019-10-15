@@ -76,7 +76,7 @@ namespace moris
                                         moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                                         moris::Cell< Matrix< DDRMat > >             aParamList,
                                         PropertyFunc                                aValFunc,
-                                        moris::Cell< PropertyFunc >                 aDofDerFuncList)
+                                        moris::Cell< PropertyFunc >                 aDofDerFuncList )
             : mPropertyType( aPropertyType ),
               mDofTypes( aDofTypes ),
               mParamList( aParamList ),

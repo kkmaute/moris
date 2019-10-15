@@ -109,6 +109,15 @@ public:
     moris::moris_index
     get_vertex_cluster_index( moris::mtk::Vertex const * aVertex ) const = 0;
 
+
+    moris::moris_index
+    get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster,
+                                 moris::mtk::Vertex const * aVertex ) const
+    {
+        MORIS_ERROR(0,"NOT IMPLEMENTED YET");
+        return 0;
+    }
+
     /*
      * Access a single local coordinate of a vertex
      */
@@ -246,6 +255,7 @@ public:
          return tVertexIds;
     }
 
+
     //##############################################
     // Local Coordinate access
     //##############################################
@@ -312,6 +322,7 @@ public:
     {
         return this->get_vertices_in_cluster().size();
     }
+
 
 };
 }
