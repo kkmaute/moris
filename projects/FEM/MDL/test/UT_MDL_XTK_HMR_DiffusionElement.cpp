@@ -332,7 +332,7 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         // create a list of active block-sets
         moris::Cell< moris_index >  tSetList = {  tIntegMesh1->get_block_set_index("child_0"),
                                                   tIntegMesh1->get_block_set_index("parent_0"),
-                                                  tIntegMesh1->get_side_set_index("iside_0"),
+                                                  tIntegMesh1->get_side_set_index("iside_g_0_p0_0_p1_1"),
                                                   tIntegMesh1->get_side_set_index("SideSet_1")};
 
         moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
