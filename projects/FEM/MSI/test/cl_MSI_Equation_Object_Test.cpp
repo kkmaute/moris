@@ -82,16 +82,17 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-        tNodeIds_1( 0 ) = Node1;
-        tNodeIds_1( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        tNodeIds_1( 0 ).resize( tNumNodes );
+        tNodeIds_1( 0 )( 0 ) = Node1;
+        tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
         Equation_Object EquObj( tNodeIds_1 );
 
         // Check Node Ids of this equation object
-        CHECK( equal_to( ( EquObj.mNodeObj( 0 ) )->get_id(), 0 ) );
-        CHECK( equal_to( ( EquObj.mNodeObj( 1 ) )->get_id(), 1 ) );
+        CHECK( equal_to( ( EquObj.mNodeObj( 0 )( 0 ) )->get_id(), 0 ) );
+        CHECK( equal_to( ( EquObj.mNodeObj( 0 )( 1 ) )->get_id(), 1 ) );
 
         // Check number of possible pdof hosts of this equation object
         CHECK( equal_to( EquObj.get_num_pdof_hosts(), 2 ));
@@ -155,9 +156,10 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointer corresponding to generic equation object
-        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-        tNodeIds_1( 0 ) = Node1;
-        tNodeIds_1( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        tNodeIds_1( 0 ).resize( tNumNodes );
+        tNodeIds_1( 0 )( 0 ) = Node1;
+        tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
         Equation_Object EquObj( tNodeIds_1 );
@@ -184,9 +186,9 @@ namespace moris
         CHECK( equal_to( tPdofHostList( 2 )->mNodeID, 2 ) );
 
         // Check equation objects internal pdof host list
-        CHECK( equal_to( EquObj.mMyPdofHosts.size(), 2 ) );
-        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )->mNodeID, 0 ) );
-        CHECK( equal_to( EquObj.mMyPdofHosts( 1 )->mNodeID, 2 ) );
+        CHECK( equal_to( EquObj.mMyPdofHosts( 0 ).size(), 2 ) );
+        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )( 0 )->mNodeID, 0 ) );
+        CHECK( equal_to( EquObj.mMyPdofHosts( 0 )( 1 )->mNodeID, 2 ) );
         delete Node1;
         delete Node2;
         delete tPdofHostList(0);
@@ -250,9 +252,10 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-        tNodeIds_1( 0 ) = Node1;
-        tNodeIds_1( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        tNodeIds_1( 0 ).resize( tNumNodes );
+        tNodeIds_1( 0 )( 0 ) = Node1;
+        tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
         Equation_Object EquObj( tNodeIds_1 );
@@ -348,9 +351,10 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-        tNodeIds_1( 0 ) = Node1;
-        tNodeIds_1( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        tNodeIds_1( 0 ).resize( tNumNodes );
+        tNodeIds_1( 0 )( 0 ) = Node1;
+        tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
         Equation_Object EquObj( tNodeIds_1 );

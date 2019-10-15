@@ -138,9 +138,6 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
 
 //            print(tElementRHS,"tElementRHS");
 
-
-            //print(tElementTopology,"tElementTopology");
-
             // Fill elementRHS in distributed RHS
             aVectorRHS->sum_into_global_values( tElementTopology.length(),
                                                 tElementTopology,
@@ -153,6 +150,7 @@ void Solver_Interface::assemble_RHS( moris::Dist_Vector * aVectorRHS,
     // global assembly to switch entries to the right proceccor
     aVectorRHS->vector_global_asembly();
 
+//    std::cout<<"Assembled Residual Vector"<<std::endl;
 //    aVectorRHS->print();
 }
 
@@ -201,12 +199,12 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
             Matrix< DDSMat > tElementTopology;
             this->get_element_topology(Ii, Ik, tElementTopology );
 
-            //print(tElementTopology,"tElementTopology");
+//            print(tElementTopology,"tElementTopology");
 
             Matrix< DDRMat > tElementMatrix;
             this->get_element_matrix( Ii, Ik, tElementMatrix );
 
-            //print(tElementMatrix,"tElementMatrix");
+//            print(tElementMatrix,"tElementMatrix");
 
             // Fill element in distributed matrix
             aMat->fill_matrix( tElementTopology.length(),

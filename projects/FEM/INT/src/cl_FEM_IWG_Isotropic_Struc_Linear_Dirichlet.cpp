@@ -48,6 +48,15 @@ namespace moris
             Matrix< DDRMat >tShapeFunc2D( 2, 8, 0.0 );
             tShapeFunc2D( {0,0},{0,3} ) = mMasterFI( 0 )->N().matrix_data();
             tShapeFunc2D( {1,1},{4,7} ) = mMasterFI( 0 )->N().matrix_data();
+			
+//			tShapeFunc2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 1, 1 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 1, 3 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 0, 4 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 0, 6 ) = mMasterFI( 0 )->N()( 0, 3 );
+//            tShapeFunc2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
 
             Matrix< DDRMat > tTestStrain;
             mMasterCM( 0 )->eval_test_strain( tTestStrain );
@@ -85,6 +94,15 @@ namespace moris
             Matrix< DDRMat >tShapeFunc2D( 2, 8, 0.0 );
             tShapeFunc2D( {0,0},{0,3} ) = mMasterFI( 0 )->N().matrix_data();
             tShapeFunc2D( {1,1},{4,7} ) = mMasterFI( 0 )->N().matrix_data();
+			
+//			tShapeFunc2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 1, 1 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 1, 3 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 0, 4 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 0, 6 ) = mMasterFI( 0 )->N()( 0, 3 );
+//            tShapeFunc2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
 
             Matrix< DDRMat > tTestStrain;
             mMasterCM( 0 )->eval_test_strain( tTestStrain );

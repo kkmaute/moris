@@ -195,7 +195,7 @@ Nonlinear_Problem::~Nonlinear_Problem()
     if( mIsMasterSystem )
     {
         delete( mFullVector );
-        delete( mFullVector );
+//        delete( mDummyFullVector );
 
         delete( mJacVals );
         delete( mJacVals0 );

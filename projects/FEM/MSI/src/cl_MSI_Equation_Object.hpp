@@ -11,6 +11,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+#include "cl_MTK_Enums.hpp"                 //FEM/INT/src
+
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 
@@ -33,8 +35,8 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
         protected:
 //-------------------------------------------------------------------------------------------------
-            moris::Cell< fem::Node_Base * >         mNodeObj;
-            moris::Cell< Pdof_Host * >              mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
+            moris::Cell< moris::Cell< fem::Node_Base * > >        mNodeObj;
+            moris::Cell< moris::Cell< Pdof_Host * > >             mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
 
@@ -68,7 +70,7 @@ class Dist_Vector;
             {};
 
 //-------------------------------------------------------------------------------------------------
-            Equation_Object( const moris::Cell< fem::Node_Base * > & aNodeObjs );
+            Equation_Object( const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -97,16 +99,25 @@ class Dist_Vector;
                 return mPdofValues;
             };
 
-
 //-------------------------------------------------------------------------------------------------
+
             /**
-             * @brief Returns the number of nodes, elements and ghosts related to this equation object.
+             * @brief Returns the number of nodes, elements and ghosts related to this equation object. This function is only for unit test purposes.
              *
              */
             // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
-            moris::uint get_num_pdof_hosts() { return mNodeObj.size(); }
+            moris::uint get_num_pdof_hosts()
+            {
+                moris::uint tNumPdofHosts = 0;
+                for( uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
+                {
+                    tNumPdofHosts = tNumPdofHosts + mNodeObj( Ik ).size();
+                }
+                return tNumPdofHosts;
+            }
 
 //------------------------------------------------------------------------------------------------
+
             /**
              * @brief Returns the maximal pdof host (node) index of this equation object
              *
@@ -114,6 +125,7 @@ class Dist_Vector;
             moris::uint get_max_pdof_hosts_ind();
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * @brief Creates the pdof hosts of this equation object, if not created earlier, and puts them into the local pdof host list.
              *  This function is tested by the test [Eqn_Obj_create_pdof_host]
@@ -129,6 +141,7 @@ class Dist_Vector;
                                              moris::Cell< Pdof_Host * > & aPdofHostList );
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * @brief This function creates a list of pdof pointers related to this equation object. This function is tested by the test [Eqn_Obj_create_my_pdof_list]
              * [Dof_Mgn_create_unique_dof_type_map_matrix]
@@ -174,7 +187,8 @@ class Dist_Vector;
              * @param[in] aRequestedPdofValues    Reference to the matrix of requested pdof values
              */
             void get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
-                                           Cell< Matrix< DDRMat > >     & aRequestedPdofValues);
+                                           Cell< Matrix< DDRMat > >     & aRequestedPdofValues,
+                                     const mtk::Master_Slave              aIsMaster = mtk::Master_Slave::MASTER );
 
 //-------------------------------------------------------------------------------------------------
 
@@ -196,6 +210,7 @@ class Dist_Vector;
                 aEqnObjAdofId = mUniqueAdofList;
             };
 //-------------------------------------------------------------------------------------------------
+
             /**
              * returns a moris::Mat with indices of vertices that are connected to this element
              */
@@ -217,18 +232,21 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual void compute_residual()
             {
                 MORIS_ERROR( false, "this function does nothing");
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual void compute_jacobian_and_residual()
             {
                 MORIS_ERROR( false, "this function does nothing");
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual moris::real compute_integration_error( moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
             {
                 MORIS_ERROR( false, "this function does nothing");
@@ -236,6 +254,7 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
+
             virtual moris::real compute_element_average_of_scalar_field()
             {
                 MORIS_ERROR( false, "this function does nothing");
@@ -243,6 +262,7 @@ class Dist_Vector;
             }
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * return Neumann boundary conditions, writable version
              */
@@ -279,12 +299,13 @@ class Dist_Vector;
 //            }
 
 //-------------------------------------------------------------------------------------------------
+
             /**
              * how many nodes are connected to this element
              */
             uint get_num_nodes() const
             {
-                return mNodeObj.size();
+                return mNodeObj( 0 ).size();
             }
 
 //-------------------------------------------------------------------------------------------------

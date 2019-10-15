@@ -872,13 +872,13 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 // get child cell pointers
                 moris::Cell<moris::mtk::Cell const *> tChildCells = this->get_mtk_cells_loc_inds(tChildCellInds);
 
-                moris::Cell<moris_index> const & tSubPhaseIndidces = tChildMesh->get_subphase_indices();
+//                moris::Cell<moris_index> const & tSubPhaseIndidces = tChildMesh->get_subphase_indices();
 
                 // create a side cluster for each subphase in this child mesh
                 moris::Cell<xtk::Side_Cluster*> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
                 for(moris::uint  iSP = 0; iSP < tChildMesh->get_num_subphase_bins(); iSP++)
                 {
-                    MORIS_ASSERT(tEnrichedCellsOfBaseCell(iSP)->get_subphase_index() == tSubPhaseIndidces(iSP),"Enriched interpolation cell subphases associated with a base cell should be in ascending order.");
+//                    MORIS_ASSERT(tEnrichedCellsOfBaseCell(iSP)->get_subphase_index() == tSubPhaseIndidces(iSP),"Enriched interpolation cell subphases associated with a base cell should be in ascending order.");
 
                     tSideClustersForCM(iSP) = new Side_Cluster();
                     tSideClustersForCM(iSP)->mInterpolationCell = tEnrichedCellsOfBaseCell(iSP);

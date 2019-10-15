@@ -8,6 +8,7 @@
 #include "catch.hpp"
 #include "cl_Star.hpp"
 #include "cl_Circle.hpp"
+#include "cl_Plane.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
@@ -132,68 +133,97 @@ LevelSetFunction_star( const moris::Matrix< moris::DDRMat > & aPoint )
     return tLevelSetVaue;
 }
 
-TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
+TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 {
     if(par_size()<=1)
     {
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+        // hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "5, 5");
-        tParameters.set( "domain_dimensions", "2, 2" );
-        tParameters.set( "domain_offset", "-1.0, -1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
-        tParameters.set( "lagrange_output_meshes", "0" );
+        // tParameters.set( "number_of_elements_per_dimension", "3, 1");
+        // tParameters.set( "domain_dimensions", "2, 2" );
+        // tParameters.set( "domain_offset", "-1.0, -1.0" );
+        // tParameters.set( "domain_sidesets", "1,2,3,4" );
+        // tParameters.set( "lagrange_output_meshes", "0" );
 
-        tParameters.set( "lagrange_orders", "1" );
-        tParameters.set( "lagrange_pattern", "0" );
-        tParameters.set( "bspline_orders", "1" );
-        tParameters.set( "bspline_pattern", "0" );
+        // tParameters.set( "lagrange_orders", "1" );
+        // tParameters.set( "lagrange_pattern", "0" );
+        // tParameters.set( "bspline_orders", "1" );
+        // tParameters.set( "bspline_pattern", "0" );
 
-        tParameters.set( "lagrange_to_bspline", "0" );
+        // tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "truncate_bsplines", 1 );
-        tParameters.set( "refinement_buffer", 3 );
-        tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", 0 );
+        // tParameters.set( "truncate_bsplines", 1 );
+        // tParameters.set( "refinement_buffer", 3 );
+        // tParameters.set( "staircase_buffer", 3 );
+        // tParameters.set( "initial_refinement", 0 );
 
-        tParameters.set( "use_multigrid", 0 );
-        tParameters.set( "severity_level", 2 );
+        // tParameters.set( "use_multigrid", 0 );
+        // tParameters.set( "severity_level", 2 );
 
-        hmr::HMR tHMR( tParameters );
+        // hmr::HMR tHMR( tParameters );
 
-        // initial refinement
-        tHMR.perform_initial_refinement( 0 );
+        //initial refinement
+        // tHMR.perform_initial_refinement( 0 );
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+        // std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        //// create field
-//        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+        // create field
+       //std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-//        tField->evaluate_scalar_function( LvlSetCircle_2D );
-//        //
-//        for( uint k=0; k<2; ++k )
-//        {
-//            tHMR.flag_surface_elements_on_working_pattern( tField );
-//            tHMR.perform_refinement_based_on_working_pattern( 0 );
-//
-//            tField->evaluate_scalar_function( LvlSetCircle_2D );
-//        }
+       //tField->evaluate_scalar_function( LvlSetCircle_2D );
+       //
+       //for( uint k=0; k<2; ++k )
+       //{
+       //    tHMR.flag_surface_elements_on_working_pattern( tField );
+        //   tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-        tHMR.finalize();
+       //    tField->evaluate_scalar_function( LvlSetCircle_2D );
+      // }
 
-//        tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+        // tHMR.finalize();
 
-        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+       //tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
 
-        xtk::Circle tCircle( 0.501, 0.0, 0.0 );
+         // std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+
+        //----------------------------------------------------------------------------------------------
+       std::string tPrefix = std::getenv("MORISROOT");
+       std::string tMeshFileName = tPrefix + "build/3x1.g";
+       std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
+
+       moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+       std::string tFieldName1 = "Temp_Field";
+       tNodeField1.set_field_name( tFieldName1 );
+       tNodeField1.set_field_entity_rank( EntityRank::NODE );
+
+       // Initialize field information container
+       moris::mtk::MtkFieldsInfo tFieldsInfo;
+
+       // Place the node field into the field info container
+       add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+
+       // Declare some supplementary fields
+       mtk::MtkMeshData tMeshData;
+       tMeshData.FieldsInfo = &tFieldsInfo;
+
+
+       // construct the mesh data
+       mtk::Interpolation_Mesh* tInterpolationMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+        //-----------------------------------------------------------------------------------------------
+
+//        xtk::Circle tCircle( 0.501, 0.0, 0.0 );
+        moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
+        moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
+        xtk::Plane<2> tPlane(tCenters,tNormals);
 
         xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
+        xtk::Geometry_Engine tGeometryEngine(tPlane,tPhaseTable, 2);
 
-        xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+        // xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+       xtk::Model tXTKModel(2, tInterpolationMesh, tGeometryEngine);
 
         tXTKModel.mVerbose = true;
 
@@ -201,15 +231,38 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment(EntityRank::NODE,0);
+        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE_1,0);
 
         // get meshes
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
+        tEnrInterpMesh.print_enriched_cells();
+        tEnrIntegMesh.print_double_side_sets(2);
+
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+
+        //-----------------------------------------------------------------------------
+//        // output solution and meshes
+//                xtk::Output_Options tOutputOptions1;
+//                tOutputOptions1.mAddNodeSets = false;
+//                tOutputOptions1.mAddSideSets = false;
+//                tOutputOptions1.mAddClusters = false;
+//
+//
+//                moris::mtk::Integration_Mesh* tIntegMesh11 = tXTKModel.get_output_mesh(tOutputOptions1);
+//
+//                for(moris::uint i = 0; i < tIntegMesh11->get_num_entities(EntityRank::NODE); i++)
+//                {
+//                    moris::moris_id tID = tIntegMesh11->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
+//                }
+//
+//
+//                std::string tMeshOutputFile1 = "./mdl_exo/stk_xtk_inv_ilu_quad_bspline1.e";
+//                tIntegMesh11->create_output_mesh(tMeshOutputFile1);
+        //-----------------------------------------------------------------------------
 
         uint tSpatialDimension = 2;
 
@@ -246,6 +299,12 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
                                                                     {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
                                                                     { fem::Property_Type::STRUC_DIRICHLET },
                                                                     { fem::Constitutive_Type::STRUC_LIN_ISO } );
+//        tIWGUserDefinedInfo( 5 ).resize( 1 );
+//        tIWGUserDefinedInfo( 5 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET,
+//                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
+//                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
+//                                                                    { fem::Property_Type::STRUC_DIRICHLET },
+//                                                                    { fem::Constitutive_Type::STRUC_LIN_ISO } );
         tIWGUserDefinedInfo( 5 ).resize( 1 );
         tIWGUserDefinedInfo( 5 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_NEUMANN,
                                                                     { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
@@ -265,12 +324,12 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         // create property user defined info
         fem::Property_User_Defined_Info tYoungs_Modulus( fem::Property_Type::YOUNGS_MODULUS,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1000000.0 }}},
+                {{{ 1.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.3 }}},
+                {{{ 0.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
@@ -280,7 +339,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1000.0, 100.0 }}},
+                {{{ 1.0, 0.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
 
@@ -307,6 +366,11 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         tPropertyUserDefinedInfo( 4 )( 0 )( 0 ) = tYoungs_Modulus;
         tPropertyUserDefinedInfo( 4 )( 0 )( 1 ) = tPoissons_Ratio;
         tPropertyUserDefinedInfo( 4 )( 0 )( 2 ) = tStrucDirichlet;
+//        tPropertyUserDefinedInfo( 5 ).resize( 1 );
+//        tPropertyUserDefinedInfo( 5 )( 0 ).resize( 3 );
+//        tPropertyUserDefinedInfo( 5 )( 0 )( 0 ) = tYoungs_Modulus;
+//        tPropertyUserDefinedInfo( 5 )( 0 )( 1 ) = tPoissons_Ratio;
+//        tPropertyUserDefinedInfo( 5 )( 0 )( 2 ) = tStrucDirichlet;
         tPropertyUserDefinedInfo( 5 ).resize( 1 );
         tPropertyUserDefinedInfo( 5 )( 0 ).resize( 1 );
         tPropertyUserDefinedInfo( 5 )( 0 )( 0 ) = tStrucNeumann;
@@ -339,6 +403,9 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         tConstitutiveUserDefinedInfo( 4 ).resize( 1 );
         tConstitutiveUserDefinedInfo( 4 )( 0 ).resize( 1 );
         tConstitutiveUserDefinedInfo( 4 )( 0 )( 0 ) = tStrucLinIso;
+//        tConstitutiveUserDefinedInfo( 5 ).resize( 1 );
+//        tConstitutiveUserDefinedInfo( 5 )( 0 ).resize( 1 );
+//        tConstitutiveUserDefinedInfo( 5 )( 0 )( 0 ) = tStrucLinIso;
         tConstitutiveUserDefinedInfo( 5 ).resize( 1 );
         tConstitutiveUserDefinedInfo( 6 ).resize( 2 );
         tConstitutiveUserDefinedInfo( 6 )( 0 ).resize( 1 );
@@ -351,13 +418,21 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
         // create a list of active block-sets
-        moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-                                                 tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
-                                                 tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
-                                                 tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
+                                                tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
+                                                tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
+                                                tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
+                                                tEnrIntegMesh.get_side_set_index("surface_4_n_p0"),
+                                                tEnrIntegMesh.get_side_set_index("surface_2_n_p1"),
+                                                tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+
+        // moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
+                                                 // tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
+                                                 // tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
+                                                 // tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
+                                                 // tEnrIntegMesh.get_side_set_index("SideSet_4_n_p0"),
+                                                 // tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
+                                                 // tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
 
         moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
                                                           fem::Element_Type::BULK,
@@ -419,7 +494,13 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
 
         tNonlinearSolver.solve( tNonlinearProblem );
 
+//            Matrix<DDRMat> tFullSol;
+//            tNonlinearSolver.get_full_solution(tFullSol);
+//
+//            print(tFullSol,"tFullSol");
+
         //        Matrix<DDRMat> tFullSol;
+        std::cout<<" Solution Vector "<<std::endl;
         tNonlinearProblem->get_full_vector()->print();
 
         // output solution and meshes
@@ -471,7 +552,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
     }
 }
 
-TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc__Interface_2D]")
+TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
 {
     if(par_size()<=1)
     {
@@ -480,7 +561,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc__Interface_2D]")
 
         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "5, 5");
+        tParameters.set( "number_of_elements_per_dimension", "20, 20");
         tParameters.set( "domain_dimensions", "2, 2" );
         tParameters.set( "domain_offset", "-1.0, -1.0" );
         tParameters.set( "domain_sidesets", "1,2,3,4" );
@@ -754,6 +835,102 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc__Interface_2D]")
 
         delete tModel;
     }
+}
+
+#include <armadillo>
+
+
+TEST_CASE("Arma Test","[Arma_Test]")
+{
+    uint tIter = 100;
+    arma::Mat<double> tMatrix;
+    tMatrix.ones(1,64);
+
+    arma::Mat<double> tMatrixS;
+    arma::Mat<double> tMatrixSS;
+
+    arma::Mat<double> tVector;
+    tVector.ones(320);
+
+    arma::SpMat<double> tSpMat11;
+    arma::SpMat<double> tSpMat22;
+
+//    tMatrixS( arma::span( 0, 0 ), arma::span( 0, 63 ) ) = tMatrix;
+//    tMatrixS( arma::span( 1, 1 ), arma::span( 64, 127 ) ) = tMatrix;
+//    tMatrixS( arma::span( 2, 2 ), arma::span( 128, 191 ) ) = tMatrix;
+//    tMatrixS( arma::span( 3, 3 ), arma::span( 192, 255 ) ) = tMatrix;
+//    tMatrixS( arma::span( 4, 4 ), arma::span( 256, 319 ) ) = tMatrix;
+//
+//    tSpMat11( arma::span( 0, 0 ), arma::span( 0, 63 ) ) = tMatrix;
+//    tSpMat11( arma::span( 1, 1 ), arma::span( 64, 127 ) ) = tMatrix;
+//    tSpMat11( arma::span( 2, 2 ), arma::span( 128, 191 ) ) = tMatrix;
+//    tSpMat11( arma::span( 3, 3 ), arma::span( 192, 255 ) ) = tMatrix;
+//    tSpMat11( arma::span( 4, 4 ), arma::span( 256, 319 ) ) = tMatrix;
+
+    tSpMat11.sprandu(1000, 5, 0.2);
+    tSpMat22.sprandu(5, 1000, 0.2);
+
+    tMatrixS = arma::mat(tSpMat11);
+    tMatrixSS = arma::mat(tSpMat22);
+
+//    sp_mat C = 2*B;
+//    sp_mat D = A*C;
+//
+//    tSpMat11.print();
+
+
+//    tMatrixSS.eye();
+
+    tic tTimer_Dense;
+//    arma::Mat<double> tMatrixR1(320,320);
+
+    for(uint Ik = 0; Ik<tIter; Ik++)
+    {
+        arma::Mat<double> tMatrixR1;
+
+        tMatrixR1 =  tMatrixS   * tMatrixSS ;
+    }
+
+    real tElapsedTime_Dense = tTimer_Dense.toc<moris::chronos::milliseconds>().wall;
+
+    MORIS_LOG( " dense Multiplication on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime_Dense / 1000);
+
+    arma::SpMat<double> tSpMat = arma::sp_mat(tMatrixS);
+
+    arma::SpMat<double> tSpMatS = arma::sp_mat(tMatrixSS);
+
+    tic tTimer_Sparse;
+//    arma::Mat<double> tMatrixR2(320,320);
+    for(uint Ik = 0; Ik<tIter; Ik++)
+    {
+
+        arma::Mat<double> tMatrixR2;
+        tMatrixR2 = tSpMat11 * tSpMat22;
+    }
+
+    real tElapsedTime_Sparse = tTimer_Sparse.toc<moris::chronos::milliseconds>().wall;
+
+    MORIS_LOG( " Sparse Multiplication on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime_Sparse / 1000);
+
+    tic tTimer_Sparse_2;
+
+//    arma::SpMat<double> tMatrixR3(320,320);
+
+    for(uint Ik = 0; Ik<tIter; Ik++)
+    {
+        arma::SpMat<double> tMatrixR3;
+
+        tMatrixR3 = tSpMat11 * tSpMat22;
+    }
+
+    real tElapsedTime_Sparse_2 = tTimer_Sparse_2.toc<moris::chronos::milliseconds>().wall;
+
+    MORIS_LOG( " Sparse 2 Multiplication on processor %u took %5.3f seconds.\n", ( uint ) par_rank(), ( double ) tElapsedTime_Sparse_2 / 1000);
+
+
+
+//    tMatrixS.print();
+
 }
 }
 

@@ -199,6 +199,8 @@ namespace moris
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
 
+            std::cout<<"Double Sided"<<std::endl;
+
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -290,6 +292,9 @@ namespace moris
                         mSet->mJacobian( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 0 ), mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 1 ) },
                                          { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
                                        += tWStar * tJacobians( 1 )( iIWGFI );
+
+//                        print( tJacobians( 0 )( iIWGFI ), " mJacobian " );
+//                        print( tJacobians( 1 )( iIWGFI ), " mJacobian " );
                     }
                 }
             }

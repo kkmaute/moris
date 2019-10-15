@@ -152,9 +152,9 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     }
 
     // define an epsilon environment
-    double tEpsilon = 1E-6;
+    double tEpsilon = 1E-4;
 
-    // define aperturbation relative size
+    // define a perturbation relative size
     real tPerturbation = 1E-6;
 
     SECTION( "IWG_Spatial_Diffusion : check residual and jacobian with constant property" )

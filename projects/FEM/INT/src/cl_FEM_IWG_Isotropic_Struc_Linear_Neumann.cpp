@@ -21,14 +21,19 @@ namespace moris
             this->set_residual( aResidual );
 
             Matrix< DDRMat >tShapeFunc2D( 2, 8, 0.0 );
-            tShapeFunc2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
-            tShapeFunc2D( 0, 1 ) = mMasterFI( 0 )->N()( 0, 1 );
-            tShapeFunc2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 2 );
-            tShapeFunc2D( 0, 3 ) = mMasterFI( 0 )->N()( 0, 3 );
-            tShapeFunc2D( 1, 4 ) = mMasterFI( 0 )->N()( 0, 0 );
-            tShapeFunc2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 1 );
-            tShapeFunc2D( 1, 6 ) = mMasterFI( 0 )->N()( 0, 2 );
-            tShapeFunc2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
+            tShapeFunc2D( {0,0},{0,3} ) = mMasterFI( 0 )->N().matrix_data();
+            tShapeFunc2D( {1,1},{4,7} ) = mMasterFI( 0 )->N().matrix_data();
+			
+//			tShapeFunc2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 1, 1 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 1, 3 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 0, 4 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 0, 6 ) = mMasterFI( 0 )->N()( 0, 3 );
+//            tShapeFunc2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
+			
+			print(mMasterProp( 0 )->val(),"Neumann");
 
             // compute the residual r_U
             aResidual( 0 ) = - trans( tShapeFunc2D ) * trans( mMasterProp( 0 )->val() );
@@ -46,14 +51,17 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             Matrix< DDRMat >tShapeFunc2D( 2, 8, 0.0 );
-            tShapeFunc2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
-            tShapeFunc2D( 0, 1 ) = mMasterFI( 0 )->N()( 0, 1 );
-            tShapeFunc2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 2 );
-            tShapeFunc2D( 0, 3 ) = mMasterFI( 0 )->N()( 0, 3 );
-            tShapeFunc2D( 1, 4 ) = mMasterFI( 0 )->N()( 0, 0 );
-            tShapeFunc2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 1 );
-            tShapeFunc2D( 1, 6 ) = mMasterFI( 0 )->N()( 0, 2 );
-            tShapeFunc2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
+            tShapeFunc2D( {0,0},{0,3} ) = mMasterFI( 0 )->N().matrix_data();
+            tShapeFunc2D( {1,1},{4,7} ) = mMasterFI( 0 )->N().matrix_data();
+			
+//			tShapeFunc2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 1, 1 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFunc2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 1, 3 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFunc2D( 0, 4 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFunc2D( 0, 6 ) = mMasterFI( 0 )->N()( 0, 3 );
+//            tShapeFunc2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
 
             // compute the jacobian for direct IWG dof dependencies
             // None

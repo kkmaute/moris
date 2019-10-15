@@ -62,6 +62,10 @@ namespace moris
             // evaluate temperature jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
 
+//            std::cout<<" master slave "<<std::endl;
+//            print(mMasterFI( 0 )->val()," m");
+//            print(mSlaveFI( 0 )->val()," s");
+
             Matrix< DDRMat > tMasterTestStrain;
             mMasterCM( 0 )->eval_test_strain( tMasterTestStrain );
 
@@ -84,6 +88,15 @@ namespace moris
             tShapeFuncMaster2D( 1, 6 ) = mMasterFI( 0 )->N()( 0, 2 );
             tShapeFuncMaster2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
 
+//		    tShapeFuncMaster2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFuncMaster2D( 1, 1 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFuncMaster2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFuncMaster2D( 1, 3 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFuncMaster2D( 0, 4 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFuncMaster2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFuncMaster2D( 0, 6 ) = mMasterFI( 0 )->N()( 0, 3 );
+//            tShapeFuncMaster2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
+
             Matrix< DDRMat >tShapeFuncSlave2D( 2, 8, 0.0 );
             tShapeFuncSlave2D( 0, 0 ) = mSlaveFI( 0 )->N()( 0, 0 );
             tShapeFuncSlave2D( 0, 1 ) = mSlaveFI( 0 )->N()( 0, 1 );
@@ -94,6 +107,15 @@ namespace moris
             tShapeFuncSlave2D( 1, 6 ) = mSlaveFI( 0 )->N()( 0, 2 );
             tShapeFuncSlave2D( 1, 7 ) = mSlaveFI( 0 )->N()( 0, 3 );
 
+//			tShapeFuncSlave2D( 0, 0 ) = mSlaveFI( 0 )->N()( 0, 0 );
+//            tShapeFuncSlave2D( 1, 1 ) = mSlaveFI( 0 )->N()( 0, 0 );
+//            tShapeFuncSlave2D( 0, 2 ) = mSlaveFI( 0 )->N()( 0, 1 );
+//            tShapeFuncSlave2D( 1, 3 ) = mSlaveFI( 0 )->N()( 0, 1 );
+//            tShapeFuncSlave2D( 0, 4 ) = mSlaveFI( 0 )->N()( 0, 2 );
+//            tShapeFuncSlave2D( 1, 5 ) = mSlaveFI( 0 )->N()( 0, 2 );
+//            tShapeFuncSlave2D( 0, 6 ) = mSlaveFI( 0 )->N()( 0, 3 );
+//            tShapeFuncSlave2D( 1, 7 ) = mSlaveFI( 0 )->N()( 0, 3 );
+
 //            print( tMasterTestStrain ,"tMasterTestStrain");
 //            print( tSlaveTestStrain  ,"tSlaveTestStrain");
 
@@ -102,10 +124,10 @@ namespace moris
                              + mMasterWeight * trans( tMasterTestStrain ) * tMasterK * trans( tNormal ) * trans(tJump)
                              + mGammaInterface * trans( tShapeFuncMaster2D ) * trans( tJump );
 
-            // compute slave residual
             aResidual( 1 ) =   trans( tShapeFuncSlave2D ) * tNormal * tFlux
                              + mSlaveWeight * trans( tSlaveTestStrain ) * tSlaveK * trans( tNormal ) * trans(tJump)
                              - mGammaInterface * trans( tShapeFuncSlave2D ) * trans( tJump );
+            // compute slave residual
         }
 
 //------------------------------------------------------------------------------
@@ -168,6 +190,24 @@ namespace moris
             tShapeFuncSlave2D( 1, 5 ) = mSlaveFI( 0 )->N()( 0, 1 );
             tShapeFuncSlave2D( 1, 6 ) = mSlaveFI( 0 )->N()( 0, 2 );
             tShapeFuncSlave2D( 1, 7 ) = mSlaveFI( 0 )->N()( 0, 3 );
+			
+//			tShapeFuncMaster2D( 0, 0 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFuncMaster2D( 1, 1 ) = mMasterFI( 0 )->N()( 0, 0 );
+//            tShapeFuncMaster2D( 0, 2 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFuncMaster2D( 1, 3 ) = mMasterFI( 0 )->N()( 0, 1 );
+//            tShapeFuncMaster2D( 0, 4 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFuncMaster2D( 1, 5 ) = mMasterFI( 0 )->N()( 0, 2 );
+//            tShapeFuncMaster2D( 0, 6 ) = mMasterFI( 0 )->N()( 0, 3 );
+//            tShapeFuncMaster2D( 1, 7 ) = mMasterFI( 0 )->N()( 0, 3 );
+			
+//			tShapeFuncSlave2D( 0, 0 ) = mSlaveFI( 0 )->N()( 0, 0 );
+//            tShapeFuncSlave2D( 1, 1 ) = mSlaveFI( 0 )->N()( 0, 0 );
+//            tShapeFuncSlave2D( 0, 2 ) = mSlaveFI( 0 )->N()( 0, 1 );
+//            tShapeFuncSlave2D( 1, 3 ) = mSlaveFI( 0 )->N()( 0, 1 );
+//            tShapeFuncSlave2D( 0, 4 ) = mSlaveFI( 0 )->N()( 0, 2 );
+//            tShapeFuncSlave2D( 1, 5 ) = mSlaveFI( 0 )->N()( 0, 2 );
+//            tShapeFuncSlave2D( 0, 6 ) = mSlaveFI( 0 )->N()( 0, 3 );
+//            tShapeFuncSlave2D( 1, 7 ) = mSlaveFI( 0 )->N()( 0, 3 );
 
             // compute the jacobian for direct dof dependencies
             aJacobians( 0 )( 0 ) = mMasterWeight * trans( tMasterTestStrain ) * tMasterK * trans( tNormal ) * tShapeFuncMaster2D
@@ -181,6 +221,14 @@ namespace moris
 
             aJacobians( 1 )( 1 ) = - mSlaveWeight * trans( tSlaveTestStrain ) * tSlaveK * trans( tNormal ) * tShapeFuncSlave2D
                                    + mGammaInterface * trans( tShapeFuncSlave2D ) * tShapeFuncSlave2D;
+
+//            aJacobians( 0 )( 0 ) = + mGammaInterface * trans( tShapeFuncMaster2D ) * tShapeFuncMaster2D;
+
+//            aJacobians( 0 )( 1 ) = - mGammaInterface * trans( tShapeFuncMaster2D ) * tShapeFuncSlave2D;
+
+//            aJacobians( 1 )( 0 ) = - mGammaInterface * trans( tShapeFuncSlave2D ) * tShapeFuncMaster2D;
+
+//            aJacobians( 1 )( 1 ) = + mGammaInterface * trans( tShapeFuncSlave2D ) * tShapeFuncSlave2D;
 
             // compute the jacobian for indirect dof dependencies through master constitutive models
             uint tMasterNumDofDependencies = mMasterGlobalDofTypes.size();
