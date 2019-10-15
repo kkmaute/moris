@@ -443,10 +443,10 @@ namespace moris
                         moris::Cell< Pdof* > tPdofTimeList = mMyPdofHosts( tIsMaster )( Ik )->get_pdof_time_list( tDofTypeIndex );
 
                         // get entry number of this pdof in the elemental pdof value vector
-                        moris::uint mElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;
+                        moris::uint tElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;
 
                         // Put this pdof value into the requested pdof vector
-                        aRequestedPdofValues( Ii )( tCounter_2++, 0 ) = mPdofValues( mElementalSolVecEntry , 0 );
+                        aRequestedPdofValues( Ii )( tCounter_2++, 0 ) = mPdofValues( tElementalSolVecEntry , 0 );
                     }
                 }
             }
