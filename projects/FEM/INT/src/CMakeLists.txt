@@ -126,7 +126,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_LSNormal_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Interface.cpp
-    cl_FEM_IWG_Test.cpp
     cl_FEM_Interpolation_Function_Factory.cpp
     cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Geometry_Interpolator.cpp

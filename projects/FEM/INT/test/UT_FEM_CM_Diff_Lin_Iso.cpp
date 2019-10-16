@@ -117,6 +117,7 @@ namespace moris
 
             // evaluate the constitutive model flux derivative
             Matrix< DDRMat > tdFluxdDOF = tCM.dFluxdDOF( { MSI::Dof_Type::TEMP } );
+            print( tdFluxdDOF, "tdFluxdDOF");
 
             // evaluate the constitutive model stress derivative by FD
             Matrix< DDRMat > tdFluxdDOF_FD;

@@ -107,11 +107,11 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterWeight * trans( mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterWeight * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
                        + mMasterWeight * mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
 
                     aJacobians( 1 )( iDOF ).matrix_data()
-                    += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * trans( mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) );
+                    += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal );
                 }
             }
 
@@ -127,10 +127,10 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * trans( mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) );
+                    += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal );
 
                     aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * trans( mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
+                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal )
                        + mSlaveWeight * mSlaveCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
                 }
             }

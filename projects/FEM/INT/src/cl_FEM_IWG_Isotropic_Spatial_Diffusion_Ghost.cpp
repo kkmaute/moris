@@ -110,54 +110,7 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                    moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // check, if order is supported
-            MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual - Ghost stabilization for this order not supported yet. " );
-
-            // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
-
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
-            // set residual cell size
-            this->set_residual_double( aResidual );
-
-            // set the jacobian cell size
-            this->set_jacobian_double( aJacobians );
-
-            // loop over interpolation orders
-            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
-            {
-                 // get normal matrix
-                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
-
-                 // premultiply common terms
-                 Matrix< DDRMat > tPreMultiplyRes = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 )      // coefficients
-                                                  * trans( tNormalMatrix ) * tNormalMatrix                                // normals
-                                                  * ( mMasterFI( 0 )->gradx( iOrder ) - mSlaveFI( 0 )->gradx( iOrder ) ); // jump in iOrder order spatial gradient
-
-                 // compute master and slave residuals
-                 aResidual( 0 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiplyRes;
-                 aResidual( 1 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiplyRes;
-
-                 // premultiply common terms
-                 Matrix< DDRMat > tPreMultiplyJac = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 ) // coefficients
-                                                  * trans( tNormalMatrix ) * tNormalMatrix;                          // normals
-
-                 // compute master and slave Jacobian
-                 aJacobians( 0 )( 0 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiplyJac        * mMasterFI( 0 )->dnNdxn( iOrder );
-                 aJacobians( 0 )( 1 ).matrix_data() +=  trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiplyJac * -1.0 * mSlaveFI( 0 )->dnNdxn( iOrder );
-                 aJacobians( 1 )( 0 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiplyJac        * mMasterFI( 0 )->dnNdxn( iOrder );
-                 aJacobians( 1 )( 1 ).matrix_data() += -trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiplyJac * -1.0 * mSlaveFI( 0 )->dnNdxn( iOrder );
-            }
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian_and_residual - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

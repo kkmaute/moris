@@ -127,7 +127,7 @@ namespace moris
 
             // set bool for evaluation
             mNEval      = true;
-            mNBuildEval      = true;
+            mNBuildEval = true;
             mdNdxEval   = true;
             md2Ndx2Eval = true;
             md3Ndx3Eval = true;
@@ -520,7 +520,7 @@ namespace moris
             MORIS_ASSERT( mUHat.numel() > 0, "Field_Interpolator::val - mUHat is not set." );
 
             //evaluate the field value
-            return this->NBuild() * mUHat ;
+            return trans( this->NBuild() * mUHat ) ;
         }
 
 //------------------------------------------------------------------------------
