@@ -69,6 +69,8 @@ namespace moris
             uint tSlaveNumFI    = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
             uint tMasterNumProp = mSet->get_number_of_properties();
             uint tSlaveNumProp  = mSet->get_number_of_properties( mtk::Master_Slave::SLAVE );
+            uint tMasterNumCM   = mSet->get_number_of_constitutive_models();
+            uint tSlaveNumCM    = mSet->get_number_of_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -123,6 +125,16 @@ namespace moris
                 for ( uint iProp = 0; iProp < tSlaveNumProp; iProp++ )
                 {
                     mSet->get_properties( mtk::Master_Slave::SLAVE )( iProp )->reset_eval_flags();
+                }
+
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tMasterNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
+                }
+                for ( uint iCM = 0; iCM < tSlaveNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models( mtk::Master_Slave::SLAVE )( iCM )->reset_eval_flags();
                 }
 
                 // compute the integration point weight // fixme both side?
@@ -195,6 +207,8 @@ namespace moris
             uint tSlaveNumFI    = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
             uint tMasterNumProp = mSet->get_number_of_properties();
             uint tSlaveNumProp  = mSet->get_number_of_properties( mtk::Master_Slave::SLAVE );
+            uint tMasterNumCM   = mSet->get_number_of_constitutive_models();
+            uint tSlaveNumCM    = mSet->get_number_of_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -251,6 +265,16 @@ namespace moris
                 for ( uint iProp = 0; iProp < tSlaveNumProp; iProp++ )
                 {
                     mSet->get_properties( mtk::Master_Slave::SLAVE )( iProp )->reset_eval_flags();
+                }
+
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tMasterNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
+                }
+                for ( uint iCM = 0; iCM < tSlaveNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models( mtk::Master_Slave::SLAVE )( iCM )->reset_eval_flags();
                 }
 
                 // compute the integration point weight // fixme both side?

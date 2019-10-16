@@ -14,31 +14,35 @@
 #include "op_equal_equal.hpp"
 
 moris::Matrix< moris::DDRMat > tConstValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                               moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );
 }
 
 moris::Matrix< moris::DDRMat > tGeoValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 ) * aGeometryInterpolator->valx()( 0 );
 }
 
 moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aFieldInterpolator( 0 )->val();
+    return aParameters( 0 ) * aDofFI( 0 )->val();
 }
 
 moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                            moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                             moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aFieldInterpolator( 0 )->N();
+    return aParameters( 0 ) * aDofFI( 0 )->N();
 }
 
 using namespace moris;
@@ -202,7 +206,7 @@ TEST_CASE( "IWG_Struc_Linear_Dirichlet", "[moris],[fem],[IWG_Struc_Linear_Dirich
             tCMs( iCM )->set_properties( tCMProps );
 
             // set field interpolators
-            tCMs( iCM )->set_field_interpolators( tFIs );
+            tCMs( iCM )->set_dof_field_interpolators( tFIs );
         }
 
         // set IWG constitutive models
@@ -212,7 +216,7 @@ TEST_CASE( "IWG_Struc_Linear_Dirichlet", "[moris],[fem],[IWG_Struc_Linear_Dirich
         tIWG.set_properties( tIWGProps );
 
         // set IWG field interpolators
-        tIWG.set_field_interpolators( tFIs );
+        tIWG.set_dof_field_interpolators( tFIs );
 
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------

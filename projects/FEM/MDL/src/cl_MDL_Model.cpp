@@ -121,7 +121,7 @@ namespace moris
                 real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout, "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
                         ( unsigned int ) tNumOfIPNodes,
                         ( double ) tElapsedTime / 1000 );
             }
@@ -257,7 +257,7 @@ namespace moris
 
                 // print output
 
-                std::fprintf( stdout,"Model: created %u FEM elements in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created %u FEM elements in %5.3f seconds.\n\n",
                         ( unsigned int ) mFemClusters.size(),
                         ( double ) tElapsedTime / 1000 );
             }
@@ -342,7 +342,7 @@ namespace moris
                 real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 
                 // print output
-                std::fprintf( stdout,"Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
                         ( double ) tElapsedTime / 1000 );
             }
         }
@@ -576,6 +576,8 @@ namespace moris
                             {
                                 // get the cluster
                                 mtk::Cluster const * tCluster = tCellClustersInSet(iCl);
+
+                                tEquationObj(iCl)->get_my_pdof_values( );
 
                                 // get the pdof values for this cluster
                                 Cell < Matrix< DDRMat > >  tPDofVals;

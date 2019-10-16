@@ -56,6 +56,40 @@ namespace moris
             mNFieldCoeff = mNFieldBases * mNumberOfFields;
         }
 
+        Field_Interpolator::Field_Interpolator( const uint                         & aNumberOfFields,
+                                                const Interpolation_Rule           & aFieldInterpolationRule,
+                                                      Geometry_Interpolator*         aGeometryInterpolator,
+                                                const moris::Cell< MSI::Dv_Type >    aDvType )
+                                              : mNumberOfFields( aNumberOfFields ),
+                                                mGeometryInterpolator( aGeometryInterpolator ),
+                                                mDvType( aDvType )
+        {
+            // create space and time interpolation function
+            mSpaceInterpolation = aFieldInterpolationRule.create_space_interpolation_function();
+            mTimeInterpolation  = aFieldInterpolationRule.create_time_interpolation_function();
+
+            // get number of space, time dimensions
+            mNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
+            mNTimeDim  = mTimeInterpolation ->get_number_of_dimensions();
+
+            // get number of space parametric dimensions
+            mNSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
+
+            // check dimensions consistency
+            MORIS_ERROR( ( mNSpaceDim == mGeometryInterpolator->get_number_of_space_dimensions() ) ,
+                         "Field_Interpolator - Space dimension inconsistency." );
+            MORIS_ERROR( ( mNTimeDim  == mGeometryInterpolator->get_number_of_time_dimensions() ),
+                         "Field_Interpolator - Time dimension inconsistency.");
+
+            // get number of space, time, and space time basis
+            mNSpaceBases = mSpaceInterpolation->get_number_of_bases();
+            mNTimeBases  = mTimeInterpolation->get_number_of_bases();
+            mNFieldBases = mNSpaceBases * mNTimeBases;
+
+            // get number of coefficients
+            mNFieldCoeff = mNFieldBases * mNumberOfFields;
+        }
+
 //------------------------------------------------------------------------------
 
         Field_Interpolator::~Field_Interpolator()
@@ -73,7 +107,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Field_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
         {
             // check input size aParamPoint
@@ -92,15 +125,13 @@ namespace moris
             mXi.matrix_data()  = aParamPoint( { 0, mNSpaceParamDim-1 }, { 0, 0 } );
             mTau.matrix_data() = aParamPoint( mNSpaceParamDim );
 
-//            // set input values for geometry interpolator
-//            mGeometryInterpolator->set_space_time( aParamPoint );
-
             // set bool for evaluation
             mNEval      = true;
-            mBxEval     = true;
+            mNBuildEval      = true;
+            mdNdxEval   = true;
             md2Ndx2Eval = true;
             md3Ndx3Eval = true;
-            mBtEval     = true;
+            mdNdtEval   = true;
             md2Ndt2Eval = true;
         }
 
@@ -116,25 +147,25 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & Field_Interpolator::N()
+        const Matrix< DDRMat > & Field_Interpolator::NBuild()
         {
             // if shape functions need to be evaluated
-            if( mNEval )
+            if( mNBuildEval )
             {
                 // evaluate the shape functions
-                this->eval_N();
+                this->eval_NBuild();
             }
 
             // return member value
-            return mN;
+            return mNBuild;
         }
 
-         void Field_Interpolator::eval_N()
+//------------------------------------------------------------------------------
+         void Field_Interpolator::eval_NBuild()
          {
              // check that mXi and mTau are set
-             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::eval_N - mXi  is not set." );
-             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::eval_N - mTau is not set." );
+             MORIS_ASSERT( mXi.numel()  > 0, "Field_Interpolator::eval_NBuild - mXi  is not set." );
+             MORIS_ASSERT( mTau.numel() > 0, "Field_Interpolator::eval_NBuild - mTau is not set." );
 
              //evaluate space and time SF at Xi, Tau
              Matrix < DDRMat > tNSpace;
@@ -143,14 +174,42 @@ namespace moris
              mTimeInterpolation ->eval_N( mTau, tNTime );
 
              //evaluate space time SF by multiplying space and time SF
-             mN = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
+             mNBuild = reshape( trans( tNSpace ) * tNTime, 1, mNFieldBases );
 
              // set bool for evaluation
-             mNEval = false;
+             mNBuildEval = false;
          }
 
 //------------------------------------------------------------------------------
-         const Matrix< DDRMat > & Field_Interpolator::dnNdxn( uint aDerivativeOrder )
+         const Matrix < SDRMat > & Field_Interpolator::N()
+         {
+             // if shape functions need to be evaluated
+             if( mNEval )
+             {
+                 // evaluate the shape functions
+                 this->eval_N();
+             }
+
+             // return member value
+             return mN;
+         }
+
+//------------------------------------------------------------------------------
+         void Field_Interpolator::eval_N()
+         {
+             // init matrix
+             mN.set_size( mNumberOfFields, mNFieldCoeff, 0.0 );
+
+             // loop over the fields
+             for( uint iField = 0; iField < mNumberOfFields; iField++ )
+             {
+                 // fill the matrix for each field
+                 mN( { iField, iField }, { iField * mNFieldBases, ( iField + 1 ) * mNFieldBases - 1 } ) = this->NBuild().matrix_data();
+             }
+         }
+
+//------------------------------------------------------------------------------
+         const Matrix< DDRMat > & Field_Interpolator::dnNdxn( const uint & aDerivativeOrder )
          {
              // switch on derivative order
              switch ( aDerivativeOrder )
@@ -159,13 +218,13 @@ namespace moris
                  case( 1 ) :
                  {
                      // if dNdx needs to be evaluated
-                     if( mBxEval )
+                     if( mdNdxEval )
                      {
-                         // evaluate Bx
-                         this->eval_Bx();
+                         // evaluate d1Ndx1
+                         this->eval_d1Ndx1();
                      }
                      // return member data
-                     return mBx;
+                     return mdNdx;
                  }
                  // 2nd order spatial derivatives of the shape functions
                  case ( 2 ) :
@@ -193,28 +252,17 @@ namespace moris
 
                  default :
                      MORIS_ERROR( false, " Field_Interpolator::dnNdxn - Derivative order not implemented. " );
-                     return mBx;
+                     return mdNdx;
                      break;
              }
          }
 
 //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & Field_Interpolator::Bx()
-        {
-            if( mBxEval )
-            {
-                // evaluate Bx
-                this->eval_Bx();
-            }
-            return mBx;
-        }
-
-        void Field_Interpolator::eval_Bx()
+        void Field_Interpolator::eval_d1Ndx1()
         {
             // check that mXi and mTau are set
-            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_Bx - mXi  is not set." );
-            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_Bx - mTau is not set." );
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_d1Ndx1 - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_d1Ndx1 - mTau is not set." );
 
             // evaluate dNSpacedXi for the field time interpolation and transpose
             Matrix< DDRMat> tdNSpacedXi;
@@ -239,28 +287,14 @@ namespace moris
             mGeometryInterpolator->space_jacobian( tJGeot );
 
             // compute first derivative of the SF wrt x
-//            mBx = solve( tJGeot, tdNFielddXi );
-            mBx = inv( tJGeot ) * tdNFielddXi;
+//            mdNdx = solve( tJGeot, tdNFielddXi );
+            mdNdx = inv( tJGeot ) * tdNFielddXi;
 
             // set bool for evaluation
-            mBxEval = false;
+            mdNdxEval = false;
         }
 
 //------------------------------------------------------------------------------
-
-        const Matrix< DDRMat > & Field_Interpolator::d2Ndx2()
-        {
-            // if d2Ndx2 needs to be evaluated
-            if( md2Ndx2Eval )
-            {
-                // evaluate the shape functions second order derivatives
-                this->eval_d2Ndx2();
-            }
-
-            // return member data
-            return md2Ndx2;
-        }
-
         void Field_Interpolator::eval_d2Ndx2()
         {
             // check that mXi and mTau are set
@@ -276,7 +310,7 @@ namespace moris
                                                                                        mGeometryInterpolator->d2NdXi2() );
 
             // get the derivatives of the space time SF wrt x
-            Matrix< DDRMat > tdNFielddx = this->Bx();
+            Matrix< DDRMat > tdNFielddx = this->dnNdxn( 1 );
 
             // evaluate N for the field time interpolation
             Matrix< DDRMat > tNTime;
@@ -306,19 +340,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Field_Interpolator::d3Ndx3()
-        {
-            // if d3Ndx3 needs to be evaluated
-            if( md3Ndx3Eval )
-            {
-                // evaluate the shape functions third order derivatives
-                this->eval_d3Ndx3();
-            }
-
-            // return member date
-            return md3Ndx3;
-        }
-
         //FIXME: Function not complete
         void Field_Interpolator::eval_d3Ndx3()
         {
@@ -338,8 +359,8 @@ namespace moris
                                                                                       mGeometryInterpolator->d3NdXi3() );
 
             // get the derivatives of the space time SF wrt x
-            Matrix< DDRMat > tdNFielddx   = this->Bx();
-            Matrix< DDRMat > td2NFielddx2 = this->d2Ndx2();
+            Matrix< DDRMat > tdNFielddx   = this->dnNdxn( 1 );
+            Matrix< DDRMat > td2NFielddx2 = this->dnNdxn( 2 );
 
             // evaluate N for the field time interpolation
             Matrix< DDRMat > tNTime;
@@ -381,13 +402,13 @@ namespace moris
                  case( 1 ) :
                  {
                      // if dNdx needs to be evaluated
-                     if( mBtEval )
+                     if( mdNdtEval )
                      {
-                         // evaluate Bt
-                         this->eval_Bt();
+                         // evaluate d1Ndt1
+                         this->eval_d1Ndt1();
                      }
                      // return member data
-                     return mBt;
+                     return mdNdt;
                  }
                  // 2nd order time derivatives of the shape functions
                  case ( 2 ) :
@@ -404,30 +425,17 @@ namespace moris
 
                  default :
                      MORIS_ERROR( false, " Field_Interpolator::dnNdtn - Derivative order not implemented. " );
-                     return mBx;
+                     return mdNdx;
                      break;
              }
          }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Field_Interpolator::Bt()
-        {
-            // if Bt needs to be evaluated
-            if( mBtEval )
-            {
-                // evaluate the shape functions first order derivatives
-                this->eval_Bt();
-            }
-
-            // return member date
-            return mBt;
-        }
-
-        void Field_Interpolator::eval_Bt()
+        void Field_Interpolator::eval_d1Ndt1()
         {
             // check that mXi and mTau are set
-            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_Bt - mXi  is not set." );
-            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_Bt - mTau is not set." );
+            MORIS_ASSERT( mXi.numel()>0,  "Field_Interpolator::eval_d1Ndt1 - mXi  is not set." );
+            MORIS_ASSERT( mTau.numel()>0, "Field_Interpolator::eval_d1Ndt1 - mTau is not set." );
 
             // evaluate dNdTau for the field time interpolation
             Matrix< DDRMat > tdNTimedTau;
@@ -452,26 +460,13 @@ namespace moris
             mGeometryInterpolator->time_jacobian( tJGeot );
 
             // transform output matrix to dNdX
-            mBt = solve( tJGeot, tdNFielddTau );
+            mdNdt = solve( tJGeot, tdNFielddTau );
 
             // set bool for evaluation
-            mBtEval = false;
+            mdNdtEval = false;
         }
 
 //------------------------------------------------------------------------------
-        const Matrix< DDRMat > & Field_Interpolator::d2Ndt2()
-        {
-            // if d2Ndt2 needs to be evaluated
-            if( md2Ndt2Eval )
-            {
-                // evaluate the shape functions second order derivatives
-                this->eval_d2Ndt2();
-            }
-
-            // return member date
-            return md2Ndt2;
-        }
-
         void Field_Interpolator::eval_d2Ndt2()
         {
             // check that mXi and mTau are set
@@ -487,7 +482,7 @@ namespace moris
                                                                                       mGeometryInterpolator->d2NdTau2() );
 
             // get the derivatives of the space time SF wrt t
-            Matrix< DDRMat > tdNFielddt = this->Bt();
+            Matrix< DDRMat > tdNFielddt = this->dnNdtn( 1 );
 
             //get the second derivatives of the space time SF wrt tau
             Matrix< DDRMat > tNSpace;
@@ -519,18 +514,16 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         Matrix< DDRMat > Field_Interpolator::val()
         {
             // check that mUHat is set
             MORIS_ASSERT( mUHat.numel() > 0, "Field_Interpolator::val - mUHat is not set." );
 
             //evaluate the field value
-            return this->N() * mUHat ;
+            return this->NBuild() * mUHat ;
         }
 
 //------------------------------------------------------------------------------
-
         Matrix< DDRMat > Field_Interpolator::gradx( const uint & aDerivativeOrder )
         {
             // check that mUHat is set
@@ -540,31 +533,9 @@ namespace moris
             MORIS_ASSERT( aDerivativeOrder > 0 && aDerivativeOrder < 4,
                           "Field_Interpolator::gradx - aDerivativeOrder is not supported." );
 
+            // evaluate and return gradient
             return this->dnNdxn( aDerivativeOrder ) * mUHat ;
 
-//            switch ( aDerivativeOrder )
-//            {
-//                case( 1 ) :
-//                    //evaluate the field first space derivative
-//                    return this->Bx() * mUHat ;
-//                    break;
-//
-//                case ( 2 ) :
-//                    //evaluate the field second space derivative
-//                    return this->d2Ndx2() * mUHat ;
-//                    break;
-//
-//                case ( 3 ) :
-//                    //evaluate the field second space derivative
-//                    return this->d3Ndx3() * mUHat ;
-//                    break;
-//
-//                default :
-//                    MORIS_ERROR( false, " Field_Interpolator::gradx - Derivative order not implemented. " );
-//                    Matrix< DDRMat > tEmpty;
-//                    return tEmpty;
-//                    break;
-//            }
         }
 
 //------------------------------------------------------------------------------
@@ -577,26 +548,8 @@ namespace moris
             MORIS_ASSERT( aDerivativeOrder > 0 && aDerivativeOrder < 3,
                           "Field_Interpolator::gradt - aDerivativeOrder is not supported." );
 
+            // evaluate and return gradient
             return this->dnNdtn( aDerivativeOrder ) * mUHat ;
-
-//            switch ( aDerivativeOrder )
-//            {
-//                case( 1 ) :
-//                    //evaluate the field first time derivative
-//                    return this->Bt() * mUHat ;
-//                    break;
-//
-//                case ( 2 ) :
-//                    //evaluate the field second time derivative
-//                    return this->d2Ndt2() * mUHat ;
-//                    break;
-//
-//                default :
-//                    MORIS_ERROR( false, " Field_Interpolator::gradt - Derivative order not implemented. " );
-//                    Matrix< DDRMat > tEmpty;
-//                    return tEmpty;
-//                    break;
-//            }
         }
 
 //------------------------------------------------------------------------------

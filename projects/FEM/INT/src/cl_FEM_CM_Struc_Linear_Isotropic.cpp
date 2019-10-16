@@ -10,106 +10,85 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        void CM_Struc_Linear_Isotropic::eval_flux( Matrix< DDRMat > & aFlux )
+        void CM_Struc_Linear_Isotropic::eval_flux()
         {
-            // compute conductivity matrix
-            Matrix< DDRMat > K;
-            this->eval_const( K );
-
-            Matrix< DDRMat > tStrain;
-            this->eval_strain( tStrain );
-
             // compute flux
-            aFlux = K * tStrain;
+            mFlux = this->constitutive() * this->strain();
         }
 
 //------------------------------------------------------------------------------
-
-        void CM_Struc_Linear_Isotropic::eval_strain( Matrix< DDRMat > & aStrain )
+        void CM_Struc_Linear_Isotropic::eval_traction( const Matrix< DDRMat > & aNormal )
         {
-            // compute temp gradient
+            // flatten normal
+            Matrix< DDRMat > tNormal( 2, 3, 0.0 );
+            tNormal( 0, 0 ) = aNormal( 0,0 );
+            tNormal( 0, 2 ) = aNormal( 1,0 );
+            tNormal( 1, 1 ) = aNormal( 1,0 );
+            tNormal( 1, 2 ) = aNormal( 0,0 );
+
+            // compute traction
+            mTraction = tNormal * this->flux();
+        }
+
+//------------------------------------------------------------------------------
+        void CM_Struc_Linear_Isotropic::eval_testTraction( const Matrix< DDRMat > & aNormal )
+        {
+            // flatten normal
+            Matrix< DDRMat > tNormal( 2, 3, 0.0 );
+            tNormal( 0, 0 ) = aNormal( 0,0 );
+            tNormal( 0, 2 ) = aNormal( 1,0 );
+            tNormal( 1, 1 ) = aNormal( 1,0 );
+            tNormal( 1, 2 ) = aNormal( 0,0 );
+
+            // compute test traction
+            mTestTraction = trans( this->testStrain() ) * this->constitutive() * trans( tNormal );
+        }
+
+//------------------------------------------------------------------------------
+        void CM_Struc_Linear_Isotropic::eval_strain()
+        {
+            // compute displacement gradient
             Matrix< DDRMat > tGradx;
-            tGradx = mFieldInterpolators( 0 )->gradx( 1 );
+            tGradx = mDofFI( 0 )->gradx( 1 );
 
-            aStrain.set_size( 3, 1 , 0.0 );
+            // set strain matrix size
+            mStrain.set_size( 3, 1 , 0.0 );
 
-            aStrain( 0, 0 ) = tGradx( 0, 0 );
-            aStrain( 1, 0 ) = tGradx( 1, 1 );
-            aStrain( 2, 0 ) = tGradx( 1, 0 ) + tGradx( 0, 1 );
+            // fill with strain
+            mStrain( 0, 0 ) = tGradx( 0, 0 );
+            mStrain( 1, 0 ) = tGradx( 1, 1 );
+            mStrain( 2, 0 ) = tGradx( 1, 0 ) + tGradx( 0, 1 );
         }
 
 //------------------------------------------------------------------------------
 
-        void CM_Struc_Linear_Isotropic::eval_test_strain( Matrix< DDRMat > & aTestStrain )
+        void CM_Struc_Linear_Isotropic::eval_testStrain()
         {
             // compute temp gradient
             Matrix< DDRMat > tdnNdxn;
-            tdnNdxn = mFieldInterpolators( 0 )->dnNdxn( 1 );
+            tdnNdxn = mDofFI( 0 )->dnNdxn( 1 );
 
-            aTestStrain.set_size( 3, 8 , 0.0 );
-            aTestStrain( {0,0},{0,3} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({0,0},{0,3});
-            aTestStrain( {2,2},{0,3} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({1,1},{0,3});
+            mTestStrain.set_size( 3, 8 , 0.0 );
+            mTestStrain( {0,0},{0,3} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,3});
+            mTestStrain( {2,2},{0,3} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,3});
 
-            aTestStrain( {1,1},{4,7} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({1,1},{0,3});
-            aTestStrain( {2,2},{4,7} ) = mFieldInterpolators( 0 )->dnNdxn( 1 )({0,0},{0,3});
-
-
-
-//            aTestStrain( 0, 0 ) = tdnNdxn( 0, 0 );
-//            aTestStrain( 2, 0 ) = tdnNdxn( 1, 0 );
-//            aTestStrain( 0, 1 ) = tdnNdxn( 0, 1 );
-//            aTestStrain( 2, 1 ) = tdnNdxn( 1, 1 );
-//            aTestStrain( 0, 2 ) = tdnNdxn( 0, 2 );
-//            aTestStrain( 2, 2 ) = tdnNdxn( 1, 2 );
-//            aTestStrain( 0, 3 ) = tdnNdxn( 0, 3 );
-//            aTestStrain( 2, 3 ) = tdnNdxn( 1, 3 );
-//
-//            aTestStrain( 1, 4 ) = tdnNdxn( 1, 0 );
-//            aTestStrain( 2, 4 ) = tdnNdxn( 0, 0 );
-//            aTestStrain( 1, 5 ) = tdnNdxn( 1, 1 );
-//            aTestStrain( 2, 5 ) = tdnNdxn( 0, 1 );
-//            aTestStrain( 1, 6 ) = tdnNdxn( 1, 2 );
-//            aTestStrain( 2, 6 ) = tdnNdxn( 0, 2 );
-//            aTestStrain( 1, 7 ) = tdnNdxn( 1, 3 );
-//            aTestStrain( 2, 7 ) = tdnNdxn( 0, 3 );
-
-
-//            aTestStrain( 0, 0 ) = tdnNdxn( 0, 0 );
-//            aTestStrain( 2, 0 ) = tdnNdxn( 1, 0 );
-//            aTestStrain( 1, 1 ) = tdnNdxn( 1, 0 );
-//            aTestStrain( 2, 1 ) = tdnNdxn( 0, 0 );
-//
-//            aTestStrain( 0, 2 ) = tdnNdxn( 0, 1 );
-//            aTestStrain( 2, 2 ) = tdnNdxn( 1, 1 );
-//            aTestStrain( 1, 3 ) = tdnNdxn( 1, 1 );
-//            aTestStrain( 2, 3 ) = tdnNdxn( 0, 1 );
-//
-//            aTestStrain( 0, 4 ) = tdnNdxn( 0, 2 );
-//            aTestStrain( 2, 4 ) = tdnNdxn( 1, 2 );
-//            aTestStrain( 1, 5 ) = tdnNdxn( 1, 2 );
-//            aTestStrain( 2, 5 ) = tdnNdxn( 0, 2 );
-//
-//            aTestStrain( 0, 6 ) = tdnNdxn( 0, 3 );
-//            aTestStrain( 2, 6 ) = tdnNdxn( 1, 3 );
-//            aTestStrain( 1, 7 ) = tdnNdxn( 1, 3 );
-//            aTestStrain( 2, 7 ) = tdnNdxn( 0, 3 );
-
-//            print (aTestStrain,"aTestStrain");
+            mTestStrain( {1,1},{4,7} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,3});
+            mTestStrain( {2,2},{4,7} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,3});
         }
 
 //------------------------------------------------------------------------------
-        void CM_Struc_Linear_Isotropic::eval_const( Matrix< DDRMat > & aConst )
+        void CM_Struc_Linear_Isotropic::eval_const()
         {
             // compute conductivity matrix
-            aConst.set_size(mSpaceDim+1, mSpaceDim+1, 0.0 );
+            mConst.set_size(mSpaceDim+1, mSpaceDim+1, 0.0 );
 
-            aConst( 0, 0 ) = 1;
-            aConst( 1, 1 ) = 1;
-            aConst( 0, 1 ) = mProperties( 1 )->val()( 0 );
-            aConst( 1, 0 ) = mProperties( 1 )->val()( 0 );
-            aConst( 2, 2 ) =  0.5 * (1-mProperties( 1 )->val()( 0 ) );
+            mConst( 0, 0 ) = 1;
+            mConst( 1, 1 ) = 1;
+            mConst( 0, 1 ) = mProperties( 1 )->val()( 0 );
+            mConst( 1, 0 ) = mProperties( 1 )->val()( 0 );
+            mConst( 2, 2 ) =  0.5 * (1-mProperties( 1 )->val()( 0 ) );
 
-            aConst = mProperties( 0 )->val()( 0 ) / (1 - std::pow(mProperties( 1 )->val()( 0 ), 2))  * aConst;
+            mConst = mProperties( 0 )->val()( 0 ) / (1 - std::pow(mProperties( 1 )->val()( 0 ), 2))  * mConst;
 
 //            pre = Em/(1-nu*nu);
 //
@@ -140,79 +119,88 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void CM_Struc_Linear_Isotropic::eval_dFluxdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                                        Matrix< DDRMat >             & adFluxdDOF )
+        void CM_Struc_Linear_Isotropic::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
             // if direct dependency on the dof type
-            if( static_cast< uint >( aDofTypes( 0 ) ) < mDofTypeMap.numel() && mDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) ) != -1 )
+            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
             {
-//                Matrix< DDRMat > KK;
-//                this-> eval_flux(KK);
-                // compute conductivity matrix
-                Matrix< DDRMat > K;
-                this->eval_const( K );
-
-                Matrix< DDRMat > tTestStrain;
-                this->eval_test_strain( tTestStrain );
-
-//                print(tTestStrain, "tTestStrain");
-
                 // compute derivative with direct dependency
-                adFluxdDOF = K * tTestStrain;
+                mdFluxdDof( tDofIndex ) = this->constitutive() * this->testStrain();
+            }
+            else
+            {
+                // reset the matrix
+                mdFluxdDof( tDofIndex ).set_size( 3, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
             }
 
             // if indirect dependency on the dof type
             if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
             {
-                // init matrix size
-                if( adFluxdDOF.numel() < 1 )
-                {
-                    uint tFIIndex = mProperties( 0 )->get_dof_type_map()( static_cast< uint >( aDofTypes( 0 ) ), 0 );
-
-                    Field_Interpolator* tFI = mProperties( 0 )->get_field_interpolators()( tFIIndex ) ;
-
-                    adFluxdDOF.set_size( mSpaceDim, tFI->get_number_of_space_time_coefficients(), 0.0 );
-                }
-
                 // compute derivative with indirect dependency through properties
-                adFluxdDOF.matrix_data() += mFieldInterpolators( 0 )->gradx( 1 ) * mProperties( 0 )->dPropdDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() += mDofFI( 0 )->gradx( 1 ) * mProperties( 0 )->dPropdDOF( aDofTypes );
             }
         }
 
 //------------------------------------------------------------------------------
-        void CM_Struc_Linear_Isotropic::eval_dStraindDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                                              Matrix< DDRMat >         & adStraindDOF )
+        void CM_Struc_Linear_Isotropic::eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                            const Matrix< DDRMat >             & aNormal )
         {
-//            // get dof index
-//            uint tDOFIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
-//
-//            // init dConstdDOF
-//            adStraindDOF.set_size( mSpaceDim, mFieldInterpolators( tDOFIndex )->get_number_of_space_time_coefficients(), 0.0 );
-//
-//            // if direct dependency on the dof type
-//            if( static_cast< uint >( aDofTypes( 0 ) ) < mDofTypeMap.numel() && mDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) ) != -1 )
-//            {
-//                // compute derivative with direct dependency
-//                adStraindDOF = mFieldInterpolators( 0 )->dnNdxn( 1 );
-//            }
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // flatten normal
+            Matrix< DDRMat > tNormal( 2, 3, 0.0 );
+            tNormal( 0, 0 ) = aNormal( 0,0 );
+            tNormal( 0, 2 ) = aNormal( 1,0 );
+            tNormal( 1, 1 ) = aNormal( 1,0 );
+            tNormal( 1, 2 ) = aNormal( 0,0 );
+
+            // compute derivative
+            mdTractiondDof( tDofIndex ) = tNormal * this->dFluxdDOF( aDofTypes );
         }
 
 //------------------------------------------------------------------------------
-        void CM_Struc_Linear_Isotropic::eval_dConstdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                                             Matrix< DDRMat >             & adConstdDOF )
+        void CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                                const Matrix< DDRMat >             & aNormal )
         {
-            // get dof index
-            uint tDOFIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF - Not implemented.");
+        }
 
-            // init dConstdDOF
-            adConstdDOF.set_size( 1, mFieldInterpolators( tDOFIndex )->get_number_of_space_time_coefficients(), 0.0 );
+//------------------------------------------------------------------------------
+        void CM_Struc_Linear_Isotropic::eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
-            // if indirect dependency on the dof type
-            if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // if direct dependency on the dof type
+            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
             {
-                // compute derivative with indirect dependency through properties
-                adConstdDOF = mProperties( 0 )->dPropdDOF( aDofTypes );
+                // compute derivative with direct dependency
+                mdStraindDof( tDofIndex ) = this->testStrain();
             }
+            else
+            {
+                // reset the matrix
+                mdStraindDof( tDofIndex ).set_size( 3, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+            }
+        }
+
+//------------------------------------------------------------------------------
+        void CM_Struc_Linear_Isotropic::eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dConstdDOF - Not implemented." );
         }
 
 //------------------------------------------------------------------------------

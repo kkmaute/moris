@@ -13,7 +13,7 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
 {
 
     // define an epsilon environment
-    double tEpsilon = 1E-12;
+    real tEpsilon = 1E-12;
 
     SECTION( "Field Interpolator : Space bar2 - Time bar2" )
     {
@@ -55,7 +55,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         uint tNumberOfFields = 1;
         Field_Interpolator tFieldInterpolator( tNumberOfFields,
                                                tInterpolationRule,
-                                               tGeomInterpolator );
+                                               tGeomInterpolator,
+                                               { MSI::Dof_Type::UX } );
 
         //create scalar field discretized value tUHat
         Interpolation_Function_Base * tSpaceInterpolation = tInterpolationRule.create_space_interpolation_function();
@@ -188,7 +189,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             uint tNumberOfFields = 1;
             Field_Interpolator tFieldInterpolator( tNumberOfFields,
                                                    tInterpolationRule,
-                                                   tGeomInterpolator );
+                                                   tGeomInterpolator,
+                                                   { MSI::Dof_Type::UX } );
 
             //create scalar field coefficients tUHat
             uint tNSpaceTimeBases = tFieldInterpolator.get_number_of_space_time_bases();
@@ -263,7 +265,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
             //create a space field interpolator
             Field_Interpolator tCheckFieldInterpolator( tNumberOfFields,
                                                         tCheckFieldRule,
-                                                        tCheckGeomInterpolator );
+                                                        tCheckGeomInterpolator,
+                                                        { MSI::Dof_Type::UX } );
 
             //set the coefficients uHat
             tCheckFieldInterpolator.set_coeff( tUHat );
@@ -367,7 +370,8 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         uint tNumberOfFields = 1;
         Field_Interpolator tFieldInterpolator( tNumberOfFields,
                                                tInterpolationRule,
-                                               tGeomInterpolator );
+                                               tGeomInterpolator,
+                                               { MSI::Dof_Type::UX } );
 
         //create scalar field discretized value tUHat
         Interpolation_Function_Base * tSpaceInterpolation = tInterpolationRule.create_space_interpolation_function();
@@ -458,8 +462,106 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         delete tSpaceInterpolation;
         delete tTimeInterpolation;
     }
+}
 
-//------------------------------------------------------------------------------
+// This test case checks the evaluation of testN.
+TEST_CASE( "FI_vectorialField", "[moris],[fem],[FI_vectorialField]" )
+{
+    // define an epsilon environment
+    real tEpsilon = 1E-6;
+
+    // geometry interpolator
+    //------------------------------------------------------------------------------
+
+    //create a quad4 space element
+    Matrix< DDRMat > tXHat = { { 0.0, 0.0 },
+                               { 3.0, 1.25 },
+                               { 4.5, 4.0 },
+                               { 1.0, 3.25 } };
+
+    //create a line time element
+    Matrix< DDRMat > tTHat = { { 0.0 }, { 5.0 } };
+
+    // create evaluation point
+    Matrix< DDRMat > tParamPoint = { {  0.35 }, { -0.25 }, {  0.70 }};
+
+    //create a space geometry interpolation rule
+    Interpolation_Rule tGeomInterpRule( mtk::Geometry_Type::QUAD,
+                                        Interpolation_Type::LAGRANGE,
+                                        mtk::Interpolation_Order::LINEAR,
+                                        Interpolation_Type::LAGRANGE,
+                                        mtk::Interpolation_Order::LINEAR );
+
+    //create a geometry interpolator
+    Geometry_Interpolator tGeomInterpolator = Geometry_Interpolator( tGeomInterpRule );
+
+    //set the coefficients
+    tGeomInterpolator.set_coeff( tXHat, tTHat );
+
+    //set the evaluation point
+    tGeomInterpolator.set_space_time( tParamPoint );
+
+
+    // field interpolator
+    //------------------------------------------------------------------------------
+    //create a space time interpolation rule
+    Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
+                                            Interpolation_Type::LAGRANGE,
+                                            mtk::Interpolation_Order::LINEAR,
+                                            Interpolation_Type::LAGRANGE,
+                                            mtk::Interpolation_Order::LINEAR );
+    //create a field interpolator
+    uint tNumberOfFields = 2;
+    Field_Interpolator tFieldInterpolator( tNumberOfFields,
+                                           tInterpolationRule,
+                                           & tGeomInterpolator,
+                                           { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+
+    //create scalar field coefficients tUHat
+    uint tNSpaceTimeBases = tFieldInterpolator.get_number_of_space_time_bases();
+    Matrix< DDRMat > tUHat( tNSpaceTimeBases , tNumberOfFields );
+    tUHat = {{    1.0,     1.0  },
+             {   29.5,    29.5  },
+             {  112.0,   112.0  },
+             {   29.0,    29.0  },
+             {   21.0,    21.0  },
+             {  333.25,  333.25 },
+             {  1127.0, 1127.0  },
+             {   322.75, 322.75 } };
+
+    //set the coefficients uHat
+    tFieldInterpolator.set_coeff( tUHat );
+
+    //set the evaluation point xi, tau
+    tFieldInterpolator.set_space_time( tParamPoint );
+
+    // get the test field
+    Matrix< SDRMat > tTestN = tFieldInterpolator.N();
+
+    // check test field
+    Matrix< DDRMat > tTestNExact =
+    { { 3.046875000000000e-02, 6.328125000000001e-02, 3.796875000000001e-02, 1.828125000000001e-02, 1.726562500000000e-01, 3.585937500000000e-01, 2.151562500000000e-01, 1.035937500000000e-01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+      { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.046875000000000e-02, 6.328125000000001e-02, 3.796875000000001e-02, 1.828125000000001e-02, 1.726562500000000e-01, 3.585937500000000e-01, 2.151562500000000e-01, 1.035937500000000e-01 } };
+
+    //define a boolean for check
+    bool tCheckTestN = true;
+
+    // get number of bases
+    uint tNumBases = tFieldInterpolator.get_number_of_space_time_bases();
+
+    // check tTestN  values
+    for ( uint iN = 0; iN < tTestNExact.n_rows(); iN++ )
+    {
+        for( uint jN = 0; jN < tNumBases; jN++ )
+        {
+            tCheckTestN = tCheckTestN && ( tTestN( iN, iN * tNumBases + jN ) - tTestNExact( iN, iN * tNumBases + jN ) < tEpsilon );
+        }
+    }
+    REQUIRE( tCheckTestN );
+
+    print(tFieldInterpolator.N(), "tFieldInterpolator.N()");
+    print(tFieldInterpolator.NBuild(), "tFieldInterpolator.NBuild()");
+
 }
 
 

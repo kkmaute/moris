@@ -14,31 +14,35 @@
 #include "op_equal_equal.hpp"
 
 moris::Matrix< moris::DDRMat > tConstValFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                                moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                                moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                                moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                                 moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );
 }
 
 moris::Matrix< moris::DDRMat > tGeoValFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 ) * aGeometryInterpolator->valx()( 0 );
 }
 
 moris::Matrix< moris::DDRMat > tFIValFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aFieldInterpolator( 0 )->val();
+    return aParameters( 0 ) * aDofFI( 0 )->val();
 }
 
 moris::Matrix< moris::DDRMat > tFIDerFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                             moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
+                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aFieldInterpolator( 0 )->N();
+    return aParameters( 0 ) * aDofFI( 0 )->N();
 }
 
 using namespace moris;
@@ -198,7 +202,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
             tCMs( iCM )->set_properties( tCMProps );
 
             // set field interpolators
-            tCMs( iCM )->set_field_interpolators( tFIs );
+            tCMs( iCM )->set_dof_field_interpolators( tFIs );
         }
 
         // set IWG field interpolators
@@ -208,7 +212,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
         tIWG.set_properties( tIWGProps );
 
         // set IWG field interpolators
-        tIWG.set_field_interpolators( tFIs );
+        tIWG.set_dof_field_interpolators( tFIs );
 
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------
@@ -319,7 +323,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
                 tCMs( iCM )->set_properties( tCMProps );
 
                 // set field interpolators
-                tCMs( iCM )->set_field_interpolators( tFIs );
+                tCMs( iCM )->set_dof_field_interpolators( tFIs );
             }
 
             // set IWG field interpolators
@@ -329,7 +333,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
             tIWG.set_properties( tIWGProps );
 
             // set IWG field interpolators
-            tIWG.set_field_interpolators( tFIs );
+            tIWG.set_dof_field_interpolators( tFIs );
 
 
             // check evaluation of the residual for IWG Helmholtz Bulk ?
@@ -410,9 +414,8 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
             tCMProps( 0 ) = tIWGProps( 1 );
 
             // set field interpolators
-            //tIWGProps( 0 )->set_field_interpolators( tFIs );
-            tIWGProps( 1 )->set_field_interpolators( tFIs );
-            tCMProps( 0 )->set_field_interpolators( tFIs );
+            tIWGProps( 1 )->set_dof_field_interpolators( tFIs );
+            tCMProps( 0 )->set_dof_field_interpolators( tFIs );
 
             // constitutive models
             //------------------------------------------------------------------------------
@@ -441,7 +444,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
                 tCMs( iCM )->set_properties( tCMProps );
 
                 // set field interpolators
-                tCMs( iCM )->set_field_interpolators( tFIs );
+                tCMs( iCM )->set_dof_field_interpolators( tFIs );
 
             }
 
@@ -452,7 +455,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diffusion_Bulk]" )
             tIWG.set_properties( tIWGProps );
 
             // set IWG field interpolators
-            tIWG.set_field_interpolators( tFIs );
+            tIWG.set_dof_field_interpolators( tFIs );
 
             // check evaluation of the residual for IWG Helmholtz Bulk ?
             //------------------------------------------------------------------------------

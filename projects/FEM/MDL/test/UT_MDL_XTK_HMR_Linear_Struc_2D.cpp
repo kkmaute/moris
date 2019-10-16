@@ -117,7 +117,8 @@ moris::real LvlSetCircle_2D(const moris::Matrix< moris::DDRMat > & aPoint )
 
 
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
         fem::Geometry_Interpolator             * aGeometryInterpolator )
         {
     return aCoeff( 0 );
@@ -140,90 +141,90 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        // hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 
-        // tParameters.set( "number_of_elements_per_dimension", "3, 1");
-        // tParameters.set( "domain_dimensions", "2, 2" );
-        // tParameters.set( "domain_offset", "-1.0, -1.0" );
-        // tParameters.set( "domain_sidesets", "1,2,3,4" );
-        // tParameters.set( "lagrange_output_meshes", "0" );
+         tParameters.set( "number_of_elements_per_dimension", "20, 20");
+         tParameters.set( "domain_dimensions", "2, 2" );
+         tParameters.set( "domain_offset", "-1.0, -1.0" );
+         tParameters.set( "domain_sidesets", "1,2,3,4" );
+         tParameters.set( "lagrange_output_meshes", "0" );
 
-        // tParameters.set( "lagrange_orders", "1" );
-        // tParameters.set( "lagrange_pattern", "0" );
-        // tParameters.set( "bspline_orders", "1" );
-        // tParameters.set( "bspline_pattern", "0" );
+         tParameters.set( "lagrange_orders", "1" );
+         tParameters.set( "lagrange_pattern", "0" );
+         tParameters.set( "bspline_orders", "1" );
+         tParameters.set( "bspline_pattern", "0" );
 
-        // tParameters.set( "lagrange_to_bspline", "0" );
+         tParameters.set( "lagrange_to_bspline", "0" );
 
-        // tParameters.set( "truncate_bsplines", 1 );
-        // tParameters.set( "refinement_buffer", 3 );
-        // tParameters.set( "staircase_buffer", 3 );
-        // tParameters.set( "initial_refinement", 0 );
+         tParameters.set( "truncate_bsplines", 1 );
+         tParameters.set( "refinement_buffer", 3 );
+         tParameters.set( "staircase_buffer", 3 );
+         tParameters.set( "initial_refinement", 0 );
 
-        // tParameters.set( "use_multigrid", 0 );
-        // tParameters.set( "severity_level", 2 );
+         tParameters.set( "use_multigrid", 0 );
+         tParameters.set( "severity_level", 2 );
 
-        // hmr::HMR tHMR( tParameters );
+         hmr::HMR tHMR( tParameters );
 
         //initial refinement
-        // tHMR.perform_initial_refinement( 0 );
+         tHMR.perform_initial_refinement( 0 );
 
-        // std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
-        // create field
-       //std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+       //  create field
+       std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
 
-       //tField->evaluate_scalar_function( LvlSetCircle_2D );
-       //
-       //for( uint k=0; k<2; ++k )
-       //{
-       //    tHMR.flag_surface_elements_on_working_pattern( tField );
-        //   tHMR.perform_refinement_based_on_working_pattern( 0 );
+       tField->evaluate_scalar_function( LvlSetCircle_2D );
 
-       //    tField->evaluate_scalar_function( LvlSetCircle_2D );
-      // }
+       for( uint k=0; k<2; ++k )
+       {
+           tHMR.flag_surface_elements_on_working_pattern( tField );
+           tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-        // tHMR.finalize();
+           tField->evaluate_scalar_function( LvlSetCircle_2D );
+       }
 
-       //tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+         tHMR.finalize();
 
-         // std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+       tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+
+          std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //----------------------------------------------------------------------------------------------
-       std::string tPrefix = std::getenv("MORISROOT");
-       std::string tMeshFileName = tPrefix + "build/3x1.g";
-       std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
-
-       moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-       std::string tFieldName1 = "Temp_Field";
-       tNodeField1.set_field_name( tFieldName1 );
-       tNodeField1.set_field_entity_rank( EntityRank::NODE );
-
-       // Initialize field information container
-       moris::mtk::MtkFieldsInfo tFieldsInfo;
-
-       // Place the node field into the field info container
-       add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
-
-       // Declare some supplementary fields
-       mtk::MtkMeshData tMeshData;
-       tMeshData.FieldsInfo = &tFieldsInfo;
-
-
-       // construct the mesh data
-       mtk::Interpolation_Mesh* tInterpolationMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+//       std::string tPrefix = std::getenv("MORISROOT");
+//       std::string tMeshFileName = tPrefix + "build/3x1.g";
+//       std::cout<<"Mesh input name = "<<tMeshFileName<<std::endl;
+//
+//       moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+//       std::string tFieldName1 = "Temp_Field";
+//       tNodeField1.set_field_name( tFieldName1 );
+//       tNodeField1.set_field_entity_rank( EntityRank::NODE );
+//
+//       // Initialize field information container
+//       moris::mtk::MtkFieldsInfo tFieldsInfo;
+//
+//       // Place the node field into the field info container
+//       add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+//
+//       // Declare some supplementary fields
+//       mtk::MtkMeshData tMeshData;
+//       tMeshData.FieldsInfo = &tFieldsInfo;
+//
+//
+//       // construct the mesh data
+//       mtk::Interpolation_Mesh* tInterpolationMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
         //-----------------------------------------------------------------------------------------------
 
-//        xtk::Circle tCircle( 0.501, 0.0, 0.0 );
-        moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
-        moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-        xtk::Plane<2> tPlane(tCenters,tNormals);
+        xtk::Circle tCircle( 0.2501, 0.0, 0.0 );
+//        moris::Matrix<moris::DDRMat> tCenters = {{ 0.151,0.1 }};
+//        moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
+//        xtk::Plane<2> tPlane(tCenters,tNormals);
 
         xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tPlane,tPhaseTable, 2);
+        xtk::Geometry_Engine tGeometryEngine(tCircle,tPhaseTable, 2);
 
-        // xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
-       xtk::Model tXTKModel(2, tInterpolationMesh, tGeometryEngine);
+         xtk::Model tXTKModel(2, tInterpolationMesh.get(), tGeometryEngine);
+//       xtk::Model tXTKModel(2, tInterpolationMesh, tGeometryEngine);
 
         tXTKModel.mVerbose = true;
 
@@ -327,6 +328,11 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
                 {{{ 1.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
+        fem::Property_User_Defined_Info tYoungs_Modulus2( fem::Property_Type::YOUNGS_MODULUS,
+                Cell< Cell< MSI::Dof_Type > >( 0 ),
+                {{{ 10.0 }}},
+                tConstValFunction,
+                Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
                 {{{ 0.0 }}},
@@ -347,11 +353,11 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 7 );
         tPropertyUserDefinedInfo( 0 ).resize( 1 );
         tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tYoungs_Modulus;
+        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tYoungs_Modulus2;
         tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tPoissons_Ratio;
         tPropertyUserDefinedInfo( 1 ).resize( 1 );
         tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tYoungs_Modulus;
+        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tYoungs_Modulus2;
         tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tPoissons_Ratio;
         tPropertyUserDefinedInfo( 2 ).resize( 1 );
         tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
@@ -418,21 +424,21 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
         // create a list of active block-sets
-       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
-                                                tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
-                                                tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
-                                                tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
-                                                tEnrIntegMesh.get_side_set_index("surface_4_n_p0"),
-                                                tEnrIntegMesh.get_side_set_index("surface_2_n_p1"),
-                                                tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+//       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
+//                                                tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
+//                                                tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
+//                                                tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
+//                                                tEnrIntegMesh.get_side_set_index("surface_4_n_p0"),
+//                                                tEnrIntegMesh.get_side_set_index("surface_2_n_p1"),
+//                                                tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
 
-        // moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-                                                 // tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-                                                 // tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-                                                 // tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-                                                 // tEnrIntegMesh.get_side_set_index("SideSet_4_n_p0"),
-                                                 // tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
-                                                 // tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
+                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
+                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
+                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
+                                                  tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
+                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
+                                                  tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
 
         moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
                                                           fem::Element_Type::BULK,

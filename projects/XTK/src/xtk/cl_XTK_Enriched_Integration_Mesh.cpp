@@ -872,7 +872,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 // get child cell pointers
                 moris::Cell<moris::mtk::Cell const *> tChildCells = this->get_mtk_cells_loc_inds(tChildCellInds);
 
-//                moris::Cell<moris_index> const & tSubPhaseIndidces = tChildMesh->get_subphase_indices();
+                //moris::Cell<moris_index> const & tSubPhaseIndidces = tChildMesh->get_subphase_indices();
 
                 // create a side cluster for each subphase in this child mesh
                 moris::Cell<xtk::Side_Cluster*> tSideClustersForCM(tChildMesh->get_num_subphase_bins());
@@ -1015,8 +1015,6 @@ Enriched_Integration_Mesh::declare_interface_double_side_sets()
         }
     }
     register_double_side_set_names(tDoubleInterfaceSideNames);
-
-    moris::print(mBulkPhaseToDblSideIndex,"mBulkPhaseToDblSideIndex");
 }
 
 moris_index
@@ -1121,8 +1119,6 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
             mDoubleSideSets(tDoubleSideSetIndex).push_back(tDblSideCluster);
 
         }
-
-        tChildMesh->print_double_sides_between_subphases(2);
 
         // remove from child mesh to not store twice
         tChildMesh->delete_double_sides_interface_sets();

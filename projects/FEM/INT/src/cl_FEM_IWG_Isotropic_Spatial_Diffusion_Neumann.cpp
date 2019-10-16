@@ -13,7 +13,8 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators, properties, constitutive models
-            this->check_field_interpolators();
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
             this->check_properties();
             this->check_constitutive_models();
 
@@ -28,7 +29,8 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Neumann::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check master field interpolators, properties, constitutive models
-            this->check_field_interpolators();
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
             this->check_properties();
             this->check_constitutive_models();
 
@@ -41,12 +43,15 @@ namespace moris
             // compute the jacobian for indirect IWG dof dependencies through properties
             for( uint iDOF = 0; iDOF < mMasterGlobalDofTypes.size(); iDOF++ )
             {
+                // get dof type
+                Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
+
                 // if dependency in the dof type
-                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
                 }
             }
         }
@@ -56,7 +61,8 @@ namespace moris
                                                                                      moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             // check master field interpolators, properties, constitutive models
-            this->check_field_interpolators();
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
             this->check_properties();
             this->check_constitutive_models();
 
@@ -76,12 +82,15 @@ namespace moris
             uint tNumFDofTypes = mMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumFDofTypes; iDOF++ )
             {
+                // get dof type
+                Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
+
                 // if dependency in the dof type
-                if ( mMasterProp( 0 )->check_dof_dependency( mMasterGlobalDofTypes( iDOF ) ) )
+                if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( mMasterGlobalDofTypes( 0 ) );
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
                 }
             }
         }

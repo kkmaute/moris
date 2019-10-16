@@ -14,24 +14,27 @@
 
 
 moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );
 }
 
 moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aFieldInterpolator( 0 )->val();
+    return aParameters( 0 ) * aDofFI( 0 )->val();
 }
 
 moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aFieldInterpolator,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aFieldInterpolator( 0 )->N();
+    return aParameters( 0 ) * aDofFI( 0 )->N();
 }
 
 using namespace moris;
@@ -233,7 +236,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
             tMasterCMs( iCM )->set_properties( tMasterProps );
 
             // set field interpolators
-            tMasterCMs( iCM )->set_field_interpolators( tMasterFIs );
+            tMasterCMs( iCM )->set_dof_field_interpolators( tMasterFIs );
         }
 
         // create a cell of properties for IWG
@@ -258,7 +261,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
             tSlaveCMs( iCM )->set_properties( tSlaveProps );
 
             // set field interpolators
-            tSlaveCMs( iCM )->set_field_interpolators( tSlaveFIs );
+            tSlaveCMs( iCM )->set_dof_field_interpolators( tSlaveFIs );
         }
 
         // set IWG field interpolators
@@ -270,8 +273,8 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         tIWG.set_properties( tSlaveProps, mtk::Master_Slave::SLAVE );
 
         // set IWG field interpolators
-        tIWG.set_field_interpolators( tMasterFIs );
-        tIWG.set_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
+        tIWG.set_dof_field_interpolators( tMasterFIs );
+        tIWG.set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
 
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------

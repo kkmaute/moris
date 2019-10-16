@@ -70,7 +70,8 @@ namespace moris
     namespace mdl
     {
         Matrix< DDRMat > tConstValFunction_MDLCUT( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                                   moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                                   moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                                   moris::Cell< fem::Field_Interpolator* > & aDvF,
                                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
         {
             return aParameters( 0 );

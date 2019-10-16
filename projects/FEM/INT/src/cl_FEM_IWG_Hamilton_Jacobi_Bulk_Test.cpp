@@ -40,7 +40,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian
-            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->Bt() + aVN * mMasterFI( 0 )->Bx() );
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->dnNdtn( 1 ) + aVN * mMasterFI( 0 )->dnNdxn( 1 ) );
 
         }
 
@@ -61,7 +61,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian
-            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->Bt() + aVN * mMasterFI( 0 )->Bx() );
+            aJacobians( 0 )( 0 ) = trans( mMasterFI( 0 )->N() ) * ( mMasterFI( 0 )->dnNdtn( 1 ) + aVN * mMasterFI( 0 )->dnNdxn( 1 ) );
         }
 
 //------------------------------------------------------------------------------

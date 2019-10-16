@@ -49,6 +49,9 @@ typedef Eigen::Matrix<real,                3,              3>  F33RMat; // Fixed
 typedef Eigen::Matrix<real,                3,              1>  F31RMat; // Fixed 3x1 Real Mat
 typedef Eigen::Matrix<uint,                3,              1>  F31UMat; // Fixed 3x1 uint Mat
 
+typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  SDRMat; // FIXME Sparse dynamic Real Mat
+
+
 
 #else
 #include <armadillo>
@@ -71,6 +74,9 @@ typedef arma::Mat< uint > F31UMat; // Fixed 3x1 Uint Mat (for arma this is the s
 typedef arma::Col<real>        Col_View_Real;
 typedef arma::Col<moris_index> Col_View_Index;
 typedef arma::Col<moris_id>    Col_View_Id;
+
+typedef arma::Mat< real >        SDRMat;  // FIXME Sparse dynamic Real Mat
+
 
 // typedefs around submatrix views
 typedef arma::Row<real>        Row_View_Real;

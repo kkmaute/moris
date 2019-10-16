@@ -50,79 +50,79 @@ main(
         int    argc,
         char * argv[] )
 {
-    // initialize MORIS global communication manager
-
-    {
-        gMorisComm = moris::Comm_Manager( &argc, &argv );
-    }
-
-    // Severity level 0 - all outputs
-    gLogger.initialize( 0 );
-
-//------------------------------------------------------------------------------
-
-    ParameterList tParameters = create_hmr_parameter_list();
-
-
-    // settings for teapot
-    //tParameters.set( "number_of_elements_per_dimension", "20, 12, 10" );
-    //tParameters.set( "domain_dimensions",                "20, 12,  10" );
-    //tParameters.set( "domain_offset",                    "-10, -6, -1" );
-    // std::string tObjectPath = "/projects/HMR/tutorials/utah_teapot.obj";
-
-    tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
-    tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
-    tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
-    std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
-
-//------------------------------------------------------------------------------
-    // get path for STL file to load
-    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
-
-    // create SDF generator
-    sdf::SDF_Generator tSdfGen( tObjectPath );
-
-    HMR tHMR( tParameters );
-
-    // create MTK mesh object
-    auto tMesh = tHMR.create_mesh();
-
-
-    for( uint k=0; k<3; ++k )
-    {
-       // matrices with surface element IDs
-       Matrix< IndexMat > tSurfaceElements;
-       tSdfGen.raycast( tMesh, tSurfaceElements );
-       // get number of surface elements
-       uint tNumberOfSurfaceElements = tSurfaceElements.length();
-
-       // loop over all elements
-       for( uint e=0; e<tNumberOfSurfaceElements; ++e )
-       {
-           // manually flag element
-           tHMR.flag_element( tSurfaceElements( e ) );
-       }
-
-       // refine
-       tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
-    }
-
-    // calculate T-Matrices etc
-    tHMR.finalize();
-
-    // calculate SDF
-    auto tField = tMesh->create_field( "SDF", 1);
-
-//------------------------------------------------------------------------------
-
-    tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
-
-    tHMR.save_to_exodus( "SDF.exo" );
-
-//------------------------------------------------------------------------------
-    // finalize MORIS global communication manager
-    gMorisComm.finalize();
-
-    return 0;
-
+//    // initialize MORIS global communication manager
+//
+//    {
+//        gMorisComm = moris::Comm_Manager( &argc, &argv );
+//    }
+//
+//    // Severity level 0 - all outputs
+//    gLogger.initialize( 0 );
+//
+////------------------------------------------------------------------------------
+//
+//    ParameterList tParameters = create_hmr_parameter_list();
+//
+//
+//    // settings for teapot
+//    //tParameters.set( "number_of_elements_per_dimension", "20, 12, 10" );
+//    //tParameters.set( "domain_dimensions",                "20, 12,  10" );
+//    //tParameters.set( "domain_offset",                    "-10, -6, -1" );
+//    // std::string tObjectPath = "/projects/HMR/tutorials/utah_teapot.obj";
+//
+//    tParameters.set( "number_of_elements_per_dimension", "10, 10, 10" );
+//    tParameters.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
+//    tParameters.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
+//    std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
+//
+////------------------------------------------------------------------------------
+//    // get path for STL file to load
+//    tObjectPath = std::getenv("MORISROOT") + tObjectPath;
+//
+//    // create SDF generator
+//    sdf::SDF_Generator tSdfGen( tObjectPath );
+//
+//    HMR tHMR( tParameters );
+//
+//    // create MTK mesh object
+//    auto tMesh = tHMR.create_mesh();
+//
+//
+//    for( uint k=0; k<3; ++k )
+//    {
+//       // matrices with surface element IDs
+//       Matrix< IndexMat > tSurfaceElements;
+//       tSdfGen.raycast( tMesh, tSurfaceElements );
+//       // get number of surface elements
+//       uint tNumberOfSurfaceElements = tSurfaceElements.length();
+//
+//       // loop over all elements
+//       for( uint e=0; e<tNumberOfSurfaceElements; ++e )
+//       {
+//           // manually flag element
+//           tHMR.flag_element( tSurfaceElements( e ) );
+//       }
+//
+//       // refine
+//       tHMR.perform_refinement( moris::hmr::RefinementMode::SIMPLE  );
+//    }
+//
+//    // calculate T-Matrices etc
+//    tHMR.finalize();
+//
+//    // calculate SDF
+//    auto tField = tMesh->create_field( "SDF", 1);
+//
+////------------------------------------------------------------------------------
+//
+//    tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
+//
+//    tHMR.save_to_exodus( "SDF.exo" );
+//
+////------------------------------------------------------------------------------
+//    // finalize MORIS global communication manager
+//    gMorisComm.finalize();
+//
+//    return 0;
+//
 }

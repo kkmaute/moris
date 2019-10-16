@@ -47,50 +47,106 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux
-             * @param[ in ] aFlux a matrix to fill with evaluation
              */
-            void eval_flux( Matrix< DDRMat > & aFlux );
+            void eval_flux();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test flux
+             */
+            void eval_testFlux();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model traction
+             * @param[ in ] aNormal   normal
+             */
+            void eval_traction( const Matrix< DDRMat > & aNormal );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test traction
+             * @param[ in ] aNormal   normal
+             */
+            void eval_testTraction( const Matrix< DDRMat > & aNormal );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain
-             * @param[ in ] aStrain a matrix to fill with evaluation
              */
-            void eval_strain( Matrix< DDRMat > & aStrain );
+            void eval_strain();
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test strain
+             */
+            void eval_testStrain();
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model matrix
-             * @param[ in ] aConst a matrix to fill with evaluation
              */
-            void eval_const( Matrix< DDRMat > & aConst );
+            void eval_const();
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dof type
-             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-             * @param[ in ] adFluxdDOF a matrix to fill with derivative evaluation
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dFluxdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                 Matrix< DDRMat >             & adFluxdDOF );
+            void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model traction derivative wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * @param[ in ] aNormal   normal
+             */
+            void eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                     const Matrix< DDRMat >             & aNormal );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test traction derivative wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * @param[ in ] aNormal   normal
+             */
+            void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                         const Matrix< DDRMat >             & aNormal );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain derivative wrt to a dof type
-             * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
-             * @param[ in ] adStraindDOF a matrix to fill with derivative evaluation
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dStraindDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                   Matrix< DDRMat >             & adStraindDOF );
+            void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model matrix derivative wrt to a dof type
-             * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
-             * @param[ in ] adConstdDOF a matrix to fill with derivative evaluation
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dConstdDOF( moris::Cell< MSI::Dof_Type >   aDofTypes,
-                                   Matrix< DDRMat >            & adConstdDOF );
+            void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model flux derivative wrt to a dv type
+             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+             */
+            void eval_dFluxdDV( const moris::Cell< MSI::Dv_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model strain derivative wrt to a dv type
+             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+             */
+            void eval_dStraindDV( const moris::Cell< MSI::Dv_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model matrix derivative wrt to a dv type
+             * @param[ in ] aDvTypes   a dv type wrt which the derivative is evaluated
+             */
+            void eval_dConstdDV( const moris::Cell< MSI::Dv_Type > & aDvTypes );
 
 //------------------------------------------------------------------------------
         };

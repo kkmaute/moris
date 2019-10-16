@@ -20,9 +20,12 @@ namespace moris
     {
     class Field_Interpolator;
     class Geometry_Interpolator;
+
     typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                              moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                              moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                              moris::Cell< fem::Field_Interpolator* > & aDvFI,
                                               fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
+
 //------------------------------------------------------------------------------
         /**
          * Property_User_Defined_Info
@@ -37,14 +40,20 @@ namespace moris
         // property dof type dependency list
         moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
+        // property dv type dependency list
+        moris::Cell< moris::Cell< MSI::Dv_Type > > mDvTypes;
+
         // property coeff list
         moris::Cell< Matrix< DDRMat > > mParamList;
 
         // property value function list
         PropertyFunc mValFunc;
 
-        // property derivative functions list
-        moris::Cell< PropertyFunc > mDerFuncList;
+        // property derivative functions list wrt dof
+        moris::Cell< PropertyFunc > mDofDerFuncList;
+
+        // property derivative functions list wrt dv
+        moris::Cell< PropertyFunc > mDvDerFuncList;
 
 //------------------------------------------------------------------------------
         public :
@@ -55,16 +64,50 @@ namespace moris
              */
             Property_User_Defined_Info(){};
 
+            /**
+             * constructor without dv dependency
+             * @param[ in ] aPropertyType   property type
+             * @param[ in ] aDofTypes       list of dof types
+             * @param[ in ] aParamList      list of parameters
+             * @param[ in ] aValFunc        property function for property value
+             * @param[ in ] aDofDerFuncList list of property functions for derivatives wrt dof
+             */
             Property_User_Defined_Info( fem::Property_Type                          aPropertyType,
                                         moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                                         moris::Cell< Matrix< DDRMat > >             aParamList,
                                         PropertyFunc                                aValFunc,
-                                        moris::Cell< PropertyFunc >                 aDerFuncList )
+                                        moris::Cell< PropertyFunc >                 aDofDerFuncList )
             : mPropertyType( aPropertyType ),
               mDofTypes( aDofTypes ),
               mParamList( aParamList ),
               mValFunc( aValFunc ),
-              mDerFuncList( aDerFuncList )
+              mDofDerFuncList( aDofDerFuncList )
+            {};
+
+            /**
+             * constructor with dv dependency
+             * @param[ in ] aPropertyType   property type
+             * @param[ in ] aDofTypes       list of dof types
+             * @param[ in ] aDvTypes        list of dv types
+             * @param[ in ] aParamList      list of parameters
+             * @param[ in ] aValFunc        property function for property value
+             * @param[ in ] aDofDerFuncList list of property functions for derivatives wrt dof
+             * @param[ in ] aDvDerFuncList  list of property functions for derivatives wrt dv
+             */
+            Property_User_Defined_Info( fem::Property_Type                          aPropertyType,
+                                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                                        moris::Cell< moris::Cell< MSI::Dv_Type > >  aDvTypes,
+                                        moris::Cell< Matrix< DDRMat > >             aParamList,
+                                        PropertyFunc                                aValFunc,
+                                        moris::Cell< PropertyFunc >                 aDofDerFuncList,
+                                        moris::Cell< PropertyFunc >                 aDvDerFuncList )
+            : mPropertyType( aPropertyType ),
+              mDofTypes( aDofTypes ),
+              mDvTypes( aDvTypes ),
+              mParamList( aParamList ),
+              mValFunc( aValFunc ),
+              mDofDerFuncList( aDofDerFuncList ),
+              mDvDerFuncList( aDvDerFuncList )
             {};
 
 //------------------------------------------------------------------------------
@@ -75,7 +118,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets property type
+             * set property type
+             * @param[ in ] aPropertyType property type
              */
             void set_property_type( fem::Property_Type aPropertyType )
             {
@@ -84,7 +128,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns property type
+             * return property type
+             * @param[ out ] mPropertyType property type
              */
             const fem::Property_Type & get_property_type() const
             {
@@ -93,7 +138,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets property dof type dependency
+             * set property dof type dependency
+             * @param[ in ] aDofTypes list of dof types
              */
             void set_property_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
             {
@@ -102,7 +148,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns property dof type dependency
+             * return property dof type dependency
+             * @param[ out ] mDofTypes list of dof types
              */
             const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_property_dof_type_list() const
             {
@@ -111,7 +158,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets property parameter list
+             * set property dv type dependency
+             * @param[ in ] aDvTypes list of dv types
+             */
+            void set_property_dv_type_list( moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes )
+            {
+                mDvTypes = aDvTypes;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * return property dv type dependency
+             * @param[ out ] aDvTypes list of dv types
+             */
+            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_property_dv_type_list() const
+            {
+                return mDvTypes;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set property parameter list
+             * @param[ in ] aParamList list of parameters
              */
             void set_property_param_list( moris::Cell< Matrix< DDRMat > > & aParamList )
             {
@@ -120,7 +188,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns property parameter list
+             * return property parameter list
+             * @param[ out ] aParamList list of parameters
              */
             const moris::Cell< Matrix< DDRMat > > & get_property_param_list() const
             {
@@ -129,7 +198,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets property value function
+             * set property value function
+             * @param[ in ] aValFunc property function
              */
             void set_property_valFunc( PropertyFunc & aValFunc )
             {
@@ -138,7 +208,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns property value function
+             * return property value function
+             * @param[ out ] aValFunc property function
              */
             const PropertyFunc & get_property_valFunc() const
             {
@@ -147,20 +218,42 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets property derivative function list
+             * set property derivative function list wrt dof
+             * @param[ in ] aDofDerFuncList list of property functions for derivative wrt dof
              */
-            void set_property_derFunc_list( moris::Cell< PropertyFunc > & aDerFuncList )
+            void set_property_dof_derFunc_list( moris::Cell< PropertyFunc > & aDofDerFuncList )
             {
-                mDerFuncList = aDerFuncList;
+                mDofDerFuncList = aDofDerFuncList;
             };
 
 //------------------------------------------------------------------------------
             /**
-             * returns property derivative function list
+             * return property derivative function list wrt dof
+             * @param[ in ] mDofDerFuncList list of property functions for derivative wrt dof
              */
-            const moris::Cell< PropertyFunc > & get_property_derFunc_list() const
+            const moris::Cell< PropertyFunc > & get_property_dof_derFunc_list() const
             {
-                return mDerFuncList;
+                return mDofDerFuncList;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * set property derivative function list wrt dv
+             * @param[ in ] aDvDerFuncList list of property functions for derivative wrt dv
+             */
+            void set_property_dv_derFunc_list( moris::Cell< PropertyFunc > & aDvDerFuncList )
+            {
+                mDvDerFuncList = aDvDerFuncList;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * return property derivative function list wrt dv
+             * @param[ in ] mDvDerFuncList list of property functions for derivative wrt dv
+             */
+            const moris::Cell< PropertyFunc > & get_property_dv_derFunc_list() const
+            {
+                return mDvDerFuncList;
             };
 
 //------------------------------------------------------------------------------

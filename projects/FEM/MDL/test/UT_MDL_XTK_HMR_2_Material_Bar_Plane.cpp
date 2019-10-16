@@ -96,11 +96,12 @@ Circle2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 
-Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                           moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-                                           fem::Geometry_Interpolator             * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
+                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
+                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aCoeff( 0 );
+    return aParameters( 0 );
 }
 
 TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]")
@@ -245,7 +246,6 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
                                                        {{{ 1.0 }}},
                                                        tConstValFunction2MatMDL,
                                                        Cell< fem::PropertyFunc >( 0 ) );
-
         fem::Property_User_Defined_Info tConductivity2( fem::Property_Type::CONDUCTIVITY,
                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
                                                        {{{ 5.0 }}},

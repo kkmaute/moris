@@ -27,7 +27,8 @@ namespace moris
         void IWG_LSNormal_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // set field interpolators
             Field_Interpolator* nPhi = mMasterFI( 0 );
@@ -60,7 +61,8 @@ namespace moris
         void IWG_LSNormal_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
             // check master field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // set field interpolators
             Field_Interpolator* nPhi = mMasterFI( 0 );
@@ -77,7 +79,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -95,7 +97,7 @@ namespace moris
             aJacobians( 0 )( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->dnNdxn( 1 ) * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
         }
 
 //------------------------------------------------------------------------------
@@ -103,7 +105,8 @@ namespace moris
                                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
             // check master field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // set field interpolators
             Field_Interpolator* nPhi = mMasterFI( 0 );
@@ -120,7 +123,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->gradx( 1 ) ) * phi->Bx() / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->gradx( 1 ) ) * phi->dnNdxn( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -144,7 +147,7 @@ namespace moris
             aJacobians( 0 )( 0 ) = trans( tNNPhi ) * tNNPhi;
 
             // compute j_nPhi_phi
-            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->Bx() * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
+            aJacobians( 0 )( 1 ) = - trans( tNNPhi ) * ( phi->dnNdxn( 1 ) * tNormPhi - phi->gradx( 1 ) * trans( tDNormPhiDPhiHat ) ) / std::pow( tNormPhi, 2 ) ;
 
         }
 

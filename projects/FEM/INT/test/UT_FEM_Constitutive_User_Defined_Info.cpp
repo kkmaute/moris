@@ -8,7 +8,7 @@ namespace moris
     namespace fem
     {
 
-        TEST_CASE( "Constitutive_User_Defined_Info", "[moris],[fem],[Constitutive_User_Defined_Info]" )
+        TEST_CASE( "Constitutive_User_Defined_Info_no_dv", "[moris],[fem],[Constitutive_User_Defined_Info_no_dv]" )
         {
 
             // build constitutive user defined info
@@ -22,6 +22,32 @@ namespace moris
             //check number of dof type and dof type
             CHECK( equal_to( tConstitutiveUserInfo.get_constitutive_dof_type_list().size(), 1 ) );
             CHECK( equal_to( static_cast< uint >( tConstitutiveUserInfo.get_constitutive_dof_type_list()( 0 )( 0 ) ), 3 ) );
+
+            //check number of property type and property type
+            CHECK( equal_to( tConstitutiveUserInfo.get_constitutive_property_type_list().size(), 1 ) );
+            CHECK( equal_to( static_cast< uint >( tConstitutiveUserInfo.get_constitutive_property_type_list()( 0 ) ), 3 ) );
+
+        }/* TEST_CASE */
+
+        TEST_CASE( "Constitutive_User_Defined_Info_dv", "[moris],[fem],[Constitutive_User_Defined_Info_dv]" )
+        {
+
+            // build constitutive user defined info
+            fem::Constitutive_User_Defined_Info tConstitutiveUserInfo( fem::Constitutive_Type::DIFF_LIN_ISO,
+                                                                       {{ MSI::Dof_Type::TEMP }},
+                                                                       {{ MSI::Dv_Type::LS2 }},
+                                                                       { fem::Property_Type::CONDUCTIVITY } );
+
+            //check constitutive type
+            CHECK( equal_to( static_cast< uint >( tConstitutiveUserInfo.get_constitutive_type() ), 1 ) );
+
+            //check number of dof type and dof type
+            CHECK( equal_to( tConstitutiveUserInfo.get_constitutive_dof_type_list().size(), 1 ) );
+            CHECK( equal_to( static_cast< uint >( tConstitutiveUserInfo.get_constitutive_dof_type_list()( 0 )( 0 ) ), 3 ) );
+
+            //check number of dv type and dv type
+            CHECK( equal_to( tConstitutiveUserInfo.get_constitutive_dv_type_list().size(), 1 ) );
+            CHECK( equal_to( static_cast< uint >( tConstitutiveUserInfo.get_constitutive_dv_type_list()( 0 )( 0 ) ), 1 ) );
 
             //check number of property type and property type
             CHECK( equal_to( tConstitutiveUserInfo.get_constitutive_property_type_list().size(), 1 ) );

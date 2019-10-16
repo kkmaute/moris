@@ -60,7 +60,7 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+            aResidual( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
                            + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
         }
 
@@ -79,7 +79,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -104,7 +104,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian j_vN_vN
-            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 ) + trans( vN->N() ) * vN->N() * tDiracFilter;
 
             // compute the jacobian j_vN_phi
             aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )
@@ -127,7 +127,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -152,14 +152,14 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute the residual r_vN
-            aResidual( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->gradx( 1 )
+            aResidual( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
                            + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter;
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
             // compute the jacobian j_vN_vN
-            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->Bx() ) * vN->Bx() + trans( vN->N() ) * vN->N() * tDiracFilter;
+            aJacobians( 0 )( 0 ) = mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 ) + trans( vN->N() ) * vN->N() * tDiracFilter;
 
            // compute the jacobian j_vN_phi
            aJacobians( 0 )( 1 ) = trans( vN->N() ) * ( vN->val() - vN->N() * aVHat )

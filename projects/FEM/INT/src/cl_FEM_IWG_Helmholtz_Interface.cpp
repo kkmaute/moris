@@ -52,7 +52,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian
-            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->Bx();
+            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->dnNdxn( 1 );
         }
 
 //------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the residual
-            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->Bx();
+            aJacobians( 0 )( 0 ) = - mFilterParam * trans( vN->N() ) * trans( aInterfaceNormal ) * vN->dnNdxn( 1 );
         }
 
 //------------------------------------------------------------------------------
