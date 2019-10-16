@@ -1606,7 +1606,7 @@ namespace moris
                 break;
 
             case( mtk::Geometry_Type::QUAD ) :
-                 return fem::Integration_Order::QUAD_3x3;
+                 return fem::Integration_Order::QUAD_2x2;         //FIXME
                  break;
 
             case( mtk::Geometry_Type::HEX ) :

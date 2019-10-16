@@ -113,8 +113,13 @@ set(LIB_SOURCES
     cl_FEM_Element_Time_Sideset.cpp
     cl_FEM_IWG_Factory.cpp
     cl_FEM_IWG_L2.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
+    cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Bulk.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.cpp
+    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.cpp
     cl_FEM_IWG_Helmholtz_Bulk.cpp
@@ -135,8 +140,8 @@ set(LIB_SOURCES
     cl_FEM_Integrator_Test_Polynomial.cpp
     cl_FEM_Property.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
+    cl_FEM_CM_Struc_Linear_Isotropic.cpp
     cl_FEM_CM_Factory.cpp
-    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
     )
 
 # List library dependencies

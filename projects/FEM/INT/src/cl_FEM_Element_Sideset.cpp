@@ -188,12 +188,11 @@ namespace moris
 //                    print( tJacobians(0), "tJacobians" );
 //
 //                    // check with finite difference
-//                    real tPerturbation = 1E-6;
-//                    Cell< Matrix< DDRMat > > tJacobiansFD;
+//                    real tPerturbation = 1E-4;
+//                    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
 //                    mSet->get_IWGs()( iIWG )->compute_jacobian_FD( tJacobiansFD,
-//                                                                   mSet->get_IWG_field_interpolators()( iIWG ),
 //                                                                   tPerturbation );
-//                    print(tJacobiansFD(0),"tJacobiansFD");
+//                    print(tJacobiansFD(0)(0),"tJacobiansFD");
 
                     // loop over the IWG active dof types
                     uint tNumIWGDof = mSet->get_IWGs()( iIWG )->get_global_dof_type_list().size();
@@ -207,7 +206,7 @@ namespace moris
                 }
             }
 //            // print jacobian for check
-//            print( mCluster->mJacobian, " mJacobian " );
+//            print( mSet->mJacobian, " mJacobian " );
         }
 
 //------------------------------------------------------------------------------

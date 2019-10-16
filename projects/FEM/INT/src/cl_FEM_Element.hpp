@@ -71,16 +71,6 @@ namespace moris
 
             // fill the bulk mtk::Cell pointer //FIXME
             mMasterCell = aCell;
-
-            // select the element nodes from aNodes and fill mNodeObj
-            // get vertices from cell
-            moris::Cell< mtk::Vertex* > tVertices = mMasterCell->get_vertex_pointers();
-
-            // get number of nodes from cell
-            uint tNumOfNodes = tVertices.size();
-
-            // set size of Weak BCs
-            mCluster->get_weak_bcs().set_size( tNumOfNodes, 1 );             // FIXME
         };
 
         Element( const mtk::Cell  * aMasterCell,

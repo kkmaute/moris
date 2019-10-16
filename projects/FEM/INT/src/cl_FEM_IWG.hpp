@@ -16,8 +16,8 @@
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
-#include "fn_reshape.hpp"
 
+#include "fn_reshape.hpp"
 
 namespace moris
 {
@@ -1269,6 +1269,7 @@ namespace moris
 
                             // perturbation of the coefficent
                             tCoeffPert = tCoeff;
+
                             tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
 
                             // setting the perturbed coefficients

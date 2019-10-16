@@ -188,7 +188,6 @@ void Sparse_Matrix_EpetraFECrs::replace_diagonal_values( const Dist_Vector & aDi
     if ( error != 0 )
     {
         MORIS_ASSERT( false, "SparseMatrixEpetraFECrs::replace_diagonal_values - replacing diagonal was failed!!! \n" );
-
     }
 }
 

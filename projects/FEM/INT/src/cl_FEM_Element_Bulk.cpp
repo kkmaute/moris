@@ -108,7 +108,7 @@ namespace moris
                 }
             }
 //            // print jacobian for check
-//            print( mCluster->mJacobian, " mJacobian " );
+//            print( mSet->mJacobian, " mJacobian " );
         }
 
 //------------------------------------------------------------------------------

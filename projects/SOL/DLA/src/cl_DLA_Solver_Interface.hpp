@@ -230,6 +230,8 @@ public:
 
     void assemble_RHS( moris::Dist_Vector * aVectorRHS,
                        moris::Dist_Vector * aFullSolutionVector );
+
+
 };
 }
 
