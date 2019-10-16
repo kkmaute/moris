@@ -370,7 +370,7 @@ namespace moris
              }
 
              //Fixme do this only once
-             this->get_my_pdof_values();
+             this->compute_my_pdof_values();
 
              // init the jacobian //fixme still ok?
              mSet->initialize_mJacobian();
@@ -402,7 +402,7 @@ namespace moris
             }
 
             //Fixme do this only once
-            this->get_my_pdof_values();
+            this->compute_my_pdof_values();
 
             // init the residual
             mSet->initialize_mResidual();
@@ -434,7 +434,7 @@ namespace moris
              }
 
              //Fixme do this only once
-             this->get_my_pdof_values();
+             this->compute_my_pdof_values();
 
              // init the jacobian
              mSet->initialize_mJacobian();

@@ -270,7 +270,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------------------------
 
-    void Equation_Object::get_my_pdof_values( )
+    void Equation_Object::compute_my_pdof_values( )
     {
         Matrix< DDRMat > tTMatrix;
 

@@ -577,7 +577,7 @@ namespace moris
                                 // get the cluster
                                 mtk::Cluster const * tCluster = tCellClustersInSet(iCl);
 
-                                tEquationObj(iCl)->get_my_pdof_values( );
+                                tEquationObj(iCl)->compute_my_pdof_values( );
 
                                 // get the pdof values for this cluster
                                 Cell < Matrix< DDRMat > >  tPDofVals;

@@ -172,7 +172,7 @@ namespace moris
                                            moris::Cell< MSI::Dof_Type > aDofType )
         {
             // get pdofs values for the element
-            this->get_my_pdof_values();
+            this->compute_my_pdof_values();
 
             // get a specific dof type pdofs values
             Matrix< DDRMat > tPdofValues;

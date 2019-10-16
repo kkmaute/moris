@@ -94,7 +94,7 @@ class Dist_Vector;
 
             Matrix< DDRMat > & get_pdof_values( )
             {
-                this->get_my_pdof_values();
+                this->compute_my_pdof_values();
 
                 return mPdofValues;
             };
@@ -173,10 +173,10 @@ class Dist_Vector;
 //-------------------------------------------------------------------------------------------------
 
             /**
-             * @brief Get function for the pdof values of this particular equation object
+             * @brief Compute function for the pdof values of this particular equation object
              *
              */
-            void get_my_pdof_values( );
+            void compute_my_pdof_values( );
 
 //-------------------------------------------------------------------------------------------------
 
