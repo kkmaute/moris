@@ -135,6 +135,11 @@ namespace moris
             void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
+
+            void flatten_normal( const Matrix< DDRMat > & aNormal,
+                                       Matrix< DDRMat > & aFlattenedNormal );
+
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */
