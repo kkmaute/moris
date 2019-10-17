@@ -11,6 +11,7 @@
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp"   //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"     //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp"     //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_LSNormal_Bulk.hpp"                         //FEM/INT/src
 #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"                       //FEM/INT/src
@@ -70,6 +71,10 @@ namespace moris
 
                 case ( IWG_Type::SPATIALDIFF_GHOST ):
                     tIWG = new IWG_Isotropic_Spatial_Diffusion_Ghost();
+                    break;
+
+                case ( IWG_Type::SPATIALDIFF_VW_GHOST ):
+                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost();
                     break;
 
                 case ( IWG_Type::SPATIALDIFF_INTERFACE ):

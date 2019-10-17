@@ -117,9 +117,11 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
                                  Interpolation_Type::CONSTANT,
                                  mtk::Interpolation_Order::CONSTANT );
 
-    // create coefficients
-    Matrix< DDRMat > tDOFHat( 8, 1 );
-    tDOFHat = {{1.0},{1.0},{1.0},{1.0},{2.0},{2.0},{2.0},{2.0}};
+    // create random coefficients
+    arma::Mat< double > tMatrix;
+    tMatrix.randu( 8, 1 );
+    Matrix< DDRMat > tDOFHat;
+    tDOFHat.matrix_data() = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tFIs( tIWG.get_dof_type_list().size() );
@@ -225,32 +227,15 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
 
         // check evaluation of the jacobian  by FD
         //------------------------------------------------------------------------------
-        // evaluate the jacobian
+        // init the jacobian for IWG and FD evaluation
         Cell< Cell< Matrix< DDRMat > > > tJacobians;
-        tIWG.compute_jacobian( tJacobians );
-        //print( tJacobians( 0 )( 0 ),"tJacobians");
-
         Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-        tIWG.compute_jacobian_FD( tJacobiansFD, tPerturbation );
-        //print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD");
 
-        //define a boolean for check
-        bool tCheckJacobian = true;
-
-        for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-        {
-            for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-            {
-                for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                {
-                    for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                    {
-                        tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-                    }
-                }
-            }
-        }
-
+        // check jacobian by FD
+        bool tCheckJacobian = tIWG.check_jacobian( tPerturbation,
+                                                   tEpsilon,
+                                                   tJacobians,
+                                                   tJacobiansFD );
         REQUIRE( tCheckJacobian );
 
         for( Property* tProp : tIWGProps )
@@ -338,34 +323,19 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
 
             // check evaluation of the jacobian  by FD
             //------------------------------------------------------------------------------
-            // evaluate the jacobian
+            // init the jacobian for IWG and FD evaluation
             Cell< Cell< Matrix< DDRMat > > > tJacobians;
-            tIWG.compute_jacobian( tJacobians );
-            //print( tJacobians( 0 )( 0 ),"tJacobians");
-
             Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-            tIWG.compute_jacobian_FD( tJacobiansFD, tPerturbation );
-            //print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD");
 
-            //define a boolean for check
-            bool tCheckJacobian = true;
-
-            for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-            {
-                for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-                {
-                    for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                    {
-                        for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                        {
-                            tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-                        }
-                    }
-                }
-            }
-
+            // check jacobian by FD
+            bool tCheckJacobian = tIWG.check_jacobian( tPerturbation,
+                                                       tEpsilon,
+                                                       tJacobians,
+                                                       tJacobiansFD );
+            // require check is true
             REQUIRE( tCheckJacobian );
 
+            // clean up
             for( Property* tProp : tIWGProps )
             {
                 delete tProp;
@@ -455,40 +425,24 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
 
             // check evaluation of the jacobian  by FD
             //------------------------------------------------------------------------------
-            // evaluate the jacobian
+            // init the jacobian for IWG and FD evaluation
             Cell< Cell< Matrix< DDRMat > > > tJacobians;
-            tIWG.compute_jacobian( tJacobians );
-            //print( tJacobians( 0 )( 0 ),"tJacobians");
-
             Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-            tIWG.compute_jacobian_FD( tJacobiansFD, tPerturbation );
-            //print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD");
 
-            //define a boolean for check
-            bool tCheckJacobian = true;
-
-            for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-            {
-                for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-                {
-                    for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                    {
-                        for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                        {
-                            tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-                        }
-                    }
-                }
-            }
-
+            // check jacobian by FD
+            bool tCheckJacobian = tIWG.check_jacobian( tPerturbation,
+                                                       tEpsilon,
+                                                       tJacobians,
+                                                       tJacobiansFD );
+            // require check is true
             REQUIRE( tCheckJacobian );
 
+            // clean up
             for( Property* tProp : tIWGProps )
             {
                 delete tProp;
             }
             tIWGProps.clear();
-
 
         }/* END_SECTION */
 

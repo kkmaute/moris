@@ -22,7 +22,6 @@ namespace moris
             // FIXME set order of Shape functions
             // Order must be fed to IWG from outside
             mOrder = 3;
-
         }
 
 //------------------------------------------------------------------------------
@@ -119,110 +118,168 @@ namespace moris
             // init the normal matrix
             Matrix< DDRMat > tNormalMatrix;
 
+            // get spatial dimensions
+            uint tSpaceDim = mNormal.numel();
+
             // switch on the ghost order
             switch( aOrderGhost )
             {
                 case ( 1 ):
                 {
-                    return tNormalMatrix = trans( mNormal );
+                    switch ( tSpaceDim )
+                    {
+                        case ( 2 ):
+                        {
+                            tNormalMatrix = trans( mNormal );
+                            break;
+                        }
+                        case ( 3 ):
+                        {
+                            tNormalMatrix = trans( mNormal );
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            break;
+                        }
+                    }
                     break;
                 }
 
                 case ( 2 ):
                 {
-                    //fixme
-                    // set the normal matrix size
-                    tNormalMatrix.set_size( 3, 6, 0.0 );
+                    switch ( tSpaceDim )
+                    {
+                        case ( 2 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 2, 3, 0.0 );
 
-                    // fill the normal matrix
-                    tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 1 ) = mNormal( 1 );
-                    tNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            // fill the normal matrix
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
 
-//                    tNormalMatrix( 0, 3 ) = mNormal( 1 );
-//                    tNormalMatrix( 0, 4 ) = mNormal( 2 );
-//
-//                    tNormalMatrix( 1, 3 ) = mNormal( 0 );
-//                    tNormalMatrix( 1, 5 ) = mNormal( 2 );
-//
-//                    tNormalMatrix( 2, 4 ) = mNormal( 1 );
-//                    tNormalMatrix( 2, 5 ) = mNormal( 0 );
+                            tNormalMatrix( 0, 2 ) = mNormal( 1 );
+                            tNormalMatrix( 1, 2 ) = mNormal( 0 );
 
-                    tNormalMatrix( 0, 5 ) = mNormal( 1 );
-                    tNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            break;
+                        }
+                        case ( 3 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 3, 6, 0.0 );
 
-                    tNormalMatrix( 1, 5 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 3 ) = mNormal( 2 );
+                            // fill the normal matrix
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            tNormalMatrix( 2, 2 ) = mNormal( 2 );
 
-                    tNormalMatrix( 2, 4 ) = mNormal( 0 );
-                    tNormalMatrix( 2, 3 ) = mNormal( 1 );
+                            tNormalMatrix( 1, 3 ) = mNormal( 2 );
+                            tNormalMatrix( 2, 3 ) = mNormal( 1 );
 
-                    return tNormalMatrix;
+                            tNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            tNormalMatrix( 2, 4 ) = mNormal( 0 );
+
+                            tNormalMatrix( 0, 5 ) = mNormal( 1 );
+                            tNormalMatrix( 1, 5 ) = mNormal( 0 );
+
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            break;
+                        }
+                    }
                     break;
                 }
 
                 case ( 3 ):
                 {
-                    // set the normal matrix size
-                    tNormalMatrix.set_size( 6, 10, 0.0 );
+                    switch ( tSpaceDim )
+                    {
+                        case ( 2 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 3, 4, 0.0 );
 
-                    tNormalMatrix( 0, 0 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 1 ) = mNormal( 1 );
-                    tNormalMatrix( 2, 2 ) = mNormal( 2 );
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
 
-                    tNormalMatrix( 0, 3 ) = mNormal( 1 );
-                    tNormalMatrix( 0, 4 ) = mNormal( 2 );
+                            tNormalMatrix( 0, 2 ) = mNormal( 1 );
+                            tNormalMatrix( 1, 3 ) = mNormal( 0 );
 
-                    tNormalMatrix( 1, 5 ) = mNormal( 0 );
-                    tNormalMatrix( 1, 6 ) = mNormal( 2 );
+                            real tSqrtOf2 = std::sqrt( 2 );
 
-                    tNormalMatrix( 2, 7 ) = mNormal( 0 );
-                    tNormalMatrix( 2, 8 ) = mNormal( 1 );
+                            tNormalMatrix( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
 
-                    real tSqrtOf2 = std::sqrt( 2 );
+                            break;
+                        }
+                        case ( 3 ):
+                        {
+                            // set the normal matrix size
+                            tNormalMatrix.set_size( 6, 10, 0.0 );
 
-                    tNormalMatrix( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
-                    tNormalMatrix( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
-                    tNormalMatrix( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+                            tNormalMatrix( 0, 0 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 1 ) = mNormal( 1 );
+                            tNormalMatrix( 2, 2 ) = mNormal( 2 );
 
-                    tNormalMatrix( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
-                    tNormalMatrix( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
-                    tNormalMatrix( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 0, 3 ) = mNormal( 1 );
+                            tNormalMatrix( 0, 4 ) = mNormal( 2 );
 
-                    tNormalMatrix( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
-                    tNormalMatrix( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
-                    tNormalMatrix( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
+                            tNormalMatrix( 1, 5 ) = mNormal( 0 );
+                            tNormalMatrix( 1, 6 ) = mNormal( 2 );
 
-                    return tNormalMatrix;
+                            tNormalMatrix( 2, 7 ) = mNormal( 0 );
+                            tNormalMatrix( 2, 8 ) = mNormal( 1 );
+
+                            real tSqrtOf2 = std::sqrt( 2 );
+
+                            tNormalMatrix( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
+                            tNormalMatrix( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+
+                            tNormalMatrix( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
+                            tNormalMatrix( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
+                            tNormalMatrix( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+
+                            tNormalMatrix( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
+                            tNormalMatrix( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
+                            tNormalMatrix( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
+
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - Spatial dimensions can only be 2, 3." );
+                            break;
+                        }
+                    }
                     break;
                 }
 
                 default:
                 {
-                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - \n"
-                                        "Ghost stabilization for this order not supported yet." );
-                    return tNormalMatrix;
+                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Ghost::get_normal_matrix - order not supported." );
                     break;
                 }
             }
+
+            return tNormalMatrix;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order ( uint aOrder )
+        void IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order( uint aOrder )
         {
             // check that the order is supported
-            MORIS_ERROR( aOrder < 4 , "IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order - \n"
-                                      "Ghost stabilization for this order not supported yet." );
+            MORIS_ERROR( aOrder < 4 , "IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order - order not supported." );
             // set the order
             mOrder = aOrder;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::set_penalty_factor ( real aGamma )
-        {
-            mGammaGhost = aGamma;
-        }
-
 //        void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
 //        {
 //            // check, if order of shape functions is supported

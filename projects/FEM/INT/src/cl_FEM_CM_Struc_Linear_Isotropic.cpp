@@ -57,7 +57,7 @@ namespace moris
             // fill with strain
             mStrain( 0, 0 ) = tGradx( 0, 0 );
             mStrain( 1, 0 ) = tGradx( 1, 1 );
-            mStrain( 2, 0 ) = tGradx( 1, 0 ) + tGradx( 0, 1 );
+            mStrain( 2, 0 ) = tGradx( 1, 0 ) + tGradx( 0, 1 ); // FIXME 1/2?
         }
 
 //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace moris
             Matrix< DDRMat > tdnNdxn;
             tdnNdxn = mDofFI( 0 )->dnNdxn( 1 );
 
-            mTestStrain.set_size( 3, 8 , 0.0 );
+            mTestStrain.set_size( 3, 8, 0.0 );
             mTestStrain( {0,0},{0,3} ) = mDofFI( 0 )->dnNdxn( 1 )({0,0},{0,3});
             mTestStrain( {2,2},{0,3} ) = mDofFI( 0 )->dnNdxn( 1 )({1,1},{0,3});
 

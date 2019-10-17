@@ -68,15 +68,7 @@ namespace moris
                 // if constitutive model has dependency on the dof type
                 if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
                 {
-//                    // compute flux derivative
-//                    Matrix< DDRMat > tdStressDOF;
-//                    mMasterCM( 0 )->eval_dFluxdDOF( mMasterGlobalDofTypes( iDOF ), tdStressDOF );
-//
-//                    Matrix< DDRMat > tTestStrain;
-//                    mMasterCM( 0 )->eval_test_strain( tTestStrain );
-
                     // compute the jacobian
-//                    aJacobians( 0 )( iDOF ).matrix_data() += trans( tTestStrain ) * tdStressDOF;
                     aJacobians( 0 )( iDOF ).matrix_data()
                     += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
                     // fixme add derivative of the test strain

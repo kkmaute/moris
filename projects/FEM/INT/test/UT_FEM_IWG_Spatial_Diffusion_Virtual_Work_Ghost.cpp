@@ -1,38 +1,35 @@
 #include <string>
 #include <catch.hpp>
-
 #include "assert.hpp"
 
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
-#include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
-#include "cl_FEM_Property.hpp"                                  //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp" //FEM//INT//src
+#include "cl_FEM_Enums.hpp"                                              //FEM//INT/src
+#include "cl_FEM_CM_Factory.hpp"                                         //FEM//INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp" //FEM//INT//src
 
 #include "op_equal_equal.hpp"
 
 
-moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tConstValFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                            moris::fem::Geometry_Interpolator              * aGI )
 {
     return aParameters( 0 );
 }
 
-moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIValFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                         moris::fem::Geometry_Interpolator              * aGI )
 {
     return aParameters( 0 ) * aDofFI( 0 )->val();
 }
 
-moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+moris::Matrix< moris::DDRMat > tFIDerFunction_UTVWGhost( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                         moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                         moris::fem::Geometry_Interpolator              * aGI )
 {
     return aParameters( 0 ) * aDofFI( 0 )->N();
 }
@@ -40,14 +37,14 @@ moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::M
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interface]" )
+TEST_CASE( "IWG_SpatialDiff_VWGhost", "[moris],[fem],[IWG_SpatialDiff_VWGhost]" )
 {
 
-    // create a spatial diffusion bulk IWG
+    // create a spatial diffusion virtual work ghost IWG
     //------------------------------------------------------------------------------
 
     // create an IWG Spatial Difffusion Bulk
-    IWG_Isotropic_Spatial_Diffusion_Interface tIWG;
+    IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost tIWG;
 
     // set residual dof type
     tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );
@@ -58,10 +55,10 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
     // set slave dof type
     tIWG.set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
 
-    // set active constitutive type
+    // set master constitutive type
     tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO } );
 
-    // set active constitutive type
+    // set slave constitutive type
     tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO }, mtk::Master_Slave::SLAVE );
 
     // set the normal
@@ -82,7 +79,7 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
                                 mtk::Interpolation_Order::LINEAR );
 
     // create a space time geometry interpolator
-    Geometry_Interpolator* tGI = new Geometry_Interpolator( tGIRule );
+    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
     // create space coeff xHat
     Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
@@ -98,10 +95,10 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
     Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
     // set the coefficients xHat, tHat
-    tGI->set_coeff( tXHat, tTHat );
+    tGI.set_coeff( tXHat, tTHat );
 
     // set the evaluation point
-    tGI->set_space_time( tParamPoint );
+    tGI.set_space_time( tParamPoint );
 
     // field interpolators
     //------------------------------------------------------------------------------
@@ -113,11 +110,20 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
                                  mtk::Interpolation_Order::CONSTANT );
 
     // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 8, 1 );
-    Matrix< DDRMat > tDOFHat;
-    tDOFHat.matrix_data() = 10.0 * tMatrix;
-    print( tDOFHat, "tDOFHat" );
+    arma::Mat< double > tMasterMatrix;
+    tMasterMatrix.randu( 8, 1 );
+    Matrix< DDRMat > tMasterDOFHat;
+    tMasterDOFHat.matrix_data() = 10.0 * tMasterMatrix;
+    print(tMasterDOFHat,"tMasterDOFHat");
+
+    arma::Mat< double > tSlaveMatrix;
+    tSlaveMatrix.randu( 8, 1 );
+    Matrix< DDRMat > tSlaveDOFHat;
+    tSlaveDOFHat.matrix_data() = 10.0 * tSlaveMatrix;
+    print(tSlaveDOFHat,"tSlaveDOFHat");
+
+//    Matrix< DDRMat > tDOFHat( 8, 1 );
+//    tDOFHat = {{1.0},{1.0},{1.0},{1.0},{2.0},{2.0},{2.0},{2.0}};
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tMasterFIs( tIWG.get_dof_type_list().size() );
@@ -130,11 +136,11 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         // create the field interpolator
         tMasterFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
                                                      tFIRule,
-                                                     tGI,
+                                                     &tGI,
                                                      tIWG.get_dof_type_list()( iDOF ) );
 
         // set the coefficients uHat
-        tMasterFIs( iDOF )->set_coeff( tDOFHat );
+        tMasterFIs( iDOF )->set_coeff( tMasterDOFHat );
 
         //set the evaluation point xi, tau
         tMasterFIs( iDOF )->set_space_time( tParamPoint );
@@ -151,21 +157,21 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         // create the field interpolator
         tSlaveFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
                                                     tFIRule,
-                                                    tGI,
+                                                    &tGI,
                                                     tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
 
         // set the coefficients uHat
-        tSlaveFIs( iDOF )->set_coeff( tDOFHat );
+        tSlaveFIs( iDOF )->set_coeff( tSlaveDOFHat );
 
         //set the evaluation point xi, tau
         tSlaveFIs( iDOF )->set_space_time( tParamPoint );
     }
 
     // define an epsilon environment
-    double tEpsilon = 1E-6;
+    real tEpsilon = 1E-6;
 
     // define aperturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-4;
 
     SECTION( "IWG_Spatial_Diffusion : check residual and jacobian with constant property" )
     {
@@ -183,9 +189,9 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
             tMasterProps( iProp ) = new Property( fem::Property_Type::CONDUCTIVITY,
                                                   Cell< Cell< MSI::Dof_Type > > ( 0 ),
                                                   tPropCoeff,
-                                                  tConstValFunction_UTInterface,
+                                                  tConstValFunction_UTVWGhost,
                                                   Cell< PropertyFunc > ( 0 ),
-                                                  tGI );
+                                                  &tGI );
 
         }
 
@@ -198,9 +204,9 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
             tSlaveProps( iProp ) = new Property( fem::Property_Type::CONDUCTIVITY,
                                                  {{ MSI::Dof_Type::TEMP }},
                                                  tPropCoeff,
-                                                 tFIValFunction_UTInterface,
-                                                 { tFIDerFunction_UTInterface },
-                                                 tGI );
+                                                 tFIValFunction_UTVWGhost,
+                                                 { tFIDerFunction_UTVWGhost },
+                                                 &tGI );
 
             tSlaveProps( iProp )->set_dof_field_interpolators( tSlaveFIs );
 
@@ -273,7 +279,7 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         tIWG.set_dof_field_interpolators( tMasterFIs );
         tIWG.set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
 
-        // check evaluation of the residual for IWG Helmholtz Bulk ?
+        // check evaluation of the residual
         //------------------------------------------------------------------------------
         // evaluate the residual
         Cell< Matrix< DDRMat > > tResidual;
@@ -291,18 +297,18 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
                                                           tJacobians,
                                                           tJacobiansFD );
 
-//        // print for debug
-//        print( tJacobians( 0 )( 0 ),"tJacobians00");
-//        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-//
-//        print( tJacobians( 0 )( 1 ),"tJacobians01");
-//        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-//
-//        print( tJacobians( 1 )( 0 ),"tJacobians10");
-//        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-//
-//        print( tJacobians( 1 )( 1 ),"tJacobians11");
-//        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
+        // print for debug
+        print( tJacobians( 0 )( 0 ),"tJacobians00");
+        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
+
+        print( tJacobians( 0 )( 1 ),"tJacobians01");
+        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
+
+        print( tJacobians( 1 )( 0 ),"tJacobians10");
+        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
+
+        print( tJacobians( 1 )( 1 ),"tJacobians11");
+        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
         // require check is true
         REQUIRE( tCheckJacobian );
@@ -346,7 +352,5 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         delete tFI;
     }
     tSlaveFIs.clear();
-
-    delete tGI;
 
 }/* END_TEST_CASE */
