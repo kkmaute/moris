@@ -213,8 +213,6 @@ namespace moris
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
 
-            std::cout<<"Double Sided"<<std::endl;
-
             // loop over the integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )

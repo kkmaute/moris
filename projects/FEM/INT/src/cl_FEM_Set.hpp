@@ -560,7 +560,6 @@ namespace MSI
          */
         void set_properties_field_interpolators();
 
-
 //------------------------------------------------------------------------------
         /**
          * set the field interpolators for the constitutive models

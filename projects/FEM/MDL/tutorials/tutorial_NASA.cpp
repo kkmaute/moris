@@ -226,13 +226,13 @@ main( int    argc,
 
     for( uint k=0; k<tRefinementLevels; ++k )
     {
-    	tHMR.flag_surface_elements_on_working_pattern( tHMRFields(0) );
-    	tHMR.flag_surface_elements_on_working_pattern( tHMRFields(1) );
+        tHMR.flag_surface_elements_on_working_pattern( tHMRFields(0) );
+        tHMR.flag_surface_elements_on_working_pattern( tHMRFields(1) );
 
-    	tHMR.perform_refinement_based_on_working_pattern( 0 );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-    	tHMRFields(0)->evaluate_scalar_function( Circle4MatMDL );
-    	tHMRFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
+        tHMRFields(0)->evaluate_scalar_function( Circle4MatMDL );
+        tHMRFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
     }
 
     tHMR.finalize();

@@ -226,7 +226,7 @@ TEST_CASE( "IWG_Struc_Linear_Dirichlet", "[moris],[fem],[IWG_Struc_Linear_Dirich
         Cell< Matrix< DDRMat > > tResidual;
         tIWG.compute_residual( tResidual );
 
-        // check evaluation of the jacobian  by FD
+        // check evaluation of the jacobian by FD
         //------------------------------------------------------------------------------
         // init the jacobian for IWG and FD evaluation
         Cell< Cell< Matrix< DDRMat > > > tJacobians;

@@ -98,6 +98,7 @@ set(HEADERS
     cl_FEM_Constitutive_User_Defined_Info.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
     cl_FEM_Opt_IWG.hpp
+    cl_FEM_Penalty_Parameter.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,5 +1,5 @@
 /*
- * cl_FEM_IWG.hpp
+ * cl_FEM_Constitutive_Model.hpp
  *
  *  Created on: Sep 17, 2019
  *      Author: noel
@@ -983,6 +983,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * get the derivative of the flux wrt dof
+             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
              * @param[ out ] mFluxDofDer derivative of the flux wrt dof
              */
             const Matrix< DDRMat > & dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofType )

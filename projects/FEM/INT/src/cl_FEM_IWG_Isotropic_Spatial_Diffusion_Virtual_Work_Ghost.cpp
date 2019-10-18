@@ -28,8 +28,7 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check, if order is supported
-            MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual"
-                                     " - order not supported. " );
+            MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported. " );
 
             // check master and slave field interpolators
             this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
@@ -48,22 +47,40 @@ namespace moris
             // set residual cell size
             this->set_residual_double( aResidual );
 
-            // loop over the interpolation order
-            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
+            if( mOrder >= 1 )
             {
-                 // get flattened normal matrix
-                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
+                // penalty parameter
+                real tGhostPenalty1 = mGammaGhost * mMeshParameter;
 
-                 // penalty parameter
-                 real tGhostPenalty = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 );
+                // get flattened normal matrix
+                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( 1 );
 
-                 // premultiply common terms
-                 Matrix< DDRMat > tPreMultiply = tGhostPenalty * trans( tNormalMatrix ) * tNormalMatrix * ( mMasterCM( 0 )->flux() - mSlaveCM( 0 )->flux() );
+                // compute the jump in traction
+                Matrix< DDRMat > tGradJump = mMasterCM( 0 )->traction( mNormal ) - mSlaveCM( 0 )->traction( mNormal );
 
-                 // compute master and slave residuals
-                 aResidual( 0 ).matrix_data() +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply;
-                 aResidual( 1 ).matrix_data() += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply;
+                // compute the residual
+                aResidual( 0 ).matrix_data() +=   tGhostPenalty1 * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * tGradJump;
+                aResidual( 1 ).matrix_data() += - tGhostPenalty1 * trans( mSlaveFI( 0 )->dnNdxn( 1 ) )  * trans( tNormalMatrix ) * tGradJump;
             }
+
+            // FIXME higher orders
+//            // loop over the interpolation order
+//            for ( uint iOrder = 2; iOrder <= mOrder; iOrder++ )
+//            {
+//                 // get flattened normal matrix
+//                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
+//
+//                 // penalty parameter
+//                 real tGhostPenalty = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 );
+//
+//                 // gradient jump
+//                 Matrix< DDRMat > tGradJump = mMasterCM( 0 )->constitutive() * tNormalMatrix * mMasterFI( 0 )->gradx( iOrder )
+//                                            - mSlaveCM( 0 )->constitutive()  * tNormalMatrix * mSlaveFI( 0 )->gradx( iOrder );
+//
+//                 // compute master and slave residuals
+//                 aResidual( 0 ).matrix_data() +=   tGhostPenalty * trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * trans( tNormalMatrix ) * tGradJump;
+//                 aResidual( 1 ).matrix_data() += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * trans( tNormalMatrix ) * tGradJump;
+//            }
         }
 
 //------------------------------------------------------------------------------
@@ -89,31 +106,19 @@ namespace moris
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );
 
-            // loop over the interpolation orders
-            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
+            // get number of master dof dependencies
+            uint tMasterNumDofDependencies = mMasterGlobalDofTypes.size();
+
+            // order 1
+            if ( mOrder >= 1 )
             {
                 // get normal matrix
-                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
+                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( 1 );
 
                 // penalty parameter
-                real tGhostPenalty = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 );
-
-                // premultiply common terms
-                Matrix< DDRMat > tPreMultiply = tGhostPenalty * trans( tNormalMatrix ) * tNormalMatrix;
-
-                // compute Jacobian direct dependencies
-                aJacobians( 0 )( 0 ).matrix_data()
-                +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mMasterCM( 0 )->constitutive() * mMasterFI( 0 )->dnNdxn( iOrder );
-                aJacobians( 0 )( 1 ).matrix_data()
-                += - trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mSlaveCM( 0 )->constitutive() * mSlaveFI( 0 )->dnNdxn( iOrder );
-
-                aJacobians( 1 )( 0 ).matrix_data()
-                += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mMasterCM( 0 )->constitutive() * mMasterFI( 0 )->dnNdxn( iOrder );
-                aJacobians( 1 )( 1 ).matrix_data()
-                +=   trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mSlaveCM( 0 )->constitutive() * mSlaveFI( 0 )->dnNdxn( iOrder );
+                real tGhostPenalty = mGammaGhost * mMeshParameter;
 
                 // compute the jacobian for indirect dof dependencies through master constitutive models
-                uint tMasterNumDofDependencies = mMasterGlobalDofTypes.size();
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
@@ -124,10 +129,10 @@ namespace moris
                     {
                         // add contribution to jacobian
                         aJacobians( 0 )( iDOF ).matrix_data()
-                        +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mMasterFI( 0 )->gradx( iOrder ) * mMasterCM( 0 )->dConstdDOF( tDofType );
+                        +=   tGhostPenalty * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal );
 
                         aJacobians( 1 )( iDOF ).matrix_data()
-                        += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mMasterFI( 0 )->gradx( iOrder ) * mMasterCM( 0 )->dConstdDOF( tDofType );
+                        += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal );
                     }
                 }
 
@@ -143,13 +148,78 @@ namespace moris
                     {
                         // add contribution to jacobian
                         aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                        += - trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mSlaveFI( 0 )->gradx( iOrder ) * mSlaveCM( 0 )->dConstdDOF( tDofType );
+                        += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal );
 
                         aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                        +=   trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mSlaveFI( 0 )->gradx( iOrder ) * mSlaveCM( 0 )->dConstdDOF( tDofType );
+                        +=   tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal );
                     }
                 }
             }
+
+            // FIXME higher orders
+//            // loop over the interpolation orders
+//            for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
+//            {
+//                // get normal matrix
+//                Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
+//
+//                // penalty parameter
+//                real tGhostPenalty = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 );
+//
+//                // compute Jacobian direct dependencies
+//                aJacobians( 0 )( 0 ).matrix_data()
+//                +=   tGhostPenalty * trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->constitutive() * tNormalMatrix * mMasterFI( 0 )->dnNdxn( iOrder );
+//                aJacobians( 0 )( tMasterNumDofDependencies ).matrix_data()
+//                += - tGhostPenalty * trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->constitutive() * tNormalMatrix * mSlaveFI( 0 )->dnNdxn( iOrder );
+//
+//                aJacobians( 1 )( 0 ).matrix_data()
+//                += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->constitutive() * tNormalMatrix * mMasterFI( 0 )->dnNdxn( iOrder );
+//                aJacobians( 1 )( tMasterNumDofDependencies ).matrix_data()
+//                +=   tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->constitutive() * tNormalMatrix * mSlaveFI( 0 )->dnNdxn( iOrder );
+//
+//                // compute the jacobian for indirect dof dependencies through master constitutive models
+//                for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+//                {
+//                    // get the dof type
+//                    Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
+//
+//                    // if dependency on the dof type
+//                    if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
+//                    {
+//
+//                        Matrix< DDRMat > tPreMultiply = tGhostPenalty * trans( tNormalMatrix ) * tNormalMatrix;
+//
+//                        // add contribution to jacobian
+//                        aJacobians( 0 )( iDOF ).matrix_data()
+//                        +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mMasterFI( 0 )->gradx( iOrder ) * mMasterCM( 0 )->dConstdDOF( tDofType );
+//
+//                        aJacobians( 1 )( iDOF ).matrix_data()
+//                        += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mMasterFI( 0 )->gradx( iOrder ) * mMasterCM( 0 )->dConstdDOF( tDofType );
+//                    }
+//                }
+//
+//                // compute the jacobian for indirect dof dependencies through slave constitutive models
+//                uint tSlaveNumDofDependencies = mSlaveGlobalDofTypes.size();
+//                for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
+//                {
+//                    // get dof type
+//                    Cell< MSI::Dof_Type > tDofType = mSlaveGlobalDofTypes( iDOF );
+//
+//                    // if dependency on the dof type
+//                    if ( mSlaveCM( 0 )->check_dof_dependency( tDofType ) )
+//                    {
+//
+//                        Matrix< DDRMat > tPreMultiply = tGhostPenalty * trans( tNormalMatrix ) * tNormalMatrix;
+//
+//                        // add contribution to jacobian
+//                        aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+//                        += - trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mSlaveFI( 0 )->gradx( iOrder ) * mSlaveCM( 0 )->dConstdDOF( tDofType );
+//
+//                        aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+//                        +=   trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply * mSlaveFI( 0 )->gradx( iOrder ) * mSlaveCM( 0 )->dConstdDOF( tDofType );
+//                    }
+//                }
+//            }
         }
 
 //------------------------------------------------------------------------------
