@@ -301,7 +301,7 @@ namespace moris
             tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_GHOST,
                                                                         { MSI::Dof_Type::TEMP },
                                                                         {{ MSI::Dof_Type::TEMP }},
-                                                                        Cell< fem::Property_Type >( 0 ),
+                                                                        { fem::Property_Type::CONDUCTIVITY },
                                                                         moris::Cell< fem::Constitutive_Type >( 0 ),
                                                                         {{ MSI::Dof_Type::TEMP }},
                                                                         Cell< fem::Property_Type >( 0 ),

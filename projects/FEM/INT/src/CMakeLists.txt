@@ -23,6 +23,7 @@ set(HEADERS
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp
+    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
     cl_FEM_IWG_Helmholtz_Bulk.hpp
     cl_FEM_IWG_Helmholtz_Bulk2.hpp
     cl_FEM_IWG_Helmholtz_Interface.hpp
@@ -97,6 +98,7 @@ set(HEADERS
     cl_FEM_Constitutive_User_Defined_Info.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
     cl_FEM_Opt_IWG.hpp
+    cl_FEM_Penalty_Parameter.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -122,6 +124,7 @@ set(LIB_SOURCES
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.cpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.cpp
+    cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.cpp
     cl_FEM_IWG_Helmholtz_Bulk.cpp
     cl_FEM_IWG_Helmholtz_Bulk2.cpp
     cl_FEM_IWG_Helmholtz_Interface.cpp
@@ -131,7 +134,6 @@ set(LIB_SOURCES
     cl_FEM_IWG_LSNormal_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Bulk.cpp
     cl_FEM_IWG_Olsson_CLS_Interface.cpp
-    cl_FEM_IWG_Test.cpp
     cl_FEM_Interpolation_Function_Factory.cpp
     cl_FEM_Interpolation_Rule.cpp
     cl_FEM_Geometry_Interpolator.cpp

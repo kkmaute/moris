@@ -1094,6 +1094,100 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * check the Jacobian with FD
+             * @param[ in ] aPerturbation real to perturb for FD
+             * @param[ in ] aEpsilon      real for check
+             * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
+             * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
+             */
+            bool check_jacobian( real                                             aPerturbation,
+                                 real                                             aEpsilon,
+                                 moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                 moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians_FD )
+            {
+                // set jacobian size
+                this->set_jacobian( aJacobians );
+
+                // compute jacobian with IWG
+                this->compute_jacobian( aJacobians );
+
+                // set jacobian size
+                this->set_jacobian( aJacobians_FD );
+
+                // compute jacobian by FD
+                this->compute_jacobian_FD( aJacobians_FD, aPerturbation );
+
+                //define a boolean for check
+                bool tCheckJacobian = true;
+
+                // check each components
+                for ( uint iJac = 0; iJac < aJacobians.size(); iJac++ )
+                {
+                    for( uint jJac = 0; jJac < aJacobians( iJac ).size(); jJac++ )
+                    {
+                        for( uint iiJac = 0; iiJac < aJacobians( iJac )( jJac ).n_rows(); iiJac++ )
+                        {
+                            for( uint jjJac = 0; jjJac < aJacobians( iJac )( jJac ).n_cols(); jjJac++ )
+                            {
+                                tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( jJac )( iiJac, jjJac ) - aJacobians_FD( iJac )( jJac )( iiJac, jjJac ) < aEpsilon );
+                            }
+                        }
+                    }
+                }
+
+                // return bool
+                return tCheckJacobian;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * check the Jacobian with FD double
+             * @param[ in ] aPerturbation real to perturb for FD
+             * @param[ in ] aEpsilon      real for check
+             * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
+             * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
+             */
+            bool check_jacobian_double( real aPerturbation,
+                                        real aEpsilon,
+                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians_FD )
+            {
+                // set jacobian size
+                this->set_jacobian_double( aJacobians );
+
+                // compute jacobian with IWG
+                this->compute_jacobian( aJacobians );
+
+                // set jacobian size
+                this->set_jacobian_double( aJacobians_FD );
+
+                // compute jacobian by FD
+                this->compute_jacobian_FD_double( aJacobians_FD, aPerturbation );
+
+                //define a boolean for check
+                bool tCheckJacobian = true;
+
+                // check each components
+                for ( uint iJac = 0; iJac < aJacobians.size(); iJac++ )
+                {
+                    for( uint jJac = 0; jJac < aJacobians( iJac ).size(); jJac++ )
+                    {
+                        for( uint iiJac = 0; iiJac < aJacobians( iJac )( jJac ).n_rows(); iiJac++ )
+                        {
+                            for( uint jjJac = 0; jjJac < aJacobians( iJac )( jJac ).n_cols(); jjJac++ )
+                            {
+                                tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( jJac )( iiJac, jjJac ) - aJacobians_FD( iJac )( jJac )( iiJac, jjJac ) < aEpsilon );
+                            }
+                        }
+                    }
+                }
+
+                // return bool
+                return tCheckJacobian;
+            }
+
+//------------------------------------------------------------------------------
+            /**
              * evaluate the Jacobian by finite difference
              * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
              * @param[ in ] aPerturbation real to perturb for FD

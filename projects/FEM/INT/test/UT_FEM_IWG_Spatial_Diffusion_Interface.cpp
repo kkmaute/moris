@@ -112,9 +112,12 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
                                  Interpolation_Type::CONSTANT,
                                  mtk::Interpolation_Order::CONSTANT );
 
-    // create coefficients
-    Matrix< DDRMat > tDOFHat( 8, 1 );
-    tDOFHat = {{1.0},{1.0},{1.0},{1.0},{2.0},{2.0},{2.0},{2.0}};
+    // create random coefficients
+    arma::Mat< double > tMatrix;
+    tMatrix.randu( 8, 1 );
+    Matrix< DDRMat > tDOFHat;
+    tDOFHat.matrix_data() = 10.0 * tMatrix;
+    print( tDOFHat, "tDOFHat" );
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tMasterFIs( tIWG.get_dof_type_list().size() );
@@ -278,13 +281,17 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
 
         // check evaluation of the jacobian  by FD
         //------------------------------------------------------------------------------
-        // evaluate the jacobian
+        // init the jacobian for IWG and FD evaluation
         Cell< Cell< Matrix< DDRMat > > > tJacobians;
-        tIWG.compute_jacobian( tJacobians );
-
         Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-        tIWG.compute_jacobian_FD_double( tJacobiansFD, tPerturbation );
 
+        // check jacobian by FD
+        bool tCheckJacobian = tIWG.check_jacobian_double( tPerturbation,
+                                                          tEpsilon,
+                                                          tJacobians,
+                                                          tJacobiansFD );
+
+//        // print for debug
 //        print( tJacobians( 0 )( 0 ),"tJacobians00");
 //        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
 //
@@ -297,25 +304,10 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
 //        print( tJacobians( 1 )( 1 ),"tJacobians11");
 //        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
-        //define a boolean for check
-        bool tCheckJacobian = true;
-
-        for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-        {
-            for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-            {
-                for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                {
-                    for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                    {
-                        tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-                    }
-                }
-            }
-        }
-
+        // require check is true
         REQUIRE( tCheckJacobian );
 
+        // clean up
         for( Property* tProp : tMasterProps )
         {
             delete tProp;

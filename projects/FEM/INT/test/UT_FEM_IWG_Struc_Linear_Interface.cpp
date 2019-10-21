@@ -14,25 +14,25 @@
 
 
 moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );
 }
 
 moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 ) * aDofFI( 0 )->val();
 }
 
 moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-        moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-        moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                           moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                           moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 ) * aDofFI( 0 )->N();
 }
@@ -82,7 +82,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
                                 mtk::Interpolation_Order::CONSTANT );
 
     // create a space time geometry interpolator
-    Geometry_Interpolator* tGI = new Geometry_Interpolator( tGIRule );
+    Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
     // create space coeff xHat
     Matrix< DDRMat > tXHat = {{ 0.0, 0.0 },
@@ -94,10 +94,10 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     Matrix< DDRMat > tTHat = {{ 0.0 }};
 
     // set the coefficients xHat, tHat
-    tGI->set_coeff( tXHat, tTHat );
+    tGI.set_coeff( tXHat, tTHat );
 
     // set the evaluation point
-    tGI->set_space_time( tParamPoint );
+    tGI.set_space_time( tParamPoint );
 
     // field interpolators
     //------------------------------------------------------------------------------
@@ -108,9 +108,12 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
                                  Interpolation_Type::CONSTANT,
                                  mtk::Interpolation_Order::CONSTANT );
 
-    // create coefficients
-    Matrix< DDRMat > tDOFHat( 8, 1 );
-    tDOFHat = {{{1.0},{1.0}}, {{1.0},{1.0}} , {{2.0},{2.0}}, {{2.0},{2.0}}};
+    // create random coefficients
+    arma::Mat< double > tMatrix;
+    tMatrix.randu( 4, 2 );
+    Matrix< DDRMat > tDOFHat;
+    tDOFHat.matrix_data() = 10.0 * tMatrix;
+    print( tDOFHat, "tDOFHat");
 
     // create a cell of field interpolators for IWG
     Cell< Field_Interpolator* > tMasterFIs( tIWG.get_dof_type_list().size() );
@@ -123,7 +126,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         // create the field interpolator
         tMasterFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
                                                      tFIRule,
-                                                     tGI,
+                                                     &tGI,
                                                      tIWG.get_dof_type_list()( iDOF ) );
 
         // set the coefficients uHat
@@ -144,7 +147,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         // create the field interpolator
         tSlaveFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
                                                     tFIRule,
-                                                    tGI,
+                                                    &tGI,
                                                     tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
 
         // set the coefficients uHat
@@ -158,7 +161,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     double tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-4;
 
     SECTION( "IWG_Spatial_Diffusion : check residual and jacobian with constant property" )
     {
@@ -178,13 +181,13 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
                                                   {{{ 1000000.0 }}},
                                                   tConstValFunction_UTInterface,
                                                   Cell< PropertyFunc > ( 0 ),
-                                                  tGI );
+                                                  &tGI );
             tMasterProps( 1 ) = new Property( fem::Property_Type::POISSONS_RATIO,
                                                   Cell< Cell< MSI::Dof_Type > > ( 0 ),
                                                   {{{ 0.0 }}},
                                                   tConstValFunction_UTInterface,
                                                   Cell< PropertyFunc > ( 0 ),
-                                                  tGI );
+                                                  &tGI );
 
 //        }
 
@@ -199,13 +202,13 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
                                                   {{{ 1000000.0 }}},
                                                   tConstValFunction_UTInterface,
                                                   Cell< PropertyFunc > ( 0 ),
-                                                  tGI );
+                                                  &tGI );
             tSlaveProps( 1 ) = new Property( fem::Property_Type::POISSONS_RATIO,
                                                   Cell< Cell< MSI::Dof_Type > > ( 0 ),
                                                   {{{ 0.0 }}},
                                                   tConstValFunction_UTInterface,
                                                   Cell< PropertyFunc > ( 0 ),
-                                                  tGI );
+                                                  &tGI );
 
 //        }
 
@@ -284,44 +287,33 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
         // check evaluation of the jacobian  by FD
         //------------------------------------------------------------------------------
-        // evaluate the jacobian
+        // init the jacobian for IWG and FD evaluation
         Cell< Cell< Matrix< DDRMat > > > tJacobians;
-        tIWG.compute_jacobian( tJacobians );
-
         Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-        tIWG.compute_jacobian_FD_double( tJacobiansFD, tPerturbation );
 
+        // check jacobian by FD
+        bool tCheckJacobian = tIWG.check_jacobian_double( tPerturbation,
+                                                          tEpsilon,
+                                                          tJacobians,
+                                                          tJacobiansFD );
+
+//        // print for debug
 //        print( tJacobians( 0 )( 0 ),"tJacobians00");
 //        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-
+//
 //        print( tJacobians( 0 )( 1 ),"tJacobians01");
 //        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-
+//
 //        print( tJacobians( 1 )( 0 ),"tJacobians10");
 //        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-
+//
 //        print( tJacobians( 1 )( 1 ),"tJacobians11");
 //        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
-        //define a boolean for check
-        bool tCheckJacobian = true;
-
-        for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-        {
-            for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-            {
-                for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                {
-                    for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                    {
-                        tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-                    }
-                }
-            }
-        }
-
+        // require check is true
         REQUIRE( tCheckJacobian );
 
+        // clean up
         for( Property* tProp : tMasterProps )
         {
             delete tProp;
@@ -360,7 +352,5 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         delete tFI;
     }
     tSlaveFIs.clear();
-
-    delete tGI;
 
 }/* END_TEST_CASE */

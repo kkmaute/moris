@@ -115,14 +115,13 @@ moris::real LvlSetCircle_2D(const moris::Matrix< moris::DDRMat > & aPoint )
     return    std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.2505;
 }
 
-
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-        fem::Geometry_Interpolator             * aGeometryInterpolator )
-        {
+                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
+                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
+{
     return aCoeff( 0 );
-        }
+}
 
 moris::real
 LevelSetFunction_star1( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -363,12 +362,12 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0, 0.0 }}},
+                {{{ 0.0 }, { 0.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1.0, 0.0 }}},
+                {{{ 1.0 } , { 0.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
 
@@ -690,12 +689,12 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0, 0.0 }}},
+                {{{ 0.0 }, { 0.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1000.0, 100.0 }}},
+                {{{ 1000.0 } , { 100.0 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
 
@@ -1102,12 +1101,12 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0, 0.0, 0.0 }}},
+                { {{0.0}, {0.0}, {0.0}} },
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1.0, 0.0, 0.0 }}},
+                { {{1.0}, {0.0}, {0.0}} },
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
 

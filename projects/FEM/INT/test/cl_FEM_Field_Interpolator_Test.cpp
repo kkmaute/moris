@@ -559,9 +559,6 @@ TEST_CASE( "FI_vectorialField", "[moris],[fem],[FI_vectorialField]" )
     }
     REQUIRE( tCheckTestN );
 
-    print(tFieldInterpolator.N(), "tFieldInterpolator.N()");
-    print(tFieldInterpolator.NBuild(), "tFieldInterpolator.NBuild()");
-
 }
 
 

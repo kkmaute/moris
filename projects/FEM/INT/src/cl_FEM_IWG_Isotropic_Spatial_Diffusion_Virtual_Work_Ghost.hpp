@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp
+ * cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp
  *
- *  Created on: May 2, 2019
- *      Author: wunsch/noel
+ *  Created on: Oct 17, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_GHOST_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_GHOST_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
+#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -23,7 +23,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Spatial_Diffusion_Ghost : public IWG
+        class IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost : public IWG
         {
             // Ghost penalty parameter
             real mGammaGhost;
@@ -40,13 +40,13 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Ghost();
+            IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Spatial_Diffusion_Ghost(){};
+            ~IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -93,4 +93,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_GHOST_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_SPATIAL_DIFFUSION_VIRTUAL_WORK_GHOST_HPP_ */
