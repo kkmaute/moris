@@ -41,14 +41,13 @@ public:
         fem::Interpolation_Rule tGeomInterpRule( tGeomType, tGeomInterpType, tGeomInterpOrder, tTimeInterpType, tTimeInterpOrder );
         mMyGeomInterp = new fem::Geometry_Interpolator( tGeomInterpRule );
 
-        mMyIntersectionFlag = false; // initially assume there are no intersection points
+        mMyIntersectionFlag = false; // initially assume it is not intersected
     };
     ~Intersection_Object_Line()
     {
         delete mMyGeomInterp;
         delete mMyFieldInterp;
     };
-
     //------------------------------------------------------------------------------
     void flag_as_intersected( )
     {
@@ -56,11 +55,10 @@ public:
     }
     //------------------------------------------------------------------------------
     moris_index compute_intersection( )
-    {
-        //fixme what if there is no intersection?
+    {//fixme what if there is no intersection?
         mMyIntersectionPoints.push_back({{(mMyFieldVals(0) + mMyFieldVals(1))/(mMyFieldVals(0) - mMyFieldVals(1))}});
 
-//        mMyIntersFieldSensVal = Cell<Matrix<DDRMat>>(mMyIntersectionPoints.size()-1, Matrix<DDRMat>(2,3));
+        //        mMyIntersFieldSensVal = Cell<Matrix<DDRMat>>(mMyIntersectionPoints.size()-1, Matrix<DDRMat>(2,3));
         mMyIntersFieldSensVal.push_back( {{0},{0}} );
         return mMyIntersectionPoints.size()-1;
     }
@@ -79,8 +77,6 @@ public:
      */
     void compute_intersection_sensitivity( moris_index aMyIndex )
     {
-        //fixme: decide where to allocate sensitivity
-
         MORIS_ASSERT( mMyIntersFieldSensVal.size() == mMyIntersectionPoints.size(),"ge::Intersection_Object_Line::compute_intersection_sensitivity() - sensitivity information not allocated");
 //        MORIS_ASSERT(mMyIntersSensInd.size() == mMyIntersectionPoints.size(),"Sensitivity information not allocated");
 
@@ -133,8 +129,7 @@ public:
                                                      aGeomPointer->get_my_space_interpolation_order(),
                                                      aGeomPointer->get_my_time_interpolation_type(),
                                                      aGeomPointer->get_my_time_interpolation_order() );
-        //fixme this is a default to just look at one LS field at a time, should this be updated to look at all the LS fields?
-        //      additionally, the geometry pointer information needs to be accessed in a better way
+        //fixme the geometry pointer information needs to be accessed in a better way
         uint tNumFields = 1;
         mMyFieldInterp = new fem::Field_Interpolator( tNumFields, tLevelSetInterpRule, mMyGeomInterp );
 
