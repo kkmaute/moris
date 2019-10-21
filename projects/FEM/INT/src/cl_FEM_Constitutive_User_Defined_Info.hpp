@@ -34,6 +34,9 @@ namespace moris
         // constitutive model dof type list
         moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
+        // constitutive model dv type list
+        moris::Cell< moris::Cell< MSI::Dv_Type > > mDvTypes;
+
         // constitutive model property type list
         moris::Cell< fem::Property_Type > mPropTypes;
 
@@ -46,11 +49,34 @@ namespace moris
              */
             Constitutive_User_Defined_Info(){};
 
+            /**
+             * constructor
+             * @param[ in ] aConstitutiveType constitutive type
+             * @param[ in ] aDofTypes         list of group of dof types
+             * @param[ in ] aPropTypes        list of property types
+             */
             Constitutive_User_Defined_Info( fem::Constitutive_Type                      aConstitutiveType,
                                             moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
                                             moris::Cell< fem::Property_Type >           aPropTypes )
             : mConstitutiveType( aConstitutiveType ),
               mDofTypes( aDofTypes ),
+              mPropTypes( aPropTypes )
+            {};
+
+            /**
+             * constructor
+             * @param[ in ] aConstitutiveType constitutive type
+             * @param[ in ] aDofTypes         list of group of dof types
+             * @param[ in ] aDvTypes          list of group of dv types
+             * @param[ in ] aPropTypes        list of property types
+             */
+            Constitutive_User_Defined_Info( fem::Constitutive_Type                      aConstitutiveType,
+                                            moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
+                                            moris::Cell< moris::Cell< MSI::Dv_Type > >  aDvTypes,
+                                            moris::Cell< fem::Property_Type >           aPropTypes )
+            : mConstitutiveType( aConstitutiveType ),
+              mDofTypes( aDofTypes ),
+              mDvTypes( aDvTypes ),
               mPropTypes( aPropTypes )
             {};
 
@@ -62,7 +88,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets constitutive type
+             * set constitutive type
+             * @param[ in ] aConstitutiveType constitutive type
              */
             void set_constitutive_type( fem::Constitutive_Type aConstitutiveType )
             {
@@ -71,7 +98,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns constitutive type
+             * return constitutive type
+             * @param[ out ] mConstitutiveType constitutive type
              */
             const fem::Constitutive_Type & get_constitutive_type() const
             {
@@ -80,7 +108,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets constitutive model dof types
+             * set constitutive model dof types
+             * @param[ in ] aDofTypes list of group of dof types
              */
             void set_constitutive_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
             {
@@ -89,7 +118,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns constitutive model dof types
+             * return constitutive model dof types
+             * @param[ out ] aDofTypes list of group of dof types
              */
             const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_constitutive_dof_type_list() const
             {
@@ -98,7 +128,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * sets constitutive model property types
+             * set constitutive model dv types
+             * @param[ in ] aDvTypes list of group of dv types
+             */
+            void set_constitutive_dv_type_list( moris::Cell< moris::Cell< MSI::Dv_Type > > & aDvTypes )
+            {
+                mDvTypes = aDvTypes;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * return constitutive model dv types
+             * @param[ out ] aDvTypes list of group of dv types
+             */
+            const moris::Cell< moris::Cell< MSI::Dv_Type > > & get_constitutive_dv_type_list() const
+            {
+                return mDvTypes;
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * set constitutive model property types
+             * @param[ in ] aPropTypes list of property types
              */
             void set_constitutive_property_type_list( moris::Cell< fem::Property_Type > & aPropTypes )
             {
@@ -107,13 +158,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * returns constitutive model property types
+             * return constitutive model property types
+             * @param[ out ] mPropTypes list of property types
              */
             const moris::Cell< fem::Property_Type > & get_constitutive_property_type_list() const
             {
                 return mPropTypes;
             };
 
+//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------

@@ -563,7 +563,6 @@ namespace moris
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::space_jacobian - mXHat is not set." );
 
             // compute the Jacobian
-            //aJt = adNdXi * mXHat;
             aJt = this->dNdXi() * mXHat;
         }
 
@@ -574,7 +573,6 @@ namespace moris
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::second_space_jacobian - mXHat is not set." );
 
             // compute the second order Jacobian
-            //aJ2bt = ad2NdXi2 * mXHat;
             aJ2bt = this->d2NdXi2() * mXHat;
         }
 
@@ -585,7 +583,6 @@ namespace moris
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::third_space_jacobian - mXHat is not set." );
 
             // compute the third order Jacobian
-            //aJ3ct = ad3NdXi3 * mXHat;
             aJ3ct = this->d3NdXi3() * mXHat;
         }
 
@@ -596,7 +593,6 @@ namespace moris
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
             // compute the Jacobian
-            //aJt = adNdTau * mTHat;
             aJt = this->dNdTau() * mTHat;
         }
 
@@ -604,10 +600,6 @@ namespace moris
         real Geometry_Interpolator::det_J()
         {
             // get the space jacobian
-//            Matrix< DDRMat > tdNSpacedXi;
-//            this->dNdXi( tdNSpacedXi );
-//            Matrix< DDRMat > tSpaceJt;
-//            this->space_jacobian( tdNSpacedXi, tSpaceJt );
              Matrix< DDRMat > tSpaceJt;
              this->space_jacobian( tSpaceJt );
 
@@ -677,10 +669,6 @@ namespace moris
             }
 
             // get the time Jacobian
-//            Matrix< DDRMat > tdNTimedTau;
-//            this->dNdTau( tdNTimedTau );
-//            Matrix< DDRMat > tTimeJt;
-//            this->time_jacobian( tdNTimedTau, tTimeJt );
             Matrix< DDRMat > tTimeJt;
             this->time_jacobian( tTimeJt );
 
@@ -769,11 +757,7 @@ namespace moris
             // check that mTHat is set
             MORIS_ASSERT( mXHat.numel() > 0, "Geometry_Interpolator::time_jacobian - mXHat is not set." );
 
-//            Matrix< DDRMat > tNXi;
-//            this->NXi( tNXi );
-
             //evaluate the field
-            //aX = tNXi * mXHat ;
             return this->NXi() * mXHat ;
         }
 
@@ -783,11 +767,7 @@ namespace moris
             // check that mTHat is set
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
-//            Matrix< DDRMat > tNtTau;
-//            this->NTau( tNtTau );
-
             //evaluate the field
-            //aT = tNtTau * mTHat ;
             return this->NTau() * mTHat;
         }
 
@@ -801,14 +781,7 @@ namespace moris
             // evaluate the coords of the mapped param point
             uint tNumSpaceCoords = mXiHat.n_cols();
 
-//            Matrix< DDRMat > tNXi;
-//            Matrix< DDRMat > tNTau;
-//            this->NTau( tNTau );
-//            this->NXi( tNXi );
-
             aGlobalParamPoint.set_size( tNumSpaceCoords + 1, 1 );
-//            aGlobalParamPoint( {0, tNumSpaceCoords-1 }, {0,0} )            = trans( tNXi  * mXiHat );
-//            aGlobalParamPoint( {tNumSpaceCoords, tNumSpaceCoords}, {0,0} ) = trans( tNTau * mTauHat );
             aGlobalParamPoint( {0, tNumSpaceCoords-1 }, {0,0} )            = trans( this->NXi()  * mXiHat );
             aGlobalParamPoint( {tNumSpaceCoords, tNumSpaceCoords}, {0,0} ) = trans( this->NTau() * mTauHat ) ;
         }
@@ -825,7 +798,6 @@ namespace moris
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives - mXHat is not set." );
 
             // evaluate transposed of geometry Jacobian
-            //this->space_jacobian( adNdXi, aJt );
             this->space_jacobian( aJt );
 
             // call calculator for second derivatives
@@ -852,8 +824,6 @@ namespace moris
             MORIS_ASSERT( mXHat.numel()>0, "Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives - mXHat is not set." );
 
             // evaluate geometry Jacobians
-//            this->space_jacobian( adNdXi, aJt );
-//            this->second_space_jacobian( ad2NdXi2, aJ2bt );
             this->space_jacobian( aJt );
             this->second_space_jacobian( aJ2bt );
 
@@ -881,7 +851,6 @@ namespace moris
             MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives - mTHat is not set." );
 
             // evaluate transposed of geometry Jacobian
-//            this->time_jacobian( adNdTau, aJt );
             this->time_jacobian( aJt );
 
             // call calculator for second derivatives
@@ -1052,7 +1021,7 @@ namespace moris
 
             // help matrix L
             aLt.set_size( 6, 6 );
-            for( uint j=0; j<3; ++j )
+            for( uint j = 0; j < 3; ++j )
             {
                 aLt( 0, j ) = std::pow( aJt( 0, j ), 2 );
                 aLt( 1, j ) = std::pow( aJt( 1, j ), 2 );

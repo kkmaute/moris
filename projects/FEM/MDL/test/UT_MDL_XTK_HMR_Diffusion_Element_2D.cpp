@@ -90,7 +90,8 @@ CircleFunc(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                    moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                    moris::Cell< fem::Field_Interpolator* > & aDvFI,
                                     fem::Geometry_Interpolator             * aGeometryInterpolator )
 {
     return aCoeff( 0 );

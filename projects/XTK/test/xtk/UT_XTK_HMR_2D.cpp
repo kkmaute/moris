@@ -110,6 +110,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
+
              tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
          }
 
@@ -204,9 +205,9 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          {
              tHMR.flag_surface_elements_on_working_pattern( tField );
              tHMR.perform_refinement_based_on_working_pattern( 0 );
+
              tField->evaluate_scalar_function( CircleFuncXTKHMR2D );
          }
-
 
          tHMR.finalize();
 
@@ -214,12 +215,10 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-
          // create a plane which intentionally intersects from fine to coarse
          moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
          moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
          xtk::Plane<2> tPlane(tCenters,tNormals);
-
 
          moris::Cell<xtk::Geometry*> tGeometryVector = {&tPlane};
 

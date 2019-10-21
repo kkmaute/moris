@@ -57,6 +57,10 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         mInput->build_graph( mMat );
 
         this->build_linear_system();
+
+//        mFreeVectorLHS->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
+//        mFreeVectorLHS->print();
+//        std::cout<<" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "<<std::endl;
     }
 
     else
@@ -194,5 +198,8 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
 
     VecGetValues( mFreeVectorLHS->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
 }
+
+//------------------------------------------------------------------------------------------
+
 
 

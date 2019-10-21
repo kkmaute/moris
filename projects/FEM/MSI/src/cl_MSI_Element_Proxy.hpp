@@ -33,7 +33,7 @@ namespace moris
          * constructor
          *
          */
-        Element_Proxy( const moris::Cell< fem::Node_Base * > & aNodeObjs,
+        Element_Proxy( const moris::Cell< moris::Cell< fem::Node_Base * > > & aNodeObjs,
                              Matrix< DDRMat > ( *aFunction )(       Matrix< DDRMat > tMyValues,
                                                               const moris::uint      aEquationObjectInd  ) ) : Equation_Object( aNodeObjs )
         {

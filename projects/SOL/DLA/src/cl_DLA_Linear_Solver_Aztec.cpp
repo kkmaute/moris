@@ -131,7 +131,7 @@ void Linear_Solver_Aztec::set_solver_parameters()
     mParameterList.insert( "AZ_precond" ,  INT_MAX );
 
     // Set preconditioner subdomain solve - direct solve or incomplete
-    // Options are AZ_lu, AZ_ilut, AZ_ilu, AZ_rilu, AZ_bilu, AZ_icc
+    // Options are AZ_lu, AZ_ilut, , AZ_rilu, AZ_bilu, AZ_icc
     mParameterList.insert( "AZ_subdomain_solve" ,  INT_MAX );
 
     // Set preconditioner polynomial order - polynomial preconditioning, Gauss-Seidel, Jacobi

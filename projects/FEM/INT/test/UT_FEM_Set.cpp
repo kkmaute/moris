@@ -18,7 +18,8 @@ namespace moris
     {
 
         Matrix< DDRMat > tConstValFunction_UTFEMSET( moris::Cell< Matrix< DDRMat > >    & aParameters,
-                                                     moris::Cell< Field_Interpolator* > & aFieldInterpolator,
+                                                     moris::Cell< Field_Interpolator* > & aDofFI,
+                                                     moris::Cell< Field_Interpolator* > & aDvFI,
                                                      Geometry_Interpolator              * aGeometryInterpolator )
         {
             return aParameters( 0 );
@@ -311,19 +312,19 @@ namespace moris
                 tSet.set_IWG_field_interpolators();
 
                 // check each IWG received right number of field interpolators
-                CHECK( equal_to( tSet.mIWGs( 0 )->get_field_interpolators().size(), 2 ) );
-                CHECK( equal_to( tSet.mIWGs( 1 )->get_field_interpolators().size(), 2 ) );
-                CHECK( equal_to( tSet.mIWGs( 2 )->get_field_interpolators().size(), 1 ) );
-                CHECK( equal_to( tSet.mIWGs( 3 )->get_field_interpolators().size(), 2 ) );
+                CHECK( equal_to( tSet.mIWGs( 0 )->get_dof_field_interpolators().size(), 2 ) );
+                CHECK( equal_to( tSet.mIWGs( 1 )->get_dof_field_interpolators().size(), 2 ) );
+                CHECK( equal_to( tSet.mIWGs( 2 )->get_dof_field_interpolators().size(), 1 ) );
+                CHECK( equal_to( tSet.mIWGs( 3 )->get_dof_field_interpolators().size(), 2 ) );
 
                 // check each IWG received the right dof type
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 1 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 1 )->get_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 2 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 11 ) ); // VX
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 3 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  8 ) ); // NLSX, NLSY, NLSZ
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 3 )->get_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  6 ) ); // LS1
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 1 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 1 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 2 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 11 ) ); // VX
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 3 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  8 ) ); // NLSX, NLSY, NLSZ
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 3 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  6 ) ); // LS1
 
             //std::cout<<"Test create_IWG_dof_assembly_map"<<std::endl;
             //------------------------------------------------------------------------------
@@ -390,8 +391,8 @@ namespace moris
                 tSet.set_properties_field_interpolators();
 
                 // check each IWG received right number of field interpolators
-                CHECK( equal_to( tSet.mMasterProperties( 0 )->get_field_interpolators().size(), 0 ) );
-                CHECK( equal_to( tSet.mMasterProperties( 1 )->get_field_interpolators().size(), 2 ) );
+                CHECK( equal_to( tSet.mMasterProperties( 0 )->get_dof_field_interpolators().size(), 0 ) );
+                CHECK( equal_to( tSet.mMasterProperties( 1 )->get_dof_field_interpolators().size(), 2 ) );
 
         }/* TEST_CASE */
 
@@ -706,21 +707,21 @@ namespace moris
                 tSet.set_IWG_field_interpolators();
 
                 // check each IWG received right number of master field interpolators
-                CHECK( equal_to( tSet.mIWGs( 0 )->get_field_interpolators().size(), 2 ) );
-                CHECK( equal_to( tSet.mIWGs( 1 )->get_field_interpolators().size(), 1 ) );
+                CHECK( equal_to( tSet.mIWGs( 0 )->get_dof_field_interpolators().size(), 2 ) );
+                CHECK( equal_to( tSet.mIWGs( 1 )->get_dof_field_interpolators().size(), 1 ) );
 
                 // check each IWG received the right master dof type
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 1 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 11 ) ); // VX
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 1 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 11 ) ); // VX
 
                 // check each IWG received right number of slave field interpolators
-                CHECK( equal_to( tSet.mIWGs( 0 )->get_field_interpolators( mtk::Master_Slave::SLAVE ).size(), 2 ) );
-                CHECK( equal_to( tSet.mIWGs( 1 )->get_field_interpolators( mtk::Master_Slave::SLAVE ).size(), 0 ) );
+                CHECK( equal_to( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE ).size(), 2 ) );
+                CHECK( equal_to( tSet.mIWGs( 1 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE ).size(), 0 ) );
 
                 // check each IWG received the right slave dof type
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_field_interpolators( mtk::Master_Slave::SLAVE )( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
-                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_field_interpolators( mtk::Master_Slave::SLAVE )( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE )( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
+                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE )( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
 
             //std::cout<<"Test create_IWG_dof_assembly_map"<<std::endl;
             //------------------------------------------------------------------------------
@@ -769,18 +770,18 @@ namespace moris
                 tSet.set_properties_field_interpolators();
 
                 // check each IWG received right number of master field interpolators
-                CHECK( equal_to( tSet.mMasterProperties( 0 )->get_field_interpolators().size(), 2 ) );
+                CHECK( equal_to( tSet.mMasterProperties( 0 )->get_dof_field_interpolators().size(), 2 ) );
 
                 // check each IWG received right master dof types
-                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
-                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
+                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
+                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
 
                 // check each IWG received right number of slave field interpolators
-                CHECK( equal_to( tSet.mSlaveProperties( 0 )->get_field_interpolators().size(), 2 ) );
+                CHECK( equal_to( tSet.mSlaveProperties( 0 )->get_dof_field_interpolators().size(), 2 ) );
 
                 // check each IWG received right slave dof types
-                CHECK( equal_to( static_cast< uint >( tSet.mSlaveProperties( 0 )->get_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
-                CHECK( equal_to( static_cast< uint >( tSet.mSlaveProperties( 0 )->get_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
+                CHECK( equal_to( static_cast< uint >( tSet.mSlaveProperties( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
+                CHECK( equal_to( static_cast< uint >( tSet.mSlaveProperties( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
 
         }/* TEST_CASE */
 

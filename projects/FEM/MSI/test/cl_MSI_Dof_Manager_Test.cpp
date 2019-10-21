@@ -88,13 +88,15 @@ namespace moris
         moris::Cell < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< fem::Node_Base * > tNodeIds_1( tNumNodes );
-        tNodeIds_1( 0 ) = Node1;
-        tNodeIds_1( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        tNodeIds_1( 0 ).resize( tNumNodes );
+        tNodeIds_1( 0 )( 0 ) = Node1;
+        tNodeIds_1( 0 )( 1 ) = Node2;
 
-        moris::Cell< fem::Node_Base * > tNodeIds_2( tNumNodes );
-        tNodeIds_2( 0 ) = Node1;
-        tNodeIds_2( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_2( 1 );
+        tNodeIds_2( 0 ).resize( tNumNodes );
+        tNodeIds_2( 0 )( 0 ) = Node1;
+        tNodeIds_2( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
         Equation_Object EquObj_1( tNodeIds_1 );
@@ -110,8 +112,8 @@ namespace moris
 
         CHECK( equal_to( tDofMgn.initialize_max_number_of_possible_pdof_hosts( tListEqnObj ), 2 ) );
 
-        delete tNodeIds_1(0);
-        delete tNodeIds_1(1);
+        delete tNodeIds_1( 0 )( 0 );
+        delete tNodeIds_1( 0 )( 1 );
     }
 
 
@@ -212,13 +214,15 @@ namespace moris
         tListEqnObj.resize( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< fem::Node_Base* > tNodeIds_1( tNumNodes );
-        tNodeIds_1( 0 ) = Node1;
-        tNodeIds_1( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        tNodeIds_1( 0 ).resize( tNumNodes );
+        tNodeIds_1( 0 )( 0 ) = Node1;
+        tNodeIds_1( 0 )( 1 ) = Node2;
 
-        moris::Cell< fem::Node_Base* > tNodeIds_2( tNumNodes );
-        tNodeIds_2( 0 ) = Node1;
-        tNodeIds_2( 1 ) = Node2;
+        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_2( 1 );
+        tNodeIds_2( 0 ).resize( tNumNodes );
+        tNodeIds_2( 0 )( 0 ) = Node1;
+        tNodeIds_2( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
         Equation_Object EquObj_1( tNodeIds_1 );

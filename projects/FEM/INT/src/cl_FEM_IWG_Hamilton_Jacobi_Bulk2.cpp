@@ -31,7 +31,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->gradx( 1 ) ) * phi->Bx() / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->gradx( 1 ) ) * phi->dnNdxn( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -57,7 +57,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -72,7 +72,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
+            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
 
             // compute the jacobian JphivN
             aJacobians( 0 )( 1 ) = trans( phi->N() ) * vN->N() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi;
@@ -89,7 +89,7 @@ namespace moris
 
             // compute norm( phi ) and derivative wrt phiHat
             real tNormPhi                     = norm( phi->gradx( 1 ) );
-            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->Bx() ) * phi->gradx( 1 ) / tNormPhi;
+            Matrix< DDRMat > tDNormPhiDPhiHat = trans( phi->dnNdxn( 1 ) ) * phi->gradx( 1 ) / tNormPhi;
 
             // If all values of level set in this element are the same,
             // then gradient is zero, protect from going to NAN/inf
@@ -110,7 +110,7 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->Bt() + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
+            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val()( 0 ) * trans( tDNormPhiDPhiHat ) );
 
             // compute the jacobian JphivN
             aJacobians( 0 )( 1 ) = trans( phi->N() ) * vN->N() * dot( phi->gradx( 1 ), phi->gradx( 1 ) ) / tNormPhi;

@@ -20,6 +20,7 @@ CMakeCache.txt
 *.vtk*
 *.hdf5
 *.h5
+*.e
 
 # Used by individual developers
 mains/

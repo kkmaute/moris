@@ -38,6 +38,7 @@ namespace moris
             // get number of field interpolator and properties
             uint tNumFI   = mSet->get_number_of_field_interpolators();
             uint tNumProp = mSet->get_number_of_properties();
+            uint tNumCM   = mSet->get_number_of_constitutive_models();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -69,6 +70,12 @@ namespace moris
                 for ( uint iProp = 0; iProp < tNumProp; iProp++ )
                 {
                     mSet->get_properties()( iProp )->reset_eval_flags();
+                }
+
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
                 }
 
                 // compute the integration point weight
@@ -119,6 +126,7 @@ namespace moris
             // get number of field interpolator and properties
             uint tNumFI   = mSet->get_number_of_field_interpolators();
             uint tNumProp = mSet->get_number_of_properties();
+            uint tNumCM   = mSet->get_number_of_constitutive_models();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -152,6 +160,12 @@ namespace moris
                     mSet->get_properties()( iProp )->reset_eval_flags();
                 }
 
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
+                }
+
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
                             * mSet->get_IG_geometry_interpolator()->det_J();
@@ -174,12 +188,11 @@ namespace moris
 //                    print( tJacobians(0), "tJacobians" );
 //
 //                    // check with finite difference
-//                    real tPerturbation = 1E-6;
-//                    Cell< Matrix< DDRMat > > tJacobiansFD;
+//                    real tPerturbation = 1E-4;
+//                    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
 //                    mSet->get_IWGs()( iIWG )->compute_jacobian_FD( tJacobiansFD,
-//                                                                   mSet->get_IWG_field_interpolators()( iIWG ),
 //                                                                   tPerturbation );
-//                    print(tJacobiansFD(0),"tJacobiansFD");
+//                    print(tJacobiansFD(0)(0),"tJacobiansFD");
 
                     // loop over the IWG active dof types
                     uint tNumIWGDof = mSet->get_IWGs()( iIWG )->get_global_dof_type_list().size();
@@ -193,7 +206,7 @@ namespace moris
                 }
             }
 //            // print jacobian for check
-//            print( mCluster->mJacobian, " mJacobian " );
+//            print( mSet->mJacobian, " mJacobian " );
         }
 
 //------------------------------------------------------------------------------
