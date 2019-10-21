@@ -32,12 +32,12 @@ TEST_CASE(
 
         Matrix< DDBMat > C = ( A == B );
 
-        REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
-        REQUIRE( moris::equal_to( C.n_cols(), 1 ) );
+        REQUIRE( C.n_rows() == 3 );
+        REQUIRE( C.n_cols() == 1 );
 
-        REQUIRE( moris::equal_to( C( 0, 0 ), 1 ) );
-        REQUIRE( moris::equal_to( C( 1, 0 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 2, 0 ), 1 ) );
+        REQUIRE( C( 0, 0 ) == 1 );
+        REQUIRE( C( 1, 0 ) == 0 );
+        REQUIRE( C( 2, 0 ) == 1 );
     }
 
     SECTION( "moris::Mat == moris::Mat" )
@@ -54,8 +54,8 @@ TEST_CASE(
         B( 2, 0 ) = 2.0; B( 2, 1 ) = 2.0; B( 2, 2 ) = 1.0;
 
         Matrix< DDBMat > C = ( A == B );
-        REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
-        REQUIRE( moris::equal_to( C.n_cols(), 3 ) );
+        REQUIRE( C.n_rows() == 3 );
+        REQUIRE( C.n_cols() == 3 );
 
         REQUIRE( C( 0, 0 ) == 1 );
         REQUIRE( C( 0, 1 ) == 0 );
@@ -83,12 +83,12 @@ TEST_CASE(
 
         Matrix< DDBMat > C = ( A == B );
 
-        REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
-        REQUIRE( moris::equal_to( C.n_cols(), 1 ) );
+        REQUIRE(C.n_rows() == 3 );
+        REQUIRE(C.n_cols() == 1 );
 
-        REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 1, 0 ), 1 ) );
-        REQUIRE( moris::equal_to( C( 2, 0 ), 0 ) );
+        REQUIRE( C( 0, 0 ) == 0 );
+        REQUIRE( C( 1, 0 ) == 1 );
+        REQUIRE( C( 2, 0 ) == 0 );
     }
 
     SECTION( "moris::Mat == scalar" )
@@ -104,15 +104,15 @@ TEST_CASE(
 
         Matrix< DDBMat > C = ( A == B );
 
-        REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
-        REQUIRE( moris::equal_to( C.n_cols(), 2 ) );
+        REQUIRE( C.n_rows() == 3 );
+        REQUIRE( C.n_cols() == 2 );
 
-        REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 1, 0 ), 1 ) );
-        REQUIRE( moris::equal_to( C( 2, 0 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 0, 1 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 1, 1 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 2, 1 ), 1 ) );
+        REQUIRE( C( 0, 0 ) == 0 );
+        REQUIRE( C( 1, 0 ) == 1 );
+        REQUIRE( C( 2, 0 ) == 0 );
+        REQUIRE( C( 0, 1 ) == 0 );
+        REQUIRE( C( 1, 1 ) == 0 );
+        REQUIRE( C( 2, 1 ) == 1 );
     }
 
     SECTION( "scalar == moris::Col" )
@@ -128,12 +128,12 @@ TEST_CASE(
 
         Matrix< DDBMat > C = ( B == A );
 
-        REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
-        REQUIRE( moris::equal_to( C.n_cols(), 1 ) );
+        REQUIRE( C.n_rows() == 3 );
+        REQUIRE( C.n_cols() == 1 );
 
-        REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 1, 0 ), 1 ) );
-        REQUIRE( moris::equal_to( C( 2, 0 ), 0 ) );
+        REQUIRE( C( 0, 0 ) == 0 );
+        REQUIRE( C( 1, 0 ) == 1 );
+        REQUIRE( C( 2, 0 ) == 0 );
     }
 
     SECTION( "scalar == moris::Mat " )
@@ -149,16 +149,15 @@ TEST_CASE(
 
         Matrix< DDBMat > C = ( B == A );
 
-        REQUIRE( moris::equal_to( C.n_rows(), 3 ) );
-        REQUIRE( moris::equal_to( C.n_cols(), 2 ) );
+        REQUIRE( C.n_rows() == 3 );
+        REQUIRE( C.n_cols() == 2 );
 
-        REQUIRE( moris::equal_to( C( 0, 0 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 1, 0 ), 1 ) );
-        REQUIRE( moris::equal_to( C( 2, 0 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 0, 1 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 1, 1 ), 0 ) );
-        REQUIRE( moris::equal_to( C( 2, 1 ), 1 ) );
+        REQUIRE( C( 0, 0 ) == 0 );
+        REQUIRE( C( 1, 0 ) == 1 );
+        REQUIRE( C( 2, 0 ) == 0 );
+        REQUIRE( C( 0, 1 ) == 0 );
+        REQUIRE( C( 1, 1 ) == 0 );
+        REQUIRE( C( 2, 1 ) == 1 );
     }
-
 }
 }
