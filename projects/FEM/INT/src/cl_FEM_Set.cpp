@@ -840,9 +840,11 @@ namespace moris
             // create an property for the treated property type
             mMasterProperties( iProp ) = new Property( mMasterPropTypes( iProp ),
                                                        aPropertyUserDefinedInfo( 0 )( propIndex ).get_property_dof_type_list(),
+                                                       aPropertyUserDefinedInfo( 0 )( propIndex ).get_property_dv_type_list(),
                                                        aPropertyUserDefinedInfo( 0 )( propIndex ).get_property_param_list(),
                                                        aPropertyUserDefinedInfo( 0 )( propIndex ).get_property_valFunc(),
-                                                       aPropertyUserDefinedInfo( 0 )( propIndex ).get_property_derFunc_list(),
+                                                       aPropertyUserDefinedInfo( 0 )( propIndex ).get_property_dof_derFunc_list(),
+                                                       aPropertyUserDefinedInfo( 0 )( propIndex ).get_property_dv_derFunc_list(),
                                                        mMasterIPGeometryInterpolator );
         }
 
@@ -893,9 +895,11 @@ namespace moris
             // create an property for the treated property type
             mSlaveProperties( iProp ) = new Property( mSlavePropTypes( iProp ),
                                                       aPropertyUserDefinedInfo( 1 )( propIndex ).get_property_dof_type_list(),
+                                                      aPropertyUserDefinedInfo( 1 )( propIndex ).get_property_dv_type_list(),
                                                       aPropertyUserDefinedInfo( 1 )( propIndex ).get_property_param_list(),
                                                       aPropertyUserDefinedInfo( 1 )( propIndex ).get_property_valFunc(),
-                                                      aPropertyUserDefinedInfo( 1 )( propIndex ).get_property_derFunc_list(),
+                                                      aPropertyUserDefinedInfo( 1 )( propIndex ).get_property_dof_derFunc_list(),
+                                                      aPropertyUserDefinedInfo( 1 )( propIndex ).get_property_dv_derFunc_list(),
                                                       mSlaveIPGeometryInterpolator );
         }
     }
@@ -954,6 +958,9 @@ namespace moris
             // set dof types
             mMasterCM( iCM )->set_dof_type_list( aConstitutiveUserDefinedInfo( 0 )( tCMIndex ).get_constitutive_dof_type_list() );
 
+            // set dv types
+            mMasterCM( iCM )->set_dv_type_list( aConstitutiveUserDefinedInfo( 0 )( tCMIndex ).get_constitutive_dv_type_list() );
+
             // set property type
             mMasterCM( iCM )->set_property_type_list( aConstitutiveUserDefinedInfo( 0 )( tCMIndex ).get_constitutive_property_type_list() );
         }
@@ -1009,6 +1016,9 @@ namespace moris
 
             // set dof types
             mSlaveCM( iCM )->set_dof_type_list( aConstitutiveUserDefinedInfo( 1 )( tCMIndex ).get_constitutive_dof_type_list() );
+
+            // set dv types
+            mSlaveCM( iCM )->set_dv_type_list( aConstitutiveUserDefinedInfo( 1 )( tCMIndex ).get_constitutive_dv_type_list() );
 
             // set property type
             mSlaveCM( iCM )->set_property_type_list( aConstitutiveUserDefinedInfo( 1 )( tCMIndex ).get_constitutive_property_type_list() );
@@ -1087,7 +1097,7 @@ namespace moris
             }
 
             // set IWG field interpolators
-            tIWG->set_field_interpolators( tIWGFI );
+            tIWG->set_dof_field_interpolators( tIWGFI );
 
             //SLAVE------------------------------------------------------------------------
             // get number of slave dof type for IWG
@@ -1107,7 +1117,7 @@ namespace moris
             }
 
             // set IWG field interpolators
-            tIWG->set_field_interpolators( tIWGFI, mtk::Master_Slave::SLAVE );
+            tIWG->set_dof_field_interpolators( tIWGFI, mtk::Master_Slave::SLAVE );
         }
 
     }
@@ -1236,7 +1246,7 @@ namespace moris
             }
 
             // set field interpolators for the property
-            tCM->set_field_interpolators( tCMMasterFI );
+            tCM->set_dof_field_interpolators( tCMMasterFI );
         }
 
         //SLAVE------------------------------------------------------------------------------
@@ -1260,7 +1270,7 @@ namespace moris
                 tCMSlaveFI( iDOF ) = mSlaveFI( tDofIndex );
             }
                 // set field interpolators for the property
-                tCM->set_field_interpolators( tCMSlaveFI );
+                tCM->set_dof_field_interpolators( tCMSlaveFI );
         }
     }
 
@@ -1368,7 +1378,7 @@ namespace moris
                 tPropMasterFI( iDOF ) = mMasterFI( tDofIndex );
             }
                 // set field interpolators for the property
-                tProperty->set_field_interpolators( tPropMasterFI );
+                tProperty->set_dof_field_interpolators( tPropMasterFI );
         }
 
         //SLAVE------------------------------------------------------------------------------
@@ -1392,7 +1402,7 @@ namespace moris
                 tPropSlaveFI( iDOF ) = mSlaveFI( tDofIndex );
             }
                 // set field interpolators for the property
-                tProperty->set_field_interpolators( tPropSlaveFI );
+                tProperty->set_dof_field_interpolators( tPropSlaveFI );
         }
     }
 
@@ -1596,7 +1606,7 @@ namespace moris
                 break;
 
             case( mtk::Geometry_Type::QUAD ) :
-                 return fem::Integration_Order::QUAD_3x3;
+                 return fem::Integration_Order::QUAD_2x2;         //FIXME
                  break;
 
             case( mtk::Geometry_Type::HEX ) :

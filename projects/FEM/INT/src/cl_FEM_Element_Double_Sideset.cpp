@@ -69,6 +69,8 @@ namespace moris
             uint tSlaveNumFI    = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
             uint tMasterNumProp = mSet->get_number_of_properties();
             uint tSlaveNumProp  = mSet->get_number_of_properties( mtk::Master_Slave::SLAVE );
+            uint tMasterNumCM   = mSet->get_number_of_constitutive_models();
+            uint tSlaveNumCM    = mSet->get_number_of_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -123,6 +125,16 @@ namespace moris
                 for ( uint iProp = 0; iProp < tSlaveNumProp; iProp++ )
                 {
                     mSet->get_properties( mtk::Master_Slave::SLAVE )( iProp )->reset_eval_flags();
+                }
+
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tMasterNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
+                }
+                for ( uint iCM = 0; iCM < tSlaveNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models( mtk::Master_Slave::SLAVE )( iCM )->reset_eval_flags();
                 }
 
                 // compute the integration point weight // fixme both side?
@@ -195,6 +207,8 @@ namespace moris
             uint tSlaveNumFI    = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
             uint tMasterNumProp = mSet->get_number_of_properties();
             uint tSlaveNumProp  = mSet->get_number_of_properties( mtk::Master_Slave::SLAVE );
+            uint tMasterNumCM   = mSet->get_number_of_constitutive_models();
+            uint tSlaveNumCM    = mSet->get_number_of_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -251,6 +265,16 @@ namespace moris
                     mSet->get_properties( mtk::Master_Slave::SLAVE )( iProp )->reset_eval_flags();
                 }
 
+                // reset constitutive models
+                for ( uint iCM = 0; iCM < tMasterNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
+                }
+                for ( uint iCM = 0; iCM < tSlaveNumCM; iCM++ )
+                {
+                    mSet->get_constitutive_models( mtk::Master_Slave::SLAVE )( iCM )->reset_eval_flags();
+                }
+
                 // compute the integration point weight // fixme both side?
                 real tWStar = mSet->get_integration_weights()( iGP )
                             * mSet->get_IG_geometry_interpolator( mtk::Master_Slave::MASTER )->det_J();
@@ -290,6 +314,9 @@ namespace moris
                         mSet->mJacobian( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 0 ), mSet->get_IWG_res_dof_assembly_map()( iIWG )( 1, 1 ) },
                                          { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
                                        += tWStar * tJacobians( 1 )( iIWGFI );
+
+//                        print( tJacobians( 0 )( iIWGFI ), " mJacobian " );
+//                        print( tJacobians( 1 )( iIWGFI ), " mJacobian " );
                     }
                 }
             }

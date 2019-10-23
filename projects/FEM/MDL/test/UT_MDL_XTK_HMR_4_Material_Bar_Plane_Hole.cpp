@@ -118,11 +118,12 @@ Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
 }
 
 
-Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                           moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-                                           fem::Geometry_Interpolator             * aGeometryInterpolator )
+Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
+                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
+                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aCoeff( 0 );
+    return aParameters( 0 );
 }
 
 

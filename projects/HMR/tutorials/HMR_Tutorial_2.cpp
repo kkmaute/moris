@@ -86,90 +86,90 @@ main(
         int    argc,
         char * argv[] )
 {
-    // initialize MORIS global communication manager
-    gMorisComm = moris::Comm_Manager( &argc, &argv );
-
-    // Severity level 0 - all outputs
-    gLogger.initialize( 0 );
-
-//------------------------------------------------------------------------------
-
-    /*!
-     * <b> Step 1: Load Mesh and Level Set Field from files </b>
-     */
-
-    /*!
-     * The Mesh and its parameters are loaded from a HDF5 Database.
-     *
-     * \code{.cpp}
-     * HMR tHMR( "Database.hdf5" );
-     * \endcode
-     */
-    HMR tHMR( "Database.hdf5" );
-
-    /*!
-     * The Circle Field is loaded from the HDF5 file
-     *
-     * \code{.cpp}
-     *  auto tCircle = tHMR.load_field_from_hdf5_file( "Circle", "Circle.hdf5" );
-     * \endcode
-     */
-    auto tCircle = tHMR.load_field_from_hdf5_file( "Circle", "Circle.hdf5" );
-
-//------------------------------------------------------------------------------
-
-    /*!
-     * <b> Step 2: Create a New Field and evaluate a function on the loaded mesh</b>
-     *
-     * \code{.cpp}
-     *  auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
-     *  tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
-     * \endcode
-     */
-    auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
-    tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
-
-    auto tSimionescu = tHMR.create_field( "Simionescu" );
-    tSimionescu->evaluate_scalar_function( SimionescuFunction );
-
-//------------------------------------------------------------------------------
-
-    /*!
-     * <b> Step 3: Refine the mesh again against the first field</b>
-     */
-
-    /*!
-     * Now we refine after the surfaces of both fields
-     * \code{.cpp}
-     * tHMR.flag_surface_elements( tSimionescu );
-     * tHMR.flag_surface_elements( tCircle );
-     * tHMR.perform_refinement_and_map_fields();
-     * \endcode
-     */
-
-     tHMR.flag_surface_elements( tSimionescu );
-     tHMR.flag_surface_elements( tCircle );
-
-     tHMR.perform_refinement_and_map_fields();
-
-//------------------------------------------------------------------------------
-
-    /*!
-     * <b> Step 4: Save a second Exodus file</b>
-     *
-     * Investigate the refined mesh in paraview. Both fields are mapped
-     * onto the new mesh.
-     * \code{.cpp}
-     *  tHMR.save_to_exodus( "Mesh2.exo" );
-     * \endcode
-     */
-    tHMR.save_to_exodus( "Mesh2.exo" );
-
-//------------------------------------------------------------------------------
-
-    // finalize MORIS global communication manager
-    gMorisComm.finalize();
-
-    return 0;
-
+//    // initialize MORIS global communication manager
+//    gMorisComm = moris::Comm_Manager( &argc, &argv );
+//
+//    // Severity level 0 - all outputs
+//    gLogger.initialize( 0 );
+//
+////------------------------------------------------------------------------------
+//
+//    /*!
+//     * <b> Step 1: Load Mesh and Level Set Field from files </b>
+//     */
+//
+//    /*!
+//     * The Mesh and its parameters are loaded from a HDF5 Database.
+//     *
+//     * \code{.cpp}
+//     * HMR tHMR( "Database.hdf5" );
+//     * \endcode
+//     */
+//    HMR tHMR( "Database.hdf5" );
+//
+//    /*!
+//     * The Circle Field is loaded from the HDF5 file
+//     *
+//     * \code{.cpp}
+//     *  auto tCircle = tHMR.load_field_from_hdf5_file( "Circle", "Circle.hdf5" );
+//     * \endcode
+//     */
+//    auto tCircle = tHMR.load_field_from_hdf5_file( "Circle", "Circle.hdf5" );
+//
+////------------------------------------------------------------------------------
+//
+//    /*!
+//     * <b> Step 2: Create a New Field and evaluate a function on the loaded mesh</b>
+//     *
+//     * \code{.cpp}
+//     *  auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
+//     *  tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
+//     * \endcode
+//     */
+//    auto tRosenbrock = tHMR.create_field( "Rosenbrock" );
+//    tRosenbrock->evaluate_scalar_function( RosenbrockFunction );
+//
+//    auto tSimionescu = tHMR.create_field( "Simionescu" );
+//    tSimionescu->evaluate_scalar_function( SimionescuFunction );
+//
+////------------------------------------------------------------------------------
+//
+//    /*!
+//     * <b> Step 3: Refine the mesh again against the first field</b>
+//     */
+//
+//    /*!
+//     * Now we refine after the surfaces of both fields
+//     * \code{.cpp}
+//     * tHMR.flag_surface_elements( tSimionescu );
+//     * tHMR.flag_surface_elements( tCircle );
+//     * tHMR.perform_refinement_and_map_fields();
+//     * \endcode
+//     */
+//
+//     tHMR.flag_surface_elements( tSimionescu );
+//     tHMR.flag_surface_elements( tCircle );
+//
+//     tHMR.perform_refinement_and_map_fields();
+//
+////------------------------------------------------------------------------------
+//
+//    /*!
+//     * <b> Step 4: Save a second Exodus file</b>
+//     *
+//     * Investigate the refined mesh in paraview. Both fields are mapped
+//     * onto the new mesh.
+//     * \code{.cpp}
+//     *  tHMR.save_to_exodus( "Mesh2.exo" );
+//     * \endcode
+//     */
+//    tHMR.save_to_exodus( "Mesh2.exo" );
+//
+////------------------------------------------------------------------------------
+//
+//    // finalize MORIS global communication manager
+//    gMorisComm.finalize();
+//
+//    return 0;
+//
 }

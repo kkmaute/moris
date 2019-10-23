@@ -172,11 +172,17 @@ namespace moris
                                            moris::Cell< MSI::Dof_Type > aDofType )
         {
             // get pdofs values for the element
-            this->get_my_pdof_values();
+            this->compute_my_pdof_values();
 
             // get a specific dof type pdofs values
             Matrix< DDRMat > tPdofValues;
-            this->get_my_pdof_values( aDofType, tPdofValues );
+
+            Cell< Matrix< DDRMat > > tPdofValues_Original;
+
+            this->get_my_pdof_values( aDofType, tPdofValues_Original );
+
+            // reshape tCoeffs into the order the cluster expects them
+            this->reshape_pdof_values( tPdofValues_Original, tPdofValues );
 
             // select the required nodal value
             Matrix< IndexMat > tElemVerticesIndices = mMasterInterpolationCell->get_vertex_inds();
@@ -219,6 +225,13 @@ namespace moris
           * @Brief set the initial sizes and values for mResidual
           */
          void initialize_mResidual();
+
+//------------------------------------------------------------------------------
+    private:
+//------------------------------------------------------------------------------
+
+         void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
+                                         Matrix< DDRMat >         & aReshapedPdofValues);
 
 //------------------------------------------------------------------------------
     };

@@ -70,7 +70,8 @@ namespace moris
     namespace mdl
     {
         Matrix< DDRMat > tConstValFunction_MDLCUT( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                                   moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
+                                                   moris::Cell< fem::Field_Interpolator* > & aDofFI,
+                                                   moris::Cell< fem::Field_Interpolator* > & aDvF,
                                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
         {
             return aParameters( 0 );
@@ -300,7 +301,7 @@ namespace moris
             tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_GHOST,
                                                                         { MSI::Dof_Type::TEMP },
                                                                         {{ MSI::Dof_Type::TEMP }},
-                                                                        Cell< fem::Property_Type >( 0 ),
+                                                                        { fem::Property_Type::CONDUCTIVITY },
                                                                         moris::Cell< fem::Constitutive_Type >( 0 ),
                                                                         {{ MSI::Dof_Type::TEMP }},
                                                                         Cell< fem::Property_Type >( 0 ),

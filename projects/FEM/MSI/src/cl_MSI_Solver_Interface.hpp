@@ -26,11 +26,12 @@ namespace mtk
         class MSI_Solver_Interface : public moris::Solver_Interface
         {
         private:
-                moris::MSI::Model_Solver_Interface * mMSI;
-                moris::MSI::Dof_Manager            * mDofMgn;
+                moris::MSI::Model_Solver_Interface * mMSI= nullptr;
+                moris::MSI::Dof_Manager            * mDofMgn= nullptr;
 
-                Dist_Vector                        * mSolutionVector;
-                Dist_Vector                        * mPrevSolutionVector;
+                Dist_Vector                        * mSolutionVector= nullptr;
+                Dist_Vector                        * mPrevSolutionVector= nullptr;
+                Dist_Vector                        * mExactSolFromFile = nullptr;
                 Matrix< DDRMat>  mTime;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
@@ -57,6 +58,17 @@ namespace mtk
             {
                 mSolutionVector = aSolutionVector;
             }
+
+//------------------------------------------------------------------------------
+
+            void get_exact_solution_from_hdf5_and_calculate_error( const char* aFilename );
+
+            void get_residual_vector_for_output( const char* aFilename );
+
+
+//------------------------------------------------------------------------------
+
+            void write_solution_to_hdf5_file( const char* aFilename );
 
 //------------------------------------------------------------------------------
 

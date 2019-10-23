@@ -28,9 +28,6 @@ namespace moris
             // Ghost penalty parameter
             real mGammaGhost;
 
-            // diffusion tensor
-            Matrix< DDRMat > mKappa;
-
             // mesh parameter describing length of elements
             real mMeshParameter;
 
@@ -89,13 +86,6 @@ namespace moris
              * @param[ in ] aOrder Order of interpolation functions used on Ghost element
              */
             void set_interpolation_order ( uint aOrder );
-
-//------------------------------------------------------------------------------
-            /**
-             * method to set the penalty factor of the Ghost element
-             * @param[ in ] aGamma penalty factor
-             */
-            void set_penalty_factor ( real aGamma );
 
 //------------------------------------------------------------------------------
         };

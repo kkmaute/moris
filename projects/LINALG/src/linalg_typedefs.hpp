@@ -44,9 +44,13 @@ typedef Eigen::Matrix<ncomp,       Eigen::Dynamic, Eigen::Dynamic>  DDBMat; // D
 typedef Eigen::Matrix<nint,        Eigen::Dynamic, Eigen::Dynamic>  DDNIMat; // Densie Dynamic Native Integer Matrix
 typedef Eigen::Matrix<moris_id,    Eigen::Dynamic, Eigen::Dynamic>  IdMat; // Id Matrix
 typedef Eigen::Matrix<moris_index, Eigen::Dynamic, Eigen::Dynamic>  IndexMat; // Index Matrix
+typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  SDRMat; // Sparse dynamic Real Mat
 typedef Eigen::Matrix<real,                3,              3>  F33RMat; // Fixed 3x3 Real Mat
 typedef Eigen::Matrix<real,                3,              1>  F31RMat; // Fixed 3x1 Real Mat
 typedef Eigen::Matrix<uint,                3,              1>  F31UMat; // Fixed 3x1 uint Mat
+
+typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  SDRMat; // FIXME Sparse dynamic Real Mat
+
 
 
 #else
@@ -70,6 +74,9 @@ typedef arma::Mat< uint > F31UMat; // Fixed 3x1 Uint Mat (for arma this is the s
 typedef arma::Col<real>        Col_View_Real;
 typedef arma::Col<moris_index> Col_View_Index;
 typedef arma::Col<moris_id>    Col_View_Id;
+
+typedef arma::Mat< real >        SDRMat;  // FIXME Sparse dynamic Real Mat
+
 
 // typedefs around submatrix views
 typedef arma::Row<real>        Row_View_Real;

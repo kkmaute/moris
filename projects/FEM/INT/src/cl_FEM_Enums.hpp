@@ -91,10 +91,15 @@ namespace moris
             LSNORMAL,   // LS normal
             OLSSON,     // Olsson et al. (2007) reinitialization
             SPATIALDIFF_BULK,      // spatial diffusion bulk
-            SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet
+            SPATIALDIFF_DIRICHLET, // spatial diffusion Dirichlet (Nitsche)
             SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
             SPATIALDIFF_GHOST,     // spatial diffusion ghost
-            SPATIALDIFF_INTERFACE,
+            SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
+            SPATIALDIFF_INTERFACE, // spatial diffusion Nitsche interface condition
+            STRUC_LINEAR_BULK,     // linear elasticity bulk
+            STRUC_LINEAR_DIRICHLET,// linear elasticity Dirichlet (Nitsche)
+            STRUC_LINEAR_NEUMANN,  // linear elasticity Neumann
+            STRUC_LINEAR_INTERFACE,// linear elasticity Nitsche interface condition
             END_IWG_TYPE
         };
 
@@ -107,6 +112,10 @@ namespace moris
             TEMP_NEUMANN,
             CONDUCTIVITY,
             TEMP_LOAD,
+            STRUC_DIRICHLET,
+            STRUC_NEUMANN,
+            YOUNGS_MODULUS,
+            POISSONS_RATIO,
             END_PROPERTY_TYPE
         };
 
@@ -116,6 +125,7 @@ namespace moris
         {
             UNDEFINED,
             DIFF_LIN_ISO,
+            STRUC_LIN_ISO,
             END_CONSTITUTIVE_TYPE
         };
 

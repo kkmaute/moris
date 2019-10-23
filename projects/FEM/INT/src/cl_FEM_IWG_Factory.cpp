@@ -11,10 +11,15 @@
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Dirichlet.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Neumann.hpp"   //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Ghost.hpp"     //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp"     //FEM/INT/src
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp" //FEM/INT/src
 #include "cl_FEM_IWG_LSNormal_Bulk.hpp"                         //FEM/INT/src
 #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"                       //FEM/INT/src
 #include "cl_FEM_IWG_Olsson_CLS_Interface.hpp"                  //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp"           //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"      //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"        //FEM/INT/src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp"        //FEM/INT/src
 
 namespace moris
 {
@@ -67,9 +72,31 @@ namespace moris
                 case ( IWG_Type::SPATIALDIFF_GHOST ):
                     tIWG = new IWG_Isotropic_Spatial_Diffusion_Ghost();
                     break;
+
+                case ( IWG_Type::SPATIALDIFF_VW_GHOST ):
+                    tIWG = new IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost();
+                    break;
+
                 case ( IWG_Type::SPATIALDIFF_INTERFACE ):
                     tIWG = new IWG_Isotropic_Spatial_Diffusion_Interface();
                     break;
+
+                case ( IWG_Type::STRUC_LINEAR_BULK ):
+                    tIWG = new IWG_Isotropic_Struc_Linear_Bulk();
+                    break;
+
+                case ( IWG_Type::STRUC_LINEAR_DIRICHLET ):
+                    tIWG = new IWG_Isotropic_Struc_Linear_Dirichlet();
+                    break;
+
+                case ( IWG_Type::STRUC_LINEAR_INTERFACE ):
+                    tIWG = new IWG_Isotropic_Struc_Linear_Interface();
+                    break;
+
+                case ( IWG_Type::STRUC_LINEAR_NEUMANN ):
+                    tIWG = new IWG_Isotropic_Struc_Linear_Neumann();
+                    break;
+
                 default:
                     MORIS_ERROR( false, " IWG_Factory::create_IWGs - No IWG type specified. " );
                     break;

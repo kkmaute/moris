@@ -715,7 +715,7 @@ namespace moris
                 }
                 else
                 {
-                    MORIS_ASSERT( false, "Dof_Manager::create_adofs(), " );
+//                    MORIS_ASSERT( false, "Dof_Manager::create_adofs(), " );
                 }
             }
             else
