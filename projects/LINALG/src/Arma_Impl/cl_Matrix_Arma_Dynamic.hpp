@@ -80,28 +80,9 @@ public:
     {
     }
 
-    Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
+    Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList):
+        mMatrix(aInitList)
     {
-        size_t i = 0;
-        size_t j = 0;
-        size_t tNumRows = aInitList.size();
-        size_t tNumColumns = aInitList.begin()->size();
-
-        mMatrix = arma::Mat<Type>(tNumRows, tNumColumns);
-
-        for(const auto tRow : aInitList) // loop over number of rows
-        {
-            MORIS_ASSERT(tRow.size() == aInitList.begin()->size(),
-                       "The number of elements in one of the rows does not equal the number of columns.");
-
-            for(const auto tCol : tRow) // loop over every value in the row
-            {
-                mMatrix(i, j) = tCol;
-                ++j;
-            }
-            j = 0;
-            ++i;
-        }
     }
 
     // Copy operations

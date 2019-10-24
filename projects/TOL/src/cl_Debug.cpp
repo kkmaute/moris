@@ -185,7 +185,6 @@ Debug::duplicate_row_check_problems(Matrix< DDUMat >  & aId1,
         Matrix< DDUMat >  position(tCombination,1,UINT_MAX);
         moris::uint tz = 0;
         moris::uint ty = 0;
-        moris::real ttol = 1.E-16;   // tolerance for checking nodes
 
         if (tCombination>UINT_MAX)
         {
@@ -197,7 +196,7 @@ Debug::duplicate_row_check_problems(Matrix< DDUMat >  & aId1,
                 ty = 1;
                 for (moris::uint  j = 0; j<tId2;j++)
                 {
-                        if(std::abs(aId1(i,0)-aId2(j,0))<ttol && (abs(aId1(i,1)-aId2(j,1))<ttol))
+                        if( aId1(i,0) == aId2(j,0) && aId1(i,1) == aId2(j,1) )
                         {
                                 position(tz,0) = i;
                                 tz++;
