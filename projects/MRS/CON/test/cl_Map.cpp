@@ -28,12 +28,12 @@ TEST_CASE( "moris::map" )
     {
         #include "containers/cl_Map/cl_Map_clear.inc"
         #include "containers/cl_Map/cl_Map_find.inc"
-        REQUIRE(moris::equal_to( aValue , 12 ) );
+        REQUIRE( aValue == 12 );
     }
 
     SECTION("moris::map empty")
     {
         #include "containers/cl_Map/cl_Map_empty.inc"
-        REQUIRE(moris::equal_to( aEmpty , 0 ) );
+        REQUIRE( aEmpty == 0 );
     }
 }
