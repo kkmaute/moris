@@ -37,6 +37,10 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
+
 namespace xtk
 {
 
@@ -152,10 +156,10 @@ TEST_CASE("Regular Subdivision Geometry Check","[VOLUME_CHECK_REG_SUB]")
     moris::real tXCenter = 1.0;
     moris::real tYCenter = 1.0;
     moris::real tZCenter = 2.0;
-    Sphere tSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    moris::ge::Sphere tSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tSphere,tPhaseTable);
+    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere,tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
@@ -212,10 +216,10 @@ TEST_CASE("Node Hierarchy Volume Check","[VOLUME_CHECK_NH]")
     moris::real tXCenter = 1.0;
     moris::real tYCenter = 1.0;
     moris::real tZCenter = 6.0;
-    Sphere tSphere(tRadius, tXCenter, tYCenter, tZCenter);
+    moris::ge::Sphere tSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tSphere,tPhaseTable);
+    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tSphere,tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x4";
@@ -273,9 +277,9 @@ TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
         moris::real tXCenter = 1.0;
         moris::real tYCenter = 1.0;
         moris::real tZCenter = 0;
-        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        moris::ge::Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
 
 

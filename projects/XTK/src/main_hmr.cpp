@@ -41,7 +41,8 @@
 #include "cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
-
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
 
 
 // select namespaces
@@ -130,15 +131,15 @@ main(
     std::cout<<"Num Nodes ="<<tMesh->get_num_nodes()<<std::endl;
     std::cout<<"Num Cells ="<<tMesh->get_num_elems()<<std::endl;
 
-    xtk::Geom_Field tFieldAsGeom(tField);
+    moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
 //    xtk::Geom_Field tFieldAsGeom2(tField2);
 
-        moris::Cell<Geometry*> tGeometryVector = {&tFieldAsGeom};
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
 
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.

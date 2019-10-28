@@ -8,7 +8,11 @@
 #ifndef PROJECTS_GEN_SRC_CL_GE_GEOMETRY_LIBRARY_HPP_
 #define PROJECTS_GEN_SRC_CL_GE_GEOMETRY_LIBRARY_HPP_
 
+#include "HDF5_Tools.hpp"
+
 #include "fn_norm.hpp"
+#include "fn_dot.hpp"
+
 namespace moris{
 namespace ge{
 //------------------------------------------------------------------------------
@@ -361,7 +365,7 @@ composite_fiber_function( const Matrix< DDRMat > & aCoordinates,
         }
 
         // wavy fiber
-        for (moris::size_t k=0;k<tFiberKmax;k++)
+        for (moris::size_t k=0;k<tFiberKmax;k++)//------------------------------------------------------------------------------
         {
             xci   = tFiberXctr+tFiberAmp*std::cos(tFiberFrq*MATH_PI*i/tNumSpheres+2.0/3.0*MATH_PI);
             yci   = tFiberYctr+2.0*tFiberRadius+k*6.0*tFiberRadius;
@@ -767,6 +771,149 @@ multi_cylinder_function( const Matrix< DDRMat >        & aCoordinates,
 
     return lsVal;
 }
+//------------------------------------------------------------------------------
+//----------- functions for the generation of a toroid structure ---------------
+//------------------------------------------------------------------------------
+real CSGUnion(real tA, real tB)
+{
+  return std::min(tA, tB);
+}
+//------------------------------------------------------------------------------
+real CSGUnionRound(real tA, real tB, real r)
+{
+  auto vc0 = r - tA;
+  auto vc1 = r - tB;
+  auto u0 = std::max(vc0, 0.0);
+  auto u1 = std::max(vc1, 0.0);
+  auto len = std::sqrt(std::pow((u0),2) + std::pow((u1),2));
+
+  return std::max(r, std::min(tA, tB)) - len;
+}
+//------------------------------------------------------------------------------
+real CSGIntersect(real tA, real tB)
+{
+  return std::max(tA, tB);
+}
+//------------------------------------------------------------------------------
+real CSGSubtract(real tA, real tB)
+{
+  return CSGIntersect(tA, -tB);
+}
+//------------------------------------------------------------------------------
+real CSGIntersectionRound(real tA, real tB, real r)
+{
+  auto vc0 = r + tA;
+  auto vc1 = r + tB;
+  auto u0 = std::max(vc0, 0.0);
+  auto u1 = std::max(vc1, 0.0);
+  auto lenU = std::sqrt(pow((u0),2) + pow((u1),2));
+
+  return std::min(-r, std::max(tA, tB)) + lenU;
+}
+//------------------------------------------------------------------------------
+real offset_tor(real t, real r)
+{
+  return t - r;
+}
+//------------------------------------------------------------------------------
+real clearance_tor(real tA, real tB, real r)
+{
+  return CSGSubtract(tA, offset_tor(tB, r));
+}
+//------------------------------------------------------------------------------
+real shell_tor(real t, real r)
+{
+  return clearance_tor(t, t, r);
+}
+//------------------------------------------------------------------------------
+real box_tor(const moris::Matrix< moris::DDRMat > & pt, const std::vector<real> & lower, const std::vector<real> & upper)
+{
+  return std::max(std::max(
+          std::max(lower[0] - pt(0),
+                pt(0) - upper[0]),
+          std::max(lower[1] - pt(0),
+                pt(1) - upper[1])),
+          std::max(lower[2] - pt(2),
+                pt(2) - upper[2])   );
+}
+//------------------------------------------------------------------------------
+real sphere_tor(const moris::Matrix< moris::DDRMat > & aPoint, real r, const moris::Matrix< moris::DDRMat > & center)
+{
+  return std::sqrt(std::pow((aPoint(0) - center(0)),2) +
+
+          std::pow((aPoint(1) - center(1)),2) +
+
+          std::pow((aPoint(2) - center(2)),2)) - r;
+}
+//------------------------------------------------------------------------------
+real getDistanceToGyroids_SphereBox(moris::Matrix< moris::DDRMat > pt)
+{
+real scale =.2; // scale of the gyroid period
+real thickness = .1; // thickness of the gyroids
+auto gyroidSrf =
+    sin(pt(0) / scale) * cos(pt(1) / scale) +
+    sin(pt(1) / scale) * cos(pt(2) / scale) +
+    sin(pt(2) / scale) * cos(pt(0) / scale);
+  auto gyroid = shell_tor(gyroidSrf, -thickness);
+
+  moris::Matrix<DDRMat> tTemp(1,3);
+  tTemp(0) = 2.0; tTemp(1) = 2.0; tTemp(2) = 1.0;
+
+  auto sphere1 = sphere_tor(pt, 3.0, tTemp);
+
+  auto boxB = box_tor(pt, { -4.0,-4.0,-1.5 }, { 2.0,2.0,1.5 });
+
+  auto boxC = box_tor(pt, { -4.125,-4.125,-1.75 }, { -3.875,3.,1.75 });
+
+  auto boxD = box_tor(pt, { -4.125,-4.125,-1.75 }, { 3.0,-3.875,1.75 });
+
+  auto negBox = CSGUnion(boxC, boxD);
+
+  auto blnBoxSphere = CSGUnionRound(boxB, sphere1, .5);
+
+  auto shelledBoxSphere = shell_tor(blnBoxSphere, .12);
+
+  auto shelledBox = CSGSubtract(shelledBoxSphere, negBox);
+
+  auto sphereGyroid = CSGIntersectionRound(blnBoxSphere, gyroid, .1);
+
+  sphereGyroid = CSGSubtract(sphereGyroid, negBox);
+
+  sphereGyroid = CSGSubtract(sphereGyroid, shelledBox);
+
+  auto gyroidWithShell = CSGUnionRound(shelledBox, sphereGyroid, .1);
+
+  gyroidWithShell = CSGIntersect(gyroidWithShell, blnBoxSphere);
+
+  gyroidWithShell = CSGSubtract(gyroidWithShell, negBox);
+
+  return CSGUnion(gyroidWithShell, shelledBox);
+}
+//------------------------------------------------------------------------------
+// --- main function for the gyroid ---
+//real getDistanceToGyroidsMassive( const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell< moris::real > aConst )
+real getDistanceToGyroidsMassive( const moris::Matrix< moris::DDRMat > & aPoint )
+{
+//real scale = 1.0/2.0/M_PI; // scale of the gyroid period
+    real scale = 1;
+real thickness = 0.75; // thickness of the gyroids
+auto gyroidSrf =
+    sin(aPoint(0) / scale) * cos(aPoint(1) / scale) +
+    sin(aPoint(1) / scale) * cos(aPoint(2) / scale) +
+    sin(aPoint(2) / scale) * cos(aPoint(0) / scale);
+
+
+auto gyroid = shell_tor(gyroidSrf, -thickness);
+
+  moris::Matrix<DDRMat> ttTemp(1,3, 0.0);
+
+  auto sphere1 = sphere_tor(aPoint, 5, ttTemp);
+
+  return CSGIntersectionRound(gyroid, sphere1, 0.75);
+
+}
+//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 } // end ge namespace

@@ -70,6 +70,9 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
+
 #include "fn_norm.hpp"
 
 moris::real
@@ -434,13 +437,13 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         xtk::Geom_Field tCircleFieldAsGeom(tHMRFields(0));
-         xtk::Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
-         moris::Cell<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
+         moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tHMRFields(0));
+         moris::ge::GEN_Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
+         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 
          size_t tModelDimension = 2;
-         xtk::Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
-         xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
          tXTKModel.mVerbose = true;
 
@@ -761,13 +764,13 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         xtk::Geom_Field tCircleFieldAsGeom(tHMRFields(0));
-         xtk::Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
-         moris::Cell<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
+         moris::ge::GEN_Geom_Field tCircleFieldAsGeom(tHMRFields(0));
+         moris::ge::GEN_Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
+         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 
          size_t tModelDimension = 3;
-         xtk::Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
-         xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
          tXTKModel.mVerbose = true;
 

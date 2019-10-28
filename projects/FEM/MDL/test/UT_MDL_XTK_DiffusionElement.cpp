@@ -68,6 +68,9 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Plane.hpp"
+
 #include "fn_norm.hpp"
 
 namespace moris
@@ -87,10 +90,10 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
     {
         moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
         moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
-        xtk::Plane<3> tPlane(tCenters,tNormals);
+        moris::ge::Plane<3> tPlane(tCenters,tNormals);
 
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
         // declare solution field on mesh
         // Declare scalar node field
@@ -382,9 +385,9 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
     {
         Matrix<DDRMat> tCenter = {{1.0,1.0,3.51}};
         Matrix<DDRMat> tNorms  = {{0.0,0.0,1.0}};
-        xtk::Plane<3> tPlane(tCenter,tNorms);
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
+        ge::Plane<3> tPlane(tCenter,tNorms);
+        ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
         // declare solution field on mesh
         // Declare scalar node field

@@ -10,7 +10,7 @@
 
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "geometry/cl_Discrete_Level_Set.hpp"
+//#include "geometry/cl_Discrete_Level_Set.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
@@ -22,6 +22,8 @@
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Discrete_Level_Set.hpp"
 
 namespace xtk
 {
@@ -97,9 +99,9 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
         // geometry
-        Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
-        Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+        moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+        moris::ge::GEN_Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
         tGeometryEngine.mComputeDxDp = false;
 
         /*
