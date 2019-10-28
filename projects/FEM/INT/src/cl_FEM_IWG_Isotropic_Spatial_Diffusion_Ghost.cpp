@@ -27,6 +27,31 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
+            // FIXME the order should be set differently
+            switch ( mMasterFI( 0 )->get_space_interpolation_order() )
+            {
+                case( mtk::Interpolation_Order::LINEAR ):
+                {
+                    mOrder = 1;
+                    break;
+                }
+                case( mtk::Interpolation_Order::QUADRATIC ):
+                {
+                    mOrder = 2;
+                    break;
+                }
+                case( mtk::Interpolation_Order::CUBIC ):
+                {
+                    mOrder = 3;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    break;
+                }
+            }
+
             // check, if order is supported
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual - Ghost stabilization for this order not supported yet. " );
 
@@ -36,13 +61,13 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set residual cell size
             this->set_residual_double( aResidual );
@@ -70,6 +95,31 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
         {
+            // FIXME the order should be set differently
+            switch ( mMasterFI( 0 )->get_space_interpolation_order() )
+            {
+                case( mtk::Interpolation_Order::LINEAR ):
+                {
+                    mOrder = 1;
+                    break;
+                }
+                case( mtk::Interpolation_Order::QUADRATIC ):
+                {
+                    mOrder = 2;
+                    break;
+                }
+                case( mtk::Interpolation_Order::CUBIC ):
+                {
+                    mOrder = 3;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported");
+                    break;
+                }
+            }
+
             // check, if order is supported
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian - Ghost stabilization for this order not supported yet. " );
 
@@ -79,13 +129,13 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );
@@ -303,15 +353,6 @@ namespace moris
             }
 
             return tNormalMatrix;
-        }
-
-//------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order( uint aOrder )
-        {
-            // check that the order is supported
-            MORIS_ERROR( aOrder < 4 , "IWG_Isotropic_Spatial_Diffusion_Ghost::set_interpolation_order - order not supported." );
-            // set the order
-            mOrder = aOrder;
         }
 
 //------------------------------------------------------------------------------

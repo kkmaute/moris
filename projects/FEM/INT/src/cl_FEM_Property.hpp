@@ -143,7 +143,7 @@ namespace moris
              * set property type
              * @param[ in ] aPropertyType property types
              */
-            void set_property_type( const fem::Property_Type aPropertyType )
+            void set_property_type( fem::Property_Type aPropertyType )
             {
                 mPropertyType = aPropertyType;
             };
@@ -163,7 +163,7 @@ namespace moris
              * set parameters
              * @param[ in ] aParameters list of parameters for property evaluation
              */
-            void set_parameters( const moris::Cell< moris::Matrix< DDRMat > > & aParameters )
+            void set_parameters( moris::Cell< moris::Matrix< DDRMat > > aParameters )
             {
                 mParameters = aParameters;
             };
@@ -183,7 +183,7 @@ namespace moris
              * set val function
              * @param[ in ] aValFunction function for property evaluation
              */
-            void set_val_function( const PropertyFunc & aValFunction )
+            void set_val_function( PropertyFunc aValFunction )
             {
                 mValFunction = aValFunction;
             };
@@ -203,7 +203,7 @@ namespace moris
              * set dof derivative functions
              * @param[ in ] aDofDerFunctions list function for property derivatives wrt dof
              */
-            void set_dof_derivative_functions( const moris::Cell< PropertyFunc > & aDofDerFunctions )
+            void set_dof_derivative_functions( moris::Cell< PropertyFunc > aDofDerFunctions )
             {
                 mDofDerFunctions = aDofDerFunctions;
             };
@@ -223,7 +223,7 @@ namespace moris
              * set dv derivative functions
              * @param[ in ] aDofDerFunctions list function for property derivatives wrt dv
              */
-            void set_dv_derivative_functions( const moris::Cell< PropertyFunc > & aDvDerFunctions )
+            void set_dv_derivative_functions( moris::Cell< PropertyFunc > aDvDerFunctions )
             {
                 mDvDerFunctions = aDvDerFunctions;
             };
@@ -262,7 +262,7 @@ namespace moris
              * set a list of active dof types
              * @param[ in ] aDofTypes list of dof types
              */
-            void set_dof_type_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
             {
                 // set dof type list
                 mDofTypes = aDofTypes;
@@ -433,10 +433,10 @@ namespace moris
                 mPropEval = true;
 
                 // reset the property derivatives wrt dof type
-                mPropDofDerEval.resize( mDofTypes.size(), true );
+                mPropDofDerEval.assign( mDofTypes.size(), true );
 
                 // reset the property derivatives wrt dv type
-                mPropDvDerEval.resize( mDvTypes.size(), true );
+                mPropDvDerEval.assign( mDvTypes.size(), true );
             }
 
 //------------------------------------------------------------------------------

@@ -15,8 +15,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
@@ -31,8 +31,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // set jacobian size
             this->set_jacobian( aJacobians );

@@ -177,7 +177,7 @@ namespace moris
             // get a specific dof type pdofs values
             Matrix< DDRMat > tPdofValues;
 
-            Cell< Matrix< DDRMat > > tPdofValues_Original;
+            moris::Cell< Matrix< DDRMat > > tPdofValues_Original;
 
             this->get_my_pdof_values( aDofType, tPdofValues_Original );
 
@@ -230,8 +230,8 @@ namespace moris
     private:
 //------------------------------------------------------------------------------
 
-         void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
-                                         Matrix< DDRMat >         & aReshapedPdofValues);
+         void reshape_pdof_values( const moris::Cell< Matrix< DDRMat > > & aPdofValues,
+                                         Matrix< DDRMat >                & aReshapedPdofValues);
 
 //------------------------------------------------------------------------------
     };

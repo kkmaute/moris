@@ -1,11 +1,11 @@
 /*
- * cl_FEM_IWG_User_Defined_Info.hpp
+ * cl_FEM_Penalty_User_Defined_Info.hpp
  *
- *  Created on: Sep 06, 2019
+ *  Created on: Oct 21, 2019
  *      Author: noel
  */
-#ifndef SRC_FEM_CL_FEM_IWG_USER_DEFINED_INFO_HPP_
-#define SRC_FEM_CL_FEM_IWG_USER_DEFINED_INFO_HPP_
+#ifndef SRC_FEM_CL_FEM_PENALTY_USER_DEFINED_INFO_HPP_
+#define SRC_FEM_CL_FEM_PENALTY_USER_DEFINED_INFO_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Matrix.hpp"                    //LNA/src
@@ -20,43 +20,37 @@ namespace moris
     {
 //------------------------------------------------------------------------------
         /**
-         * IWG_User_Defined_Info
+         * Penalty_User_Defined_Info
          */
-        class IWG_User_Defined_Info
+        class Penalty_User_Defined_Info
         {
         protected :
 
-            // IWG type
-            fem::IWG_Type mIWGType;
+            // penalty type
+            fem::Penalty_Type mPenaltyType;
 
-            // IWG residual dof type
-            moris::Cell< MSI::Dof_Type > mResidualDofType;
-
-            // IWG master dof type dependency list
+            // master dof type dependency list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
 
-            // IWG master dv type dependency list
+            // master dv type dependency list
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
 
-            // IWG master property type dependency list
+            // master property type dependency list
             moris::Cell< fem::Property_Type > mMasterPropTypes;
 
-            // IWG master constitutive type dependency list
+            // master constitutive type dependency list
             moris::Cell< fem::Constitutive_Type > mMasterConstitutiveTypes;
 
-            // IWG penalty type dependency list
-            moris::Cell< fem::Penalty_Type > mPenaltyTypes;
-
-            // IWG slave dof type dependency list
+            // slave dof type dependency list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
 
-            // IWG slave dv type dependency list
+            // slave dv type dependency list
             moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveDvTypes;
 
-            // IWG slave property type dependency list
+            // slave property type dependency list
             moris::Cell< fem::Property_Type > mSlavePropTypes;
 
-            // IWG slave constitutive type dependency list
+            // slave constitutive type dependency list
             moris::Cell< fem::Constitutive_Type > mSlaveConstitutiveTypes;
 
 //------------------------------------------------------------------------------
@@ -66,171 +60,133 @@ namespace moris
             /**
              * trivial constructor
              */
-            IWG_User_Defined_Info(){};
+            Penalty_User_Defined_Info(){};
 
             /**
-             * constructor with master  and slave without dv
-             * @param[ in ] aIWGType                 IWG type
-             * @param[ in ] aResidualDofType         group of dof type for residual
+             * constructor with master and slave without dv
+             * @param[ in ] aPenaltyType             penalty type
              * @param[ in ] aMasterDofTypes          list of group of dof types for master
              * @param[ in ] aMasterPropTypes         list of property types for master
              * @param[ in ] aMasterConstitutiveTypes list of constitutive types for master
              * @param[ in ] aSlaveDofTypes           list of group of dof types for slave
              * @param[ in ] aSlavePropTypes          list of property types for slave
              * @param[ in ] aSlaveConstitutiveTypes  list of constitutive types for slave
-             * @param[ in ] aPenaltyTypes            list of penalty types
              */
-            IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
-                                   moris::Cell< MSI::Dof_Type >                aResidualDofType,
-                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
-                                   moris::Cell< fem::Property_Type >           aMasterPropTypes,
-                                   moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes,
-                                   moris::Cell< fem::Penalty_Type >            aPenaltyTypes           = moris::Cell< fem::Penalty_Type >( 0 ),
-                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aSlaveDofTypes          = moris::Cell< moris::Cell< MSI::Dof_Type > >( 0 ),
-                                   moris::Cell< fem::Property_Type >           aSlavePropTypes         = moris::Cell< fem::Property_Type >( 0 ),
-                                   moris::Cell< fem::Constitutive_Type >       aSlaveConstitutiveTypes = moris::Cell< fem::Constitutive_Type >( 0 ) )
-                                 : mIWGType( aIWGType ),
-                                   mResidualDofType( aResidualDofType ),
-                                   mMasterDofTypes( aMasterDofTypes ),
-                                   mMasterPropTypes( aMasterPropTypes ),
-                                   mMasterConstitutiveTypes( aMasterConstitutiveTypes ),
-                                   mPenaltyTypes( aPenaltyTypes ),
-                                   mSlaveDofTypes( aSlaveDofTypes ),
-                                   mSlavePropTypes( aSlavePropTypes ),
-                                   mSlaveConstitutiveTypes( aSlaveConstitutiveTypes )
+            Penalty_User_Defined_Info( fem::Penalty_Type                           aPenaltyType,
+                                       moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
+                                       moris::Cell< fem::Property_Type >           aMasterPropTypes,
+                                       moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes,
+                                       moris::Cell< moris::Cell< MSI::Dof_Type > > aSlaveDofTypes,
+                                       moris::Cell< fem::Property_Type >           aSlavePropTypes,
+                                       moris::Cell< fem::Constitutive_Type >       aSlaveConstitutiveTypes )
+                                     : mPenaltyType( aPenaltyType ),
+                                       mMasterDofTypes( aMasterDofTypes ),
+                                       mMasterPropTypes( aMasterPropTypes ),
+                                       mMasterConstitutiveTypes( aMasterConstitutiveTypes ),
+                                       mSlaveDofTypes( aSlaveDofTypes ),
+                                       mSlavePropTypes( aSlavePropTypes ),
+                                       mSlaveConstitutiveTypes( aSlaveConstitutiveTypes )
             {};
 
-//            /**
-//             * constructor with master only without dv
-//             * @param[ in ] aIWGType                 IWG type
-//             * @param[ in ] aResidualDofType         group of dof type for residual
-//             * @param[ in ] aMasterDofTypes          list of group of dof types for master
-//             * @param[ in ] aMasterPropTypes         list of property types for master
-//             * @param[ in ] aMasterConstitutiveTypes list of constitutive types for master
-//             */
-//            IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
-//                                   moris::Cell< MSI::Dof_Type >                aResidualDofType,
-//                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
-//                                   moris::Cell< fem::Property_Type >           aMasterPropTypes,
-//                                   moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes )
-//                                 : mIWGType( aIWGType ),
-//                                   mResidualDofType( aResidualDofType ),
-//                                   mMasterDofTypes( aMasterDofTypes ),
-//                                   mMasterPropTypes( aMasterPropTypes ),
-//                                   mMasterConstitutiveTypes( aMasterConstitutiveTypes )
-//            {};
+            /**
+             * constructor with master only without dv
+             * @param[ in ] aPenaltyType             penalty type
+             * @param[ in ] aMasterDofTypes          list of group of dof types for master
+             * @param[ in ] aMasterPropTypes         list of property types for master
+             * @param[ in ] aMasterConstitutiveTypes list of constitutive types for master
+             */
+            Penalty_User_Defined_Info( fem::Penalty_Type                           aPenaltyType,
+                                       moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
+                                       moris::Cell< fem::Property_Type >           aMasterPropTypes,
+                                       moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes )
+                                     : mPenaltyType( aPenaltyType ),
+                                       mMasterDofTypes( aMasterDofTypes ),
+                                       mMasterPropTypes( aMasterPropTypes ),
+                                       mMasterConstitutiveTypes( aMasterConstitutiveTypes )
+            {};
 
             /**
              * constructor with master and slave
-             * @param[ in ] aIWGType                 IWG type
-             * @param[ in ] aResidualDofType         group of dof type for residual
+             * @param[ in ] aPenaltyType             penalty type
              * @param[ in ] aMasterDofTypes          list of group of dof types for master
              * @param[ in ] aMasterDvTypes           list of group of dv types for master
              * @param[ in ] aMasterPropTypes         list of property types for master
              * @param[ in ] aMasterConstitutiveTypes list of constitutive types for master
-             * @param[ in ] aPenaltyTypes            list of penalty types
              * @param[ in ] aSlaveDofTypes           list of group of dof types for slave
              * @param[ in ] aSlaveDvTypes            list of group of dv types for slave
              * @param[ in ] aSlavePropTypes          list of property types for slave
              * @param[ in ] aSlaveConstitutiveTypes  list of constitutive types for slave
              */
-            IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
-                                   moris::Cell< MSI::Dof_Type >                aResidualDofType,
-                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
-                                   moris::Cell< moris::Cell< MSI::Dv_Type > >  aMasterDvTypes,
-                                   moris::Cell< fem::Property_Type >           aMasterPropTypes,
-                                   moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes,
-                                   moris::Cell< fem::Penalty_Type >            aPenaltyTypes           = moris::Cell< fem::Penalty_Type >( 0 ),
-                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aSlaveDofTypes          = moris::Cell< moris::Cell< MSI::Dof_Type > >( 0 ),
-                                   moris::Cell< moris::Cell< MSI::Dv_Type > >  aSlaveDvTypes           = moris::Cell< moris::Cell< MSI::Dv_Type > >( 0 ),
-                                   moris::Cell< fem::Property_Type >           aSlavePropTypes         = moris::Cell< fem::Property_Type >( 0 ),
-                                   moris::Cell< fem::Constitutive_Type >       aSlaveConstitutiveTypes = moris::Cell< fem::Constitutive_Type >( 0 ))
-                                 : mIWGType( aIWGType ),
-                                   mResidualDofType( aResidualDofType ),
-                                   mMasterDofTypes( aMasterDofTypes ),
-                                   mMasterDvTypes( aMasterDvTypes ),
-                                   mMasterPropTypes( aMasterPropTypes ),
-                                   mMasterConstitutiveTypes( aMasterConstitutiveTypes ),
-                                   mPenaltyTypes( aPenaltyTypes ),
-                                   mSlaveDofTypes( aSlaveDofTypes ),
-                                   mSlaveDvTypes( aSlaveDvTypes ),
-                                   mSlavePropTypes( aSlavePropTypes ),
-                                   mSlaveConstitutiveTypes( aSlaveConstitutiveTypes )
+            Penalty_User_Defined_Info( fem::Penalty_Type                           aPenaltyType,
+                                       moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
+                                       moris::Cell< moris::Cell< MSI::Dv_Type > >  aMasterDvTypes,
+                                       moris::Cell< fem::Property_Type >           aMasterPropTypes,
+                                       moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes,
+                                       moris::Cell< moris::Cell< MSI::Dof_Type > > aSlaveDofTypes,
+                                       moris::Cell< moris::Cell< MSI::Dv_Type > >  aSlaveDvTypes,
+                                       moris::Cell< fem::Property_Type >           aSlavePropTypes,
+                                       moris::Cell< fem::Constitutive_Type >       aSlaveConstitutiveTypes )
+                                     : mPenaltyType( aPenaltyType ),
+                                       mMasterDofTypes( aMasterDofTypes ),
+                                       mMasterDvTypes( aMasterDvTypes ),
+                                       mMasterPropTypes( aMasterPropTypes ),
+                                       mMasterConstitutiveTypes( aMasterConstitutiveTypes ),
+                                       mSlaveDofTypes( aSlaveDofTypes ),
+                                       mSlaveDvTypes( aSlaveDvTypes ),
+                                       mSlavePropTypes( aSlavePropTypes ),
+                                       mSlaveConstitutiveTypes( aSlaveConstitutiveTypes )
             {};
 
-//            /**
-//             * constructor with master only
-//             * @param[ in ] aIWGType                 IWG type
-//             * @param[ in ] aResidualDofType         group of dof type for residual
-//             * @param[ in ] aMasterDofTypes          list of group of dof types for master
-//             * @param[ in ] aMasterDvTypes           list of group of dv types for master
-//             * @param[ in ] aMasterPropTypes         list of property types for master
-//             * @param[ in ] aMasterConstitutiveTypes list of constitutive types for master
-//             */
-//            IWG_User_Defined_Info( fem::IWG_Type                               aIWGType,
-//                                   moris::Cell< MSI::Dof_Type >                aResidualDofType,
-//                                   moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
-//                                   moris::Cell< moris::Cell< MSI::Dv_Type > >  aMasterDvTypes,
-//                                   moris::Cell< fem::Property_Type >           aMasterPropTypes,
-//                                   moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes )
-//                                 : mIWGType( aIWGType ),
-//                                   mResidualDofType( aResidualDofType ),
-//                                   mMasterDofTypes( aMasterDofTypes ),
-//                                   mMasterDvTypes( aMasterDvTypes ),
-//                                   mMasterPropTypes( aMasterPropTypes ),
-//                                   mMasterConstitutiveTypes( aMasterConstitutiveTypes )
-//            {};
+            /**
+             * constructor with master only
+             * @param[ in ] aPenaltyType             penalty type
+             * @param[ in ] aMasterDofTypes          list of group of dof types for master
+             * @param[ in ] aMasterDvTypes           list of group of dv types for master
+             * @param[ in ] aMasterPropTypes         list of property types for master
+             * @param[ in ] aMasterConstitutiveTypes list of constitutive types for master
+             */
+            Penalty_User_Defined_Info( fem::Penalty_Type                           aPenaltyType,
+                                       moris::Cell< moris::Cell< MSI::Dof_Type > > aMasterDofTypes,
+                                       moris::Cell< moris::Cell< MSI::Dv_Type > >  aMasterDvTypes,
+                                       moris::Cell< fem::Property_Type >           aMasterPropTypes,
+                                       moris::Cell< fem::Constitutive_Type >       aMasterConstitutiveTypes )
+                                     : mPenaltyType( aPenaltyType ),
+                                       mMasterDofTypes( aMasterDofTypes ),
+                                       mMasterDvTypes( aMasterDvTypes ),
+                                       mMasterPropTypes( aMasterPropTypes ),
+                                       mMasterConstitutiveTypes( aMasterConstitutiveTypes )
+            {};
 
 
 //------------------------------------------------------------------------------
             /**
              * virtual destructor
              */
-            ~IWG_User_Defined_Info(){};
+            ~Penalty_User_Defined_Info(){};
 
 //------------------------------------------------------------------------------
             /**
-             * set IWG type
-             * @param[ in ] aIWGType IWG type
+             * set penalty type
+             * @param[ in ] aPenaltyType penalty type
              */
-           void set_IWG_type( fem::IWG_Type aIWGType )
+           void set_penalty_type( fem::Penalty_Type aPenaltyType )
             {
-                mIWGType = aIWGType;
+                mPenaltyType = aPenaltyType;
             };
 
 //------------------------------------------------------------------------------
             /**
-             * return IWG type
-             * @param[ out ] mIWGType IWG type
+             * return penalty type
+             * @param[ out ] mPenaltyType penalty type
              */
-            fem::IWG_Type get_IWG_type() const
+            fem::Penalty_Type get_penalty_type() const
             {
-                return mIWGType;
+                return mPenaltyType;
             };
 
 //------------------------------------------------------------------------------
             /**
-             * set IWG residual dof type
-             * @param[ in ] aResidualDofType group of dof types for residual
-             */
-            void set_residual_dof_type( moris::Cell< MSI::Dof_Type > & aResidualDofType )
-            {
-                mResidualDofType = aResidualDofType;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * return IWG residual dof type
-             * @param[ out ] mResidualDofType group of dof types for residual
-             */
-            const moris::Cell< MSI::Dof_Type > & get_residual_dof_type() const
-            {
-                return mResidualDofType;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * set IWG dof type list
+             * set dof type list
              * @param[ in ] aDofTypes list of group of dof types
              * @param[ in ] aIsMaster enum master or slave
              */
@@ -259,7 +215,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * return IWG dof type list
+             * return dof type list
              * @param[ in ]  aIsMaster enum master or slave
              * @param[ out ] mDofTypes list of group of dof types
              */
@@ -285,7 +241,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set IWG dv type list
+             * set dv type list
              * @param[ in ] aDvTypes list of group of dv types
              * @param[ in ] aIsMaster enum master or slave
              */
@@ -314,7 +270,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * return IWG dv type list
+             * return dv type list
              * @param[ in ]  aIsMaster enum master or slave
              * @param[ out ] mDvTypes list of group of dv types
              */
@@ -340,7 +296,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set IWG property type list
+             * set property type list
              * @param[ in ] aPropTypes list of property types
              * @param[ in ] aIsMaster enum master or slave
              */
@@ -369,7 +325,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * return IWG property type list
+             * return property type list
              * @param[ in ]  aIsMaster  enum master or slave
              * @param[ out ] mPropTypes list of property types
              */
@@ -395,7 +351,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set IWG constitutive type list
+             * set constitutive type list
              * @param[ in ] aConstitutiveTypes list of constitutive types
              * @param[ in ] aIsMaster          enum master or slave
              */
@@ -424,7 +380,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * return IWG constitutive type list
+             * return constitutive type list
              * @param[ in ]  aIsMaster          enum master or slave
              * @param[ out ] mConstitutiveTypes list of constitutive types
              */
@@ -449,30 +405,10 @@ namespace moris
             };
 
 //------------------------------------------------------------------------------
-            /**
-             * set IWG penalty type list
-             * @param[ in ] aPenaltyTypes list of penalty types
-             */
-            void set_penalty_type_list( moris::Cell< fem::Penalty_Type > & aPenaltyTypes )
-            {
-                mPenaltyTypes = aPenaltyTypes;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * return IWG penalty type list
-             * @param[ out ] mPenaltyTypes list of penalty types
-             */
-            const moris::Cell< fem::Penalty_Type > & get_penalty_type_list() const
-            {
-                return mPenaltyTypes;
-            };
-
-//------------------------------------------------------------------------------
         };
 
 //------------------------------------------------------------------------------
 
     }/* namespace fem */
 } /* namespace moris */
-#endif /* SRC_FEM_CL_FEM_IWG_USER_DEFINED_INFO_HPP_ */
+#endif /* SRC_FEM_CL_FEM_PENALTY_USER_DEFINED_INFO_HPP_ */

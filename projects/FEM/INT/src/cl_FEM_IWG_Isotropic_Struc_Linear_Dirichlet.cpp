@@ -23,8 +23,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // compute jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
@@ -44,8 +44,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();;
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // compute jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();

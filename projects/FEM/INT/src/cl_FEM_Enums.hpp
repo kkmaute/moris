@@ -130,6 +130,27 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
+
+        enum class Penalty_Type
+        {
+            UNDEFINED,
+            DIRICHLET_NITSCHE,
+            END_PENALTY_TYPE
+        };
+
+//------------------------------------------------------------------------------
+
+        enum class Cluster_Measure
+        {
+            UNDEFINED,
+            MASTER_VOLUME,
+            SLAVE_VOLUME,
+            INTERFACE_SURFACE,
+            ELEMENT_SIZE,
+            END_CLUSTER_MEASURE
+        };
+
+//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
