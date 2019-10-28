@@ -32,9 +32,9 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
 
         Matrix< DDNIMat > C = find(A);
 
-        REQUIRE( moris::equal_to( C(0,0), 1 ) );
-        REQUIRE( moris::equal_to( C(1,0), 3 ) );
-        REQUIRE( moris::equal_to( C(2,0), 4 ) );
+        REQUIRE( C(0,0) == 1 );
+        REQUIRE( C(1,0) == 3 );
+        REQUIRE( C(2,0) == 4 );
     }
     SECTION( "find of real row vector" )
     {
@@ -50,9 +50,9 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
 
         Matrix< DDNIMat > C = find(A);
 
-        REQUIRE( moris::equal_to( C(0,0), 1 ) );
-        REQUIRE( moris::equal_to( C(1,0), 3 ) );
-        REQUIRE( moris::equal_to( C(2,0), 4 ) );
+        REQUIRE( C(0,0) == 1 );
+        REQUIRE( C(1,0) == 3 );
+        REQUIRE( C(2,0) == 4 );
     }
     SECTION( "find of uint col vector" )
     {
@@ -68,9 +68,9 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
 
         Matrix< DDNIMat > C = find(A);
 
-        REQUIRE( moris::equal_to( C(0,0), 1 ) );
-        REQUIRE( moris::equal_to( C(1,0), 3 ) );
-        REQUIRE( moris::equal_to( C(2,0), 4 ) );
+        REQUIRE( C(0,0) == 1 );
+        REQUIRE( C(1,0) == 3 );
+        REQUIRE( C(2,0) == 4 );
     }
     SECTION( "find first 2 nonzeros of uint row vector" )
     {
@@ -86,9 +86,9 @@ TEST_CASE( "moris::find", "[linalgebra],[find]" )
 
         Matrix< DDNIMat > C = find( A, 2 );
 
-        REQUIRE( moris::equal_to( C(0,0), 1 ) );
-        REQUIRE( moris::equal_to( C(1,0), 3 ) );
-        REQUIRE( moris::equal_to( C.length(), 2 ) );
+        REQUIRE( C(0,0) == 1 );
+        REQUIRE( C(1,0) == 3 );
+        REQUIRE( C.length() == 2 );
     }
     }
 }

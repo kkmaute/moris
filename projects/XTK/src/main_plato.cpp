@@ -32,6 +32,7 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 
 //------------------------------------------------------------------------------
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Discrete_Level_Set.hpp"
 
 // select namespaces
 using namespace moris;
@@ -67,11 +68,13 @@ main(
     moris::mtk::Interpolation_Mesh* tMeshData   = moris::mtk::create_interpolation_mesh(MeshType::STK, tMeshInputFileName );
 
 
-    xtk::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+    moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 
     // Tell the geometry engine about the discrete field mesh and how to interpret phases
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+//    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//    Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
 
     // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.

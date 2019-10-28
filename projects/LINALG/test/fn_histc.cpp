@@ -37,10 +37,10 @@ TEST_CASE( "moris::histc", "[linalgebra],[histc]" )
     unique( A, B );
 
     Matrix< DDNIMat > C = histc( A, B );
-    REQUIRE( moris::equal_to( C(0,0), 2 ) );
-    REQUIRE( moris::equal_to( C(1,0), 3 ) );
-    REQUIRE( moris::equal_to( C(2,0), 1 ) );
-    REQUIRE( moris::equal_to( C(3,0), 1 ) );
+    REQUIRE( C(0,0) == 2 );
+    REQUIRE( C(1,0) == 3 );
+    REQUIRE( C(2,0) == 1 );
+    REQUIRE( C(3,0) == 1 );
     }
 }
 }

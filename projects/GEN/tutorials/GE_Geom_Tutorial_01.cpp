@@ -47,7 +47,7 @@ moris::Comm_Manager gMorisComm;
 /*!
  * The following problem is defined:
  *
- * @image html ./figures/geomTutorial_01_setup.jpg "Figure 1: problem setup "
+ * @image html ./figures/singleElementWithIntersection.png "Figure 1: problem setup "
  *
  * In this tutorial we will:
  *
@@ -196,9 +196,9 @@ main( int    argc,
      *
      * \code{.cpp}
      * moris::Cell< real > tCircleInputs(3);
-     * tCircleInputs(0) = 0.0;
+     * tCircleInputs(0) = 0.6;
      * tCircleInputs(1) = 0.0;
-     * tCircleInputs(2) = 0.6;
+     * tCircleInputs(2) = 0.0;
      * \endcode
      */
     // input parameters for the circle LS
@@ -218,7 +218,7 @@ main( int    argc,
      * \endcode
      * This returns the index to the sub-type which has just been set.
      *
-     * When the analytical function is set, additional parameters need to bee associated with it. Here the tCircleInput cell contains the radius,
+     * When the analytical function is set, additional parameters need to be associated with it. Here the tCircleInput cell contains the radius,
      * x location of the center, and y location of the center, respectively.
      *
      * We can also add other analytical functions to the geometry tGeom1. For example, if there were 3 different sized circle functions on the same mesh, then
@@ -278,7 +278,7 @@ main( int    argc,
      * \endcode
      * Note that the index of the sub-type must be passes in as well.
      *
-     * Where asking this returns the values at all the nodes. If you only want the value at a specific node, pass in the index to the
+     * Asking this returns the values at all the nodes. If you only want the value at a specific node, pass in the index to the
      * desired node:
      * \code{.cpp}
      *      Matrix< DDRMat > tLSVals                = tGeometryEngine.get_field_vals( tMyGeomIndex, tVertexIndex, tSubIndex );
@@ -300,12 +300,7 @@ main( int    argc,
      *
      * or let it default to wait until it is asked for information.
      *
-     * Where you can ask for information pertaining to a specific node again by passing in the index.
-     *
-     * For outputting purposes, this field (circle LS) can be added to the STK mesh by:
-     * \code{.cpp}
-     * tInterpMesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);
-     * \endcode
+     * You can ask for information pertaining to a specific node again by passing in the index.
      */
     PDV_Info* tPDVInfo = tGeometryEngine.get_pdv_info_pointer( tMyGeomIndex );
 
@@ -390,6 +385,22 @@ main( int    argc,
      * Matrix< F31RMat > tLocalIntersection = tPDVInfo->get_intersection_point_local_coord( &tIntersectionObject, tXInd );
      * \endcode
      *
+     * To determine the other intersection point, an additional intersection object can be created or the current object can be modified
+     * by resetting the coordinates and parameter point as follows:
+     * \code{.cpp}
+     * tGlobalPos = {{0,0},{0,1}};
+     * tTHat = {{0},{1}};
+     * tUHat = {{ tLSVals(0) },{ tLSVals(3) }};
+     *
+     * tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
+     * moris_index tYInd = tPDVInfo->compute_intersection( &tIntersectionObject );
+     *
+     * Matrix< F31RMat > tIntersectionAlongY = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tYInd );
+     * \endcode
+     * This will return the other intersection point at ( 0, 0.6 ).
+     */
+
+    /*!
      * A similar structure is followed to compute the intersection sensitivity with respect to the field or the pdv.
      * \code{.cpp}
      * tPDVInfo->compute_intersection_sensitivity( &tIntersectionObject, tXInd );
@@ -411,7 +422,14 @@ main( int    argc,
 
     Matrix< DDRMat > tPDVSensitivity = tPDVInfo->get_dxgamma_dp( &tIntersectionObject );
 
+    tGlobalPos = {{0,0},{0,1}};     // edge [2] goes from (0,0) to (0,1)
+    tTHat = {{0},{1}};
+    tUHat = {{ tLSVals(0) },{ tLSVals(3) }};
 
+    tIntersectionObject.set_coords_and_param_point( tGeom1, tGlobalPos, tTHat, tUHat );
+    moris_index tYInd = tPDVInfo->compute_intersection( &tIntersectionObject );
+
+    Matrix< F31RMat > tIntersectionAlongY = tPDVInfo->get_intersection_point_global_coord( &tIntersectionObject, tYInd );
     //------------------------------------------------------------------------------
     /*!
      * Clean up.

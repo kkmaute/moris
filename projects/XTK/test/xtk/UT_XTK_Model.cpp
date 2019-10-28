@@ -17,9 +17,13 @@
 
 #include "cl_MTK_Visualization_STK.hpp"
 
-#include "cl_Sphere.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
-#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
+//#include "cl_Sphere.hpp"
+//#include "cl_MGE_Geometry_Engine.hpp"
+//#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
+
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
+#include "../projects/GEN/src/ripped/geomeng/fn_GEN_Triangle_Geometry.hpp"
 
 // Linalg includes
 #include "cl_Matrix.hpp"
@@ -54,10 +58,10 @@ TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION_MODEL]")
         real tXCenter = 1.0;
         real tYCenter = 1.0;
         real tZCenter = 0;
-        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+        moris::ge::Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
 
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x1";
@@ -177,9 +181,9 @@ TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMA
             real tXCenter = 1.0;
             real tYCenter = 1.0;
             real tZCenter = 0.0;
-            Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-            Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-            Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+            moris::ge::Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+            moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4";
@@ -355,9 +359,9 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
         real tXCenter = 1.0;
         real tYCenter = 1.0;
         real tZCenter = 1.0;
-        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        moris::ge::Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x4";
@@ -424,9 +428,9 @@ TEST_CASE("XFEM TOOLKIT CORE TESTING PARALLEL","[XTK][PARALLEL]")
         real tXCenter = 1.0;
         real tYCenter = 1.0;
         real tZCenter = 1.0;
-        Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+        moris::ge::Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
         // Create Mesh ---------------------------------
         std::string tMeshFileName = "generated:1x1x2";
@@ -471,9 +475,9 @@ TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
     real tXCenter = 0.0;
     real tYCenter = 0.0;
     real tZCenter = 0.0;
-    Sphere tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tLevelSetSphere,tPhaseTable);
+    moris::ge::Sphere tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
+    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetSphere,tPhaseTable);
 
     tGeometryEngine.mThresholdValue = 0.0;
     tGeometryEngine.mComputeDxDp = false;

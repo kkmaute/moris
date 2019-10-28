@@ -73,6 +73,10 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
+
+
 #include "fn_norm.hpp"
 
 moris::real
@@ -169,13 +173,13 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        xtk::Geom_Field tPlaneFieldAsGeom(tPlaneField);
+        moris::ge::GEN_Geom_Field tPlaneFieldAsGeom(tPlaneField);
 
-        moris::Cell<xtk::Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
 
         size_t tModelDimension = 2;
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
         xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
         tXTKModel.mVerbose = true;
 
