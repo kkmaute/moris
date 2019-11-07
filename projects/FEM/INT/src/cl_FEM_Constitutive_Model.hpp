@@ -839,9 +839,10 @@ namespace moris
                     this->eval_flux();
 
                     // set bool for evaluation
-                    mFluxEval = false;
+//                    mFluxEval = false;
                 }
                 // return the flux value
+//                print(mFlux,"mFlux");
                 return mFlux;
             }
 
@@ -869,7 +870,7 @@ namespace moris
                     this->eval_traction( aNormal );
 
                     // set bool for evaluation
-                    mTractionEval = false;
+//                    mTractionEval = false;
                 }
                 // return the traction value
                 return mTraction;

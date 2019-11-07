@@ -76,6 +76,8 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
+
 #include "fn_norm.hpp"
 
 
@@ -176,18 +178,18 @@ TEST_CASE("MDL Input","[MDL_Input]")
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        xtk::Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
 
-        moris::Cell<xtk::Geometry*> tGeometryVector = {&tFieldAsGeom};
+        moris::Cell<ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(), tGeometryEngine);
         tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose = true;
 

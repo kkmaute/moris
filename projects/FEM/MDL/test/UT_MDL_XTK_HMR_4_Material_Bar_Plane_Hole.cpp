@@ -141,30 +141,21 @@ run_hmr_for_multi_mat_model_2d(hmr::HMR  &                    aHMR,
 
     // create field
     aFields(0) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
-
-    aFields(0)->evaluate_scalar_function( Circle4MatMDL );
-
-    for( uint k=0; k<2; ++k )
-    {
-        aHMR.flag_surface_elements_on_working_pattern( aFields(0) );
-        aHMR.perform_refinement_based_on_working_pattern( 0 );
-        aFields(0)->evaluate_scalar_function( Circle4MatMDL );
-    }
-
     aFields(1) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
 
+    aFields(0)->evaluate_scalar_function( Circle4MatMDL );
     aFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
-    for( uint k=0; k<2; ++k )
+
+    for( uint k=0; k<0; ++k )
     {
+        aHMR.flag_surface_elements_on_working_pattern( aFields(0) );
         aHMR.flag_surface_elements_on_working_pattern( aFields(1) );
         aHMR.perform_refinement_based_on_working_pattern( 0 );
+        aFields(0)->evaluate_scalar_function( Circle4MatMDL );
         aFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
     }
 
-    aFields(0)->evaluate_scalar_function( Circle4MatMDL );
-    aFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
     aHMR.finalize();
-
 
     std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = aHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
@@ -310,7 +301,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
-
+        
         //------------------------------------------------------------------------------
         // create the properties
         std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
@@ -320,7 +311,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
         tPropConductivity2->set_parameters( { {{ 0.1 }} } );
         tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
-
+        
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
         tPropDirichlet->set_val_function( tConstValFunction2MatMDL );
@@ -347,8 +338,28 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso2->set_properties( { tPropConductivity2 } );
+        tCMDiffLinIso2->set_properties( { tPropConductivity1 } );
         tCMDiffLinIso2->set_space_dim( 2 );
+        
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso3 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso3->set_properties( { tPropConductivity2 } );
+        tCMDiffLinIso3->set_space_dim( 2 );
+        
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso4 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso4->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso4->set_properties( { tPropConductivity2 } );
+        tCMDiffLinIso4->set_space_dim( 2 );
+        
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso5 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso5->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso5->set_properties( { tPropConductivity1 } );
+        tCMDiffLinIso5->set_space_dim( 2 );
+        
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso6 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso6->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso6->set_properties( { tPropConductivity1 } );
+        tCMDiffLinIso6->set_space_dim( 2 );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -368,7 +379,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -380,14 +391,14 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
-        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
-        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::SLAVE );
+        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso3 }, mtk::Master_Slave::MASTER );
+        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso4 }, mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
-        tIWGInterface2->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
+        tIWGInterface2->set_constitutive_models( { tCMDiffLinIso3 }, mtk::Master_Slave::MASTER );
         tIWGInterface2->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface3 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
@@ -395,8 +406,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
         tIWGInterface3->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
-        tIWGInterface3->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::SLAVE );
-
+        tIWGInterface3->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::SLAVE );
+        
         // create a list of active block-sets
         std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
         std::string tDblInterfaceSideSetName02 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,2);
@@ -496,9 +507,10 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                               1,
+                                               0,
                                                tSetInfo,
-                                               0, false );
+                                               0,
+                                               false );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -509,11 +521,13 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
+        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_orthog") = 1;
         tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
         tLinearSolverAlgorithm->set_param("AZ_precond") = AZ_dom_decomp;
         tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 10.0;
-        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10;
+        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 100;
         tLinearSolverAlgorithm->set_param("rel_residual") = 1e-6;
 
 
@@ -531,7 +545,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
         NLA::Nonlinear_Solver tNonlinearSolver;
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
         tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
         tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
         tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;

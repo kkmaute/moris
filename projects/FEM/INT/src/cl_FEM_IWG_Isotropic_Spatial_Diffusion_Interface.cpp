@@ -42,11 +42,19 @@ namespace moris
             // set residual cell size
             this->set_residual_double( aResidual );
 
+            std::cout<<"for Master"<<std::endl;
+            Matrix< DDRMat > tTraction1 = mMasterCM( 0 )->traction( mNormal );
+
+            std::cout<<"for Slave"<<std::endl;
+            Matrix< DDRMat > tTraction2 = mSlaveCM( 0 )->traction( mNormal );
+
             // evaluate average traction
-            Matrix< DDRMat > tTraction = mMasterWeight * mMasterCM( 0 )->traction( mNormal ) + mSlaveWeight * mSlaveCM( 0 )->traction( mNormal );
+            Matrix< DDRMat > tTraction = mMasterWeight * tTraction1 + mSlaveWeight * tTraction2;
 
             // evaluate temperature jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
+
+//            print(mMasterCM( 0 )->traction( mNormal ),"mMasterCM( 0 )->traction( mNormal )");
 
             // compute master residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tTraction

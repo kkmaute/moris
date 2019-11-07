@@ -88,38 +88,6 @@
 
 #include "fn_properties_and_constitutive_model.hpp" // MRS/IOS/src
 
-moris::real
-Plane4MatMDL1(const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    moris::real mXC = 0.1;
-    moris::real mYC = 0.1;
-    moris::real mNx = 1.0;
-    moris::real mNy = 0.0;
-    return ( mNx*( aPoint(0)-mXC ) + mNy*( aPoint(1)-mYC ) );
-}
-
-moris::real
-Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    moris::real mXCenter = 0.01;
-    moris::real mYCenter = 0.01;
-    moris::real mRadius = 0.47334;
-
-
-    return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
-                    + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
-                    - (mRadius * mRadius);
-}
-
-
-Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
-{
-    return aParameters( 0 );
-}
-
 
 
 moris::Comm_Manager gMorisComm;
