@@ -27,6 +27,10 @@ namespace moris
         class Constitutive_Model
         {
 
+        private:
+
+            bool mFluxEval = true;
+
         protected :
 
             // constitutive model type
@@ -72,7 +76,6 @@ namespace moris
             uint mSpaceDim;
 
             // flag for evaluation
-            bool mFluxEval = true;
             moris::Cell< bool > mdFluxdDofEval;
             moris::Cell< bool > mdFluxdDvEval;
 
@@ -832,6 +835,9 @@ namespace moris
                 {
                     // evaluate the flux
                     this->eval_flux();
+
+                    //set eval flag to false
+                    mFluxEval = false;
                 }
                 // return the flux value
                 return mFlux;
@@ -859,6 +865,8 @@ namespace moris
                 {
                     // evaluate the traction
                     this->eval_traction( aNormal );
+
+//                    mTractionEval = false;
                 }
                 // return the traction value
                 return mTraction;

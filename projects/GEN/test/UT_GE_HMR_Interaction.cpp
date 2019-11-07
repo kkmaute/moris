@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include "../src/new/geometry/cl_GEN_Geom_Field.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
@@ -32,9 +33,8 @@
 #include "cl_GE_Intersection_Object_Line.hpp"
 #include "cl_GE_Node.hpp"
 
-#include "../src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-#include "../src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../src/ripped/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "../src/new/geometry/cl_GEN_Geometry.hpp"
+#include "../src/new/geomeng/cl_GEN_Geometry_Engine.hpp"
 
 // LINALG includes
 #include "cl_Matrix.hpp"
@@ -68,7 +68,7 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint, const moris::Ce
     return norm( aPoint ) - 0.9;
 }
 
-TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
+TEST_CASE("GE_HMR_Interaction_00","[moris],[GE],[GE_HMR_Interaction]")
 {
     if(par_size() == 1)
     {
@@ -203,7 +203,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 }
 //------------------------------------------------------------------------------
 
-TEST_CASE("GE_HMR_Interaction_01","[GE_HMR_Interaction_Gyroid]")
+TEST_CASE( "GE_HMR_Interaction_01","[GE_HMR_Interaction_Gyroid]" )
 {
 /*
     if(par_size() == 1)
@@ -332,4 +332,12 @@ TEST_CASE("GE_HMR_Interaction_01","[GE_HMR_Interaction_Gyroid]")
     }
 */
 }
+
+TEST_CASE( "GE_HMR_Interaction_02","[GE_HMR_Interaction_Bounding_Box]" )
+{
+    if(par_size() == 1)
+    {
+
+    }
 }
+}   // ge namepsace

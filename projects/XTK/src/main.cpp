@@ -7,6 +7,10 @@
 
 
 // moris core includes
+#include "../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
+#include "../../GEN/src/new/geometry/cl_GEN_Plane.hpp"
+#include "../../GEN/src/new/geometry/cl_GEN_Sphere.hpp"
+#include "../../GEN/src/new/geometry/cl_GEN_Sphere_Box.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -38,10 +42,6 @@
 #include "fn_compute_interface_surface_area.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Plane.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere_Box.hpp"
 
 // select namespaces
 using namespace moris;

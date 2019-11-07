@@ -719,9 +719,9 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         REQUIRE( tLagrangeMesh_2->get_number_of_nodes_on_proc()  == 30 );
 
         // output to exodus
-        STK * tSTK = tLagrangeMesh_2->create_stk_object(0);
-        tSTK->save_to_file( "cccccc.g");
-        delete tSTK;
+//        STK * tSTK = tLagrangeMesh_2->create_stk_object(0);
+//        tSTK->save_to_file( "cccccc.g");
+//        delete tSTK;
 
         // Check some basis coordinates of Lagrange mesh 1
         const moris::real* tXYZ_1 = tLagrangeMesh_1->get_node_by_index( 2 )->get_xyz( );
@@ -756,6 +756,81 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         // delete settings object
         delete tParameters;
     }
+}
+
+    TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_box]")
+    {
+        if(par_size() == 1)
+        {
+            // empty container for B-Spline meshes
+            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+
+            // create settings object
+            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+
+            // set number of elements
+            tParameters->set_number_of_elements_per_dimension( { {10}, {10} } );
+            tParameters->set_domain_dimensions( { {10}, {10} } );
+
+            // set buffer size to zero
+            tParameters->set_refinement_buffer( 1 );
+            tParameters->set_staircase_buffer( 1 );
+
+            // deactivate truncation
+            tParameters->set_bspline_truncation( false );
+
+            // create factory
+            moris::hmr::Factory tFactory;
+
+            // create background mesh object
+            moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+
+            //----------------------------------------------------------------------------------------------------------
+            // Work on activation pattern 0 mesh
+            tBackgroundMesh->set_activation_pattern( 0 );
+
+            // element 0 is the element with ID 18
+            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+            tBackgroundMesh->perform_refinement( 0 );
+
+            tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
+            tBackgroundMesh->perform_refinement( 0 );
+
+            // create first order Lagrange mesh
+            moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
+                                                                                              tBackgroundMesh,
+                                                                                              tBSplineMeshes,
+                                                                                              0,
+                                                                                              1 );
+
+            // output to exodus
+            STK * tSTK = tLagrangeMesh->create_stk_object(0);
+            tSTK->save_to_file( "Bounding_box.g");
+            delete tSTK;
+
+            moris::Matrix< IndexMat > tNodeIndices;
+
+            tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 0.1 },{ 1.1 } },
+                                                                    { { 0.9 },{ 1 } },
+                                                                    tNodeIndices );
+
+            print( tNodeIndices, "tNodeIndices" );
+
+            tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 5.1 },{ 7.1 } },
+                                                                    { { 1 },{ 1 } },
+                                                                    tNodeIndices );
+
+            print( tNodeIndices, "tNodeIndices" );
+
+            // delete mesh
+            delete tLagrangeMesh;
+
+            // delete background mesh
+            delete tBackgroundMesh;
+
+            // delete settings object
+            delete tParameters;
+        }
 }
 
 

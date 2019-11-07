@@ -1179,6 +1179,16 @@ public:
             aCells(i) = &this->get_mtk_cell(aCellInds(i));
         }
     }
+
+    virtual
+    void get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+                                            const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+                                                  moris::Matrix< IndexMat > & aNodeIndices )
+    {
+         MORIS_ERROR(false, "get_nodes_indices_in_bounding_box(), not implemented for this mesh");
+    }
+
+
 };
 }
 }

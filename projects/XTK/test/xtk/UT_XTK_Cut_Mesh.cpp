@@ -6,6 +6,10 @@
  */
 
 #include <memory>   // Shared ptrs
+
+#include "../../../GEN/src/new/geometry/cl_GEN_Geom_Field.hpp"
+#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
+#include "../../../GEN/src/new/geometry/cl_GEN_Sphere.hpp"
 #include "catch.hpp"
 
 // XTKL: Logging and Assertion Includes
@@ -37,9 +41,6 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {

@@ -963,6 +963,13 @@ namespace moris
             void reset_min_refinement_levels();
 
 //------------------------------------------------------------------------------
+
+            virtual void get_element_in_bounding_box_memory_index( const uint                     & aPattern,
+                                                                   const moris::Matrix< DDRMat >  & aPoint,
+                                                                   const moris::Matrix< DDRMat >  & aBoundingBoxSize,
+                                                                         moris::Matrix< DDLUMat > & aElementMemoryIndex ) = 0;
+
+//------------------------------------------------------------------------------
         protected:
 //------------------------------------------------------------------------------
 

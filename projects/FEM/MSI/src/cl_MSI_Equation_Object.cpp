@@ -248,6 +248,8 @@ namespace moris
 //                print( tTMatrix, "tTMatrix" );
 //                print( mJacobian, "mJacobian" );
 
+        print( mEquationBlock->mJacobian,"jac");
+
         aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->mJacobian * tTMatrix;
     }
 
@@ -263,6 +265,7 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
+        print( mEquationBlock->mResidual,"res");
 //        print( tTMatrix ,"tTMatrix");
 
         aEqnObjRHS = trans( tTMatrix ) * mEquationBlock->mResidual;

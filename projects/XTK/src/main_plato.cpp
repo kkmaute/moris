@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 // moris core includes
+#include "../../GEN/src/new/geometry/cl_GEN_Discrete_Level_Set.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -32,7 +33,6 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Discrete_Level_Set.hpp"
 
 // select namespaces
 using namespace moris;

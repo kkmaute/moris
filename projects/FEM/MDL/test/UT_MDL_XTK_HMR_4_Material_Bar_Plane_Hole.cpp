@@ -5,6 +5,8 @@
  *      Author: doble
  */
 
+#include "../../../GEN/src/new/geometry/cl_GEN_Geom_Field.hpp"
+#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -69,9 +71,6 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
-
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
 
 #include "fn_norm.hpp"
 
@@ -142,28 +141,20 @@ run_hmr_for_multi_mat_model_2d(hmr::HMR  &                    aHMR,
 
     // create field
     aFields(0) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
-
-    aFields(0)->evaluate_scalar_function( Circle4MatMDL );
-
-    for( uint k=0; k<2; ++k )
-    {
-        aHMR.flag_surface_elements_on_working_pattern( aFields(0) );
-        aHMR.perform_refinement_based_on_working_pattern( 0 );
-        aFields(0)->evaluate_scalar_function( Circle4MatMDL );
-    }
-
     aFields(1) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
 
+    aFields(0)->evaluate_scalar_function( Circle4MatMDL );
     aFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
-    for( uint k=0; k<2; ++k )
+
+    for( uint k=0; k<0; ++k )
     {
+        aHMR.flag_surface_elements_on_working_pattern( aFields(0) );
         aHMR.flag_surface_elements_on_working_pattern( aFields(1) );
         aHMR.perform_refinement_based_on_working_pattern( 0 );
+        aFields(0)->evaluate_scalar_function( Circle4MatMDL );
         aFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
     }
 
-    aFields(0)->evaluate_scalar_function( Circle4MatMDL );
-    aFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
     aHMR.finalize();
 
 
@@ -491,7 +482,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         fem::Property_User_Defined_Info tConductivity2( fem::Property_Type::CONDUCTIVITY,
                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 0.1 }}},
+                                                       {{{ 1.0 }}},
                                                        tConstValFunction2MatMDL,
                                                        Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
@@ -607,6 +598,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
 
+        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
+        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_orthog") = 1;
         tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
         tLinearSolverAlgorithm->set_param("AZ_precond") = AZ_dom_decomp;
@@ -629,7 +622,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
         NLA::Nonlinear_Solver tNonlinearSolver;
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
         tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
         tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
         tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;

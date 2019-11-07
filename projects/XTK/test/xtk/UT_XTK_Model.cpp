@@ -5,6 +5,9 @@
  *      Author: ktdoble
  */
 
+#include "../../../GEN/src/new/geomeng/fn_GEN_Triangle_Geometry.hpp"
+#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
+#include "../../../GEN/src/new/geometry/cl_GEN_Sphere.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -21,11 +24,6 @@
 //#include "cl_MGE_Geometry_Engine.hpp"
 //#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
-#include "../projects/GEN/src/ripped/geomeng/fn_GEN_Triangle_Geometry.hpp"
-
-// Linalg includes
 #include "cl_Matrix.hpp"
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"

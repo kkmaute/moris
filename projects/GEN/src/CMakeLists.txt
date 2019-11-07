@@ -6,35 +6,39 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-	ripped/additional/cl_GEN_Interpolation.hpp
-	ripped/additional/cl_GEN_Basis_Function.hpp
-	ripped/additional/cl_GEN_Edge_Topology.hpp
-	ripped/additional/cl_GEN_Enums.hpp
-	ripped/additional/cl_GEN_Hexahedron_8_Topology.hpp
-	ripped/additional/cl_GEN_Hexahedron_8_Basis_Function.hpp
-	ripped/additional/cl_GEN_Linear_Basis_Functions.hpp
-	ripped/additional/cl_GEN_Matrix_Base_Utilities.hpp
-	ripped/additional/cl_GEN_Pending_Node.hpp
-	ripped/additional/cl_GEN_Phase_Table.hpp
-	ripped/additional/cl_GEN_Quad_4_Basis_Function.hpp
-	ripped/additional/cl_GEN_Quad_4_Topology.hpp
-	ripped/additional/cl_GEN_Topology.hpp
-	ripped/additional/fn_GEN_approximatate.hpp
-	ripped/additional/fn_GEN_bubble_sort.hpp
-	ripped/additional/cl_GEN_typedefs.hpp
+	new/additional/cl_GEN_Interpolation.hpp
+	new/additional/cl_GEN_Basis_Function.hpp
+	new/additional/cl_GEN_Edge_Topology.hpp
+	new/additional/cl_GEN_Enums.hpp
+	new/additional/cl_GEN_Hexahedron_8_Topology.hpp
+	new/additional/cl_GEN_Hexahedron_8_Basis_Function.hpp
+	new/additional/cl_GEN_Linear_Basis_Functions.hpp
+	new/additional/cl_GEN_Matrix_Base_Utilities.hpp
+	new/additional/cl_GEN_Pending_Node.hpp
+	new/additional/cl_GEN_Phase_Table.hpp
+	new/additional/cl_GEN_Quad_4_Basis_Function.hpp
+	new/additional/cl_GEN_Quad_4_Topology.hpp
+	new/additional/cl_GEN_Topology.hpp
+	new/additional/fn_GEN_approximatate.hpp
+	new/additional/fn_GEN_bubble_sort.hpp
 	
-	ripped/geomeng/cl_GEN_Enums.hpp
-	ripped/geomeng/cl_GEN_Geometry_Engine.hpp
-	ripped/geomeng/cl_GEN_Geometry_Onject_Manager.hpp
-	ripped/geomeng/cl_GEN_Geometry_Object.hpp
-	ripped/geomeng/fn_GEN_triangle_geometry.hpp
+	new/field/cl_GEN_Field.hpp
+    
+	new/geomeng/cl_GEN_Enums.hpp
+	new/geomeng/cl_GEN_Geometry_Engine.hpp
+	new/geomeng/cl_GEN_Geometry_Onject_Manager.hpp
+	new/geomeng/cl_GEN_Geometry_Object.hpp
+	new/geomeng/fn_GEN_triangle_geometry.hpp
 	
-	ripped/geometry/cl_GEN_Circle.hpp
-	ripped/geometry/cl_GEN_Discrete_Level_Set.hpp
-	ripped/geometry/cl_GEN_Geometry.hpp
-	ripped/geometry/cl_GEN_Geom_Field.hpp
-	ripped/geometry/cl_GEN_Sphere.hpp
-
+	new/geometry/fn_bounding_box.hpp
+	new/geometry/cl_GEN_Circle.hpp
+	new/geometry/cl_GEN_Cylinder_With_End_Caps.hpp
+	new/geometry/cl_GEN_Discrete_Level_Set.hpp
+	new/geometry/cl_GEN_Geometry.hpp
+	new/geometry/cl_GEN_Geom_Data.hpp
+	new/geometry/cl_GEN_Geom_Field.hpp
+	new/geometry/cl_GEN_Sphere.hpp
+	
 	cl_GE_Analytic.hpp
 	cl_GE_Core.hpp
 	cl_GE_Discrete.hpp
@@ -51,8 +55,6 @@ set(HEADERS
 	cl_GE_Property.hpp
 	cl_GE_SDF.hpp
 	
-	fn_bounding_box.hpp
-	fn_cylinder_with_end_caps.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -66,7 +68,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${COM}-lib
-#	${GEN}-lib
+# 	${GEN}-lib
 	${INT}-lib
 	${LINALG}-lib
 	${MAP}-lib

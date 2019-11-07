@@ -165,5 +165,63 @@ TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
     }
 }
 
+TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
+{
+    //------------------------------------------------------------------------------
+
+    moris::uint tLagrangeMeshIndex = 0;
+    moris::uint tBSplineMeshIndex = 0;
+
+    moris::hmr::Parameters tParameters;
+
+    tParameters.set_number_of_elements_per_dimension( { {10}, {4}, {4} } );
+    tParameters.set_domain_dimensions({ {10}, {4}, {4} });
+    tParameters.set_domain_offset({ {-5.0}, {-2.0}, {-2.0} });
+    tParameters.set_bspline_truncation( true );
+    tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
+
+    tParameters.set_output_meshes( { {0} } );
+
+    tParameters.set_lagrange_orders  ( { {1} });
+    tParameters.set_lagrange_patterns({ {0} });
+
+    tParameters.set_bspline_orders   ( { {1} } );
+    tParameters.set_bspline_patterns ( { {0} } );
+
+    tParameters.set_refinement_buffer( 1 );
+    tParameters.set_staircase_buffer( 1 );
+
+    Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+    tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+    tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+    hmr::HMR tHMR( tParameters );
+
+    std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+    // create field
+    std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tBSplineMeshIndex );
+
+    for( uint k=0; k<2; ++k )
+    {
+        tField->evaluate_scalar_function( LevelSetFunction );
+        tHMR.flag_surface_elements_on_working_pattern( tField );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
+    }
+
+    tHMR.finalize();
+
+    // create pointer to output mesh
+    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+
+    moris::Matrix< IndexMat > tNodeIndices;
+
+    tOutputInterpMesh->get_nodes_indices_in_bounding_box( { { 0.1 },{ 1.1 },{ 1.1 } },
+                                                          { { 0.9 },{ 1 } ,{ 1 }},
+                                                          tNodeIndices);
+
+}
+
 }
 

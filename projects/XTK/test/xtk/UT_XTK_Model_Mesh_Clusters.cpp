@@ -5,13 +5,13 @@
  *      Author: doble
  */
 
+#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
+#include "../../../GEN/src/new/geometry/cl_GEN_Sphere.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
 //#include "cl_Sphere.hpp"
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {

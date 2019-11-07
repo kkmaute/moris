@@ -5,6 +5,8 @@
  *      Author: doble
  */
 
+#include "../../../GEN/src/new/geometry/cl_GEN_Geom_Field.hpp"
+#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -69,10 +71,6 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
-
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-
 
 #include "fn_norm.hpp"
 

@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "../../../GEN/src/new/geomeng/cl_GEN_Geometry_Engine.hpp"
 // Mesh Includes:
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
@@ -38,7 +39,6 @@
 #include "cl_MGE_Geometry_Engine.hpp"
 
 // general geometry engine class
-#include "../projects/GEN/src/ripped/geomeng/cl_GEN_Geometry_Engine.hpp"
 
 namespace xtk
 {
