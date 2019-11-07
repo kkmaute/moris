@@ -18,9 +18,7 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_FEM_Property_User_Defined_Info.hpp"
-#include "cl_FEM_IWG_User_Defined_Info.hpp"
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
+#include "cl_FEM_Set_User_Info.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -52,7 +50,6 @@ namespace moris
     namespace mdl
     {
 //------------------------------------------------------------------------------
-
     Model::Model(       mtk::Mesh_Manager*                                                                 aMeshManager,
                   const uint                                                                               aBSplineIndex,
                   const moris::Cell< moris_index >                                                       & aSetList,
@@ -62,69 +59,69 @@ namespace moris
                   const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
                   const moris_index                                                                        aMeshPairIndex,
                   const bool                                                                               aUseMultigrid )
-        : mMeshManager( aMeshManager ),
-          mMeshPairIndex( aMeshPairIndex ),
-          mUseMultigrid( aUseMultigrid )
-        {
-            // init the number of set
-            uint tNumFemSets = aSetList.size();
+     : mMeshManager( aMeshManager ),
+      mMeshPairIndex( aMeshPairIndex ),
+      mUseMultigrid( aUseMultigrid )
+    {
+        // init the number of set
+        uint tNumFemSets = aSetList.size();
+        
+        // number of groups of IWGs
+        uint tNumIWGGroups = aIWGUserDefinedInfo.size();
 
-            // number of groups of IWGs
-            uint tNumIWGGroups = aIWGUserDefinedInfo.size();
+        // number of groups of property types
+        uint tNumPropGroups = aPropertyUserDefinedInfo.size();
 
-            // number of groups of property types
-            uint tNumPropGroups = aPropertyUserDefinedInfo.size();
+        // number of groups of constitutive types
+        uint tNumCMGroups = aConstitutiveUserDefinedInfo.size();
 
-            // number of groups of constitutive types
-            uint tNumCMGroups = aConstitutiveUserDefinedInfo.size();
+        // check input
+        MORIS_ERROR( tNumIWGGroups == tNumFemSets, " Model::Model - wrong number of IWG groups. " );
+        MORIS_ERROR( tNumPropGroups == tNumFemSets, " Model::Model - wrong number of property type groups. " );
+        MORIS_ERROR( tNumCMGroups == tNumFemSets, " Model::Model - wrong number of constitutive type groups. " );
 
-            // check input
-            MORIS_ERROR( tNumIWGGroups == tNumFemSets, " Model::Model - wrong number of IWG groups. " );
-            MORIS_ERROR( tNumPropGroups == tNumFemSets, " Model::Model - wrong number of property type groups. " );
-            MORIS_ERROR( tNumCMGroups == tNumFemSets, " Model::Model - wrong number of constitutive type groups. " );
+        // start timer
+        tic tTimer1;
 
-            // start timer
-            tic tTimer1;
+        // FIXME comment???
+        mBSplineIndex = aBSplineIndex;
 
-
-            mBSplineIndex = aBSplineIndex;
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 0: initialize
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Get pointers to interpolation and integration mesh
-            moris::moris_index tMeshPairIndex = aMeshPairIndex;
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMeshManager->get_mesh_pair( tMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 0: initialize
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Get pointers to interpolation and integration mesh
+        moris::moris_index tMeshPairIndex = aMeshPairIndex;
+        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
+        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+        mMeshManager->get_mesh_pair( tMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
 //            MORIS_ERROR( !(mDofOrder == 0 && tInterpolationMesh->get_mesh_type() == MeshType::HMR), " HMR B-Spline order can't be 0");
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 1: create nodes
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 1: create nodes
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            // ask mesh about number of nodes on proc
-            luint tNumOfIPNodes = tInterpolationMesh->get_num_nodes();
+        // ask mesh about number of nodes on proc
+        luint tNumOfIPNodes = tInterpolationMesh->get_num_nodes();
 
-            // create node objects
-            mIPNodes.resize(  tNumOfIPNodes, nullptr );
+        // create node objects
+        mIPNodes.resize(  tNumOfIPNodes, nullptr );
 
-            for( uint iNode = 0; iNode < tNumOfIPNodes; iNode++ )
-            {
-                mIPNodes( iNode ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( iNode ) );
-            }
+        for( uint iNode = 0; iNode < tNumOfIPNodes; iNode++ )
+        {
+            mIPNodes( iNode ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( iNode ) );
+        }
 
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
+        if( par_rank() == 0)
+        {
+            // stop timer
+            real tElapsedTime = tTimer1.toc<moris::chronos::milliseconds>().wall;
 
-                // print output
-                MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
-                        ( unsigned int ) tNumOfIPNodes,
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // print output
+            MORIS_LOG_INFO( "Model: created %u FEM IP nodes in %5.3f seconds.\n\n",
+                    ( unsigned int ) tNumOfIPNodes,
+                    ( double ) tElapsedTime / 1000 );
+        }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1.5: create IWGs
@@ -149,7 +146,7 @@ namespace moris
                 for( uint iIWG = 0; iIWG < tNumIWG; iIWG++ )
                 {
                     // create an IWG with the factory for the IWG type
-                    mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWGs( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_type() );
+                    mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWG( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_type() );
 
                     // set residual dof type
                     mIWGs( iSet )( iIWG )->set_residual_dof_type( aIWGUserDefinedInfo( iSet )( iIWG ).get_residual_dof_type() );
@@ -180,172 +177,176 @@ namespace moris
                 }
             }
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 2: create elements
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 2: create elements
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            // start timer
-            tic tTimer2;
+        // start timer
+        tic tTimer2;
 
-            // a factory to create the elements
-            fem::Element_Factory tElementFactory;
+        // a factory to create the elements
+        fem::Element_Factory tElementFactory;
 
-            // create equation objects
-            mFemSets.resize( tNumFemSets, nullptr );
+        // create equation objects
+        mFemSets.resize( tNumFemSets, nullptr );
 
-//            // get the number of element to create
-//            luint tNumberOfEquationObjects = tIntegrationMesh->get_num_elems()
-//                                           + tIntegrationMesh->get_sidesets_num_faces( aSidesetList );
-//            mFemClusters.reserve( tNumberOfEquationObjects );
-            mFemClusters.reserve( 100000 ); //FIXME
+        // get the number of element to create
+        mFemClusters.reserve( 100000 ); //FIXME
 
-            //------------------------------------------------------------------------------
-            // init the fem set counter
-            moris::uint tFemSetCounter = 0;
+        //------------------------------------------------------------------------------
+        // init the fem set counter
+        moris::uint tFemSetCounter = 0;
 
-            // loop over the used fem set
-            for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
+        // loop over the used fem set
+        for( luint iSet = 0; iSet < tNumFemSets; iSet++ )
+        {
+            // create a list of clusters
+            moris::mtk::Set * tMeshSet;
+
+            switch ( aSetInfo( iSet ).get_set_type() )
             {
-                // create a list of clusters
-                moris::mtk::Set * tMeshSet;
-
-                switch ( aSetTypeList( iSet ) )
+                case( fem::Element_Type::BULK ):
                 {
-                    case( fem::Element_Type::BULK ):
-                        tMeshSet = tIntegrationMesh->get_block_by_index( aSetList( iSet ) );
-                        break;
+                    tMeshSet = tIntegrationMesh->get_block_by_index( aSetInfo( iSet ).get_mesh_index() );
+                    break;
+                 }
 
-                    case( fem::Element_Type::SIDESET ):
-                        tMeshSet = tIntegrationMesh->get_side_set_by_index( aSetList( iSet ) );
-                        break;
-
-                    case( fem::Element_Type::DOUBLE_SIDESET ):
-                        tMeshSet = tIntegrationMesh->get_double_side_set_by_index( aSetList( iSet ) );
-                        break;
-
-                    default:
-                        MORIS_ERROR( false, " Model - unknown fem::element_Type " );
+                case( fem::Element_Type::SIDESET ):
+                {
+                    tMeshSet = tIntegrationMesh->get_side_set_by_index( aSetInfo( iSet ).get_mesh_index() );
+                    break;
                 }
 
-                if ( tMeshSet->get_num_clusters_on_set() !=0 )
+                case( fem::Element_Type::DOUBLE_SIDESET ):
                 {
-                    // create new fem set
-                    mFemSets( tFemSetCounter ) = new fem::Set( tMeshSet,
-                                                               aSetTypeList( iSet ),
-                                                               mIWGs( iSet ),
-                                                               aPropertyUserDefinedInfo( iSet ),
-                                                               aConstitutiveUserDefinedInfo( iSet ),
-                                                               mIPNodes );
-                }
-                else
-                {
-                    mFemSets( tFemSetCounter ) = new fem::Set();
+                    tMeshSet = tIntegrationMesh->get_double_side_set_by_index( aSetInfo( iSet ).get_mesh_index() );
+                    break;
                 }
 
-                // collect equation objects associated with the block-set
-                mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
-
-                // update fem set counter
-                tFemSetCounter++;
-            }
-            mFemClusters.shrink_to_fit();
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-
-                MORIS_LOG_INFO( "Model: created %u FEM elements in %5.3f seconds.\n\n",
-                        ( unsigned int ) mFemClusters.size(),
-                        ( double ) tElapsedTime / 1000 );
+                default :
+                {
+                    MORIS_ERROR( false, " Model - unknown fem::Element_Type " );
+                    break;
+                }
             }
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 3: create Model Solver Interface
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            // start timer
-            tic tTimer3;
-
-            //--------------------------FIXME------------------------------------
-            // This part should not be needed anymore when MTK has all the functionalities
-            Matrix< IdMat > tCommTable;
-            moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
-            moris::uint tMaxNumAdofs;
-
-            if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+            if ( tMeshSet->get_num_clusters_on_set() !=0 )
             {
-//                if ( mBSplineIndex == 0 )
-//                {
-//                    mBSplineIndex  = this->get_lagrange_order_from_mesh();   // FIXME this function is absolutely wrong
-//                }
-
-                // get map from mesh
-                tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
-
-                tCommTable   = tInterpolationMesh->get_communication_table();
-                tIdToIndMap  = mCoefficientsMap;
-                tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mBSplineIndex );
+                // create new fem set
+                mFemSets( tFemSetCounter ) = new fem::Set( tMeshSet,
+                                                           aSetInfo( iSet ),
+                                                           mIPNodes );
             }
             else
             {
-                tCommTable.set_size( 1, 1, 0 );
-                tMaxNumAdofs = 15000000;
-            }
-            //--------------------------END FIXME--------------------------------
-
-            // Construct cell of equation sets (cast from child to base class of entire cell)
-            moris::Cell< MSI::Equation_Set * > tEquationSets(mFemSets.size());
-            for(moris::uint iSet = 0; iSet < mFemSets.size(); iSet++ )
-            {
-                tEquationSets( iSet ) = mFemSets( iSet );
+                // FIXME why do we build empty set?
+                mFemSets( tFemSetCounter ) = new fem::Set();
             }
 
+            // collect equation objects associated with the block-set
+            mFemClusters.append( mFemSets( tFemSetCounter )->get_equation_object_list() );
 
-            mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tEquationSets,
-                                                                            tCommTable,
-                                                                            tIdToIndMap,
-                                                                            tMaxNumAdofs,
-                                                                            tInterpolationMesh );
-
-            if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
-            {
-                mModelSolverInterface->set_param("L2")= (sint)mBSplineIndex;
-                mModelSolverInterface->set_param("TEMP")= (sint)mBSplineIndex;
-            }
-
-            //------------------------------------------------------------------------------
-
-            // finalize the fem sets
-            for( luint Ik = 0; Ik < mFemSets.size(); ++Ik )
-            {
-                // finalize the fem sets
-                mFemSets( Ik )->finalize( mModelSolverInterface );
-            }
-
-            mModelSolverInterface->finalize( mUseMultigrid );
-
-            // calculate AdofMap
-            mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 4: create Solver Interface
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
-
-            if( par_rank() == 0)
-            {
-                // stop timer
-                real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
-
-                // print output
-                MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
-                        ( double ) tElapsedTime / 1000 );
-            }
+            // update fem set counter
+            tFemSetCounter++;
         }
+        mFemClusters.shrink_to_fit();
+
+        if( par_rank() == 0)
+        {
+            // stop timer
+            real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+            // print output
+
+            MORIS_LOG_INFO( "Model: created %u FEM elements in %5.3f seconds.\n\n",
+                    ( unsigned int ) mFemClusters.size(),
+                    ( double ) tElapsedTime / 1000 );
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 3: create Model Solver Interface
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        // start timer
+        tic tTimer3;
+
+        //--------------------------FIXME------------------------------------
+        // This part should not be needed anymore when MTK has all the functionalities
+        Matrix< IdMat > tCommTable;
+        moris::map< moris::moris_id, moris::moris_index > tIdToIndMap;
+        moris::uint tMaxNumAdofs;
+
+        if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+        {
+//                    if ( mBSplineIndex == 0 )
+//                    {
+//                        mBSplineIndex  = this->get_lagrange_order_from_mesh();   // FIXME this function is absolutely wrong
+//                    }
+
+            // get map from mesh
+            tInterpolationMesh->get_adof_map( mBSplineIndex, mCoefficientsMap );
+
+            tCommTable   = tInterpolationMesh->get_communication_table();
+            tIdToIndMap  = mCoefficientsMap;
+            tMaxNumAdofs = tInterpolationMesh->get_num_coeffs( mBSplineIndex );
+        }
+        else
+        {
+            tCommTable.set_size( 1, 1, 0 );
+            tMaxNumAdofs = 15000000;
+        }
+        //--------------------------END FIXME--------------------------------
+
+        // Construct cell of equation sets (cast from child to base class of entire cell)
+        moris::Cell< MSI::Equation_Set * > tEquationSets(mFemSets.size());
+        for(moris::uint iSet = 0; iSet < mFemSets.size(); iSet++ )
+        {
+            tEquationSets( iSet ) = mFemSets( iSet );
+        }
+
+
+        mModelSolverInterface = new moris::MSI::Model_Solver_Interface( tEquationSets,
+                                                                        tCommTable,
+                                                                        tIdToIndMap,
+                                                                        tMaxNumAdofs,
+                                                                        tInterpolationMesh );
+
+        if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+        {
+            mModelSolverInterface->set_param("L2")= (sint)mBSplineIndex;
+            mModelSolverInterface->set_param("TEMP")= (sint)mBSplineIndex;
+        }
+
+        //------------------------------------------------------------------------------
+
+        // finalize the fem sets
+        for( luint Ik = 0; Ik < mFemSets.size(); ++Ik )
+        {
+            // finalize the fem sets
+            mFemSets( Ik )->finalize( mModelSolverInterface );
+        }
+
+        mModelSolverInterface->finalize( mUseMultigrid );
+
+        // calculate AdofMap
+        mAdofMap = mModelSolverInterface->get_dof_manager()->get_adof_ind_map();
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 4: create Solver Interface
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+
+        if( par_rank() == 0)
+        {
+            // stop timer
+            real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+
+            // print output
+            MORIS_LOG_INFO( "Model: created Model-Solver Interface in %5.3f seconds.\n\n",
+                    ( double ) tElapsedTime / 1000 );
+        }
+    }
 
 //------------------------------------------------------------------------------
 

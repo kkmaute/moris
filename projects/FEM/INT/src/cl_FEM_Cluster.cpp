@@ -313,11 +313,6 @@ namespace moris
                  // reshape tCoeffs into the order the cluster expects them
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
-//                 // get number of coefficients for master
-//                 uint tMasterNumCoeff = mSet->get_field_interpolators()( iDOF )->get_number_of_space_time_bases();
-//
-//                 uint tMasterNumFields = mSet->get_field_interpolators()( iDOF )->get_number_of_fields();
-
                  // set the field coefficients
                  mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
              }
@@ -339,14 +334,6 @@ namespace moris
 
                  // reshape tCoeffs into the order the cluster expects them
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
-
-//                 // get total number of coefficients
-//                 uint tNumCoeff = tCoeff.n_rows();
-
-//                 // get number of coefficients for master
-//                 uint tSlaveNumCoeff = mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->get_number_of_space_time_bases();
-//
-//                 uint tSlaveNumFields = mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->get_number_of_fields();
 
                  // set the field coefficients
                  mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff );
@@ -378,12 +365,17 @@ namespace moris
              // set the field interpolators coefficients
              this->set_field_interpolators_coefficients();
 
+             // FIXME should not be like this
+             mSet->set_IWG_field_interpolators();
+             mSet->set_IWG_geometry_interpolators();
+
              // loop over the elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
              {
                  // compute the jacobian for the element
                  mElements( iElem )->compute_jacobian();
              }
+//             print( mSet->mJacobian,"Jacobian");
          }
 
 //------------------------------------------------------------------------------
@@ -410,12 +402,17 @@ namespace moris
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolators();
+            mSet->set_IWG_geometry_interpolators();
+
             // loop over the elements
             for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
                 // compute the residual for the element
                 mElements( iElem )->compute_residual();
             }
+//            print( mSet->mResidual,"Residual");
         }
 
 //------------------------------------------------------------------------------
@@ -444,6 +441,10 @@ namespace moris
 
              // set the field interpolators coefficients
              this->set_field_interpolators_coefficients();
+
+             // FIXME should not be like this
+             mSet->set_IWG_field_interpolators();
+             mSet->set_IWG_geometry_interpolators();
 
              // loop over the elements
              for ( uint iElem = 0; iElem < mElements.size(); iElem++ )

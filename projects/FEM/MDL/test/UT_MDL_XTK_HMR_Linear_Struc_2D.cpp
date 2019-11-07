@@ -52,10 +52,8 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
-
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
+#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -290,197 +288,144 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 //                tIntegMesh11->create_output_mesh(tMeshOutputFile1);
         //-----------------------------------------------------------------------------
 
-        uint tSpatialDimension = 2;
+        //------------------------------------------------------------------------------
+        // create the properties
+        std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
+        tPropEMod1->set_parameters( { {{ 1.0 }} } );
+        tPropEMod1->set_val_function( tConstValFunction );
 
-        // create IWG user defined info
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 7 );
-        tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
-                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                                                                    moris::Cell< fem::Property_Type >( 0 ),
-                                                                    { fem::Constitutive_Type::STRUC_LIN_ISO } );
-        tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
-                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                                                                    moris::Cell< fem::Property_Type >( 0 ),
-                                                                    { fem::Constitutive_Type::STRUC_LIN_ISO } );
-        tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
-                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                                                                    moris::Cell< fem::Property_Type >( 0 ),
-                                                                    { fem::Constitutive_Type::STRUC_LIN_ISO } );
-        tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
-                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                                                                    moris::Cell< fem::Property_Type >( 0 ),
-                                                                    { fem::Constitutive_Type::STRUC_LIN_ISO } );
+        std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
+        tPropEMod2->set_parameters( { {{ 10.0 }} } );
+        tPropEMod2->set_val_function( tConstValFunction );
 
-        tIWGUserDefinedInfo( 4 ).resize( 1 );
-        tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET,
-                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                                                                    { fem::Property_Type::STRUC_DIRICHLET },
-                                                                    { fem::Constitutive_Type::STRUC_LIN_ISO } );
-//        tIWGUserDefinedInfo( 5 ).resize( 1 );
-//        tIWGUserDefinedInfo( 5 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET,
-//                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-//                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-//                                                                    { fem::Property_Type::STRUC_DIRICHLET },
-//                                                                    { fem::Constitutive_Type::STRUC_LIN_ISO } );
-        tIWGUserDefinedInfo( 5 ).resize( 1 );
-        tIWGUserDefinedInfo( 5 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_NEUMANN,
-                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },},
-                                                                    { fem::Property_Type::STRUC_NEUMANN },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
-        tIWGUserDefinedInfo( 6 ).resize( 1 );
-        tIWGUserDefinedInfo( 6 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE,
-                                                                    { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                                                                    Cell< fem::Property_Type >( 0 ),
-                                                                    {fem::Constitutive_Type::STRUC_LIN_ISO },
-                                                                    {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                                                                    Cell< fem::Property_Type >( 0 ),
-                                                                    {fem::Constitutive_Type::STRUC_LIN_ISO } );
+        std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
+        tPropNu->set_parameters( { {{ 0.0 }} } );
+        tPropNu->set_val_function( tConstValFunction );
 
-        // create property user defined info
-        fem::Property_User_Defined_Info tYoungs_Modulus( fem::Property_Type::YOUNGS_MODULUS,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tYoungs_Modulus2( fem::Property_Type::YOUNGS_MODULUS,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 10.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0 }, { 0.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1.0 } , { 0.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
+        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+        tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }} } );
+        tPropDirichlet->set_val_function( tConstValFunction );
 
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 7 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 2 ).resize( 1 );
-        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 3 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 4 ).resize( 1 );
-        tPropertyUserDefinedInfo( 4 )( 0 ).resize( 3 );
-        tPropertyUserDefinedInfo( 4 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 4 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 4 )( 0 )( 2 ) = tStrucDirichlet;
-//        tPropertyUserDefinedInfo( 5 ).resize( 1 );
-//        tPropertyUserDefinedInfo( 5 )( 0 ).resize( 3 );
-//        tPropertyUserDefinedInfo( 5 )( 0 )( 0 ) = tYoungs_Modulus;
-//        tPropertyUserDefinedInfo( 5 )( 0 )( 1 ) = tPoissons_Ratio;
-//        tPropertyUserDefinedInfo( 5 )( 0 )( 2 ) = tStrucDirichlet;
-        tPropertyUserDefinedInfo( 5 ).resize( 1 );
-        tPropertyUserDefinedInfo( 5 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 5 )( 0 )( 0 ) = tStrucNeumann;
-        tPropertyUserDefinedInfo( 6 ).resize( 2 );
-        tPropertyUserDefinedInfo( 6 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 6 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 6 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 6 )( 1 ).resize( 2 );
-        tPropertyUserDefinedInfo( 6 )( 1 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 6 )( 1 )( 1 ) = tPoissons_Ratio;
+        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+        tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }}} );
+        tPropNeumann->set_val_function( tConstValFunction );
 
-        fem::Constitutive_User_Defined_Info tStrucLinIso( fem::Constitutive_Type::STRUC_LIN_ISO,
-                                                          {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY  }},
-                                                          { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
+        // define constitutive models
+        fem::CM_Factory tCMFactory;
 
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 7 );
-        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 4 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 4 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 4 )( 0 )( 0 ) = tStrucLinIso;
-//        tConstitutiveUserDefinedInfo( 5 ).resize( 1 );
-//        tConstitutiveUserDefinedInfo( 5 )( 0 ).resize( 1 );
-//        tConstitutiveUserDefinedInfo( 5 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 5 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 6 ).resize( 2 );
-        tConstitutiveUserDefinedInfo( 6 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 6 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 6 )( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 6 )( 1 )( 0 ) = tStrucLinIso;
+        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+        tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tCMStrucLinIso1->set_properties( { tPropEMod1, tPropNu } );
+        tCMStrucLinIso1->set_space_dim( 2 );
+
+        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+        tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tCMStrucLinIso2->set_properties( { tPropEMod2, tPropNu } );
+        tCMStrucLinIso2->set_space_dim( 2 );
+
+        // define the IWGs
+        fem::IWG_Factory tIWGFactory;
+
+        std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+        tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGBulk1->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGBulk2->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+        tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
+        tIWGInterface->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::SLAVE );
 
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
 
-        // create a list of active block-sets
-//       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
-//                                                tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
-//                                                tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
-//                                                tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
-//                                                tEnrIntegMesh.get_side_set_index("surface_4_n_p0"),
-//                                                tEnrIntegMesh.get_side_set_index("surface_2_n_p1"),
-//                                                tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+        //        // create a list of active block-sets
+        ////       moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("block_1_c_p0"),
+        ////                                                tEnrIntegMesh.get_block_set_index("block_1_n_p0"),
+        ////                                                tEnrIntegMesh.get_block_set_index("block_1_c_p1"),
+        ////                                                tEnrIntegMesh.get_block_set_index("block_1_n_p1"),
+        ////                                                tEnrIntegMesh.get_side_set_index("surface_4_n_p0"),
+        ////                                                tEnrIntegMesh.get_side_set_index("surface_2_n_p1"),
+        ////                                                tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+        //
+        //         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
+        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
+        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
+        //                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
+        //                                                  tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
+        //                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
+        //                                                  tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
 
-         moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-                                                  tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
-                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
-                                                  tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
+        // define set info
+        fem::Set_User_Info tSetBulk1;
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+        tSetBulk1.set_set_type( fem::Element_Type::BULK );
+        tSetBulk1.set_IWGs( { tIWGBulk2 } );
 
-        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::DOUBLE_SIDESET};
+        fem::Set_User_Info tSetBulk2;
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+        tSetBulk2.set_set_type( fem::Element_Type::BULK );
+        tSetBulk2.set_IWGs( { tIWGBulk2 } );
 
-        uint tBSplineMeshIndex = 0;
+        fem::Set_User_Info tSetBulk3;
+        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk3.set_set_type( fem::Element_Type::BULK );
+        tSetBulk3.set_IWGs( { tIWGBulk1 } );
+
+        fem::Set_User_Info tSetBulk4;
+        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk4.set_set_type( fem::Element_Type::BULK );
+        tSetBulk4.set_IWGs( { tIWGBulk1 } );
+
+        fem::Set_User_Info tSetDirichlet;
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+
+        fem::Set_User_Info tSetNeumann;
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+        tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+        fem::Set_User_Info tSetInterface;
+        tSetInterface.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName) );
+        tSetInterface.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+        tSetInterface.set_IWGs( { tIWGInterface } );
+
+        // create a cell of set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+        tSetInfo( 0 ) = tSetBulk1;
+        tSetInfo( 1 ) = tSetBulk2;
+        tSetInfo( 2 ) = tSetBulk3;
+        tSetInfo( 3 ) = tSetBulk4;
+        tSetInfo( 4 ) = tSetDirichlet;
+        tSetInfo( 5 ) = tSetNeumann;
+        tSetInfo( 6 ) = tSetInterface;
+
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                tBSplineMeshIndex,
-                tSetList, tSetTypeList,
-                tIWGUserDefinedInfo,
-                tPropertyUserDefinedInfo,
-                tConstitutiveUserDefinedInfo );
+                                              0,
+                                              tSetInfo,
+                                              0, false );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -639,7 +584,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment(EntityRank::NODE,0);
+        tXTKModel.perform_basis_enrichment( EntityRank::NODE, 0 );
 
         // get meshes
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -649,116 +594,87 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-        uint tSpatialDimension = 2;
+        //------------------------------------------------------------------------------
+        // create the properties
+        std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
+        tPropEMod->set_parameters( { {{ 1000000.0 }} } );
+        tPropEMod->set_val_function( tConstValFunction );
 
-        // create IWG user defined info
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 4 );
-        tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
-                { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                moris::Cell< fem::Property_Type >( 0 ),
-                { fem::Constitutive_Type::STRUC_LIN_ISO } );
-        tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
-                { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                moris::Cell< fem::Property_Type >( 0 ),
-                { fem::Constitutive_Type::STRUC_LIN_ISO } );
+        std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
+        tPropNu->set_parameters( { {{ 0.3 }} } );
+        tPropNu->set_val_function( tConstValFunction );
 
-        tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET,
-                { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},
-                { fem::Property_Type::STRUC_DIRICHLET },
-                { fem::Constitutive_Type::STRUC_LIN_ISO } );
-        tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_NEUMANN,
-                { MSI::Dof_Type::UX, MSI::Dof_Type::UY },
-                {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },},
-                { fem::Property_Type::STRUC_NEUMANN },
-                moris::Cell< fem::Constitutive_Type >( 0 ) );
+        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+        tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }} } );
+        tPropDirichlet->set_val_function( tConstValFunction );
 
-        // create property user defined info
-        fem::Property_User_Defined_Info tYoungs_Modulus( fem::Property_Type::YOUNGS_MODULUS,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1000000.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.3 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0 }, { 0.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1000.0 } , { 100.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
+        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+        tPropNeumann->set_parameters( {{{ 1000.0 } , { 100.0 }}} );
+        tPropNeumann->set_val_function( tConstValFunction );
 
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 4 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 2 ).resize( 1 );
-        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 3 );
-        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 2 ) = tStrucDirichlet;
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tStrucNeumann;
+        // define constitutive models
+        fem::CM_Factory tCMFactory;
 
-        fem::Constitutive_User_Defined_Info tStrucLinIso( fem::Constitutive_Type::STRUC_LIN_ISO,
-                {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY  }},
-                { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
+        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+        tCMStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tCMStrucLinIso->set_properties( { tPropEMod, tPropNu } );
+        tCMStrucLinIso->set_space_dim( 2 );
 
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 4 );
-        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
+        // define the IWGs
+        fem::IWG_Factory tIWGFactory;
+
+        std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+        tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGBulk->set_constitutive_models( { tCMStrucLinIso }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso }, mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
 
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
 
-        // create a list of active block-sets
-        moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-                tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-                tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1"),
-                tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1")};
+        // define set info
+        fem::Set_User_Info tSetBulk1;
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk1.set_set_type( fem::Element_Type::BULK );
+        tSetBulk1.set_IWGs( { tIWGBulk } );
 
-        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-                fem::Element_Type::BULK,
-                fem::Element_Type::SIDESET,
-                fem::Element_Type::SIDESET};
+        fem::Set_User_Info tSetBulk2;
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk2.set_set_type( fem::Element_Type::BULK );
+        tSetBulk2.set_IWGs( { tIWGBulk } );
 
-        uint tBSplineMeshIndex = 0;
+        fem::Set_User_Info tSetDirichlet;
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
+        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+
+        fem::Set_User_Info tSetNeumann;
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+        tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+        // create a cell of set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+        tSetInfo( 0 ) = tSetBulk1;
+        tSetInfo( 1 ) = tSetBulk2;
+        tSetInfo( 2 ) = tSetDirichlet;
+        tSetInfo( 3 ) = tSetNeumann;
+
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                tBSplineMeshIndex,
-                tSetList, tSetTypeList,
-                tIWGUserDefinedInfo,
-                tPropertyUserDefinedInfo,
-                tConstitutiveUserDefinedInfo );
+                                              0,
+                                              tSetInfo,
+                                              0, false );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -1037,253 +953,187 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
       mtk::Mesh_Manager tMeshManager;
       tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-      Cell< fem::IWG_User_Defined_Info > tBulkIWG(1);
-      Cell< fem::IWG_User_Defined_Info > tDBCIWG(1);
-      Cell< fem::IWG_User_Defined_Info > tNBCIWG(1);
-      Cell< fem::IWG_User_Defined_Info > tIntIWG(1);
+      //------------------------------------------------------------------------------
+      // create the properties
+      std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
+      tPropEMod1->set_parameters( { {{ 1.0 }} } );
+      tPropEMod1->set_val_function( tConstValFunction );
 
-        // create IWG user defined info
-      tBulkIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
-                                                  { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
-                                                  {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-                                                  moris::Cell< fem::Property_Type >( 0 ),
-                                                  { fem::Constitutive_Type::STRUC_LIN_ISO } );
+      std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
+      tPropEMod2->set_parameters( { {{ 1.0 }} } );
+      tPropEMod2->set_val_function( tConstValFunction );
 
-      tDBCIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET,
-                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
-                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-                                                 { fem::Property_Type::STRUC_DIRICHLET },
-                                                 { fem::Constitutive_Type::STRUC_LIN_ISO } );
+      std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
+      tPropNu->set_parameters( { {{ 0.0 }} } );
+      tPropNu->set_val_function( tConstValFunction );
 
-      tNBCIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_NEUMANN,
-                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
-                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },},
-                                                 { fem::Property_Type::STRUC_NEUMANN },
-                                                 moris::Cell< fem::Constitutive_Type >( 0 ) );
-      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE,
-                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
-                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-                                                 Cell< fem::Property_Type >( 0 ),
-                                                 {fem::Constitutive_Type::STRUC_LIN_ISO },
-                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-                                                 Cell< fem::Property_Type >( 0 ),
-                                                 {fem::Constitutive_Type::STRUC_LIN_ISO } );
+      std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+      tPropDirichlet->set_parameters( { {{0.0}, {0.0}, {0.0}} } );
+      tPropDirichlet->set_val_function( tConstValFunction );
 
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
+      std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+      tPropNeumann->set_parameters( { {{1.0}, {0.0}, {0.0}} } );
+      tPropNeumann->set_val_function( tConstValFunction );
 
-        tIWGUserDefinedInfo( 0 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 1 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 2 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 3 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 4 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 5 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 6 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 7 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 8 )  = tDBCIWG;
-        tIWGUserDefinedInfo( 9 )  = tNBCIWG;
-        tIWGUserDefinedInfo( 10 ) = tIntIWG;
-        tIWGUserDefinedInfo( 11 ) = tIntIWG;
-        tIWGUserDefinedInfo( 12 ) = tIntIWG;
-        tIWGUserDefinedInfo( 13 ) = tIntIWG;
+      // define constitutive models
+      fem::CM_Factory tCMFactory;
 
-        // create property user defined info
-        fem::Property_User_Defined_Info tYoungs_Modulus( fem::Property_Type::YOUNGS_MODULUS,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tYoungs_Modulus2( fem::Property_Type::YOUNGS_MODULUS,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 1.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0 }}},
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                { {{0.0}, {0.0}, {0.0}} },
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tStrucNeumann( fem::Property_Type::STRUC_NEUMANN,
-                Cell< Cell< MSI::Dof_Type > >( 0 ),
-                { {{1.0}, {0.0}, {0.0}} },
-                tConstValFunction,
-                Cell< fem::PropertyFunc >( 0 ) );
+      std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+      tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+      tCMStrucLinIso1->set_properties( { tPropEMod1, tPropNu } );
+      tCMStrucLinIso1->set_space_dim( 3 );
 
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 2 ).resize( 1 );
-        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 3 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 4 ).resize( 1 );
-        tPropertyUserDefinedInfo( 4 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 4 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 4 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 5 ).resize( 1 );
-        tPropertyUserDefinedInfo( 5 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 5 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 5 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 6 ).resize( 1 );
-        tPropertyUserDefinedInfo( 6 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 6 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 6 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 7 ).resize( 1 );
-        tPropertyUserDefinedInfo( 7 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 7 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 7 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 8 ).resize( 1 );
-        tPropertyUserDefinedInfo( 8 )( 0 ).resize( 3 );
-        tPropertyUserDefinedInfo( 8 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 8 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 8 )( 0 )( 2 ) = tStrucDirichlet;
-        tPropertyUserDefinedInfo( 9 ).resize( 1 );
-        tPropertyUserDefinedInfo( 9 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 9 )( 0 )( 0 ) = tStrucNeumann;
-        tPropertyUserDefinedInfo( 10 ).resize( 2 );
-        tPropertyUserDefinedInfo( 10 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 10 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 10 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 10 )( 1 ).resize( 2 );
-        tPropertyUserDefinedInfo( 10 )( 1 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 10 )( 1 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 11 ).resize( 2 );
-        tPropertyUserDefinedInfo( 11 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 11 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 11 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 11 )( 1 ).resize( 2 );
-        tPropertyUserDefinedInfo( 11 )( 1 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 11 )( 1 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 12 ).resize( 2 );
-        tPropertyUserDefinedInfo( 12 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 12 )( 0 )( 0 ) = tYoungs_Modulus2;
-        tPropertyUserDefinedInfo( 12 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 12 )( 1 ).resize( 2 );
-        tPropertyUserDefinedInfo( 12 )( 1 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 12 )( 1 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 13 ).resize( 2 );
-        tPropertyUserDefinedInfo( 13 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 13 )( 0 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 13 )( 0 )( 1 ) = tPoissons_Ratio;
-        tPropertyUserDefinedInfo( 13 )( 1 ).resize( 2 );
-        tPropertyUserDefinedInfo( 13 )( 1 )( 0 ) = tYoungs_Modulus;
-        tPropertyUserDefinedInfo( 13 )( 1 )( 1 ) = tPoissons_Ratio;
+      std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+      tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+      tCMStrucLinIso2->set_properties( { tPropEMod2, tPropNu } );
+      tCMStrucLinIso2->set_space_dim( 3 );
 
-        fem::Constitutive_User_Defined_Info tStrucLinIso( fem::Constitutive_Type::STRUC_LIN_ISO,
-                                                          {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-                                                          { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
+      // define the IWGs
+      fem::IWG_Factory tIWGFactory;
 
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
-        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 4 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 4 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 4 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 5 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 5 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 5 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 6 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 6 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 6 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 7 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 7 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 7 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 8 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 8 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 8 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 9 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 10 ).resize( 2 );
-        tConstitutiveUserDefinedInfo( 10 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 10 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 10 )( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 10 )( 1 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 11 ).resize( 2 );
-        tConstitutiveUserDefinedInfo( 11 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 11 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 11 )( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 11 )( 1 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 12 ).resize( 2 );
-        tConstitutiveUserDefinedInfo( 12 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 12 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 12 )( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 12 )( 1 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 13 ).resize( 2 );
-        tConstitutiveUserDefinedInfo( 13 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 13 )( 0 )( 0 ) = tStrucLinIso;
-        tConstitutiveUserDefinedInfo( 13 )( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 13 )( 1 )( 0 ) = tStrucLinIso;
+      std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+      tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+      tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGBulk1->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
 
-        // create a list of active block-sets
-        // create a list of active block-sets
-        std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
-        std::string tDblInterfaceSideSetName02 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,2);
-        std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
-        std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
+      std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
+      tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+      tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGBulk2->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
 
-        moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p2"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p2"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p3"),
-                                                 tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p3"),
-                                                 tEnrIntegMesh.get_side_set_index("SideSet_4_n_p2"),
-                                                 tEnrIntegMesh.get_side_set_index("SideSet_2_n_p3"),
-                                                 tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01),
-                                                 tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02),
-                                                 tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName13),
-                                                 tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName23)};
+      std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
+      tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+      tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
+      tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
-        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::DOUBLE_SIDESET,
-                                                          fem::Element_Type::DOUBLE_SIDESET,
-                                                          fem::Element_Type::DOUBLE_SIDESET,
-                                                          fem::Element_Type::DOUBLE_SIDESET };
+      std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+      tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+      tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
 
-        uint tBSplineMeshIndex = 0;
-        // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                tBSplineMeshIndex,
-                tSetList, tSetTypeList,
-                tIWGUserDefinedInfo,
-                tPropertyUserDefinedInfo,
-                tConstitutiveUserDefinedInfo );
+      std::shared_ptr< fem::IWG > tIWGInterface1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+      tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+      tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
+      tIWGInterface1->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
+      tIWGInterface1->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+      tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+      tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
+      tIWGInterface2->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
+      tIWGInterface2->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::IWG > tIWGInterface3 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+      tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+      tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
+      tIWGInterface3->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
+      tIWGInterface3->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::SLAVE );
+
+      // create a list of active block-sets
+      std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
+      std::string tDblInterfaceSideSetName02 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,2);
+      std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
+      std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
+
+      std::cout<<"tDblInterfaceSideSetName01 = "<<tDblInterfaceSideSetName01<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01)<<std::endl;
+      std::cout<<"tDblInterfaceSideSetName02 = "<<tDblInterfaceSideSetName02<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02)<<std::endl;
+
+      // define set info
+      fem::Set_User_Info tSetBulk1;
+      tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+      tSetBulk1.set_set_type( fem::Element_Type::BULK );
+      tSetBulk1.set_IWGs( { tIWGBulk2 } );
+
+      fem::Set_User_Info tSetBulk2;
+      tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+      tSetBulk2.set_set_type( fem::Element_Type::BULK );
+      tSetBulk2.set_IWGs( { tIWGBulk2 } );
+
+      fem::Set_User_Info tSetBulk3;
+      tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+      tSetBulk3.set_set_type( fem::Element_Type::BULK );
+      tSetBulk3.set_IWGs( { tIWGBulk2 } );
+
+      fem::Set_User_Info tSetBulk4;
+      tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+      tSetBulk4.set_set_type( fem::Element_Type::BULK );
+      tSetBulk4.set_IWGs( { tIWGBulk2 } );
+
+      fem::Set_User_Info tSetBulk5;
+      tSetBulk5.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p2") );
+      tSetBulk5.set_set_type( fem::Element_Type::BULK );
+      tSetBulk5.set_IWGs( { tIWGBulk1 } );
+
+      fem::Set_User_Info tSetBulk6;
+      tSetBulk6.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p2") );
+      tSetBulk6.set_set_type( fem::Element_Type::BULK );
+      tSetBulk6.set_IWGs( { tIWGBulk1 } );
+
+      fem::Set_User_Info tSetBulk7;
+      tSetBulk7.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p3") );
+      tSetBulk7.set_set_type( fem::Element_Type::BULK );
+      tSetBulk7.set_IWGs( { tIWGBulk1 } );
+
+      fem::Set_User_Info tSetBulk8;
+      tSetBulk8.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p3") );
+      tSetBulk8.set_set_type( fem::Element_Type::BULK );
+      tSetBulk8.set_IWGs( { tIWGBulk1 } );
+
+      fem::Set_User_Info tSetDirichlet;
+      tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p2") );
+      tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+      tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+
+      fem::Set_User_Info tSetNeumann;
+      tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p3") );
+      tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+      tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+      fem::Set_User_Info tSetInterface1;
+      tSetInterface1.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01) );
+      tSetInterface1.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+      tSetInterface1.set_IWGs( { tIWGInterface1 } );
+
+      fem::Set_User_Info tSetInterface2;
+      tSetInterface2.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02) );
+      tSetInterface2.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+      tSetInterface2.set_IWGs( { tIWGInterface2 } );
+
+      fem::Set_User_Info tSetInterface3;
+      tSetInterface3.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName13) );
+      tSetInterface3.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+      tSetInterface3.set_IWGs( { tIWGInterface2 } );
+
+      fem::Set_User_Info tSetInterface4;
+      tSetInterface4.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName23) );
+      tSetInterface4.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+      tSetInterface4.set_IWGs( { tIWGInterface3 } );
+
+      // create a cell of set info
+      moris::Cell< fem::Set_User_Info > tSetInfo( 14 );
+      tSetInfo( 0 ) = tSetBulk1;
+      tSetInfo( 1 ) = tSetBulk2;
+      tSetInfo( 2 ) = tSetBulk3;
+      tSetInfo( 3 ) = tSetBulk4;
+      tSetInfo( 4 ) = tSetBulk5;
+      tSetInfo( 5 ) = tSetBulk6;
+      tSetInfo( 6 ) = tSetBulk7;
+      tSetInfo( 7 ) = tSetBulk8;
+      tSetInfo( 8 ) = tSetDirichlet;
+      tSetInfo( 9 ) = tSetNeumann;
+      tSetInfo( 10 ) = tSetInterface1;
+      tSetInfo( 11 ) = tSetInterface2;
+      tSetInfo( 12 ) = tSetInterface3;
+      tSetInfo( 13 ) = tSetInterface4;
+
+      // create model
+      mdl::Model * tModel = new mdl::Model( &tMeshManager,
+                                             0,
+                                             tSetInfo );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm

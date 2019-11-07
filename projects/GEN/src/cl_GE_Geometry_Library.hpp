@@ -895,8 +895,8 @@ auto gyroidSrf =
 real getDistanceToGyroidsMassive( const moris::Matrix< moris::DDRMat > & aPoint )
 {
 //real scale = 1.0/2.0/M_PI; // scale of the gyroid period
-    real scale = 1;
-real thickness = 0.75; // thickness of the gyroids
+    real scale = 0.5;
+real thickness = 1.51; // thickness of the gyroids
 auto gyroidSrf =
     sin(aPoint(0) / scale) * cos(aPoint(1) / scale) +
     sin(aPoint(1) / scale) * cos(aPoint(2) / scale) +
@@ -905,9 +905,9 @@ auto gyroidSrf =
 
 auto gyroid = shell_tor(gyroidSrf, -thickness);
 
-  moris::Matrix<DDRMat> ttTemp(1,3, 0.0);
+  moris::Matrix<DDRMat> ttTemp(1,3, 2.5);
 
-  auto sphere1 = sphere_tor(aPoint, 5, ttTemp);
+  auto sphere1 = sphere_tor(aPoint, 2, ttTemp);
 
   return CSGIntersectionRound(gyroid, sphere1, 0.75);
 

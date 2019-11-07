@@ -44,7 +44,7 @@ namespace moris
         /**
          * create IWGs
          */
-        IWG * create_IWGs( IWG_Type aIWGType );
+        std::shared_ptr< IWG > create_IWG( IWG_Type aIWGType );
 
     };
 

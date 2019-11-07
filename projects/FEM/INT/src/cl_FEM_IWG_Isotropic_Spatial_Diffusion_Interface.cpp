@@ -31,20 +31,19 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set residual cell size
             this->set_residual_double( aResidual );
 
-            std::cout<<"for Master"<<std::endl;
             Matrix< DDRMat > tTraction1 = mMasterCM( 0 )->traction( mNormal );
-            std::cout<<"for Slave"<<std::endl;
+
             Matrix< DDRMat > tTraction2 = mSlaveCM( 0 )->traction( mNormal );
 
             // evaluate average traction
@@ -52,6 +51,8 @@ namespace moris
 
             // evaluate temperature jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
+
+//            print(mMasterCM( 0 )->traction( mNormal ),"mMasterCM( 0 )->traction( mNormal )");
 
             // compute master residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tTraction
@@ -73,13 +74,13 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );

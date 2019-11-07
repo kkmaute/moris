@@ -40,6 +40,9 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
+
 #include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
@@ -193,191 +196,132 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-        // create IWG user defined info
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 7 );
-        tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    {fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    {fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    {fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    {fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 4 ).resize( 1 );
-        tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_DIRICHLET },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 5 ).resize( 1 );
-        tIWGUserDefinedInfo( 5 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_NEUMANN },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+        //------------------------------------------------------------------------------
+        // create the properties
+        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
+        tPropConductivity1->set_parameters( { {{ 1.0 }} } );
+        tPropConductivity1->set_val_function( tConstValFunction2MatMDL );
 
-        tIWGUserDefinedInfo( 6 ).resize( 1 );
-        tIWGUserDefinedInfo( 6 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_INTERFACE,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
-                                                                    {fem::Constitutive_Type::DIFF_LIN_ISO },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    Cell< fem::Property_Type >( 0 ),
-                                                                    {fem::Constitutive_Type::DIFF_LIN_ISO } );
+        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
+        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
+        tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
 
-        // create the property user defined infos
-        fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
-                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 1.0 }}},
-                                                       tConstValFunction2MatMDL,
-                                                       Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tConductivity2( fem::Property_Type::CONDUCTIVITY,
-                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 5.0 }}},
-                                                       tConstValFunction2MatMDL,
-                                                       Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
-                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                        {{{ 5.0 }}},
-                                                        tConstValFunction2MatMDL,
-                                                        Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempNeumann( fem::Property_Type::TEMP_NEUMANN,
-                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                      {{{ 20.0 }}},
-                                                      tConstValFunction2MatMDL,
-                                                      Cell< fem::PropertyFunc >( 0 ) );
+        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+        tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+        tPropDirichlet->set_val_function( tConstValFunction2MatMDL );
 
-        fem::Property_User_Defined_Info tTempLoad1( fem::Property_Type::TEMP_LOAD,
-                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                              {{{ 100.0 }}},
-                                                              tConstValFunction2MatMDL,
-                                                              Cell< fem::PropertyFunc >( 0 ) );
+        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+        tPropNeumann->set_parameters( { {{ 20.0 }} } );
+        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
 
-        fem::Property_User_Defined_Info tTempLoad2( fem::Property_Type::TEMP_LOAD,
-                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                      {{{ 100.0 }}},
-                                                      tConstValFunction2MatMDL,
-                                                      Cell< fem::PropertyFunc >( 0 ) );
+        std::shared_ptr< fem::Property > tPropTempLoad1 = std::make_shared< fem::Property >();
+        tPropTempLoad1->set_parameters( { {{ 100.0 }} } );
+        tPropTempLoad1->set_val_function( tConstValFunction2MatMDL );
 
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 7 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad1;
+        std::shared_ptr< fem::Property > tPropTempLoad2 = std::make_shared< fem::Property >();
+        tPropTempLoad2->set_parameters( { {{ 100.0 }} } );
+        tPropTempLoad2->set_val_function( tConstValFunction2MatMDL );
 
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tTempLoad1;
+        // define constitutive models
+        fem::CM_Factory tCMFactory;
 
-        tPropertyUserDefinedInfo( 2 ).resize( 1 );
-        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity2;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tTempLoad2;
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso1->set_properties( { tPropConductivity1 } );
+        tCMDiffLinIso1->set_space_dim( 2 );
 
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tConductivity2;
-        tPropertyUserDefinedInfo( 3 )( 0 )( 1 ) = tTempLoad2;
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso2->set_properties( { tPropConductivity2 } );
+        tCMDiffLinIso2->set_space_dim( 2 );
 
-        tPropertyUserDefinedInfo( 4 ).resize( 1 );
-        tPropertyUserDefinedInfo( 4 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 4 )( 0 )( 0 ) = tConductivity2;
-        tPropertyUserDefinedInfo( 4 )( 0 )( 1 ) = tTempDirichlet;
+        // define the IWGs
+        fem::IWG_Factory tIWGFactory;
 
-        tPropertyUserDefinedInfo( 5 ).resize( 1 );
-        tPropertyUserDefinedInfo( 5 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 5 )( 0 )( 0 ) = tTempNeumann;
+        std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulk1->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
+        tIWGBulk1->set_properties( { tPropTempLoad1 }, mtk::Master_Slave::MASTER );
 
-        tPropertyUserDefinedInfo( 6 ).resize( 2 );
-        tPropertyUserDefinedInfo( 6 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 6 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 6 )( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 6 )( 1 )( 0 ) = tConductivity2;
+        std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulk2->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
+        tIWGBulk2->set_properties( { tPropTempLoad2 }, mtk::Master_Slave::MASTER );
 
-        // create constitutive user defined info
-        fem::Constitutive_User_Defined_Info tDiffLinIso( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                         {{ MSI::Dof_Type::TEMP }},
-                                                         { fem::Property_Type::CONDUCTIVITY } );
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 7 );
-        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tDiffLinIso;
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
-        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tDiffLinIso;
+        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
 
-        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tDiffLinIso;
+        std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+        tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
+        tIWGInterface->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::SLAVE );
 
-        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 )( 0 ) = tDiffLinIso;
-
-
-        tConstitutiveUserDefinedInfo( 4 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 4 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 4 )( 0 )( 0 ) = tDiffLinIso;
-
-        tConstitutiveUserDefinedInfo( 5 ).resize( 1 );
-
-        tConstitutiveUserDefinedInfo( 6 ).resize( 2 );
-        tConstitutiveUserDefinedInfo( 6 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 6 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 6 )( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 6 )( 1 )( 0 ) = tDiffLinIso;
-
-        // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
         std::string tDblInterfaceSideSetName = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
-        moris::Cell< moris_index >  tSetList = {  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1"),
-                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1"),
-                                                  tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1"),
-                                                  tEnrIntegMesh.get_side_set_index("SideSet_4_n_p0"),
-                                                  tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName)};
 
-        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::DOUBLE_SIDESET};
+        // define set info
+        fem::Set_User_Info tSetBulk1;
+        tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+        tSetBulk1.set_set_type( fem::Element_Type::BULK );
+        tSetBulk1.set_IWGs( { tIWGBulk1 } );
 
+        fem::Set_User_Info tSetBulk2;
+        tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+        tSetBulk2.set_set_type( fem::Element_Type::BULK );
+        tSetBulk2.set_IWGs( { tIWGBulk1 } );
+
+        fem::Set_User_Info tSetBulk3;
+        tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+        tSetBulk3.set_set_type( fem::Element_Type::BULK );
+        tSetBulk3.set_IWGs( { tIWGBulk2 } );
+
+        fem::Set_User_Info tSetBulk4;
+        tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+        tSetBulk4.set_set_type( fem::Element_Type::BULK );
+        tSetBulk4.set_IWGs( { tIWGBulk2 } );
+
+        fem::Set_User_Info tSetDirichlet;
+        tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+
+        fem::Set_User_Info tSetNeumann;
+        tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p0") );
+        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+        tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+        fem::Set_User_Info tSetInterface;
+        tSetInterface.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName) );
+        tSetInterface.set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+        tSetInterface.set_IWGs( { tIWGInterface } );
+
+        // create a cell of set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+        tSetInfo( 0 ) = tSetBulk1;
+        tSetInfo( 1 ) = tSetBulk2;
+        tSetInfo( 2 ) = tSetBulk3;
+        tSetInfo( 3 ) = tSetBulk4;
+        tSetInfo( 4 ) = tSetDirichlet;
+        tSetInfo( 5 ) = tSetNeumann;
+        tSetInfo( 6 ) = tSetInterface;
 
         // create model
         mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                              tBSplineMeshIndex,
-                                              tSetList,
-                                              tSetTypeList,
-                                              tIWGUserDefinedInfo,
-                                              tPropertyUserDefinedInfo,
-                                              tConstitutiveUserDefinedInfo,
-                                              0,
-                                              false);
+                                               1,
+                                               tSetInfo,
+                                               0, false );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 

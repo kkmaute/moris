@@ -198,6 +198,14 @@ class Property;
                  return mNFieldCoeff;
              }
 //------------------------------------------------------------------------------
+             /**
+              * get space interpolation order
+              */
+             mtk::Interpolation_Order get_space_interpolation_order()
+             {
+                 return mSpaceInterpolation->get_interpolation_order();
+             }
+//------------------------------------------------------------------------------
             /**
              * set the parametric point where field is interpolated
              * @param[ in ] aParamPoint evaluation point in space and time

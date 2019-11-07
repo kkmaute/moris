@@ -136,7 +136,7 @@ namespace moris
                    const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
                    const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
                    const moris_index                                                                        aMeshPairIndex = 0,
-                   const bool                                                                               aUseMultigrid = false );
+                   const bool                                                                               aUseMultigrid = false  );
 
 //------------------------------------------------------------------------------
             /**
@@ -153,7 +153,6 @@ namespace moris
             {
                 return mSolHMR;
             };
-
 
 //------------------------------------------------------------------------------
             /**
@@ -242,7 +241,7 @@ namespace moris
            bool dof_type_is_in_list( enum MSI::Dof_Type                  aDofTypeToFind,
                                      moris::Cell< enum MSI::Dof_Type > & aDofList );
 
-
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace mdl */

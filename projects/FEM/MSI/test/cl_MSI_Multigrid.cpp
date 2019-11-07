@@ -32,6 +32,7 @@
 #include "cl_HMR_Field.hpp"
 
 #include "cl_FEM_Node_Base.hpp"
+#include "cl_FEM_IWG_Factory.hpp"
 #include "../../INT/src/cl_FEM_Element_Bulk.hpp"
 
 #include "cl_MTK_Mapper.hpp"
@@ -140,22 +141,17 @@ namespace moris
               //tHMR.save_mesh_relations_to_hdf5_file( "Mesh_Dependencies_matlab.hdf5" );
 
              //-------------------------------------------------------------------------------------------
+             // create a L2 IWG
+             fem::IWG_Factory tIWGFactory;
+             std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
+             tIWGL2->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+             tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Master_Slave::MASTER );
 
-             // create IWG object
-             Cell< fem::IWG* > tIWGs ( 1, nullptr );
-             tIWGs( 0 ) = new moris::fem::IWG_L2( );
-
-             // set residual dof type
-             tIWGs( 0 )->set_residual_dof_type( { MSI::Dof_Type::L2 } );
-
-             // set active dof types
-             tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
-
-             // create property info
-             moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
-
-             // create constitutive info
-             moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
+             // define set info
+              moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+              tSetInfo( 0 ).set_mesh_index( 0 );
+              tSetInfo( 0 ).set_set_type( fem::Element_Type::BULK );
+              tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
              map< moris_id, moris_index >   tCoefficientsMap;
              Cell< fem::Node_Base* >        tNodes;
@@ -193,12 +189,9 @@ namespace moris
                  moris::mtk::Set * tBlockSet = tIntegrationMesh->get_block_by_index( 0 );
 
                  // create new fem set
-                 tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
-                                                                  fem::Element_Type::BULK,
-                                                                  tIWGs,
-                                                                  tPropertyUserDefinedInfo,
-                                                                  tConstitutiveUserDefinedInfo,
-                                                                  tNodes );
+                 tElementBlocks( Ik ) = new fem::Set( tBlockSet,
+                                                      tSetInfo( Ik ),
+                                                      tNodes );
 
                  // collect equation objects associated with the block-set
                  tElements.append( tElementBlocks( tFemSetCounter )->get_equation_object_list() );
@@ -245,7 +238,7 @@ namespace moris
              CHECK( equal_to( tInternalIndices( 8, 0 ), 8 ) );
 
              delete tMSI;
-             delete tIWGs( 0 );
+             //delete tIWGs( 0 );
 
              for( luint k = 0; k < tNumberOfNodes; ++k )
              {

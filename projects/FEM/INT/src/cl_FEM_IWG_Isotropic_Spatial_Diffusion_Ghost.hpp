@@ -71,7 +71,6 @@ namespace moris
             void compute_jacobian_and_residual( moris::Cell< Cell< Matrix< DDRMat > > > & aJacobians,
                                                 moris::Cell< Matrix< DDRMat > >         & aResidual );
 
-
 //------------------------------------------------------------------------------
             /**
              * method to assemble "normal matrix" from normal vector needed for
@@ -79,13 +78,6 @@ namespace moris
              * @param[ in ] aOrderGhost Order of derivatives and ghost formulation
              */
             Matrix< DDRMat > get_normal_matrix ( uint aOrderGhost );
-
-//------------------------------------------------------------------------------
-            /**
-             * method to feed order of interpolation functions to the Ghost element
-             * @param[ in ] aOrder Order of interpolation functions used on Ghost element
-             */
-            void set_interpolation_order ( uint aOrder );
 
 //------------------------------------------------------------------------------
         };

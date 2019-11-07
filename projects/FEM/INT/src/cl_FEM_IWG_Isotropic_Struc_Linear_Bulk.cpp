@@ -15,8 +15,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
@@ -25,7 +25,8 @@ namespace moris
             aResidual( 0 ).matrix_data() += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->flux();
 
             // if body load
-            if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+            if ( mMasterProp.size() > 0 )
+            //if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
             {
                 aResidual( 0 ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val()( 0 );
             }
@@ -37,8 +38,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
@@ -53,8 +54,9 @@ namespace moris
                 // get the treated dof type
                 Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
 
-                // if we have a body load
-                if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+                // if we have a body load FIXME
+                if ( mMasterProp.size() > 0 )
+                //if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
                 {
                     // if property has dependency on the dof type
                     if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )

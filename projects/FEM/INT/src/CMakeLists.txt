@@ -98,7 +98,10 @@ set(HEADERS
     cl_FEM_Constitutive_User_Defined_Info.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
     cl_FEM_Opt_IWG.hpp
-    cl_FEM_Penalty_Parameter.hpp
+    cl_FEM_Stabilization_Parameter.hpp
+    cl_FEM_Penalty_User_Defined_Info.hpp
+    cl_FEM_SP_Dirichlet_Nitsche.hpp
+    cl_FEM_Set_User_Info.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -142,9 +145,10 @@ set(LIB_SOURCES
     cl_FEM_Integrator.cpp
     cl_FEM_Integrator_Test_Polynomial.cpp
     cl_FEM_Property.cpp
+    cl_FEM_CM_Factory.cpp
     cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     cl_FEM_CM_Struc_Linear_Isotropic.cpp
-    cl_FEM_CM_Factory.cpp
+    cl_FEM_SP_Dirichlet_Nitsche.cpp
     )
 
 # List library dependencies

@@ -31,13 +31,13 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set residual cell size
             this->set_residual_double( aResidual );
@@ -68,13 +68,13 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );

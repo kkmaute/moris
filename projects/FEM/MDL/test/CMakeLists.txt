@@ -14,6 +14,8 @@ set(TEST_SOURCES
     UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
     UT_MDL_XTK_HMR_2_Material_Bar_Plane.cpp
     UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
+    UT_MDL_Input.cpp
+    #UT_MDL_Gyroid.cpp
 
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
