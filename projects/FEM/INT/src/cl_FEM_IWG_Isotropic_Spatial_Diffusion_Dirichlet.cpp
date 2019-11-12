@@ -32,6 +32,9 @@ namespace moris
             // compute jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
 
+//            print( mMasterFI( 0 )->N(),"mMasterCM( 0 )->traction( mNormal )");
+//            print( mMasterFI( 0 )->get_space(),"mMasterCM( 0 )->traction( mNormal )");
+
             // compute the residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal )
                              + mMasterCM( 0 )->testTraction( mNormal ) * tJump
@@ -79,7 +82,7 @@ namespace moris
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
                     += - trans( mMasterFI( 0 )->N() ) * trans( mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
-                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 );
                 }
             }
         }
@@ -134,7 +137,7 @@ namespace moris
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
                     += - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
-                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ;
+                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 ) ;
                 }
             }
         }

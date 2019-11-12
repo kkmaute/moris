@@ -24,20 +24,22 @@ namespace moris
         class Dof_Manager
         {
         private:
-            moris::Cell < Pdof_Host * >  mPdofHostList;  // List of all pdof hosts
-            moris::Cell < Adof * >       mAdofList;      // List of all adofs
-            moris::Cell < Adof * >       mAdofListOwned; // List of all owned adofs
+            moris::Cell < Pdof_Host * >          mPdofHostList;  // List of all pdof hosts
+            moris::Cell < Adof * >               mAdofList;      // List of all adofs
+            moris::Cell<moris::Cell < Adof * > > mAdofListOwned; // List of all owned adofs
             //moris::Cell < Adof * >       mAdofListShared;
 
             moris::Cell< enum Dof_Type >   mPdofTypeList;          // List containing all used unique dof types.
             Matrix< DDSMat >               mPdofTypeMap;           // Map which maps the unique dof types onto consecutive values.
 
             Matrix< DDUMat >               mPdofHostTimeLevelList; // List containing the number of time levels per dof type.
+            Matrix< DDUMat >               mTimeLevelOffsets;      // Type offsets  created through time levels
             Matrix< IdMat >                mCommTable;             // Communication table. As and input from the model.
             Model_Solver_Interface       * mModelSolverInterface;  // Model solver interface pointer
 
             const moris::map< moris::moris_id, moris::moris_index >  * mAdofGlobaltoLocalMap = nullptr;
             moris::sint mNumMaxAdofs = -1;
+            moris::uint mNumOwnedAdofs = 0;
 
             Matrix< DDSMat > mTypeTimeIndentifierToTypeMap;
 
@@ -233,7 +235,10 @@ namespace moris
              *@param[out] Number of adofs
              *
              */
-            moris::uint get_num_adofs() { return mAdofListOwned.size(); };
+            moris::uint get_num_owned_adofs()
+            {
+                return mNumOwnedAdofs;
+            };
 
 //-----------------------------------------------------------------------------------------------------------
 
@@ -256,7 +261,10 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-            moris::Cell < Adof * > get_owned_adofs() { return mAdofListOwned; };
+            Cell< moris::Cell < Adof * > > get_owned_adofs()
+            {
+                return mAdofListOwned;
+            };
 
 //-----------------------------------------------------------------------------------------------------------
             Matrix< DDSMat > get_local_adof_ids();

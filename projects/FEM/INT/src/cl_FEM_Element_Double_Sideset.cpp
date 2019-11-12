@@ -315,6 +315,9 @@ namespace moris
                                          { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
                                        += tWStar * tJacobians( 1 )( iIWGFI );
 
+                        mSet->mJacobians( iIWG )( iIWGFI )            .matrix_data() += tWStar * tJacobians( 0 )( iIWGFI );
+                        mSet->mJacobians( iIWG + tNumIWGs  )( iIWGFI ).matrix_data() += tWStar * tJacobians( 1 )( iIWGFI );
+
 //                        print( tJacobians( 0 )( iIWGFI ), " mJacobian " );
 //                        print( tJacobians( 1 )( iIWGFI ), " mJacobian " );
                     }

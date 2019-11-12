@@ -25,7 +25,7 @@ namespace moris
             aResidual( 0 ).matrix_data() += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->flux();
 
             // if body load
-            if ( mMasterPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+            if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
             {
                 aResidual( 0 ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val()( 0 );
             }
@@ -54,7 +54,7 @@ namespace moris
                 Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
 
                 // if we have a body load
-                if ( mMasterPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+                if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
                 {
                     // if property has dependency on the dof type
                     if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )

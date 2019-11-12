@@ -21,6 +21,8 @@
 #include "cl_Communication_Tools.hpp" //COM/src
 #include "cl_Communication_Manager.hpp" //COM/src
 
+#include "fn_equal_to.hpp" //COM/src
+
 #include "typedefs.hpp" //COR/src
 #include "cl_Cell.hpp" //CON/src
 
@@ -818,6 +820,93 @@ namespace moris
             }
 
 //--------------------------------------------------------------------------------
+
+            void get_element_in_bounding_box_memory_index( const uint                     & aPattern,
+                                                           const moris::Matrix< DDRMat >  & aPoint,
+                                                           const moris::Matrix< DDRMat >  & aBoundingBoxSize,
+                                                                 moris::Matrix< DDLUMat > & aElementMemoryIndex )
+            {
+                MORIS_ASSERT( par_size() == 1, "get_element_in_bounding_box_memory_index(), not tested in parallel");
+                uint tLevel = 0;
+//                for( uint Ik = 0; Ik < gMaxNumberOfLevels; Ik++ )
+//                {
+//                    if( equal_to( aBackgroundElementedgeLength( 0, 0 ), mElementLength[ Ik ][ 0 ] ) )
+//                    {
+//                        break;
+//                    }
+//
+//                    tLevel += 1;
+//                }
+
+                // get domain offset
+                Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+
+                luint tIJK[ N ];
+                luint tBoundingBoxSizeIJK[ N ];
+                luint tBoundingBoxStartEndIJK[ N ][ 2 ];
+                for( uint Ik=0; Ik<N; ++Ik )
+                {
+                    tIJK[ Ik ] = std::floor( ( aPoint( Ik ) - mDomainOffset[ Ik ] ) / mElementLength[ tLevel ][ Ik ] );
+
+                    tBoundingBoxSizeIJK[ Ik ] = std::ceil( aBoundingBoxSize( Ik ) / mElementLength[ tLevel ][ Ik ] );
+
+                    sint tStart = tIJK[ Ik ] - tBoundingBoxSizeIJK[ Ik ];
+                    if( tStart >= (sint)mDomain.mDomainIJK[ tLevel ][ Ik ][ 0 ] )
+                    {
+                        tBoundingBoxStartEndIJK[ Ik ][ 0 ] = tStart;
+                    }
+                    else
+                    {
+                        tBoundingBoxStartEndIJK[ Ik ][ 0 ] = mDomain.mDomainIJK[ tLevel ][ Ik ][ 0 ];
+                    }
+
+                    sint tEnd = tIJK[ Ik ] + tBoundingBoxSizeIJK[ Ik ];
+                    if( tEnd <= (sint)mDomain.mDomainIJK[ tLevel ][ Ik ][ 1 ] )
+                    {
+                        tBoundingBoxStartEndIJK[ Ik ][ 1 ] = tEnd;
+                    }
+                    else
+                    {
+                        tBoundingBoxStartEndIJK[ Ik ][ 1 ] = mDomain.mDomainIJK[ tLevel ][ Ik ][ 1 ];
+                    }
+                }
+
+                moris::Cell< Background_Element_Base* > tBackgroundElements;
+
+                this->collect_coarsest_elements_in_bounding_box( tBackgroundElements, tBoundingBoxStartEndIJK, tLevel );
+
+                luint tCounter = 0;
+
+                // loop over frame and count active descendants
+                for( luint Ik = 0; Ik < tBackgroundElements.size(); ++Ik )
+                {
+                    tBackgroundElements( Ik )->get_number_of_active_descendants( aPattern, tCounter );
+                }
+
+                moris::Cell< Background_Element_Base* > tActiveElements( tCounter, nullptr );
+
+                tCounter = 0;
+
+                for( luint Ik = 0; Ik < tBackgroundElements.size(); ++Ik )
+                {
+                    tBackgroundElements( Ik )->collect_active_descendants( aPattern, tActiveElements, tCounter );
+                }
+
+                aElementMemoryIndex.set_size( tActiveElements.size(), 1 );
+
+                for( luint Ik = 0; Ik < tActiveElements.size(); ++Ik )
+                {
+                    aElementMemoryIndex( Ik ) = tActiveElements( Ik )->get_memory_index();
+                }
+            };
+
+//--------------------------------------------------------------------------------
+
+            void collect_coarsest_elements_in_bounding_box( moris::Cell< Background_Element_Base* > & aBackgroundElements,
+                                                            luint                                     aBoundingBoxStartEndIJK[][2],
+                                                            uint                                      alevel );
+
+//--------------------------------------------------------------------------------
         }; /* Background_Mesh */
 
 //--------------------------------------------------------------------------------
@@ -979,6 +1068,16 @@ namespace moris
                 Cell< Background_Element_Base* > & aCoarsestElementsOnSide )
         {
             MORIS_ERROR( false,  "Do not know how to collect coarsest elements on side \n");
+        }
+
+//-------------------------------------------------------------------------------
+
+        template < uint N >
+        void Background_Mesh< N >::collect_coarsest_elements_in_bounding_box( moris::Cell< Background_Element_Base* > & aBackgroundElements,
+                                                                              luint                                     aBoundingBoxStartEndIJK[][2],
+                                                                              uint                                      alevel )
+        {
+            MORIS_ERROR( false, "Do not know how initialize elements\n");
         }
 
 //--------------------------------------------------------------------------------

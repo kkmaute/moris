@@ -113,7 +113,6 @@ namespace moris
             //------------------------------------------------------------------------------
             // evaluate the constitutive model flux
             Matrix< DDRMat > tFlux = tCM.flux();
-            print( tFlux, "tFlux");
 
             // evaluate the constitutive model flux derivative
             Matrix< DDRMat > tdFluxdDOF = tCM.dFluxdDOF( { MSI::Dof_Type::TEMP } );
@@ -137,11 +136,9 @@ namespace moris
             //------------------------------------------------------------------------------
             // evaluate the constitutive model strain
             Matrix< DDRMat > tStrain = tCM.strain();
-            print( tStrain, "tStrain");
 
             // evaluate the constitutive model strain derivative
             Matrix< DDRMat > tdStraindDOF = tCM.dStraindDOF( { MSI::Dof_Type::TEMP } );
-            print( tdStraindDOF, "tdStraindDOF" );
 
             // evaluate the constitutive model strain derivative by FD
             Matrix< DDRMat > tdStraindDOF_FD;
@@ -162,11 +159,9 @@ namespace moris
             //------------------------------------------------------------------------------
             // evaluate the constitutive model constitutive matrix
             Matrix< DDRMat > tConst = tCM.constitutive();
-            print( tConst, "tConst");
 
             // evaluate the constitutive model constitutive matrix derivative
             Matrix< DDRMat > tdConstdDOF = tCM.dConstdDOF( { MSI::Dof_Type::TEMP } );
-            print( tdConstdDOF, "tdConstdDOF" );
 
             // check traction---------------------------------------------------------------
             //------------------------------------------------------------------------------
@@ -175,27 +170,22 @@ namespace moris
 
             // evaluate the constitutive model traction
             Matrix< DDRMat > tTraction = tCM.traction( tNormal );
-            print( tTraction, "tTraction");
 
             // evaluate the constitutive model traction derivative
             Matrix< DDRMat > tdTractiondDOF = tCM.dTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal );
-            print( tdTractiondDOF, "tdTractiondDOF" );
 
             // check test traction----------------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model test traction
             Matrix< DDRMat > tTestTraction = tCM.testTraction( tNormal );
-            print( tTestTraction, "tTestTraction");
 
             // evaluate the constitutive model test traction derivative
-            Matrix< DDRMat > tdTestTractiondDOF = tCM.dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal );
-            print( tdTestTractiondDOF, "tdTestTractiondDOF" );
+            Matrix< DDRMat > tdTestTractiondDOF = tCM.dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal, Matrix< DDRMat >(0,0) );
 
             // check test strain------------------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model test strain
             Matrix< DDRMat > tTestStrain = tCM.testStrain();
-            print( tTestStrain, "tTestStrain");
 
             // clean up
             //------------------------------------------------------------------------------

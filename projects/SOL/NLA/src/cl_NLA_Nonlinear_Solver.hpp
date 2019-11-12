@@ -34,6 +34,9 @@ namespace NLA
         //! List of list of dof types
         moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mStaggeredDofTypeList;
 
+        //! List of secundary dependencies
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > >  mSecundaryDofTypeList;
+
         //! List with nonlinear solvers
         moris::Cell< std::shared_ptr< Nonlinear_Algorithm > > mNonlinearSolverAlgorithmList;
 
@@ -100,8 +103,6 @@ namespace NLA
 
         ~Nonlinear_Solver();
 
-        //--------------------------------------------------------------------------------------------------
-
         /**
          * @brief Sets one of the lists this nonlinear solver manager is operating on. Should be called multiple times for black solvers
          *
@@ -110,6 +111,10 @@ namespace NLA
          */
         void set_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
                                 const moris::sint                       aLevel =  0);
+
+        //--------------------------------------------------------------------------------------------------
+
+        void set_secondiry_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList);
 
         //--------------------------------------------------------------------------------------------------
 

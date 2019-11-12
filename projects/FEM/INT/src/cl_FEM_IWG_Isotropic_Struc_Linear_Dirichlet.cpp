@@ -14,7 +14,7 @@ namespace moris
     IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet()
         {
             // FIXME set a penalty
-            mGamma = 1.0;
+            mGamma = 1000.0;
         }
 
 //------------------------------------------------------------------------------
@@ -76,9 +76,10 @@ namespace moris
                 if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
                 {
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) ;
-                      // + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                    += - trans( mMasterFI( 0 )->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
+                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump );
                 }
+
             }
         }
 

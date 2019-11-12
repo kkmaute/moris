@@ -10,6 +10,7 @@
 
 #include "assert.h"
 #include "cl_Communication_Tools.hpp"               //FEM/INT/src
+#include "cl_Map.hpp"
 
 namespace moris
 {
@@ -28,11 +29,28 @@ namespace mtk
      */
     class Equation_Set
     {
+    private:
+
+
     protected:
         Cell< MSI::Equation_Object* > mEquationObjList;
 
         Matrix< DDRMat > mResidual;
         Matrix< DDRMat > mJacobian;
+
+        moris::Cell< moris::Cell< Matrix< DDRMat > > > mJacobians;
+        moris::Cell< Matrix< DDRMat > > mResiduals;
+
+        // maps for the master and slave dof type
+        moris::Matrix< DDSMat > mMasterDofTypeMap;
+        moris::Matrix< DDSMat > mSlaveDofTypeMap;
+
+        // map of master and slave dof types for assembly
+        moris::Matrix< DDSMat > mDofAssemblyMap;  //FIXME delete
+        moris::Matrix< DDSMat > mDofAssemblyMap_2;
+        uint                    mTotalDof;
+        moris::Matrix< DDSMat > mNumDofMap;
+        Cell< moris::map< enum MSI::Dof_Type, moris::uint > > mRequestedTypeToIndexMap;
 
         bool mJacobianExist = false;
         bool mResidualExist = false;
@@ -41,6 +59,8 @@ namespace mtk
 
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
+
+        Model_Solver_Interface * mModelSolverInterface = nullptr;
 
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
@@ -86,6 +106,12 @@ namespace mtk
             }
         };
 
+//-------------------------------------------------------------------------------------------------
+
+        void initialize_set()
+        {
+        };
+
 //------------------------------------------------------------------------------
 
         virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
@@ -99,6 +125,20 @@ namespace mtk
         {
             aDofType = mEqnObjDofTypeList;
         }
+
+//------------------------------------------------------------------------------
+
+        void set_model_solver_interface( Model_Solver_Interface * aModelSolverInterface)
+        {
+            mModelSolverInterface = aModelSolverInterface;
+        };
+
+//------------------------------------------------------------------------------
+
+        Model_Solver_Interface * get_model_solver_interface()
+        {
+            return mModelSolverInterface;
+        };
 
 //------------------------------------------------------------------------------
 
@@ -120,6 +160,17 @@ namespace mtk
         {
             return mEqnObjDofTypeList;
         }
+//------------------------------------------------------------------------------
+
+    void create_dof_assembly_map_EQ();
+
+//------------------------------------------------------------------------------
+
+    moris::Matrix< DDSMat > & get_dof_assembly_map_2()
+    {
+        return mDofAssemblyMap_2;
+    }
+
     };
 //------------------------------------------------------------------------------
     } /* namespace fem */

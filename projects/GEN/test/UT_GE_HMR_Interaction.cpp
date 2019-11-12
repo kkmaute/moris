@@ -124,6 +124,7 @@ TEST_CASE("GE_HMR_Interaction","[moris],[GE],[GE_HMR_Interaction]")
 //            tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_2_initial.vtk");
 
             tDatabase->update_bspline_meshes();
+
             tDatabase->update_lagrange_meshes();
             // calculate T-Matrices etc
             tDatabase->finalize();

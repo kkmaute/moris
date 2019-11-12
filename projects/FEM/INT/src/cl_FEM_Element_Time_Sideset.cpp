@@ -176,7 +176,9 @@ namespace moris
                         // add contribution to jacobian from evaluation point
                         mSet->mJacobian( { mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 0 ),      mSet->get_IWG_res_dof_assembly_map()( iIWG )( 0, 1 ) },
                                          { mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 0 ), mSet->get_IWG_jac_dof_assembly_map()( iIWG )( iIWGFI, 1 ) } )
-                    	               += tWStar * tJacobians( 0 )( iIWGFI );
+                                       += tWStar * tJacobians( 0 )( iIWGFI );
+
+                        mSet->mJacobians( iIWG )( iIWGFI ).matrix_data() += tWStar * tJacobians( 0 )( iIWGFI );
                      }
                  }
              }

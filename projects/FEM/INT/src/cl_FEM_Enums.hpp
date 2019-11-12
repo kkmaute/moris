@@ -115,6 +115,8 @@ namespace moris
             STRUC_NEUMANN,
             YOUNGS_MODULUS,
             POISSONS_RATIO,
+            CTE,
+            TREF,
             END_PROPERTY_TYPE
         };
 

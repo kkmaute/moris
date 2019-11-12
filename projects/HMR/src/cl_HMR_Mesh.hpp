@@ -221,6 +221,13 @@ namespace moris
             void get_elements_in_support_of_basis(const uint           aMeshIndex,
                                                   const uint           aBasisIndex,
                                                   Matrix< IndexMat > & aElementIndices);
+
+//-------------------------------------------------------------------------------
+
+            void get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+                                                    const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+                                                          moris::Matrix< IndexMat > & aNodeIndices );
+
 //-------------------------------------------------------------------------------
             uint get_num_basis_functions(const uint aMeshIndex);
 //-------------------------------------------------------------------------------

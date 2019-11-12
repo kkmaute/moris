@@ -93,6 +93,10 @@ void Sparse_Matrix_EpetraFECrs::build_graph( const moris::uint             & aNu
    for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
    {
         //set constrDof to neg value
+//       if ( mMap->return_local_ind_of_global_Id( aElementTopology(Ij,0) ) == -1 )
+//       {
+//           TempElemDofs( Ij, 0) = -1;
+//       }
        if ( aElementTopology(Ij,0) < 0)
        {
            TempElemDofs( Ij, 0) = -1;

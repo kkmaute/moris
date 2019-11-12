@@ -88,41 +88,18 @@
 namespace moris
 {
 
-Matrix< DDRMat >
-exactTempFunc(moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aFieldInterpolator,
-        fem::Geometry_Interpolator             * aGeometryInterpolator )
-        {
-    Matrix< DDRMat > tCoord = aGeometryInterpolator->valx();
-    real xcoord = tCoord(0);
-    real ycoord = tCoord(1);
-
-    real rad = std::pow (  std::pow( xcoord - 0, 2.0)
-    + std::pow( ycoord - 0, 2.0), 0.5);
-
-    return {{(1.0/3.0)*(1.0/rad-0.501)}};
-        }
-
-moris::real LvlSetLin(const moris::Matrix< moris::DDRMat > & aPoint )
-{
-    moris::real tOffset = 200;
-
-    return    aPoint(0) - 0.317 * aPoint(1) - tOffset;
-}
-
 moris::real LvlSetCircle_2D(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     return    std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.2505;
 }
 
-
 Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-        moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-        moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-        fem::Geometry_Interpolator             * aGeometryInterpolator )
-        {
+                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
+                                    fem::Geometry_Interpolator             * aGeometryInterpolator )
+{
     return aCoeff( 0 );
-        }
+}
 
 moris::real
 LevelSetFunction_star1( const moris::Matrix< moris::DDRMat > & aPoint )
@@ -150,7 +127,6 @@ Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
     moris::real mXCenter = 0.01;
     moris::real mYCenter = 0.01;
     moris::real mRadius = 0.47334;
-
 
     return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
@@ -947,7 +923,7 @@ TEST_CASE("Arma Test","[Arma_Test]")
 
 }
 
-TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
+TEST_CASE("XTK HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
 {
     if(par_size()<=1)
     {
@@ -1058,6 +1034,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
                                                  {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },},
                                                  { fem::Property_Type::STRUC_NEUMANN },
                                                  moris::Cell< fem::Constitutive_Type >( 0 ) );
+
       tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE,
                                                  { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
                                                  {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
@@ -1097,7 +1074,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tPoissons_Ratio( fem::Property_Type::POISSONS_RATIO,
                 Cell< Cell< MSI::Dof_Type > >( 0 ),
-                {{{ 0.0 }}},
+                {{{ 0.3 }}},
                 tConstValFunction,
                 Cell< fem::PropertyFunc >( 0 ) );
         fem::Property_User_Defined_Info tStrucDirichlet( fem::Property_Type::STRUC_DIRICHLET,

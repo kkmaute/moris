@@ -111,7 +111,8 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                         const Matrix< DDRMat >             & aNormal );
+                                         const Matrix< DDRMat >             & aNormal,
+                                         const Matrix< DDRMat >             & aJump );
 
 //------------------------------------------------------------------------------
             /**

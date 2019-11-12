@@ -95,19 +95,18 @@ namespace MSI
         moris::Cell< moris::Matrix < DDUMat > > mIWGJacDofAssemblyMap;
         moris::Cell< moris::Matrix < DDUMat > > mIWGResDofAssemblyMap;
 
-        enum fem::Element_Type mElementType;
+        moris::Cell< moris::Matrix < DDUMat > > mIWGJacDofAssemblyMap_2;
+        moris::Cell< moris::Matrix < DDUMat > > mIWGResDofAssemblyMap_2;
 
-        // map of master and slave dof types for assembly
-        moris::Matrix< DDSMat > mDofAssemblyMap;
-        uint                    mTotalDof;
+        enum fem::Element_Type mElementType;
 
         // lists of master and slave groups of dof types
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMasterDofTypes;
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSlaveDofTypes;
 
-        // maps for the master and slave dof type
-        moris::Matrix< DDSMat > mMasterDofTypeMap;
-        moris::Matrix< DDSMat > mSlaveDofTypeMap;
+//        // maps for the master and slave dof type
+//        moris::Matrix< DDSMat > mMasterDofTypeMap;
+//        moris::Matrix< DDSMat > mSlaveDofTypeMap;
 
         // lists of master and slave property type for the set
         moris::Cell< fem::Property_Type > mMasterPropTypes;
@@ -418,7 +417,17 @@ namespace MSI
         /**
          * create dof assembly map
          */
-        void create_dof_assembly_map();
+        void create_dof_assembly_map(); //FIXME delete
+
+        void create_num_dof_map();
+
+//------------------------------------------------------------------------------
+
+        void set_jacobian_list_size();
+
+//------------------------------------------------------------------------------
+
+        void set_residual_list_size();
 
 //------------------------------------------------------------------------------
         /**
@@ -427,6 +436,15 @@ namespace MSI
         moris::Matrix< DDSMat > & get_dof_assembly_map()
         {
             return mDofAssemblyMap;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get dof assembly map
+         */
+        moris::Matrix< DDSMat > & get_num_dof_map()
+        {
+            return mNumDofMap;
         }
 
 //------------------------------------------------------------------------------
@@ -673,6 +691,8 @@ namespace MSI
          */
         void create_IWG_dof_assembly_map();
 
+        void create_IWG_dof_assembly_map_2();
+
 //------------------------------------------------------------------------------
         /**
          * get residual dof assembly maps for all IWG
@@ -691,6 +711,11 @@ namespace MSI
         moris::Cell< Matrix< DDUMat > > & get_IWG_jac_dof_assembly_map()
         {
             return mIWGJacDofAssemblyMap;
+        }
+
+        moris::Cell< Matrix< DDUMat > > & get_IWG_jac_dof_assembly_map_2()
+        {
+            return mIWGJacDofAssemblyMap_2;
         }
 
 //------------------------------------------------------------------------------

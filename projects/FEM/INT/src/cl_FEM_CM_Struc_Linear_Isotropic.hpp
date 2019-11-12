@@ -116,7 +116,8 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                         const Matrix< DDRMat >             & aNormal );
+                                         const Matrix< DDRMat >             & aNormal,
+                                         const Matrix< DDRMat >             & aJump );
 
 //------------------------------------------------------------------------------
             /**
@@ -138,6 +139,10 @@ namespace moris
 
             void flatten_normal( const Matrix< DDRMat > & aNormal,
                                        Matrix< DDRMat > & aFlattenedNormal );
+
+//------------------------------------------------------------------------------
+
+            void get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector );
 
 //------------------------------------------------------------------------------
         };
