@@ -27,14 +27,7 @@ namespace moris
             // if body load FIXME
             if ( mMasterProp.size() > 0 )
             {
-                // if body load
-                if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
-
-
-
-                {
-                    aResidual( 0 ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val()( 0 );
-                }
+                aResidual( 0 ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val()( 0 );
             }
         }
 
@@ -63,25 +56,22 @@ namespace moris
                 // if we have a body load
                 if ( mMasterProp.size() > 0 ) //FIXME
                 {
-                    if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
-                    {
-                        // if property has dependency on the dof type
-                        if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
-                        {
-                            // compute the jacobian
-                            aJacobians( 0 )( iDOF ).matrix_data()
-                            += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
-                        }
-                    }
-
-                    // if constitutive model has dependency on the dof type
-                    if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
+                    // if property has dependency on the dof type
+                    if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
                     {
                         // compute the jacobian
                         aJacobians( 0 )( iDOF ).matrix_data()
-                        += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
-                        // fixme add derivative of the test strain
+                        += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
                     }
+                }
+
+                // if constitutive model has dependency on the dof type
+                if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
+                {
+                    // compute the jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
+                    // fixme add derivative of the test strain
                 }
             }
         }

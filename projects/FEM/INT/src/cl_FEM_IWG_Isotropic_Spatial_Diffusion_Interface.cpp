@@ -42,14 +42,9 @@ namespace moris
             // set residual cell size
             this->set_residual_double( aResidual );
 
-            std::cout<<"for Master"<<std::endl;
-            Matrix< DDRMat > tTraction1 = mMasterCM( 0 )->traction( mNormal );
-
-            std::cout<<"for Slave"<<std::endl;
-            Matrix< DDRMat > tTraction2 = mSlaveCM( 0 )->traction( mNormal );
-
             // evaluate average traction
-            Matrix< DDRMat > tTraction = mMasterWeight * tTraction1 + mSlaveWeight * tTraction2;
+            Matrix< DDRMat > tTraction = mMasterWeight * mMasterCM( 0 )->traction( mNormal ) + mSlaveWeight * mSlaveCM( 0 )->traction( mNormal );
+;
 
             // evaluate temperature jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
@@ -117,7 +112,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterWeight * trans( mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterWeight * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
                        + mMasterWeight * mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 );
 
                     aJacobians( 1 )( iDOF ).matrix_data()
@@ -140,7 +135,7 @@ namespace moris
                     += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal );
 
                     aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * trans( mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
+                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal )
                        + mSlaveWeight * mSlaveCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 );
 
                 }
