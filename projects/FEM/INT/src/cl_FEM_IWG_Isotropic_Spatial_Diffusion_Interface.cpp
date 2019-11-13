@@ -31,22 +31,30 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set residual cell size
             this->set_residual_double( aResidual );
 
+            std::cout<<"for Master"<<std::endl;
+            Matrix< DDRMat > tTraction1 = mMasterCM( 0 )->traction( mNormal );
+
+            std::cout<<"for Slave"<<std::endl;
+            Matrix< DDRMat > tTraction2 = mSlaveCM( 0 )->traction( mNormal );
+
             // evaluate average traction
-            Matrix< DDRMat > tTraction = mMasterWeight * mMasterCM( 0 )->traction( mNormal ) + mSlaveWeight * mSlaveCM( 0 )->traction( mNormal );
+            Matrix< DDRMat > tTraction = mMasterWeight * tTraction1 + mSlaveWeight * tTraction2;
 
             // evaluate temperature jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
+
+//            print(mMasterCM( 0 )->traction( mNormal ),"mMasterCM( 0 )->traction( mNormal )");
 
             // compute master residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tTraction
@@ -68,16 +76,19 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-            // check master and slave properties
-            this->check_properties( mtk::Master_Slave::MASTER );
-            this->check_properties( mtk::Master_Slave::SLAVE );
-
-            // check master and slave constitutive models
-            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+//            // check master and slave properties
+//            this->check_properties( mtk::Master_Slave::MASTER );
+//            this->check_properties( mtk::Master_Slave::SLAVE );
+//
+//            // check master and slave constitutive models
+//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
+//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );
+
+            // get number of master dof dependencies
+            uint tMasterNumDofDependencies = mMasterGlobalDofTypes.size();
 
             // evaluate temperature jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
@@ -86,17 +97,16 @@ namespace moris
             aJacobians( 0 )( 0 ) =   mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
                                    + mGammaInterface * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
-            aJacobians( 0 )( 1 ) = - mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
-                                   - mGammaInterface * trans( mMasterFI( 0 )->N() ) * mSlaveFI( 0 )->N();
+            aJacobians( 0 )( tMasterNumDofDependencies ) = - mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
+                                                           - mGammaInterface * trans( mMasterFI( 0 )->N() ) * mSlaveFI( 0 )->N();
 
             aJacobians( 1 )( 0 ) =   mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
                                    - mGammaInterface * trans( mSlaveFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
-            aJacobians( 1 )( 1 ) = - mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
-                                   + mGammaInterface * trans( mSlaveFI( 0 )->N() ) * mSlaveFI( 0 )->N();
+            aJacobians( 1 )( tMasterNumDofDependencies ) = - mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
+                                                           + mGammaInterface * trans( mSlaveFI( 0 )->N() ) * mSlaveFI( 0 )->N();
 
             // compute the jacobian for indirect dof dependencies through master constitutive models
-            uint tMasterNumDofDependencies = mMasterGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
             {
                 // get the dof type
@@ -111,7 +121,7 @@ namespace moris
                        + mMasterWeight * mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 );
 
                     aJacobians( 1 )( iDOF ).matrix_data()
-                    += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * trans( mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) );
+                    += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal );
                 }
             }
 
@@ -127,11 +137,12 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * trans( mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) );
+                    += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal );
 
                     aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
                     +=   trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * trans( mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
                        + mSlaveWeight * mSlaveCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 );
+
                 }
             }
         }

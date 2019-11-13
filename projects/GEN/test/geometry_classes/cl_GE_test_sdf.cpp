@@ -80,7 +80,6 @@ TEST_CASE("sdf_functionalities_test","[GE],[sdf_functionalities]")
     //------------------------------------------------------------------------------
     // CHECK if the node values returned are the same as the ones in the SDF field
     //------------------------------------------------------------------------------
-        //fixme needs to be updated to use the PDVInfoObject implementation
 
         PDV_Info* tPDVInfo = tGeomEng.get_pdv_info_pointer( tMyGeomIndex );
 

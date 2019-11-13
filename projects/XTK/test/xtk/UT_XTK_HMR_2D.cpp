@@ -10,8 +10,11 @@
 
 #include "cl_XTK_Model.hpp"
 
-#include "cl_Geom_Field.hpp"
-#include "cl_Plane.hpp"
+//#include "cl_Geom_Field.hpp"
+//#include "cl_Plane.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Plane.hpp"
 #include "typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -120,13 +123,13 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
          std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-         xtk::Geom_Field tFieldAsGeom(tField);
+         moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
 
-         moris::Cell<xtk::Geometry*> tGeometryVector = {&tFieldAsGeom};
+         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
          size_t tModelDimension = 2;
-         xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-         xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
          tXTKModel.mVerbose = true;
 
@@ -218,13 +221,13 @@ TEST_CASE("2D XTK WITH HMR WEIRD INTERSECTION","[XTK_HMR_2D_WI]")
          // create a plane which intentionally intersects from fine to coarse
          moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
          moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-         xtk::Plane<2> tPlane(tCenters,tNormals);
+         moris::ge::Plane<2> tPlane(tCenters,tNormals);
 
-         moris::Cell<xtk::Geometry*> tGeometryVector = {&tPlane};
+         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlane};
 
          size_t tModelDimension = 2;
-         xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-         xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+         moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
          tXTKModel.mVerbose = true;
 

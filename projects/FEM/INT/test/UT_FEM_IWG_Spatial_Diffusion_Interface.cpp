@@ -7,8 +7,8 @@
 #include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
 #include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
 #include "cl_FEM_Property.hpp"                                  //FEM//INT//src
+#include "cl_FEM_IWG_Factory.hpp"                                //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
-#include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp" //FEM//INT//src
 
 #include "op_equal_equal.hpp"
 
@@ -40,33 +40,50 @@ moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::M
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interface]" )
+TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
 {
 
     // create a spatial diffusion bulk IWG
     //------------------------------------------------------------------------------
 
-    // create an IWG Spatial Difffusion Bulk
-    IWG_Isotropic_Spatial_Diffusion_Interface tIWG;
+    // create the properties
+    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
+    tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
+    tPropMasterConductivity->set_val_function( tConstValFunction_UTInterface );
 
-    // set residual dof type
-    tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    std::shared_ptr< fem::Property > tPropSlaveConductivity = std::make_shared< fem::Property > ();
+    tPropSlaveConductivity->set_parameters( { {{ 1.0 }} } );
+    tPropSlaveConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropSlaveConductivity->set_val_function( tFIValFunction_UTInterface );
+    tPropSlaveConductivity->set_dof_derivative_functions( { tFIDerFunction_UTInterface } );
 
-    // set master dof type
-    tIWG.set_dof_type_list( {{ MSI::Dof_Type::TEMP }});
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
 
-    // set slave dof type
-    tIWG.set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+    tCMMasterDiffLinIso->set_space_dim( 3 );
 
-    // set active constitutive type
-    tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO } );
+    std::shared_ptr< fem::Constitutive_Model > tCMSlaveDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    tCMSlaveDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tCMSlaveDiffLinIso->set_properties( { tPropSlaveConductivity } );
+    tCMSlaveDiffLinIso->set_space_dim( 3 );
 
-    // set active constitutive type
-    tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO }, mtk::Master_Slave::SLAVE );
+    // define the IWGs
+    fem::IWG_Factory tIWGFactory;
+
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
+    tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_models( { tCMSlaveDiffLinIso }, mtk::Master_Slave::SLAVE );
 
     // set the normal
+    //------------------------------------------------------------------------------
     Matrix< DDRMat > tNormal = {{1.0},{0.0},{0.0}};
-    tIWG.set_normal( tNormal );
+    tIWG->set_normal( tNormal );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -82,7 +99,7 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
                                 mtk::Interpolation_Order::LINEAR );
 
     // create a space time geometry interpolator
-    Geometry_Interpolator* tGI = new Geometry_Interpolator( tGIRule );
+    Geometry_Interpolator tGI( tGIRule );
 
     // create space coeff xHat
     Matrix< DDRMat > tXHat = {{ 0.0, 0.0, 0.0 },
@@ -98,10 +115,10 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
     Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
 
     // set the coefficients xHat, tHat
-    tGI->set_coeff( tXHat, tTHat );
+    tGI.set_coeff( tXHat, tTHat );
 
     // set the evaluation point
-    tGI->set_space_time( tParamPoint );
+    tGI.set_space_time( tParamPoint );
 
     // field interpolators
     //------------------------------------------------------------------------------
@@ -112,237 +129,87 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
                                  Interpolation_Type::CONSTANT,
                                  mtk::Interpolation_Order::CONSTANT );
 
-    // create coefficients
-    Matrix< DDRMat > tDOFHat( 8, 1 );
-    tDOFHat = {{1.0},{1.0},{1.0},{1.0},{2.0},{2.0},{2.0},{2.0}};
+    // create random coefficients
+    arma::Mat< double > tMatrix;
+    tMatrix.randu( 8, 1 );
+    Matrix< DDRMat > tDOFHat;
+    tDOFHat.matrix_data() = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tMasterFIs( tIWG.get_dof_type_list().size() );
+    Cell< Field_Interpolator* > tMasterFIs( 1 );
 
-    for( uint iDOF = 0; iDOF < tIWG.get_dof_type_list().size(); iDOF++ )
-    {
-        // get the number of DOF
-        uint tNumOfFields = tIWG.get_dof_type_list()( iDOF ).size();
+    // create the field interpolator
+    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
 
-        // create the field interpolator
-        tMasterFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
-                                                     tFIRule,
-                                                     tGI,
-                                                     tIWG.get_dof_type_list()( iDOF ) );
+    // set the coefficients uHat
+    tMasterFIs( 0 )->set_coeff( tDOFHat );
 
-        // set the coefficients uHat
-        tMasterFIs( iDOF )->set_coeff( tDOFHat );
-
-        //set the evaluation point xi, tau
-        tMasterFIs( iDOF )->set_space_time( tParamPoint );
-    }
+    //set the evaluation point xi, tau
+    tMasterFIs( 0 )->set_space_time( tParamPoint );
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tSlaveFIs( tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE ).size() );
+    Cell< Field_Interpolator* > tSlaveFIs( 1 );
 
-    for( uint iDOF = 0; iDOF < tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE ).size(); iDOF++ )
-    {
-        // get the number of DOF
-        uint tNumOfFields = tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ).size();
+    // create the field interpolator
+    tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::TEMP } );
 
-        // create the field interpolator
-        tSlaveFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
-                                                    tFIRule,
-                                                    tGI,
-                                                    tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
+    // set the coefficients uHat
+    tSlaveFIs( 0 )->set_coeff( tDOFHat );
 
-        // set the coefficients uHat
-        tSlaveFIs( iDOF )->set_coeff( tDOFHat );
-
-        //set the evaluation point xi, tau
-        tSlaveFIs( iDOF )->set_space_time( tParamPoint );
-    }
+    //set the evaluation point xi, tau
+    tSlaveFIs( 0 )->set_space_time( tParamPoint );
 
     // define an epsilon environment
-    double tEpsilon = 1E-6;
+    real tEpsilon = 1E-6;
 
     // define aperturbation relative size
     real tPerturbation = 1E-6;
 
-    SECTION( "IWG_Spatial_Diffusion : check residual and jacobian with constant property" )
-    {
-        // properties
-        //------------------------------------------------------------------------------
-        // create property coefficients
-        Cell< Matrix< DDRMat > > tPropCoeff = { {{1.0}} };
+    // build global dof type list
+    tIWG->build_global_dof_type_list();
 
-        // create a cell of properties for IWG
-        Cell< Property* > tMasterProps( 1 );
+    // set IWG field interpolators
+    tIWG->set_dof_field_interpolators( tMasterFIs );
+    tIWG->set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
 
-        for( uint iProp = 0; iProp < 1; iProp++ )
-        {
-            // create a property
-            tMasterProps( iProp ) = new Property( fem::Property_Type::CONDUCTIVITY,
-                                                  Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                                  tPropCoeff,
-                                                  tConstValFunction_UTInterface,
-                                                  Cell< PropertyFunc > ( 0 ),
-                                                  tGI );
+    // set IWG geometry interpolator
+    tIWG->set_geometry_interpolator( &tGI );
+    tIWG->set_geometry_interpolator( &tGI, mtk::Master_Slave::SLAVE );
 
-        }
+    // check evaluation of the residual for IWG Helmholtz Bulk ?
+    //------------------------------------------------------------------------------
+    // evaluate the residual
+    Cell< Matrix< DDRMat > > tResidual;
+    tIWG->compute_residual( tResidual );
 
-        // create a cell of properties for IWG
-        Cell< Property* > tSlaveProps( 1 );
+    // check evaluation of the jacobian  by FD
+    //------------------------------------------------------------------------------
+    // init the jacobian for IWG and FD evaluation
+    Cell< Cell< Matrix< DDRMat > > > tJacobians;
+    Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
 
-        for( uint iProp = 0; iProp < 1; iProp++ )
-        {
-            // create a property
-            tSlaveProps( iProp ) = new Property( fem::Property_Type::CONDUCTIVITY,
-                                                 {{ MSI::Dof_Type::TEMP }},
-                                                 tPropCoeff,
-                                                 tFIValFunction_UTInterface,
-                                                 { tFIDerFunction_UTInterface },
-                                                 tGI );
+    // check jacobian by FD
+    bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
+                                                       tEpsilon,
+                                                       tJacobians,
+                                                       tJacobiansFD );
 
-            tSlaveProps( iProp )->set_dof_field_interpolators( tSlaveFIs );
-
-        }
-
-        // constitutive models
-        //------------------------------------------------------------------------------
-        // create a cell of properties for IWG
-        Cell< Constitutive_Model* > tMasterCMs( tIWG.get_constitutive_type_list().size() );
-
-        // create a constitutive model factory
-        fem::CM_Factory tCMFactory;
-
-        // create a constitutive model for each constitutive type
-        for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list().size(); iCM++ )
-        {
-            // create a property
-            tMasterCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list()( iCM ) );
-
-            // set space dim
-            tMasterCMs( iCM )->set_space_dim( 3 );
-
-            // set dof types
-            tMasterCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-
-            // set property type
-            tMasterCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
-
-            // set properties
-            tMasterCMs( iCM )->set_properties( tMasterProps );
-
-            // set field interpolators
-            tMasterCMs( iCM )->set_dof_field_interpolators( tMasterFIs );
-        }
-
-        // create a cell of properties for IWG
-        Cell< Constitutive_Model* > tSlaveCMs( tIWG.get_constitutive_type_list( mtk::Master_Slave::SLAVE ).size() );
-
-        // create a constitutive model for each constitutive type
-        for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list( mtk::Master_Slave::SLAVE ).size(); iCM++ )
-        {
-            // create a property
-            tSlaveCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list( mtk::Master_Slave::SLAVE )( iCM ) );
-
-            // set space dim
-            tSlaveCMs( iCM )->set_space_dim( 3 );
-
-            // set dof types
-            tSlaveCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-
-            // set property type
-            tSlaveCMs( iCM )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
-
-            // set properties
-            tSlaveCMs( iCM )->set_properties( tSlaveProps );
-
-            // set field interpolators
-            tSlaveCMs( iCM )->set_dof_field_interpolators( tSlaveFIs );
-        }
-
-        // set IWG field interpolators
-        tIWG.set_constitutive_models( tMasterCMs );
-        tIWG.set_constitutive_models( tSlaveCMs, mtk::Master_Slave::SLAVE );
-
-        // set IWG properties
-        tIWG.set_properties( tMasterProps );
-        tIWG.set_properties( tSlaveProps, mtk::Master_Slave::SLAVE );
-
-        // set IWG field interpolators
-        tIWG.set_dof_field_interpolators( tMasterFIs );
-        tIWG.set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
-
-        // check evaluation of the residual for IWG Helmholtz Bulk ?
-        //------------------------------------------------------------------------------
-        // evaluate the residual
-        Cell< Matrix< DDRMat > > tResidual;
-        tIWG.compute_residual( tResidual );
-
-        // check evaluation of the jacobian  by FD
-        //------------------------------------------------------------------------------
-        // evaluate the jacobian
-        Cell< Cell< Matrix< DDRMat > > > tJacobians;
-        tIWG.compute_jacobian( tJacobians );
-
-        Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
-        tIWG.compute_jacobian_FD_double( tJacobiansFD, tPerturbation );
-
-//        print( tJacobians( 0 )( 0 ),"tJacobians00");
-//        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
+//    // print for debug
+//    print( tJacobians( 0 )( 0 ),"tJacobians00");
+//    print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
 //
-//        print( tJacobians( 0 )( 1 ),"tJacobians01");
-//        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
+//    print( tJacobians( 0 )( 1 ),"tJacobians01");
+//    print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
 //
-//        print( tJacobians( 1 )( 0 ),"tJacobians10");
-//        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
+//    print( tJacobians( 1 )( 0 ),"tJacobians10");
+//    print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
 //
-//        print( tJacobians( 1 )( 1 ),"tJacobians11");
-//        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
+//    print( tJacobians( 1 )( 1 ),"tJacobians11");
+//    print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
-        //define a boolean for check
-        bool tCheckJacobian = true;
+    // require check is true
+    REQUIRE( tCheckJacobian );
 
-        for ( uint iJac = 0; iJac < tJacobians.size(); iJac++ )
-        {
-            for( uint jJac = 0; jJac < tJacobians( iJac ).size(); jJac++ )
-            {
-                for( uint iiJac = 0; iiJac < tJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                {
-                    for( uint jjJac = 0; jjJac < tJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                    {
-                        tCheckJacobian = tCheckJacobian && ( tJacobians( iJac )( jJac )( iiJac, jjJac ) - tJacobiansFD( iJac )( jJac )( iiJac, jjJac ) < tEpsilon );
-                    }
-                }
-            }
-        }
-
-        REQUIRE( tCheckJacobian );
-
-        for( Property* tProp : tMasterProps )
-        {
-            delete tProp;
-        }
-        tMasterProps.clear();
-
-        for( Property* tProp : tSlaveProps )
-        {
-            delete tProp;
-        }
-        tSlaveProps.clear();
-
-        for( Constitutive_Model* tCM : tMasterCMs )
-        {
-            delete tCM;
-        }
-        tMasterCMs.clear();
-
-        for( Constitutive_Model* tCM : tSlaveCMs )
-        {
-            delete tCM;
-        }
-        tSlaveCMs.clear();
-
-    }/* END_SECTION */
-
-    // clean up
     for( Field_Interpolator* tFI : tMasterFIs )
     {
         delete tFI;
@@ -354,7 +221,5 @@ TEST_CASE( "IWG_SpatialDiff_Interface", "[moris],[fem],[IWG_SpatialDiff_Interfac
         delete tFI;
     }
     tSlaveFIs.clear();
-
-    delete tGI;
 
 }/* END_TEST_CASE */

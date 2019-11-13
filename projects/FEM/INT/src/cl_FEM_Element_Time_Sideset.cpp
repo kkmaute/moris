@@ -33,8 +33,6 @@ namespace moris
 
             // get number of field interpolator and properties
             uint tNumFI   = mSet->get_number_of_field_interpolators();
-            uint tNumProp = mSet->get_number_of_properties();
-            uint tNumCM   = mSet->get_number_of_constitutive_models();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -62,18 +60,6 @@ namespace moris
                     mSet->get_field_interpolators()( iFI )->set_space_time( tGlobalIntegPoint );
                 }
 
-                // reset properties
-                for ( uint iProp = 0; iProp < tNumProp; iProp++ )
-                {
-                    mSet->get_properties()( iProp )->reset_eval_flags();
-                }
-
-                // reset constitutive models
-                for ( uint iCM = 0; iCM < tNumCM; iCM++ )
-                {
-                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
-                }
-
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
                             * mSet->get_IG_geometry_interpolator()->det_J();
@@ -81,6 +67,9 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // reset IWG
+                    mSet->get_IWGs()( iIWG )->reset_eval_flags();
+
                     // compute jacobian at evaluation point
                     moris::Cell< Matrix< DDRMat > > tResidual;
                     mSet->get_IWGs()( iIWG )->compute_residual( tResidual );
@@ -108,8 +97,6 @@ namespace moris
 
             // get number of field interpolator and properties
             uint tNumFI   = mSet->get_number_of_field_interpolators();
-            uint tNumProp = mSet->get_number_of_properties();
-            uint tNumCM   = mSet->get_number_of_constitutive_models();
 
             // get number of IWGs
             uint tNumIWGs = mSet->get_number_of_IWGs();
@@ -137,18 +124,6 @@ namespace moris
                     mSet->get_field_interpolators()( iFI )->set_space_time( tGlobalIntegPoint );
                 }
 
-                // reset properties
-                for ( uint iProp = 0; iProp < tNumProp; iProp++ )
-                {
-                    mSet->get_properties()( iProp )->reset_eval_flags();
-                }
-
-                // reset constitutive models
-                for ( uint iCM = 0; iCM < tNumCM; iCM++ )
-                {
-                    mSet->get_constitutive_models()( iCM )->reset_eval_flags();
-                }
-
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP )
                             * mSet->get_IG_geometry_interpolator()->det_J();
@@ -156,6 +131,9 @@ namespace moris
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
                 {
+                    // reset IWG
+                    mSet->get_IWGs()( iIWG )->reset_eval_flags();
+
                     // compute jacobian at evaluation point
                     moris::Cell< moris::Cell< Matrix< DDRMat > > > tJacobians;
                     mSet->get_IWGs()( iIWG )->compute_jacobian( tJacobians );

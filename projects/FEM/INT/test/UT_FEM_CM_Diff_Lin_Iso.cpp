@@ -4,7 +4,7 @@
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp" //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp" //FEM/INT/src
 
 #define protected public
 #define private   public
@@ -37,17 +37,20 @@ namespace moris
             // real for check
             real tEpsilon = 1E-6;
 
-            // create a constitutive model
-            CM_Diffusion_Linear_Isotropic tCM = CM_Diffusion_Linear_Isotropic();
+            // create the properties
+            std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
+            tPropMasterConductivity->set_parameters( {{{ 1.0}}, {{1.0 }}} );
+            tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropMasterConductivity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+            tPropMasterConductivity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
 
-            // set space dim
-            tCM.set_space_dim( 2 );
+            // define constitutive models
+            fem::CM_Factory tCMFactory;
 
-            // set dof types
-            tCM.set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-
-            // set property type
-            tCM.set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
+            std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+            tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+            tCMMasterDiffLinIso->set_space_dim( 2 );
 
             //create a quad4 space element
             Matrix< DDRMat > tXHat( 4, 2 );
@@ -75,15 +78,6 @@ namespace moris
             tGI.set_coeff( tXHat, tTHat );
             tGI.set_space_time({{0.0}, {0.0}, {-1.0}});
 
-            // create a property object
-            Cell< fem::Property* > tProps( 1, nullptr );
-            tProps( 0 ) = new Property( fem::Property_Type::CONDUCTIVITY ,
-                                        {{ MSI::Dof_Type::TEMP }},
-                                        {{{ 1.0}}, {{1.0 }}},
-                                        tValFunctionCM_Diff_Lin_Iso,
-                                        { tDerFunctionCM_Diff_Lin_Iso },
-                                        & tGI );
-
             // create an interpolation rule
             Interpolation_Rule tIPRule ( mtk::Geometry_Type::QUAD,
                                          Interpolation_Type::LAGRANGE,
@@ -100,26 +94,24 @@ namespace moris
             tFIs( 0 )->set_coeff( tUHat0 );
             tFIs( 0 )->set_space_time({{0.0}, {0.0}, {-1.0}});
 
-            // set FI for properties
-            tProps( 0 )->set_dof_field_interpolators( tFIs );
-
-            // set properties
-            tCM.set_properties( tProps );
-
             // set field interpolators
-            tCM.set_dof_field_interpolators( tFIs );
+            tCMMasterDiffLinIso->set_dof_field_interpolators( tFIs );
+            tCMMasterDiffLinIso->set_geometry_interpolator( &tGI );
 
             // check flux-------------------------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model flux
-            Matrix< DDRMat > tFlux = tCM.flux();
+
+            Matrix< DDRMat > tFlux = tCMMasterDiffLinIso->flux();
+            //print( tFlux, "tFlux");
 
             // evaluate the constitutive model flux derivative
-            Matrix< DDRMat > tdFluxdDOF = tCM.dFluxdDOF( { MSI::Dof_Type::TEMP } );
+            Matrix< DDRMat > tdFluxdDOF = tCMMasterDiffLinIso->dFluxdDOF( { MSI::Dof_Type::TEMP } );
+            //print( tdFluxdDOF, "tdFluxdDOF");
 
             // evaluate the constitutive model stress derivative by FD
             Matrix< DDRMat > tdFluxdDOF_FD;
-            tCM.eval_dFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdFluxdDOF_FD, 1E-6 );
+            tCMMasterDiffLinIso->eval_dFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdFluxdDOF_FD, 1E-6 );
 
             //check stress derivative
             bool tCheckdStress = true;
@@ -135,14 +127,16 @@ namespace moris
             // check strain-----------------------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model strain
-            Matrix< DDRMat > tStrain = tCM.strain();
+            Matrix< DDRMat > tStrain = tCMMasterDiffLinIso->strain();
+            //print( tStrain, "tStrain");
 
             // evaluate the constitutive model strain derivative
-            Matrix< DDRMat > tdStraindDOF = tCM.dStraindDOF( { MSI::Dof_Type::TEMP } );
+            Matrix< DDRMat > tdStraindDOF = tCMMasterDiffLinIso->dStraindDOF( { MSI::Dof_Type::TEMP } );
+            //print( tdStraindDOF, "tdStraindDOF" );
 
             // evaluate the constitutive model strain derivative by FD
             Matrix< DDRMat > tdStraindDOF_FD;
-            tCM.eval_dStraindDOF_FD( { MSI::Dof_Type::TEMP }, tdStraindDOF_FD, 1E-6 );
+            tCMMasterDiffLinIso->eval_dStraindDOF_FD( { MSI::Dof_Type::TEMP }, tdStraindDOF_FD, 1E-6 );
 
             //check strain derivative
             bool tCheckdStrain = true;
@@ -158,10 +152,12 @@ namespace moris
             // check constitutive matrix----------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model constitutive matrix
-            Matrix< DDRMat > tConst = tCM.constitutive();
+            Matrix< DDRMat > tConst = tCMMasterDiffLinIso->constitutive();
+            //print( tConst, "tConst");
 
             // evaluate the constitutive model constitutive matrix derivative
-            Matrix< DDRMat > tdConstdDOF = tCM.dConstdDOF( { MSI::Dof_Type::TEMP } );
+            Matrix< DDRMat > tdConstdDOF = tCMMasterDiffLinIso->dConstdDOF( { MSI::Dof_Type::TEMP } );
+            //print( tdConstdDOF, "tdConstdDOF" );
 
             // check traction---------------------------------------------------------------
             //------------------------------------------------------------------------------
@@ -169,34 +165,31 @@ namespace moris
             Matrix< DDRMat > tNormal = {{1.0},{0.0}};
 
             // evaluate the constitutive model traction
-            Matrix< DDRMat > tTraction = tCM.traction( tNormal );
+            Matrix< DDRMat > tTraction = tCMMasterDiffLinIso->traction( tNormal );
+            //print( tTraction, "tTraction");
 
             // evaluate the constitutive model traction derivative
-            Matrix< DDRMat > tdTractiondDOF = tCM.dTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal );
+            Matrix< DDRMat > tdTractiondDOF = tCMMasterDiffLinIso->dTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal );
+            //print( tdTractiondDOF, "tdTractiondDOF" );
 
             // check test traction----------------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model test traction
-            Matrix< DDRMat > tTestTraction = tCM.testTraction( tNormal );
+            Matrix< DDRMat > tTestTraction = tCMMasterDiffLinIso->testTraction( tNormal );
+            //print( tTestTraction, "tTestTraction");
 
             // evaluate the constitutive model test traction derivative
-            Matrix< DDRMat > tdTestTractiondDOF = tCM.dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal, Matrix< DDRMat >(0,0) );
+            Matrix< DDRMat > tdTestTractiondDOF = tCMMasterDiffLinIso->dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal );
+            //print( tdTestTractiondDOF, "tdTestTractiondDOF" );
 
             // check test strain------------------------------------------------------------
             //------------------------------------------------------------------------------
             // evaluate the constitutive model test strain
-            Matrix< DDRMat > tTestStrain = tCM.testStrain();
+            Matrix< DDRMat > tTestStrain = tCMMasterDiffLinIso->testStrain();
+            //print( tTestStrain, "tTestStrain");
 
             // clean up
             //------------------------------------------------------------------------------
-
-            // delete the property pointers
-            for( Property* tProp : tProps )
-            {
-                delete tProp;
-            }
-            tProps.clear();
-
             // delete the field interpolator pointers
             for( Field_Interpolator* tFI : tFIs )
             {

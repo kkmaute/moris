@@ -10,14 +10,15 @@
 
 // GE includes
 #include "cl_GE_Geometry.hpp"
+#include "cl_GE_PDV_Info.hpp"
+
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Vertex.hpp"
 
-// moris includes
 #include "cl_Cell.hpp"
-#include "cl_GE_PDV_Info.hpp"
+
 
 namespace moris
 {

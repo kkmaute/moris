@@ -1,0 +1,83 @@
+/*
+ * cl_XTK_Enums.hpp
+ *
+ *  Created on: Jun 23, 2017
+ *      Author: ktdoble
+ */
+
+#ifndef PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_GEN_ENUMS_HPP_
+#define PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_GEN_ENUMS_HPP_
+
+
+// Enums in this header
+// 1.) TemplateType
+// 2.) Subdivision_Method
+// 3.) Topology_Type
+// 4.) Phase_Table_Structure
+// 5.) Enrichment_Method
+
+enum class GEN_TemplateType
+{
+    REGULAR_SUBDIVISION_HEX8, // Topology created using a regularized subdivision (for generate_templated_mesh)
+    REGULAR_SUBDIVISION_QUAD4, // Topology created using a regular subdivision of Quad 4
+    TRI_3,
+    QUAD_4,                    // Topology created using a Quad 4 template topology
+    TET_4,                    // Standard tet 4 topology
+    HEX_8,
+    HIERARCHY_TET4,
+    HIERARCHY_TET4_3N,  // 3 node intersection pattern
+    HIERARCHY_TET4_4Na, // 4 node intersection with high and low across from each other
+    HIERARCHY_TET4_4Nb, // 4 node intersection pattern with high and MH across from each other
+    HIERARCHY_TET4_4Nc, // 4 node intersection pattern with high and ML acoss from each other
+    HIERARCHY_TET4_2,
+    CONFORMAL_TRI3,
+    BISECTED_TET4,      // A tet4 split into two
+    INVALID_TEMPLATE_TYPE
+};
+
+enum class GEN_Subdivision_Method
+{
+    // Please order in the following manner NC, C, T then alphabetical
+    // Because Nonconformal check happens first, Conformal check happens second, Tests happen last
+    // NC - specifies a nonconformal request
+    // C  - specifies a conformal request
+    // T  - specifies a Test method
+    NC_REGULAR_SUBDIVISION_HEX8,  // Nonconformal and a regular subdivision template will be used
+    NC_REGULAR_SUBDIVISION_QUAD4,
+    C_HIERARCHY_TET4,             // Conformal and a hierarchy template will be used
+    C_TRI3,             // Conformal tri 3 mesh  will be constructed
+    T_GENERATE_TET_MESH_FROM_HEX  // For test cases, intersects all elements provided
+};
+
+inline
+const std::string get_enum_str(enum GEN_Subdivision_Method aSubdivisionEnum)
+{
+    switch (aSubdivisionEnum)
+    {
+       case GEN_Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8: return "NC_REGULAR_SUBDIVISION_HEX8";
+       case GEN_Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4: return "NC_REGULAR_SUBDIVISION_QUAD4";
+       case GEN_Subdivision_Method::C_HIERARCHY_TET4: return "C_HIERARCHY_TET4";
+       case GEN_Subdivision_Method::C_TRI3: return "C_TRI3";
+       case GEN_Subdivision_Method::T_GENERATE_TET_MESH_FROM_HEX: return "T_GENERATE_TET_MESH_FROM_HEX";
+       default: return "invalid subdivision method";
+    }
+}
+
+enum class GEN_Topology_Type
+{
+    EDGE, // Edge with 2 Node
+    TRI_3,
+    QUAD_4,
+    TET_4,
+    TET_10,
+    HEXA_8, // hexahedron with 8 nodes topology
+
+};
+
+enum class GEN_Phase_Table_Structure
+{
+    GEN_EXP_BASE_2
+};
+
+
+#endif /* PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_GEN_ENUMS_HPP_ */

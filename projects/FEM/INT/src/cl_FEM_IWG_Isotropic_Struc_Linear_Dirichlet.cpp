@@ -23,8 +23,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // compute jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
@@ -34,8 +34,8 @@ namespace moris
 
             // compute the residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal )
-                             + mMasterCM( 0 )->testTraction( mNormal ) * trans( tJump )
-                             + mGamma * trans( mMasterFI( 0 )->N() ) * trans( tJump );
+                             + mMasterCM( 0 )->testTraction( mNormal ) * tJump
+                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
         }
 
 //------------------------------------------------------------------------------
@@ -44,8 +44,8 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();;
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // compute jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
@@ -53,6 +53,7 @@ namespace moris
             // set the jacobian size
             this->set_jacobian( aJacobians );
 
+            // compute the jacobian for direct dof dependencies
             aJacobians( 0 )( 0 ) = mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
                                  + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
@@ -75,11 +76,11 @@ namespace moris
                 // if dependency on the dof type
                 if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
                 {
+                    // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
                     += - trans( mMasterFI( 0 )->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
                        + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump );
                 }
-
             }
         }
 

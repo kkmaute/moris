@@ -10,7 +10,10 @@
 
 #include "cl_XTK_Model.hpp"
 
-#include "cl_Geom_Field.hpp"
+//#include "cl_Geom_Field.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
+
 #include "typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -186,13 +189,13 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
 
 
-        xtk::Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
 
-        moris::Cell<xtk::Geometry*> tGeometryVector = {&tFieldAsGeom};
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;

@@ -10,9 +10,12 @@
 
 #include "catch.hpp"
 
-#include "cl_Sphere.hpp"
+//#include "cl_Sphere.hpp"
 #include "cl_XTK_Model.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
+//#include "cl_MGE_Geometry_Engine.hpp"
+
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {
@@ -38,9 +41,9 @@ TEST_CASE("Outputting XTK Model","[EXPORT]")
     real tXCenter = 0.0;
     real tYCenter = 0.0;
     real tZCenter = 0.0;
-    Sphere tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tLevelSetSphere,tPhaseTable);
+    moris::ge::Sphere tLevelSetSphere(tRadius,tXCenter,tYCenter,tZCenter);
+    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetSphere,tPhaseTable);
 
     tGeometryEngine.mThresholdValue = 0.0;
     tGeometryEngine.mComputeDxDp = false;

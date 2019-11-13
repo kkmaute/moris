@@ -96,7 +96,7 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // compute derivative
-            mdTractiondDof( tDofIndex ) = trans( this->dFluxdDOF( aDofTypes ) ) * aNormal;
+            mdTractiondDof( tDofIndex ) =  trans( aNormal ) * this->dFluxdDOF( aDofTypes );
         }
 
 //------------------------------------------------------------------------------

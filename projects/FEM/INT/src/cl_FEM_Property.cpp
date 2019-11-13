@@ -239,6 +239,9 @@ namespace moris
             {
                 // evaluate the property
                 this->eval_Prop();
+
+                // set bool for evaluation
+                mPropEval = false;
             }
             // return the property value
             return mProp;
@@ -258,9 +261,6 @@ namespace moris
 
             // use mValFunction to evaluate the property
             mProp = mValFunction( mParameters, mDofFI, mDvFI, mGeometryInterpolator );
-
-            // set bool for evaluation
-            mPropEval = false;
         }
 
 //------------------------------------------------------------------------------
@@ -277,6 +277,9 @@ namespace moris
            {
                // evaluate the derivative
                this->eval_dPropdDOF( aDofType );
+
+               // set bool for evaluation
+               mPropDofDerEval( tDofIndex ) = false;
            }
 
            // return the derivative
@@ -301,9 +304,9 @@ namespace moris
             // if so use mDerivativeFunction to compute the derivative
 
             mPropDofDer( tDofIndex ) = mDofDerFunctions( tDofIndex )( mParameters,
-                                                                   mDofFI,
-                                                                   mDvFI,
-                                                                   mGeometryInterpolator );
+                                                                      mDofFI,
+                                                                      mDvFI,
+                                                                      mGeometryInterpolator );
         }
 
 //------------------------------------------------------------------------------
@@ -320,6 +323,9 @@ namespace moris
            {
                // evaluate the derivative
                this->eval_dPropdDV( aDvType );
+
+               // set bool for evaluation
+               mPropDvDerEval( tDvIndex ) = false;
            }
 
            // return the derivative

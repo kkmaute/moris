@@ -80,7 +80,7 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
     // Initialize Active Front
     moris::size_t tActiveFrontCount = 0;
     moris::size_t tActiveFrontElement = 0;
-    moris::Matrix< moris::IndexMat > tActiveFront(1,4*tNumElements + 1,0);
+    moris::Matrix< moris::IndexMat > tActiveFront(1,10*tNumElements + 1,0);
 
     // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
     // key   - Element Index

@@ -23,8 +23,8 @@ namespace moris
             // check field interpolators, properties, constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
@@ -47,8 +47,8 @@ namespace moris
             // check field interpolators, properties, constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-            this->check_properties();
-            this->check_constitutive_models();
+//            this->check_properties();
+//            this->check_constitutive_models();
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
@@ -81,8 +81,13 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
+<<<<<<< HEAD
                     += - trans( mMasterFI( 0 )->N() ) * trans( mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) )
                        + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 );
+=======
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
+                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+>>>>>>> 1ce1f97eb36c81a2817a956b2faee386260ef83b
                 }
             }
         }
@@ -91,6 +96,7 @@ namespace moris
         void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                                        moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
+<<<<<<< HEAD
             // check field interpolators, properties, constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
@@ -140,6 +146,9 @@ namespace moris
                        + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) * tJump( 0 ) ;
                 }
             }
+=======
+            MORIS_ERROR( false, "IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_jacobian_and_residual - Not implemeted." );
+>>>>>>> 1ce1f97eb36c81a2817a956b2faee386260ef83b
         }
 
 //------------------------------------------------------------------------------

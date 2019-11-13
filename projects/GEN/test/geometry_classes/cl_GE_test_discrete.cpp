@@ -62,7 +62,7 @@ TEST_CASE("discrete_functionalities_test_01","[GE],[discrete_functionalities_hmr
 //        tLevelSetVals(22) = 0.89; tLevelSetVals(23) =  0.89;
 //        tLevelSetVals(24) = 0.14;
 ////------------------------------------------------------------
-//        uint tMeshOrder = 2;    // Legrange order = B-spline order = 2
+//        uint tMeshOrder = 1;    // Legrange order = B-spline order = 2
 //
 //        hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
 //        tParameters.set( "number_of_elements_per_dimension", "2, 2" );
