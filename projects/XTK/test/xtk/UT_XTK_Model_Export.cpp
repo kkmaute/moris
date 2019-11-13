@@ -8,14 +8,13 @@
 #ifndef PROJECTS_XTK_TEST_XTK_CL_XTK_MODEL_EXPORT_UT_CPP_
 #define PROJECTS_XTK_TEST_XTK_CL_XTK_MODEL_EXPORT_UT_CPP_
 
-#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Sphere.hpp"
 #include "catch.hpp"
 
 //#include "cl_Sphere.hpp"
 #include "cl_XTK_Model.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
-
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {

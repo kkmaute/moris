@@ -49,6 +49,16 @@ namespace moris
             void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
 
 //------------------------------------------------------------------------------
+            /*
+             * compute 'identity' matrix to define boundary conditions
+             */
+            void get_I( Matrix< DDRMat > & aI );
+//------------------------------------------------------------------------------
+            /*
+             * build jump vector
+             */
+            void build_jump( Matrix< DDRMat > & aJumpMat );
+//------------------------------------------------------------------------------
             /**
              * computes the jacobian
              * @param[ in ] aJacobians cell of cell of jacobian matrices to fill

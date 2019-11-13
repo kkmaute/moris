@@ -248,7 +248,7 @@ namespace moris
 //                print( tTMatrix, "tTMatrix" );
 //                print( mJacobian, "mJacobian" );
 
-        print( mEquationBlock->mJacobian,"jac");
+//        print( mEquationBlock->mJacobian,"jac");
 
         aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->mJacobian * tTMatrix;
     }
@@ -265,7 +265,7 @@ namespace moris
 
         this->build_PADofMap( tTMatrix );
 
-        print( mEquationBlock->mResidual,"res");
+//        print( mEquationBlock->mResidual,"res");
 //        print( tTMatrix ,"tTMatrix");
 
         aEqnObjRHS = trans( tTMatrix ) * mEquationBlock->mResidual;
@@ -401,7 +401,7 @@ namespace moris
             for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
             {
                 // Get dof type index
-                moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
+                moris::sint tDofTypeIndex = mEquationBlock->mModelSolverInterface->get_dof_manager()
                                                                  ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                 MORIS_ASSERT( mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
@@ -436,7 +436,7 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
                 {
                     // Get dof type index
-                    moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
+                    moris::sint tDofTypeIndex = mEquationBlock->mModelSolverInterface->get_dof_manager()
                                                                      ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                     // Check if number if time levels on this dof type is smaller than maximal number of time levels on dof type

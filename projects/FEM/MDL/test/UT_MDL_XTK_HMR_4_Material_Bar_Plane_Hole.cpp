@@ -5,8 +5,6 @@
  *      Author: doble
  */
 
-#include "../../../GEN/src/new/geometry/cl_GEN_Geom_Field.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -70,6 +68,9 @@
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
 
 #include "fn_norm.hpp"
 
@@ -300,100 +301,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
-
-        // create IWG user defined info
-        Cell< fem::IWG_User_Defined_Info > tBulkIWG = create_iso_diff_bulk_iwg();
-        Cell< fem::IWG_User_Defined_Info > tDBCIWG  = create_iso_diff_dirichlet_iwg();
-        Cell< fem::IWG_User_Defined_Info > tNBCIWG  = create_iso_diff_neumann_iwg();
-        Cell< fem::IWG_User_Defined_Info > tIntIWG  = create_iso_diff_interface_iwg();
-
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
-
-        tIWGUserDefinedInfo( 0 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 1 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 2 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 3 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 4 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 5 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 6 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 7 )  = tBulkIWG;
-        tIWGUserDefinedInfo( 8 )  = tDBCIWG;
-        tIWGUserDefinedInfo( 9 )  = tNBCIWG;
-        tIWGUserDefinedInfo( 10 ) = tIntIWG;
-        tIWGUserDefinedInfo( 11 ) = tIntIWG;
-        tIWGUserDefinedInfo( 12 ) = tIntIWG;
-        tIWGUserDefinedInfo( 13 ) = tIntIWG;
-
-        // create the property user defined infos
-        fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
-                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 1.0 }}},
-                                                       tConstValFunction2MatMDL,
-                                                       Cell< fem::PropertyFunc >( 0 ) );
-
-        fem::Property_User_Defined_Info tConductivity2( fem::Property_Type::CONDUCTIVITY,
-                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 1.0 }}},
-                                                       tConstValFunction2MatMDL,
-                                                       Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
-                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                        {{{ 5.0 }}},
-                                                        tConstValFunction2MatMDL,
-                                                        Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tNeumannFlux( fem::Property_Type::TEMP_NEUMANN,
-                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                      {{{ 20.0 }}},
-                                                      tConstValFunction2MatMDL,
-                                                      Cell< fem::PropertyFunc >( 0 ) );
-
-        fem::Property_User_Defined_Info tTempLoad1( fem::Property_Type::TEMP_LOAD,
-                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                              {{{ 0.0 }}},
-                                                              tConstValFunction2MatMDL,
-                                                              Cell< fem::PropertyFunc >( 0 ) );
-
-        fem::Property_User_Defined_Info tTempLoad2( fem::Property_Type::TEMP_LOAD,
-                                                              Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                              {{{ 50.0 }}},
-                                                              tConstValFunction2MatMDL,
-                                                              Cell< fem::PropertyFunc >( 0 ) );
-
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
-        tPropertyUserDefinedInfo(0)  = create_bulk_properties(tConductivity2,tTempLoad2);
-        tPropertyUserDefinedInfo(1)  = create_bulk_properties(tConductivity2,tTempLoad2);
-        tPropertyUserDefinedInfo(2)  = create_bulk_properties(tConductivity2,tTempLoad2);
-        tPropertyUserDefinedInfo(3)  = create_bulk_properties(tConductivity2,tTempLoad2);
-        tPropertyUserDefinedInfo(4)  = create_bulk_properties(tConductivity,tTempLoad1);
-        tPropertyUserDefinedInfo(5)  = create_bulk_properties(tConductivity,tTempLoad1);
-        tPropertyUserDefinedInfo(6)  = create_bulk_properties(tConductivity,tTempLoad1);
-        tPropertyUserDefinedInfo(7)  = create_bulk_properties(tConductivity,tTempLoad1);
-        tPropertyUserDefinedInfo(8)  = create_dirichlet_properties(tConductivity,tTempDirichlet);
-        tPropertyUserDefinedInfo(9)  = create_neumann_properties(tNeumannFlux);
-        tPropertyUserDefinedInfo(10) = create_interface_properties(tConductivity2,tConductivity2);
-        tPropertyUserDefinedInfo(11) = create_interface_properties(tConductivity2,tConductivity);
-        tPropertyUserDefinedInfo(12) = create_interface_properties(tConductivity2,tConductivity);
-        tPropertyUserDefinedInfo(13) = create_interface_properties(tConductivity,tConductivity);
-
-        // create constitutive user defined info
-        fem::Constitutive_User_Defined_Info tDiffLinIso = create_diff_lin_constitutive_info();
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
-        tConstitutiveUserDefinedInfo(0) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(1) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(2) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(3) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(4) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(5) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(6) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(7) = create_bulk_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo(8) = create_dbc_diff_lin_constitutive(tDiffLinIso);
-        tConstitutiveUserDefinedInfo( 9 ).resize( 1 ); // neumann
-        tConstitutiveUserDefinedInfo( 10 ) = create_interface_diff_lin_constitutive(tDiffLinIso,tDiffLinIso);
-        tConstitutiveUserDefinedInfo( 11 ) = create_interface_diff_lin_constitutive(tDiffLinIso,tDiffLinIso);
-        tConstitutiveUserDefinedInfo( 12 ) = create_interface_diff_lin_constitutive(tDiffLinIso,tDiffLinIso);
-        tConstitutiveUserDefinedInfo( 13 ) = create_interface_diff_lin_constitutive(tDiffLinIso,tDiffLinIso);
         
         //------------------------------------------------------------------------------
         // create the properties
@@ -638,8 +545,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
         NLA::Nonlinear_Solver tNonlinearSolver;
-
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
         tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
         tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
         tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;

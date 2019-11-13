@@ -8,9 +8,9 @@
 #define SRC_FEM_CL_FEM_IWG_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
-#include "linalg_typedefs.hpp"              //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_Matrix.hpp"                    //LNA/src
+#include "linalg_typedefs.hpp"              //MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
@@ -24,6 +24,7 @@ namespace moris
 {
     namespace fem
     {
+        class Set;
 //------------------------------------------------------------------------------
         /**
          * Integrand of Weak Form of Governing Equations
@@ -31,6 +32,8 @@ namespace moris
         class IWG
         {
         protected :
+
+            Set * mSet;
 
             // nodal weak BCs
             Matrix< DDRMat > mNodalWeakBCs;
@@ -103,6 +106,14 @@ namespace moris
              */
             virtual ~IWG(){};
 
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
+            }
 //------------------------------------------------------------------------------
             /**
              * set nodal weak BCs
@@ -657,297 +668,13 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
-              /**
-               * create a global dof type list including IWG, property and constitutive dependencies
-               */
-              void build_global_dof_type_list()
-              {
-                  // MASTER-------------------------------------------------------
-                  // get the size of the dof type list
-                  uint tCounterMax = 0;
+             /**
+              * create a global dof type list including IWG, property and constitutive dependencies
+              */
+             void build_global_dof_type_list();
 
-                  // get number of dof types from IWG
-                  tCounterMax += mMasterDofTypes.size();
+             void get_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-                  // get number of dof types from properties
-                  for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                  {
-                      tCounterMax += tProperty->get_dof_type_list().size();
-                  }
-
-                  // get number of dof types from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                  {
-                      tCounterMax += tCM->get_global_dof_type_list().size();
-                  }
-
-                  // get number of dof types from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      tCounterMax += tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER ).size();
-                  }
-
-                  // set size for the global dof type list
-                  mMasterGlobalDofTypes.resize( tCounterMax );
-
-                  // set a size for the checkList (used to avoid repeating a dof type)
-                  moris::Cell< sint > tCheckList( tCounterMax, -1 );
-
-                  // init total dof counter
-                  uint tCounter = 0;
-
-                  // get dof type from penalty parameter
-                  for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
-                  {
-                      // put the dof type in the checklist
-                      tCheckList( tCounter ) = static_cast< uint >( mMasterDofTypes( iDOF )( 0 ) );
-
-                      // put the dof type in the global type list
-                      mMasterGlobalDofTypes( tCounter ) = mMasterDofTypes( iDOF );
-
-                      // update the dof counter
-                      tCounter++;
-                  }
-
-                  // get dof type from properties
-                  for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                  {
-                      // get dof types for property
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                      // loop on property dof type
-                      for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                      {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
-                          {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                          }
-
-                          // if dof enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dof type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                              // put the dof type in the global type list
-                              mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                              // update dof counter
-                              tCounter++;
-                          }
-                      }
-                  }
-
-                  // get dof type from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                  {
-                      // get dof types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                      // loop on property dof type
-                      for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                      {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
-                          {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                          }
-
-                          // if dof enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dof type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                              // put the dof type in the global type list
-                              mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                              // update dof counter
-                              tCounter++;
-                          }
-                      }
-                  }
-
-                  // get dof type from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      // get dof types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
-
-                      // loop on property dof type
-                      for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                      {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
-                          {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                          }
-
-                          // if dof enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dof type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                              // put the dof type in the global type list
-                              mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                              // update dof counter
-                              tCounter++;
-                          }
-                      }
-                  }
-
-                  // get the number of unique dof type groups for the penalty parameter
-                  mMasterGlobalDofTypes.resize( tCounter );
-
-                  // SLAVE--------------------------------------------------------
-                  // get the size of the dof type list
-                  tCounterMax = 0;
-
-                  // get number of dof types from penalty parameter
-                  tCounterMax += mSlaveDofTypes.size();
-
-                  // get number of dof types from properties
-                  for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                  {
-                      tCounterMax += tProperty->get_dof_type_list().size();
-                  }
-
-                  // get number of dof types from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                  {
-                      tCounterMax += tCM->get_global_dof_type_list().size();
-                  }
-
-                  // get number of dof types from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      tCounterMax += tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-                  }
-
-                  // set size for the global dof type list
-                  mSlaveGlobalDofTypes.resize( tCounterMax );
-
-                  // set a size for the checkList (used to avoid repeating a dof type)
-                  tCheckList.resize( tCounterMax, -1 );
-
-                  // init total dof counter
-                  tCounter = 0;
-
-                  // get dof type from penalty parameter
-                  for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
-                  {
-                      // put the dof type in the checklist
-                      tCheckList( tCounter ) = static_cast< uint >( mSlaveDofTypes( iDOF )( 0 ) );
-
-                      // put the dof type in the global type list
-                      mSlaveGlobalDofTypes( tCounter ) = mSlaveDofTypes( iDOF );
-
-                      // update the dof counter
-                      tCounter++;
-                  }
-
-                  // get dof type from properties
-                  for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                  {
-                      // get dof types for property
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                      // loop on property dof type
-                      for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                      {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
-                          {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                          }
-
-                          // if dof enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dof type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                              // put the dof type in the global type list
-                              mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                              // update dof counter
-                              tCounter++;
-                          }
-                      }
-                  }
-
-                  // get dof type from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                  {
-                      // get dof types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                      // loop on property dof type
-                      for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                      {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
-                          {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                          }
-
-                          // if dof enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dof type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                              // put the dof type in the global type list
-                              mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                              // update dof counter
-                              tCounter++;
-                          }
-                      }
-                  }
-
-                  // get dof type from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      // get dof types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-
-                      // loop on property dof type
-                      for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                      {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
-                          {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                          }
-
-                          // if dof enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dof type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                              // put the dof type in the global type list
-                              mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                              // update dof counter
-                              tCounter++;
-                          }
-                      }
-                  }
-
-                  // get the number of unique dof type groups for the penalty parameter
-                  mSlaveGlobalDofTypes.resize( tCounter );
-              };
 
 //------------------------------------------------------------------------------
             /**
@@ -2003,6 +1730,8 @@ namespace moris
 
         };
 //------------------------------------------------------------------------------
+
+
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_IWG_HPP_ */

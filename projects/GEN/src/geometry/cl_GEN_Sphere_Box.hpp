@@ -8,8 +8,8 @@
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_SPHERE_BOX_HPP_
 
 
-#include "../../new/geometry/cl_GEN_Geometry.hpp"
 #include "cl_Matrix.hpp"
+#include "../geometry/cl_GEN_Geometry.hpp"
 
 namespace moris
 {

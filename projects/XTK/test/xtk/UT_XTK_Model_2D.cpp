@@ -5,14 +5,13 @@
  *      Author: ryan
  */
 
-
-#include "../../../GEN/src/new/geometry/cl_GEN_Circle.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
 #include "catch.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_XTK_Model.hpp"
 
+#include "../projects/GEN/src/geometry/cl_GEN_Circle.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 //#include "cl_Circle.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
 

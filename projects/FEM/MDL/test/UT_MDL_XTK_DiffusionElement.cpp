@@ -5,8 +5,6 @@
  *      Author: doble
  */
 
-#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Plane.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -74,6 +72,9 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "fn_norm.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 
 namespace moris
 {

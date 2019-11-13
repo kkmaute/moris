@@ -43,7 +43,7 @@ namespace MSI
 
 //------------------------------------------------------------------------------
     /**
-     * \brief element block class that communicates with the mesh interface
+     * @brief element block class that communicates with the mesh interface
      */
     class Set : public MSI::Equation_Set
     {
@@ -113,6 +113,8 @@ namespace MSI
 
         // integration weights
         Matrix< DDRMat > mIntegWeights;
+
+        Matrix< DDSMat >               mDofTypeMap;
 
         bool mIsTrivialMaster = false;
         bool mIsTrivialSlave  = false;
@@ -561,6 +563,43 @@ namespace MSI
         void initialize_mResidual();
 
 //------------------------------------------------------------------------------
+        moris::sint get_dof_index_for_type( enum MSI::Dof_Type aDofType );
+
+//------------------------------------------------------------------------------
+
+        moris::uint get_num_dof_types();
+
+//------------------------------------------------------------------------------
+
+        void create_dof_type_map_2()
+        {
+            // Create temporary dof type list
+            moris::Cell< enum MSI::Dof_Type > tDofType = get_unique_dof_type_list();
+
+            //Get number of unique adofs of this equation object
+            moris::uint tNumUniqueDofTypes = tDofType.size();
+
+            // Get maximal dof type enum number
+            moris::sint tMaxDofTypeEnumNumber = 0;
+
+            // Loop over all pdof types to get the highest enum index
+            for ( moris::uint Ii = 0; Ii < tNumUniqueDofTypes; Ii++ )
+            {
+                tMaxDofTypeEnumNumber = std::max( tMaxDofTypeEnumNumber, static_cast< int >( tDofType( Ii ) ) );
+            }
+
+            // +1 because c++ is 0 based
+            tMaxDofTypeEnumNumber++;
+
+            // Set size of maping matrix
+            mDofTypeMap       .set_size( tMaxDofTypeEnumNumber, 1, -1 );
+
+            // Loop over all pdof types to create the mapping matrix
+            for ( moris::uint Ii = 0; Ii < tNumUniqueDofTypes; Ii++ )
+            {
+                mDofTypeMap( static_cast< int >( tDofType( Ii ) ), 0 ) = Ii;
+            }
+        }
 
     };
 //------------------------------------------------------------------------------

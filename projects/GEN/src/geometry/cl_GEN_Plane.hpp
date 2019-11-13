@@ -9,7 +9,7 @@
 
 
 
-#include "../../new/geometry/cl_GEN_Geometry.hpp"
+#include "../geometry/cl_GEN_Geometry.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris

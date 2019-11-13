@@ -5,9 +5,6 @@
  *      Author: ktdoble
  */
 
-#include "../../../GEN/src/new/geomeng/fn_GEN_Triangle_Geometry.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Sphere.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -33,8 +30,11 @@
 #include "cl_Profiler.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-
 #include "fn_compute_interface_surface_area.hpp"
+
+#include "../projects/GEN/src/geomeng/fn_GEN_Triangle_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {

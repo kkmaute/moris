@@ -8,9 +8,10 @@
 #ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_MULTI_GEOMETRY_HPP_
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_MULTI_GEOMETRY_HPP_
 
-#include "../../new/geometry/cl_GEN_Geometry.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
+
+#include "../geometry/cl_GEN_Geometry.hpp"
 
 namespace moris
 {

@@ -602,6 +602,47 @@ namespace moris
                 return mGlobalDofTypes;
             };
 
+            void get_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                // set the size of the dof type list for the set
+                uint tCounter = 0;
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    tCounter += mDofTypes( iDOF ).size();
+                }
+
+                for ( std::shared_ptr< Property > tProperty : mProperties )
+                {
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    {
+                        tCounter += tActiveDofType( iDOF ).size();
+                    }
+                }
+
+
+                aDofTypes.reserve( tCounter );
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    aDofTypes.append( mDofTypes( iDOF ) );
+                }
+
+
+                for ( std::shared_ptr< Property > tProperty : mProperties )
+                {
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    {
+                        aDofTypes.append( tActiveDofType( iDOF ) );
+                    }
+                }
+
+            }
+
 //------------------------------------------------------------------------------
             /**
              * build global dof type map

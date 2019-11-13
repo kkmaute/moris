@@ -7,8 +7,6 @@
 //------------------------------------------------------------------------------
 
 // moris core includes
-#include "../../GEN/src/new/geometry/cl_GEN_Geom_Field.hpp"
-#include "../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
 #include "cl_GE_Core.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -43,7 +41,8 @@
 #include "cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
-
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 // select namespaces
 using namespace moris;

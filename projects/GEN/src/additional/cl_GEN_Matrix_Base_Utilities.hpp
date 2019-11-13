@@ -10,8 +10,8 @@
 
 #include <iostream>
 
-#include "../../new/additional/fn_GEN_approximate.hpp"
-#include "../../new/additional/fn_GEN_bubble_sort.hpp"
+#include "../additional/fn_GEN_approximate.hpp"
+#include "../additional/fn_GEN_bubble_sort.hpp"
 #include "cl_Matrix.hpp"
 
 

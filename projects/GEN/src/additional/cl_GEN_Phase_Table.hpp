@@ -11,7 +11,6 @@
 
 
 // XTKL: Container includes
-#include "../../new/additional/cl_GEN_Matrix_Base_Utilities.hpp"
 #include "cl_Cell.hpp"
 
 // XTKL: Linear Algebra Includes
@@ -20,6 +19,7 @@
 #include "cl_Matrix.hpp"
 
 //Phase_Table_Structure
+#include "../additional/cl_GEN_Matrix_Base_Utilities.hpp"
 
 namespace moris
 {

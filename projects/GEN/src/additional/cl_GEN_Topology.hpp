@@ -9,10 +9,9 @@
 #define PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_TOPOLOGY_HPP_
 
 
-#include "../../new/additional/cl_GEN_Basis_Function.hpp"
-#include "../../new/additional/cl_GEN_Enums.hpp" // For topology type enums
 #include "linalg_typedefs.hpp"
-
+#include "../additional/cl_GEN_Basis_Function.hpp"
+#include "../additional/cl_GEN_Enums.hpp" // For topology type enums
 
 namespace moris
 {

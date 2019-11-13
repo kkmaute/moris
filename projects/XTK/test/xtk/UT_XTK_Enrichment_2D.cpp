@@ -8,9 +8,6 @@
 #include <memory>
 #include <mpi.h>
 
-#include "../../../GEN/src/new/geometry/cl_GEN_Discrete_Level_Set.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Plane.hpp"
 #include "catch.hpp"
 
 // XTKL: Mesh Includes
@@ -47,6 +44,10 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 
 namespace xtk
 {

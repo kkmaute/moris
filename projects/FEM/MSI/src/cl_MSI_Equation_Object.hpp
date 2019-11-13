@@ -50,8 +50,6 @@ class Dist_Vector;
 
             Dist_Vector * mSolVec = nullptr;
 
-            Model_Solver_Interface * mModelSolverInterface = nullptr;
-
             moris::uint mEqnObjInd;
 
             Matrix< DDRMat > mTime;
@@ -82,13 +80,6 @@ class Dist_Vector;
             {
                 mTime = aTime;
             }
-
-//-------------------------------------------------------------------------------------------------
-
-            void set_model_solver_interface_pointer( Model_Solver_Interface * aModelSolverInterface)
-            {
-                mModelSolverInterface = aModelSolverInterface;
-            };
 
 //-------------------------------------------------------------------------------------------------
 

@@ -13,7 +13,6 @@
 #include <mpi.h>
 #include <ctime>
 
-#include "../../../GEN/src/new/geomeng/cl_GEN_Geometry_Engine.hpp"
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -56,6 +55,7 @@
 #include "fn_tet_volume.hpp"
 
 // general geometry engine class
+#include "../projects/GEN/src/geomeng/cl_GEN_Geometry_Engine.hpp"
 
 namespace xtk
 {

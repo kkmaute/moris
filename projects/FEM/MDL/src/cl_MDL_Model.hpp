@@ -31,11 +31,7 @@ namespace moris
         class Cell;
         class Set;
         class Field_Interpolator;
-        class IWG_User_Defined_Info;
-        class Constitutive_User_Defined_Info;
-        class Property_User_Defined_Info;
-        enum class IWG_Type;
-        enum class Property_Type;
+        class Set_User_Info;
     }
 
     namespace dla
@@ -116,27 +112,19 @@ namespace moris
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
-           /**
-            * constructor
-            * @param[ in ] aMesh  Mesh for this problem
-            * @param[ in ] aBSplineOrder            ???
-            * @param[ in ] aSetList                 cell of mesh set indices
-            * @param[ in ] aSetTypeList             cell of set type enum ( BULK, SIDESET, ...)
-            * @param[ in ] aIWGUserDefinedInfo      cell of cell of IWG user defined info
-            * @param[ in ] aPropertyUserDefinedInfo cell of property user defined info
-            * @param[ in ] aMeshPairIndex           ???
-            * @param[ in ] aUseMultigrid            bool for multigrid use
-            *
-            */
-            Model(       mtk::Mesh_Manager*                                                                 aMesh,
-                   const uint                                                                               aBSplineOrder,
-                   const moris::Cell< moris_index >                                                       & aSetList,
-                   const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
-                   const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
-                   const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
-                   const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
-                   const moris_index                                                                        aMeshPairIndex = 0,
-                   const bool                                                                               aUseMultigrid = false  );
+            /**
+             * constructor
+             * @param[ in ] aMesh          mesh for this problem
+             * @param[ in ] aBSplineOrder  ???
+             * @param[ in ] aSetInfo       cell of set user info
+             * @param[ in ] aMeshPairIndex ???
+             * @param[ in ] aUseMultigrid  bool for multigrid use
+             */
+            Model(       mtk::Mesh_Manager*                  aMeshManager,
+                   const uint                                aBSplineIndex,
+                         moris::Cell< fem::Set_User_Info > & aSetInfo,
+                   const moris_index                         aMeshPairIndex = 0,
+                   const bool                                aUseMultigrid  = false );
 
 //------------------------------------------------------------------------------
             /**

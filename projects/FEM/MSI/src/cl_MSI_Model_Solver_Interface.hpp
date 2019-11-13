@@ -57,6 +57,9 @@ namespace moris
             void set_solver_parameters();
 
      public:
+
+         Model_Solver_Interface( ){ };
+
         Model_Solver_Interface( moris::Cell < Equation_Object* > & aListEqnObj ) : mEquationObjectList( aListEqnObj )
         {
             this->set_solver_parameters();
@@ -145,10 +148,11 @@ namespace moris
 
         void finalize( const bool aUseMultigrid = false )
         {
-            for ( Equation_Object* tElement : mEquationObjectList )
+            for ( Equation_Set* tEquationSet : mEquationBlocks )
             {
-                tElement->set_model_solver_interface_pointer( this );
+                tEquationSet->set_model_solver_interface_pointer( this );
             }
+
             mDofMgn.initialize_pdof_host_list( mEquationObjectList );
 
             mDofMgn.create_adofs();

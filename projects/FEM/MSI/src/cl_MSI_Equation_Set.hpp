@@ -10,6 +10,7 @@
 
 #include "assert.h"
 #include "cl_Communication_Tools.hpp"               //FEM/INT/src
+#include "cl_Cell.hpp"
 
 namespace moris
 {
@@ -41,6 +42,8 @@ namespace mtk
 
         // map of the element active dof types
         moris::Cell< enum MSI::Dof_Type > mEqnObjDofTypeList; // List of dof types of this equation obj
+
+        Model_Solver_Interface * mModelSolverInterface = nullptr;
 
         friend class MSI::Equation_Object;
         friend class Element_Bulk;
@@ -119,6 +122,13 @@ namespace mtk
         moris::Cell< enum MSI::Dof_Type > & get_unique_dof_type_list()
         {
             return mEqnObjDofTypeList;
+        }
+
+//------------------------------------------------------------------------------
+
+        void set_model_solver_interface_pointer( Model_Solver_Interface * aModelSolverInterface )
+        {
+            mModelSolverInterface = aModelSolverInterface;
         }
     };
 //------------------------------------------------------------------------------

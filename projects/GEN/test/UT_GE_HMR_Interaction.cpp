@@ -1,5 +1,4 @@
 #include <catch.hpp>
-#include "../src/new/geometry/cl_GEN_Geom_Field.hpp"
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
@@ -33,8 +32,9 @@
 #include "cl_GE_Intersection_Object_Line.hpp"
 #include "cl_GE_Node.hpp"
 
-#include "../src/new/geometry/cl_GEN_Geometry.hpp"
-#include "../src/new/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "../src/geometry/cl_GEN_Geometry.hpp"
+#include "../src/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "../src/geometry/cl_GEN_Geom_Field.hpp"
 
 // LINALG includes
 #include "cl_Matrix.hpp"

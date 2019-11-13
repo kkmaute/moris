@@ -8,10 +8,10 @@
 #ifndef PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOM_FIELD_HPP_
 #define PROJECTS_GEN_SRC_NEW_GEOMETRY_CL_GEN_GEOM_FIELD_HPP_
 
-
-#include "../../new/geometry/cl_GEN_Geometry.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_HMR_Field.hpp"
+
+#include "../geometry/cl_GEN_Geometry.hpp"
 
 namespace moris
 {

@@ -5,8 +5,6 @@
  *      Author: doble
  */
 
-#include "../../../GEN/src/new/geometry/cl_GEN_Geom_Field.hpp"
-#include "../../../GEN/src/new/geometry/cl_GEN_Geometry.hpp"
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -76,6 +74,9 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "fn_norm.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 moris::real
 Plane2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )

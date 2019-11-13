@@ -52,33 +52,15 @@ namespace moris
 //------------------------------------------------------------------------------
     Model::Model(       mtk::Mesh_Manager*                                                                 aMeshManager,
                   const uint                                                                               aBSplineIndex,
-                  const moris::Cell< moris_index >                                                       & aSetList,
-                  const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
-                  const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
-                  const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
-                  const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
+                        moris::Cell< fem::Set_User_Info >                                                  & aSetInfo,
                   const moris_index                                                                        aMeshPairIndex,
                   const bool                                                                               aUseMultigrid )
-     : mMeshManager( aMeshManager ),
+    : mMeshManager( aMeshManager ),
       mMeshPairIndex( aMeshPairIndex ),
       mUseMultigrid( aUseMultigrid )
     {
-        // init the number of set
-        uint tNumFemSets = aSetList.size();
-        
-        // number of groups of IWGs
-        uint tNumIWGGroups = aIWGUserDefinedInfo.size();
-
-        // number of groups of property types
-        uint tNumPropGroups = aPropertyUserDefinedInfo.size();
-
-        // number of groups of constitutive types
-        uint tNumCMGroups = aConstitutiveUserDefinedInfo.size();
-
-        // check input
-        MORIS_ERROR( tNumIWGGroups == tNumFemSets, " Model::Model - wrong number of IWG groups. " );
-        MORIS_ERROR( tNumPropGroups == tNumFemSets, " Model::Model - wrong number of property type groups. " );
-        MORIS_ERROR( tNumCMGroups == tNumFemSets, " Model::Model - wrong number of constitutive type groups. " );
+        // get the number of sets
+        uint tNumFemSets = aSetInfo.size();
 
         // start timer
         tic tTimer1;
@@ -122,60 +104,6 @@ namespace moris
                     ( unsigned int ) tNumOfIPNodes,
                     ( double ) tElapsedTime / 1000 );
         }
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // STEP 1.5: create IWGs
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            // a factory to create the IWGs
-            fem::IWG_Factory tIWGFactory;
-
-            // create a cell of IWGs
-            mIWGs.resize( tNumIWGGroups );
-
-            // loop over the sets
-            for( uint iSet = 0; iSet < tNumIWGGroups; iSet++ )
-            {
-                // number of IWG in set
-                uint tNumIWG = aIWGUserDefinedInfo( iSet ).size();
-
-                // set size for the cell of IWGs for the set
-                mIWGs( iSet ).resize( tNumIWG, nullptr );
-
-                // loop over the IWG types for the set
-                for( uint iIWG = 0; iIWG < tNumIWG; iIWG++ )
-                {
-                    // create an IWG with the factory for the IWG type
-                    mIWGs( iSet )( iIWG ) = tIWGFactory.create_IWG( aIWGUserDefinedInfo( iSet )( iIWG ).get_IWG_type() );
-
-                    // set residual dof type
-                    mIWGs( iSet )( iIWG )->set_residual_dof_type( aIWGUserDefinedInfo( iSet )( iIWG ).get_residual_dof_type() );
-
-                    // set active dof type
-                    mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_dof_type_list() );
-
-                    // set active property type
-                    mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_property_type_list() );
-
-                    // set active constitutive type
-                    mIWGs( iSet )( iIWG )->set_constitutive_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_constitutive_type_list() );
-
-                    if( aSetTypeList( iSet ) == fem::Element_Type::DOUBLE_SIDESET )
-                    {
-                        // set active dof type
-                        mIWGs( iSet )( iIWG )->set_dof_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_dof_type_list( mtk::Master_Slave::SLAVE ),
-                                                                  mtk::Master_Slave::SLAVE );
-
-                        // set active property type
-                        mIWGs( iSet )( iIWG )->set_property_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_property_type_list( mtk::Master_Slave::SLAVE ),
-                                                                       mtk::Master_Slave::SLAVE );
-
-                        // set active constitutive type
-                        mIWGs( iSet )( iIWG )->set_constitutive_type_list( aIWGUserDefinedInfo( iSet )( iIWG ).get_constitutive_type_list( mtk::Master_Slave::SLAVE ),
-                                                                           mtk::Master_Slave::SLAVE );
-                    }
-                }
-            }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 2: create elements

@@ -34,21 +34,21 @@
 // MTK
 #include "cl_MTK_Mesh_Manager.hpp"
 
-#include "../projects/GEN/src/new/additional/cl_GEN_Basis_Function.hpp"
-#include "../projects/GEN/src/new/additional/cl_GEN_Interpolaton.hpp"
-#include "../projects/GEN/src/new/additional/cl_GEN_Pending_Node.hpp"
-#include "../projects/GEN/src/new/additional/cl_GEN_Phase_Table.hpp"
-#include "../projects/GEN/src/new/additional/fn_GEN_approximate.hpp"
+#include "../projects/GEN/src/additional/cl_GEN_Basis_Function.hpp"
+#include "../projects/GEN/src/additional/cl_GEN_Interpolaton.hpp"
+#include "../projects/GEN/src/additional/cl_GEN_Pending_Node.hpp"
+#include "../projects/GEN/src/additional/cl_GEN_Phase_Table.hpp"
+#include "../projects/GEN/src/additional/fn_GEN_approximate.hpp"
 
-#include "../projects/GEN/src/new/field/cl_GEN_Field.hpp"
+#include "../projects/GEN/src/field/cl_GEN_Field.hpp"
 
-#include "../projects/GEN/src/new/geomeng/cl_GEN_Enums.hpp"
-#include "../projects/GEN/src/new/geomeng/cl_GEN_Geometry_Object.hpp"
-#include "../projects/GEN/src/new/geomeng/cl_GEN_Geometry_Object_Manager.hpp"
+#include "../projects/GEN/src/geomeng/cl_GEN_Enums.hpp"
+#include "../projects/GEN/src/geomeng/cl_GEN_Geometry_Object.hpp"
+#include "../projects/GEN/src/geomeng/cl_GEN_Geometry_Object_Manager.hpp"
 
-#include "../projects/GEN/src/new/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/new/geometry/cl_GEN_Cylinder_With_End_Caps.hpp"
-#include "../projects/GEN/src/new/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Cylinder_With_End_Caps.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 namespace moris
 {
