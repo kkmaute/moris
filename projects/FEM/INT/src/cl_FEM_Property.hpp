@@ -39,6 +39,9 @@ namespace moris
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
+            // single dof type
+            MSI::Dof_Type mDof = MSI::Dof_Type::END_ENUM;
+
             // active dof type map
             Matrix< DDSMat > mDofTypeMap;
 
@@ -282,6 +285,20 @@ namespace moris
                 // set mPropDofDer size
                 mPropDofDer.resize( tNumDofTypes );
             };
+            //------------------------------------------------------------------------------
+            /*
+             * @brief get and set functions for the single dof type case
+             */
+            void set_dof_type( MSI::Dof_Type aDof )
+            {
+                mDof = aDof;
+            };
+
+            MSI::Dof_Type get_dof_type(  )
+            {
+//                MORIS_ERROR( mDof == MSI::Dof_Type::END_ENUM, "cl_FEM_Property::get_dof_type() - the DOF type is not set" );
+                return mDof;
+            };
 
 //------------------------------------------------------------------------------
             /**
@@ -481,6 +498,24 @@ namespace moris
              * @param[ in ] aDvType cell of dv type
              */
             void eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
+
+            void get_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                // set the size of the dof type list for the set
+                uint tCounter = 0;
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    tCounter += mDofTypes( iDOF ).size();
+                }
+
+                aDofTypes.reserve( tCounter );
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    aDofTypes.append( mDofTypes( iDOF ) );
+                }
+            }
 
 //------------------------------------------------------------------------------
         };

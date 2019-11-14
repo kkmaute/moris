@@ -32,7 +32,7 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Discrete_Level_Set.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
 
 // select namespaces
 using namespace moris;

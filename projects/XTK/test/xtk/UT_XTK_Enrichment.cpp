@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <mpi.h>
+
 #include "catch.hpp"
 
 // XTKL: Mesh Includes
@@ -32,15 +33,15 @@
 //#include "geometry/cl_Discrete_Level_Set.hpp"
 //#include "geometry/cl_Plane.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Discrete_Level_Set.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Plane.hpp"
-
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 
 namespace xtk
 {

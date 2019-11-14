@@ -27,6 +27,10 @@ namespace moris
         class Constitutive_Model
         {
 
+        private:
+
+            bool mFluxEval = true;
+
         protected :
 
             // constitutive model type
@@ -76,7 +80,6 @@ namespace moris
             uint mSpaceDim;
 
             // flag for evaluation
-            bool mFluxEval = true;
             moris::Cell< bool > mdFluxdDofEval;
             moris::Cell< bool > mdFluxdDvEval;
 
@@ -599,6 +602,47 @@ namespace moris
                 return mGlobalDofTypes;
             };
 
+            void get_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                // set the size of the dof type list for the set
+                uint tCounter = 0;
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    tCounter += mDofTypes( iDOF ).size();
+                }
+
+                for ( std::shared_ptr< Property > tProperty : mProperties )
+                {
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    {
+                        tCounter += tActiveDofType( iDOF ).size();
+                    }
+                }
+
+
+                aDofTypes.reserve( tCounter );
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    aDofTypes.append( mDofTypes( iDOF ) );
+                }
+
+
+                for ( std::shared_ptr< Property > tProperty : mProperties )
+                {
+                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    {
+                        aDofTypes.append( tActiveDofType( iDOF ) );
+                    }
+                }
+
+            }
+
 //------------------------------------------------------------------------------
             /**
              * build global dof type map
@@ -838,8 +882,9 @@ namespace moris
                     // evaluate the flux
                     this->eval_flux();
 
-                    // set bool for evaluation
-//                    mFluxEval = false;
+                    //set eval flag to false
+                    mFluxEval = false;
+
                 }
                 // return the flux value
 //                print(mFlux,"mFlux");
@@ -870,7 +915,8 @@ namespace moris
                     this->eval_traction( aNormal );
 
                     // set bool for evaluation
-//                    mTractionEval = false;
+
+                    mTractionEval = false;
                 }
                 // return the traction value
                 return mTraction;

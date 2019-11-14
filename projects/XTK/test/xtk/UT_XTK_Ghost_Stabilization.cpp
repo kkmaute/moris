@@ -5,19 +5,15 @@
  *      Author: doble
  */
 
-
-
-
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
 
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
 //
 //#include "cl_Plane.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Plane.hpp"
-
 #include "cl_Mesh_Factory.hpp"
 
 namespace xtk

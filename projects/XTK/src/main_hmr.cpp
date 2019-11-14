@@ -41,9 +41,8 @@
 #include "cl_Discrete_Level_Set.hpp"
 
 //------------------------------------------------------------------------------
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 // select namespaces
 using namespace moris;

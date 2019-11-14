@@ -10,6 +10,9 @@
 #define protected public
 #define private   public
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_MSI_Dof_Manager.hpp"         //FEM/INT/src
+#include "cl_MSI_Model_Solver_Interface.hpp"         //FEM/INT/src
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
 #undef protected
 #undef private
 
@@ -88,6 +91,9 @@ namespace moris
         tSlaveDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS1 } );
         tSlaveDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS2 } );
 
+        MSI::Equation_Set * tSet = new fem::Set();
+
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -102,8 +108,19 @@ namespace moris
         tIWG->set_properties( { tPropMaster1 }, mtk::Master_Slave::MASTER );
         tIWG->set_properties( { tPropSlave1 }, mtk::Master_Slave::SLAVE );
 
+        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+        tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 1;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 3;
+
+
         // build master and slave global dof type list
-        tIWG->build_global_dof_type_list();
+        tIWG->get_global_dof_type_list();
 
         // set IWG master and slave dof field interpolators
         tIWG->set_dof_field_interpolators( tMasterDofFI );
@@ -185,6 +202,8 @@ namespace moris
             delete tFI;
         }
         tSlaveDvFI.clear();
+
+        delete (tSet);
 
     }/* TEST_CASE */
 

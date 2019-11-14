@@ -5,12 +5,20 @@
 
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp"                                //FEM//INT/src
+
+#include "op_equal_equal.hpp"
+
+#define protected public
+#define private   public
+#include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
+#undef protected
+#undef private
+
 #include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
 #include "cl_FEM_Property.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
-
-#include "op_equal_equal.hpp"
 
 moris::Matrix< moris::DDRMat > tConstValFunction_UTIWGDIFFDIR( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                                moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
@@ -148,8 +156,20 @@ TEST_CASE( "IWG_Diff_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_C
     //set the evaluation point xi, tau
     tFIs( 0 )->set_space_time( tParamPoint );
 
+    MSI::Equation_Set * tSet = new fem::Set();
+
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 1;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 3;
+
     // build global dof type list
-    tIWG->build_global_dof_type_list();
+    tIWG->get_global_dof_type_list();
 
     // set IWG field interpolators
     tIWG->set_dof_field_interpolators( tFIs );
@@ -287,8 +307,20 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     //set the evaluation point xi, tau
     tFIs( 0 )->set_space_time( tParamPoint );
 
+    MSI::Equation_Set * tSet = new fem::Set();
+
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 1;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 3;
+
     // build global dof type list
-    tIWG->build_global_dof_type_list();
+    tIWG->get_global_dof_type_list();
 
     // set IWG field interpolators
     tIWG->set_dof_field_interpolators( tFIs );
@@ -430,8 +462,20 @@ TEST_CASE( "IWG_Diff_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Dof
     //set the evaluation point xi, tau
     tFIs( 0 )->set_space_time( tParamPoint );
 
+    MSI::Equation_Set * tSet = new fem::Set();
+
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 1;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 3;
+
     // build global dof type list
-    tIWG->build_global_dof_type_list();
+    tIWG->get_global_dof_type_list();
 
     // set IWG field interpolators
     tIWG->set_dof_field_interpolators( tFIs );

@@ -841,16 +841,26 @@ namespace moris
                 // get domain offset
                 Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
 
-                luint tIJK[ N ];
+                bool tCheck = true;
+
+                sint tIJK[ N ];
+
                 luint tBoundingBoxSizeIJK[ N ];
                 luint tBoundingBoxStartEndIJK[ N ][ 2 ];
                 for( uint Ik=0; Ik<N; ++Ik )
                 {
                     tIJK[ Ik ] = std::floor( ( aPoint( Ik ) - mDomainOffset[ Ik ] ) / mElementLength[ tLevel ][ Ik ] );
 
+                    if ( tIJK[ Ik ] < (sint)mDomain.mDomainIJK[ tLevel ][ Ik ][ 0 ] || tIJK[ Ik ] > (sint)mDomain.mDomainIJK[ tLevel ][ Ik ][ 1 ] )
+                    {
+                        tCheck = false;
+                        break;
+                    }
+
                     tBoundingBoxSizeIJK[ Ik ] = std::ceil( aBoundingBoxSize( Ik ) / mElementLength[ tLevel ][ Ik ] );
 
                     sint tStart = tIJK[ Ik ] - tBoundingBoxSizeIJK[ Ik ];
+
                     if( tStart >= (sint)mDomain.mDomainIJK[ tLevel ][ Ik ][ 0 ] )
                     {
                         tBoundingBoxStartEndIJK[ Ik ][ 0 ] = tStart;
@@ -861,6 +871,7 @@ namespace moris
                     }
 
                     sint tEnd = tIJK[ Ik ] + tBoundingBoxSizeIJK[ Ik ];
+
                     if( tEnd <= (sint)mDomain.mDomainIJK[ tLevel ][ Ik ][ 1 ] )
                     {
                         tBoundingBoxStartEndIJK[ Ik ][ 1 ] = tEnd;
@@ -871,32 +882,40 @@ namespace moris
                     }
                 }
 
-                moris::Cell< Background_Element_Base* > tBackgroundElements;
 
-                this->collect_coarsest_elements_in_bounding_box( tBackgroundElements, tBoundingBoxStartEndIJK, tLevel );
-
-                luint tCounter = 0;
-
-                // loop over frame and count active descendants
-                for( luint Ik = 0; Ik < tBackgroundElements.size(); ++Ik )
+                if ( tCheck )
                 {
-                    tBackgroundElements( Ik )->get_number_of_active_descendants( aPattern, tCounter );
+                    moris::Cell< Background_Element_Base* > tBackgroundElements;
+
+                    this->collect_coarsest_elements_in_bounding_box( tBackgroundElements, tBoundingBoxStartEndIJK, tLevel );
+
+                    luint tCounter = 0;
+
+                    // loop over frame and count active descendants
+                    for( luint Ik = 0; Ik < tBackgroundElements.size(); ++Ik )
+                    {
+                        tBackgroundElements( Ik )->get_number_of_active_descendants( aPattern, tCounter );
+                    }
+
+                    moris::Cell< Background_Element_Base* > tActiveElements( tCounter, nullptr );
+
+                    tCounter = 0;
+
+                    for( luint Ik = 0; Ik < tBackgroundElements.size(); ++Ik )
+                    {
+                        tBackgroundElements( Ik )->collect_active_descendants( aPattern, tActiveElements, tCounter );
+                    }
+
+                    aElementMemoryIndex.set_size( tActiveElements.size(), 1 );
+
+                    for( luint Ik = 0; Ik < tActiveElements.size(); ++Ik )
+                    {
+                        aElementMemoryIndex( Ik ) = tActiveElements( Ik )->get_memory_index();
+                    }
                 }
-
-                moris::Cell< Background_Element_Base* > tActiveElements( tCounter, nullptr );
-
-                tCounter = 0;
-
-                for( luint Ik = 0; Ik < tBackgroundElements.size(); ++Ik )
+                else
                 {
-                    tBackgroundElements( Ik )->collect_active_descendants( aPattern, tActiveElements, tCounter );
-                }
-
-                aElementMemoryIndex.set_size( tActiveElements.size(), 1 );
-
-                for( luint Ik = 0; Ik < tActiveElements.size(); ++Ik )
-                {
-                    aElementMemoryIndex( Ik ) = tActiveElements( Ik )->get_memory_index();
+                    aElementMemoryIndex.set_size( 0, 0 );
                 }
             };
 

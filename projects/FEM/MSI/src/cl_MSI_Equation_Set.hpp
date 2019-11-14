@@ -10,7 +10,9 @@
 
 #include "assert.h"
 #include "cl_Communication_Tools.hpp"               //FEM/INT/src
+
 #include "cl_Map.hpp"
+
 
 namespace moris
 {
@@ -160,6 +162,7 @@ namespace mtk
         {
             return mEqnObjDofTypeList;
         }
+
 //------------------------------------------------------------------------------
 
     void create_dof_assembly_map_EQ();
@@ -170,6 +173,8 @@ namespace mtk
     {
         return mDofAssemblyMap_2;
     }
+
+//------------------------------------------------------------------------------
 
     };
 //------------------------------------------------------------------------------

@@ -28,6 +28,10 @@ namespace moris
       mIWGs( aSetInfo.get_IWGs() ),
       mElementType( aSetInfo.get_set_type() )
     {
+        for(  std::shared_ptr< IWG > tIWG : mIWGs )
+        {
+            tIWG->set_set_pointer( this );
+        }
         // get mesh clusters on set
         mMeshClusterList = mMeshSet->get_clusters_on_set();
 
@@ -138,6 +142,8 @@ namespace moris
 
         // create a unique dof type list for solver
         this->create_unique_dof_type_list();
+
+        this->create_dof_type_map_2();
 
         // create a dof type list
         this->create_dof_type_list();
@@ -259,19 +265,10 @@ namespace moris
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
-            // loop over the IWG master dof type
-            for ( uint iDOF = 0; iDOF< tIWG->get_global_dof_type_list( mtk::Master_Slave::MASTER ).size(); iDOF++ )
-            {
-                // add the number of dof type
-                tCounter += tIWG->get_global_dof_type_list( mtk::Master_Slave::MASTER )( iDOF ).size();
-            }
+            moris::Cell< MSI::Dof_Type >  tActiveDofType;
+            tIWG->get_dof_types( tActiveDofType );
 
-            // loop over the IWG slave dof type
-            for ( uint iDOF = 0; iDOF< tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size(); iDOF++ )
-            {
-                // add the number of dof type
-                tCounter += tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ).size();
-            }
+            tCounter += tActiveDofType.size();
         }
 
         // set max size for the dof type list
@@ -280,19 +277,10 @@ namespace moris
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
-            // loop over the IWG master dof type
-            for ( uint iDOF = 0; iDOF < tIWG->get_global_dof_type_list( mtk::Master_Slave::MASTER ).size(); iDOF++ )
-            {
-                // put the master dof type in the dof type list
-                mEqnObjDofTypeList.append( tIWG->get_global_dof_type_list( mtk::Master_Slave::MASTER )( iDOF ) );
-            }
+            moris::Cell< MSI::Dof_Type > tActiveDofType;
+            tIWG->get_dof_types( tActiveDofType );
 
-            // loop over the IWG slave dof type
-            for ( uint iDOF = 0; iDOF < tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size(); iDOF++ )
-            {
-                // put the slave dof type in the dof type list
-                mEqnObjDofTypeList.append( tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
-            }
+            mEqnObjDofTypeList.append( tActiveDofType );
         }
 
         // make the dof type list unique
@@ -1487,6 +1475,19 @@ namespace moris
                 return Integration_Order::UNDEFINED;
                 break;
         }
+    }
+
+//------------------------------------------------------------------------------
+    moris::sint Set::get_dof_index_for_type( enum MSI::Dof_Type aDofType )
+    {
+        return mDofTypeMap( static_cast< int >( aDofType ), 0 );
+    }
+
+//------------------------------------------------------------------------------
+
+    moris::uint Set::get_num_dof_types()
+    {
+        return  this->get_unique_dof_type_list().size();
     }
 
 //------------------------------------------------------------------------------

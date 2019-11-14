@@ -21,11 +21,6 @@
 //#include "cl_MGE_Geometry_Engine.hpp"
 //#include "geomeng/fn_Triangle_Geometry.hpp" // For surface normals
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
-#include "../projects/GEN/src/ripped/geomeng/fn_GEN_Triangle_Geometry.hpp"
-
-// Linalg includes
 #include "cl_Matrix.hpp"
 #include "fn_all_true.hpp"
 #include "op_equal_equal.hpp"
@@ -35,8 +30,11 @@
 #include "cl_Profiler.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-
 #include "fn_compute_interface_surface_area.hpp"
+
+#include "../projects/GEN/src/geomeng/fn_GEN_Triangle_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {

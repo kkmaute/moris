@@ -59,6 +59,9 @@ namespace moris
             void set_solver_parameters();
 
      public:
+
+         Model_Solver_Interface( ){ };
+
         Model_Solver_Interface( moris::Cell < Equation_Object* > & aListEqnObj ) : mEquationObjectList( aListEqnObj )
         {
             this->set_solver_parameters();

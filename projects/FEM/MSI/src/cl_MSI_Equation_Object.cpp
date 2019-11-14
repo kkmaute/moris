@@ -494,9 +494,6 @@ namespace moris
 //                }
 
 
-
-
-
 //                print(mEquationBlock->mJacobians( tDofIndex )( tDofIndex ),"");
 
 //                mRequestedTypeToIndexMap
@@ -593,6 +590,7 @@ namespace moris
         this->build_PADofMap_1( tTMatrix );
 
         aEqnObjRHS = trans( tTMatrix ) * tResidual;
+
 
 //        print(aEqnObjRHS, "aEqnObjRHS");
     }
@@ -727,8 +725,9 @@ namespace moris
             for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
             {
                 // Get dof type index
+
                 moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()->get_dof_manager()
-                                                                 ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+                                                          ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                 MORIS_ASSERT( mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
                         "Equation_Object::get_my_pdof_values: talk with Mathias about this");                         //FIXME delete this error after a closer look
@@ -762,8 +761,9 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
                 {
                     // Get dof type index
+
                     moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()->get_dof_manager()
-                                                                     ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+                                                              ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                     // Check if number if time levels on this dof type is smaller than maximal number of time levels on dof type
                     if ( (sint)mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )

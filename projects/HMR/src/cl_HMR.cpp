@@ -1152,6 +1152,103 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
+        void HMR::user_defined_flagging( int ( *aFunction )(       Element                            * aElement,
+                                                                     const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                                                           ParameterList              & aParameters ),
+                                                 Cell< Matrix< DDRMat > >         & aFields,
+                                                 ParameterList                    & aParameters,
+                                                 const uint                       & aPattern )
+                {
+                    // remember current active scheme
+                    uint tActivePattern = mDatabase->get_activation_pattern();
+
+                    // set activation pattern to input
+                    if( tActivePattern != aPattern )
+                    {
+                        // set active pattern to input mesh
+                        mDatabase->set_activation_pattern( aPattern );
+                    }
+
+                    // get number of fields
+                    uint tNumberOfFields = aFields.size();
+
+                    MORIS_ERROR( tNumberOfFields > 0, "No fields defined for refinement" );
+
+                    // create empty cell of fields
+                    Matrix< DDRMat> tEmpty;
+                    Cell< Matrix< DDRMat> > tFields( tNumberOfFields, tEmpty );
+
+                    // get number of elements from input mesh
+                    uint tNumberOfElements  = mDatabase->get_background_mesh()->get_number_of_active_elements_on_proc();
+
+
+                    // grab max level from settings
+                    uint tMaxLevel = mParameters->get_max_refinement_level();
+
+                    uint tLagrangeInputMeshIndex = mParameters->get_lagrange_input_mesh()(0);             //FIXME this works only for one input mesh
+
+                    // loop over all elements
+                    for( uint e=0; e<tNumberOfElements; ++e )
+                    {
+                        // get pointer to element
+                        Element * tElement =  mMeshes( tLagrangeInputMeshIndex )->get_lagrange_mesh()->get_element( e );
+
+                        // only consider element if level is below max specified level
+
+                        Matrix< IndexMat > tElementsInds = tElement->get_vertex_inds();
+
+                        tFields( 0 ).set_size(tElementsInds.numel(), 1 );
+
+                        // loop over all fields
+                        for( uint f = 0; f<tElementsInds.numel(); ++f )
+                        {
+                            // grab nodal values
+                            MORIS_ASSERT(aFields.size() == 1,"only implemented for one field right now." );
+
+                            tFields( 0 )( f ) = aFields( 0 )( tElementsInds( f ) );
+                        }
+
+                        // check flag from user defined function
+                        int tFlag = aFunction( tElement,
+                                               tFields,
+                                               aParameters );
+
+                        // chop flag if element is at max defined level
+                        if( tElement->get_level() > tMaxLevel )
+                        {
+                            // an element above the max level can only be coarsened
+                            tFlag = -1;
+                        }
+                        else if( tElement->get_level() == tMaxLevel)
+                        {
+                            // an element on the max level can only be kept or coarsened
+                            // but nor refined
+                            tFlag = std::min( tFlag, 0 );
+                        }
+
+                        // perform flagging test
+                        if( tFlag == 1 )
+                        {
+                            // flag this element and parents of neighbors
+                            mDatabase->flag_element( e );
+                        }
+                        else if ( tFlag == 0 )
+                        {
+                            // flag the parent of this element
+                            mDatabase->flag_parent( e );
+                        }
+                    }
+
+
+                    // reset activation pattern of database
+                    if( tActivePattern != aPattern )
+                    {
+                        mDatabase->set_activation_pattern( tActivePattern );
+                    }
+                }
+
+        // ----------------------------------------------------------------------------
+
         void HMR::get_candidates_for_refinement(       Cell< hmr::Element* > & aCandidates,
                                                  const uint                    aLagrangeMeshIndex)
         {

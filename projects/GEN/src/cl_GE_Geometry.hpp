@@ -283,6 +283,12 @@ namespace ge
         {
             MORIS_ASSERT(false, "ge::Geometry::set_mesh(): mesh not set");
         }
+
+        virtual void
+        set_my_mesh(std::shared_ptr< moris::hmr::Mesh > aMyMesh)
+        {
+            MORIS_ASSERT(false, "ge::Geometry::set_mesh(): mesh not set");
+        }
         //------------------------------------------------------------------------------
         /*
          * @brief sets the interpolation type and rule in both space and time, if these are not directly set, they are defaulted to linear Legrange in
@@ -323,7 +329,14 @@ namespace ge
         get_my_mesh()
         {
             MORIS_ASSERT(false, "ge::Geometry::get_my_mesh(): mesh has not been set");
-            return mDummyMeshPointer;
+            return nullptr;
+        }
+
+        virtual std::shared_ptr< moris::hmr::Mesh >
+        get_my_mesh_HMR()
+        {
+            MORIS_ASSERT( false, "ge::Geometry::get_my_mesh(): the associated mesh has not been set" );
+            return nullptr;
         }
         //------------------------------------------------------------------------------
         /*

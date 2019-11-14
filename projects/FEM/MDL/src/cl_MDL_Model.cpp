@@ -221,7 +221,7 @@ namespace moris
         else
         {
             tCommTable.set_size( 1, 1, 0 );
-            tMaxNumAdofs = 1000000;
+            tMaxNumAdofs = 15000000;
         }
         //--------------------------END FIXME--------------------------------
 

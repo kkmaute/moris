@@ -246,6 +246,8 @@ namespace moris
             {
                 moris::sint tDofTypeIndex = mPdofTypeMap( static_cast< int >( aDofType ) );
 
+                MORIS_ASSERT( tDofTypeIndex != -1,"get_pdof_index_for_type() requested dof does not exist in map");
+
                 return tDofTypeIndex;
             };
 

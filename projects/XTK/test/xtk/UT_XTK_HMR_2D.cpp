@@ -5,16 +5,12 @@
  *      Author: doble
  */
 
-
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
 
 //#include "cl_Geom_Field.hpp"
 //#include "cl_Plane.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Plane.hpp"
 #include "typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -45,6 +41,9 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 
 #include "fn_norm.hpp"
 

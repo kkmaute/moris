@@ -30,6 +30,8 @@ namespace moris
         tParameterList.insert( "domain_sidesets", std::string( "" ) );
         tParameterList.insert( "lagrange_output_meshes", std::string( "" ) );
 
+        tParameterList.insert( "lagrange_input_meshes", std::string( "" ) );
+
         tParameterList.insert( "refinement_buffer", 0 );
         tParameterList.insert( "staircase_buffer", 0 );
 
@@ -176,6 +178,7 @@ namespace moris
         string_to_mat( aParameterList.get< std::string >("domain_sidesets"), mSideSets );
 
         string_to_mat( aParameterList.get< std::string >("lagrange_output_meshes"), mOutputMeshes );
+        string_to_mat( aParameterList.get< std::string >("lagrange_input_meshes"), mLagrangeInputMeshes );
         string_to_mat( aParameterList.get< std::string >("lagrange_orders"), mLagrangeOrders );
         string_to_mat( aParameterList.get< std::string >("lagrange_pattern"), mLagrangePatterns );
         string_to_mat( aParameterList.get< std::string >("bspline_orders"), mBSplineOrders );
