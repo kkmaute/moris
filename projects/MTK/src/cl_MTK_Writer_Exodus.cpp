@@ -23,25 +23,20 @@ void Writer_Exodus::set_error_options(bool abort, bool debug, bool verbose)
 void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileName)
 {
     Writer_Exodus::create_file(aFilePath, aFileName);
+    std::cout << "Create" << std::endl;
     Writer_Exodus::write_nodes();
+    std::cout << "Nodes" << std::endl;
     Writer_Exodus::write_node_sets();
+    std::cout << "Node Sets" << std::endl;
     Writer_Exodus::write_blocks();
+    std::cout << "Blocks" << std::endl;
+    Writer_Exodus::write_side_sets();
+    std::cout << "Side Sets" << std::endl;
     Writer_Exodus::close_file();
 }
 
-void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileName) {
-    int                         tCPUWordSize = sizeof(moris::real),
-                                tIOWordSize = 0;
-    moris::uint                 tNumDimensions = mMesh->get_spatial_dim(),
-                                tNumNodes = mMesh->get_num_nodes(),
-                                tNumElements = mMesh->get_num_elems(),
-                                tNumElementBlocks,
-                                tNumNodeSets,
-                                tNumSideSets;
-    moris::Cell<std::string>    tElementBlockNames,
-                                tNodeSetNames,
-                                tSideSetNames;
-
+void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileName)
+{
     // Construct temporary and permanent file paths
     if (!aFilePath.empty())
     {
@@ -51,30 +46,31 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     mPermFileName = aFilePath + aFileName;
 
     // Element Blocks
-    tElementBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
-    tNumElementBlocks = tElementBlockNames.size();
+    moris::Cell<std::string> tElementBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
+    int tNumElementBlocks = tElementBlockNames.size();
 
     // Node Sets
-    tNodeSetNames = mMesh->get_set_names(moris::EntityRank::NODE);
-    tNumNodeSets = tNodeSetNames.size();
+    moris::Cell<std::string> tNodeSetNames = mMesh->get_set_names(moris::EntityRank::NODE);
+    int tNumNodeSets = tNodeSetNames.size();
 
     // Side Sets
-    tSideSetNames = mMesh->get_set_names(moris::EntityRank::FACE);
-    tNumSideSets = tSideSetNames.size();
-    tNumSideSets = 0; //TODO
+    moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(moris::EntityRank::FACE);
+    int tNumSideSets = tSideSetNames.size();
 
     // Create the database
+    int tCPUWordSize = 8, tIOWordSize = 8; // TODO
     mExoid = ex_create(mTempFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize);
 
     // Initialize the database
-    ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, tNumElementBlocks, tNumNodeSets,
-                         tNumSideSets);
+    int tNumDimensions = mMesh->get_spatial_dim();
+    int tNumNodes = mMesh->get_num_nodes();
+    int tNumElements = mMesh->get_num_elems();
+    ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, tNumElementBlocks, tNumNodeSets, tNumSideSets);
 }
 
 void Writer_Exodus::open_file(const char* aExodusFileName, float aVersion)
 {
-    int tCPUWordSize = sizeof(moris::real);
-    int tIOWordSize = 0;
+    int tCPUWordSize = 8, tIOWordSize = 8; // TODO
     ex_open(aExodusFileName, EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion);
 }
 
@@ -86,114 +82,126 @@ void Writer_Exodus::close_file()
 
 void Writer_Exodus::write_nodes()
 {
-    unsigned long                           tVertexNum,
-                                            tCoordinateNum;
-    moris::Cell<moris::mtk::Vertex const*>  tVertices;
-    moris::Matrix<moris::DDRMat>            tVertexCoordinates;
-    moris::real*                            tCoordinateArray[3];
+    // Get all vertices
+    moris::Cell<moris::mtk::Vertex const*> tVertices = mMesh->get_all_vertices();
 
-    tVertexNum = mMesh->get_num_nodes();
-    tCoordinateArray[0] = new moris::real[tVertexNum]();
-    tCoordinateArray[1] = new moris::real[tVertexNum]();
-    tCoordinateArray[2] = new moris::real[tVertexNum]();
+    // spatial dimension
+    int tSpatialDim = mMesh->get_spatial_dim();
+    bool tYDim = tSpatialDim >= 2;
+    bool tZDim = tSpatialDim >= 3;
 
-    tVertices = mMesh->get_all_vertices();
-    for (tVertexNum = 0; tVertexNum < tVertices.size(); tVertexNum++)
+    // Set up coordinate and node map arrays based on the number of vertices
+    MORIS_ASSERT(tVertices.size() > 0, "Invalid Node Map size");
+    moris::Matrix<moris::IdMat> tNodeMap(tVertices.size(), 1, 0);
+
+    // Coordinate arrays
+    moris::Matrix<moris::DDRMat> tXCoordinates(tVertices.size(), 1, 0.0);
+    moris::Matrix<moris::DDRMat> tYCoordinates(tVertices.size(), 1, 0.0);
+    moris::Matrix<moris::DDRMat> tZCoordinates(tVertices.size(), 1, 0.0);
+
+    for (moris::uint tVertexIndex = 0; tVertexIndex < tVertices.size(); tVertexIndex++)
     {
-        tVertexCoordinates = tVertices(tVertexNum)->get_coords();
-        for (tCoordinateNum = 0; tCoordinateNum < std::max(tVertexCoordinates.length(), (size_t)3); tCoordinateNum++)
-        {
-            tCoordinateArray[tCoordinateNum][tVertexNum] = tVertexCoordinates(tCoordinateNum);
-        }
-    }
-    ex_put_coord(mExoid, tCoordinateArray[0], tCoordinateArray[1], tCoordinateArray[2]);
+        // Get coordinates
+        moris::Matrix<moris::DDRMat> tVertexCoordinates = tVertices(tVertexIndex)->get_coords();
 
-    delete tCoordinateArray[0];
-    delete tCoordinateArray[1];
-    delete tCoordinateArray[2];
+        // Place in coordinate arrays
+        tXCoordinates(tVertexIndex, 0) = tVertexCoordinates(0);
+        tYCoordinates(tVertexIndex, 0) = tVertexCoordinates(1 * tYDim) * tYDim;
+        tZCoordinates(tVertexIndex, 0) = tVertexCoordinates(2 * tZDim) * tZDim;
+
+        // Get global ids for id map
+        tNodeMap(tVertexIndex, 0) = tVertices(tVertexIndex)->get_id();
+        //std::cout << tVertexIndex << ", " << tNodeMap(tVertexIndex)<<", "<<tVertices(tVertexIndex)->get_index()<<","
+        //<<tVertices(tVertexIndex)->get_id() << std::endl;
+    }
+
+    // Write coordinates
+    ex_put_coord(mExoid, tXCoordinates.data(), tYCoordinates.data(), tZCoordinates.data());
+
+    // Write node id map
+    ex_put_id_map(mExoid, EX_NODE_MAP, tNodeMap.data());
 }
 
 void Writer_Exodus::write_node_sets()
 {
-    int                             tNodeSetId,
-                                    tNumNodeSets;
-    int*                            tNodeList;
-    moris::Cell<std::string>        tNodeSetNames;
-    moris::Matrix<moris::IndexMat>  tNodeIndices;
-
     // Get the number of node sets and their names
-    tNodeSetNames = mMesh->get_set_names(moris::EntityRank::NODE);
-    tNumNodeSets = tNodeSetNames.size();
+    moris::Cell<std::string> tNodeSetNames = mMesh->get_set_names(moris::EntityRank::NODE);
+    int tNumNodeSets = tNodeSetNames.size();
 
-    for (tNodeSetId = 0; tNodeSetId < tNumNodeSets; tNodeSetId++)
+    // Write each node set
+    for (int tNodeSetId = 1; tNodeSetId <= tNumNodeSets; tNodeSetId++)
     {
-        tNodeIndices = mMesh->get_set_entity_loc_inds(moris::EntityRank::NODE, tNodeSetNames(tNodeSetId));
-        tNodeList = new int[tNodeIndices.length()];
+        moris::Matrix<moris::IndexMat> tNodeIndices = mMesh->get_set_entity_loc_inds(moris::EntityRank::NODE,
+                tNodeSetNames(tNodeSetId));
         ex_put_set(mExoid, EX_NODE_SET, tNodeSetId, tNodeIndices.data(), NULL);
-        delete tNodeList;
     }
 }
 
 void Writer_Exodus::write_blocks()
 {
-    unsigned long                   tBlockNum,
-                                    tElementNum,
-                                    tConnectivityIndex,
-                                    tVertexNum;
-    int64_t                         tNumNodesPerEntry,
-                                    tNumEdgesPerEntry,
-                                    tNumFacesPerEntry,
-                                    tNumAttributesPerEntry = 0; // TODO attributes?
-    int*                            tConnectivityArray;
-    const char*                     tBlockDescription;
-    CellTopology                    tBlockTopology;
-    moris::Cell<std::string>        tSetNames;
-    moris::Matrix<moris::IdMat>     tVertexIds;
+    // Get the number of elements
+    int tNumElements = mMesh->get_num_elems();
+
+    // Write the element map
+    moris::Matrix<moris::IdMat> tElementMap(tNumElements, 1, 0);
+    for (int tElementIndex = 0; tElementIndex < tNumElements; tElementIndex++)
+    {
+        tElementMap(tElementIndex) = mMesh->get_glb_entity_id_from_entity_loc_index(tElementIndex, moris::EntityRank::ELEMENT);
+    }
+    ex_put_map(mExoid, tElementMap.data());
 
     // All of the block names
-    tSetNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
+    moris::Cell<std::string> tSetNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
 
     // Loop through each block
-    for (tBlockNum = 0; tBlockNum < tSetNames.size(); tBlockNum++)
+    for (moris::uint tBlockIndex = 0; tBlockIndex < tSetNames.size(); tBlockIndex++)
     {
         // Get the block elements
-        moris::Cell<const moris::mtk::Cell*> tElements = mMesh->get_block_set_cells(tSetNames(tBlockNum));
+        moris::Cell<const moris::mtk::Cell*> tElements = mMesh->get_block_set_cells(tSetNames(tBlockIndex));
 
         if (tElements.size() > 0)
         {
             // Get the CellTopology of this block
-            tBlockTopology = mMesh->get_blockset_topology(tSetNames(tBlockNum));
+            CellTopology tBlockTopology = mMesh->get_blockset_topology(tSetNames(tBlockIndex));
 
             // Get a description of the type of elements in this block
-            tBlockDescription = this->get_exodus_block_description(tBlockTopology);
+            const char* tBlockDescription = this->get_exodus_block_description(tBlockTopology);
 
             // Get the number of nodes/edges/faces/attributes per element
-            tNumNodesPerEntry = this->get_nodes_per_element(tBlockTopology);
-            tNumEdgesPerEntry = this->get_edges_per_element(tBlockTopology);
-            tNumFacesPerEntry = this->get_faces_per_element(tBlockTopology);
+            int tNumNodesPerElement = this->get_nodes_per_element(tBlockTopology);
+            int tNumEdgesPerElement = 0;
+            int tNumFacesPerElement = 0;
+            int tNumAttributesPerElement = 0;
 
             // Make a block
-            ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockNum, tBlockDescription, tElements.size(), tNumNodesPerEntry,
-                         tNumEdgesPerEntry, tNumFacesPerEntry, tNumAttributesPerEntry);
+	        ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockDescription, tElements.size(),
+	                tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement);
 
-            // Construct and write connectivity
-            tConnectivityArray = new int[tElements.size() * tNumNodesPerEntry]();
-            tConnectivityIndex = 0;
-            for (tElementNum = 0; tElementNum < tElements.size(); tElementNum++)
+            // Construct matrix of node indices per element
+            moris::Matrix<moris::IndexMat> tConnectivityArray(tNumNodesPerElement * tElements.size(), 1, 0);
+
+            // Loop through the elements in this block
+            moris::uint tConnectivityIndex = 0;
+            for (moris::uint tElementIndex = 0; tElementIndex < tElements.size(); tElementIndex++)
             {
-                tVertexIds = tElements(tElementNum)->get_vertex_ids();
-                for (tVertexNum = 0; tVertexNum < tVertexIds.length(); tVertexNum++)
+                // Get the vertex indices of this element
+                moris::Matrix<moris::IndexMat> tVertexIndices = tElements(tElementIndex)->get_vertex_inds();
+
+                // Assign each vertex individually
+                for (int tNodeNum = 0; tNodeNum < tNumNodesPerElement; tNodeNum++)
                 {
-                    tConnectivityArray[tConnectivityIndex] = tVertexIds(tVertexNum);
+                    tConnectivityArray(tConnectivityIndex, 0) = tVertexIndices(tNodeNum);
                     tConnectivityIndex++;
                 }
             }
-            ex_put_conn(mExoid, EX_ELEM_BLOCK, tBlockNum, tConnectivityArray, nullptr, nullptr);
-            delete tConnectivityArray;
+
+            // Write connectivity
+            ex_put_conn(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tConnectivityArray.data(), nullptr, nullptr);
         }
+
         else // Block has no elements
         {
-            ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockNum, "N/A", tElements.size(), 0, 0, 0, tNumAttributesPerEntry);
+            ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, "N/A", 0, 0, 0, 0, 0);
         }
 
         // Name the block sets
@@ -201,8 +209,34 @@ void Writer_Exodus::write_blocks()
     }
 }
 
+void Writer_Exodus::write_side_sets()
+{
+    // Get side set names
+    moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(moris::EntityRank::FACE);
 
+    // Write side sets
+    for (moris::uint tSideSetNum = 0; tSideSetNum < tSideSetNames.size(); tSideSetNum++)
+    {
+        // Get the side set element ids
+        moris::Matrix<moris::IndexMat>  tSideSetElements;
+        moris::Matrix<moris::IndexMat>  tSideSetOrdinals;
+        mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetNum), tSideSetElements, tSideSetOrdinals);
 
+        // Change ordinal to be 1-indexed for Exodus
+        for (moris::uint tOrdinalNum = 0; tOrdinalNum < tSideSetOrdinals.numel(); tOrdinalNum++)
+        {
+            tSideSetOrdinals(tOrdinalNum)++;
+        }
+
+        // Write the side set
+        std::cout << tSideSetNum << std::endl;
+        ex_put_set_param(mExoid, EX_SIDE_SET, tSideSetNum + 1, tSideSetElements.numel(), 0);
+        ex_put_set(mExoid, EX_SIDE_SET, tSideSetNum + 1, tSideSetElements.data(), tSideSetOrdinals.data());
+    }
+
+    // Name the side sets
+    ex_put_names(mExoid, EX_SIDE_SET, this->string_cell_to_char_array(tSideSetNames));
+}
 
 
 

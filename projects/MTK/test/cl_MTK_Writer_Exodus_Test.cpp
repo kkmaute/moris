@@ -174,58 +174,58 @@ namespace moris
             moris::mtk::MtkSetsInfo tMtkMeshSets;
             // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
 
-            // interface side set
-            moris::mtk::MtkSideSetInfo tInterfaceSideSet;
-            Matrix<IndexMat> tInterfaceElemIdandSideOrd = {{6, 2},
-                                                           {8, 1},
-                                                           {9, 2},
-                                                           {10, 2},
-                                                           {12, 1},
-                                                           {13, 2},
-                                                           {14, 1},
-                                                           {16, 2},
-                                                           {17, 1},
-                                                           {18, 1},
-                                                           {20, 2},
-                                                           {21, 2},
-                                                           {22, 2},
-                                                           {23, 2},
-                                                           {24, 1},
-                                                           {29, 1},
-                                                           {30, 1},
-                                                           {32, 2},
-                                                           {33, 1},
-                                                           {34, 1},
-                                                           {37, 2},
-                                                           {41, 2},
-                                                           {43, 1},
-                                                           {44, 1},
-                                                           {45, 1},
-                                                           {48, 2},
-                                                           {52, 2},
-                                                           {54, 1},
-                                                           {55, 1},
-                                                           {56, 2},
-                                                           {59, 1},
-                                                           {63, 1},
-                                                           {65, 2},
-                                                           {66, 2},
-                                                           {67, 2},
-                                                           {70, 1},
-                                                           {73, 1},
-                                                           {76, 1},
-                                                           {79, 1},
-                                                           {82, 2}};
-            tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
-            tInterfaceSideSet.mSideSetName        = "iside" ;
-            tMtkMeshSets.add_side_set(&tInterfaceSideSet);
+//            // interface side set
+//            moris::mtk::MtkSideSetInfo tInterfaceSideSet;
+//            Matrix<IndexMat> tInterfaceElemIdandSideOrd = {{6, 2},
+//                                                           {8, 1},
+//                                                           {9, 2},
+//                                                           {10, 2},
+//                                                           {12, 1},
+//                                                           {13, 2},
+//                                                           {14, 1},
+//                                                           {16, 2},
+//                                                           {17, 1},
+//                                                           {18, 1},
+//                                                           {20, 2},
+//                                                           {21, 2},
+//                                                           {22, 2},
+//                                                           {23, 2},
+//                                                           {24, 1},
+//                                                           {29, 1},
+//                                                           {30, 1},
+//                                                           {32, 2},
+//                                                           {33, 1},
+//                                                           {34, 1},
+//                                                           {37, 2},
+//                                                           {41, 2},
+//                                                           {43, 1},
+//                                                           {44, 1},
+//                                                           {45, 1},
+//                                                           {48, 2},
+//                                                           {52, 2},
+//                                                           {54, 1},
+//                                                           {55, 1},
+//                                                           {56, 2},
+//                                                           {59, 1},
+//                                                           {63, 1},
+//                                                           {65, 2},
+//                                                           {66, 2},
+//                                                           {67, 2},
+//                                                           {70, 1},
+//                                                           {73, 1},
+//                                                           {76, 1},
+//                                                           {79, 1},
+//                                                           {82, 2}};
+//            tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
+//            tInterfaceSideSet.mSideSetName        = "iside" ;
+//            tMtkMeshSets.add_side_set(&tInterfaceSideSet);
 
-            // Fixed bc
-            moris::mtk::MtkSideSetInfo tFixed;
-            Matrix<IndexMat> tFixedElementsAndOrds = {{1, 4}};
-            tFixed.mElemIdsAndSideOrds = &tFixedElementsAndOrds;
-            tFixed.mSideSetName        = "fixed" ;
-            tMtkMeshSets.add_side_set(&tFixed);
+//            // Fixed bc
+//            moris::mtk::MtkSideSetInfo tFixed;
+//            Matrix<IndexMat> tFixedElementsAndOrds = {{1, 4}};
+//            tFixed.mElemIdsAndSideOrds = &tFixedElementsAndOrds;
+//            tFixed.mSideSetName        = "fixed" ;
+//            tMtkMeshSets.add_side_set(&tFixed);
 
             // Fixed bc
             moris::mtk::MtkSideSetInfo tGhost;
@@ -278,7 +278,7 @@ namespace moris
             tMeshDataInput.LocaltoGlobalElemMap(0) = (&tInterpElemsAsIntegCellIds);
             tMeshDataInput.LocaltoGlobalElemMap(1) = (&tCellIdsPhase0);
             tMeshDataInput.LocaltoGlobalElemMap(2) = (&tCellIdsGhost0);
-            tMeshDataInput.CreateAllEdgesAndFaces  = false;
+            tMeshDataInput.CreateAllEdgesAndFaces  = true;
             tMeshDataInput.Verbose                 = false;
             tMeshDataInput.SpatialDim              = &tSpatialDim;
             tMeshDataInput.NodeCoords              = &tNodeCoordinates;
@@ -288,6 +288,9 @@ namespace moris
             tMeshDataInput.MarkNoBlockForIO        = false;
 
             Integration_Mesh* tIntegMeshData = moris::mtk::create_integration_mesh( MeshType::STK, tMeshDataInput );
+
+            std::string tSTKOutput = "./final_name_stk.exo";
+            tIntegMeshData->create_output_mesh(tSTKOutput);
 
             Writer_Exodus writer(tIntegMeshData);
             writer.set_error_options(true, true, true);
