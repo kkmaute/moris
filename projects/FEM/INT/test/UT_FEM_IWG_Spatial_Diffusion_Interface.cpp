@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
 #include "cl_FEM_Property.hpp"                                  //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                                //FEM//INT//src
+#include "cl_FEM_SP_Factory.hpp"                                //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
 
 #include "op_equal_equal.hpp"
@@ -49,10 +50,12 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
     tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterConductivity->set_val_function( tConstValFunction_UTInterface );
+    tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropMasterConductivity->set_val_function( tFIValFunction_UTInterface );
+    tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTInterface } );
 
     std::shared_ptr< fem::Property > tPropSlaveConductivity = std::make_shared< fem::Property > ();
-    tPropSlaveConductivity->set_parameters( { {{ 1.0 }} } );
+    tPropSlaveConductivity->set_parameters( { {{ 5.0 }} } );
     tPropSlaveConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
     tPropSlaveConductivity->set_val_function( tFIValFunction_UTInterface );
     tPropSlaveConductivity->set_dof_derivative_functions( { tFIDerFunction_UTInterface } );
@@ -70,6 +73,22 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tCMSlaveDiffLinIso->set_properties( { tPropSlaveConductivity } );
     tCMSlaveDiffLinIso->set_space_dim( 3 );
 
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+    tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+    tSPNitscheInterface->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
+    tSPNitscheInterface->set_properties( { tPropSlaveConductivity }, mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+    tSPMasterWeightInterface->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
+    tSPMasterWeightInterface->set_properties( { tPropSlaveConductivity }, mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+    tSPSlaveWeightInterface->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
+    tSPSlaveWeightInterface->set_properties( { tPropSlaveConductivity }, mtk::Master_Slave::SLAVE );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -77,6 +96,7 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
+    tIWG->set_stabilization_parameters( { tSPNitscheInterface, tSPMasterWeightInterface, tSPSlaveWeightInterface } );
     tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_models( { tCMSlaveDiffLinIso }, mtk::Master_Slave::SLAVE );
 
@@ -194,18 +214,18 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
                                                        tJacobians,
                                                        tJacobiansFD );
 
-//    // print for debug
-//    print( tJacobians( 0 )( 0 ),"tJacobians00");
-//    print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-//
-//    print( tJacobians( 0 )( 1 ),"tJacobians01");
-//    print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-//
-//    print( tJacobians( 1 )( 0 ),"tJacobians10");
-//    print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-//
-//    print( tJacobians( 1 )( 1 ),"tJacobians11");
-//    print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
+    // print for debug
+    print( tJacobians( 0 )( 0 ),"tJacobians00");
+    print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
+
+    print( tJacobians( 0 )( 1 ),"tJacobians01");
+    print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
+
+    print( tJacobians( 1 )( 0 ),"tJacobians10");
+    print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
+
+    print( tJacobians( 1 )( 1 ),"tJacobians11");
+    print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
     // require check is true
     REQUIRE( tCheckJacobian );

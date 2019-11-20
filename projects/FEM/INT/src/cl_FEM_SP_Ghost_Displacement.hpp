@@ -1,12 +1,12 @@
 /*
- * cl_FEM_SP_Dirichlet_Nitsche.hpp
+ * cl_FEM_SP_Ghost_Displacement.hpp
  *
- *  Created on: Oct 21, 2019
+ *  Created on: Nov 15, 2019
  *  Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
-#define SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
+#ifndef SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_
+#define SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -24,7 +24,7 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class SP_Dirichlet_Nitsche : public Stabilization_Parameter
+        class SP_Ghost_Displacement : public Stabilization_Parameter
         {
 
 //------------------------------------------------------------------------------
@@ -33,10 +33,10 @@ namespace moris
             /*
              * trivial constructor
              */
-            SP_Dirichlet_Nitsche()
+            SP_Ghost_Displacement()
             {
                 // set the penalty type
-                mStabilizationType = fem::Stabilization_Type::DIRICHLET_NITSCHE;
+                mStabilizationType = fem::Stabilization_Type::GHOST_DISPL;
 
                 // set the list of cluster measures
                 mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
@@ -46,7 +46,7 @@ namespace moris
             /**
              * trivial destructor
              */
-            ~SP_Dirichlet_Nitsche(){};
+            ~SP_Ghost_Displacement(){};
 
 //------------------------------------------------------------------------------
             /**
@@ -70,7 +70,7 @@ namespace moris
              */
             void eval_dSPdMasterDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
             {
-                MORIS_ERROR( false, "SP_Dirichlet_Nitsche - eval_dSPdMasterDV: not implemented." );
+                MORIS_ERROR( false, "SP_Ghost_Displacement::eval_dSPdMasterDV: not implemented." );
             }
 
 //------------------------------------------------------------------------------
@@ -79,4 +79,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_ */

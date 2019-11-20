@@ -25,22 +25,13 @@ namespace moris
 
         class IWG_Isotropic_Spatial_Diffusion_Interface : public IWG
         {
-            // penalty parameter
-            real mGammaInterface;
 
-            // weight master parameter
-            real mMasterWeight;
-
-            // weight slave parameter
-            real mSlaveWeight;
-
-//------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
             /*
-             *  constructor
+             * constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Interface();
+            IWG_Isotropic_Spatial_Diffusion_Interface(){};
 
 //------------------------------------------------------------------------------
             /**

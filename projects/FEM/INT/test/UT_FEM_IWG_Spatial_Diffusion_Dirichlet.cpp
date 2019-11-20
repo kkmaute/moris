@@ -4,11 +4,12 @@
 #include "assert.hpp"
 
 #include "cl_MTK_Enums.hpp" //MTK/src
-#include "cl_FEM_Enums.hpp"                                //FEM//INT/src
-#include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
+#include "cl_FEM_Enums.hpp"                      //FEM//INT/src
+#include "cl_FEM_Field_Interpolator.hpp"         //FEM//INT//src
 #include "cl_FEM_Property.hpp"                   //FEM//INT//src
-#include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
-#include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
+#include "cl_FEM_IWG_Factory.hpp"                //FEM//INT//src
+#include "cl_FEM_CM_Factory.hpp"                 //FEM//INT//src
+#include "cl_FEM_SP_Factory.hpp"                 //FEM//INT//src
 
 #include "op_equal_equal.hpp"
 
@@ -72,12 +73,19 @@ TEST_CASE( "IWG_Diff_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_C
     tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPDirichletNitsche->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+    tIWG->set_stabilization_parameters( { tSPDirichletNitsche } );
     tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
     tIWG->set_properties( { tPropMasterDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -211,12 +219,20 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPDirichletNitsche->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+    tIWG->set_stabilization_parameters( { tSPDirichletNitsche } );
     tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
     tIWG->set_properties( { tPropMasterDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -354,12 +370,20 @@ TEST_CASE( "IWG_Diff_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Dof
     tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+    tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPDirichletNitsche->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+    tIWG->set_stabilization_parameters( { tSPDirichletNitsche } );
     tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
     tIWG->set_properties( { tPropMasterDirichlet }, mtk::Master_Slave::MASTER );
 

@@ -9,20 +9,6 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-        IWG_Isotropic_Spatial_Diffusion_Ghost::IWG_Isotropic_Spatial_Diffusion_Ghost()
-        {
-            // FIXME set a penalty
-            mGammaGhost = 1.0;
-
-            // FIXME set mesh parameter
-            // Mesh parameter or parameters which it depends on must be fed to IWG from outside
-            mMeshParameter = 1;
-
-            // FIXME set order of Shape functions
-            // Order must be fed to IWG from outside
-            mOrder = 3;
-        }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
@@ -61,14 +47,6 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
             // set residual cell size
             this->set_residual_double( aResidual );
 
@@ -78,11 +56,8 @@ namespace moris
                  // get normal matrix
                  Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
 
-                 // ghost penalty parameter
-                 real tGhostPenalty = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 ) * mMasterProp( 0 )->val()( 0 );
-
                  // premultiply common terms
-                 Matrix< DDRMat > tPreMultiply = tGhostPenalty                                                         // penalty
+                 Matrix< DDRMat > tPreMultiply = mStabilizationParam( iOrder - 1 )->val()( 0 )                                                         // penalty
                                                * trans( tNormalMatrix ) * tNormalMatrix                                // normals
                                                * ( mMasterFI( 0 )->gradx( iOrder ) - mSlaveFI( 0 )->gradx( iOrder ) ); // jump in iOrder order spatial gradient
 
@@ -129,31 +104,20 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );
 
             // get number of master dependencies
-            uint tMasterNumDofDependencies = mMasterGlobalDofTypes.size();
+            uint tMasterNumDofDependencies = this->get_global_dof_type_list().size();
 
             // loop over the interpolation orders
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
-                // ghost penalty parameter
-                real tGhostPenalty = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 ) * mMasterProp( 0 )->val()( 0 );
-
                 // get normal matrix
                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( iOrder );
 
                 // premultiply common terms
-                Matrix< DDRMat > tPreMultiply = tGhostPenalty * trans( tNormalMatrix ) * tNormalMatrix;
+                Matrix< DDRMat > tPreMultiply = mStabilizationParam( iOrder - 1 )->val()( 0 ) * trans( tNormalMatrix ) * tNormalMatrix;
 
                 // compute Jacobian direct dependencies
                 aJacobians( 0 )( 0 ).matrix_data()
@@ -172,19 +136,15 @@ namespace moris
                     Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
 
                     // if dependency on the dof type
-                    if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
+                    if ( mStabilizationParam( iOrder - 1 )->check_dof_dependency( tDofType ) )
                     {
-                        // compute derivative of the ghost penalty parameter
-                        Matrix< DDRMat > tdGhostPenaltydDOF = mGammaGhost * std::pow( mMeshParameter, 2 * ( iOrder - 1 ) + 1 ) * mMasterProp( 0 )->dPropdDOF( tDofType );
-
                         // premultiply common terms
                         Matrix< DDRMat > tPreMultiply2 = trans( tNormalMatrix ) * tNormalMatrix
                                                          * ( mMasterFI( 0 )->gradx( iOrder ) - mSlaveFI( 0 )->gradx( iOrder ) )
-                                                         * tdGhostPenaltydDOF;
-
+                                                         * mStabilizationParam( iOrder - 1 )->dSPdMasterDOF( tDofType );
                         // add contribution to jacobian
-                        aJacobians( 0 )( iDOF ).matrix_data() +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply2;
-                        aJacobians( 1 )( iDOF ).matrix_data() += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply2;
+                        aJacobians( 0 )( iDOF ).matrix_data() +=   trans( mMasterFI( 0 )->dnNdxn( iOrder ) ) * tPreMultiply2;
+                        aJacobians( 1 )( iDOF ).matrix_data() += - trans( mSlaveFI( 0 )->dnNdxn( iOrder ) )  * tPreMultiply2;
                     }
                 }
             }

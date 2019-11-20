@@ -25,11 +25,6 @@ namespace moris
 
         class IWG_Isotropic_Spatial_Diffusion_Ghost : public IWG
         {
-            // Ghost penalty parameter
-            real mGammaGhost;
-
-            // mesh parameter describing length of elements
-            real mMeshParameter;
 
             // order of Shape functions
             uint mOrder;
@@ -40,7 +35,7 @@ namespace moris
             /*
              *  constructor
              */
-            IWG_Isotropic_Spatial_Diffusion_Ghost();
+            IWG_Isotropic_Spatial_Diffusion_Ghost(){};
 
 //------------------------------------------------------------------------------
             /**

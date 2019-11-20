@@ -38,12 +38,9 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
-
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -237,6 +234,25 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tCMDiffLinIso2->set_properties( { tPropConductivity2 } );
         tCMDiffLinIso2->set_space_dim( 2 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface->set_properties( { tPropConductivity2 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface->set_properties( { tPropConductivity2 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface->set_properties( { tPropConductivity2 }, mtk::Master_Slave::SLAVE );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -255,6 +271,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -267,6 +284,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_stabilization_parameters( { tSPNitscheInterface, tSPMasterWeightInterface, tSPSlaveWeightInterface } );
         tIWGInterface->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
         tIWGInterface->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::SLAVE );
 

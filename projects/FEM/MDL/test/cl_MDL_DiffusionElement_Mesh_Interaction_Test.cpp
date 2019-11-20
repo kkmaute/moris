@@ -26,6 +26,7 @@
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
@@ -137,6 +138,12 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tCMDiffLinIso->set_properties( { tPropConductivity } );
         tCMDiffLinIso->set_space_dim( 3 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -149,6 +156,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -352,6 +360,12 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tCMDiffLinIso->set_properties( { tPropConductivity } );
         tCMDiffLinIso->set_space_dim( 3 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -364,6 +378,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -586,6 +601,12 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tCMDiffLinIso->set_properties( { tPropConductivity } );
         tCMDiffLinIso->set_space_dim( 3 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -598,6 +619,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -847,6 +869,12 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tCMDiffLinIso->set_properties( { tPropConductivity } );
         tCMDiffLinIso->set_space_dim( 3 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -859,6 +887,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -1118,6 +1147,12 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tCMDiffLinIso->set_properties( { tPropConductivity } );
         tCMDiffLinIso->set_space_dim( 3 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -1130,6 +1165,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 

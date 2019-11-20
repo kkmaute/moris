@@ -46,12 +46,9 @@
 #include "cl_FEM_Node_Base.hpp"                  //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"            //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"                //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"                //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"                //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp" //FEM/INT/src
-
-#include "cl_FEM_Property_User_Defined_Info.hpp" //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"      //FEM/INT/src
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -169,6 +166,12 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         tCMDiffLinIso->set_properties( { tPropConductivity } );
         tCMDiffLinIso->set_space_dim( 3 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -181,6 +184,7 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -439,6 +443,12 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         tCMDiffLinIso->set_properties( { tPropConductivity } );
         tCMDiffLinIso->set_space_dim( 3 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -451,6 +461,7 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 

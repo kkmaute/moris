@@ -1,11 +1,10 @@
 
-#include "cl_FEM_SP_Dirichlet_Nitsche.hpp" //FEM/INT/src
+#include "cl_FEM_SP_Ghost_Displacement.hpp" //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"              //FEM/INT/src
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
-
 #include "fn_dot.hpp"
 #include "op_div.hpp"
 
@@ -14,14 +13,14 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        void SP_Dirichlet_Nitsche::eval_SP()
+        void SP_Ghost_Displacement::eval_SP()
         {
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * mMasterProp( 0 )->val() / mElementSize;
+            mPPVal = mParameters( 0 ) * std::pow( mElementSize, 2 * ( mParameters( 1 )( 0 ) - 1 ) + 1 ) * mMasterProp( 0 )->val()( 0 );
         }
 
 //------------------------------------------------------------------------------
-        void SP_Dirichlet_Nitsche::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void SP_Ghost_Displacement::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -38,7 +37,8 @@ namespace moris
                 if ( mMasterProp( iProp )->check_dof_dependency( aDofTypes ) )
                 {
                     // compute derivative with indirect dependency through properties
-                    mdPPdMasterDof( tDofIndex ).matrix_data() += this->val()( 0 ) / mMasterProp( iProp )->val()( 0 ) * mMasterProp( iProp )->dPropdDOF( aDofTypes ) ;
+                    mdPPdMasterDof( tDofIndex ).matrix_data()
+                    += this->val()( 0 ) * mMasterProp( iProp )->dPropdDOF( aDofTypes ) / mMasterProp( iProp )->val()( 0 );
                 }
             }
         }
@@ -46,3 +46,5 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+
+

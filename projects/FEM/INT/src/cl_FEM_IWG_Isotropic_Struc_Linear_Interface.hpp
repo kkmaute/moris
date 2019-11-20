@@ -1,7 +1,7 @@
 /*
  * cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
  *
- *  Created on: Okt 10, 2019
+ *  Created on: Oct 10, 2019
  *      Author: schmidt
  */
 
@@ -25,22 +25,13 @@ namespace moris
 
         class IWG_Isotropic_Struc_Linear_Interface : public IWG
         {
-            // penalty parameter
-            real mGammaInterface;
 
-            // weight master parameter
-            real mMasterWeight;
-
-            // weight slave parameter
-            real mSlaveWeight;
-
-//------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
             /*
              *  constructor
              */
-            IWG_Isotropic_Struc_Linear_Interface();
+            IWG_Isotropic_Struc_Linear_Interface(){};
 
 //------------------------------------------------------------------------------
             /**

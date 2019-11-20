@@ -82,55 +82,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * trivial constructor
+             * constructor
              */
             Property(){};
-
-            /**
-             * constructor
-             * @param[ in ] aPropertyType property type
-             * @param[ in ] aDofTypes     list of dof types
-             */
-            Property( fem::Property_Type                          aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes ) : mPropertyType( aPropertyType ),
-                                                                                mDofTypes( aDofTypes )
-            {};
-
-            /**
-             * constructor
-             * @param[ in ] aPropertyType         property type
-             * @param[ in ] aDofTypes             list of dof types
-             * @param[ in ] aParameters           list of parameters
-             * @param[ in ] aValFunction          property function for value
-             * @param[ in ] aDofDerFunctions      list of property functions for derivatives wrt to dof types
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointer
-             */
-            Property( fem::Property_Type                          aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                      moris::Cell< moris::Matrix< DDRMat > >      aParameters,
-                      PropertyFunc                                aValFunction,
-                      moris::Cell< PropertyFunc >                 aDofDerFunctions,
-                      Geometry_Interpolator*                      aGeometryInterpolator );
-
-            /**
-             * constructor
-             * @param[ in ] aPropertyType         property type
-             * @param[ in ] aDofTypes             list of dof types
-             * @param[ in ] aDvTypes              list of dv types
-             * @param[ in ] aParameters           list of parameters
-             * @param[ in ] aValFunction          property function for value
-             * @param[ in ] aDofDerFunctions      list of property functions for derivatives wrt to dof types
-             * @param[ in ] aDvDerFunctions       list of property functions for derivatives wrt to dv types
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointer
-             */
-            Property( fem::Property_Type                          aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                      moris::Cell< moris::Cell< MSI::Dv_Type > >  aDvTypes,
-                      moris::Cell< moris::Matrix< DDRMat > >      aParameters,
-                      PropertyFunc                                aValFunction,
-                      moris::Cell< PropertyFunc >                 aDofDerFunctions,
-                      moris::Cell< PropertyFunc >                 aDvDerFunctions,
-                      Geometry_Interpolator*                      aGeometryInterpolator );
 
 //------------------------------------------------------------------------------
             /**
@@ -274,10 +228,10 @@ namespace moris
                 uint tNumDofTypes = mDofTypes.size();
 
                 // set mDofDerFunctions size
-                mDofDerFunctions.resize( tNumDofTypes, nullptr );
+                mDofDerFunctions.assign( tNumDofTypes, nullptr );
 
                 // set mPropDofDerEval size
-                mPropDofDerEval.resize( tNumDofTypes, true );
+                mPropDofDerEval.assign( tNumDofTypes, true );
 
                 // set mPropDofDer size
                 mPropDofDer.resize( tNumDofTypes );
@@ -360,7 +314,7 @@ namespace moris
                 mDvDerFunctions.resize( tNumDvTypes, nullptr );
 
                 // set mPropDvDerEval size
-                mPropDvDerEval.resize( tNumDvTypes, true );
+                mPropDvDerEval.assign( tNumDvTypes, true );
 
                 // set mPropdvDer size
                 mPropDvDer.resize( tNumDvTypes );

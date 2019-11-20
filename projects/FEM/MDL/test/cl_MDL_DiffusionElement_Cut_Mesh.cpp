@@ -33,6 +33,7 @@
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
@@ -296,6 +297,36 @@ namespace moris
             tCMDiffLinIso->set_properties( { tPropConductivity } );
             tCMDiffLinIso->set_space_dim( 3 );
 
+            // define stabilization parameters
+            fem::SP_Factory tSPFactory;
+            std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+            tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+            tSPDirichletNitsche->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+
+            uint iInterpOrder = 1;
+            moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > tSPCell( iInterpOrder );
+            if ( iInterpOrder > 0 )
+            {
+                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
+                tSP1->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+                tSPCell( 0 ) = tSP1;
+            }
+            if ( iInterpOrder > 1 )
+            {
+                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
+                tSP2->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+                tSPCell( 1 ) = tSP2;
+            }
+            if ( iInterpOrder > 2 )
+            {
+                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
+                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
+                tSP3->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+                tSPCell( 2 ) = tSP3;
+            }
+
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
 
@@ -308,6 +339,7 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
             tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
             tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
             tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -320,7 +352,7 @@ namespace moris
             tIWGGhost->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-            tIWGGhost->set_properties( { tPropConductivity }, mtk::Master_Slave::MASTER );
+            tIWGGhost->set_stabilization_parameters( tSPCell );
 
             // define set info
             fem::Set_User_Info tSetBulk1;

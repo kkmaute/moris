@@ -8,6 +8,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
 #include "cl_FEM_Property.hpp"                                  //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
+#include "cl_FEM_SP_Factory.hpp"                                //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                                //FEM//INT//src
 
 #include "op_equal_equal.hpp"
@@ -72,6 +73,22 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tCMSlaveStrucLinIso->set_properties( { tPropSlaveEMod, tPropSlaveNu } );
     tCMSlaveStrucLinIso->set_space_dim( 2 );
 
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+    tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+    tSPNitscheInterface->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
+    tSPNitscheInterface->set_properties( { tPropSlaveEMod }, mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+    tSPMasterWeightInterface->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
+    tSPMasterWeightInterface->set_properties( { tPropSlaveEMod }, mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+    tSPSlaveWeightInterface->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
+    tSPSlaveWeightInterface->set_properties( { tPropSlaveEMod }, mtk::Master_Slave::SLAVE );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -79,6 +96,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::SLAVE );
+    tIWG->set_stabilization_parameters( { tSPNitscheInterface, tSPMasterWeightInterface, tSPSlaveWeightInterface } );
     tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_models( { tCMSlaveStrucLinIso }, mtk::Master_Slave::SLAVE );
 

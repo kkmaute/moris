@@ -50,6 +50,7 @@
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
@@ -324,6 +325,25 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tCMStrucLinIso2->set_properties( { tPropEMod2, tPropNu } );
         tCMStrucLinIso2->set_space_dim( 2 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropEMod1 }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface->set_properties( { tPropEMod1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface->set_properties( { tPropEMod1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface->set_properties( { tPropEMod1 }, mtk::Master_Slave::SLAVE );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -340,6 +360,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -352,6 +373,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
         tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_stabilization_parameters( { tSPNitscheInterface, tSPMasterWeightInterface, tSPSlaveWeightInterface } );
         tIWGInterface->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
         tIWGInterface->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::SLAVE );
 
@@ -621,6 +643,12 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         tCMStrucLinIso->set_properties( { tPropEMod, tPropNu } );
         tCMStrucLinIso->set_space_dim( 2 );
 
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropEMod }, mtk::Master_Slave::MASTER );
+
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
@@ -632,6 +660,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D","[XTK_HMR_Struc_2D]")
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -960,13 +989,25 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
       tPropEMod1->set_parameters( { {{ 1.0 }} } );
       tPropEMod1->set_val_function( tConstValFunction );
 
+      std::shared_ptr< fem::Property > tPropEMod1bis = std::make_shared< fem::Property >();
+      tPropEMod1bis->set_parameters( { {{ 1.0 }} } );
+      tPropEMod1bis->set_val_function( tConstValFunction );
+
       std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
       tPropEMod2->set_parameters( { {{ 1.0 }} } );
       tPropEMod2->set_val_function( tConstValFunction );
 
+      std::shared_ptr< fem::Property > tPropEMod2bis = std::make_shared< fem::Property >();
+      tPropEMod2bis->set_parameters( { {{ 1.0 }} } );
+      tPropEMod2bis->set_val_function( tConstValFunction );
+
       std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
       tPropNu->set_parameters( { {{ 0.0 }} } );
       tPropNu->set_val_function( tConstValFunction );
+
+      std::shared_ptr< fem::Property > tPropNubis = std::make_shared< fem::Property >();
+      tPropNubis->set_parameters( { {{ 0.0 }} } );
+      tPropNubis->set_val_function( tConstValFunction );
 
       std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
       tPropDirichlet->set_parameters( { {{0.0}, {0.0}, {0.0}} } );
@@ -984,10 +1025,65 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
       tCMStrucLinIso1->set_properties( { tPropEMod1, tPropNu } );
       tCMStrucLinIso1->set_space_dim( 3 );
 
+      std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1bis = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+      tCMStrucLinIso1bis->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+      tCMStrucLinIso1bis->set_properties( { tPropEMod1bis, tPropNubis } );
+      tCMStrucLinIso1bis->set_space_dim( 3 );
+
       std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
       tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
       tCMStrucLinIso2->set_properties( { tPropEMod2, tPropNu } );
       tCMStrucLinIso2->set_space_dim( 3 );
+
+      std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2bis = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+      tCMStrucLinIso2bis->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+      tCMStrucLinIso2bis->set_properties( { tPropEMod2bis, tPropNubis } );
+      tCMStrucLinIso2bis->set_space_dim( 3 );
+
+      // define stabilization parameters
+      fem::SP_Factory tSPFactory;
+      std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+      tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+      tSPDirichletNitsche->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+      tSPNitscheInterface1->set_parameters( { {{ 1.0 }} } );
+      tSPNitscheInterface1->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+      tSPNitscheInterface1->set_properties( { tPropEMod2bis }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+      tSPMasterWeightInterface1->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+      tSPMasterWeightInterface1->set_properties( { tPropEMod2bis }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+      tSPSlaveWeightInterface1->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+      tSPSlaveWeightInterface1->set_properties( { tPropEMod2bis }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+      tSPNitscheInterface2->set_parameters( { {{ 1.0 }} } );
+      tSPNitscheInterface2->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+      tSPNitscheInterface2->set_properties( { tPropEMod1 }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+      tSPMasterWeightInterface2->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+      tSPMasterWeightInterface2->set_properties( { tPropEMod1 }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+      tSPSlaveWeightInterface2->set_properties( { tPropEMod2 }, mtk::Master_Slave::MASTER );
+      tSPSlaveWeightInterface2->set_properties( { tPropEMod1 }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+      tSPNitscheInterface3->set_parameters( { {{ 1.0 }} } );
+      tSPNitscheInterface3->set_properties( { tPropEMod1 }, mtk::Master_Slave::MASTER );
+      tSPNitscheInterface3->set_properties( { tPropEMod1bis }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+      tSPMasterWeightInterface3->set_properties( { tPropEMod1 }, mtk::Master_Slave::MASTER );
+      tSPMasterWeightInterface3->set_properties( { tPropEMod1bis }, mtk::Master_Slave::SLAVE );
+
+      std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+      tSPSlaveWeightInterface3->set_properties( { tPropEMod1 }, mtk::Master_Slave::MASTER );
+      tSPSlaveWeightInterface3->set_properties( { tPropEMod1bis }, mtk::Master_Slave::SLAVE );
 
       // define the IWGs
       fem::IWG_Factory tIWGFactory;
@@ -1005,6 +1101,7 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
       std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
       tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
       tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+      tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
       tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
       tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -1017,13 +1114,15 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
       tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
       tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
       tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
+      tIWGInterface1->set_stabilization_parameters( { tSPNitscheInterface1, tSPMasterWeightInterface1, tSPSlaveWeightInterface1 } );
       tIWGInterface1->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
-      tIWGInterface1->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::SLAVE );
+      tIWGInterface1->set_constitutive_models( { tCMStrucLinIso2bis }, mtk::Master_Slave::SLAVE );
 
       std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
       tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
       tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
       tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
+      tIWGInterface2->set_stabilization_parameters( { tSPNitscheInterface2, tSPMasterWeightInterface2, tSPSlaveWeightInterface2 } );
       tIWGInterface2->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
       tIWGInterface2->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::SLAVE );
 
@@ -1031,8 +1130,9 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
       tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
       tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
       tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
+      tIWGInterface3->set_stabilization_parameters( { tSPNitscheInterface3, tSPMasterWeightInterface3, tSPSlaveWeightInterface3 } );
       tIWGInterface3->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
-      tIWGInterface3->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::SLAVE );
+      tIWGInterface3->set_constitutive_models( { tCMStrucLinIso1bis }, mtk::Master_Slave::SLAVE );
 
       // create a list of active block-sets
       std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);

@@ -18,10 +18,6 @@ namespace moris
             // FIXME set mesh parameter from outside
             // mesh parameter
             mMeshParameter = 1.0;
-
-//            // FIXME set order from outside
-//            // interpolation order
-//            mOrder = 1;
         }
 
 //------------------------------------------------------------------------------
@@ -60,14 +56,6 @@ namespace moris
             this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
-
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set residual cell size
             this->set_residual_double( aResidual );
@@ -144,14 +132,6 @@ namespace moris
             this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
-
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
 
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );

@@ -24,8 +24,6 @@ namespace moris
 
         class IWG_Isotropic_Struc_Linear_Dirichlet : public IWG
         {
-            // Nitsche's penalty parameter
-            real mGamma;
 
 //------------------------------------------------------------------------------
         public:
@@ -33,7 +31,7 @@ namespace moris
             /*
              * constructor
              */
-            IWG_Isotropic_Struc_Linear_Dirichlet();
+            IWG_Isotropic_Struc_Linear_Dirichlet(){};
 
 //------------------------------------------------------------------------------
             /**

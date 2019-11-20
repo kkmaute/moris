@@ -131,11 +131,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        enum class Penalty_Type
+        enum class Stabilization_Type
         {
             UNDEFINED,
             DIRICHLET_NITSCHE,
-            END_PENALTY_TYPE
+            GHOST_DISPL,
+            GHOST_VW,
+            NITSCHE_INTERFACE,
+            MASTER_WEIGHT_INTERFACE,
+            SLAVE_WEIGHT_INTERFACE,
+            END_STABILIZATION_TYPE
         };
 
 //------------------------------------------------------------------------------

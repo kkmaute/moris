@@ -9,18 +9,6 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-        IWG_Isotropic_Spatial_Diffusion_Interface::IWG_Isotropic_Spatial_Diffusion_Interface()
-        {
-            // FIXME set penalty parameter
-            mGammaInterface = 1.0;
-
-            // FIXME set weight master parameter
-            mMasterWeight = 0.5;
-
-            // FIXME set weight slave parameter
-            mSlaveWeight = 0.5;
-        }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Interface::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
@@ -31,40 +19,24 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
             // set residual cell size
             this->set_residual_double( aResidual );
 
-            std::cout<<"for Master"<<std::endl;
-            Matrix< DDRMat > tTraction1 = mMasterCM( 0 )->traction( mNormal );
-
-            std::cout<<"for Slave"<<std::endl;
-            Matrix< DDRMat > tTraction2 = mSlaveCM( 0 )->traction( mNormal );
-
             // evaluate average traction
-            Matrix< DDRMat > tTraction = mMasterWeight * tTraction1 + mSlaveWeight * tTraction2;
+            Matrix< DDRMat > tTraction = mStabilizationParam( 1 )->val()( 0 ) * mMasterCM( 0 )->traction( mNormal )
+                                       + mStabilizationParam( 2 )->val()( 0 ) * mSlaveCM( 0 )->traction( mNormal );
 
             // evaluate temperature jump
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
 
-//            print(mMasterCM( 0 )->traction( mNormal ),"mMasterCM( 0 )->traction( mNormal )");
-
             // compute master residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tTraction
-                             + mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * tJump
-                             + mGammaInterface * trans( mMasterFI( 0 )->N() ) * tJump;
-
+                             + mStabilizationParam( 1 )->val()( 0 ) * mMasterCM( 0 )->testTraction( mNormal ) * tJump
+                             + mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tJump;
             // compute slave residual
             aResidual( 1 ) =   trans( mSlaveFI( 0 )->N() ) * tTraction
-                             + mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * tJump
-                             - mGammaInterface * trans( mSlaveFI( 0 )->N() ) * tJump;
+                             + mStabilizationParam( 2 )->val()( 0 ) * mSlaveCM( 0 )->testTraction( mNormal ) * tJump
+                             - mStabilizationParam( 0 )->val()( 0 ) * trans( mSlaveFI( 0 )->N() ) * tJump;
         }
 
 //------------------------------------------------------------------------------
@@ -76,14 +48,6 @@ namespace moris
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
             // set the jacobian cell size
             this->set_jacobian_double( aJacobians );
 
@@ -94,17 +58,21 @@ namespace moris
             Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
 
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) =   mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
-                                   + mGammaInterface * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
+            aJacobians( 0 )( 0 )
+            =   mStabilizationParam( 1 )->val()( 0 ) * mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
+              + mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
-            aJacobians( 0 )( tMasterNumDofDependencies ) = - mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
-                                                           - mGammaInterface * trans( mMasterFI( 0 )->N() ) * mSlaveFI( 0 )->N();
+            aJacobians( 0 )( tMasterNumDofDependencies )
+            = - mStabilizationParam( 1 )->val()( 0 ) * mMasterCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
+              - mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mSlaveFI( 0 )->N();
 
-            aJacobians( 1 )( 0 ) =   mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
-                                   - mGammaInterface * trans( mSlaveFI( 0 )->N() ) * mMasterFI( 0 )->N();
+            aJacobians( 1 )( 0 )
+            =   mStabilizationParam( 2 )->val()( 0 ) * mSlaveCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
+              - mStabilizationParam( 0 )->val()( 0 ) * trans( mSlaveFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
-            aJacobians( 1 )( tMasterNumDofDependencies ) = - mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
-                                                           + mGammaInterface * trans( mSlaveFI( 0 )->N() ) * mSlaveFI( 0 )->N();
+            aJacobians( 1 )( tMasterNumDofDependencies )
+            = - mStabilizationParam( 2 )->val()( 0 ) * mSlaveCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
+              + mStabilizationParam( 0 )->val()( 0 ) * trans( mSlaveFI( 0 )->N() ) * mSlaveFI( 0 )->N();
 
             // compute the jacobian for indirect dof dependencies through master constitutive models
             for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
@@ -112,16 +80,49 @@ namespace moris
                 // get the dof type
                 Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
 
-                // if dependency on the dof type
+                // if dependency of constitutive models on the dof type
                 if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterWeight * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
-                       + mMasterWeight * mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                    += - trans( mMasterFI( 0 )->N() ) * mStabilizationParam( 1 )->val()( 0 ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
+                       + mStabilizationParam( 1 )->val()( 0 ) * mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
 
                     aJacobians( 1 )( iDOF ).matrix_data()
-                    += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal );
+                    += trans( mSlaveFI( 0 )->N() ) * mStabilizationParam( 1 )->val()( 0 ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal );
+                }
+
+                // if dependency of stabilization parameters on the dof type
+                if ( mStabilizationParam( 0 )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += trans( mMasterFI( 0 )->N() ) * tJump * mStabilizationParam( 0 )->dSPdMasterDOF( tDofType );
+
+                    aJacobians( 1 )( iDOF ).matrix_data()
+                    += - trans( mSlaveFI( 0 )->N() ) * tJump * mStabilizationParam( 0 )->dSPdMasterDOF( tDofType );
+                }
+
+                if ( mStabilizationParam( 1 )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal ) * mStabilizationParam( 1 )->dSPdMasterDOF( tDofType )
+                       + mMasterCM( 0 )->testTraction( mNormal ) * tJump * mStabilizationParam( 1 )->dSPdMasterDOF( tDofType );
+
+                    aJacobians( 1 )( iDOF ).matrix_data()
+                    += trans( mSlaveFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal ) * mStabilizationParam( 1 )->dSPdMasterDOF( tDofType );
+                }
+
+                if ( mStabilizationParam( 2 )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mSlaveCM( 0 )->traction( mNormal ) * mStabilizationParam( 2 )->dSPdMasterDOF( tDofType );
+
+                    aJacobians( 1 )( iDOF ).matrix_data()
+                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveCM( 0 )->traction( mNormal ) * mStabilizationParam( 2 )->dSPdMasterDOF( tDofType )
+                       + mSlaveCM( 0 )->testTraction( mNormal ) * tJump * mStabilizationParam( 2 )->dSPdMasterDOF( tDofType );
                 }
             }
 
@@ -137,11 +138,44 @@ namespace moris
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal );
+                    += - trans( mMasterFI( 0 )->N() ) * mStabilizationParam( 2 )->val()( 0 ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal );
 
                     aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal )
-                       + mSlaveWeight * mSlaveCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                    +=   trans( mSlaveFI( 0 )->N() ) * mStabilizationParam( 2 )->val()( 0 ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal )
+                       + mStabilizationParam( 2 )->val()( 0 ) * mSlaveCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                }
+
+                // if dependency of stabilization parameters on the dof type
+                if ( mStabilizationParam( 0 )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+                    += trans( mMasterFI( 0 )->N() ) * tJump * mStabilizationParam( 0 )->dSPdSlaveDOF( tDofType );
+
+                    aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+                    += - trans( mSlaveFI( 0 )->N() ) * tJump * mStabilizationParam( 0 )->dSPdSlaveDOF( tDofType );
+                }
+
+                if ( mStabilizationParam( 1 )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal ) * mStabilizationParam( 1 )->dSPdSlaveDOF( tDofType )
+                       + mMasterCM( 0 )->testTraction( mNormal ) * tJump * mStabilizationParam( 1 )->dSPdSlaveDOF( tDofType );
+
+                    aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+                    += trans( mSlaveFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal ) * mStabilizationParam( 1 )->dSPdSlaveDOF( tDofType );
+                }
+
+                if ( mStabilizationParam( 2 )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+                    += - trans( mMasterFI( 0 )->N() ) * mSlaveCM( 0 )->traction( mNormal ) * mStabilizationParam( 2 )->dSPdSlaveDOF( tDofType );
+
+                    aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
+                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveCM( 0 )->traction( mNormal ) * mStabilizationParam( 2 )->dSPdSlaveDOF( tDofType )
+                       + mSlaveCM( 0 )->testTraction( mNormal ) * tJump * mStabilizationParam( 2 )->dSPdSlaveDOF( tDofType );
                 }
             }
         }

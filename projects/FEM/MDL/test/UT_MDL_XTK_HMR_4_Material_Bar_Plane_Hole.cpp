@@ -38,6 +38,7 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 
@@ -308,10 +309,18 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
         tPropConductivity1->set_val_function( tConstValFunction2MatMDL );
 
+        std::shared_ptr< fem::Property > tPropConductivity1bis = std::make_shared< fem::Property >();
+        tPropConductivity1bis->set_parameters( { {{ 1.0 }} } );
+        tPropConductivity1bis->set_val_function( tConstValFunction2MatMDL );
+
         std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
         tPropConductivity2->set_parameters( { {{ 0.1 }} } );
         tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
-        
+
+        std::shared_ptr< fem::Property > tPropConductivity2bis = std::make_shared< fem::Property >();
+        tPropConductivity2bis->set_parameters( { {{ 0.1 }} } );
+        tPropConductivity2bis->set_val_function( tConstValFunction2MatMDL );
+
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
         tPropDirichlet->set_val_function( tConstValFunction2MatMDL );
@@ -336,30 +345,65 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tCMDiffLinIso1->set_properties( { tPropConductivity1 } );
         tCMDiffLinIso1->set_space_dim( 2 );
 
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1bis = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso1bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso1bis->set_properties( { tPropConductivity1bis } );
+        tCMDiffLinIso1bis->set_space_dim( 2 );
+
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso2->set_properties( { tPropConductivity1 } );
+        tCMDiffLinIso2->set_properties( { tPropConductivity2 } );
         tCMDiffLinIso2->set_space_dim( 2 );
-        
-        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso3 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso3->set_properties( { tPropConductivity2 } );
-        tCMDiffLinIso3->set_space_dim( 2 );
-        
-        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso4 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso4->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso4->set_properties( { tPropConductivity2 } );
-        tCMDiffLinIso4->set_space_dim( 2 );
-        
-        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso5 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso5->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso5->set_properties( { tPropConductivity1 } );
-        tCMDiffLinIso5->set_space_dim( 2 );
-        
-        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso6 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMDiffLinIso6->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso6->set_properties( { tPropConductivity1 } );
-        tCMDiffLinIso6->set_space_dim( 2 );
+
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2bis = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso2bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso2bis->set_properties( { tPropConductivity2bis } );
+        tCMDiffLinIso2bis->set_space_dim( 2 );
+
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface1->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface1->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface1->set_properties( { tPropConductivity2bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface1->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface1->set_properties( { tPropConductivity2bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface1->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface1->set_properties( { tPropConductivity2bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface2->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface2->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface2->set_properties( { tPropConductivity1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface2->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface2->set_properties( { tPropConductivity1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface2->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface2->set_properties( { tPropConductivity1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface3->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface3->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface3->set_properties( { tPropConductivity1bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface3->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface3->set_properties( { tPropConductivity1bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface3->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface3->set_properties( { tPropConductivity1bis }, mtk::Master_Slave::SLAVE );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -379,7 +423,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
+        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
@@ -391,23 +436,26 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
-        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso3 }, mtk::Master_Slave::MASTER );
-        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso4 }, mtk::Master_Slave::SLAVE );
+        tIWGInterface1->set_stabilization_parameters( { tSPNitscheInterface1, tSPMasterWeightInterface1, tSPSlaveWeightInterface1 } );
+        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
+        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso2bis }, mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
-        tIWGInterface2->set_constitutive_models( { tCMDiffLinIso3 }, mtk::Master_Slave::MASTER );
+        tIWGInterface2->set_stabilization_parameters( { tSPNitscheInterface2, tSPMasterWeightInterface2, tSPSlaveWeightInterface2 } );
+        tIWGInterface2->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
         tIWGInterface2->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface3 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
+        tIWGInterface3->set_stabilization_parameters( { tSPNitscheInterface3, tSPMasterWeightInterface3, tSPSlaveWeightInterface3 } );
         tIWGInterface3->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
-        tIWGInterface3->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::SLAVE );
-        
+        tIWGInterface3->set_constitutive_models( { tCMDiffLinIso1bis }, mtk::Master_Slave::SLAVE );
+
         // create a list of active block-sets
         std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);
         std::string tDblInterfaceSideSetName02 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,2);
@@ -710,9 +758,17 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
         tPropConductivity1->set_val_function( tConstValFunction2MatMDL );
 
+        std::shared_ptr< fem::Property > tPropConductivity1bis = std::make_shared< fem::Property >();
+        tPropConductivity1bis->set_parameters( { {{ 1.0 }} } );
+        tPropConductivity1bis->set_val_function( tConstValFunction2MatMDL );
+
         std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
         tPropConductivity2->set_parameters( { {{ 0.1 }} } );
         tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
+
+        std::shared_ptr< fem::Property > tPropConductivity2bis = std::make_shared< fem::Property >();
+        tPropConductivity2bis->set_parameters( { {{ 0.1 }} } );
+        tPropConductivity2bis->set_val_function( tConstValFunction2MatMDL );
 
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
@@ -738,10 +794,65 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tCMDiffLinIso1->set_properties( { tPropConductivity1 } );
         tCMDiffLinIso1->set_space_dim( 3 );
 
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1bis = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso1bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso1bis->set_properties( { tPropConductivity1bis } );
+        tCMDiffLinIso1bis->set_space_dim( 3 );
+
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso2->set_properties( { tPropConductivity2 } );
         tCMDiffLinIso2->set_space_dim( 3 );
+
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2bis = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso2bis->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMDiffLinIso2bis->set_properties( { tPropConductivity2bis } );
+        tCMDiffLinIso2bis->set_space_dim( 3 );
+
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface1->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface1->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface1->set_properties( { tPropConductivity2bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface1->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface1->set_properties( { tPropConductivity2bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface1 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface1->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface1->set_properties( { tPropConductivity2bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface2->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface2->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface2->set_properties( { tPropConductivity1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface2->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface2->set_properties( { tPropConductivity1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface2 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface2->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface2->set_properties( { tPropConductivity1 }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+        tSPNitscheInterface3->set_parameters( { {{ 1.0 }} } );
+        tSPNitscheInterface3->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPNitscheInterface3->set_properties( { tPropConductivity1bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+        tSPMasterWeightInterface3->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPMasterWeightInterface3->set_properties( { tPropConductivity1bis }, mtk::Master_Slave::SLAVE );
+
+        std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface3 = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+        tSPSlaveWeightInterface3->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
+        tSPSlaveWeightInterface3->set_properties( { tPropConductivity1bis }, mtk::Master_Slave::SLAVE );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -761,6 +872,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
@@ -773,13 +885,15 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGInterface1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
+        tIWGInterface1->set_stabilization_parameters( { tSPNitscheInterface1, tSPMasterWeightInterface1, tSPSlaveWeightInterface1 } );
         tIWGInterface1->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
-        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::SLAVE );
+        tIWGInterface1->set_constitutive_models( { tCMDiffLinIso2bis }, mtk::Master_Slave::SLAVE );
 
         std::shared_ptr< fem::IWG > tIWGInterface2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
         tIWGInterface2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
+        tIWGInterface2->set_stabilization_parameters( { tSPNitscheInterface2, tSPMasterWeightInterface2, tSPSlaveWeightInterface2 } );
         tIWGInterface2->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
         tIWGInterface2->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::SLAVE );
 
@@ -787,9 +901,9 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tIWGInterface3->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tIWGInterface3->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
+        tIWGInterface3->set_stabilization_parameters( { tSPNitscheInterface3, tSPMasterWeightInterface3, tSPSlaveWeightInterface3 } );
         tIWGInterface3->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
-        tIWGInterface3->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::SLAVE );
-
+        tIWGInterface3->set_constitutive_models( { tCMDiffLinIso1bis }, mtk::Master_Slave::SLAVE );
 
         // create a list of active block-sets
         std::string tDblInterfaceSideSetName01 = tEnrIntegMesh.get_dbl_interface_side_set_name(0,1);

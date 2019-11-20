@@ -9,13 +9,6 @@ namespace moris
 {
     namespace fem
     {
-//------------------------------------------------------------------------------
-
-        IWG_Isotropic_Spatial_Diffusion_Dirichlet::IWG_Isotropic_Spatial_Diffusion_Dirichlet()
-        {
-            // FIXME set a penalty
-            mGamma = 1.0;
-        }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Dirichlet::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
@@ -23,8 +16,6 @@ namespace moris
             // check field interpolators, properties, constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
@@ -35,7 +26,7 @@ namespace moris
             // compute the residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal )
                              + mMasterCM( 0 )->testTraction( mNormal ) * tJump
-                             + mGamma * trans( mMasterFI( 0 )->N() ) * tJump;
+                             + mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tJump;
         }
 
 //------------------------------------------------------------------------------
@@ -44,8 +35,6 @@ namespace moris
             // check field interpolators, properties, constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
@@ -55,7 +44,7 @@ namespace moris
 
             // compute the jacobian for direct dof dependencies
             aJacobians( 0 )( 0 ) = mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
-                                 + mGamma * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
+                                 + mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
             // compute the jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mMasterGlobalDofTypes.size();
@@ -70,7 +59,7 @@ namespace moris
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
                     += -1.0 * mMasterCM( 0 )->testTraction( mNormal ) * mMasterProp( 0 )->dPropdDOF( tDofType )
-                       - mGamma * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
+                       - mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
                 }
 
                 // if dependency on the dof type
@@ -80,6 +69,14 @@ namespace moris
                     aJacobians( 0 )( iDOF ).matrix_data()
                     += - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
                        + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                }
+
+                // if dependency on the dof type
+                if ( mStabilizationParam( 0 )->check_dof_dependency( tDofType ) )
+                {
+                    // add contribution to jacobian
+                    aJacobians( 0 )( iDOF ).matrix_data()
+                    += trans( mMasterFI( 0 )->N() ) * tJump( 0 ) * mStabilizationParam( 0 )->dSPdMasterDOF( tDofType );
                 }
             }
         }

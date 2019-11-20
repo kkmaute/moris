@@ -29,7 +29,7 @@ namespace moris
          * Integrand of Weak Form of Governing Equations
          */
         class IWG
-        {
+       {
         protected :
 
             // nodal weak BCs
@@ -321,7 +321,7 @@ namespace moris
                     }
 
                     // set the field interpolators for the SP
-                    tSP->set_dof_field_interpolators( tSPFIs );
+                    tSP->set_dof_field_interpolators( tSPFIs, aIsMaster );
                 }
 
                 // set field interpolators for constitutive models
@@ -384,7 +384,7 @@ namespace moris
              * @param[ in ] aIsMaster             enum for master or slave
              */
             void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                              mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER )
+                                            mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // set geometry interpolator for the SP
                 for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
@@ -1677,7 +1677,7 @@ namespace moris
                                               real                                             aPerturbation )
             {
                 // get master number of dof types
-                uint tNumDofType = mMasterGlobalDofTypes.size();
+                uint tNumDofType = this->get_global_dof_type_list().size();
 
                 // set the jacobian size
                 this->set_jacobian( aJacobiansFD );
@@ -1754,8 +1754,8 @@ namespace moris
                                                      real                                             aPerturbation )
             {
                 // get master and slave number of dof types
-                uint tMasterNumDofType = mMasterGlobalDofTypes.size();
-                uint tSlaveNumDofType  = mSlaveGlobalDofTypes.size();
+                uint tMasterNumDofType = this->get_global_dof_type_list().size();
+                uint tSlaveNumDofType  = this->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
 
                 // set the jacobian size
                 this->set_jacobian_double( aJacobiansFD );
@@ -1847,9 +1847,6 @@ namespace moris
 
                             // setting the perturbed coefficients
                             mSlaveFI( iFI )->set_coeff( tCoeffPert );
-
-                            // setting the perturbed coefficients
-                            mMasterFI( iFI )->set_coeff( tCoeffPert );
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();

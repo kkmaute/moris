@@ -1,12 +1,12 @@
 /*
- * cl_FEM_SP_Dirichlet_Nitsche.hpp
+ * cl_FEM_SP_Slave_Weight_Interface.hpp
  *
- *  Created on: Oct 21, 2019
- *  Author: noel
+ *  Created on: Nov 18, 2019
+ *      Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
-#define SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_SP_SLAVE_WEIGHT_INTERFACE_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_SP_SLAVE_WEIGHT_INTERFACE_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
@@ -24,43 +24,52 @@ namespace moris
     {
 //------------------------------------------------------------------------------
 
-        class SP_Dirichlet_Nitsche : public Stabilization_Parameter
+        class SP_Slave_Weight_Interface : public Stabilization_Parameter
         {
 
 //------------------------------------------------------------------------------
         public:
 //------------------------------------------------------------------------------
             /*
-             * trivial constructor
+             * constructor
              */
-            SP_Dirichlet_Nitsche()
+            SP_Slave_Weight_Interface()
             {
                 // set the penalty type
-                mStabilizationType = fem::Stabilization_Type::DIRICHLET_NITSCHE;
+                mStabilizationType = fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE;
 
                 // set the list of cluster measures
-                mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
+                mClusterMeasures = { fem::Cluster_Measure::MASTER_VOLUME,
+                                     fem::Cluster_Measure::SLAVE_VOLUME };
             };
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~SP_Dirichlet_Nitsche(){};
+            ~SP_Slave_Weight_Interface(){};
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter value
+             * evaluate the stabilization parameter value
              */
             void eval_SP();
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter derivative wrt to a master dof type
+             * evaluate the stabilization parameter derivative wrt to a master dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-             * dPPdMasterDOF ( 1 x numDerDof )
+             * dSPdMasterDOF ( 1 x numDerDof )
              */
             void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the stabilization parameter derivative wrt to a slave dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * dSPdSlaveDOF ( 1 x numDerDof )
+             */
+             void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
             /**
@@ -70,13 +79,25 @@ namespace moris
              */
             void eval_dSPdMasterDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
             {
-                MORIS_ERROR( false, "SP_Dirichlet_Nitsche - eval_dSPdMasterDV: not implemented." );
+                MORIS_ERROR( false, "SP_Slave_Weight_Interface::eval_dSPdMasterDV: not implemented." );
             }
 
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the penalty parameter derivative wrt to a slave dv type
+             * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
+             * dSPdSlaveDV ( 1 x numDerDv )
+             */
+             void eval_dSPdSlaveDV( const moris::Cell< MSI::Dv_Type > & aDvTypes )
+             {
+                 MORIS_ERROR( false, "SP_Slave_Weight_Interface::eval_dSPdSlaveDV: not implemented." );
+             }
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_ */
+
+
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_SP_SLAVE_WEIGHT_INTERFACE_HPP_ */
