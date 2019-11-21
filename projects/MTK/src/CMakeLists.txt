@@ -50,6 +50,7 @@ cl_MTK_Vertex_Interpolation.hpp
 cl_MTK_Vertex_Proxy.hpp
 cl_MTK_Vertex.hpp
 cl_MTK_Writer_Exodus.hpp
+cl_MTK_Reader_Exodus.hpp
 MTK_Tools.hpp
 stk_impl/cl_MTK_Cell_STK.hpp
 stk_impl/cl_MTK_Integration_Mesh_STK.hpp
@@ -71,6 +72,7 @@ stk_impl/cl_MTK_Cell_Cluster_STK.cpp
 stk_impl/cl_MTK_Side_Cluster_STK.cpp
 cl_MTK_Block.cpp
 cl_MTK_Writer_Exodus.cpp
+cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
 cl_MTK_Block.cpp
 cl_MTK_Cell_Info_Hex8.cpp

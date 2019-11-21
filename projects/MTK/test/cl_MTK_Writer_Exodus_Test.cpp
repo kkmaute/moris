@@ -2,11 +2,13 @@
 // Created by christopherson on 9/19/19.
 //
 #include <MTK/src/cl_MTK_Writer_Exodus.hpp>
+#include <MTK/src/cl_MTK_Reader_Exodus.hpp>
 #include <MTK/src/cl_MTK_Integration_Mesh.hpp>
 #include "catch.hpp"
 
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_MTK_Reader_Exodus.hpp"
 
 
 #include "cl_MTK_Mesh.hpp" // MTK/src
@@ -289,12 +291,19 @@ namespace moris
 
             Integration_Mesh* tIntegMeshData = moris::mtk::create_integration_mesh( MeshType::STK, tMeshDataInput );
 
-            std::string tSTKOutput = "./final_name_stk.exo";
-            tIntegMeshData->create_output_mesh(tSTKOutput);
+            // Read
+            Reader_Exodus reader;
+            reader.set_error_options(true, true, true);
+            reader.read_file("integration_mesh.exo");
 
-            Writer_Exodus writer(tIntegMeshData);
-            writer.set_error_options(true, true, true);
-            writer.write_mesh("", "final_name.exo");
+            // My write
+            Writer_Exodus writer(reader.mMesh);
+            writer.write_mesh("", "integration_mesh_write.exo");
+
+
+            // STK write
+//            std::string tSTKOutput = "./test_stk.exo";
+//            reader.mMesh->create_output_mesh(tSTKOutput);
 
 
 //            if(par_size() == 2)

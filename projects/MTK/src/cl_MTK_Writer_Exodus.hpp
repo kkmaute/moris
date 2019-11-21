@@ -7,6 +7,21 @@
 
 #include <exodusII.h>
 #include "cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+
+// TODO
+#include "cl_MTK_Mesh.hpp" // MTK/src
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Data_STK.hpp"
+#include "cl_MTK_Mesh_Core_STK.hpp"
+#include "cl_MTK_Interpolation_Mesh_STK.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Mesh_Tools.hpp"
+#include "cl_MTK_Integration_Mesh_STK.hpp"
+#include "cl_MTK_Sets_Info.hpp"
 
 class Writer_Exodus
 {
@@ -15,6 +30,8 @@ public:
     std::string         mTempFileName;
     std::string         mPermFileName;
     int                 mExoid;
+    moris::mtk::MtkMeshData mMeshDataInput;
+
     /**
     * Constructor
     * @param  aMeshPointer Pointer to an MTK mesh
@@ -35,7 +52,7 @@ public:
     void set_error_options(bool abort, bool debug, bool verbose);
 
     /**
-     *  Creates an Exodus file and writes everything MTK provides about the mesh.
+     * Creates an Exodus file and writes everything MTK provides about the mesh.
      */
     void write_mesh(std::string aFilePath, const std::string& aFileName);
 
@@ -53,13 +70,13 @@ private:
      *  @param aExodusFileName Name of the Exodus file.
      *  @param aVersion Version of the database. Current version is 4.72 as of programming.
      */
-    void open_file(const char* aExodusFileName, float aVersion = 4.72);
+    void open_file(std::string aExodusFileName, float aVersion = 4.72);
 
     /**
      * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
      * must be called in order for the Exodus file to be able to be read properly.
      */
-    void close_file();
+    void close_file(bool aRename = true);
 
     /**
      * Writes the coordinates of the nodes in the MTK mesh to Exodus.
@@ -101,21 +118,7 @@ private:
      * @param aCellTopology The type of element in MTK.
      * @return The number of nodes per element of this topology.
      */
-    int64_t get_nodes_per_element(CellTopology aCellTopology);
-
-    /**
-     * Gets the number of edges in a given element type.
-     * @param aCellTopology The type of element in MTK.
-     * @return The number of edges per element of this topology.
-     */
-    int64_t get_edges_per_element(CellTopology aCellTopology);
-
-    /**
-     * Gets the number of faces in a given element type.
-     * @param aCellTopology The type of element in MTK.
-     * @return The number of faces per element of this topology.
-     */
-    int64_t get_faces_per_element(CellTopology aCellTopology);
+    int get_nodes_per_element(CellTopology aCellTopology);
 
     /**
      * Converts a moris::Cell of std::string's to char**

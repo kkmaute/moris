@@ -5,6 +5,23 @@
 #include <exodusII.h>
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+
+// TODO
+#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Mesh_Data_Input.hpp"
+#include "cl_Mesh_Factory.hpp"
+#include "cl_MTK_Mesh_Data_STK.hpp"
+#include "cl_MTK_Mesh_Core_STK.hpp"
+#include "cl_MTK_Interpolation_Mesh_STK.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
+#include "cl_MTK_Mesh_Tools.hpp"
+#include "cl_MTK_Integration_Mesh_STK.hpp"
+#include "cl_MTK_Sets_Info.hpp"
+
+#include <iostream>
 
 Writer_Exodus::Writer_Exodus(moris::mtk::Mesh* aMeshPointer)
     : mMesh(aMeshPointer)
@@ -30,7 +47,7 @@ void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileNa
     std::cout << "Node Sets" << std::endl;
     Writer_Exodus::write_blocks();
     std::cout << "Blocks" << std::endl;
-    Writer_Exodus::write_side_sets();
+    //Writer_Exodus::write_side_sets();
     std::cout << "Side Sets" << std::endl;
     Writer_Exodus::close_file();
 }
@@ -68,22 +85,25 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, tNumElementBlocks, tNumNodeSets, tNumSideSets);
 }
 
-void Writer_Exodus::open_file(const char* aExodusFileName, float aVersion)
+void Writer_Exodus::open_file(std::string aExodusFileName, float aVersion)
 {
     int tCPUWordSize = 8, tIOWordSize = 8; // TODO
-    ex_open(aExodusFileName, EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion);
+    mExoid = ex_open(aExodusFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize, &aVersion);
 }
 
-void Writer_Exodus::close_file()
+void Writer_Exodus::close_file(bool aRename)
 {
     ex_close(mExoid);
-    std::rename(mTempFileName.c_str(), mPermFileName.c_str());
+    if (aRename)
+    {
+        std::rename(mTempFileName.c_str(), mPermFileName.c_str());
+    }
 }
 
 void Writer_Exodus::write_nodes()
 {
     // Get all vertices
-    moris::Cell<moris::mtk::Vertex const*> tVertices = mMesh->get_all_vertices();
+    moris::Cell<moris::mtk::Vertex const*> tNodes = mMesh->get_all_vertices();
 
     // spatial dimension
     int tSpatialDim = mMesh->get_spatial_dim();
@@ -91,28 +111,28 @@ void Writer_Exodus::write_nodes()
     bool tZDim = tSpatialDim >= 3;
 
     // Set up coordinate and node map arrays based on the number of vertices
-    MORIS_ASSERT(tVertices.size() > 0, "Invalid Node Map size");
-    moris::Matrix<moris::IdMat> tNodeMap(tVertices.size(), 1, 0);
+    MORIS_ASSERT(tNodes.size() > 0, "Invalid Node Map size");
+    moris::Matrix<moris::IdMat> tNodeMap(tNodes.size(), 1, 0);
 
     // Coordinate arrays
-    moris::Matrix<moris::DDRMat> tXCoordinates(tVertices.size(), 1, 0.0);
-    moris::Matrix<moris::DDRMat> tYCoordinates(tVertices.size(), 1, 0.0);
-    moris::Matrix<moris::DDRMat> tZCoordinates(tVertices.size(), 1, 0.0);
+    moris::Matrix<moris::DDRMat> tXCoordinates(tNodes.size(), 1, 0.0);
+    moris::Matrix<moris::DDRMat> tYCoordinates(tNodes.size(), 1, 0.0);
+    moris::Matrix<moris::DDRMat> tZCoordinates(tNodes.size(), 1, 0.0);
 
-    for (moris::uint tVertexIndex = 0; tVertexIndex < tVertices.size(); tVertexIndex++)
+    for (moris::uint tNodeIndex = 0; tNodeIndex < tNodes.size(); tNodeIndex++)
     {
         // Get coordinates
-        moris::Matrix<moris::DDRMat> tVertexCoordinates = tVertices(tVertexIndex)->get_coords();
+        moris::Matrix<moris::DDRMat> tNodeCoordinates = tNodes(tNodeIndex)->get_coords();
 
         // Place in coordinate arrays
-        tXCoordinates(tVertexIndex, 0) = tVertexCoordinates(0);
-        tYCoordinates(tVertexIndex, 0) = tVertexCoordinates(1 * tYDim) * tYDim;
-        tZCoordinates(tVertexIndex, 0) = tVertexCoordinates(2 * tZDim) * tZDim;
+        tXCoordinates(tNodeIndex, 0) = tNodeCoordinates(0);
+        tYCoordinates(tNodeIndex, 0) = tNodeCoordinates(1 * tYDim) * tYDim;
+        tZCoordinates(tNodeIndex, 0) = tNodeCoordinates(2 * tZDim) * tZDim;
 
         // Get global ids for id map
-        tNodeMap(tVertexIndex, 0) = tVertices(tVertexIndex)->get_id();
-        //std::cout << tVertexIndex << ", " << tNodeMap(tVertexIndex)<<", "<<tVertices(tVertexIndex)->get_index()<<","
-        //<<tVertices(tVertexIndex)->get_id() << std::endl;
+        tNodeMap(tNodeIndex, 0) = tNodes(tNodeIndex)->get_id();
+        //std::cout << tNodeIndex << ", " << tNodeMap(tNodeIndex)<<", "<<tNodes(tNodeIndex)->get_index()<<","
+        //<<tNodes(tNodeIndex)->get_id() << std::endl;
     }
 
     // Write coordinates
@@ -185,12 +205,12 @@ void Writer_Exodus::write_blocks()
             for (moris::uint tElementIndex = 0; tElementIndex < tElements.size(); tElementIndex++)
             {
                 // Get the vertex indices of this element
-                moris::Matrix<moris::IndexMat> tVertexIndices = tElements(tElementIndex)->get_vertex_inds();
+                moris::Matrix<moris::IndexMat> tNodeIndices = tElements(tElementIndex)->get_vertex_inds();
 
                 // Assign each vertex individually
                 for (int tNodeNum = 0; tNodeNum < tNumNodesPerElement; tNodeNum++)
                 {
-                    tConnectivityArray(tConnectivityIndex, 0) = tVertexIndices(tNodeNum);
+                    tConnectivityArray(tConnectivityIndex, 0) = tNodeIndices(tNodeNum) + 1;
                     tConnectivityIndex++;
                 }
             }
@@ -222,10 +242,11 @@ void Writer_Exodus::write_side_sets()
         moris::Matrix<moris::IndexMat>  tSideSetOrdinals;
         mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetNum), tSideSetElements, tSideSetOrdinals);
 
-        // Change ordinal to be 1-indexed for Exodus
-        for (moris::uint tOrdinalNum = 0; tOrdinalNum < tSideSetOrdinals.numel(); tOrdinalNum++)
+        // Change element and ordinal to be 1-indexed for Exodus
+        for (moris::uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
         {
-            tSideSetOrdinals(tOrdinalNum)++;
+            tSideSetElements(tElementNum)++;
+            tSideSetOrdinals(tElementNum)++;
         }
 
         // Write the side set
@@ -292,7 +313,7 @@ const char* Writer_Exodus::get_exodus_block_description(CellTopology aCellTopolo
     }
 }
 
-int64_t Writer_Exodus::get_nodes_per_element(CellTopology aCellTopology)
+int Writer_Exodus::get_nodes_per_element(CellTopology aCellTopology)
 {
     switch (aCellTopology)
     {
@@ -308,50 +329,6 @@ int64_t Writer_Exodus::get_nodes_per_element(CellTopology aCellTopology)
             return 8;
         case CellTopology::PRISM6:
             return 6;
-        default:
-            MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
-            return 0;
-    }
-}
-
-int64_t Writer_Exodus::get_edges_per_element(CellTopology aCellTopology)
-{
-    switch (aCellTopology)
-    {
-        case CellTopology::TRI3:
-            return 3;
-        case CellTopology::QUAD4:
-            return 4;
-        case CellTopology::TET4:
-            return 0;
-        case CellTopology::TET10:
-            return 0;
-        case CellTopology::HEX8:
-            return 0;
-        case CellTopology::PRISM6:
-            return 0;
-        default:
-            MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
-            return 0;
-    }
-}
-
-int64_t Writer_Exodus::get_faces_per_element(CellTopology aCellTopology)
-{
-    switch (aCellTopology)
-    {
-        case CellTopology::TRI3:
-            return 0;
-        case CellTopology::QUAD4:
-            return 0;
-        case CellTopology::TET4:
-            return 4;
-        case CellTopology::TET10:
-            return 4;
-        case CellTopology::HEX8:
-            return 6;
-        case CellTopology::PRISM6:
-            return 5;
         default:
             MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
             return 0;
