@@ -99,7 +99,7 @@ void Reader_Exodus::read_file(std::string aFileName)
     mElemConn.resize(tNumBlocks, moris::Matrix<moris::IndexMat>(1, 1));
     mLocaltoGlobalElemMap.resize(tNumBlocks, moris::Matrix<moris::IdMat>(1, 1));
     moris::uint tNumElementsInBlock, tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement;
-    char tReadName[100];
+    char tReadName[100] = "";
 
     // Loop through all of the blocks
     for (moris::uint tBlockIndex = 0; tBlockIndex < tNumBlocks; tBlockIndex++)
@@ -108,7 +108,7 @@ void Reader_Exodus::read_file(std::string aFileName)
         std::cout << "Reading Block..." << std::endl;
         ex_get_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tReadName, &tNumElementsInBlock,
                      &tNumNodesPerElement, &tNumEdgesPerElement, &tNumFacesPerElement, &tNumAttributesPerElement);
-        std::cout << tNumElementsInBlock << ", " << tNumNodesPerElement << ", " << tNumEdgesPerElement << ", " << tNumFacesPerElement << ", " <<std::endl;
+        std::cout << tNumElementsInBlock << ", " << tNumNodesPerElement << ", " << tNumEdgesPerElement << ", " << tNumFacesPerElement <<std::endl;
 
         // Get connectivity
         moris::Matrix<moris::IndexMat> tBlockNodesVector(tNumElementsInBlock * tNumNodesPerElement, 1, 0);
@@ -129,7 +129,7 @@ void Reader_Exodus::read_file(std::string aFileName)
 
         // Element map
         mLocaltoGlobalElemMap(tBlockIndex).set_size(tNumElementsInBlock, 1);
-        ex_get_map(mExoid, mLocaltoGlobalElemMap(tBlockIndex).data());
+        ex_get_id_map(mExoid, EX_ELEM_MAP, mLocaltoGlobalElemMap(tBlockIndex).data()); //FIXME
         mMeshDataInput.LocaltoGlobalElemMap(tBlockIndex) = &mLocaltoGlobalElemMap(tBlockIndex);
 
         // Cell ids
@@ -142,43 +142,38 @@ void Reader_Exodus::read_file(std::string aFileName)
         // Cell topology
         mBlockSetInfo(tBlockIndex).mBlockSetTopo = this->get_cell_topology(tNumNodesPerElement);
 
-
-
-        moris::print(*mBlockSetInfo(0).mCellIdsInSet, "*mBlockSetInfo(0).mCellIdsInSet");
-        std::cout << "mBlockSetInfo(0).mBlockSetName: " << mBlockSetInfo(0).mBlockSetName << std::endl;
-        std::cout << "mBlockSetInfo(0).mBlockSetTopo: " << static_cast<int>(mBlockSetInfo(0).mBlockSetTopo) << std::endl;
-
         // Add sets to input data
         mMtkMeshSets.add_block_set(&mBlockSetInfo(tBlockIndex));
 
 
-        std::cout << "End Block" << std::endl;
-        moris::print(*mMeshDataInput.ElemConn(0), "mMeshDataInput.ElemConn(0)");
+
+
+        std::cout << "mBlockSetInfo.mBlockSetName: " << mBlockSetInfo(tBlockIndex).mBlockSetName << std::endl;
+        std::cout << "mBlockSetInfo.mBlockSetTopo: " << static_cast<int>(mBlockSetInfo(tBlockIndex).mBlockSetTopo) << std::endl;
+        moris::print(*mBlockSetInfo(tBlockIndex).mCellIdsInSet, "mBlockSetInfo.mCellIdsInSet");
+        moris::print(*mMeshDataInput.LocaltoGlobalElemMap(tBlockIndex), "mMeshDataInput.LocaltoGlobalElemMap");
+        moris::print(*mMeshDataInput.ElemConn(tBlockIndex), "mMeshDataInput.ElemConn");
     }
     mMeshDataInput.SetsInfo = &mMtkMeshSets;
-    moris::print(*mMeshDataInput.ElemConn(0), "mMeshDataInput.ElemConn(0)");
 
     std::cout << "Blocks Done" << std::endl;
 
 
 
-    std::cout << "ElemConn: "               << mMeshDataInput.ElemConn(0)             << std::endl;
-    std::cout << "LocaltoGlobalElemMap: "   << mMeshDataInput.LocaltoGlobalElemMap(0) << std::endl;
-    std::cout << "CreateAllEdgesAndFaces: " << mMeshDataInput.CreateAllEdgesAndFaces  << std::endl;
-    std::cout << "Verbose: "                << mMeshDataInput.Verbose                 << std::endl;
-    std::cout << "SpatialDim: "             << mMeshDataInput.SpatialDim              << std::endl;
-    std::cout << "NodeCoords: "             << mMeshDataInput.NodeCoords              << std::endl;
-    std::cout << "NodeProcOWner: "          << mMeshDataInput.NodeProcOwner           << std::endl;
-    std::cout << "LocaltoGlobalNodeMap: "   << mMeshDataInput.LocaltoGlobalNodeMap    << std::endl;
-    std::cout << "SetsInfo: "               << mMeshDataInput.SetsInfo                << std::endl;
-    std::cout << "MarkNoBlockForIO: "       << mMeshDataInput.MarkNoBlockForIO        << std::endl;
+//    std::cout << "ElemConn: "               << mMeshDataInput.ElemConn(0)             << std::endl;
+//    std::cout << "LocaltoGlobalElemMap: "   << mMeshDataInput.LocaltoGlobalElemMap(0) << std::endl;
+//    std::cout << "CreateAllEdgesAndFaces: " << mMeshDataInput.CreateAllEdgesAndFaces  << std::endl;
+//    std::cout << "Verbose: "                << mMeshDataInput.Verbose                 << std::endl;
+//    std::cout << "SpatialDim: "             << mMeshDataInput.SpatialDim              << std::endl;
+//    std::cout << "NodeCoords: "             << mMeshDataInput.NodeCoords              << std::endl;
+//    std::cout << "NodeProcOWner: "          << mMeshDataInput.NodeProcOwner           << std::endl;
+//    std::cout << "LocaltoGlobalNodeMap: "   << mMeshDataInput.LocaltoGlobalNodeMap    << std::endl;
+//    std::cout << "SetsInfo: "               << mMeshDataInput.SetsInfo                << std::endl;
+//    std::cout << "MarkNoBlockForIO: "       << mMeshDataInput.MarkNoBlockForIO        << std::endl;
 
-//    moris::print(*mMeshDataInput.ElemConn(0), "ElemConn");
-//    moris::print(*mMeshDataInput.LocaltoGlobalElemMap(0), "LocaltoGlobalElemMap");
-    moris::print(*mMeshDataInput.NodeCoords, "NodeCoords");
-    moris::print(*mMeshDataInput.NodeProcOwner, "NodeProcOwner");
-    moris::print(*mMeshDataInput.LocaltoGlobalNodeMap, "LocaltoGlobalNodeMap");
-//    moris::print(*mMeshDataInput.SetsInfo, "SetsInfo");
+//    moris::print(*mMeshDataInput.NodeCoords, "NodeCoords");
+//    moris::print(*mMeshDataInput.NodeProcOwner, "NodeProcOwner");
+//    moris::print(*mMeshDataInput.LocaltoGlobalNodeMap, "LocaltoGlobalNodeMap");
 
     mMesh = moris::mtk::create_integration_mesh(MeshType::STK, mMeshDataInput);
 

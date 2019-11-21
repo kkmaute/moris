@@ -47,7 +47,7 @@ void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileNa
     std::cout << "Node Sets" << std::endl;
     Writer_Exodus::write_blocks();
     std::cout << "Blocks" << std::endl;
-    //Writer_Exodus::write_side_sets();
+    Writer_Exodus::write_side_sets();
     std::cout << "Side Sets" << std::endl;
     Writer_Exodus::close_file();
 }
@@ -78,10 +78,22 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     int tCPUWordSize = 8, tIOWordSize = 8; // TODO
     mExoid = ex_create(mTempFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize);
 
-    // Initialize the database
+    // Number of dimensions
     int tNumDimensions = mMesh->get_spatial_dim();
+
+    // Number of nodes
     int tNumNodes = mMesh->get_num_nodes();
-    int tNumElements = mMesh->get_num_elems();
+
+    // Number of elements
+    int tNumElements = 0;
+    moris::Cell<std::string> tBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
+    for (moris::uint tBlockIndex = 0; tBlockIndex < tBlockNames.size(); tBlockIndex++)
+    {
+        moris::Cell<const moris::mtk::Cell *> tElementsInBlock = mMesh->get_block_set_cells(tBlockNames(tBlockIndex));
+        tNumElements += tElementsInBlock.size();
+    }
+
+    // Initialize database
     ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, tNumElementBlocks, tNumNodeSets, tNumSideSets);
 }
 
@@ -131,8 +143,6 @@ void Writer_Exodus::write_nodes()
 
         // Get global ids for id map
         tNodeMap(tNodeIndex, 0) = tNodes(tNodeIndex)->get_id();
-        //std::cout << tNodeIndex << ", " << tNodeMap(tNodeIndex)<<", "<<tNodes(tNodeIndex)->get_index()<<","
-        //<<tNodes(tNodeIndex)->get_id() << std::endl;
     }
 
     // Write coordinates
@@ -159,30 +169,26 @@ void Writer_Exodus::write_node_sets()
 
 void Writer_Exodus::write_blocks()
 {
-    // Get the number of elements
-    int tNumElements = mMesh->get_num_elems();
-
-    // Write the element map
-    moris::Matrix<moris::IdMat> tElementMap(tNumElements, 1, 0);
-    for (int tElementIndex = 0; tElementIndex < tNumElements; tElementIndex++)
-    {
-        tElementMap(tElementIndex) = mMesh->get_glb_entity_id_from_entity_loc_index(tElementIndex, moris::EntityRank::ELEMENT);
-    }
-    ex_put_map(mExoid, tElementMap.data());
+    // Start the element map
+    moris::Matrix<moris::IdMat> tElementMap(0, 1, 0);
+    moris::uint tElementMapStartIndex = 0;
 
     // All of the block names
-    moris::Cell<std::string> tSetNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
+    moris::Cell<std::string> tBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
 
     // Loop through each block
-    for (moris::uint tBlockIndex = 0; tBlockIndex < tSetNames.size(); tBlockIndex++)
+    for (moris::uint tBlockIndex = 0; tBlockIndex < tBlockNames.size(); tBlockIndex++)
     {
         // Get the block elements
-        moris::Cell<const moris::mtk::Cell*> tElements = mMesh->get_block_set_cells(tSetNames(tBlockIndex));
+        moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mMesh->get_block_set_cells(tBlockNames(tBlockIndex));
 
-        if (tElements.size() > 0)
+        if (tElementsInBlock.size() > 0)
         {
+            // Resize element map
+            tElementMap.resize(tElementMapStartIndex + tElementsInBlock.size(), 1);
+
             // Get the CellTopology of this block
-            CellTopology tBlockTopology = mMesh->get_blockset_topology(tSetNames(tBlockIndex));
+            CellTopology tBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
 
             // Get a description of the type of elements in this block
             const char* tBlockDescription = this->get_exodus_block_description(tBlockTopology);
@@ -194,18 +200,18 @@ void Writer_Exodus::write_blocks()
             int tNumAttributesPerElement = 0;
 
             // Make a block
-	        ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockDescription, tElements.size(),
+	        ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockDescription, tElementsInBlock.size(),
 	                tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement);
 
             // Construct matrix of node indices per element
-            moris::Matrix<moris::IndexMat> tConnectivityArray(tNumNodesPerElement * tElements.size(), 1, 0);
+            moris::Matrix<moris::IndexMat> tConnectivityArray(tNumNodesPerElement * tElementsInBlock.size(), 1, 0);
 
             // Loop through the elements in this block
             moris::uint tConnectivityIndex = 0;
-            for (moris::uint tElementIndex = 0; tElementIndex < tElements.size(); tElementIndex++)
+            for (moris::uint tElementIndex = 0; tElementIndex < tElementsInBlock.size(); tElementIndex++)
             {
                 // Get the vertex indices of this element
-                moris::Matrix<moris::IndexMat> tNodeIndices = tElements(tElementIndex)->get_vertex_inds();
+                moris::Matrix<moris::IndexMat> tNodeIndices = tElementsInBlock(tElementIndex)->get_vertex_inds();
 
                 // Assign each vertex individually
                 for (int tNodeNum = 0; tNodeNum < tNumNodesPerElement; tNodeNum++)
@@ -213,7 +219,13 @@ void Writer_Exodus::write_blocks()
                     tConnectivityArray(tConnectivityIndex, 0) = tNodeIndices(tNodeNum) + 1;
                     tConnectivityIndex++;
                 }
+
+                // Get the global id of this element and add to element map
+                tElementMap(tElementMapStartIndex + tElementIndex) = tElementsInBlock(tElementIndex)->get_id();
             }
+
+            // Update location in element map
+            tElementMapStartIndex += tElementsInBlock.size();
 
             // Write connectivity
             ex_put_conn(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tConnectivityArray.data(), nullptr, nullptr);
@@ -225,8 +237,12 @@ void Writer_Exodus::write_blocks()
         }
 
         // Name the block sets
-        ex_put_names(mExoid, EX_ELEM_BLOCK, this->string_cell_to_char_array(tSetNames));
+        ex_put_names(mExoid, EX_ELEM_BLOCK, this->string_cell_to_char_array(tBlockNames));
     }
+
+    // Write the element map
+    moris::print(tElementMap, "tElementMap");
+    ex_put_id_map(mExoid, EX_ELEM_MAP, tElementMap.data());
 }
 
 void Writer_Exodus::write_side_sets()
@@ -245,12 +261,11 @@ void Writer_Exodus::write_side_sets()
         // Change element and ordinal to be 1-indexed for Exodus
         for (moris::uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
         {
-            tSideSetElements(tElementNum)++;
+            //tSideSetElements(tElementNum)++;
             tSideSetOrdinals(tElementNum)++;
         }
 
         // Write the side set
-        std::cout << tSideSetNum << std::endl;
         ex_put_set_param(mExoid, EX_SIDE_SET, tSideSetNum + 1, tSideSetElements.numel(), 0);
         ex_put_set(mExoid, EX_SIDE_SET, tSideSetNum + 1, tSideSetElements.data(), tSideSetOrdinals.data());
     }

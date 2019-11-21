@@ -21,6 +21,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
+#include "../src/cl_MTK_Integration_Mesh.hpp"
 
 namespace moris
 {
@@ -176,58 +177,58 @@ namespace moris
             moris::mtk::MtkSetsInfo tMtkMeshSets;
             // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
 
-//            // interface side set
-//            moris::mtk::MtkSideSetInfo tInterfaceSideSet;
-//            Matrix<IndexMat> tInterfaceElemIdandSideOrd = {{6, 2},
-//                                                           {8, 1},
-//                                                           {9, 2},
-//                                                           {10, 2},
-//                                                           {12, 1},
-//                                                           {13, 2},
-//                                                           {14, 1},
-//                                                           {16, 2},
-//                                                           {17, 1},
-//                                                           {18, 1},
-//                                                           {20, 2},
-//                                                           {21, 2},
-//                                                           {22, 2},
-//                                                           {23, 2},
-//                                                           {24, 1},
-//                                                           {29, 1},
-//                                                           {30, 1},
-//                                                           {32, 2},
-//                                                           {33, 1},
-//                                                           {34, 1},
-//                                                           {37, 2},
-//                                                           {41, 2},
-//                                                           {43, 1},
-//                                                           {44, 1},
-//                                                           {45, 1},
-//                                                           {48, 2},
-//                                                           {52, 2},
-//                                                           {54, 1},
-//                                                           {55, 1},
-//                                                           {56, 2},
-//                                                           {59, 1},
-//                                                           {63, 1},
-//                                                           {65, 2},
-//                                                           {66, 2},
-//                                                           {67, 2},
-//                                                           {70, 1},
-//                                                           {73, 1},
-//                                                           {76, 1},
-//                                                           {79, 1},
-//                                                           {82, 2}};
-//            tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
-//            tInterfaceSideSet.mSideSetName        = "iside" ;
-//            tMtkMeshSets.add_side_set(&tInterfaceSideSet);
+            // interface side set
+            moris::mtk::MtkSideSetInfo tInterfaceSideSet;
+            Matrix<IndexMat> tInterfaceElemIdandSideOrd = {{6, 2},
+                                                           {8, 1},
+                                                           {9, 2},
+                                                           {10, 2},
+                                                           {12, 1},
+                                                           {13, 2},
+                                                           {14, 1},
+                                                           {16, 2},
+                                                           {17, 1},
+                                                           {18, 1},
+                                                           {20, 2},
+                                                           {21, 2},
+                                                           {22, 2},
+                                                           {23, 2},
+                                                           {24, 1},
+                                                           {29, 1},
+                                                           {30, 1},
+                                                           {32, 2},
+                                                           {33, 1},
+                                                           {34, 1},
+                                                           {37, 2},
+                                                           {41, 2},
+                                                           {43, 1},
+                                                           {44, 1},
+                                                           {45, 1},
+                                                           {48, 2},
+                                                           {52, 2},
+                                                           {54, 1},
+                                                           {55, 1},
+                                                           {56, 2},
+                                                           {59, 1},
+                                                           {63, 1},
+                                                           {65, 2},
+                                                           {66, 2},
+                                                           {67, 2},
+                                                           {70, 1},
+                                                           {73, 1},
+                                                           {76, 1},
+                                                           {79, 1},
+                                                           {82, 2}};
+            tInterfaceSideSet.mElemIdsAndSideOrds = &tInterfaceElemIdandSideOrd;
+            tInterfaceSideSet.mSideSetName        = "iside" ;
+            tMtkMeshSets.add_side_set(&tInterfaceSideSet);
 
-//            // Fixed bc
-//            moris::mtk::MtkSideSetInfo tFixed;
-//            Matrix<IndexMat> tFixedElementsAndOrds = {{1, 4}};
-//            tFixed.mElemIdsAndSideOrds = &tFixedElementsAndOrds;
-//            tFixed.mSideSetName        = "fixed" ;
-//            tMtkMeshSets.add_side_set(&tFixed);
+            // Fixed bc
+            moris::mtk::MtkSideSetInfo tFixed;
+            Matrix<IndexMat> tFixedElementsAndOrds = {{1, 4}};
+            tFixed.mElemIdsAndSideOrds = &tFixedElementsAndOrds;
+            tFixed.mSideSetName        = "fixed" ;
+            tMtkMeshSets.add_side_set(&tFixed);
 
             // Fixed bc
             moris::mtk::MtkSideSetInfo tGhost;
@@ -272,7 +273,6 @@ namespace moris
             moris::mtk::MtkMeshData tMeshDataInput(3);
 
             moris::uint tSpatialDim   = 3;
-            moris::uint tNumElemTypes = 3;
             Matrix<IdMat> tNodeOwner(1,tNodeCoordinates.n_rows(),moris::par_rank());
             tMeshDataInput.ElemConn(0) = &tInterpElemsAsIntegCellToNodes;
             tMeshDataInput.ElemConn(1) = &tCellToNodePhase0;
@@ -291,24 +291,26 @@ namespace moris
 
             Integration_Mesh* tIntegMeshData = moris::mtk::create_integration_mesh( MeshType::STK, tMeshDataInput );
 
-            // Read
-            Reader_Exodus reader;
-            reader.set_error_options(true, true, true);
-            reader.read_file("integration_mesh.exo");
-
-            // My write
-            Writer_Exodus writer(reader.mMesh);
-            writer.write_mesh("", "integration_mesh_write.exo");
-
 
             // STK write
-//            std::string tSTKOutput = "./test_stk.exo";
-//            reader.mMesh->create_output_mesh(tSTKOutput);
+            std::string tSTKOutput = "./test_stk.exo";
+            tIntegMeshData->create_output_mesh(tSTKOutput);
+//
+//            // Read
+//            Reader_Exodus reader;
+//            reader.set_error_options(true, true, true);
+//            reader.read_file(tSTKOutput);
+
+            // My write
+            Writer_Exodus writer(tIntegMeshData);
+            writer.write_mesh("", "test_write.exo");
+
+
+
 
 
 //            if(par_size() == 2)
 //            {
-//                // TODO: use an existing exo file
 //                std::string tPrefix = std::getenv("MORISROOT");
 //                std::string tFileOutput = tPrefix + "projects/MTK/test/Test_Files/mtk_2_proc_test.exo";
 //
