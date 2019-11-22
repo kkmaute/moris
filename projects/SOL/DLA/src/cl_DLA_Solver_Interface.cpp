@@ -133,6 +133,7 @@ void Solver_Interface::assemble_jacobian( moris::Sparse_Matrix * aMat,
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii=0; Ii < numBlocks; Ii++ )
     {
+        std::cout<<"Block "<<Ii<<std::endl;
         moris::uint tNumEquationOnjOnBlock = this->get_num_my_elements_on_block( Ii );
 
         this->initialize_block( Ii );

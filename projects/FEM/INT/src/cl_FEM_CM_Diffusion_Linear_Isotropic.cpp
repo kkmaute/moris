@@ -1,5 +1,6 @@
 
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"

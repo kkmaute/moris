@@ -40,6 +40,7 @@ namespace MSI
     class IWG;
     class Field_Interpolator;
     class Geometry_Interpolator;
+    class Field_Interpolator_Manager;
 
 //------------------------------------------------------------------------------
     /**
@@ -89,8 +90,12 @@ namespace MSI
         moris::Cell< Field_Interpolator* >  mMasterFI;
         moris::Cell< Field_Interpolator* >  mSlaveFI;
 
+        Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
         // cell of pointers to IWG objects
         moris::Cell< std::shared_ptr< IWG > > mIWGs;
+        moris::Cell< std::shared_ptr< IWG > > mRequestedIWGs;
+
         moris::Cell< moris::Matrix < DDUMat > > mIWGJacDofAssemblyMap;
         moris::Cell< moris::Matrix < DDUMat > > mIWGResDofAssemblyMap;
 
@@ -118,6 +123,7 @@ namespace MSI
         bool mIsTrivialMaster = false;
         bool mIsTrivialSlave  = false;
 
+
         friend class MSI::Equation_Object;
         friend class Cluster;
         friend class Element_Bulk;
@@ -125,6 +131,8 @@ namespace MSI
         friend class Element_Double_Sideset;
         friend class Element_Time_Sideset;
         friend class Element;
+        friend class Field_Interpolator_Manager;
+
 
 //------------------------------------------------------------------------------
     public:
@@ -142,7 +150,10 @@ namespace MSI
         /**
          * trivial constructor
          */
-        Set(){};
+        Set()
+        {
+            mIsEmptySet = true;    //FIXME this flag is a hack. find better solution
+        };
 
 //------------------------------------------------------------------------------
         /**
@@ -162,6 +173,10 @@ namespace MSI
          * param[ in ] aModelSolverInterface model solver interface pointer
          */
         void finalize( MSI::Model_Solver_Interface * aModelSolverInterface );
+
+//------------------------------------------------------------------------------
+
+        void initialize_set();
 
 //------------------------------------------------------------------------------
         /**
@@ -265,46 +280,11 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
-         * create dof assembly map
-         */
-        void create_dof_assembly_map(); //FIXME delete
-
-        void create_num_dof_map();
-
-//------------------------------------------------------------------------------
-
-        void set_jacobian_list_size();
-
-//------------------------------------------------------------------------------
-
-        void set_residual_list_size();
-
-//------------------------------------------------------------------------------
-        /**
          * get dof assembly map
          */
-        moris::Matrix< DDSMat > & get_dof_assembly_map()
+        moris::Cell< moris::Matrix< DDSMat > > & get_dof_assembly_map()
         {
             return mDofAssemblyMap;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get dof assembly map
-         */
-        moris::Matrix< DDSMat > & get_num_dof_map()
-        {
-            return mNumDofMap;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get the total number of dof
-         * param [ out ] aTotalNumDof total number of dof
-         */
-        uint get_total_number_of_dofs()
-        {
-            return mTotalDof;
         }
 
 //------------------------------------------------------------------------------
@@ -322,6 +302,7 @@ namespace MSI
          */
         moris::Cell< Field_Interpolator* > & get_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
         {
+            MORIS_ASSERT(false, "function will be deleted");
             switch ( aIsMaster )
             {
                 case ( mtk::Master_Slave::MASTER ):
@@ -376,12 +357,31 @@ namespace MSI
 
 //------------------------------------------------------------------------------
         /**
+         * get number of requested IWGs
+         */
+        uint get_number_of_requested_IWGs()
+        {
+            return mRequestedIWGs.size();
+        }
+
+//------------------------------------------------------------------------------
+        /**
          * get IWGs
          * param[ out ] aIWGs cell of IWG pointers
          */
         moris::Cell< std::shared_ptr< IWG > > & get_IWGs()
         {
             return mIWGs;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get IWGs
+         * param[ out ] aIWGs cell of IWG pointers
+         */
+        moris::Cell< std::shared_ptr< IWG > > & get_requested_IWGs()
+        {
+            return mRequestedIWGs;
         }
 
 //------------------------------------------------------------------------------
@@ -396,13 +396,16 @@ namespace MSI
          */
         void set_IWG_geometry_interpolators();
 
-//------------------------------------------------------------------------------
-        /**
-         * create dof assembly maps for each IWG
-         */
-        void create_IWG_dof_assembly_map();
 
-        void create_IWG_dof_assembly_map_2();
+        void create_dof_assembly_map();
+
+//------------------------------------------------------------------------------
+
+        void create_requested_IWG_list();
+
+//------------------------------------------------------------------------------
+
+        void build_requested_IWG_dof_type_list();
 
 //------------------------------------------------------------------------------
         /**
@@ -543,13 +546,11 @@ namespace MSI
         }
 
 //------------------------------------------------------------------------------
-        /**
-         * get the field interpolators for a dof type
-         * param[ in ] aDofType  dof type of the field interpolator to grab
-         * param[ in ] aIsMaster enum for master or slave
-         */
-         Field_Interpolator* get_dof_type_field_interpolators( enum MSI::Dof_Type aDofType,
-                                                               mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+
+         Field_Interpolator_Manager * get_field_interpolators_manager( )
+         {
+             return mFieldInterpolatorManager;
+         };
 
 //------------------------------------------------------------------------------
         /**
@@ -588,7 +589,8 @@ namespace MSI
         void initialize_mResidual();
 
 //------------------------------------------------------------------------------
-        moris::sint get_dof_index_for_type( enum MSI::Dof_Type aDofType );
+
+        moris::sint get_dof_index_for_type_1( enum MSI::Dof_Type aDofType );
 
 //------------------------------------------------------------------------------
 
@@ -596,7 +598,11 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        void create_dof_type_map_2()
+        moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+
+//------------------------------------------------------------------------------
+
+        void create_dof_type_map_unique()
         {
             // Create temporary dof type list
             moris::Cell< enum MSI::Dof_Type > tDofType = get_unique_dof_type_list();

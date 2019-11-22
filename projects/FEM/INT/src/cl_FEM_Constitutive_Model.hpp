@@ -20,6 +20,7 @@ namespace moris
 {
     namespace fem
     {
+    class Field_Interpolator_Manager;
 //------------------------------------------------------------------------------
         /**
          * Constitutive model
@@ -35,6 +36,10 @@ namespace moris
 
             // constitutive model type
             fem::Constitutive_Type mConstitutiveType;
+
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
+            Set * mSet = nullptr;
 
             // dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
@@ -157,6 +162,15 @@ namespace moris
             const fem::Constitutive_Type & get_constitutive_type() const
             {
                 return mConstitutiveType;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
             }
 
 //------------------------------------------------------------------------------
@@ -384,6 +398,11 @@ namespace moris
                 }
             }
 
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
 //------------------------------------------------------------------------------
             /**
              * set dof field interpolators
@@ -602,7 +621,9 @@ namespace moris
                 return mGlobalDofTypes;
             };
 
-            void get_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+//------------------------------------------------------------------------------
+
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
                 // set the size of the dof type list for the set
                 uint tCounter = 0;

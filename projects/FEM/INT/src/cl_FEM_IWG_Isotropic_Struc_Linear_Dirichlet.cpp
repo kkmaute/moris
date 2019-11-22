@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
@@ -18,7 +20,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real tWStar )
         {
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
@@ -26,28 +28,32 @@ namespace moris
 //            this->check_properties();
 //            this->check_constitutive_models();
 
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
             // compute jump
             Matrix< DDRMat > tJumpMat;
             this->build_jump( tJumpMat );
 //            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - tJumpMat;
+            Matrix< DDRMat > tJump = tFI->val() - tJumpMat;
 
             Matrix<DDRMat> tConstDofs;
             this->get_I( tConstDofs );
 
-            // set residual size
-            this->set_residual( aResidual );
-
             // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tConstDofs * mMasterCM( 0 )->traction( mNormal )
+            mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+                    += ( - trans( tFI->N() ) * tConstDofs * mMasterCM( 0 )->traction( mNormal )
                              + mMasterCM( 0 )->testTraction( mNormal ) * tConstDofs * tJump
-                             + mGamma * trans( mMasterFI( 0 )->N() ) * tConstDofs * tJump;
-print( aResidual( 0 ), "aResidual( 0 )" );
+                             + mGamma * trans( tFI->N() ) * tConstDofs * tJump )                   * tWStar;
         }
-        //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
         void IWG_Isotropic_Struc_Linear_Dirichlet::build_jump( Matrix< DDRMat > & aJumpMat )
         {
-            uint tDim = mMasterFI( 0 )->get_coeff().n_cols();
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tDim = tFI->get_coeff().n_cols();
 
             aJumpMat.set_size( tDim, 1, 0.0 );
 
@@ -79,7 +85,8 @@ print( aResidual( 0 ), "aResidual( 0 )" );
          //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Dirichlet::get_I( Matrix< DDRMat > & aI )
         {
-            uint tDim = mMasterFI( 0 )->get_coeff().n_cols();
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+            uint tDim = tFI->get_coeff().n_cols();
 
             aI.set_size( tDim, tDim, 0.0 );
 
@@ -113,7 +120,7 @@ print( aResidual( 0 ), "aResidual( 0 )" );
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real tWStar )
         {
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
@@ -121,46 +128,54 @@ print( aResidual( 0 ), "aResidual( 0 )" );
 //            this->check_properties();
 //            this->check_constitutive_models();
 
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
             // compute jump
             Matrix< DDRMat > tJumpMat;
             this->build_jump( tJumpMat );
 
 //            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - tJumpMat;
+            Matrix< DDRMat > tJump = tFI->val() - tJumpMat;
 
             Matrix<DDRMat> tConstDofs;
             this->get_I( tConstDofs );
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
+
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) = mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* mMasterFI( 0 )->N()
-                                 + mGamma * trans( mMasterFI( 0 )->N() ) *tConstDofs* mMasterFI( 0 )->N();
+            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) },
+                                  { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) } )
+                                 += ( mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* tFI->N()
+                                    + mGamma * trans( tFI->N() ) *tConstDofs* tFI->N() )              * tWStar;
 
             // compute the jacobian for indirect dof dependencies through properties
-            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+
+                uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
 
                 // if dependency on the dof type
                 if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += -1.0 * mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType )
-                       - mGamma * trans( mMasterFI( 0 )->N() ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
+                                          { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } )
+                            += ( -1.0 * mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType )
+                                 - mGamma * trans( tFI->N() ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType ) )              * tWStar;
                 }
 
                 // if dependency on the dof type
                 if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
-                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump );
+                    mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
+                                          { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } )
+                            += ( - trans( tFI->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
+                               + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) )              * tWStar;
                 }
             }
         }

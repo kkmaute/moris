@@ -11,6 +11,7 @@
 
 #define protected public
 #define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
 #include "cl_FEM_Set.hpp"         //FEM/INT/src
 #undef protected

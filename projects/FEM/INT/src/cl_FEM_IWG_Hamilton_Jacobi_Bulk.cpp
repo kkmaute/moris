@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "fn_trans.hpp"
 
@@ -22,36 +24,37 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Hamilton_Jacobi_Bulk::compute_residual( real tWStar )
         {
             // set field interpolators
             Field_Interpolator* phi = mMasterFI( 0 );
             Field_Interpolator* vN  = mMasterFI( 1 );
 
-            // set residual size
-            this->set_residual( aResidual );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
            //compute the residual
-           aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );
+            mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+                    += trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) ) * tWStar;
         }
 
 //------------------------------------------------------------------------------
 
-        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Hamilton_Jacobi_Bulk::compute_jacobian( real tWStar )
         {
             // set field interpolators
             Field_Interpolator* phi = mMasterFI( 0 );
             Field_Interpolator* vN  = mMasterFI( 1 );
 
-            // set jacobian size
-            this->set_jacobian( aJacobians );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val() * phi->dnNdxn( 1 ) );
+            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) },
+                                  { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) } )
+                    += trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val() * phi->dnNdxn( 1 ) ) * tWStar;
 
-            // compute the jacobian JphivN
-            uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();
-            aJacobians( 0 )( 1 ) = trans( phi->N() ) * reshape( trans( vN->N() ) * trans( phi->gradx( 1 ) ), 1, tvNNumOfDofs );
+            // compute the jacobian JphivN //FIXME put this one back
+//            uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();
+//            aJacobians( 0 )( 1 ) = trans( phi->N() ) * reshape( trans( vN->N() ) * trans( phi->gradx( 1 ) ), 1, tvNNumOfDofs ) * tWStar;
         }
 
 //------------------------------------------------------------------------------
@@ -59,25 +62,25 @@ namespace moris
         void IWG_Hamilton_Jacobi_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                       moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-            // set field interpolators
-            Field_Interpolator* phi = mMasterFI( 0 );
-            Field_Interpolator* vN  = mMasterFI( 1 );
-
-            // set residual size
-            this->set_residual( aResidual );
-
-            //compute the residual
-            aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );
-
-            // set jacobian size
-            this->set_jacobian( aJacobians );
-
-            // compute the jacobian Jphiphi
-            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val() * phi->dnNdxn( 1 ) );
-
-            // compute the jacobian JphivN
-            uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();
-            aJacobians( 0 )( 1 ) = trans( phi->N() ) * reshape( trans( vN->N() ) * trans( phi->gradx( 1 ) ), 1, tvNNumOfDofs );
+//            // set field interpolators
+//            Field_Interpolator* phi = mMasterFI( 0 );
+//            Field_Interpolator* vN  = mMasterFI( 1 );
+//
+//            // set residual size
+//            this->set_residual( aResidual );
+//
+//            //compute the residual
+//            aResidual( 0 ) = trans( phi->N() ) * ( phi->gradt( 1 ) + vN->val() * phi->gradx( 1 ) );
+//
+//            // set jacobian size
+//            this->set_jacobian( aJacobians );
+//
+//            // compute the jacobian Jphiphi
+//            aJacobians( 0 )( 0 ) = trans( phi->N() ) * ( phi->dnNdtn( 1 ) + vN->val() * phi->dnNdxn( 1 ) );
+//
+//            // compute the jacobian JphivN
+//            uint tvNNumOfDofs = vN->get_number_of_fields()*vN->get_number_of_space_time_bases();
+//            aJacobians( 0 )( 1 ) = trans( phi->N() ) * reshape( trans( vN->N() ) * trans( phi->gradx( 1 ) ), 1, tvNNumOfDofs );
         }
 
 //------------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 
 #define protected public
 #define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
 #include "cl_MSI_Dof_Manager.hpp"         //FEM/INT/src
 #include "cl_MSI_Model_Solver_Interface.hpp"         //FEM/INT/src
@@ -69,10 +70,10 @@ namespace moris
 
         // create master dof field interpolators
         uint tNumberOfFields = 1;
-        Cell< Field_Interpolator* > tMasterDofFI( 3, nullptr );
-        tMasterDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
-        tMasterDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::VX } );
+        Cell< Field_Interpolator* > tMasterDofFI( 4, nullptr );
+        tMasterDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
         tMasterDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
+        tMasterDofFI( 3 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::VX } );
 
         // create master dv field interpolators
         Cell< Field_Interpolator* > tMasterDvFI( 3, nullptr );
@@ -81,18 +82,15 @@ namespace moris
         tMasterDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS2 } );
 
         // create slave dof field interpolators
-        Cell< Field_Interpolator* > tSlaveDofFI( 3, nullptr );
-        tSlaveDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
-        tSlaveDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::UX } );
+        Cell< Field_Interpolator* > tSlaveDofFI( 4, nullptr );
+        tSlaveDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::UX } );
+        tSlaveDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
         tSlaveDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
 
         // create slave dv field interpolators
         Cell< Field_Interpolator* > tSlaveDvFI( 2, nullptr );
         tSlaveDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS1 } );
         tSlaveDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS2 } );
-
-        MSI::Equation_Set * tSet = new fem::Set();
-
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -108,23 +106,45 @@ namespace moris
         tIWG->set_properties( { tPropMaster1 }, mtk::Master_Slave::MASTER );
         tIWG->set_properties( { tPropSlave1 }, mtk::Master_Slave::SLAVE );
 
+        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::LS1},{ MSI::Dof_Type::VX}};
+        tIWG->mRequestedSlaveGlobalDofTypes = {{ MSI::Dof_Type::UX },{ MSI::Dof_Type::TEMP},{ MSI::Dof_Type::LS1}};
+
+        MSI::Equation_Set * tSet = new fem::Set();
+
         tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-        tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+        tIWG->mSet->mEqnObjDofTypeList.resize( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, MSI::Dof_Type::END_ENUM );
 
         tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 1;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
         tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 3;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
+        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
+
+        tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
+
+        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+        Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+        tFIManager.mMasterFI = tMasterDofFI;
+        tFIManager.mSlaveFI = tSlaveDofFI;
 
         // build master and slave global dof type list
         tIWG->get_global_dof_type_list();
 
-        // set IWG master and slave dof field interpolators
-        tIWG->set_dof_field_interpolators( tMasterDofFI );
-        tIWG->set_dof_field_interpolators( tSlaveDofFI, mtk::Master_Slave::SLAVE );
+        // set IWG field interpolators
+        tIWG->mFieldInterpolatorManager = &tFIManager;
 
         // build master and slave global dv type list
         tIWG->build_global_dv_type_list();
@@ -176,17 +196,9 @@ namespace moris
 
         // clean up---------------------------------------------------------------------
         // delete the dof field interpolator pointers
-        for( Field_Interpolator* tFI : tMasterDofFI )
-        {
-            delete tFI;
-        }
         tMasterDofFI.clear();
 
         // delete the dof field interpolator pointers
-        for( Field_Interpolator* tFI : tSlaveDofFI )
-        {
-            delete tFI;
-        }
         tSlaveDofFI.clear();
 
         // delete the dv field interpolator pointers

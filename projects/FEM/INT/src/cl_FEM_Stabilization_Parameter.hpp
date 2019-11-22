@@ -35,6 +35,10 @@ namespace moris
             // stabilization type
             fem::Penalty_Type mStabilizationType;
 
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
+            Set * mSet = nullptr;
+
             // cluster pointer
             fem::Cluster * mCluster;
 
@@ -152,6 +156,22 @@ namespace moris
             {
                 // return stabilization type
                 return mStabilizationType;
+            }
+
+//------------------------------------------------------------------------------
+
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
             }
 
 //------------------------------------------------------------------------------

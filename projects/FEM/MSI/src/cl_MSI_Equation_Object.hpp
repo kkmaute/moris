@@ -41,13 +41,13 @@ class Dist_Vector;
             moris::Cell< moris::Cell< Pdof_Host * > >             mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
-            moris::Cell< moris::Cell< Pdof* > >     mFreePdofList;         // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
+            moris::Cell< moris::Cell< moris::Cell< Pdof* > > >     mFreePdofList;         // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
 
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
-            moris::Cell< Matrix< DDSMat > >         mUniqueAdofTypeList;
+            moris::Cell< moris::Cell< Matrix< DDSMat > > >         mUniqueAdofTypeList;
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
 
-            moris::Cell< moris::map < moris::uint, moris::uint > > mUniqueAdofMapList;     // Map to
+            moris::Cell< moris::Cell< moris::map < moris::uint, moris::uint > > > mUniqueAdofMapList;     // Map to
 
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
@@ -61,6 +61,8 @@ class Dist_Vector;
             Matrix< DDRMat > mTime;
 
             Equation_Set * mEquationBlock;
+
+            moris::uint mNumPdofSystems = 0;
 
             friend class fem::Element;
 
@@ -169,7 +171,7 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
-            void build_PADofMap_list( Cell< Matrix< DDRMat > > & aPADofMap );
+            void build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > > & aPADofMap );
 
             void build_PADofMap_1( Matrix< DDRMat > & aPADofMap );
 

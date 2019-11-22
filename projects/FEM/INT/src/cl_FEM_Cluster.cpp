@@ -8,6 +8,7 @@
 
 #include "cl_FEM_Element.hpp" //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"   //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 
 namespace moris
 {
@@ -296,10 +297,10 @@ namespace moris
         void Cluster::set_field_interpolators_coefficients()
          {
              // get number of master dof types
-             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
+//             uint tMasterNumDofTypes = mSet->get_number_of_field_interpolators();
 
              // loop on the master dof types
-             for( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
+             for( uint iDOF = 0; iDOF < mSet->mMasterDofTypes.size(); iDOF++ )
              {
                  // get the ith dof type group
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list()( iDOF );
@@ -313,15 +314,18 @@ namespace moris
                  // reshape tCoeffs into the order the cluster expects them
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
+                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::MASTER )
+                                                ->set_coeff( tCoeff );
+
                  // set the field coefficients
-                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
+//                 mSet->get_field_interpolators()( iDOF )->set_coeff( tCoeff );
              }
 
              // get number of slave dof types
-             uint tSlaveNumDofTypes = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
+//             uint tSlaveNumDofTypes = mSet->get_number_of_field_interpolators( mtk::Master_Slave::SLAVE );
 
              // loop on the slave dof types
-             for( uint iDOF = 0; iDOF < tSlaveNumDofTypes; iDOF++ )
+             for( uint iDOF = 0; iDOF < mSet->mSlaveDofTypes.size(); iDOF++ )
              {
                  // get the ith dof type group
                  moris::Cell< MSI::Dof_Type > tDofTypeGroup = mSet->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF );
@@ -335,8 +339,11 @@ namespace moris
                  // reshape tCoeffs into the order the cluster expects them
                  this->reshape_pdof_values( tCoeff_Original, tCoeff );
 
+                 mSet->mFieldInterpolatorManager->get_field_interpolators_for_type( tDofTypeGroup( 0 ), mtk::Master_Slave::SLAVE )
+                                                ->set_coeff( tCoeff );
+
                  // set the field coefficients
-                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff );
+//                 mSet->get_field_interpolators( mtk::Master_Slave::SLAVE )( iDOF )->set_coeff( tCoeff );
              }
          }
 

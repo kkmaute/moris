@@ -3,6 +3,14 @@
 
 #include "assert.hpp"
 
+#define protected public
+#define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
+#undef protected
+#undef private
+
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
 #include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
