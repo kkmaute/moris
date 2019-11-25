@@ -622,7 +622,7 @@ namespace MSI
             // +1 because c++ is 0 based
             tMaxDofTypeEnumNumber++;
 
-            // Set size of maping matrix
+            // Set size of mapping matrix
             mDofTypeMap       .set_size( tMaxDofTypeEnumNumber, 1, -1 );
 
             // Loop over all pdof types to create the mapping matrix

@@ -16,7 +16,6 @@ namespace moris
         {
             // check master field interpolators, properties and constitutive models
 #ifdef DEBUG
-
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
 //            this->check_properties();

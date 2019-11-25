@@ -27,11 +27,13 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Interface::compute_residual( real tWStar )
         {
+#ifdef DEBUG
             // check master and slave field interpolators
             this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
 
 //            // check master and slave properties
 //            this->check_properties( mtk::Master_Slave::MASTER );
@@ -73,11 +75,13 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian( real tWStar )
         {
+#ifdef DEBUG
             // check master and slave field interpolators
             this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
 
             uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );

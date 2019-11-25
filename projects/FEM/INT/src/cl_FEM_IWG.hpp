@@ -61,10 +61,6 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
-            // master and slave global dof type maps
-            Matrix< DDSMat > mMasterGlobalDofTypeMap;
-            Matrix< DDSMat > mSlaveGlobalDofTypeMap;
-
             // master and slave dof field interpolators
             moris::Cell< Field_Interpolator* > mMasterFI;
             moris::Cell< Field_Interpolator* > mSlaveFI;
@@ -624,90 +620,6 @@ namespace moris
              void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
-            /**
-             * build global dof type map
-             */
-            void build_global_dof_type_map()
-            {
-                // MASTER-------------------------------------------------------
-                // get number of global dof types
-                uint tNumDofTypes = mMasterGlobalDofTypes.size();
-
-                // determine the max Dof_Type enum
-                sint tMaxEnum = 0;
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterGlobalDofTypes( iDOF )( 0 ) ) );
-                }
-                tMaxEnum++;
-
-                // set the Dof_Type map size
-                mMasterGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
-
-                // fill the Dof_Type map
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    // fill the property map
-                    mMasterGlobalDofTypeMap( static_cast< int >( mMasterGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
-                }
-
-                // SLAVE-------------------------------------------------------
-                // get number of global dof types
-                tNumDofTypes = mSlaveGlobalDofTypes.size();
-
-                // determine the max Dof_Type enum
-                tMaxEnum = 0;
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveGlobalDofTypes( iDOF )( 0 ) ) );
-                }
-                tMaxEnum++;
-
-                // set the dof type map size
-                mSlaveGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
-
-                // fill the dof type map
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    // fill the property map
-                    mSlaveGlobalDofTypeMap( static_cast< int >( mSlaveGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * get global dof type map
-             */
-            const Matrix< DDSMat > & get_global_dof_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master global dof type map
-                        return mMasterGlobalDofTypeMap;
-                        break;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave global dof type map
-                        return mSlaveGlobalDofTypeMap;
-                        break;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "Penalty_Parameter::get_global_dof_type_map - can only be master or slave." );
-                        return mMasterGlobalDofTypeMap;
-                        break;
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
               /**
                * create a global dv type list including IWG, property and constitutive dependencies
                * @param[ in ] aIsMaster enum master or slave
@@ -1100,9 +1012,6 @@ namespace moris
                       // build the stabilization parameter global dof type list
                       this->build_global_dof_type_list();
 
-                      // build the stabilization parameter global dof type map
-                      this->build_global_dof_type_map();
-
                       // update build flag
                       mGlobalDofBuild = false;
                   }
@@ -1230,39 +1139,11 @@ namespace moris
              * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
              * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
              */
-            bool check_jacobian_double( real aPerturbation,
-                                        real aEpsilon,
-                                        real aWStar )
-            {
-                // compute jacobian with IWG
-                this->compute_jacobian( aWStar );
-
-                // compute jacobian by FD
-//                this->compute_jacobian_FD_double( aWStar, aPerturbation );
-
-                //define a boolean for check
-                bool tCheckJacobian = true;
-
-                MORIS_ERROR(false, " finish this function");
-//
-//                // check each components
-//                for ( uint iJac = 0; iJac < aJacobians.size(); iJac++ )
-//                {
-//                    for( uint jJac = 0; jJac < aJacobians( iJac ).size(); jJac++ )
-//                    {
-//                        for( uint iiJac = 0; iiJac < aJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-//                        {
-//                            for( uint jjJac = 0; jjJac < aJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-//                            {
-//                                tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( jJac )( iiJac, jjJac ) - aJacobians_FD( iJac )( jJac )( iiJac, jjJac ) < aEpsilon );
-//                            }
-//                        }
-//                    }
-//                }
-//
-                // return bool
-                return tCheckJacobian;
-            }
+            bool check_jacobian_double( real                                             aPerturbation,
+                                        real                                             aEpsilon,
+                                        real                                             aWStar,
+                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
+                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFDs );
 
 //------------------------------------------------------------------------------
             /**
@@ -1314,277 +1195,15 @@ namespace moris
              * @param[ in ] aPerturbation real to perturb for FD
              * @param[ in ] aIsMaster     enum master or slave
              */
-            virtual void compute_jacobian_FD_double( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD,
-                                                     real                                             aPerturbation )
-            {
-//                // get master and slave number of dof types
-//                uint tMasterNumDofType = mMasterGlobalDofTypes.size();
-//                uint tSlaveNumDofType  = mSlaveGlobalDofTypes.size();
-//
-//                // set the jacobian size
-//                this->set_jacobian_double( aJacobiansFD );
-//
-//                // loop over the master dof types
-//                for( uint iFI = 0; iFI < tMasterNumDofType; iFI++ )
-//                {
-//                    // get number of master FI bases and fields
-//                    uint tDerNumBases  = mMasterFI( iFI )->get_number_of_space_time_bases();
-//                    uint tDerNumFields = mMasterFI( iFI )->get_number_of_fields();
-//
-//                    // coefficients for dof type wrt which derivative is computed
-//                    Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
-//
-//                    // init dof counter
-//                    uint tDofCounter = 0;
-//
-//                    // loop over the coefficients column
-//                    for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-//                    {
-//                        // loop over the coefficients row
-//                        for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-//                        {
-//                            // perturbation of the coefficent
-//                            Matrix< DDRMat > tCoeffPert = tCoeff;
-//                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                            // setting the perturbed coefficients
-//                            mMasterFI( iFI )->set_coeff( tCoeffPert );
-//
-//                            // reset properties, CM and SP for IWG
-//                            this->reset_eval_flags();
-//
-//                            // evaluate the residual
-//                            moris::Cell< Matrix< DDRMat > > tResidual_Plus;
-//                            this->set_residual_double( tResidual_Plus );
-//                            this->compute_residual( tResidual_Plus );
-//
-//                            // perturbation of the coefficent
-//                            tCoeffPert = tCoeff;
-//
-//                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                            // setting the perturbed coefficients
-//                            mMasterFI( iFI )->set_coeff( tCoeffPert );
-//
-//                            // reset properties, CM and SP for IWG
-//                            this->reset_eval_flags();
-//
-//                            // evaluate the residual
-//                            moris::Cell< Matrix< DDRMat > > tResidual_Minus;
-//                            this->set_residual_double( tResidual_Minus );
-//                            this->compute_residual( tResidual_Minus );
-//
-//                            // evaluate Jacobian
-//                            aJacobiansFD( 0 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-//                            aJacobiansFD( 1 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-//
-//                            // update dof counter
-//                            tDofCounter++;
-//                        }
-//                    }
-//                    // reset the coefficients values
-//                    mMasterFI( iFI )->set_coeff( tCoeff );
-//                }
-//
-//                // loop over the slave dof types
-//                for( uint iFI = 0; iFI < tSlaveNumDofType; iFI++ )
-//                {
-//                    // get number of master FI bases and fields
-//                    uint tDerNumBases  = mSlaveFI( iFI )->get_number_of_space_time_bases();
-//                    uint tDerNumFields = mSlaveFI( iFI )->get_number_of_fields();
-//
-//                    // coefficients for dof type wrt which derivative is computed
-//                    Matrix< DDRMat > tCoeff = mSlaveFI( iFI )->get_coeff();
-//
-//                    // init dof counter
-//                    uint tDofCounter = 0;
-//
-//                    // loop over the coefficients columns
-//                    for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-//                    {
-//                        // loop over the coefficients rows
-//                        for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-//                        {
-//                            // perturbation of the coefficent
-//                            Matrix< DDRMat > tCoeffPert = tCoeff;
-//                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                            // setting the perturbed coefficients
-//                            mSlaveFI( iFI )->set_coeff( tCoeffPert );
-//
-//                            // setting the perturbed coefficients
-//                            mMasterFI( iFI )->set_coeff( tCoeffPert );
-//
-//                            // reset properties, CM and SP for IWG
-//                            this->reset_eval_flags();
-//
-//                            // evaluate the residual
-//                            moris::Cell< Matrix< DDRMat > > tResidual_Plus;
-//                            this->set_residual_double( tResidual_Plus );
-//                            this->compute_residual( tResidual_Plus );
-//
-//                            // perturbation of the coefficent
-//                            tCoeffPert = tCoeff;
-//                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-//
-//                            // setting the perturbed coefficients
-//                            mSlaveFI( iFI )->set_coeff( tCoeffPert );
-//
-//                            // reset properties, CM and SP for IWG
-//                            this->reset_eval_flags();
-//
-//                            // evaluate the residual
-//                            moris::Cell< Matrix< DDRMat > > tResidual_Minus;
-//                            this->set_residual_double( tResidual_Minus );
-//                            this->compute_residual( tResidual_Minus );
-//
-//                            // evaluate Jacobian
-//                            aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-//                            aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-//
-//                            // update dof counter
-//                            tDofCounter++;
-//                        }
-//                    }
-//                    // reset the coefficients values
-//                    mSlaveFI( iFI )->set_coeff( tCoeff );
-//                }
-            }
+            void compute_jacobian_FD_double( real                                             aWStar,
+                                             real                                             aPerturbation,
+                                             moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
              * build a list of dof types requested by the solver and owned by the IWG
              */
             void build_requested_dof_type_list();
-
-//------------------------------------------------------------------------------
-            /**
-             * set the residual size double
-             * @param[ in ] aResidual matrix to fill with residual
-             */
-            void set_residual_double( moris::Cell< Matrix< DDRMat > > & aResidual );
-
-//------------------------------------------------------------------------------
-            /**
-             * set the Jacobian size
-             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
-             */
-            void set_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
-//            {
-////                // get number of dof types for the IWG
-////                uint tNumDofType = this->get_global_dof_type_list().size();
-////
-////                // set the size of the jacobian cell
-////                aJacobians.resize( 1 );
-////                aJacobians( 0 ).resize( tNumDofType );
-////
-////                // get residual dof type number of dofs
-////                uint tNumResDof = mMasterFI( 0 )->get_number_of_space_time_coefficients();
-////
-////                // loop over the master dof dependencies
-////                for( uint iDOF = 0; iDOF < tNumDofType; iDOF++ )
-////                {
-////                    // set size for each jacobian matrix
-////                    aJacobians( 0 )( iDOF ).set_size( tNumResDof, mMasterFI( iDOF )->get_number_of_space_time_coefficients(), 0.0 );
-////                }
-//                // get number of dof types for the IWG
-//                uint tNumDofType = mSet->get_unique_dof_type_list().size();
-//
-//                // set the size of the jacobian cell
-//                aJacobians.resize( 1 );
-//                aJacobians( 0 ).resize( tNumDofType );
-//
-//                // get residual dof type number of dofs
-//                Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-//                uint tNumResDof = tFI->get_number_of_space_time_coefficients();
-//
-//                moris::Cell< enum MSI::Dof_Type > & tUniqueDofTypes = mSet->get_unique_dof_type_list();
-//
-//                // loop over the master dof dependencies
-//                for( uint iDOF = 0; iDOF < tNumDofType; iDOF++ )
-//                {
-//                    Field_Interpolator * tFI_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tUniqueDofTypes( iDOF ), mtk::Master_Slave::MASTER );
-//
-//                    if ( tFI_2 == nullptr )
-//                    {
-//                        continue;
-//                    }
-//
-//                    uint tNumResDof_2 = tFI_2->get_number_of_space_time_coefficients();
-//
-//                    // set size for each jacobian matrix
-//                    aJacobians( 0 )( iDOF ).set_size( tNumResDof, tNumResDof_2, 0.0 );
-//                }
-//            }
-
-//------------------------------------------------------------------------------
-            /**
-              * set the Jacobian size double
-              * @param[ in ] aJacobians cell of matrices to fill with Jacobians
-              */
-             void set_jacobian_double( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
-//             {
-//                 // get number of dof types for the IWG
-////                 uint tMasterNumDofType = this->get_global_dof_type_list().size();
-////                 uint tSlaveNumDofType  = this->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-////                 uint tNumDofType = tMasterNumDofType + tSlaveNumDofType;
-//
-//                 uint tNumDofType = mSet->get_unique_dof_type_list().size();
-//                 uint tNumDofTypeTotal = tNumDofType * 2 ;
-//
-//                 Field_Interpolator * tFIMaster = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-//                 Field_Interpolator * tFISlave  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
-//
-//                 uint tNumResDofMaster = tFIMaster->get_number_of_space_time_coefficients();
-//                 uint tNumResDofSlave  = tFISlave->get_number_of_space_time_coefficients();
-//
-////                 // get master residual number of dofs
-////                 uint tMasterNumResDof = mMasterFI( 0 )->get_number_of_space_time_coefficients();
-////
-////                 // get slave residual number of dofs
-////                 uint tSlaveNumResDof = mSlaveFI( 0 )->get_number_of_space_time_coefficients();
-//
-//                 // set the size of the jacobian cell
-//                 aJacobians.resize( 2 );
-//                 aJacobians( 0 ).resize( tNumDofTypeTotal );
-//                 aJacobians( 1 ).resize( tNumDofTypeTotal );
-//
-//                 moris::Cell< enum MSI::Dof_Type > & tUniqueDofTypes = mSet->get_unique_dof_type_list();
-//
-//                 // loop over the master dof dependencies
-//                 for( uint iMasterDOF = 0; iMasterDOF < tNumDofType; iMasterDOF++ )
-//                 {
-//                     Field_Interpolator * tFI_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tUniqueDofTypes( iMasterDOF ), mtk::Master_Slave::MASTER );
-//
-//                     if ( tFI_2 == nullptr )
-//                     {
-//                         continue;
-//                     }
-//
-//                     uint tNumResDof = tFI_2->get_number_of_space_time_coefficients();
-//
-//                     // set size for each residual matrix
-//                     aJacobians( 0 )( iMasterDOF ).set_size( tMasterNumResDof, tNumResDof, 0.0 );
-//                     aJacobians( 1 )( iMasterDOF ).set_size( tSlaveNumResDof,  tNumResDof, 0.0 );
-//                 }
-//
-//                 // loop over the slave dof dependencies
-//                 for( uint iSlaveDOF = 0; iSlaveDOF < tNumDofType; iSlaveDOF++ )
-//                 {
-//                     Field_Interpolator * tFI_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tUniqueDofTypes( iMasterDOF ), mtk::Master_Slave::SLAVE );
-//
-//                     if ( tFI_2 == nullptr )
-//                     {
-//                         continue;
-//                     }
-//
-//                     uint tNumResDof = tFI_2->get_number_of_space_time_coefficients();
-//
-//                     // set size for each residual matrix
-//                     aJacobians( 0 )( tNumDofType + iSlaveDOF ).set_size( tMasterNumResDof, tNumResDof, 0.0 );
-//                     aJacobians( 1 )( tNumDofType + iSlaveDOF ).set_size( tSlaveNumResDof,  tNumResDof, 0.0 );
-//                 }
-//             }
 
 //------------------------------------------------------------------------------
 //
