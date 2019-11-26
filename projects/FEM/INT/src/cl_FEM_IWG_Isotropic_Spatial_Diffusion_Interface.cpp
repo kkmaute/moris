@@ -103,26 +103,29 @@ namespace moris
             // evaluate temperature jump
             Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
-            // compute the jacobian for direct dof dependencies
-            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) },
-                                  { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 3 ) } )
-                    +=  ( mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * tFIMaster->N()
-                        + mGammaInterface * trans( tFIMaster->N() ) * tFIMaster->N() ) * tWStar;
+            if (mResidualDofTypeRequested)
+            {
+                // compute the jacobian for direct dof dependencies
+                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) },
+                                      { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 3 ) } )
+                        +=  ( mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * tFIMaster->N()
+                            + mGammaInterface * trans( tFIMaster->N() ) * tFIMaster->N() ) * tWStar;
 
-            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 1 ) },
-                                  { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 3 ) } )
-                    += ( - mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * tFISlave->N()
-                         - mGammaInterface * trans( tFIMaster->N() ) * tFISlave->N() ) * tWStar;
+                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 1 ) },
+                                      { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 3 ) } )
+                        += ( - mMasterWeight * mMasterCM( 0 )->testTraction( mNormal ) * tFISlave->N()
+                             - mGammaInterface * trans( tFIMaster->N() ) * tFISlave->N() ) * tWStar;
 
-            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 1 ) },
-                                  { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 3 ) } )
-                    += (  mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * tFIMaster->N()
-                        - mGammaInterface * trans( tFISlave->N() ) * tFIMaster->N() ) * tWStar;
+                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 1 ) },
+                                      { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 3 ) } )
+                        += (  mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * tFIMaster->N()
+                            - mGammaInterface * trans( tFISlave->N() ) * tFIMaster->N() ) * tWStar;
 
-            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) },
-                                  { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 3 ) } )
-                    += ( - mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * tFISlave->N()
-                         + mGammaInterface * trans( tFISlave->N() ) * tFISlave->N() ) * tWStar;
+                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) },
+                                      { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 3 ) } )
+                        += ( - mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * tFISlave->N()
+                             + mGammaInterface * trans( tFISlave->N() ) * tFISlave->N() ) * tWStar;
+            }
 
             // compute the jacobian for indirect dof dependencies through master constitutive models
             for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )

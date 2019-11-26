@@ -379,6 +379,26 @@ void IWG::build_requested_dof_type_list()
 
     mRequestedMasterGlobalDofTypes.shrink_to_fit();
     mRequestedSlaveGlobalDofTypes.shrink_to_fit();
+
+    //---------------------------------------------------------------------------------
+    mRequestedResidualDofType.clear();
+
+    mRequestedResidualDofType.reserve( 1 );  // FIXME resdiual depends only on one set of  dof types right now.
+
+    for( auto tDofTypes : tRequestedDofTypes )
+    {
+        if( mResidualDofType( 0 ) == tDofTypes )
+        {
+//            mRequestedResidualDofType.push_back( mResidualDofType );
+        	mRequestedResidualDofType = mResidualDofType; // FIXME might have to replace this one withline above
+
+            mResidualDofTypeRequested = true;
+            break;
+        }
+    }
+
+    mRequestedResidualDofType.shrink_to_fit();
+
 }
 
 //------------------------------------------------------------------------------

@@ -364,7 +364,7 @@ namespace moris
                 MORIS_ASSERT( tCheckFI, "Opt_IWG::set_field_interpolators - wrong field interpolator dof type. ");
 
                 // set field interpolators
-                this->get_dof_field_interpolators( aIsMaster ) = aFieldInterpolators;
+//                this->get_dof_field_interpolators( aIsMaster ) = aFieldInterpolators;
             }
 
 //------------------------------------------------------------------------------

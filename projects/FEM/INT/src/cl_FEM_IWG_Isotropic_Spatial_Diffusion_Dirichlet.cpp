@@ -62,11 +62,14 @@ namespace moris
             // compute jump
             Matrix< DDRMat > tJump = tFI->val() - mMasterProp( 0 )->val();
 
+            if (mResidualDofTypeRequested)
+            {
             // compute the jacobian for direct dof dependencies
             mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) },
                                   { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) } )
                                       += ( mMasterCM( 0 )->testTraction( mNormal ) * tFI->N()
                                         + mGamma * trans( tFI->N() ) * tFI->N() )                   * tWStar;
+            }
 
             // compute the jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();

@@ -84,11 +84,14 @@ namespace moris
                 // compute the jump in traction
                 Matrix< DDRMat > tGradJump = mMasterCM( 0 )->traction( mNormal ) - mSlaveCM( 0 )->traction( mNormal );
 
+                if (mResidualDofTypeRequested)
+                {
                 // compute the residual
                 mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
                                         +=   tGhostPenalty1 * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * tGradJump * aWStar;
                 mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
                                         += - tGhostPenalty1 * trans( mSlaveFI( 0 )->dnNdxn( 1 ) )  * trans( tNormalMatrix ) * tGradJump * aWStar;
+                }
             }
         }
 

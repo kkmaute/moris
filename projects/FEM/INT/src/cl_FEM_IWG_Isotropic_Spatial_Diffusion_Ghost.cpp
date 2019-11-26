@@ -163,6 +163,8 @@ namespace moris
                 // premultiply common terms
                 Matrix< DDRMat > tPreMultiply = tGhostPenalty * trans( tNormalMatrix ) * tNormalMatrix;
 
+                if (mResidualDofTypeRequested)
+                {
                 // compute Jacobian direct dependencies
                 mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) },
                                       { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 3 ) } )
@@ -176,6 +178,7 @@ namespace moris
                 mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) },
                                       { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 3 ) } )
                         +=   trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply * tFISlave->dnNdxn( iOrder ) * aWStar;
+                }
 
                 // compute the jacobian for indirect dof dependencies through master properties
                 for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )

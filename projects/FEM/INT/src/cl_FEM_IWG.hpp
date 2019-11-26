@@ -45,6 +45,9 @@ namespace moris
             // residual dof type
             moris::Cell< MSI::Dof_Type > mResidualDofType;
 
+            moris::Cell< MSI::Dof_Type > mRequestedResidualDofType;
+            bool mResidualDofTypeRequested = false;
+
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
@@ -301,6 +304,10 @@ namespace moris
              */
             void set_dof_field_interpolators( mtk::Master_Slave aIsMaster );
 
+//------------------------------------------------------------------------------
+            /**
+             * set only field interpolator manager and set to properties and CM
+             */
             void set_dof_field_interpolators()
             {
                 // set field interpolators for the SP
@@ -367,40 +374,6 @@ namespace moris
                 for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
                 {
                     tProp->set_geometry_interpolator( aGeometryInterpolator );
-                }
-            }
-
-
-//------------------------------------------------------------------------------
-            /**
-             * get dof field interpolators
-             * @param[ in ]  aIsMaster           enum master or slave
-             * @param[ out ] aFieldInterpolators cell of dof field interpolator pointers
-             */
-            moris::Cell< Field_Interpolator* > & get_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                MORIS_ASSERT(false, "function will be deleted");
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master field interpolator pointers
-                        return mMasterFI;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave field interpolator pointers
-                        return mSlaveFI;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IWG::set_dof_field_interpolators - can only be master or slave." );
-                        return mMasterFI;
-                    }
                 }
             }
 

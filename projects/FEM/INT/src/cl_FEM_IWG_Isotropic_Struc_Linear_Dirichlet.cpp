@@ -142,11 +142,14 @@ namespace moris
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // compute the jacobian for direct dof dependencies
-            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) },
-                                  { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) } )
-                                 += ( mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* tFI->N()
-                                    + mGamma * trans( tFI->N() ) *tConstDofs* tFI->N() )              * tWStar;
+            if (mResidualDofTypeRequested)
+            {
+                // compute the jacobian for direct dof dependencies
+                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) },
+                                      { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) } )
+                                    += ( mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* tFI->N()
+                                        + mGamma * trans( tFI->N() ) *tConstDofs* tFI->N() )              * tWStar;
+            }
 
             // compute the jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
