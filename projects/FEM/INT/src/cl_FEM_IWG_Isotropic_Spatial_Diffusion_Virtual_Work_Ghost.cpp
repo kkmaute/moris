@@ -87,9 +87,9 @@ namespace moris
                 if (mResidualDofTypeRequested)
                 {
                 // compute the residual
-                mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
+                mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
                                         +=   tGhostPenalty1 * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * tGradJump * aWStar;
-                mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
+                mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
                                         += - tGhostPenalty1 * trans( mSlaveFI( 0 )->dnNdxn( 1 ) )  * trans( tNormalMatrix ) * tGradJump * aWStar;
                 }
             }
@@ -167,12 +167,12 @@ namespace moris
                     if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) },
-                                              { mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 3 ) } )
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
                                 +=   tGhostPenalty * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
 
-                        mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) },
-                                              { mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 3 ) } )
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
                                   += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
                 }
@@ -190,12 +190,12 @@ namespace moris
                     if ( mSlaveCM( 0 )->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) },
-                                              { mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 3 ) } )
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
                                 += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
 
-                        mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) },
-                                              { mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 3 ) } )
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
                                   +=   tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
                 }

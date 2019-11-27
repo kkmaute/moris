@@ -25,7 +25,7 @@ namespace moris
             Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // compute the residual r_T
-            mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
                                     += - trans( tFI->N() ) * mMasterProp( 0 )->val() * tWStar;
         }
 
@@ -57,8 +57,8 @@ namespace moris
                 if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
-                                          { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } )
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                             += - trans( tFI->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType ) * tWStar;
                 }
             }

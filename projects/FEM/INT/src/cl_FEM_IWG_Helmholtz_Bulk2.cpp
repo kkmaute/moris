@@ -61,7 +61,7 @@ namespace moris
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
             // compute the residual
-            mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
                          += ( mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->gradx( 1 )
                            + trans( vN->N() ) * ( vN->val() - vN->N() * aVHat ) * tDiracFilter  ) * tWStar;
         }
@@ -104,8 +104,8 @@ namespace moris
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             // compute the jacobian j_vN_vN
-            mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) },
-                                  { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) } )
+            mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                  { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                     += mFilterParam * trans( vN->dnNdxn( 1 ) ) * vN->dnNdxn( 1 ) + trans( vN->N() ) * vN->N() * tDiracFilter * tWStar;
 
             // compute the jacobian j_vN_phi //FIXME

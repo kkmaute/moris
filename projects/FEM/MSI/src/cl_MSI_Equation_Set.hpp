@@ -47,7 +47,8 @@ namespace mtk
         moris::Matrix< DDSMat > mSlaveDofTypeMap;
 
         // map of master and slave dof types for assembly
-        Cell< moris::Matrix< DDSMat > > mDofAssemblyMap;
+        Cell< moris::Matrix< DDSMat > > mResDofAssemblyMap;
+        Cell< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
 
         Cell< moris::map< enum MSI::Dof_Type, moris::uint > > mRequestedTypeToIndexMap;
 

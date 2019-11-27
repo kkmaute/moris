@@ -86,21 +86,11 @@ namespace MSI
         Geometry_Interpolator             * mMasterIGGeometryInterpolator = nullptr;
         Geometry_Interpolator             * mSlaveIGGeometryInterpolator  = nullptr;
 
-        // list of field interpolator pointers
-        moris::Cell< Field_Interpolator* >  mMasterFI;
-        moris::Cell< Field_Interpolator* >  mSlaveFI;
-
         Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
 
         // cell of pointers to IWG objects
         moris::Cell< std::shared_ptr< IWG > > mIWGs;
         moris::Cell< std::shared_ptr< IWG > > mRequestedIWGs;
-
-        moris::Cell< moris::Matrix < DDUMat > > mIWGJacDofAssemblyMap;
-        moris::Cell< moris::Matrix < DDUMat > > mIWGResDofAssemblyMap;
-
-        moris::Cell< moris::Matrix < DDUMat > > mIWGJacDofAssemblyMap_2;
-        moris::Cell< moris::Matrix < DDUMat > > mIWGResDofAssemblyMap_2;
 
         enum fem::Element_Type mElementType;
 
@@ -278,13 +268,23 @@ namespace MSI
             }
         }
 
+
 //------------------------------------------------------------------------------
         /**
-         * get dof assembly map
+         * get residual dof assembly map
          */
-        moris::Cell< moris::Matrix< DDSMat > > & get_dof_assembly_map()
+        moris::Cell< moris::Matrix< DDSMat > > & get_res_dof_assembly_map()
         {
-            return mDofAssemblyMap;
+            return mResDofAssemblyMap;
+        }
+
+//------------------------------------------------------------------------------
+        /**
+         * get jacobian dof assembly map
+         */
+        moris::Cell< moris::Matrix< DDSMat > > & get_jac_dof_assembly_map()
+        {
+            return mJacDofAssemblyMap;
         }
 
 //------------------------------------------------------------------------------
@@ -294,32 +294,6 @@ namespace MSI
           * ( only used to set the time levels )
           */
          void create_field_interpolators( MSI::Model_Solver_Interface * aModelSolverInterface );
-
-//------------------------------------------------------------------------------
-        /**
-         * get field interpolators for the set
-         * @param[ in ] aIsMaster enum for master or slave
-         */
-        moris::Cell< Field_Interpolator* > & get_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-        {
-            MORIS_ASSERT(false, "function will be deleted");
-            switch ( aIsMaster )
-            {
-                case ( mtk::Master_Slave::MASTER ):
-                {
-                    return mMasterFI;
-                }
-                case( mtk::Master_Slave::SLAVE ):
-                {
-                    return mSlaveFI;
-                }
-                default:
-                {
-                    MORIS_ERROR(false, "Set::get_field_interpolators - can only be MASTER or SLAVE.");
-                    return mMasterFI;
-                }
-            }
-        }
 
 //------------------------------------------------------------------------------
         /**
@@ -396,8 +370,11 @@ namespace MSI
          */
         void set_IWG_geometry_interpolators();
 
+        void create_residual_dof_assembly_map();
 
-        void create_dof_assembly_map();
+        void create_jacobian_dof_assembly_map();
+
+        void create_staggered_jacobian_dof_assembly_map();
 
 //------------------------------------------------------------------------------
 
@@ -406,31 +383,6 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void build_requested_IWG_dof_type_list();
-
-//------------------------------------------------------------------------------
-        /**
-         * get residual dof assembly maps for all IWG
-         * param[ out ] aIWGResDofAssemblyMap a map for the residual dof on the IWG
-         */
-        moris::Cell< Matrix< DDUMat > > & get_IWG_res_dof_assembly_map()
-        {
-            return mIWGResDofAssemblyMap;
-        }
-
-//------------------------------------------------------------------------------
-        /**
-         * get jacobian dof assembly maps for all IWG
-         * param[ out ] aIWGJacDofAssemblyMap a map for the jacobian dof on the IWG
-         */
-        moris::Cell< Matrix< DDUMat > > & get_IWG_jac_dof_assembly_map()
-        {
-            return mIWGJacDofAssemblyMap;
-        }
-
-        moris::Cell< Matrix< DDUMat > > & get_IWG_jac_dof_assembly_map_2()
-        {
-            return mIWGJacDofAssemblyMap_2;
-        }
 
 //------------------------------------------------------------------------------
         /**

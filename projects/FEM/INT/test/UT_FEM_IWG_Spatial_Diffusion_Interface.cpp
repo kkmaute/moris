@@ -189,9 +189,12 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
     tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-    tIWG->mSet->mDofAssemblyMap.resize( 2 );
-    tIWG->mSet->mDofAssemblyMap( 0 ) = { { 0, 7 , 0, 7  },{ 0, 7 , 8, 15 } };
-    tIWG->mSet->mDofAssemblyMap( 1 ) = { { 8, 15, 0, 7  },{ 8, 15, 8, 15 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 8, 15 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 },{ 8, 15 } };
+    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 },{ 8, 15 } };
 
     tIWG->mSet->mResidual.set_size( 16, 1 , 0.0 );
     tIWG->mSet->mJacobian.set_size( 16, 16, 0.0 );

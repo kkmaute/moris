@@ -91,9 +91,9 @@ namespace moris
                                                * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ); // jump in iOrder order spatial gradient
 
                  // compute master and slave residuals
-                 mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
+                 mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
                                         +=   trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply * aWStar;
-                 mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
+                 mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
                                         += - trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply* aWStar;
             }
         }
@@ -166,17 +166,17 @@ namespace moris
                 if (mResidualDofTypeRequested)
                 {
                 // compute Jacobian direct dependencies
-                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) },
-                                      { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 3 ) } )
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) } )
                         +=   trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply * tFIMaster->dnNdxn( iOrder ) * aWStar;
-                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 1 ) },
-                                      { mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 3 ) } )
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 1 ) } )
                         += - trans( tFIMaster->dnNdxn( iOrder ) ) * tPreMultiply * tFISlave->dnNdxn( iOrder ) * aWStar;
-                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 1 ) },
-                                      { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 3 ) } )
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 1 ) } )
                         += - trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply * tFIMaster->dnNdxn( iOrder ) * aWStar;
-                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) },
-                                      { mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 3 ) } )
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) } )
                         +=   trans( tFISlave->dnNdxn( iOrder ) )  * tPreMultiply * tFISlave->dnNdxn( iOrder ) * aWStar;
                 }
 
@@ -200,11 +200,11 @@ namespace moris
                                                          * tdGhostPenaltydDOF;
 
                         // add contribution to jacobian
-                        mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) },
-                                              { mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 3 ) } )
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
                                     +=   trans( tFIMaster->dnNdxn( iOrder ) )  * tPreMultiply2 * aWStar;
-                        mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) },
-                                                { mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 3 ) } )
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
                                     += - trans( tFISlave->dnNdxn( iOrder ) ) * tPreMultiply2 * aWStar;
                     }
                 }

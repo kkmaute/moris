@@ -528,8 +528,8 @@ void IWG::compute_jacobian_FD( real                                             
     {
         uint tDofIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
 
-        uint tNumRows = mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) - mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ) + 1;
-        uint tNumCols = mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) - mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ) + 1;
+        uint tNumRows = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) - mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ) + 1;
+        uint tNumCols = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ) + 1;
 
         aJacobiansFD( 0 )( iFI ).set_size( tNumRows, tNumCols, 0.0 );
 
@@ -566,7 +566,7 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Plus
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } );
 
                 // perturbation of the coefficent
                 tCoeffPert = tCoeff;
@@ -583,7 +583,7 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Minus
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } );
 
                 // evaluate Jacobian
                 aJacobiansFD( 0 )( iFI ).get_column( tDofCounter )
@@ -618,10 +618,10 @@ void IWG::compute_jacobian_FD( real                                             
         uint tDofIndexMaster = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
         uint tDofIndexSlave  = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE  );
 
-        uint tNumRowsMaster = mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) - mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ) + 1;
-        uint tNumColsMaster = mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 3 ) - mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 2 ) + 1;
-        uint tNumRowsSlave  = mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 1 ) - mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 0 ) + 1;
-        uint tNumColsSlave  = mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 3 ) - mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 2 ) + 1;
+        uint tNumRowsMaster = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ) + 1;
+        uint tNumColsMaster = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ) + 1;
+        uint tNumRowsSlave  = mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 0 ) + 1;
+        uint tNumColsSlave  = mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 0 ) + 1;
 
         aJacobiansFD( 0 )( iFI ).set_size( tNumRowsMaster, tNumColsMaster, 0.0 );
         aJacobiansFD( 1 )( iFI ).set_size( tNumRowsSlave, tNumColsSlave, 0.0 );
@@ -659,9 +659,9 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Plus_Master
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
                 Matrix< DDRMat > tResidual_Plus_Slave
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
 
                 // perturbation of the coefficent
                 tCoeffPert = tCoeff;
@@ -678,9 +678,9 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Minus_Master
-                      =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
+                      =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
                 Matrix< DDRMat > tResidual_Minus_Slave
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
 
                 // evaluate Jacobian
                 aJacobiansFD( 0 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
@@ -700,10 +700,10 @@ void IWG::compute_jacobian_FD( real                                             
         uint tDofIndexMaster = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::MASTER );
         uint tDofIndexSlave  = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iFI )( 0 ), mtk::Master_Slave::SLAVE  );
 
-        uint tNumRowsMaster = mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) - mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ) + 1;
-        uint tNumColsMaster = mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 3 ) - mSet->get_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 2 ) + 1;
-        uint tNumRowsSlave  = mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 1 ) - mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 0 ) + 1;
-        uint tNumColsSlave  = mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 3 ) - mSet->get_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 2 ) + 1;
+        uint tNumRowsMaster = mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ) + 1;
+        uint tNumColsMaster = mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ) + 1;
+        uint tNumRowsSlave  = mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 1 ) - mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0 , 0 ) + 1;
+        uint tNumColsSlave  = mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 1 ) - mSet->get_jac_dof_assembly_map()( tDofIndexSlave  )( tDofIndexSlave , 0 ) + 1;
 
         aJacobiansFD( 0 )( tMasterNumDofType + iFI ).set_size( tNumRowsMaster, tNumColsMaster, 0.0 );
         aJacobiansFD( 1 )( tMasterNumDofType + iFI ).set_size( tNumRowsSlave, tNumColsSlave, 0.0 );
@@ -741,9 +741,9 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Plus_Master
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
                 Matrix< DDRMat > tResidual_Plus_Slave
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
 
                 // perturbation of the coefficent
                 tCoeffPert = tCoeff;
@@ -760,9 +760,9 @@ void IWG::compute_jacobian_FD( real                                             
                 this->compute_residual( aWStar );
 
                 Matrix< DDRMat > tResidual_Minus_Master
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } );
                 Matrix< DDRMat > tResidual_Minus_Slave
-                =  mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
+                =  mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave  )( 0, 1 ) }, { 0, 0 } );
 
                 // evaluate Jacobian
                 aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( tDofCounter ) = ( tResidual_Plus_Master - tResidual_Minus_Master )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
@@ -806,8 +806,8 @@ bool IWG::check_jacobian( real                                             aPert
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
             uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( jJac )( 0 ), mtk::Master_Slave::MASTER );
 
-             aJacobians( iJac )( jJac ) = mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
-                                                                { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } );
+             aJacobians( iJac )( jJac ) = mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                                                { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } );
 
             for( uint iiJac = 0; iiJac < aJacobiansFDs( iJac )( jJac ).n_rows(); iiJac++ )
             {
@@ -866,8 +866,8 @@ bool IWG::check_jacobian_double( real                                           
         {
             uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( tCounter )( 0 ), mtk::Master_Slave::MASTER );
 
-             aJacobians( iJac )( jJac ) = mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
-                                                                { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } );
+             aJacobians( iJac )( jJac ) = mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                                                { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } );
 
             for( uint iiJac = 0; iiJac < aJacobiansFDs( iJac )( tCounter ).n_rows(); iiJac++ )
             {
@@ -883,8 +883,8 @@ bool IWG::check_jacobian_double( real                                           
         {
             uint tIndexDep = mSet->get_dof_index_for_type( mRequestedSlaveGlobalDofTypes( tCounter )( 0 ), mtk::Master_Slave::SLAVE );
 
-            aJacobians( iJac )( jJac ) = mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
-                                                               { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } );
+            aJacobians( iJac )( jJac ) = mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                                               { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } );
 
             for( uint iiJac = 0; iiJac < aJacobiansFDs( iJac )( tCounter ).n_rows(); iiJac++ )
             {

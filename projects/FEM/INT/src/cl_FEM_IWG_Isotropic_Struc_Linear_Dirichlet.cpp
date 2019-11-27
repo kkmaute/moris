@@ -41,8 +41,11 @@ namespace moris
             Matrix<DDRMat> tConstDofs;
             this->get_I( tConstDofs );
 
+            uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
             // compute the residual
-            mSet->get_residual()( { mSet->get_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
+            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
                     += ( - trans( tFI->N() ) * tConstDofs * mMasterCM( 0 )->traction( mNormal )
                              + mMasterCM( 0 )->testTraction( mNormal ) * tConstDofs * tJump
                              + mGamma * trans( tFI->N() ) * tConstDofs * tJump )                   * tWStar;
@@ -145,8 +148,8 @@ namespace moris
             if (mResidualDofTypeRequested)
             {
                 // compute the jacobian for direct dof dependencies
-                mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) },
-                                      { mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tDofIndex, 3 ) } )
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                                     += ( mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* tFI->N()
                                         + mGamma * trans( tFI->N() ) *tConstDofs* tFI->N() )              * tWStar;
             }
@@ -165,8 +168,8 @@ namespace moris
                 if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
-                                          { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } )
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                             += ( -1.0 * mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType )
                                  - mGamma * trans( tFI->N() ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType ) )              * tWStar;
                 }
@@ -175,8 +178,8 @@ namespace moris
                 if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    mSet->get_jacobian()( { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) },
-                                          { mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 2 ), mSet->get_dof_assembly_map()( tDofIndex )( tIndexDep, 3 ) } )
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                             += ( - trans( tFI->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
                                + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) )              * tWStar;
                 }

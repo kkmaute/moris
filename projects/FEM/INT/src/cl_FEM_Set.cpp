@@ -222,7 +222,9 @@ namespace moris
     {
         if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
         {
-            this->create_dof_assembly_map();
+            this->create_residual_dof_assembly_map();
+
+            this->create_jacobian_dof_assembly_map();
 
             this->create_requested_IWG_list();
 
@@ -462,147 +464,341 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    void Set::create_dof_assembly_map()
-    {
-        // get list of requested dof types
-        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
-                                                                               ->get_solver_interface()
-                                                                               ->get_requested_dof_types();
-
-        uint tCounter = 0;
-
-        for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+        void Set::create_residual_dof_assembly_map()
         {
-            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+            // get list of requested dof types
+            Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+                                                                                   ->get_solver_interface()
+                                                                                   ->get_requested_dof_types();
 
-            if( tDofIndex != -1 )
+            sint tMaxDofIndex = -1;
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
-                tCounter++;
-            }
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
 
-            tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE );
-
-            if( tDofIndex != -1 )
-            {
-                tCounter++;
-            }
-        }
-
-        mDofAssemblyMap.resize( tCounter );
-
-        for( uint Ik = 0; Ik < mDofAssemblyMap.size(); Ik++ )
-        {
-            mDofAssemblyMap( Ik ).set_size( tCounter, 4, -1 );
-        }
-
-        tCounter = 0;
-
-        for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
-        {
-            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
-
-            if( tDofIndex != -1 )
-            {
-                uint tNumCoeff = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER )
-                                                                          ->get_number_of_space_time_coefficients();
-
-                uint tCounter_2 = 0;
-                uint tCounter_3 = 0;
-
-                for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
+                if( tDofIndex != -1 )
                 {
-                    sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER );
-
-                    if( tDofIndex_2 != -1 )
-                    {
-                        uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER )
-                                                                            ->get_number_of_space_time_coefficients();
-
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 0 ) = tCounter;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 1 ) = tCounter + tNumCoeff - 1;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 2 ) = tCounter_2;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 3 ) = tCounter_2 + tNumCoeff_2 - 1;
-
-                        tCounter_2 += tNumCoeff_2;
-                        tCounter_3++;
-                    }
+                    tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
                 }
 
-                for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
+                tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE );
+
+                if( tDofIndex != -1 )
                 {
-                    sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE );
-
-                    if( tDofIndex_2 != -1 )
-                    {
-                        uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE )
-                                                                            ->get_number_of_space_time_coefficients();
-
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 0 ) = tCounter;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 1 ) = tCounter + tNumCoeff - 1;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 2 ) = tCounter_2;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 3 ) = tCounter_2 + tNumCoeff_2 - 1;
-
-                        tCounter_2 += tNumCoeff_2;
-                        tCounter_3++;
-                    }
+                    tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
                 }
-                tCounter += tNumCoeff;
+            }
+            tMaxDofIndex++;
+
+            mResDofAssemblyMap.resize( tMaxDofIndex );
+
+            for( uint Ik = 0; Ik < mResDofAssemblyMap.size(); Ik++ )
+            {
+                mResDofAssemblyMap( Ik ).set_size( 1, 2, -1 );
+            }
+
+            uint tCounter = 0;
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+
+                if( tDofIndex != -1 )
+                {
+                    uint tNumCoeff = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER )
+                                                                              ->get_number_of_space_time_coefficients();
+
+                    mResDofAssemblyMap( tDofIndex )( 0, 0 ) = tCounter;
+                    mResDofAssemblyMap( tDofIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+
+                    tCounter += tNumCoeff;
+                }
+            }
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE  );
+
+                if( tDofIndex != -1 )
+                {
+                    uint tNumCoeff = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE )
+                                                              ->get_number_of_space_time_coefficients();
+
+                    mResDofAssemblyMap( tDofIndex )( 0, 0 ) = tCounter;
+                    mResDofAssemblyMap( tDofIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
+
+                    tCounter += tNumCoeff;
+                }
             }
         }
 
-        for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+//------------------------------------------------------------------------------
+
+        void Set::create_jacobian_dof_assembly_map()
         {
-            sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE  );
+            // get list of requested dof types
+            Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+                                                                                   ->get_solver_interface()
+                                                                                   ->get_requested_dof_types();
 
-            if( tDofIndex != -1 )
+            sint tMaxDofIndex = -1;
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
-                uint tNumCoeff = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE )
-                                                          ->get_number_of_space_time_coefficients();
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
 
-                uint tCounter_2 = 0;
-                uint tCounter_3 = 0;
-
-                for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
+                if( tDofIndex != -1 )
                 {
-                    sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER  );
-
-                    if( tDofIndex_2 != -1 )
-                    {
-                        uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER  )
-                                                                    ->get_number_of_space_time_coefficients();
-
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 0 ) = tCounter;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 1 ) = tCounter + tNumCoeff - 1;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 2 ) = tCounter_2;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 3 ) = tCounter_2 + tNumCoeff_2 - 1;
-
-                        tCounter_2 += tNumCoeff_2;
-                        tCounter_3++;
-                    }
+                    tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
                 }
 
-                for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
+                tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE );
+
+                if( tDofIndex != -1 )
                 {
-                    sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE  );
+                    tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
+                }
+            }
 
-                    if( tDofIndex_2 != -1 )
+            tMaxDofIndex++;
+
+            mJacDofAssemblyMap.resize( tMaxDofIndex );
+
+            for( uint Ik = 0; Ik < mResDofAssemblyMap.size(); Ik++ )
+            {
+                mJacDofAssemblyMap( Ik ).set_size( tMaxDofIndex, 2, -1 );
+            }
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+
+                if( tDofIndex != -1 )
+                {
+                    uint tCounter_2 = 0;
+
+                    for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
                     {
-                        uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE  )
-                                                                    ->get_number_of_space_time_coefficients();
+                        sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER );
 
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 0 ) = tCounter;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 1 ) = tCounter + tNumCoeff - 1;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 2 ) = tCounter_2;
-                        mDofAssemblyMap( tDofIndex )( tCounter_3, 3 ) = tCounter_2 + tNumCoeff_2 - 1;
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER )
+                                                                                ->get_number_of_space_time_coefficients();
 
-                        tCounter_2 += tNumCoeff_2;
-                        tCounter_3++;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
+                    }
+
+                    for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
+                    {
+                        sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE );
+
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE )
+                                                                                ->get_number_of_space_time_coefficients();
+
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
                     }
                 }
-                tCounter += tNumCoeff;
+            }
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE  );
+
+                if( tDofIndex != -1 )
+                {
+                    uint tCounter_2 = 0;
+
+                    for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
+                    {
+                        sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER  );
+
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::MASTER  )
+                                                                        ->get_number_of_space_time_coefficients();
+
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
+                    }
+
+                    for( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
+                    {
+                        sint tDofIndex_2 = this->get_dof_index_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE  );
+
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ), mtk::Master_Slave::SLAVE  )
+                                                                        ->get_number_of_space_time_coefficients();
+
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
+                    }
+                }
             }
         }
-    }
+
+//------------------------------------------------------------------------------
+
+        void Set::create_staggered_jacobian_dof_assembly_map()
+        {
+            // get list of requested dof types
+            Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  this->get_model_solver_interface()
+                                                                                   ->get_solver_interface()
+                                                                                   ->get_requested_dof_types();
+
+            Cell< Cell < enum MSI::Dof_Type > >  tSecundaryDofTypes =  this->get_model_solver_interface()
+                                                                                   ->get_solver_interface()
+                                                                                   ->get_secundary_dof_types();
+
+            sint tMaxDofIndex = -1;
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+
+                if( tDofIndex != -1 )
+                {
+                    tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
+                }
+
+                tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE );
+
+                if( tDofIndex != -1 )
+                {
+                    tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
+                }
+            }
+            tMaxDofIndex++;
+
+            sint tMaxDofIndexSec = -1;
+
+            for( uint Ik = 0; Ik < tSecundaryDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tSecundaryDofTypes( Ik )( 0 ), mtk::Master_Slave::MASTER );
+
+                if( tDofIndex != -1 )
+                {
+                    tMaxDofIndexSec = std::max( tMaxDofIndexSec, tDofIndex );
+                }
+
+                tDofIndex = this->get_dof_index_for_type( tSecundaryDofTypes( Ik )( 0 ), mtk::Master_Slave::SLAVE );
+
+                if( tDofIndex != -1 )
+                {
+                    tMaxDofIndexSec = std::max( tMaxDofIndexSec, tDofIndex );
+                }
+            }
+            tMaxDofIndexSec++;
+
+            mJacDofAssemblyMap.resize( tMaxDofIndex );
+
+            for( uint Ik = 0; Ik < mResDofAssemblyMap.size(); Ik++ )
+            {
+                mJacDofAssemblyMap( Ik ).set_size( tMaxDofIndexSec, 2, -1 );
+            }
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::MASTER );
+
+                if( tDofIndex != -1 )
+                {
+                    uint tCounter_2 = 0;
+
+                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    {
+                        sint tDofIndex_2 = this->get_dof_index_for_type( tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::MASTER );
+
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type( tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::MASTER )
+                                                                                ->get_number_of_space_time_coefficients();
+
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
+                    }
+
+                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    {
+                        sint tDofIndex_2 = this->get_dof_index_for_type(  tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::SLAVE );
+
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type(  tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::SLAVE )
+                                                                                ->get_number_of_space_time_coefficients();
+
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
+                    }
+                }
+            }
+
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ), mtk::Master_Slave::SLAVE  );
+
+                if( tDofIndex != -1 )
+                {
+                    uint tCounter_2 = 0;
+
+                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    {
+                        sint tDofIndex_2 = this->get_dof_index_for_type(  tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::MASTER  );
+
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type(  tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::MASTER  )
+                                                                        ->get_number_of_space_time_coefficients();
+
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
+                    }
+
+                    for( uint Ii = 0; Ii < tSecundaryDofTypes.size(); Ii++ )
+                    {
+                        sint tDofIndex_2 = this->get_dof_index_for_type(  tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::SLAVE  );
+
+                        if( tDofIndex_2 != -1 )
+                        {
+                            uint tNumCoeff_2 = mFieldInterpolatorManager->get_field_interpolators_for_type(  tSecundaryDofTypes( Ii )( 0 ), mtk::Master_Slave::SLAVE  )
+                                                                        ->get_number_of_space_time_coefficients();
+
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
+                            mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
+
+                            tCounter_2 += tNumCoeff_2;
+                        }
+                    }
+                }
+            }
+        }
 
 //------------------------------------------------------------------------------
 

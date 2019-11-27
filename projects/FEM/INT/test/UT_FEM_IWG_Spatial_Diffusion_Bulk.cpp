@@ -166,8 +166,10 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-    tIWG->mSet->mDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mDofAssemblyMap( 0 ) = { { 0, 7, 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
@@ -323,8 +325,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-    tIWG->mSet->mDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mDofAssemblyMap( 0 ) = { { 0, 7, 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
@@ -484,8 +488,10 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
 
-    tIWG->mSet->mDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mDofAssemblyMap( 0 ) = { { 0, 7, 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
     tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
