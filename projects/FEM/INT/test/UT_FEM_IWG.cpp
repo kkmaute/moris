@@ -1,4 +1,4 @@
-
+#include <memory>
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
@@ -6,11 +6,14 @@
 #include "cl_FEM_Field_Interpolator.hpp"         //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"         //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"         //FEM/INT/src
-#include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"         //FEM/INT/src
 
 #define protected public
 #define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_MSI_Dof_Manager.hpp"         //FEM/INT/src
+#include "cl_MSI_Model_Solver_Interface.hpp"         //FEM/INT/src
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
 #undef protected
 #undef private
 
@@ -34,73 +37,43 @@ namespace moris
     // except the residual and jacobian related ones.
     TEST_CASE( "IWG_dof_dv", "[moris],[fem],[IWG_dof_dv]" )
     {
-        // create a geometry interpolator
-        fem::Geometry_Interpolator tGI;
+        // create the properties
+        std::shared_ptr< fem::Property > tPropMaster1 = std::make_shared< fem::Property > ();
+        tPropMaster1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::VX }} );
+        tPropMaster1->set_val_function( tValFunction_UTIWG );
 
-        // create IWG master properties
-        Cell< fem::Property* > tMasterIWGProp( 2, nullptr );
-        tMasterIWGProp( 0 ) = new Property( fem::Property_Type::TEMP_NEUMANN,
-                                         {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::VX }},
-                                         Cell< Matrix< DDRMat > >( 0 ),
-                                         tValFunction_UTIWG,
-                                         Cell< fem::PropertyFunc >( 0 ),
-                                         & tGI );
+        std::shared_ptr< fem::Property > tPropMaster2 = std::make_shared< fem::Property > ();
+        tPropMaster2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
+        tPropMaster2->set_dv_type_list( {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }} );
+        tPropMaster2->set_val_function( tValFunction_UTIWG );
 
-        tMasterIWGProp( 1 ) = new Property( fem::Property_Type::CONDUCTIVITY,
-                                         {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }},
-                                         {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }},
-                                         Cell< Matrix< DDRMat > >( 0 ),
-                                         tValFunction_UTIWG,
-                                         Cell< fem::PropertyFunc >( 0 ),
-                                         Cell< fem::PropertyFunc >( 0 ),
-                                         & tGI );
-        // create CM properties
-        Cell< fem::Property* > tMasterCMProp( 1, nullptr );
-        tMasterCMProp( 0 ) = tMasterIWGProp( 1 );
+        std::shared_ptr< fem::Property > tPropSlave1 = std::make_shared< fem::Property > ();
+        tPropSlave1->set_val_function( tValFunction_UTIWG );
 
-        // create IWG slave properties
-        Cell< fem::Property* > tSlaveIWGProp( 2, nullptr );
-        tSlaveIWGProp( 0 ) = new Property( fem::Property_Type::TEMP_LOAD,
-                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                      Cell< Matrix< DDRMat > >( 0 ),
-                                      tValFunction_UTIWG,
-                                      Cell< fem::PropertyFunc >( 0 ),
-                                      & tGI );
+        std::shared_ptr< fem::Property > tPropSlave2 = std::make_shared< fem::Property > ();
+        tPropSlave2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
+        tPropSlave2->set_dv_type_list( {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }} );
+        tPropSlave2->set_val_function( tValFunction_UTIWG );
 
-        tSlaveIWGProp( 1 ) = new Property( fem::Property_Type::CONDUCTIVITY,
-                                      {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }},
-                                      {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }},
-                                      Cell< Matrix< DDRMat > >( 0 ),
-                                      tValFunction_UTIWG,
-                                      Cell< fem::PropertyFunc >( 0 ),
-                                      Cell< fem::PropertyFunc >( 0 ),
-                                      & tGI );
-        // create CM properties
-        Cell< fem::Property* > tSlaveCMProp( 1, nullptr );
-        tSlaveCMProp( 0 ) = tSlaveIWGProp( 1 );
+        // define constitutive models
+        fem::CM_Factory tCMFactory;
 
-        // create master constitutive model
-        Cell< fem::Constitutive_Model* > tMasterCMs( 1 );
-        tMasterCMs( 0 ) = new CM_Diffusion_Linear_Isotropic();
-        tMasterCMs( 0 )->set_space_dim( 3 );
-        tMasterCMs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tMasterCMs( 0 )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
-        tMasterCMs( 0 )->set_properties( tMasterCMProp );
+        std::shared_ptr< fem::Constitutive_Model > tCMMaster1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMMaster1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMMaster1->set_properties( { tPropMaster2 } );
+        tCMMaster1->set_space_dim( 3 );
 
-        // create slave constitutive model
-        Cell< fem::Constitutive_Model* > tSlaveCMs( 1 );
-        tSlaveCMs( 0 ) = new CM_Diffusion_Linear_Isotropic();
-        tSlaveCMs( 0 )->set_space_dim( 3 );
-        tSlaveCMs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tSlaveCMs( 0 )->set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
-        tSlaveCMs( 0 )->set_properties( tSlaveCMProp );
+        std::shared_ptr< fem::Constitutive_Model > tCMSlave1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMSlave1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMSlave1->set_properties( { tPropSlave2 } );
+        tCMSlave1->set_space_dim( 3 );
 
         // create master dof field interpolators
         uint tNumberOfFields = 1;
-        Cell< Field_Interpolator* > tMasterDofFI( 3, nullptr );
-        tMasterDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
-        tMasterDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::VX } );
+        Cell< Field_Interpolator* > tMasterDofFI( 4, nullptr );
+        tMasterDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
         tMasterDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
+        tMasterDofFI( 3 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::VX } );
 
         // create master dv field interpolators
         Cell< Field_Interpolator* > tMasterDvFI( 3, nullptr );
@@ -109,9 +82,9 @@ namespace moris
         tMasterDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS2 } );
 
         // create slave dof field interpolators
-        Cell< Field_Interpolator* > tSlaveDofFI( 3, nullptr );
-        tSlaveDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
-        tSlaveDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::UX } );
+        Cell< Field_Interpolator* > tSlaveDofFI( 4, nullptr );
+        tSlaveDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::UX } );
+        tSlaveDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
         tSlaveDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
 
         // create slave dv field interpolators
@@ -119,136 +92,113 @@ namespace moris
         tSlaveDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS1 } );
         tSlaveDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dv_Type::LS2 } );
 
-        // create an IWG
-        fem::IWG tIWG;
+        // define the IWGs
+        fem::IWG_Factory tIWGFactory;
 
-        // set residual dof type
-        tIWG.set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        std::shared_ptr< moris::fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::UX }}, mtk::Master_Slave::SLAVE );
+        tIWG->set_dv_type_list( {{ MSI::Dv_Type::DENSITY }, {MSI::Dv_Type::LS1 }}, mtk::Master_Slave::MASTER );
+        tIWG->set_dv_type_list( {{MSI::Dv_Type::LS1 }}, mtk::Master_Slave::SLAVE );
+        tIWG->set_constitutive_models( { tCMMaster1 }, mtk::Master_Slave::MASTER );
+        tIWG->set_constitutive_models( { tCMSlave1 }, mtk::Master_Slave::SLAVE );
+        tIWG->set_properties( { tPropMaster1 }, mtk::Master_Slave::MASTER );
+        tIWG->set_properties( { tPropSlave1 }, mtk::Master_Slave::SLAVE );
 
-        // set active master and slave dof types
-        tIWG.set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWG.set_dof_type_list( {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::UX }}, mtk::Master_Slave::SLAVE );
+        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::LS1},{ MSI::Dof_Type::VX}};
+        tIWG->mRequestedSlaveGlobalDofTypes = {{ MSI::Dof_Type::UX },{ MSI::Dof_Type::TEMP},{ MSI::Dof_Type::LS1}};
 
-        // set active master and slave dv types
-        tIWG.set_dv_type_list( {{ MSI::Dv_Type::DENSITY }, {MSI::Dv_Type::LS1 }} );
-        tIWG.set_dv_type_list( {{MSI::Dv_Type::LS1 }}, mtk::Master_Slave::SLAVE );
+        MSI::Equation_Set * tSet = new fem::Set();
 
-        // set active master and slave constitutive types
-        tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWG.set_constitutive_type_list( { fem::Constitutive_Type::DIFF_LIN_ISO }, mtk::Master_Slave::SLAVE );
+        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-        // set active master and slave property type
-        tIWG.set_property_type_list( { fem::Property_Type::TEMP_NEUMANN } );
-        tIWG.set_property_type_list( { fem::Property_Type::TEMP_LOAD }, mtk::Master_Slave::SLAVE );
+        tIWG->mSet->mEqnObjDofTypeList.resize( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, MSI::Dof_Type::END_ENUM );
 
-        // set master and slave constitutive models
-        tIWG.set_constitutive_models( tMasterCMs );
-        tIWG.set_constitutive_models( tSlaveCMs, mtk::Master_Slave::SLAVE );
+        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
-        // set master and slave properties
-        tIWG.set_properties( tMasterIWGProp );
-        tIWG.set_properties( tSlaveIWGProp, mtk::Master_Slave::SLAVE );
+        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
-        // set IWG master and slave dof field interpolators
-        tIWG.set_dof_field_interpolators( tMasterDofFI );
-        tIWG.set_dof_field_interpolators( tSlaveDofFI, mtk::Master_Slave::SLAVE );
+        tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
+
+        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+        Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+        tFIManager.mMasterFI = tMasterDofFI;
+        tFIManager.mSlaveFI = tSlaveDofFI;
+
+        // build master and slave global dof type list
+        tIWG->get_global_dof_type_list();
+
+        // set IWG field interpolators
+        tIWG->mFieldInterpolatorManager = &tFIManager;
+
+        // build master and slave global dv type list
+        tIWG->build_global_dv_type_list();
 
         // set IWG master and slave dv field interpolators
-        tIWG.set_dv_field_interpolators( tMasterDvFI );
-        tIWG.set_dv_field_interpolators( tSlaveDvFI, mtk::Master_Slave::SLAVE );
-
-        // constitutive models check-----------------------------------------------------
-        // check constitutive model pointers
-        tIWG.check_constitutive_models();
-        tIWG.check_constitutive_models( mtk::Master_Slave::SLAVE );
-
-        // properties check--------------------------------------------------------------
-        // check master global property list size
-        CHECK( equal_to( tIWG.mMasterGlobalPropTypes.size(), 2 ));
-
-        //check master global property list content
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalPropTypes( 0 ) ), 2 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalPropTypes( 1 ) ), 3 ) );
-
-        // check slave global property list size
-        CHECK( equal_to( tIWG.mSlaveGlobalPropTypes.size(), 2 ));
-
-        //check slave global property list content
-        CHECK( equal_to( static_cast< uint >( tIWG.mSlaveGlobalPropTypes( 0 ) ), 4 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mSlaveGlobalPropTypes( 1 ) ), 3 ) );
-
-        // check property pointers
-        tIWG.check_properties();
-        tIWG.check_properties( mtk::Master_Slave::SLAVE );
+        tIWG->set_dv_field_interpolators( tMasterDvFI );
+        tIWG->set_dv_field_interpolators( tSlaveDvFI, mtk::Master_Slave::SLAVE );
 
         // dof check--------------------------------------------------------------------
         // check master global dof list size
-        CHECK( equal_to( tIWG.mMasterGlobalDofTypes.size(), 3 ));
+        CHECK( equal_to( tIWG->mMasterGlobalDofTypes.size(), 3 ));
 
         // check master global dof list content
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalDofTypes( 0 )( 0 ) ), 3 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalDofTypes( 1 )( 0 ) ), 11 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalDofTypes( 2 )( 0 ) ), 6 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 0 )( 0 ) ), 3 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 1 )( 0 ) ), 11 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 2 )( 0 ) ), 6 ) );
 
         // check slave global dof list size
-        CHECK( equal_to( tIWG.mSlaveGlobalDofTypes.size(), 3 ));
+        CHECK( equal_to( tIWG->mSlaveGlobalDofTypes.size(), 3 ));
 
         // check slave global dof list content
-        CHECK( equal_to( static_cast< uint >( tIWG.mSlaveGlobalDofTypes( 0 )( 0 ) ), 3 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mSlaveGlobalDofTypes( 1 )( 0 ) ), 0 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mSlaveGlobalDofTypes( 2 )( 0 ) ), 6 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDofTypes( 0 )( 0 ) ), 3 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDofTypes( 1 )( 0 ) ), 0 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDofTypes( 2 )( 0 ) ), 6 ) );
 
         // check dof field interpolators
-        tIWG.check_dof_field_interpolators();
-        tIWG.check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+        tIWG->check_dof_field_interpolators();
+        tIWG->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
 
         // dv check---------------------------------------------------------------------
         // check master global dv list size
-        CHECK( equal_to( tIWG.mMasterGlobalDvTypes.size(), 3 ));
+        CHECK( equal_to( tIWG->mMasterGlobalDvTypes.size(), 3 ));
 
         // check master global dv list content
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalDvTypes( 0 )( 0 ) ), 2 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalDvTypes( 1 )( 0 ) ), 0 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mMasterGlobalDvTypes( 2 )( 0 ) ), 1 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDvTypes( 0 )( 0 ) ), 2 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDvTypes( 1 )( 0 ) ), 0 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDvTypes( 2 )( 0 ) ), 1 ) );
 
         // check slave global dv list size
-        CHECK( equal_to( tIWG.mSlaveGlobalDvTypes.size(), 2 ));
+        CHECK( equal_to( tIWG->mSlaveGlobalDvTypes.size(), 2 ));
 
         // check master global dv list content
-        CHECK( equal_to( static_cast< uint >( tIWG.mSlaveGlobalDvTypes( 0 )( 0 ) ), 0 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG.mSlaveGlobalDvTypes( 1 )( 0 ) ), 1 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDvTypes( 0 )( 0 ) ), 0 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDvTypes( 1 )( 0 ) ), 1 ) );
 
         // check dv field interpolators
-        tIWG.check_dv_field_interpolators();
-        tIWG.check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+        tIWG->check_dv_field_interpolators();
+        tIWG->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
 
         // clean up---------------------------------------------------------------------
-        // delete the property pointers
-        for( Property* tProp : tMasterIWGProp )
-        {
-            delete tProp;
-        }
-        tMasterIWGProp.clear();
-
-        // delete the property pointers
-        for( Property* tProp : tSlaveIWGProp )
-        {
-            delete tProp;
-        }
-        tSlaveIWGProp.clear();
-
         // delete the dof field interpolator pointers
-        for( Field_Interpolator* tFI : tMasterDofFI )
-        {
-            delete tFI;
-        }
         tMasterDofFI.clear();
 
         // delete the dof field interpolator pointers
-        for( Field_Interpolator* tFI : tSlaveDofFI )
-        {
-            delete tFI;
-        }
         tSlaveDofFI.clear();
 
         // delete the dv field interpolator pointers
@@ -265,19 +215,7 @@ namespace moris
         }
         tSlaveDvFI.clear();
 
-        // delete the constitutive model pointers
-        for( Constitutive_Model* tCM : tMasterCMs )
-        {
-            delete tCM;
-        }
-        tMasterCMs.clear();
-
-        // delete the constitutive model pointers
-        for( Constitutive_Model* tCM : tSlaveCMs )
-        {
-            delete tCM;
-        }
-        tSlaveCMs.clear();
+        delete (tSet);
 
     }/* TEST_CASE */
 

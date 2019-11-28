@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <mpi.h>
+
 #include "catch.hpp"
 
 // XTKL: Mesh Includes
@@ -29,15 +30,18 @@
 #include "linalg_typedefs.hpp"
 
 
-#include "geometry/cl_Discrete_Level_Set.hpp"
-#include "geometry/cl_Plane.hpp"
-#include "cl_MGE_Geometry_Engine.hpp"
-
+//#include "geometry/cl_Discrete_Level_Set.hpp"
+//#include "geometry/cl_Plane.hpp"
+//#include "cl_MGE_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Discrete_Level_Set.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 
 namespace xtk
 {
@@ -91,10 +95,10 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
-        Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+        moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 
-        Phase_Table     tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+        moris::ge::GEN_Phase_Table     tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
         tGeometryEngine.mComputeDxDp = false;
@@ -224,10 +228,10 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
-        Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
+        moris::ge::Discrete_Level_Set tLevelSetMesh(tMeshData,{tLSFName});
 
-        Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
+        moris::ge::GEN_Phase_Table tPhaseTable (1, Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelSetMesh,tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
         tGeometryEngine.mComputeDxDp = false;

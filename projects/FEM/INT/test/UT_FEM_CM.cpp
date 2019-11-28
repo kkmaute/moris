@@ -37,8 +37,12 @@ namespace moris
             // real for check
             real tEpsilon = 1E-6;
 
-            // create a CM factory
-            CM_Factory tCMFactory;
+            // create the properties
+            std::shared_ptr< fem::Property > tProp = std::make_shared< fem::Property > ();
+            tProp->set_parameters( {{{ 1.0}}, {{1.0 }}} );
+            tProp->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tProp->set_val_function( tValFunctionCM );
+            tProp->set_dof_derivative_functions( { tDerFunctionCM } );
 
             // create a constitutive model
             Constitutive_Model tCM;
@@ -55,22 +59,11 @@ namespace moris
             // set dv types
             tCM.set_dv_type_list( {{ MSI::Dv_Type::LS1 }} );
 
-            // set property type
-            tCM.set_property_type_list( { fem::Property_Type::CONDUCTIVITY } );
+            // set property
+            tCM.set_properties( { tProp } );
 
             //create a space and a time geometry interpolator
-            Geometry_Interpolator* tGI = nullptr;
-
-            // create a property object
-            Cell< fem::Property* > tProps( 1, nullptr );
-            tProps( 0 ) = new Property( fem::Property_Type::CONDUCTIVITY ,
-                                        {{ MSI::Dof_Type::TEMP }},
-                                        {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }},
-                                        {{{ 1.0}}, {{1.0 }}},
-                                        tValFunctionCM,
-                                        { tDerFunctionCM },
-                                        { tDerFunctionCM, tDerFunctionCM },
-                                        tGI );
+            Geometry_Interpolator tGI;
 
             // create a dof field interpolator
             Cell< Field_Interpolator* > tDofFIs( 1, nullptr );
@@ -81,16 +74,11 @@ namespace moris
             tDvFIs( 0 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS1 } );
             tDvFIs( 1 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS2 } );
 
-            // set FI for properties
-            tProps( 0 )->set_dof_field_interpolators( tDofFIs );
-            tProps( 0 )->set_dv_field_interpolators( tDvFIs );
-
-            // set properties
-            tCM.set_properties( tProps );
-
             // set FI for constitutive model
             tCM.set_dof_field_interpolators( tDofFIs );
-            tCM.set_dv_field_interpolators( tDvFIs );
+
+            // set geo FI for constitutive model
+            tCM.set_geometry_interpolator( &tGI );
 
             // check dof field interpolator
             //------------------------------------------------------------------------------
@@ -134,60 +122,8 @@ namespace moris
             // check dependency on UX
             CHECK( !tCM.check_dof_dependency({ MSI::Dof_Type::UX }) );
 
-            // check properties
-            //------------------------------------------------------------------------------
-            tCM.check_properties();
-
-            // check dv field interpolator
-            //------------------------------------------------------------------------------
-            tCM.check_dv_field_interpolators();
-
-            // dv map
-            //------------------------------------------------------------------------------
-            // check dv map size
-            CHECK( equal_to( tCM.get_dv_type_map().n_cols(), 1 ));
-            CHECK( equal_to( tCM.get_dv_type_map().n_rows(), 1 ));
-
-            // check dv map content
-            CHECK( equal_to( tCM.get_dv_type_map()( 0, 0 ), 0 ));
-
-            // global dv list and map
-            //------------------------------------------------------------------------------
-            // check global dv list size
-            CHECK( equal_to( tCM.get_global_dv_type_list().size(), 2 ));
-
-            // check global dv list content
-            CHECK( equal_to( static_cast< uint >( tCM.get_global_dv_type_list()( 0 )( 0 ) ), 0 ) ); //LS1
-            CHECK( equal_to( static_cast< uint >( tCM.get_global_dv_type_list()( 1 )( 0 ) ), 1 ) ); //LS2
-
-            // check global dv map size
-            CHECK( equal_to( tCM.get_global_dv_type_map().n_cols(), 1 ));
-            CHECK( equal_to( tCM.get_global_dv_type_map().n_rows(), 2 ));
-
-            // check global dv map content
-            CHECK( equal_to( tCM.get_global_dv_type_map()( 0, 0 ), 0 ));
-            CHECK( equal_to( tCM.get_global_dv_type_map()( 1, 0 ), 1 ));
-
-            // dv dependency
-            //------------------------------------------------------------------------------
-            // check dependency on LS1
-            CHECK( tCM.check_dv_dependency({ MSI::Dv_Type::LS1 }) );
-
-            // check dependency on LS2
-            CHECK( tCM.check_dv_dependency({ MSI::Dv_Type::LS2 }) );
-
-            // check dependency on UNDEFINED
-            CHECK( !tCM.check_dv_dependency({ MSI::Dv_Type::UNDEFINED }) );
-
             // clean up
             //------------------------------------------------------------------------------
-
-            // delete the property pointers
-            for( Property* tProp : tProps )
-            {
-                delete tProp;
-            }
-            tProps.clear();
 
             // delete the field interpolator pointers
             for( Field_Interpolator* tFI : tDofFIs )
@@ -195,17 +131,6 @@ namespace moris
                 delete tFI;
             }
             tDofFIs.clear();
-
-            for( Field_Interpolator* tFI : tDvFIs )
-            {
-                delete tFI;
-            }
-            tDvFIs.clear();
-
-            if( tGI != nullptr )
-            {
-                delete tGI;
-            }
 
         }/* TEST_CASE */
 

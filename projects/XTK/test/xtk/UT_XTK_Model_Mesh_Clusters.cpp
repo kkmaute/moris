@@ -8,7 +8,9 @@
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
-#include "cl_Sphere.hpp"
+//#include "cl_Sphere.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {
@@ -29,9 +31,9 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             real tXCenter = 1.0;
             real tYCenter = 1.0;
             real tZCenter = 0.0;
-            Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
-            Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-            Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
+            moris::ge::Sphere tLevelsetSphere(tRadius, tXCenter, tYCenter, tZCenter);
+            moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+            moris::ge::GEN_Geometry_Engine tGeometryEngine(tLevelsetSphere,tPhaseTable);
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4|sideset:Z";

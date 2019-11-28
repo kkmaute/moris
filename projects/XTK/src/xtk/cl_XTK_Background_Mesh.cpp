@@ -45,6 +45,22 @@ Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
 }
 
 // ----------------------------------------------------------------------------------
+// general geometry engine constructor
+Background_Mesh::Background_Mesh(moris::mtk::Interpolation_Mesh* aMeshData,
+                                 moris::ge::GEN_Geometry_Engine & aGeometryEngine):
+    mMeshData(aMeshData),
+    mEntityLocaltoGlobalMap(4),
+    mChildMtkCells(0),
+    mXtkMtkVertices(0),
+    mNodeIndexToChildMeshIndex(0,0)
+{
+    intialize_downward_inheritance();
+    mExternalMeshData.set_up_external_entity_data(mMeshData);
+    initialize_background_mesh_vertices();
+    setup_local_to_global_maps();
+}
+
+// ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 // Entity related functions
 // ----------------------------------------------------------------------------------

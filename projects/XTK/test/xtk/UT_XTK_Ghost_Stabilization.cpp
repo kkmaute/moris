@@ -5,17 +5,15 @@
  *      Author: doble
  */
 
-
-
-
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
 
-#include "cl_MGE_Geometry_Engine.hpp"
-
-#include "cl_Plane.hpp"
-
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
+//#include "cl_MGE_Geometry_Engine.hpp"
+//
+//#include "cl_Plane.hpp"
 #include "cl_Mesh_Factory.hpp"
 
 namespace xtk
@@ -25,10 +23,10 @@ TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 {
     moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.0 }};
     moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
-    Plane<3> tPlane(tCenters,tNormals);
+    moris::ge::Plane<3> tPlane(tCenters,tNormals);
 
-    Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
+    moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    moris::ge::GEN_Geometry_Engine tGeometryEngine(tPlane,tPhaseTable);
 
     // Create Mesh ---------------------------------
     std::string tMeshFileName = "generated:1x1x8|sideset:z";

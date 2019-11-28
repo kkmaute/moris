@@ -5,12 +5,26 @@
 
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
+                               //FEM//INT//src
+
+#include "op_equal_equal.hpp"
+
+#define protected public
+#define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
+#undef protected
+#undef private
+
 #include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
 #include "cl_FEM_Property.hpp"                                  //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
-#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp" //FEM//INT//src
+#include "cl_FEM_IWG_Factory.hpp"                               //FEM//INT//src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"      //FEM//INT//src
 
 #include "op_equal_equal.hpp"
+
 
 
 moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -21,20 +35,36 @@ moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris
     return aParameters( 0 );
 }
 
+moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+        {
+            return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
+        }
 moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->val();
+    return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
 }
+
+
+moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+        {
+            return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
+        }
 
 moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->N();
+    return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
 }
 
 using namespace moris;
@@ -42,31 +72,49 @@ using namespace fem;
 
 TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interface]" )
 {
+    // create the properties
+    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
+    tPropMasterEMod->set_parameters( {{{ 1000000.0 }}} );
+    tPropMasterEMod->set_val_function( tConstValFunction_UTInterface );
 
-    // create a spatial diffusion bulk IWG
-    //------------------------------------------------------------------------------
+    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property > ();
+    tPropMasterNu->set_parameters( {{{ 0.0 }}} );
+    tPropMasterNu->set_val_function( tConstValFunction_UTInterface );
 
-    // create an IWG Spatial Difffusion Bulk
-    IWG_Isotropic_Struc_Linear_Interface tIWG;
+    std::shared_ptr< fem::Property > tPropSlaveEMod = std::make_shared< fem::Property > ();
+    tPropSlaveEMod->set_parameters( {{{ 1000000.0 }}} );
+    tPropSlaveEMod->set_val_function( tConstValFunction_UTInterface );
 
-    // set residual dof type
-    tIWG.set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+    std::shared_ptr< fem::Property > tPropSlaveNu = std::make_shared< fem::Property > ();
+    tPropSlaveNu->set_parameters( {{{ 0.0 }}} );
+    tPropSlaveNu->set_val_function( tConstValFunction_UTInterface );
 
-    // set master dof type
-    tIWG.set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }});
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
 
-    // set slave dof type
-    tIWG.set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::SLAVE );
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    tCMMasterStrucLinIso->set_properties( { tPropMasterEMod, tPropMasterNu } );
+    tCMMasterStrucLinIso->set_space_dim( 2 );
 
-    // set active constitutive type
-    tIWG.set_constitutive_type_list( { fem::Constitutive_Type::STRUC_LIN_ISO } );
+    std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMSlaveStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    tCMSlaveStrucLinIso->set_properties( { tPropSlaveEMod, tPropSlaveNu } );
+    tCMSlaveStrucLinIso->set_space_dim( 2 );
 
-    // set active constitutive type
-    tIWG.set_constitutive_type_list( { fem::Constitutive_Type::STRUC_LIN_ISO }, mtk::Master_Slave::SLAVE );
+    // define the IWGs
+    fem::IWG_Factory tIWGFactory;
+
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
+    tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_models( { tCMSlaveStrucLinIso }, mtk::Master_Slave::SLAVE );
 
     // set the normal
     Matrix< DDRMat > tNormal = {{1.0},{0.0},{0.0}};
-    tIWG.set_normal( tNormal );
+    tIWG->set_normal( tNormal );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -113,21 +161,20 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tMatrix.randu( 4, 2 );
     Matrix< DDRMat > tDOFHat;
     tDOFHat.matrix_data() = 10.0 * tMatrix;
-    print( tDOFHat, "tDOFHat");
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tMasterFIs( tIWG.get_dof_type_list().size() );
+    Cell< Field_Interpolator* > tMasterFIs( tIWG->get_dof_type_list().size() );
 
-    for( uint iDOF = 0; iDOF < tIWG.get_dof_type_list().size(); iDOF++ )
+    for( uint iDOF = 0; iDOF < tIWG->get_dof_type_list().size(); iDOF++ )
     {
         // get the number of DOF
-        uint tNumOfFields = tIWG.get_dof_type_list()( iDOF ).size();
+        uint tNumOfFields = tIWG->get_dof_type_list()( iDOF ).size();
 
         // create the field interpolator
         tMasterFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
                                                      tFIRule,
                                                      &tGI,
-                                                     tIWG.get_dof_type_list()( iDOF ) );
+                                                     tIWG->get_dof_type_list()( iDOF ) );
 
         // set the coefficients uHat
         tMasterFIs( iDOF )->set_coeff( tDOFHat );
@@ -137,18 +184,18 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     }
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tSlaveFIs( tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE ).size() );
+    Cell< Field_Interpolator* > tSlaveFIs( tIWG->get_dof_type_list( mtk::Master_Slave::SLAVE ).size() );
 
-    for( uint iDOF = 0; iDOF < tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE ).size(); iDOF++ )
+    for( uint iDOF = 0; iDOF < tIWG->get_dof_type_list( mtk::Master_Slave::SLAVE ).size(); iDOF++ )
     {
         // get the number of DOF
-        uint tNumOfFields = tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ).size();
+        uint tNumOfFields = tIWG->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ).size();
 
         // create the field interpolator
         tSlaveFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
                                                     tFIRule,
                                                     &tGI,
-                                                    tIWG.get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
+                                                    tIWG->get_dof_type_list( mtk::Master_Slave::SLAVE )( iDOF ) );
 
         // set the coefficients uHat
         tSlaveFIs( iDOF )->set_coeff( tDOFHat );
@@ -158,132 +205,65 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     }
 
     // define an epsilon environment
-    double tEpsilon = 1E-4;
+    real tEpsilon = 1E-4;
 
     // define a perturbation relative size
     real tPerturbation = 1E-4;
 
-    SECTION( "IWG_Spatial_Diffusion : check residual and jacobian with constant property" )
+    SECTION( "IWG_Spatial_Struc : check residual and jacobian with constant property" )
     {
-        // properties
-        //------------------------------------------------------------------------------
-        // create property coefficients
-//        Cell< Matrix< DDRMat > > tPropCoeff = { {{1.0}} };
+        MSI::Equation_Set * tSet = new fem::Set();
 
-        // create a cell of properties for IWG
-        Cell< Property* > tMasterProps( 2 );
+        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-//        for( uint iProp = 0; iProp < 1; iProp++ )
-//        {
-            // create a property
-            tMasterProps( 0 ) = new Property( fem::Property_Type::YOUNGS_MODULUS,
-                                                  Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                                  {{{ 1000000.0 }}},
-                                                  tConstValFunction_UTInterface,
-                                                  Cell< PropertyFunc > ( 0 ),
-                                                  &tGI );
-            tMasterProps( 1 ) = new Property( fem::Property_Type::POISSONS_RATIO,
-                                                  Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                                  {{{ 0.0 }}},
-                                                  tConstValFunction_UTInterface,
-                                                  Cell< PropertyFunc > ( 0 ),
-                                                  &tGI );
+        tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-//        }
+        tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
 
-        // create a cell of properties for IWG
-        Cell< Property* > tSlaveProps( 2 );
+        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
 
-//        for( uint iProp = 0; iProp < 1; iProp++ )
-//        {
-            // create a property
-            tSlaveProps( 0 ) = new Property( fem::Property_Type::YOUNGS_MODULUS,
-                                                  Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                                  {{{ 1000000.0 }}},
-                                                  tConstValFunction_UTInterface,
-                                                  Cell< PropertyFunc > ( 0 ),
-                                                  &tGI );
-            tSlaveProps( 1 ) = new Property( fem::Property_Type::POISSONS_RATIO,
-                                                  Cell< Cell< MSI::Dof_Type > > ( 0 ),
-                                                  {{{ 0.0 }}},
-                                                  tConstValFunction_UTInterface,
-                                                  Cell< PropertyFunc > ( 0 ),
-                                                  &tGI );
+        tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+        tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+        tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+        tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 8, 15 } };
+        tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 },{ 8, 15 } };
+        tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 },{ 8, 15 } };
 
-//        }
+        tIWG->mSet->mResidual.set_size( 32, 1 , 0.0 );
+        tIWG->mSet->mJacobian.set_size( 32, 32, 0.0 );
 
-        // constitutive models
-        //------------------------------------------------------------------------------
-        // create a cell of properties for IWG
-        Cell< Constitutive_Model* > tMasterCMs( tIWG.get_constitutive_type_list().size() );
+        tIWG->mResidualDofTypeRequested = true;
 
-        // create a constitutive model factory
-        fem::CM_Factory tCMFactory;
+        // build global dof type list
+        tIWG->get_global_dof_type_list();
 
-        // create a constitutive model for each constitutive type
-        for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list().size(); iCM++ )
-        {
-            // create a property
-            tMasterCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list()( iCM ) );
+        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+        tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::UX }};
 
-            // set space dim
-            tMasterCMs( iCM )->set_space_dim( 2 );
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+        Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
 
-            // set dof types
-            tMasterCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-
-            // set property type
-            tMasterCMs( iCM )->set_property_type_list( { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
-
-            // set properties
-            tMasterCMs( iCM )->set_properties( tMasterProps );
-
-            // set field interpolators
-            tMasterCMs( iCM )->set_dof_field_interpolators( tMasterFIs );
-        }
-
-        // create a cell of properties for IWG
-        Cell< Constitutive_Model* > tSlaveCMs( tIWG.get_constitutive_type_list( mtk::Master_Slave::SLAVE ).size() );
-
-        // create a constitutive model for each constitutive type
-        for( uint iCM = 0; iCM < tIWG.get_constitutive_type_list( mtk::Master_Slave::SLAVE ).size(); iCM++ )
-        {
-            // create a property
-            tSlaveCMs( iCM ) = tCMFactory.create_CM( tIWG.get_constitutive_type_list( mtk::Master_Slave::SLAVE )( iCM ) );
-
-            // set space dim
-            tSlaveCMs( iCM )->set_space_dim( 2 );
-
-            // set dof types
-            tSlaveCMs( iCM )->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-
-            // set property type
-            tSlaveCMs( iCM )->set_property_type_list( { fem::Property_Type::YOUNGS_MODULUS, fem::Property_Type::POISSONS_RATIO } );
-
-            // set properties
-            tSlaveCMs( iCM )->set_properties( tSlaveProps );
-
-            // set field interpolators
-            tSlaveCMs( iCM )->set_dof_field_interpolators( tSlaveFIs );
-        }
+        tFIManager.mMasterFI = tMasterFIs;
+        tFIManager.mSlaveFI  = tSlaveFIs;
 
         // set IWG field interpolators
-        tIWG.set_constitutive_models( tMasterCMs );
-        tIWG.set_constitutive_models( tSlaveCMs, mtk::Master_Slave::SLAVE );
+        tIWG->mFieldInterpolatorManager = &tFIManager;
 
-        // set IWG properties
-        tIWG.set_properties( tMasterProps );
-        tIWG.set_properties( tSlaveProps, mtk::Master_Slave::SLAVE );
+        tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+        tIWG->set_dof_field_interpolators( mtk::Master_Slave::SLAVE );
 
-        // set IWG field interpolators
-        tIWG.set_dof_field_interpolators( tMasterFIs );
-        tIWG.set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
+        // set IWG geometry interpolator
+        tIWG->set_geometry_interpolator( &tGI );
+        tIWG->set_geometry_interpolator( &tGI, mtk::Master_Slave::SLAVE );
 
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------
         // evaluate the residual
-        Cell< Matrix< DDRMat > > tResidual;
-        tIWG.compute_residual( tResidual );
+        tIWG->compute_residual( 1.0 );
 
         // check evaluation of the jacobian  by FD
         //------------------------------------------------------------------------------
@@ -292,65 +272,37 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
 
         // check jacobian by FD
-        bool tCheckJacobian = tIWG.check_jacobian_double( tPerturbation,
-                                                          tEpsilon,
-                                                          tJacobians,
-                                                          tJacobiansFD );
+        bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
+                tEpsilon,
+                1.0,
+                tJacobians,
+                tJacobiansFD );
 
-//        // print for debug
-//        print( tJacobians( 0 )( 0 ),"tJacobians00");
-//        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-//
-//        print( tJacobians( 0 )( 1 ),"tJacobians01");
-//        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-//
-//        print( tJacobians( 1 )( 0 ),"tJacobians10");
-//        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-//
-//        print( tJacobians( 1 )( 1 ),"tJacobians11");
-//        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
+        //        // print for debug
+        //        print( tJacobians( 0 )( 0 ),"tJacobians00");
+        //        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
+        //
+        //        print( tJacobians( 0 )( 1 ),"tJacobians01");
+        //        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
+        //
+        //        print( tJacobians( 1 )( 0 ),"tJacobians10");
+        //        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
+        //
+        //        print( tJacobians( 1 )( 1 ),"tJacobians11");
+        //        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
         // require check is true
         REQUIRE( tCheckJacobian );
 
-        // clean up
-        for( Property* tProp : tMasterProps )
-        {
-            delete tProp;
-        }
-        tMasterProps.clear();
-
-        for( Property* tProp : tSlaveProps )
-        {
-            delete tProp;
-        }
-        tSlaveProps.clear();
-
-        for( Constitutive_Model* tCM : tMasterCMs )
-        {
-            delete tCM;
-        }
-        tMasterCMs.clear();
-
-        for( Constitutive_Model* tCM : tSlaveCMs )
-        {
-            delete tCM;
-        }
-        tSlaveCMs.clear();
-
     }/* END_SECTION */
 
     // clean up
-    for( Field_Interpolator* tFI : tMasterFIs )
-    {
-        delete tFI;
-    }
     tMasterFIs.clear();
 
-    for( Field_Interpolator* tFI : tSlaveFIs )
-    {
-        delete tFI;
-    }
     tSlaveFIs.clear();
 
 }/* END_TEST_CASE */
+
+
+
+

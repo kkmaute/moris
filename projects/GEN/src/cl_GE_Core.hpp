@@ -10,14 +10,19 @@
 
 // GE includes
 #include "cl_GE_Geometry.hpp"
+#include "cl_GE_PDV_Info.hpp"
+
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Vertex.hpp"
 
-// moris includes
+//#include "fn_cylinder_with_end_caps.hpp"
+
 #include "cl_Cell.hpp"
-#include "cl_GE_PDV_Info.hpp"
+
+#include "cl_HMR_Mesh.hpp"
+
 
 namespace moris
 {
@@ -105,6 +110,49 @@ namespace ge
                 }
                 return tLSVals;
             };
+
+            /*
+             * @brief function specific to fiber problem
+             */
+//            Matrix< DDRMat > get_cylinder_vals( moris_index aWhichGeom,
+//                                                moris_index aWhichSubGeom,
+//                                                uint aNumberOfFibers )
+//            {
+//                uint tNumOfIPNodes = mListOfPDVInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh_HMR()->get_num_nodes();
+//
+//
+//                Matrix< DDRMat > tLSVals(tNumOfIPNodes,1, 1.0);
+//
+//                for( uint k=0; k<aNumberOfFibers; ++k )
+//                {
+//                    uint tNumCylinders = get_num_cylinders(k);
+//
+//                    for( uint l=0; l<tNumCylinders; ++l )
+//                    {
+//                        Matrix<DDRMat> tMidPoint;
+//                        Matrix<DDRMat> tLength;
+//                        cylinder_midPoint_and_BB_dims( k, l, tMidPoint, tLength, 0.18, 0.5 );
+//
+//                        Matrix<IndexMat> tNodeIndices;
+//                        mListOfPDVInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh_HMR()
+//                                                           ->get_nodes_indices_in_bounding_box( tMidPoint,
+//                                                                                                { { tLength(0) },{ tLength(1) } ,{ tLength(2) }},
+//                                                                                                tNodeIndices );
+//
+//                        for( uint i=0; i<tNodeIndices.numel(); ++i )
+//                        {
+//                            Matrix<DDRMat> tVertexCoords = mListOfPDVInfoObjects( aWhichGeom ).get_my_geom_rep()->get_my_mesh_HMR()
+//                                                                                                                ->get_mtk_vertex( tNodeIndices( i ) )
+//                                                                                                                .get_coords();
+//                            tLSVals( tNodeIndices( i ) ) = std::min( tLSVals( tNodeIndices( i ) ),
+//                                                                     createCylinderWithEndCaps( tVertexCoords, k, l ) );
+//                        }
+//
+//                    }
+//                }
+//
+//                  return tLSVals;
+//            };
 
             //------------------------------------------------------------------------------
             /*

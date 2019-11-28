@@ -6,9 +6,13 @@
  */
 
 #include "catch.hpp"
-#include "cl_Multi_Geometry.hpp"
-#include "cl_SphereBox.hpp"
+//#include "cl_Multi_Geometry.hpp"
+//#include "cl_SphereBox.hpp"
 #include "cl_XTK_Model.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Multi_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere_Box.hpp"
 
 using namespace moris;
 namespace xtk
@@ -41,7 +45,7 @@ TEST_CASE("Box problem","[Box_FRF]")
         moris::real tCx = Depth/2 + tXOff;
         moris::real tCy = Width/2 + tYOff;
         moris::real tCz = V_thk/2 + tZOff;
-        Sphere_Box tBottomPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
+        moris::ge::Sphere_Box tBottomPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
 
         // right plate (pos y face)
         tSx = Depth/2;
@@ -50,7 +54,7 @@ TEST_CASE("Box problem","[Box_FRF]")
         tCx = Depth/2 + tXOff;
         tCy = Width - H_thk/2 + tYOff;
         tCz = Height/2 + tZOff;
-        Sphere_Box tRightPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
+        moris::ge::Sphere_Box tRightPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
 
         // Left plate (neg y face)
         tSx = Depth/2;
@@ -59,7 +63,7 @@ TEST_CASE("Box problem","[Box_FRF]")
         tCx = Depth/2 + tXOff;
         tCy = H_thk/2 + tYOff;
         tCz = Height/2 + tZOff;
-        Sphere_Box tLeftPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
+        moris::ge::Sphere_Box tLeftPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
 
         // top left plate
         tSx = Depth/2;
@@ -68,7 +72,7 @@ TEST_CASE("Box problem","[Box_FRF]")
         tCx = Depth/2 + tXOff;
         tCy = (Width - slot_w)/4 + tYOff;
         tCz = (Height) - V_thk/2 + tZOff;
-        Sphere_Box tTopLeftPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
+        moris::ge::Sphere_Box tTopLeftPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
 
         // top right plate
         tSx = Depth/2;
@@ -77,17 +81,17 @@ TEST_CASE("Box problem","[Box_FRF]")
         tCx = Depth/2 + tXOff;
         tCy = (Width + slot_w)/2 +  (Width - slot_w)/4 + tYOff;
         tCz = (Height) - V_thk/2 + tZOff;
-        Sphere_Box tTopRightPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
+        moris::ge::Sphere_Box tTopRightPlate(tSx,tSy,tSz,tCx,tCy,tCz,tNExp);
 
 
         // place in geometry
-        moris::Cell<Geometry*> tGeomVect = {&tBottomPlate,&tRightPlate,&tLeftPlate,&tTopLeftPlate, &tTopRightPlate};
+        moris::Cell<moris::ge::GEN_Geometry*> tGeomVect = {&tBottomPlate,&tRightPlate,&tLeftPlate,&tTopLeftPlate, &tTopRightPlate};
         //    moris::Cell<Geometry*> tGeomVect = {&tBottomPlate,&tRightPlate};
-        Multi_Geometry tSubAssembly(tGeomVect);
+        moris::ge::Multi_Geometry tSubAssembly(tGeomVect);
 
 
-        Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        Geometry_Engine tGeometryEngine(tSubAssembly,tPhaseTable);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tSubAssembly,tPhaseTable);
 
         tGeometryEngine.mThresholdValue = 0.0;
         tGeometryEngine.mComputeDxDp = false;

@@ -46,6 +46,8 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
 #include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
@@ -79,6 +81,9 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "fn_norm.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 
 namespace moris
@@ -158,7 +163,6 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
     {
         std::string tFieldName = "Circle";
 
-
         moris::uint tLagrangeMeshIndex = 0;
         moris::uint tBSplineMeshIndex = 0;
 
@@ -212,13 +216,13 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        xtk::Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
 
-        moris::Cell<xtk::Geometry*> tGeometryVector = {&tFieldAsGeom};
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
@@ -245,107 +249,84 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
 
-        // create IWG user defined info
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 4 );
-        tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_DIRICHLET },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_NEUMANN },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+        //------------------------------------------------------------------------------
+        // create the properties
+        std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
+        tPropConductivity->set_parameters( { {{ 1.0 }} } );
+        tPropConductivity->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create the property user defined infos
-        fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
-                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 1.0 }}},
-                                                       tConstValFunction_MDL_XTK_HMR,
-                                                       Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
-                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                        {{{ 5.0 }}},
-                                                        tConstValFunction_MDL_XTK_HMR,
-                                                        Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempNeumann( fem::Property_Type::TEMP_NEUMANN,
-                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                      {{{ 20.0 }}},
-                                                      tConstValFunction_MDL_XTK_HMR,
-                                                      Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
-                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                   {{{ 0.0 }}},
-                                                   tConstValFunction_MDL_XTK_HMR,
-                                                   Cell< fem::PropertyFunc >( 0 ) );
+        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+        tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+        tPropDirichlet->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 4 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tTempLoad;
-        tPropertyUserDefinedInfo( 2 ).resize( 1 );
-        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tTempDirichlet;
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tTempNeumann;
+        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+        tPropNeumann->set_parameters( { {{ 20.0 }} } );
+        tPropNeumann->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create constitutive user defined info
-        fem::Constitutive_User_Defined_Info tDiffLinIso( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                         {{ MSI::Dof_Type::TEMP }},
-                                                         { fem::Property_Type::CONDUCTIVITY } );
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 4 );
-        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
+        std::shared_ptr< fem::Property > tPropTempLoad = std::make_shared< fem::Property >();
+        tPropTempLoad->set_parameters( { {{ 0.0 }} } );
+        tPropTempLoad->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create a list of active block-sets
-        moris::Cell< moris_index >  tSetList = {  tIntegMesh1->get_block_set_index("child_0"),
-                                                  tIntegMesh1->get_block_set_index("parent_0"),
-                                                  tIntegMesh1->get_side_set_index("iside_g_0_p0_0_p1_1"),
-                                                  tIntegMesh1->get_side_set_index("SideSet_1")};
+        // define constitutive models
+        fem::CM_Factory tCMFactory;
 
-        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::SIDESET };
+        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
+        tCMDiffLinIso->set_properties( { tPropConductivity } );
+        tCMDiffLinIso->set_space_dim( 3 );
+
+        // define the IWGs
+        fem::IWG_Factory tIWGFactory;
+
+        std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+        tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+        tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+
+        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
+        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+
+        // define set info
+        fem::Set_User_Info tSetBulk1;
+        tSetBulk1.set_mesh_index( tIntegMesh1->get_block_set_index("child_0") );
+        tSetBulk1.set_set_type( fem::Element_Type::BULK );
+        tSetBulk1.set_IWGs( { tIWGBulk } );
+
+        fem::Set_User_Info tSetBulk2;
+        tSetBulk2.set_mesh_index(  tIntegMesh1->get_block_set_index("parent_0") );
+        tSetBulk2.set_set_type( fem::Element_Type::BULK );
+        tSetBulk2.set_IWGs( { tIWGBulk } );
+
+        fem::Set_User_Info tSetDirichlet;
+        tSetDirichlet.set_mesh_index( tIntegMesh1->get_side_set_index("iside_g_0_p0_0_p1_1") );
+        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+
+        fem::Set_User_Info tSetNeumann;
+        tSetNeumann.set_mesh_index( tIntegMesh1->get_side_set_index("SideSet_1") );
+        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+        tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+        // create a cell of set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+        tSetInfo( 0 ) = tSetBulk1;
+        tSetInfo( 1 ) = tSetBulk2;
+        tSetInfo( 2 ) = tSetDirichlet;
+        tSetInfo( 3 ) = tSetNeumann;
 
         // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
-                                              tSetList, tSetTypeList,
-                                              tIWGUserDefinedInfo,
-                                              tPropertyUserDefinedInfo,
-                                              tConstitutiveUserDefinedInfo );
+        mdl::Model * tModel = new mdl::Model( &tMeshManager,
+                                               tBSplineMeshIndex,
+                                               tSetInfo );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -490,8 +471,9 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         tField->evaluate_scalar_function( LevelSetPlaneFunction );
 
-        for( uint k=0; k<2; ++k )
+        for( uint k=0; k<1; ++k )
         {
+            tHMR.finalize();
             tHMR.flag_surface_elements_on_working_pattern( tField );
             tHMR.perform_refinement_based_on_working_pattern( 0 );
 
@@ -505,13 +487,13 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
         std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        xtk::Geom_Field tFieldAsGeom(tField);
+        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
 
-        moris::Cell<xtk::Geometry*> tGeometryVector = {&tFieldAsGeom};
+        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
 
         // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
         size_t tModelDimension = 3;
@@ -539,109 +521,85 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
         mtk::Mesh_Manager tMeshManager;
         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-        // create IWG user defined info
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 4 );
-        tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_DIRICHLET },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_NEUMANN },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
+        //------------------------------------------------------------------------------
+         // create the properties
+         std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
+         tPropConductivity->set_parameters( { {{ 1.0 }} } );
+         tPropConductivity->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create the property user defined infos
-        fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
-                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 1.0 }}},
-                                                       tConstValFunction_MDL_XTK_HMR,
-                                                       Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
-                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                        {{{ 5.0 }}},
-                                                        tConstValFunction_MDL_XTK_HMR,
-                                                        Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempNeumann( fem::Property_Type::TEMP_NEUMANN,
-                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                      {{{ 20.0 }}},
-                                                      tConstValFunction_MDL_XTK_HMR,
-                                                      Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
-                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                   {{{ 0.0 }}},
-                                                   tConstValFunction_MDL_XTK_HMR,
-                                                   Cell< fem::PropertyFunc >( 0 ) );
+         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+         tPropDirichlet->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 4 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tTempLoad;
-        tPropertyUserDefinedInfo( 2 ).resize( 1 );
-        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tTempDirichlet;
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tTempNeumann;
+         std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+         tPropNeumann->set_parameters( { {{ 20.0 }} } );
+         tPropNeumann->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create constitutive user defined info
-        fem::Constitutive_User_Defined_Info tDiffLinIso( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                         {{ MSI::Dof_Type::TEMP }},
-                                                         { fem::Property_Type::CONDUCTIVITY } );
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 4 );
-        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
+         std::shared_ptr< fem::Property > tPropTempLoad = std::make_shared< fem::Property >();
+         tPropTempLoad->set_parameters( { {{ 0.0 }} } );
+         tPropTempLoad->set_val_function( tConstValFunction_MDL_XTK_HMR );
 
-        // create a list of active block-sets
-        std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name(0,0,1);
-        moris::Cell< moris_index >  tSetList = {  tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0"),
-                                                  tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0"),
-                                                  tEnrIntegMesh.get_side_set_index(tInterfaceSideSetName),
-                                                  tEnrIntegMesh.get_side_set_index("SideSet_1_n_p0")};
+         // define constitutive models
+         fem::CM_Factory tCMFactory;
 
+         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
+         tCMDiffLinIso->set_properties( { tPropConductivity } );
+         tCMDiffLinIso->set_space_dim( 3 );
 
-        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::SIDESET };
+         // define the IWGs
+         fem::IWG_Factory tIWGFactory;
 
-        // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager, tBSplineMeshIndex,
-                                              tSetList, tSetTypeList,
-                                              tIWGUserDefinedInfo,
-                                              tPropertyUserDefinedInfo,
-                                              tConstitutiveUserDefinedInfo );
+         std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+         tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+         tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+         tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
+
+         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+
+         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
+         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+         tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+
+         // define set info
+         fem::Set_User_Info tSetBulk1;
+         tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+         tSetBulk1.set_set_type( fem::Element_Type::BULK );
+         tSetBulk1.set_IWGs( { tIWGBulk } );
+
+         fem::Set_User_Info tSetBulk2;
+         tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+         tSetBulk2.set_set_type( fem::Element_Type::BULK );
+         tSetBulk2.set_IWGs( { tIWGBulk } );
+
+         fem::Set_User_Info tSetDirichlet;
+         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );
+         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index(tInterfaceSideSetName) );
+         tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+         tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+
+         fem::Set_User_Info tSetNeumann;
+         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_1_n_p0") );
+         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+         tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+         // create a cell of set info
+         moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+         tSetInfo( 0 ) = tSetBulk1;
+         tSetInfo( 1 ) = tSetBulk2;
+         tSetInfo( 2 ) = tSetDirichlet;
+         tSetInfo( 3 ) = tSetNeumann;
+
+         // create model
+         mdl::Model * tModel = new mdl::Model( &tMeshManager,
+                                                tBSplineMeshIndex,
+                                                tSetInfo );
 
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
@@ -767,317 +725,288 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_MULTIGRID]")
 {
-    if( par_size() == 1 )
-    {
-        gLogger.set_severity_level( 0 );
-
-        std::string tFieldName = "Cylinder";
-
-        // start timer
-        tic tTimer_HMR;
-
-        moris::uint tLagrangeMeshIndex = 0;
-        moris::uint tBSplineMeshIndex = 0;
-
-        moris::hmr::Parameters tParameters;
-
-        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {4} } );
-        tParameters.set_domain_dimensions({ {2}, {2}, {4} });
-        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
-        tParameters.set_bspline_truncation( true );
-        tParameters.set_side_sets({ {5}, {6} });
-
-        tParameters.set_multigrid( true );
-
-        tParameters.set_output_meshes( { {0} } );
-
-        tParameters.set_lagrange_orders  ( { {1} });
-        tParameters.set_lagrange_patterns({ {0} });
-
-        tParameters.set_bspline_orders   ( { {1} } );
-        tParameters.set_bspline_patterns ( { {0} } );
-
-        tParameters.set_union_pattern( 2 );
-        tParameters.set_working_pattern( 3 );
-
-        tParameters.set_refinement_buffer( 2 );
-        tParameters.set_staircase_buffer( 2 );
-
-        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
-        tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-        hmr::HMR tHMR( tParameters );
-
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-
-        tField->evaluate_scalar_function( LevelSetSphereCylinder );
-
-        for( uint k=0; k<2; ++k )
-        {
-            tHMR.flag_surface_elements_on_working_pattern( tField );
-            tHMR.perform_refinement_based_on_working_pattern( 0 );
-
-            tField->evaluate_scalar_function( LevelSetSphereCylinder );
-        }
-
-        tHMR.finalize();
-
-        // stop timer
-        real tElapsedTime = tTimer_HMR.toc<moris::chronos::milliseconds>().wall;
-
-        MORIS_LOG_INFO( " HMR took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
-
-//        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
-
-        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-
-        // start timer
-        tic tTimer_XTK;
-
-        xtk::Geom_Field tFieldAsGeom(tField);
-
-        moris::Cell<xtk::Geometry*> tGeometryVector = {&tFieldAsGeom};
-
-        // Tell the geometry engine about the discrete field mesh and how to interpret phases
-        xtk::Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-        xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
-
-        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-        size_t tModelDimension = 3;
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-        tXTKModel.mSameMesh = true;
-        tXTKModel.mVerbose = true;
-
-        // Do the cutting
-        tXTKModel.decompose(tDecompositionMethods);
-
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = true;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-
-        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-
-        // place the pair in mesh manager
-        mtk::Mesh_Manager tMeshManager;
-        tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
-
-        // create IWG user defined info
-        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 5 );
-        tIWGUserDefinedInfo( 0 ).resize( 1 );
-        tIWGUserDefinedInfo( 0 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_LOAD },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 1 ).resize( 1 );
-        tIWGUserDefinedInfo( 1 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_LOAD },
-                                                                    {fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 2 ).resize( 1 );
-        tIWGUserDefinedInfo( 2 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_DIRICHLET },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 3 ).resize( 1 );
-        tIWGUserDefinedInfo( 3 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_DIRICHLET,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_DIRICHLET },
-                                                                    { fem::Constitutive_Type::DIFF_LIN_ISO } );
-        tIWGUserDefinedInfo( 4 ).resize( 1 );
-        tIWGUserDefinedInfo( 4 )( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_NEUMANN,
-                                                                    { MSI::Dof_Type::TEMP },
-                                                                    {{ MSI::Dof_Type::TEMP }},
-                                                                    { fem::Property_Type::TEMP_NEUMANN },
-                                                                    moris::Cell< fem::Constitutive_Type >( 0 ) );
-
-        // create the property user defined infos
-        fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
-                                                       Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                       {{{ 1.0 }}},
-                                                       tConstValFunction_MDL_XTK_HMR,
-                                                       Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
-                                                        Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                        {{{ 5.0 }}},
-                                                        tConstValFunction_MDL_XTK_HMR,
-                                                        Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempNeumann( fem::Property_Type::TEMP_NEUMANN,
-                                                      Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                      {{{ 20.0 }}},
-                                                      tConstValFunction_MDL_XTK_HMR,
-                                                      Cell< fem::PropertyFunc >( 0 ) );
-        fem::Property_User_Defined_Info tTempLoad( fem::Property_Type::TEMP_LOAD,
-                                                   Cell< Cell< MSI::Dof_Type > >( 0 ),
-                                                   {{{ 0.0 }}},
-                                                   tConstValFunction_MDL_XTK_HMR,
-                                                   Cell< fem::PropertyFunc >( 0 ) );
-
-        // create property user defined info
-        Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 5 );
-        tPropertyUserDefinedInfo( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 0 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 0 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 0 )( 0 )( 1 ) = tTempLoad;
-        tPropertyUserDefinedInfo( 1 ).resize( 1 );
-        tPropertyUserDefinedInfo( 1 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 1 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 1 )( 0 )( 1 ) = tTempLoad;
-        tPropertyUserDefinedInfo( 2 ).resize( 1 );
-        tPropertyUserDefinedInfo( 2 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 2 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 2 )( 0 )( 1 ) = tTempDirichlet;
-        tPropertyUserDefinedInfo( 3 ).resize( 1 );
-        tPropertyUserDefinedInfo( 3 )( 0 ).resize( 2 );
-        tPropertyUserDefinedInfo( 3 )( 0 )( 0 ) = tConductivity;
-        tPropertyUserDefinedInfo( 3 )( 0 )( 1 ) = tTempDirichlet;
-        tPropertyUserDefinedInfo( 4 ).resize( 1 );
-        tPropertyUserDefinedInfo( 4 )( 0 ).resize( 1 );
-        tPropertyUserDefinedInfo( 4 )( 0 )( 0 ) = tTempNeumann;
-
-        // create constitutive user defined info
-        fem::Constitutive_User_Defined_Info tDiffLinIso( fem::Constitutive_Type::DIFF_LIN_ISO,
-                                                         {{ MSI::Dof_Type::TEMP }},
-                                                         { fem::Property_Type::CONDUCTIVITY } );
-        // create constitutive user defined info
-        Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 5 );
-        tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 0 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 1 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 1 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 2 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 2 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 3 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 ).resize( 1 );
-        tConstitutiveUserDefinedInfo( 3 )( 0 )( 0 ) = tDiffLinIso;
-        tConstitutiveUserDefinedInfo( 4 ).resize( 1 );
-
-        // stop timer
-        real tElapsedTime1 = tTimer_XTK.toc<moris::chronos::milliseconds>().wall;
-
-        MORIS_LOG_INFO( " XTK took %5.3f seconds.\n", ( double ) tElapsedTime1 / 1000);
-
-        // create a list of active block-sets
-        moris::Cell< moris_index >  tSetList = { 4, 5, 1, 3, 0 };
-
-        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
-                                                          fem::Element_Type::BULK,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::SIDESET,
-                                                          fem::Element_Type::SIDESET };
-
-        // create model
-        mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                              tBSplineMeshIndex,
-                                              tSetList, tSetTypeList,
-                                              tIWGUserDefinedInfo,
-                                              tPropertyUserDefinedInfo,
-                                              tConstitutiveUserDefinedInfo,
-                                              0,
-                                              true);
-
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 1: create linear solver and algorithm
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        dla::Solver_Factory  tSolFactory;
-
-        // create linear solver
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
-
-        tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPFGMRES );
-        tLinearSolverAlgorithm->set_param("PCType")  = std::string( PCMG );
-//        tLinearSolverAlgorithm->set_param("PCType")  = std::string( PCILU );
-        tLinearSolverAlgorithm->set_param("ILUFill")  = 3;
-
-        dla::Linear_Solver tLinSolver;
-
-        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 2: create nonlinear solver and algorithm
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tModel->get_solver_interface(), 0, true, MapType::Petsc );
-
-        // create factory for nonlinear solver
-        NLA::Nonlinear_Solver_Factory tNonlinFactory;
-
-        // create nonlinear solver
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-        NLA::Nonlinear_Solver  tNonlinearSolver;
-
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")                = 10;
-        tNonlinearSolverAlgorithm->set_param("NLA_hard_break")              = false;
-        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian")        = true;
-
-        // set manager and settings
-        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
-
-        tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
-
-        tNonlinearSolver.solve( tNonlinearProblem );
-
-        // temporary array for solver
-        Matrix< DDRMat > tSolution;
-        tNonlinearSolverAlgorithm->get_full_solution( tSolution );
-
-        CHECK( equal_to( tSolution( 0, 0 ), 4.991691079008517, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 1, 0 ), 5.000966490616513, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 2, 0 ), 4.991691079008363, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 3, 0 ), 5.000966490616352, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 4, 0 ), 17.06241419809754, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 5, 0 ), 17.02038634782764, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 6, 0 ), 17.06241419809900, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 7, 0 ), 17.02038634782907, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 8, 0 ), 5.006375939765809, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 382, 0 ), 51.10753242793825, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 461, 0 ), 17.06241419810062, 1.0e+08 ) );
-        CHECK( equal_to( tSolution( 505, 0 ), 29.33523440842293, 1.0e+08 ) );
-
+    //FIXME Timesolver for petsc
+//    if( par_size() == 1 )
+//    {
+//        gLogger.set_severity_level( 0 );
+//
+//        std::string tFieldName = "Cylinder";
+//
 //        // start timer
-//        tic tTimer_XTK1;
+//        tic tTimer_HMR;
 //
-//        // Write to Integration mesh for visualization
-//        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+//        moris::uint tLagrangeMeshIndex = 0;
+//        moris::uint tBSplineMeshIndex = 0;
 //
-//        // add solution field to integration mesh
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
+//        moris::hmr::Parameters tParameters;
 //
-//        // output solution and meshes
-//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
-//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+//        tParameters.set_number_of_elements_per_dimension( { {2}, {2}, {4} } );
+//        tParameters.set_domain_dimensions({ {2}, {2}, {4} });
+//        tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
+//        tParameters.set_bspline_truncation( true );
+//        tParameters.set_side_sets({ {5}, {6} });
+//
+//        tParameters.set_multigrid( true );
+//
+//        tParameters.set_output_meshes( { {0} } );
+//
+//        tParameters.set_lagrange_orders  ( { {1} });
+//        tParameters.set_lagrange_patterns({ {0} });
+//
+//        tParameters.set_bspline_orders   ( { {1} } );
+//        tParameters.set_bspline_patterns ( { {0} } );
+//
+//        tParameters.set_union_pattern( 2 );
+//        tParameters.set_working_pattern( 3 );
+//
+//        tParameters.set_refinement_buffer( 2 );
+//        tParameters.set_staircase_buffer( 2 );
+//
+//        Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+//        tLagrangeToBSplineMesh( 0 ) = { {0} };
+//
+//        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+//
+//        hmr::HMR tHMR( tParameters );
+//
+//        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+//
+//        // create field
+//        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+//
+//        tField->evaluate_scalar_function( LevelSetSphereCylinder );
+//
+//        for( uint k=0; k<2; ++k )
+//        {
+//            tHMR.flag_surface_elements_on_working_pattern( tField );
+//            tHMR.perform_refinement_based_on_working_pattern( 0 );
+//
+//            tField->evaluate_scalar_function( LevelSetSphereCylinder );
+//        }
+//
+//        tHMR.finalize();
 //
 //        // stop timer
-//        real tElapsedTime2 = tTimer_XTK1.toc<moris::chronos::milliseconds>().wall;
+//        real tElapsedTime = tTimer_HMR.toc<moris::chronos::milliseconds>().wall;
 //
-//        MORIS_LOG_INFO( " output took %5.3f seconds.\n", ( double ) tElapsedTime2 / 1000);
-
-        //    delete tInterpMesh1;
-        delete tNonlinearProblem;
-        delete tModel;
-        delete tIntegMesh1;
-    }
+//        MORIS_LOG_INFO( " HMR took %5.3f seconds.\n", ( double ) tElapsedTime / 1000);
+//
+////        tHMR.save_to_exodus( "./mdl_exo/xtk_hmr_bar_hole_interp_l1_b1.e" );
+//
+//        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
+//
+//        // start timer
+//        tic tTimer_XTK;
+//
+//        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+//
+//        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+//
+//        // Tell the geometry engine about the discrete field mesh and how to interpret phases
+//        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+//        moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
+//
+//        // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
+//        size_t tModelDimension = 3;
+//        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+//        xtk::Model tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
+//        tXTKModel.mSameMesh = true;
+//        tXTKModel.mVerbose = true;
+//
+//        // Do the cutting
+//        tXTKModel.decompose(tDecompositionMethods);
+//
+//        xtk::Output_Options tOutputOptions;
+//        tOutputOptions.mAddNodeSets = false;
+//        tOutputOptions.mAddSideSets = true;
+//        tOutputOptions.mAddClusters = true;
+//
+//        // add solution field to integration mesh
+//        std::string tIntegSolFieldName = "solution";
+//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
+//
+//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
+//
+//        // place the pair in mesh manager
+//        mtk::Mesh_Manager tMeshManager;
+//        tMeshManager.register_mesh_pair(tInterpMesh.get(), tIntegMesh1);
+//
+//        //------------------------------------------------------------------------------
+//         // create the properties
+//         std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
+//         tPropConductivity->set_parameters( { {{ 1.0 }} } );
+//         tPropConductivity->set_val_function( tConstValFunction_MDL_XTK_HMR );
+//
+//         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+//         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+//         tPropDirichlet->set_val_function( tConstValFunction_MDL_XTK_HMR );
+//
+//         std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+//         tPropNeumann->set_parameters( { {{ 20.0 }} } );
+//         tPropNeumann->set_val_function( tConstValFunction_MDL_XTK_HMR );
+//
+//         std::shared_ptr< fem::Property > tPropTempLoad = std::make_shared< fem::Property >();
+//         tPropTempLoad->set_parameters( { {{ 0.0 }} } );
+//         tPropTempLoad->set_val_function( tConstValFunction_MDL_XTK_HMR );
+//
+//         // define constitutive models
+//         fem::CM_Factory tCMFactory;
+//
+//         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+//         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
+//         tCMDiffLinIso->set_properties( { tPropConductivity } );
+//         tCMDiffLinIso->set_space_dim( 3 );
+//
+//         // define the IWGs
+//         fem::IWG_Factory tIWGFactory;
+//
+//         std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+//         tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+//         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//         tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+//         tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
+//
+//         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+//         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+//         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+//         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+//
+//         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
+//         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+//         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//         tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+//
+//         // define set info
+//         fem::Set_User_Info tSetBulk1;
+//         tSetBulk1.set_mesh_index( 4 );
+//         tSetBulk1.set_set_type( fem::Element_Type::BULK );
+//         tSetBulk1.set_IWGs( { tIWGBulk } );
+//
+//         fem::Set_User_Info tSetBulk2;
+//         tSetBulk2.set_mesh_index( 5 );
+//         tSetBulk2.set_set_type( fem::Element_Type::BULK );
+//         tSetBulk2.set_IWGs( { tIWGBulk } );
+//
+//         fem::Set_User_Info tSetDirichlet1;
+//         tSetDirichlet1.set_mesh_index( 1 );
+//         tSetDirichlet1.set_set_type( fem::Element_Type::SIDESET );
+//         tSetDirichlet1.set_IWGs( { tIWGDirichlet } );
+//
+//         fem::Set_User_Info tSetDirichlet2;
+//         tSetDirichlet2.set_mesh_index( 3 );
+//         tSetDirichlet2.set_set_type( fem::Element_Type::SIDESET );
+//         tSetDirichlet2.set_IWGs( { tIWGDirichlet } );
+//
+//         fem::Set_User_Info tSetNeumann;
+//         tSetNeumann.set_mesh_index( 0 );
+//         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+//         tSetNeumann.set_IWGs( { tIWGNeumann } );
+//
+//         // create a cell of set info
+//         moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
+//         tSetInfo( 0 ) = tSetBulk1;
+//         tSetInfo( 1 ) = tSetBulk2;
+//         tSetInfo( 2 ) = tSetDirichlet1;
+//         tSetInfo( 3 ) = tSetDirichlet2;
+//         tSetInfo( 4 ) = tSetNeumann;
+//
+//         // create model
+//         mdl::Model * tModel = new mdl::Model( &tMeshManager,
+//                                                tBSplineMeshIndex,
+//                                                tSetInfo,
+//                                                0, true );
+//
+//        // stop timer
+//        real tElapsedTime1 = tTimer_XTK.toc<moris::chronos::milliseconds>().wall;
+//
+//        MORIS_LOG_INFO( " XTK took %5.3f seconds.\n", ( double ) tElapsedTime1 / 1000);
+//
+//        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+//
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        // STEP 1: create linear solver and algorithm
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//        dla::Solver_Factory  tSolFactory;
+//
+//        // create linear solver
+//        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
+//
+//        tLinearSolverAlgorithm->set_param("KSPType") = std::string( KSPFGMRES );
+//        tLinearSolverAlgorithm->set_param("PCType")  = std::string( PCMG );
+////        tLinearSolverAlgorithm->set_param("PCType")  = std::string( PCILU );
+//        tLinearSolverAlgorithm->set_param("ILUFill")  = 3;
+//
+//        dla::Linear_Solver tLinSolver;
+//
+//        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
+//
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        // STEP 2: create nonlinear solver and algorithm
+//        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tModel->get_solver_interface(), 0, true, MapType::Petsc );
+//
+//        // create factory for nonlinear solver
+//        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+//
+//        // create nonlinear solver
+//        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//
+//        NLA::Nonlinear_Solver  tNonlinearSolver;
+//
+//        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")                = 10;
+//        tNonlinearSolverAlgorithm->set_param("NLA_hard_break")              = false;
+//        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
+//        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian")        = true;
+//
+//        // set manager and settings
+//        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+//
+//        tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
+//
+//        tNonlinearSolver.solve( tNonlinearProblem );
+//
+//        // temporary array for solver
+//        Matrix< DDRMat > tSolution;
+//        tNonlinearSolverAlgorithm->get_full_solution( tSolution );
+//
+//        CHECK( equal_to( tSolution( 0, 0 ), 4.991691079008517, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 1, 0 ), 5.000966490616513, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 2, 0 ), 4.991691079008363, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 3, 0 ), 5.000966490616352, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 4, 0 ), 17.06241419809754, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 5, 0 ), 17.02038634782764, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 6, 0 ), 17.06241419809900, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 7, 0 ), 17.02038634782907, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 8, 0 ), 5.006375939765809, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 382, 0 ), 51.10753242793825, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 461, 0 ), 17.06241419810062, 1.0e+08 ) );
+//        CHECK( equal_to( tSolution( 505, 0 ), 29.33523440842293, 1.0e+08 ) );
+//
+////        // start timer
+////        tic tTimer_XTK1;
+////
+////        // Write to Integration mesh for visualization
+////        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
+////
+////        // add solution field to integration mesh
+////        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tIntegSol);
+////
+////        // output solution and meshes
+////        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_hole_integ.e";
+////        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+////
+////        // stop timer
+////        real tElapsedTime2 = tTimer_XTK1.toc<moris::chronos::milliseconds>().wall;
+////
+////        MORIS_LOG_INFO( " output took %5.3f seconds.\n", ( double ) tElapsedTime2 / 1000);
+//
+//        //    delete tInterpMesh1;
+//        delete tNonlinearProblem;
+//        delete tModel;
+//        delete tIntegMesh1;
+//    }
 }
 
 //TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid Star","[XTK_HMR_DIFF_STAR]")

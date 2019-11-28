@@ -5,24 +5,51 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_GeometryObject.cpp
+    cl_Fiber_Problem.cpp
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
     cl_GE_test.cpp
+    UT_Bounding_Box.cpp
     UT_Finite_Difference_Checks.cpp
     UT_GE_HMR_Interaction.cpp
+    UT_GE_Properties.cpp
+    
     geometry_classes/cl_GE_test_analytic.cpp
     geometry_classes/cl_GE_test_discrete.cpp
     geometry_classes/cl_GE_test_sdf.cpp
+
+	new_impl_test/cl_General_Functionalities.cpp
     )
+
+#FIXME: Remove this once xtk has removed subdirectories from its package
+set(XTK_INCLUDES                                                                                                                                                                                                                                                               
+    "assert"                                                                                                                                                                                                                                                                   
+    "containers"                                                                                                                                                                                                                                                               
+    "core"                                                                                                                                                                                                                                                                     
+    "geomeng"                                                                                                                                                                                                                                                                  
+    "geometry"                                                                                                                                                                                                                                                                 
+    "ios"                                                                                                                                                                                                                                                                      
+    "linalg"                                                                                                                                                                                                                                                                   
+    "mesh"                                                                                                                                                                                                                                                                     
+    "tools"                                                                                                                                                                                                                                                                    
+    "topology"                                                                                                                                                                                                                                                                 
+    "xtk"                                                                                                                                                                                                                                                                      
+    )    
+    
+# Include depedency directories                                                                                                                                                                                                                                                
+foreach(XTK_INCLUDE ${XTK_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
+endforeach()   
 
 # List test dependencies
 set(TEST_DEPENDENCIES
     test-libs
+    ${ALG}-lib
     ${GEN}-lib
     ${INT}-lib
-    ${ALG}-lib
+    #${MTK}-lib
+    ${XTK}-lib
     ${MORIS_BASE_LIBS}
     )
 

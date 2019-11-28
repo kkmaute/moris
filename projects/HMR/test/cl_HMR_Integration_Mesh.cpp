@@ -165,5 +165,83 @@ TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
     }
 }
 
+TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
+{
+
+    if(par_size() == 1)
+    {
+    moris::uint tLagrangeMeshIndex = 0;
+    moris::uint tBSplineMeshIndex = 0;
+
+    moris::hmr::Parameters tParameters;
+
+    tParameters.set_number_of_elements_per_dimension( { {10}, {4}, {4} } );
+    tParameters.set_domain_dimensions({ {10}, {4}, {4} });
+    tParameters.set_domain_offset({ {-5.0}, {-2.0}, {-2.0} });
+    tParameters.set_bspline_truncation( true );
+    tParameters.set_side_sets({ {1}, {6}, {3}, {4}, {5}, {2} });
+
+    tParameters.set_output_meshes( { {0} } );
+
+    tParameters.set_lagrange_orders  ( { {1} });
+    tParameters.set_lagrange_patterns({ {0} });
+
+    tParameters.set_bspline_orders   ( { {1} } );
+    tParameters.set_bspline_patterns ( { {0} } );
+
+    tParameters.set_refinement_buffer( 1 );
+    tParameters.set_staircase_buffer( 1 );
+
+    Cell< Matrix< DDUMat > > tLagrangeToBSplineMesh( 1 );
+    tLagrangeToBSplineMesh( 0 ) = { {0} };
+
+    tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+    hmr::HMR tHMR( tParameters );
+
+    std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+    // create field
+    std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tBSplineMeshIndex );
+
+    for( uint k=0; k<2; ++k )
+    {
+        tField->evaluate_scalar_function( LevelSetFunction );
+        tHMR.flag_surface_elements_on_working_pattern( tField );
+        tHMR.perform_refinement_based_on_working_pattern( 0 );
+    }
+
+    tHMR.finalize();
+
+    // create pointer to output mesh
+    std::shared_ptr< hmr::Interpolation_Mesh_HMR > tOutputInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
+
+    moris::Matrix< IndexMat > tNodeIndices;
+
+    tOutputInterpMesh->get_nodes_indices_in_bounding_box( { { 0.1 },{ 1.1 },{ 1.1 } },
+                                                          { { 0.9 },{ 1 } ,{ 1 }},
+                                                          tNodeIndices);
+
+
+    moris::Matrix< IndexMat > tReferenceInices = { { 241 }, { 301 }, { 430 }, { 431 }, { 639 }, { 638 }, { 747 }, { 748 }, { 302 }, { 432 }, { 640 }, { 749 }, { 433 }, { 400 },
+                                                   { 750 }, { 751 }, { 434 }, { 752 }, { 610 }, { 645 }, { 753 }, { 754 }, { 646 }, { 755 }, { 756 }, { 738 }, { 757 }, { 309 },
+                                                   { 439 }, { 649 }, { 758 }, { 310 }, { 440 }, { 650 }, { 759 }, { 441 }, { 760 }, { 442 }, { 761 }, { 653 }, { 762 }, { 654 },
+                                                   { 763 }, { 764 }, { 765 }, { 443 }, { 402 }, { 766 }, { 741 }, { 454 }, { 455 }, { 767 }, { 768 }, { 456 }, { 769 }, { 457 },
+                                                   { 770 }, { 771 }, { 458 }, { 772 }, { 773 }, { 774 }, { 775 }, { 776 }, { 777 }, { 616 }, { 657 }, { 778 }, { 744 } };
+
+    bool tCheck = true;
+    for( uint Ik = 0; Ik < tReferenceInices.numel(); Ik++)
+    {
+        if( tReferenceInices( Ik ) != tNodeIndices( Ik ) )
+        {
+            tCheck = false;
+            break;
+        }
+    }
+
+    CHECK( tCheck );
+    }
+}
+
 }
 

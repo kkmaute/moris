@@ -20,6 +20,8 @@ namespace moris
 {
     namespace fem
     {
+    class Set;
+    class Field_Interpolator_Manager;
 
     typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
                                               moris::Cell< fem::Field_Interpolator* > & aDofFI,
@@ -36,8 +38,15 @@ namespace moris
             // property type
             fem::Property_Type mPropertyType;
 
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
+            Set * mSet = nullptr;
+
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
+
+            // single dof type
+            MSI::Dof_Type mDof = MSI::Dof_Type::END_ENUM;
 
             // active dof type map
             Matrix< DDSMat > mDofTypeMap;
@@ -143,10 +152,24 @@ namespace moris
              * set property type
              * @param[ in ] aPropertyType property types
              */
-            void set_property_type( const fem::Property_Type aPropertyType )
+            void set_property_type( fem::Property_Type aPropertyType )
             {
                 mPropertyType = aPropertyType;
             };
+
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -163,7 +186,7 @@ namespace moris
              * set parameters
              * @param[ in ] aParameters list of parameters for property evaluation
              */
-            void set_parameters( const moris::Cell< moris::Matrix< DDRMat > > & aParameters )
+            void set_parameters( moris::Cell< moris::Matrix< DDRMat > > aParameters )
             {
                 mParameters = aParameters;
             };
@@ -183,7 +206,7 @@ namespace moris
              * set val function
              * @param[ in ] aValFunction function for property evaluation
              */
-            void set_val_function( const PropertyFunc & aValFunction )
+            void set_val_function( PropertyFunc aValFunction )
             {
                 mValFunction = aValFunction;
             };
@@ -203,7 +226,7 @@ namespace moris
              * set dof derivative functions
              * @param[ in ] aDofDerFunctions list function for property derivatives wrt dof
              */
-            void set_dof_derivative_functions( const moris::Cell< PropertyFunc > & aDofDerFunctions )
+            void set_dof_derivative_functions( moris::Cell< PropertyFunc > aDofDerFunctions )
             {
                 mDofDerFunctions = aDofDerFunctions;
             };
@@ -223,7 +246,7 @@ namespace moris
              * set dv derivative functions
              * @param[ in ] aDofDerFunctions list function for property derivatives wrt dv
              */
-            void set_dv_derivative_functions( const moris::Cell< PropertyFunc > & aDvDerFunctions )
+            void set_dv_derivative_functions( moris::Cell< PropertyFunc > aDvDerFunctions )
             {
                 mDvDerFunctions = aDvDerFunctions;
             };
@@ -262,7 +285,7 @@ namespace moris
              * set a list of active dof types
              * @param[ in ] aDofTypes list of dof types
              */
-            void set_dof_type_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+            void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
             {
                 // set dof type list
                 mDofTypes = aDofTypes;
@@ -281,6 +304,20 @@ namespace moris
 
                 // set mPropDofDer size
                 mPropDofDer.resize( tNumDofTypes );
+            };
+            //------------------------------------------------------------------------------
+            /*
+             * @brief get and set functions for the single dof type case
+             */
+            void set_dof_type( MSI::Dof_Type aDof )
+            {
+                mDof = aDof;
+            };
+
+            MSI::Dof_Type get_dof_type(  )
+            {
+//                MORIS_ERROR( mDof == MSI::Dof_Type::END_ENUM, "cl_FEM_Property::get_dof_type() - the DOF type is not set" );
+                return mDof;
             };
 
 //------------------------------------------------------------------------------
@@ -433,10 +470,10 @@ namespace moris
                 mPropEval = true;
 
                 // reset the property derivatives wrt dof type
-                mPropDofDerEval.resize( mDofTypes.size(), true );
+                mPropDofDerEval.assign( mDofTypes.size(), true );
 
                 // reset the property derivatives wrt dv type
-                mPropDvDerEval.resize( mDvTypes.size(), true );
+                mPropDvDerEval.assign( mDvTypes.size(), true );
             }
 
 //------------------------------------------------------------------------------
@@ -481,6 +518,26 @@ namespace moris
              * @param[ in ] aDvType cell of dv type
              */
             void eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
+
+//------------------------------------------------------------------------------
+
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                // set the size of the dof type list for the set
+                uint tCounter = 0;
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    tCounter += mDofTypes( iDOF ).size();
+                }
+
+                aDofTypes.reserve( tCounter );
+
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    aDofTypes.append( mDofTypes( iDOF ) );
+                }
+            }
 
 //------------------------------------------------------------------------------
         };

@@ -138,25 +138,17 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         //tMap.print("Adof Map");
 
          //-------------------------------------------------------------------------------------------
-
-        // create IWG object
-        // a factory to create the IWGs
+        // create a L2 IWG
         fem::IWG_Factory tIWGFactory;
+        std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
+        tIWGL2->set_residual_dof_type( { MSI::Dof_Type::L2 } );
+        tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Master_Slave::MASTER );
 
-        Cell< fem::IWG* > tIWGs( 1, nullptr );
-        tIWGs( 0 ) = tIWGFactory.create_IWGs( fem::IWG_Type::L2 );
-
-        // set residual dof type
-        tIWGs( 0 )->set_residual_dof_type( { MSI::Dof_Type::L2 } );
-
-        // set active dof types
-        tIWGs( 0 )->set_dof_type_list( {{ MSI::Dof_Type::L2 }} );
-
-        // create user defined info for properties
-        moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
-
-        // create user defined info for constitutive models
-        moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
+        // define set info
+        moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+        tSetInfo( 0 ).set_mesh_index( 0 );
+        tSetInfo( 0 ).set_set_type( fem::Element_Type::BULK );
+        tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
         map< moris_id, moris_index >   tCoefficientsMap;
         Cell< fem::Node_Base* >        tNodes;
@@ -195,10 +187,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
             // create new fem set
             tElementBlocks( tFemSetCounter ) = new fem::Set( tBlockSet,
-                                                             fem::Element_Type::BULK,
-                                                             tIWGs,
-                                                             tPropertyUserDefinedInfo,
-                                                             tConstitutiveUserDefinedInfo,
+                                                             tSetInfo( tFemSetCounter ),
                                                              tNodes );
 
             // collect equation objects associated with the block-set
@@ -241,6 +230,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
         tMSI->finalize( true );
 
         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
+
+        tSolverInterface->set_requested_dof_types( { MSI::Dof_Type::L2 } );
 
 //---------------------------------------------------------------------------------------------------------------
 
@@ -315,7 +306,7 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 //                               0.0 );       // timestep
 
          delete ( tMSI );
-         delete ( tIWGs( 0 ) );
+//         delete ( tIWGs( 0 ) );
          delete ( tSolverInterface );
          delete ( tNonlinearProblem );
          delete ( mLinSolver );

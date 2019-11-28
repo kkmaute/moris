@@ -29,6 +29,7 @@
 
 // other includes
 #include <cmath>
+#include <functional>
 //------------------------------------------------------------------------------
 
 namespace moris
@@ -59,7 +60,7 @@ namespace ge
          * @brief check that the analytic function has been set before attempting to use
          */
         virtual bool
-        check_if_function_is_set( moris_index aSubIndex )
+        check_if_function_is_set( const moris_index aSubIndex )
         {
             MORIS_ASSERT(false, "ge::Geometry::check_if_function_is_set(): not implemented ");
             return false;
@@ -69,7 +70,7 @@ namespace ge
          * @brief check that the analytic function for sensitivity has been set before attempting to use
          */
         virtual bool
-        check_if_sensitivity_function_is_set( moris_index aSubIndex )
+        check_if_sensitivity_function_is_set( const moris_index aSubIndex )
         {
             MORIS_ASSERT(false,"ge::Geometry::check_if_sensitivity_function_is_set(): not implemented ");
             return false;
@@ -81,11 +82,22 @@ namespace ge
         virtual void
         set_constants( moris::Cell< real > aMyConstants, moris_index aSubIndex )
         {
-            MORIS_ASSERT(false, "ge::Geometry::set_my_constants(): not implemented for this type of geometry representaion");
+            MORIS_ASSERT(false, "ge::Geometry::set_my_constants(): not implemented for this type of geometry representation");
         }
         //------------------------------------------------------------------------------
+        virtual moris_index
+        set_analytical_function_and_dphi_dp( std::function< moris::real ( const Matrix< DDRMat >    & aPoint,
+                                                                          const moris::Cell< real >   aConstant ) > aFunc01,
+                                             std::function< Matrix< DDRMat > ( const Matrix< DDRMat >    & aPoint,
+                                                                               const moris::Cell< real >   aConstant ) > aFunc02,
+                                             moris::Cell< real > aConstants )
+        {
+            MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_and_dphi_dp(): please specify your own analytic function and derivative(s) ");
+            return 0;
+        };
+        //------------------------------------------------------------------------------
 		virtual moris_index
-		set_analytical_function( real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ), moris::Cell< real > aConstants )
+		set_analytical_function( real ( *mFuncAnalytic )( const Matrix< DDRMat > & aPoint, moris::Cell< real> aConstant ), moris::Cell< real > aConstants = {{ 0 }} )
 		{
 		    MORIS_ASSERT(false,"ge::Geometry::set_analytical_function(): please specify your own analytic function");
 		    return 0;
@@ -110,7 +122,7 @@ namespace ge
 
         //------------------------------------------------------------------------------
         virtual void
-        set_analytical_function_dphi_dp( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ) )
+        set_analytical_function_dphi_dp( Matrix< DDRMat > ( *mFuncAnalyticDphiDx )( const Matrix< DDRMat > & aPoint, Cell< real > aConst ), moris_index aFuncIndex = 0 )
         {
             MORIS_ASSERT(false,"ge::Geometry::set_analytical_function_dphi_dx(): please specify your own analytic function dphi/dx");
         };
@@ -271,6 +283,12 @@ namespace ge
         {
             MORIS_ASSERT(false, "ge::Geometry::set_mesh(): mesh not set");
         }
+
+        virtual void
+        set_my_mesh(std::shared_ptr< moris::hmr::Mesh > aMyMesh)
+        {
+            MORIS_ASSERT(false, "ge::Geometry::set_mesh(): mesh not set");
+        }
         //------------------------------------------------------------------------------
         /*
          * @brief sets the interpolation type and rule in both space and time, if these are not directly set, they are defaulted to linear Legrange in
@@ -311,7 +329,14 @@ namespace ge
         get_my_mesh()
         {
             MORIS_ASSERT(false, "ge::Geometry::get_my_mesh(): mesh has not been set");
-            return mDummyMeshPointer;
+            return nullptr;
+        }
+
+        virtual std::shared_ptr< moris::hmr::Mesh >
+        get_my_mesh_HMR()
+        {
+            MORIS_ASSERT( false, "ge::Geometry::get_my_mesh(): the associated mesh has not been set" );
+            return nullptr;
         }
         //------------------------------------------------------------------------------
         /*

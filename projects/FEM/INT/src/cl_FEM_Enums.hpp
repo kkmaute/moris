@@ -116,6 +116,8 @@ namespace moris
             STRUC_NEUMANN,
             YOUNGS_MODULUS,
             POISSONS_RATIO,
+            CTE,
+            TREF,
             END_PROPERTY_TYPE
         };
 
@@ -127,6 +129,27 @@ namespace moris
             DIFF_LIN_ISO,
             STRUC_LIN_ISO,
             END_CONSTITUTIVE_TYPE
+        };
+
+//------------------------------------------------------------------------------
+
+        enum class Penalty_Type
+        {
+            UNDEFINED,
+            DIRICHLET_NITSCHE,
+            END_PENALTY_TYPE
+        };
+
+//------------------------------------------------------------------------------
+
+        enum class Cluster_Measure
+        {
+            UNDEFINED,
+            MASTER_VOLUME,
+            SLAVE_VOLUME,
+            INTERFACE_SURFACE,
+            ELEMENT_SIZE,
+            END_CLUSTER_MEASURE
         };
 
 //------------------------------------------------------------------------------

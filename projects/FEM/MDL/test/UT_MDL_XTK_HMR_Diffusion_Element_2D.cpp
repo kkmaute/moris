@@ -379,7 +379,16 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2 In 2D","[XTK_HM
 //        {
 //            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
 //            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-//
+// Model(       mtk::Mesh_Manager*                                                                 aMesh,
+//        const uint                                                                               aBSplineOrder,
+//        const moris::Cell< moris_index >                                                       & aSetList,
+//        const moris::Cell< fem::Element_Type >                                                 & aSetTypeList,
+//        const moris::Cell< moris::Cell< fem::IWG_User_Defined_Info > >                         & aIWGUserDefinedInfo,
+//        const moris::Cell< moris::Cell< moris::Cell< fem::Property_User_Defined_Info > > >     & aPropertyUserDefinedInfo,
+//        const moris::Cell< moris::Cell< moris::Cell< fem::Constitutive_User_Defined_Info > > > & aConstitutiveUserDefinedInfo,
+//        const moris_index                                                                        aMeshPairIndex = 0,
+//        const bool                                                                               aUseMultigrid = false );
+
 //            tSTKIntegSol(i) = tIntegSol(tMyIndex);
 //        }
 //

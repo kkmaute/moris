@@ -1,5 +1,6 @@
 
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -101,7 +102,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void CM_Diffusion_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                                    const Matrix< DDRMat >             & aNormal )
+                                                                    const Matrix< DDRMat >             & aNormal,
+                                                                    const Matrix< DDRMat >             & aJump )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

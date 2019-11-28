@@ -544,6 +544,60 @@ namespace moris
                 MORIS_ASSERT( aElementIndices.max() != MORIS_SINT_MAX, "get_my_elements_in_basis_support(); Some invalid indices in list");
 
             }
+
+// ----------------------------------------------------------------------------
+
+            /**
+             * calculates nodes in bounding box
+             */
+            void calculate_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+                                                          const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+                                                                moris::Matrix< IndexMat > & aNodeIndices )
+            {
+                moris::Matrix< DDLUMat > tElementMemoryIndex;
+
+                mBackgroundMesh->get_element_in_bounding_box_memory_index( mActivationPattern,
+                                                                           aPoint,
+                                                                           aBoundingBoxSize,
+                                                                           tElementMemoryIndex );
+
+                aNodeIndices.set_size( tElementMemoryIndex.numel() * mNumberOfBasisPerElement, 1 );
+
+                for( uint Ik = 0; Ik < tElementMemoryIndex.numel(); Ik ++ )
+                {
+                    Element * tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
+
+                    // loop over all nodes connected to element
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
+                    {
+                        // unflag basis
+                        tElement->get_basis( k )->unflag();
+                    }
+                }
+
+                uint tCounter = 0;
+                for( uint Ik = 0; Ik < tElementMemoryIndex.numel(); Ik ++ )
+                {
+                    Element * tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
+
+                    // loop over all nodes connected to element
+                    for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
+                    {
+                        // get node pointer
+                        Basis * tNode = tElement->get_basis( k );
+
+                        if( !tNode->is_flagged() )
+                        {
+                            aNodeIndices( tCounter++, 0 ) = tNode->get_index();
+
+                            tNode->flag();
+                        }
+                    }
+                }
+
+                aNodeIndices.resize( tCounter, 1 );
+            }
+
 // ----------------------------------------------------------------------------
 
             void get_num_active_elements( Background_Element_Base * aBackgroundElement,

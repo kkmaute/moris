@@ -196,7 +196,7 @@ Enrichment::generate_pruned_subphase_graph_in_basis_support(moris::Matrix< moris
                                                             moris::Matrix< moris::IndexMat >       & aPrunedSubPhaseToSubphase)
  {
     // Construct full element neighbor graph in support and the corresponding shared faces
-    aPrunedSubPhaseToSubphase.resize(aSubphasesInSupport.numel(), 24);
+    aPrunedSubPhaseToSubphase.resize(aSubphasesInSupport.numel(), 50);
     aPrunedSubPhaseToSubphase.fill(MORIS_INDEX_MAX);
 
     // get subphase neighborhood information
