@@ -14,7 +14,7 @@ namespace moris
     IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet()
         {
             // FIXME set a penalty
-            mGamma = 1.0;
+            mGamma = 1000000.0;
         }
 
 //------------------------------------------------------------------------------
@@ -38,15 +38,10 @@ namespace moris
             // set residual size
             this->set_residual( aResidual );
 
-print( mMasterCM( 0 )->testTraction( mNormal ),"test traction " );
-print( tConstDofs,"tConstDofs" );
-print( tJump,"tJump" );
-
             // compute the residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tConstDofs * mMasterCM( 0 )->traction( mNormal )
                              + mMasterCM( 0 )->testTraction( mNormal ) * tConstDofs * tJump
                              + mGamma * trans( mMasterFI( 0 )->N() ) * tConstDofs * tJump;
-print( aResidual( 0 ), "aResidual( 0 )" );
         }
         //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Dirichlet::build_jump( Matrix< DDRMat > & aJumpMat )
@@ -65,15 +60,15 @@ print( aResidual( 0 ), "aResidual( 0 )" );
                     {
                         if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UX )
                         {
-                            aJumpMat(0) = mMasterProp( 0 )->val( )(0);
+                            aJumpMat(0) = mMasterProp( Ik )->val( )(0);
                         }
                         else if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UY )
                         {
-                            aJumpMat(1) = mMasterProp( 0 )->val( )(0);
+                            aJumpMat(1) = mMasterProp( Ik )->val( )(0);
                         }
                         else if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UZ )
                         {
-                            aJumpMat(2) = mMasterProp( 0 )->val( )(0);
+                            aJumpMat(2) = mMasterProp( Ik )->val( )(0);
                         }
                     }
 

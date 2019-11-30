@@ -1,5 +1,5 @@
 /*
- * cl_Circle.hpp
+ * cl_GEN_Circle.hpp
  *
  *  Created on: Aug 7, 2019
  *      Author: ryan

@@ -104,6 +104,11 @@ namespace moris
             aJacobians( 1 )( tMasterNumDofDependencies ) = - mSlaveWeight * mSlaveCM( 0 )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
                                                            + mGammaInterface * trans( mSlaveFI( 0 )->N() ) * mSlaveFI( 0 )->N();
 
+//            print(aJacobians( 0 )( 0 ),"a");
+//            print(aJacobians( 0 )( tMasterNumDofDependencies ),"b");
+//            print(aJacobians( 1 )( 0 ),"c");
+//            print(aJacobians( 1 )( tMasterNumDofDependencies ),"d");
+
             // compute the jacobian for indirect dof dependencies through master constitutive models
             for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
             {
@@ -120,6 +125,9 @@ namespace moris
 
                     aJacobians( 1 )( iDOF ).matrix_data()
                     += trans( mSlaveFI( 0 )->N() ) * mMasterWeight * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal );
+
+//                    print(aJacobians( 0 )( iDOF ),"e");
+//                    print(aJacobians( 1 )( iDOF ),"f");
                 }
             }
 
@@ -140,6 +148,9 @@ namespace moris
                     aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
                     +=   trans( mSlaveFI( 0 )->N() ) * mSlaveWeight * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal )
                        + mSlaveWeight * mSlaveCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+
+//                                        print(aJacobians( 0 )( tMasterNumDofDependencies + iDOF ),"g");
+//                                        print(aJacobians( 1 )( tMasterNumDofDependencies + iDOF ),"h");
                 }
             }
         }
