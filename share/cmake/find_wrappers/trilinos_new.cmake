@@ -12,9 +12,9 @@
 # TRILINOS_PATH to the path to your Trilinos install.
 # You do _not_ need to edit this line.
 
+
 if(NOT TRILINOS_FOUND_ONCE) 
 # - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - -
-
     set(TRILINOS_FILE "TrilinosConfig.cmake")
 
     set(TRILINOS_ENV_VARS
@@ -125,13 +125,76 @@ if(NOT TRILINOS_FOUND_ONCE)
 
     mark_as_advanced(TRILINOS_DIR Trilinos_DIR TRILINOS_DEBUG_DIR)
 
-# - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - -
     set(TRILINOS_FOUND_ONCE TRUE CACHE INTERNAL "Trilinos was found.")
 
     foreach( lib ${Trilinos_LIBRARIES})
         list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.a")
     endforeach(lib)
+    
     list(APPEND MORIS_T_LIBS  ${Trilinos_TPL_LIBRARIES})
+
+    # -------------------------------------------------------------------------
+    # Linear algebra library fixing -------------------------------------------
+    # -------------------------------------------------------------------------
+
+    # Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
+    if(MORIS_USE_ACML)
+        string(REGEX REPLACE
+            "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
+            "$ENV{ACML_DIR}/lib/libacml.so"
+            MORIS_T_LIBS
+            "${MORIS_T_LIBS}" )
+        string(REGEX REPLACE
+            "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
+            "$ENV{ACML_DIR}/lib/libacml.so"
+            MORIS_T_LIBS
+            "${MORIS_T_LIBS}" )
+        string(REGEX REPLACE 
+            "[^;]*/lib64/libopenblas\\.so"
+            "$ENV{ACML_DIR}/lib/libacml.so"
+            MORIS_T_LIBS
+            "${MORIS_T_LIBS}" )
+    endif()
+
+    # Replace ACML libraries with LAPACK; MKL needs to stay for Paradiso (Trilinos)
+    if(MORIS_USE_LAPACK)
+        string(REGEX REPLACE 
+            "[^;]*/acml/gfortran64/lib/libacml\\.so"
+            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
+            MORIS_T_LIBS 
+            "${MORIS_T_LIBS}" )
+        string(REGEX REPLACE
+            "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
+            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
+            MORIS_T_LIBS
+            "${MORIS_T_LIBS}" )
+        string(REGEX REPLACE 
+            "[^;]*/lib64/libopenblas\\.so"
+            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
+            MORIS_T_LIBS
+            "${MORIS_T_LIBS}" )
+    endif()
+
+    # Replace ACML and LAPACK libraries with MKL
+    if(MORIS_USE_MKL)
+        string(REGEX REPLACE 
+            "[^;]*/acml/gfortran64/lib/libacml\\.so"
+            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
+            MORIS_T_LIBS 
+            "${MORIS_T_LIBS}" )
+        string(REGEX REPLACE 
+            "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
+            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
+            MORIS_T_LIBS
+            "${MORIS_T_LIBS}" )
+        string(REGEX REPLACE 
+            "[^;]*/lib64/libopenblas\\.so"
+            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
+            MORIS_T_LIBS
+            "${MORIS_T_LIBS}" )
+    endif()
+
+# - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - -
     
     set(MORIS_TRI_LIBS ${MORIS_T_LIBS}
         CACHE STRING "Trilinos libraries used by moris." )
@@ -144,52 +207,6 @@ if(NOT TRILINOS_FOUND_ONCE)
     
     mark_as_advanced(MORIS_TRI_LIBS
         MORIS_TRILINOS_INCLUDE_DIRS )
-
-    # -------------------------------------------------------------------------
-    # Linear algebra library fixing -------------------------------------------
-    # -------------------------------------------------------------------------
-
-    # Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
-    if(MORIS_USE_ACML)
-        string(REGEX REPLACE
-            "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-            "$ENV{ACML_DIR}/lib/libacml.so"
-            MORIS_T_LIBS
-            "${MORIS_TRI_LIBS}" )
-        string(REGEX REPLACE
-            "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-            "$ENV{ACML_DIR}/lib/libacml.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-    endif()
-
-    # Replace ACML libraries with LAPACK; MKL needs to stay for Paradiso (Trilinos)
-    if(MORIS_USE_LAPACK)
-        string(REGEX REPLACE 
-            "[^;]*/acml/gfortran64/lib/libacml\\.so"
-            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-            MORIS_T_LIBS 
-            "${MORIS_TRI_LIBS}" )
-        string(REGEX REPLACE
-            "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-    endif()
-
-    # Replace ACML and LAPACK libraries with MKL
-    if(MORIS_USE_MKL)
-        string(REGEX REPLACE 
-            "[^;]*/acml/gfortran64/lib/libacml\\.so"
-            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-            MORIS_T_LIBS 
-            "${MORIS_TRI_LIBS}" )
-        string(REGEX REPLACE 
-            "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-    endif()
     
     set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS} ${PARDISO_LIBS})
     list(REVERSE MORIS_TRILINOS_LIBS)
