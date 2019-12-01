@@ -197,6 +197,11 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+            void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
+                                            Matrix< DDRMat >         & aReshapedPdofValues );
+
+//-------------------------------------------------------------------------------------------------
+
             void set_vector_entry_number_of_pdof();
 
 //-------------------------------------------------------------------------------------------------
@@ -208,6 +213,10 @@ class Dist_Vector;
 
             void get_equation_obj_residual( Matrix< DDRMat > & aEqnObjRHS,
                                             Dist_Vector * aSolutionVector );
+
+//-------------------------------------------------------------------------------------------------
+
+            void add_staggered_contribution_to_residual( Matrix< DDRMat > & aElementResidual );
 
 //-------------------------------------------------------------------------------------------------
 //            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
