@@ -94,7 +94,8 @@ set(HEADERS
     cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     cl_FEM_CM_Factory.hpp
     cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp
-    cl_FEM_Opt_IWG.hpp
+    cl_FEM_IQI.hpp
+    cl_FEM_IQI_Volume.hpp
     cl_FEM_Stabilization_Parameter.hpp
     cl_FEM_SP_Factory.hpp
     cl_FEM_SP_Dirichlet_Nitsche.hpp
@@ -155,6 +156,7 @@ set(LIB_SOURCES
     cl_FEM_SP_Master_Weight_Interface.cpp
     cl_FEM_SP_Slave_Weight_Interface.cpp
     cl_FEM_SP_Ghost_Displacement.cpp
+    cl_FEM_IQI_Volume.cpp
     )
 
 # List library dependencies

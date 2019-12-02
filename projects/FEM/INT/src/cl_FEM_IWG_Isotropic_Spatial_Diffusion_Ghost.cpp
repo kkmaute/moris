@@ -9,6 +9,17 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+        IWG_Isotropic_Spatial_Diffusion_Ghost::IWG_Isotropic_Spatial_Diffusion_Ghost()
+        {
+            // set size for the stabilization parameter pointer cell
+            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+
+            // populate the stabilization map
+            mStabilizationMap[ "GhostDisplOrder1" ] = IWG_Stabilization_Type::GHOST_DISPL_1;
+            mStabilizationMap[ "GhostDisplOrder2" ] = IWG_Stabilization_Type::GHOST_DISPL_2;
+            mStabilizationMap[ "GhostDisplOrder3" ] = IWG_Stabilization_Type::GHOST_DISPL_3;
+        }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Ghost::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )

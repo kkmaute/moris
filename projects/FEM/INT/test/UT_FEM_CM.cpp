@@ -45,22 +45,20 @@ namespace moris
             tProp->set_dof_derivative_functions( { tDerFunctionCM } );
 
             // create a constitutive model
-            Constitutive_Model tCM;
-
-            // set constitutive type
-            tCM.set_constitutive_type( fem::Constitutive_Type::DIFF_LIN_ISO );
+            CM_Factory tCMFactory;
+            std::shared_ptr< fem::Constitutive_Model > tCM = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
 
             // set space dim
-            tCM.set_space_dim( 2 );
+            tCM->set_space_dim( 2 );
 
             // set dof types
-            tCM.set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCM->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
 
             // set dv types
-            tCM.set_dv_type_list( {{ MSI::Dv_Type::LS1 }} );
+            tCM->set_dv_type_list( {{ MSI::Dv_Type::LS1 }} );
 
             // set property
-            tCM.set_properties( { tProp } );
+            tCM->set_property( tProp, "Conductivity" );
 
             //create a space and a time geometry interpolator
             Geometry_Interpolator tGI;
@@ -75,52 +73,52 @@ namespace moris
             tDvFIs( 1 ) = new Field_Interpolator ( 1, { MSI::Dv_Type::LS2 } );
 
             // set FI for constitutive model
-            tCM.set_dof_field_interpolators( tDofFIs );
+            tCM->set_dof_field_interpolators( tDofFIs );
 
             // set geo FI for constitutive model
-            tCM.set_geometry_interpolator( &tGI );
+            tCM->set_geometry_interpolator( &tGI );
 
             // check dof field interpolator
             //------------------------------------------------------------------------------
-            tCM.check_dof_field_interpolators();
+            tCM->check_dof_field_interpolators();
 
             // dof map
             //------------------------------------------------------------------------------
             // check global dof map size
-            CHECK( equal_to( tCM.get_dof_type_map().n_cols(), 1 ));
-            CHECK( equal_to( tCM.get_dof_type_map().n_rows(), 4 ));
+            CHECK( equal_to( tCM->get_dof_type_map().n_cols(), 1 ));
+            CHECK( equal_to( tCM->get_dof_type_map().n_rows(), 4 ));
 
             // check global dof map content
-            CHECK( equal_to( tCM.get_dof_type_map()( 0, 0 ), -1 ));
-            CHECK( equal_to( tCM.get_dof_type_map()( 1, 0 ), -1 ));
-            CHECK( equal_to( tCM.get_dof_type_map()( 2, 0 ), -1 ));
-            CHECK( equal_to( tCM.get_dof_type_map()( 3, 0 ), 0 ));
+            CHECK( equal_to( tCM->get_dof_type_map()( 0, 0 ), -1 ));
+            CHECK( equal_to( tCM->get_dof_type_map()( 1, 0 ), -1 ));
+            CHECK( equal_to( tCM->get_dof_type_map()( 2, 0 ), -1 ));
+            CHECK( equal_to( tCM->get_dof_type_map()( 3, 0 ), 0 ));
 
             // global dof list and map
             //------------------------------------------------------------------------------
             // check global dof list size
-            CHECK( equal_to( tCM.get_global_dof_type_list().size(), 1 ));
+            CHECK( equal_to( tCM->get_global_dof_type_list().size(), 1 ));
 
             // check global dof list content
-            CHECK( equal_to( static_cast< uint >( tCM.get_global_dof_type_list()( 0 )( 0 ) ), 3 ) ); //TEMP
+            CHECK( equal_to( static_cast< uint >( tCM->get_global_dof_type_list()( 0 )( 0 ) ), 3 ) ); //TEMP
 
             // check global dof map size
-            CHECK( equal_to( tCM.get_global_dof_type_map().n_cols(), 1 ));
-            CHECK( equal_to( tCM.get_global_dof_type_map().n_rows(), 4 ));
+            CHECK( equal_to( tCM->get_global_dof_type_map().n_cols(), 1 ));
+            CHECK( equal_to( tCM->get_global_dof_type_map().n_rows(), 4 ));
 
             // check global dof map content
-            CHECK( equal_to( tCM.get_global_dof_type_map()( 0, 0 ), -1 ));
-            CHECK( equal_to( tCM.get_global_dof_type_map()( 1, 0 ), -1 ));
-            CHECK( equal_to( tCM.get_global_dof_type_map()( 2, 0 ), -1 ));
-            CHECK( equal_to( tCM.get_global_dof_type_map()( 3, 0 ), 0 ));
+            CHECK( equal_to( tCM->get_global_dof_type_map()( 0, 0 ), -1 ));
+            CHECK( equal_to( tCM->get_global_dof_type_map()( 1, 0 ), -1 ));
+            CHECK( equal_to( tCM->get_global_dof_type_map()( 2, 0 ), -1 ));
+            CHECK( equal_to( tCM->get_global_dof_type_map()( 3, 0 ), 0 ));
 
             // dof dependency
             //------------------------------------------------------------------------------
             // check dependency on TEMP
-            CHECK( tCM.check_dof_dependency({ MSI::Dof_Type::TEMP }) );
+            CHECK( tCM->check_dof_dependency({ MSI::Dof_Type::TEMP }) );
 
             // check dependency on UX
-            CHECK( !tCM.check_dof_dependency({ MSI::Dof_Type::UX }) );
+            CHECK( !tCM->check_dof_dependency({ MSI::Dof_Type::UX }) );
 
             // clean up
             //------------------------------------------------------------------------------

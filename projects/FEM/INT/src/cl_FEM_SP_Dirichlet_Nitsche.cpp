@@ -14,6 +14,19 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
+        SP_Dirichlet_Nitsche::SP_Dirichlet_Nitsche()
+        {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
+
+            // set the list of cluster measures
+            mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
+    }
+
+//------------------------------------------------------------------------------
         void SP_Dirichlet_Nitsche::eval_SP()
         {
             // compute stabilization parameter value

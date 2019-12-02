@@ -9,20 +9,29 @@ namespace moris
 {
     namespace fem
     {
+
+//------------------------------------------------------------------------------
+        IWG_Isotropic_Struc_Linear_Neumann::IWG_Isotropic_Struc_Linear_Neumann()
+        {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Neumann" ] = IWG_Property_Type::NEUMANN;
+        }
+
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Neumann::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
 
             // compute the residual r_U
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val();
+            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) )->val();
         }
 
 //------------------------------------------------------------------------------
@@ -31,8 +40,6 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 
             // set jacobian size
             this->set_jacobian( aJacobians );
@@ -47,11 +54,11 @@ namespace moris
                 Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
 
                 // if dependency in the dof type
-                if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
+                if ( mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) )->dPropdDOF( tDofType );
                 }
             }
         }

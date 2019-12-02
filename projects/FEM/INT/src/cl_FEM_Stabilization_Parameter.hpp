@@ -211,25 +211,37 @@ namespace moris
                 // reset underlying master constitutive models
                 for( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    tCM->reset_eval_flags();
+                    if( tCM != nullptr )
+                    {
+                        tCM->reset_eval_flags();
+                    }
                 }
 
                 // reset underlying slave constitutive models
                 for( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
                 {
-                    tCM->reset_eval_flags();
+                    if( tCM != nullptr )
+                    {
+                        tCM->reset_eval_flags();
+                    }
                 }
 
                 // reset underlying master properties
                 for( std::shared_ptr< Property > tProp : mMasterProp )
                 {
-                    tProp->reset_eval_flags();
+                    if( tProp != nullptr )
+                    {
+                        tProp->reset_eval_flags();
+                    }
                 }
 
                 // reset underlying slave properties
                 for( std::shared_ptr< Property > tProp : mSlaveProp )
                 {
-                    tProp->reset_eval_flags();
+                    if( tProp != nullptr )
+                    {
+                        tProp->reset_eval_flags();
+                    }
                 }
             }
 
@@ -423,13 +435,19 @@ namespace moris
                 // get number of dof types from properties
                 for ( std::shared_ptr< Property > tProperty : mMasterProp )
                 {
-                    tCounterMax += tProperty->get_dof_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dof_type_list().size();
+                    }
                 }
 
                 // get number of dof types from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    tCounterMax += tCM->get_global_dof_type_list().size();
+                    if( tCM != nullptr )
+                    {
+                        tCounterMax += tCM->get_global_dof_type_list().size();
+                    }
                 }
 
                 // set size for the global dof type list
@@ -457,30 +475,33 @@ namespace moris
                 // get dof type from properties
                 for ( std::shared_ptr< Property > tProperty : mMasterProp )
                 {
-                    // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dof types for property
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                        // loop on property dof type
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                            }
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dof type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
-                            // put the dof type in the global type list
-                            mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                                // put the dof type in the global type list
+                                mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
-                            // update dof counter
-                            tCounter++;
+                                // update dof counter
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -488,30 +509,33 @@ namespace moris
                 // get dof type from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if( tCM != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dof types for constitutive model
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
+
+                        // loop on property dof type
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                            }
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dof type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
-                            // put the dof type in the global type list
-                            mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                                // put the dof type in the global type list
+                                mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
-                            // update dof counter
-                            tCounter++;
+                                // update dof counter
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -529,13 +553,19 @@ namespace moris
                 // get number of dof types from properties
                 for ( std::shared_ptr< Property > tProperty : mSlaveProp )
                 {
-                    tCounterMax += tProperty->get_dof_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dof_type_list().size();
+                    }
                 }
 
                 // get number of dof types from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
                 {
-                    tCounterMax += tCM->get_global_dof_type_list().size();
+                    if( tCM != nullptr )
+                    {
+                        tCounterMax += tCM->get_global_dof_type_list().size();
+                    }
                 }
 
                 // set size for the global dof type list
@@ -563,30 +593,33 @@ namespace moris
                 // get dof type from properties
                 for ( std::shared_ptr< Property > tProperty : mSlaveProp )
                 {
-                    // get dof types for property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dof types for property
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                        // loop on property dof type
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                            }
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dof type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
-                            // put the dof type in the global type list
-                            mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                                // put the dof type in the global type list
+                                mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
-                            // update dof counter
-                            tCounter++;
+                                // update dof counter
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -594,30 +627,33 @@ namespace moris
                 // get dof type from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if( tCM != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dof types for constitutive model
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
+
+                        // loop on property dof type
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                            }
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dof type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dof type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
-                            // put the dof type in the global type list
-                            mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                                // put the dof type in the global type list
+                                mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
-                            // update dof counter
-                            tCounter++;
+                                // update dof counter
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -779,53 +815,59 @@ namespace moris
                 // set field interpolators for constitutive models
                 for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
                 {
-                    // get the list of dof types for the CM
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
-
-                    // get the number of dof type for the CM
-                    uint tNumDofTypes = tCMDofTypes.size();
-
-                    // set the size of the field interpolators list for the CM
-                    moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                    if( tCM != nullptr )
                     {
-                        // get the dof type index in set
-                        uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tCMDofTypes( iDof )( 0 ) ) );
+                        // get the list of dof types for the CM
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
 
-                        // fill the field interpolators list for the CM
-                        tCMFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
+                        // get the number of dof type for the CM
+                        uint tNumDofTypes = tCMDofTypes.size();
+
+                        // set the size of the field interpolators list for the CM
+                        moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
+
+                        // loop over the dof types
+                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                        {
+                            // get the dof type index in set
+                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tCMDofTypes( iDof )( 0 ) ) );
+
+                            // fill the field interpolators list for the CM
+                            tCMFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
+                        }
+
+                        // set the field interpolators for the CM
+                        tCM->set_dof_field_interpolators( tCMFIs );
                     }
-
-                    // set the field interpolators for the CM
-                    tCM->set_dof_field_interpolators( tCMFIs );
                 }
 
                 // set field interpolators for properties
                 for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
                 {
-                    // get the list of dof types for the property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-
-                    // get the number of dof type for the property
-                    uint tNumDofTypes = tPropDofTypes.size();
-
-                    // set the size of the field interpolators list for the property
-                    moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                    if( tProp != nullptr )
                     {
-                        // get the dof type index in SP
-                        uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+                        // get the list of dof types for the property
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
 
-                        // fill the field interpolators list for the property
-                        tPropFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
+                        // get the number of dof type for the property
+                        uint tNumDofTypes = tPropDofTypes.size();
+
+                        // set the size of the field interpolators list for the property
+                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
+
+                        // loop over the dof types
+                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                        {
+                            // get the dof type index in SP
+                            uint tDofIndexInSP = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+
+                            // fill the field interpolators list for the property
+                            tPropFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSP );
+                        }
+
+                        // set the field interpolators for the property
+                        tProp->set_dof_field_interpolators( tPropFIs );
                     }
-
-                    // set the field interpolators for the property
-                    tProp->set_dof_field_interpolators( tPropFIs );
                 }
             }
 
@@ -873,13 +915,19 @@ namespace moris
                 // set geometry interpolator for constitutive models
                 for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
                 {
-                    tCM->set_geometry_interpolator( aGeometryInterpolator );
+                    if( tCM != nullptr )
+                    {
+                        tCM->set_geometry_interpolator( aGeometryInterpolator );
+                    }
                 }
 
                 // set geometry interpolator for properties
                 for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
                 {
-                    tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    if( tProp != nullptr )
+                    {
+                        tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    }
                 }
             }
 
@@ -888,6 +936,14 @@ namespace moris
                                           mtk::Master_Slave                                    aIsMaster = mtk::Master_Slave::MASTER )
             {
                 this->get_constitutive_models( aIsMaster ) = aConstitutiveModels;
+            }
+
+//------------------------------------------------------------------------------
+            virtual void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                                                 std::string                           aConstitutiveString,
+                                                 mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                MORIS_ERROR( false, "Stabilization_Parameter::set_constitutive_model - This function does nothing." );
             }
 
 //------------------------------------------------------------------------------
@@ -924,6 +980,13 @@ namespace moris
                                  mtk::Master_Slave                          aIsMaster = mtk::Master_Slave::MASTER )
             {
                 this->get_properties( aIsMaster ) = aProperties;
+            }
+
+            virtual void set_property( std::shared_ptr< Property > aProperty,
+                                       std::string                 aPropertyString,
+                                       mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                MORIS_ERROR( false, "Stabilization_Parameter::set_property - This function does nothing." );
             }
 
 //------------------------------------------------------------------------------
@@ -1005,13 +1068,19 @@ namespace moris
                 // get number of dv types from properties
                 for ( std::shared_ptr< Property > tProperty : mMasterProp )
                 {
-                    tCounterMax += tProperty->get_dv_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dv_type_list().size();
+                    }
                 }
 
                 // get number of dof types from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    tCounterMax += tCM->get_global_dv_type_list().size();
+                    if( tCM != nullptr )
+                    {
+                        tCounterMax += tCM->get_global_dv_type_list().size();
+                    }
                 }
 
                 // set size for the global dv type list
@@ -1039,30 +1108,33 @@ namespace moris
                 // get dv type from properties
                 for ( std::shared_ptr< Property > tProperty : mMasterProp )
                 {
-                    // get dv types for property
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dv types for property
+                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
+
+                        // loop on property dv type
+                        for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                            }
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dv type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dv type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                            // put the dv type in the global type list
-                            mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                // put the dv type in the global type list
+                                mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                            // update dof counter
-                            tCounter++;
+                                // update dof counter
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -1070,30 +1142,33 @@ namespace moris
                 // get dof type from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    // get dof types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                    if( tCM != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dof types for constitutive model
+                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+
+                        // loop on property dv type
+                        for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                            }
 
-                        // if dv enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dv type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                            // if dv enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dv type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                            // put the dv type in the global type list
-                            mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                // put the dv type in the global type list
+                                mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                            // update dv counter
-                            tCounter++;
+                                // update dv counter
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -1111,13 +1186,19 @@ namespace moris
                 // get number of dv types from properties
                 for ( std::shared_ptr< Property > tProperty : mSlaveProp )
                 {
-                    tCounterMax += tProperty->get_dv_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dv_type_list().size();
+                    }
                 }
 
                 // get number of dv types from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
                 {
-                    tCounterMax += tCM->get_global_dv_type_list().size();
+                    if( tCM != nullptr )
+                    {
+                        tCounterMax += tCM->get_global_dv_type_list().size();
+                    }
                 }
 
                 // set size for the global dv type list
@@ -1145,30 +1226,33 @@ namespace moris
                 // get dv type from properties
                 for ( std::shared_ptr< Property > tProperty : mSlaveProp )
                 {
-                    // get dv types for property
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dv types for property
+                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
+
+                        // loop on property dv type
+                        for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                            }
 
-                        // if dv enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dv type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                            // if dv enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dv type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                            // put the dv type in the global type list
-                            mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                // put the dv type in the global type list
+                                mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                            // update dv counter
-                            tCounter++;
+                                // update dv counter
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -1176,30 +1260,33 @@ namespace moris
                 // get dv type from constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    // get dv types for constitutive model
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                    if( tCM != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
+                        // get dv types for constitutive model
+                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+
+                        // loop on property dv type
+                        for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                         {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                        }
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                            }
 
-                        // if dv enum not in the list
-                        if ( !tCheck )
-                        {
-                            // put the dv type in the checklist
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                            // if dv enum not in the list
+                            if ( !tCheck )
+                            {
+                                // put the dv type in the checklist
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                            // put the dv type in the global type list
-                            mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                // put the dv type in the global type list
+                                mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                            // update dv counter
-                            tCounter++;
+                                // update dv counter
+                                tCounter++;
+                            }
                         }
                     }
                 }

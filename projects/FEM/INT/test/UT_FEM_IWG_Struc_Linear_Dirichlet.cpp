@@ -85,7 +85,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMMasterStrucLinIso->set_properties( { tPropMasterEMod, tPropMasterNu } );
+    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
+    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
 
     // define stabilization parameters
@@ -93,17 +94,17 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
-    tIWG->set_stabilization_parameters( { tSPDirichletNitsche } );
-    tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_properties( { tPropMasterDirichlet }, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+    tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche");
+    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -156,26 +157,16 @@ TEST_CASE( "IWG_Struc_Dirichlet_Const_Prop", "[moris],[fem],[IWG_Struc_Dirichlet
     tDOFHat.matrix_data() = 10.0 * tMatrix;
 
     // create a cell of field interpolators for IWG
-    uint tNumFIs = tIWG->get_global_dof_type_list().size();
-    Cell< Field_Interpolator* > tFIs( tNumFIs );
+    Cell< Field_Interpolator* > tFIs( 1 );
 
-    for( uint iDOF = 0; iDOF < tNumFIs; iDOF++ )
-    {
-        // get the number of DOF
-        uint tNumOfFields = tIWG->get_global_dof_type_list()( iDOF ).size();
+    // create the field interpolator
+    tFIs( 0 ) = new Field_Interpolator( 2, tFIRule, &tGI,{ {MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
 
-        // create the field interpolator
-        tFIs( iDOF ) = new Field_Interpolator( tNumOfFields,
-                                               tFIRule,
-                                               &tGI,
-                                               tIWG->get_global_dof_type_list()( iDOF ) );
+    // set the coefficients uHat
+    tFIs( 0 )->set_coeff( tDOFHat );
 
-        // set the coefficients uHat
-        tFIs( iDOF )->set_coeff( tDOFHat );
-
-        //set the evaluation point xi, tau
-        tFIs( iDOF )->set_space_time( tParamPoint );
-    }
+    //set the evaluation point xi, tau
+    tFIs( 0 )->set_space_time( tParamPoint );
 
     // build global dof type list
     tIWG->build_global_dof_type_list();
@@ -244,7 +235,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMMasterStrucLinIso->set_properties( { tPropMasterEMod, tPropMasterNu } );
+    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
+    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
 
     // define stabilization parameters
@@ -252,7 +244,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -260,9 +252,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_G
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
-    tIWG->set_stabilization_parameters( { tSPDirichletNitsche } );
-    tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_properties( { tPropMasterDirichlet }, mtk::Master_Slave::MASTER );
+    tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNistche" );
+    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -405,7 +397,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMMasterStrucLinIso->set_properties( { tPropMasterEMod, tPropMasterNu } );
+    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
+    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
 
     // define stabilization parameters
@@ -413,7 +406,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -421,9 +414,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Dof_Prop", "[moris],[fem],[IWG_Struc_Dirichlet_D
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
-    tIWG->set_stabilization_parameters( { tSPDirichletNitsche } );
-    tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_properties( { tPropMasterDirichlet }, mtk::Master_Slave::MASTER );
+    tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -570,7 +563,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMMasterStrucLinIso->set_properties( { tPropMasterEMod, tPropMasterNu } );
+    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
+    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
 
     // define stabilization parameters
@@ -578,7 +572,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -586,9 +580,10 @@ TEST_CASE( "IWG_Struc_Dirichlet_Select", "[moris],[fem],[IWG_Struc_Dirichlet_Sel
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
-    tIWG->set_stabilization_parameters( { tSPDirichletNitsche } );
-    tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_properties( { tPropMasterDirichlet, tPropMasterDirichlet2 }, mtk::Master_Slave::MASTER );
+    tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropMasterDirichlet2, "Select" );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------

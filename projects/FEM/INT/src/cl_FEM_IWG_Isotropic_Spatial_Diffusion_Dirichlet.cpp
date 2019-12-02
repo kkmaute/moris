@@ -21,12 +21,12 @@ namespace moris
             this->set_residual( aResidual );
 
             // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->val();
 
             // compute the residual
             aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->traction( mNormal )
-                             + mMasterCM( 0 )->testTraction( mNormal ) * tJump
-                             + mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tJump;
+                             + mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->testTraction( mNormal ) * tJump
+                             + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tJump;
         }
 
 //------------------------------------------------------------------------------
@@ -40,11 +40,11 @@ namespace moris
             this->set_jacobian( aJacobians );
 
             // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( 0 )->val();
+            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->val();
 
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) = mMasterCM( 0 )->testTraction( mNormal ) * mMasterFI( 0 )->N()
-                                 + mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
+            aJacobians( 0 )( 0 ) = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->testTraction( mNormal ) * mMasterFI( 0 )->N()
+                                 + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
 
             // compute the jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mMasterGlobalDofTypes.size();
@@ -54,29 +54,29 @@ namespace moris
                 Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
 
                 // if dependency on the dof type
-                if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
+                if ( mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += -1.0 * mMasterCM( 0 )->testTraction( mNormal ) * mMasterProp( 0 )->dPropdDOF( tDofType )
-                       - mStabilizationParam( 0 )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
+                    += -1.0 * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->testTraction( mNormal ) * mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->dPropdDOF( tDofType )
+                       - mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->dPropdDOF( tDofType );
                 }
 
                 // if dependency on the dof type
-                if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
+                if ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
-                       + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->dTractiondDOF( tDofType, mNormal )
+                       + mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
                 }
 
                 // if dependency on the dof type
-                if ( mStabilizationParam( 0 )->check_dof_dependency( tDofType ) )
+                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += trans( mMasterFI( 0 )->N() ) * tJump( 0 ) * mStabilizationParam( 0 )->dSPdMasterDOF( tDofType );
+                    += trans( mMasterFI( 0 )->N() ) * tJump( 0 ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->dSPdMasterDOF( tDofType );
                 }
             }
         }

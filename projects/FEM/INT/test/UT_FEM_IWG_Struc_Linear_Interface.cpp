@@ -65,12 +65,14 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMMasterStrucLinIso->set_properties( { tPropMasterEMod, tPropMasterNu } );
+    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
+    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMSlaveStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMSlaveStrucLinIso->set_properties( { tPropSlaveEMod, tPropSlaveNu } );
+    tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
+    tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
     tCMSlaveStrucLinIso->set_space_dim( 2 );
 
     // define stabilization parameters
@@ -78,16 +80,16 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
     tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
-    tSPNitscheInterface->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
-    tSPNitscheInterface->set_properties( { tPropSlaveEMod }, mtk::Master_Slave::SLAVE );
+    tSPNitscheInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPNitscheInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-    tSPMasterWeightInterface->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
-    tSPMasterWeightInterface->set_properties( { tPropSlaveEMod }, mtk::Master_Slave::SLAVE );
+    tSPMasterWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPMasterWeightInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-    tSPSlaveWeightInterface->set_properties( { tPropMasterEMod }, mtk::Master_Slave::MASTER );
-    tSPSlaveWeightInterface->set_properties( { tPropSlaveEMod }, mtk::Master_Slave::SLAVE );
+    tSPSlaveWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPSlaveWeightInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -96,9 +98,11 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::SLAVE );
-    tIWG->set_stabilization_parameters( { tSPNitscheInterface, tSPMasterWeightInterface, tSPSlaveWeightInterface } );
-    tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_models( { tCMSlaveStrucLinIso }, mtk::Master_Slave::SLAVE );
+    tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
+    tIWG->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
+    tIWG->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
+    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveStrucLinIso, "ElastLinIso", mtk::Master_Slave::SLAVE );
 
     // set the normal
     Matrix< DDRMat > tNormal = {{1.0},{0.0},{0.0}};

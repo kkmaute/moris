@@ -33,9 +33,6 @@ namespace moris
         {
         protected :
 
-            // property type
-            fem::Property_Type mPropertyType;
-
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
@@ -91,26 +88,6 @@ namespace moris
              * virtual destructor
              */
             virtual ~Property(){};
-
-//------------------------------------------------------------------------------
-            /**
-             * set property type
-             * @param[ in ] aPropertyType property types
-             */
-            void set_property_type( fem::Property_Type aPropertyType )
-            {
-                mPropertyType = aPropertyType;
-            };
-
-//------------------------------------------------------------------------------
-            /**
-             * return property type
-             * @param[ out ] mPropertyType property types
-             */
-            fem::Property_Type get_property_type() const
-            {
-                return mPropertyType;
-            };
 
 //------------------------------------------------------------------------------
             /**

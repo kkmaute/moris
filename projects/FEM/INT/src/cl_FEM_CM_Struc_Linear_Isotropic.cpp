@@ -123,7 +123,7 @@ namespace moris
 //------------------------------------------------------------------------------
         void CM_Struc_Linear_Isotropic::eval_const()
         {
-            moris::real tNu = mProperties( 1 )->val()( 0 );
+            moris::real tNu = mProperties( static_cast< uint >( Property_Type::NU ) )->val()( 0 );
 
             switch ( mSpaceDim )
             {
@@ -135,7 +135,7 @@ namespace moris
                     {
                         case ( 1 ):
                         {
-                            moris::real tPre = mProperties( 0 )->val()( 0 ) / (1 - std::pow( tNu, 2));
+                            moris::real tPre = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 ) / (1 - std::pow( tNu, 2));
 
                             // compute conductivity matrix
                             mConst.set_size( 3, 3, 0.0 );
@@ -148,7 +148,7 @@ namespace moris
                         }
                         case ( 2 ):
                         {
-                            moris::real tPre = mProperties( 0 )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                            moris::real tPre = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
 
                             mConst.set_size( 4, 4, 0.0 );
                             mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -175,7 +175,7 @@ namespace moris
             }
             case( 3 ):
             {
-                moris::real tPre = mProperties( 0 )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                moris::real tPre = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
 
                 mConst.set_size( 6, 6, 0.0 );
                 mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -224,10 +224,10 @@ namespace moris
             }
 
             // if indirect dependency on the dof type
-            if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
+            if ( mProperties( static_cast< uint >( Property_Type::EMOD ) )->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() += mDofFI( 0 )->gradx( 1 ) * mProperties( 0 )->dPropdDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() += mDofFI( 0 )->gradx( 1 ) * mProperties( static_cast< uint >( Property_Type::EMOD ) )->dPropdDOF( aDofTypes );
             }
         }
 

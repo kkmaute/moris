@@ -8,6 +8,9 @@
 #ifndef SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_HPP_
 #define SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_HPP_
 
+#include <iostream>
+#include <map>
+
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 
@@ -28,6 +31,16 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
+
+            enum class Property_Type
+            {
+                CONDUCTIVITY,
+                MAX_ENUM
+            };
+
+            // Local string to property enum map
+            std::map< std::string, CM_Diffusion_Linear_Isotropic::Property_Type > mPropertyMap;
+
 //------------------------------------------------------------------------------
             /*
              * trivial constructor
@@ -36,6 +49,12 @@ namespace moris
             {
                 // set the constitutive type
                 mConstitutiveType = fem::Constitutive_Type::DIFF_LIN_ISO;
+
+                // set the property pointer cell size
+                mProperties.resize( static_cast< uint >( CM_Diffusion_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
+
+                // populate the map
+                mPropertyMap[ "Conductivity" ] = CM_Diffusion_Linear_Isotropic::Property_Type::CONDUCTIVITY;
             };
 
 //------------------------------------------------------------------------------
@@ -43,6 +62,21 @@ namespace moris
              * trivial destructor
              */
             ~CM_Diffusion_Linear_Isotropic(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set a property pointer
+             * @param[ in ] aProperty     a property pointer
+             * @param[ in ] aPropertyType a char
+             */
+            void set_property( std::shared_ptr< fem::Property > aProperty,
+                               std::string                      aPropertyString )
+            {
+                // FIXME check that property type make sense?
+
+                // set the property in the property cell
+                mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            };
 
 //------------------------------------------------------------------------------
             /**

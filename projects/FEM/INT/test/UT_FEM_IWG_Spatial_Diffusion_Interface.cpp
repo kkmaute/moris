@@ -65,12 +65,12 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMSlaveDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tCMSlaveDiffLinIso->set_properties( { tPropSlaveConductivity } );
+    tCMSlaveDiffLinIso->set_property( tPropSlaveConductivity, "Conductivity" );
     tCMSlaveDiffLinIso->set_space_dim( 3 );
 
     // define stabilization parameters
@@ -78,16 +78,16 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
     tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
-    tSPNitscheInterface->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
-    tSPNitscheInterface->set_properties( { tPropSlaveConductivity }, mtk::Master_Slave::SLAVE );
+    tSPNitscheInterface->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+    tSPNitscheInterface->set_property( tPropSlaveConductivity, "Material", mtk::Master_Slave::SLAVE );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-    tSPMasterWeightInterface->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
-    tSPMasterWeightInterface->set_properties( { tPropSlaveConductivity }, mtk::Master_Slave::SLAVE );
+    tSPMasterWeightInterface->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+    tSPMasterWeightInterface->set_property( tPropSlaveConductivity, "Material", mtk::Master_Slave::SLAVE );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-    tSPSlaveWeightInterface->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
-    tSPSlaveWeightInterface->set_properties( { tPropSlaveConductivity }, mtk::Master_Slave::SLAVE );
+    tSPSlaveWeightInterface->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+    tSPSlaveWeightInterface->set_property( tPropSlaveConductivity, "Material", mtk::Master_Slave::SLAVE );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -96,9 +96,11 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-    tIWG->set_stabilization_parameters( { tSPNitscheInterface, tSPMasterWeightInterface, tSPSlaveWeightInterface } );
-    tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_models( { tCMSlaveDiffLinIso }, mtk::Master_Slave::SLAVE );
+    tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
+    tIWG->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
+    tIWG->set_stabilization_parameter(tSPSlaveWeightInterface, "SlaveWeightInterface" );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveDiffLinIso, "DiffLinIso", mtk::Master_Slave::SLAVE );
 
     // set the normal
     //------------------------------------------------------------------------------
@@ -214,18 +216,18 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
                                                        tJacobians,
                                                        tJacobiansFD );
 
-    // print for debug
-    print( tJacobians( 0 )( 0 ),"tJacobians00");
-    print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-
-    print( tJacobians( 0 )( 1 ),"tJacobians01");
-    print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-
-    print( tJacobians( 1 )( 0 ),"tJacobians10");
-    print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-
-    print( tJacobians( 1 )( 1 ),"tJacobians11");
-    print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
+//    // print for debug
+//    print( tJacobians( 0 )( 0 ),"tJacobians00");
+//    print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
+//
+//    print( tJacobians( 0 )( 1 ),"tJacobians01");
+//    print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
+//
+//    print( tJacobians( 1 )( 0 ),"tJacobians10");
+//    print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
+//
+//    print( tJacobians( 1 )( 1 ),"tJacobians11");
+//    print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
     // require check is true
     REQUIRE( tCheckJacobian );

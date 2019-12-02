@@ -12,11 +12,22 @@ namespace moris
 {
     namespace fem
     {
+        SP_Ghost_Displacement::SP_Ghost_Displacement()
+        {
+            // set size for the property pointer cells
+            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
+
+            // set the list of cluster measures
+            mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
+        }
 //------------------------------------------------------------------------------
         void SP_Ghost_Displacement::eval_SP()
         {
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * std::pow( mElementSize, 2 * ( mParameters( 1 )( 0 ) - 1 ) + 1 ) * mMasterProp( 0 )->val()( 0 );
+            mPPVal = mParameters( 0 ) * std::pow( mElementSize, 2 * ( mParameters( 1 )( 0 ) - 1 ) + 1 ) * mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
         }
 
 //------------------------------------------------------------------------------
@@ -32,14 +43,11 @@ namespace moris
             mdPPdMasterDof( tDofIndex ).set_size( 1, mMasterDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
 
             // if indirect dependency on the dof type
-            for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+            if ( mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->check_dof_dependency( aDofTypes ) )
             {
-                if ( mMasterProp( iProp )->check_dof_dependency( aDofTypes ) )
-                {
-                    // compute derivative with indirect dependency through properties
-                    mdPPdMasterDof( tDofIndex ).matrix_data()
-                    += this->val()( 0 ) * mMasterProp( iProp )->dPropdDOF( aDofTypes ) / mMasterProp( iProp )->val()( 0 );
-                }
+                // compute derivative with indirect dependency through properties
+                mdPPdMasterDof( tDofIndex ).matrix_data()
+                += this->val()( 0 ) * mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->dPropdDOF( aDofTypes ) / mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
             }
         }
 

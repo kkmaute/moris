@@ -247,38 +247,36 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             // define stabilization parameters
             fem::SP_Factory tSPFactory;
 
-            moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > tSPCell( iInterpOrder );
+            // define the IWGs
+            fem::IWG_Factory tIWGFactory;
+
+            std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
+
             if ( iInterpOrder > 0 )
             {
                 std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
                 tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
-                tSP1->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
-                tSPCell( 0 ) = tSP1;
+                tSP1->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+                tIWG->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
             }
             if ( iInterpOrder > 1 )
             {
                 std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
                 tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
-                tSP2->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
-                tSPCell( 1 ) = tSP2;
+                tSP2->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+                tIWG->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
             }
             if ( iInterpOrder > 2 )
             {
                 std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
                 tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
-                tSP3->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
-                tSPCell( 2 ) = tSP3;
+                tSP3->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+                tIWG->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
             }
 
-            // define the IWGs
-            fem::IWG_Factory tIWGFactory;
-
-            std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_GHOST );
             tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
             tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
-            //tIWG->set_properties( { tPropMasterConductivity }, mtk::Master_Slave::MASTER );
-            tIWG->set_stabilization_parameters( tSPCell );
 
             // set IWG normal
             tIWG->set_normal( tNormal );
@@ -325,9 +323,8 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
 //            print( tJacobians( 1 )( 1 ),"tJacobians11");
 //            print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
-            // print the treated case
-            //std::cout<<"Case: Geometry "<<static_cast<int>(tGeometryType)<<" Order "<<static_cast<int>(tInterpolationOrder)<<std::endl;
-            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+//            // print the treated case
+//            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 
 
             // require check is true

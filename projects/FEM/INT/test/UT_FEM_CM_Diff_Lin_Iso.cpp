@@ -5,12 +5,8 @@
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp" //FEM/INT/src
-
-#define protected public
-#define private   public
 #include "cl_FEM_Constitutive_Model.hpp" //FEM/INT/src
-#undef protected
-#undef private
+
 
 moris::Matrix< moris::DDRMat > tValFunctionCM_Diff_Lin_Iso( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                             moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
@@ -49,7 +45,8 @@ namespace moris
 
             std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
             tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+            //tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+            tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
             tCMMasterDiffLinIso->set_space_dim( 2 );
 
             //create a quad4 space element

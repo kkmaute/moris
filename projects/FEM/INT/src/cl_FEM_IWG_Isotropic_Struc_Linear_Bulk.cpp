@@ -9,26 +9,42 @@ namespace moris
 {
     namespace fem
     {
+    //------------------------------------------------------------------------------
+        IWG_Isotropic_Struc_Linear_Bulk::IWG_Isotropic_Struc_Linear_Bulk()
+        {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Load" ] = IWG_Property_Type::LOAD;
+
+            // set size for the constitutive model pointer cell
+            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+
+            // populate the constitutive map
+            mConstitutiveMap[ "ElastLinIso" ] = IWG_Constitutive_Type::ELAST_LIN_ISO;
+
+            // set size for the stabilization parameter pointer cell
+            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+        }
+
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Bulk::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
         {
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 
             // set residual size
             this->set_residual( aResidual );
 
             // compute the residual
-            aResidual( 0 ).matrix_data() += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->flux();
+            aResidual( 0 ).matrix_data() += trans( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->testStrain() ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
 
             // if body load
-            if ( mMasterProp.size() > 0 )
-            //if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+            if ( mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) ) != nullptr )
             {
-                aResidual( 0 ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->val()( 0 );
+                aResidual( 0 ).matrix_data() += - trans( mMasterFI( 0 )->N() ) * mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) )->val()( 0 );
             }
         }
 
@@ -38,8 +54,6 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 
             // set the jacobian size
             this->set_jacobian( aJacobians );
@@ -55,24 +69,23 @@ namespace moris
                 Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
 
                 // if we have a body load FIXME
-                if ( mMasterProp.size() > 0 )
-                //if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+                if ( mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) ) != nullptr )
                 {
                     // if property has dependency on the dof type
-                    if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
+                    if ( mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD )  )->check_dof_dependency( tDofType ) )
                     {
                         // compute the jacobian
                         aJacobians( 0 )( iDOF ).matrix_data()
-                            += - trans( mMasterFI( 0 )->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType );
+                            += - trans( mMasterFI( 0 )->N() ) * mMasterProp( static_cast< uint >( IWG_Property_Type::LOAD ) )->dPropdDOF( tDofType );
                     }
                 }
 
                 // if constitutive model has dependency on the dof type
-                if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
+                if ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
                     aJacobians( 0 )( iDOF ).matrix_data()
-                    += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->dFluxdDOF( tDofType );
+                    += trans( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->testStrain() ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->dFluxdDOF( tDofType );
                     // fixme add derivative of the test strain
                 }
             }

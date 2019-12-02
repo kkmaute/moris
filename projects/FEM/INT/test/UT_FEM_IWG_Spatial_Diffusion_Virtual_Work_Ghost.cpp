@@ -322,10 +322,9 @@ TEST_CASE( "IWG_SpatialDiff_VWGhost", "[moris],[fem],[IWG_SpatialDiff_VWGhost]" 
 //
 //            print( tJacobians( 1 )( 1 ),"tJacobians11");
 //            print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
-
-            // print the treated case
-            //std::cout<<"Case: Geometry "<<static_cast<int>(tGeometryType)<<" Order "<<static_cast<int>(tInterpolationOrder)<<std::endl;
-            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
+//
+//            // print the treated case
+//            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
 
             // require check is true
             REQUIRE( tCheckJacobian );

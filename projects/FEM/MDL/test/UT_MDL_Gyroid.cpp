@@ -235,71 +235,6 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tMeshManager.register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh);
 
        //------------------------------------------------------------------------------
-//               // create the properties
-//               std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
-//               tPropEMod1->set_parameters( { {{ 1.0 }} } );
-//               tPropEMod1->set_val_function( tPropValConstFunc );
-//
-//               std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
-//               tPropEMod2->set_parameters( { {{ 1.0 }} } );
-//               tPropEMod2->set_val_function( tPropValConstFunc );
-//
-//               std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
-//               tPropNu->set_parameters( { {{ 0.0 }} } );
-//               tPropNu->set_val_function( tPropValConstFunc );
-//
-//               std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-//               tPropDirichlet->set_parameters( { {{ 0.0 }, { 0.0 }, { 0.0 }} } );
-//               tPropDirichlet->set_val_function( tPropValConstFunc );
-//
-//               std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-//               tPropNeumann->set_parameters( {{{ 1.0 } , { 0.0 }, { 0.0 }}} );
-//               tPropNeumann->set_val_function( tPropValConstFunc );
-//
-//               // define constitutive models
-//               fem::CM_Factory tCMFactory;
-//
-//               std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-//               tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//               tCMStrucLinIso1->set_properties( { tPropEMod1, tPropNu } );
-//               tCMStrucLinIso1->set_space_dim( 3 );
-//
-//               std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-//               tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//               tCMStrucLinIso2->set_properties( { tPropEMod2, tPropNu } );
-//               tCMStrucLinIso2->set_space_dim( 3 );
-//
-//               // define the IWGs
-//               fem::IWG_Factory tIWGFactory;
-//
-//               std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-//               tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
-//               tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//               tIWGBulk1->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
-//
-//               std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
-//               tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
-//               tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//               tIWGBulk2->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
-//
-//               std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
-//               tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
-//               tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//               tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
-//               tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
-//
-//               std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-//               tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
-//               tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//               tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
-//
-//               std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE );
-//               tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
-//               tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-//               tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},mtk::Master_Slave::SLAVE );
-//               tIWGInterface->set_constitutive_models( { tCMStrucLinIso2 } );
-//               tIWGInterface->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::SLAVE );
-
        // create the properties
                std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
                tPropConductivity1->set_parameters( { {{ 1.0 }} } );
@@ -330,32 +265,32 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
                std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
                tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-               tCMDiffLinIso1->set_properties( { tPropConductivity1 } );
+               tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
                tCMDiffLinIso1->set_space_dim( 3 );
 
                std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
                tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-               tCMDiffLinIso2->set_properties( { tPropConductivity2 } );
+               tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
                tCMDiffLinIso2->set_space_dim( 3 );
 
                // define stabilization parameters
                fem::SP_Factory tSPFactory;
                std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
                tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-               tSPDirichletNitsche->set_properties( { tPropConductivity2 }, mtk::Master_Slave::MASTER );
+               tSPDirichletNitsche->set_property( tPropConductivity2, "Material", mtk::Master_Slave::MASTER );
 
                std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
                tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
-               tSPNitscheInterface->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
-               tSPNitscheInterface->set_properties( { tPropConductivity2 }, mtk::Master_Slave::SLAVE );
+               tSPNitscheInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+               tSPNitscheInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
 
                std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
-               tSPMasterWeightInterface->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
-               tSPMasterWeightInterface->set_properties( { tPropConductivity2 }, mtk::Master_Slave::SLAVE );
+               tSPMasterWeightInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+               tSPMasterWeightInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
 
                std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
-               tSPSlaveWeightInterface->set_properties( { tPropConductivity1 }, mtk::Master_Slave::MASTER );
-               tSPSlaveWeightInterface->set_properties( { tPropConductivity2 }, mtk::Master_Slave::SLAVE );
+               tSPSlaveWeightInterface->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+               tSPSlaveWeightInterface->set_property( tPropConductivity2, "Material", mtk::Master_Slave::SLAVE );
 
                // define the IWGs
                fem::IWG_Factory tIWGFactory;
@@ -363,35 +298,36 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
                std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
                tIWGBulk1->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
                tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-               tIWGBulk1->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
-               tIWGBulk1->set_properties( { tPropTempLoad1 }, mtk::Master_Slave::MASTER );
+               tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
+               tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
                std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
                tIWGBulk2->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
                tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-               tIWGBulk2->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
-               tIWGBulk2->set_properties( { tPropTempLoad2 }, mtk::Master_Slave::MASTER );
+               tIWGBulk2->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+               tIWGBulk2->set_properties( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
                std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
                tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
                tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-               tIWGDirichlet->set_stabilization_parameters( { tSPDirichletNitsche } );
-               tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::MASTER );
-               tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+               tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+               tIWGDirichlet->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::MASTER );
+               tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
                std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
                tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
                tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-               tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+               tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
                std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE );
                tIWGInterface->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
                tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
                tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::TEMP }},mtk::Master_Slave::SLAVE );
-               tIWGInterface->set_stabilization_parameters( { tSPNitscheInterface, tSPMasterWeightInterface, tSPSlaveWeightInterface } );
-               tIWGInterface->set_constitutive_models( { tCMDiffLinIso1 }, mtk::Master_Slave::MASTER );
-               tIWGInterface->set_constitutive_models( { tCMDiffLinIso2 }, mtk::Master_Slave::SLAVE );
-
+               tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface");
+               tIWGInterface->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
+               tIWGInterface->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
+               tIWGInterface->set_constitutive_model( tCMDiffLinIso1, "DiffLinIso", mtk::Master_Slave::MASTER );
+               tIWGInterface->set_constitutive_model( tCMDiffLinIso2, "DiffLinIso", mtk::Master_Slave::SLAVE );
 
                // define set info
                fem::Set_User_Info tSetBulk1;

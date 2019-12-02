@@ -11,12 +11,26 @@ namespace moris
 {
     namespace fem
     {
+//------------------------------------------------------------------------------
+        SP_Master_Weight_Interface::SP_Master_Weight_Interface()
+        {
+            // set size for the property pointer cells
+            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
+
+            // set the list of cluster measures
+            mClusterMeasures = { fem::Cluster_Measure::MASTER_VOLUME,
+                                 fem::Cluster_Measure::SLAVE_VOLUME };
+        }
 
 //------------------------------------------------------------------------------
         void SP_Master_Weight_Interface::eval_SP()
         {
             // compute stabilization parameter value
-            mPPVal = {{ ( mMasterVolume / mMasterProp( 0 )->val()( 0 ) ) / ( mMasterVolume / mMasterProp( 0 )->val()( 0 ) + mSlaveVolume / mSlaveProp( 0 )->val()( 0 ) ) }};
+            mPPVal = {{ ( mMasterVolume / mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) ) / ( mMasterVolume / mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) + mSlaveVolume / mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) ) }};
         }
 
 //------------------------------------------------------------------------------
@@ -32,14 +46,11 @@ namespace moris
             mdPPdMasterDof( tDofIndex ).set_size( 1, mMasterDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
 
             // if indirect dependency on the dof type
-            for( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+            if ( mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->check_dof_dependency( aDofTypes ) )
             {
-                if ( mMasterProp( iProp )->check_dof_dependency( aDofTypes ) )
-                {
-                    // compute derivative with indirect dependency through properties
-                    mdPPdMasterDof( tDofIndex ).matrix_data()
-                    += - this->val()( 0 ) * mSlaveVolume * mMasterProp( iProp )->dPropdDOF( aDofTypes ) / ( mMasterProp( iProp )->val()( 0 ) * mSlaveProp( iProp )->val()( 0 ) * ( mMasterVolume / mMasterProp( 0 )->val()( 0 ) + mSlaveVolume / mSlaveProp( 0 )->val()( 0 ) ) );
-                }
+                // compute derivative with indirect dependency through properties
+                mdPPdMasterDof( tDofIndex ).matrix_data()
+                += - this->val()( 0 ) * mSlaveVolume * mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->dPropdDOF( aDofTypes ) / ( mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) * mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) * ( mMasterVolume / mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) + mSlaveVolume / mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) ) );
             }
         }
 
@@ -56,14 +67,11 @@ namespace moris
             mdPPdSlaveDof( tDofIndex ).set_size( 1, mSlaveDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
 
             // if indirect dependency on the dof type
-            for( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+            if ( mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->check_dof_dependency( aDofTypes ) )
             {
-                if ( mSlaveProp( iProp )->check_dof_dependency( aDofTypes ) )
-                {
-                    // compute derivative with indirect dependency through properties
-                    mdPPdSlaveDof( tDofIndex ).matrix_data()
-                    += this->val()( 0 ) * mSlaveVolume * mSlaveProp( iProp )->dPropdDOF( aDofTypes ) / ( std::pow( mSlaveProp( iProp )->val()( 0 ), 2 ) * ( mMasterVolume / mMasterProp( 0 )->val()( 0 ) + mSlaveVolume / mSlaveProp( 0 )->val()( 0 ) ) );
-                }
+                // compute derivative with indirect dependency through properties
+                mdPPdSlaveDof( tDofIndex ).matrix_data()
+                += this->val()( 0 ) * mSlaveVolume * mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->dPropdDOF( aDofTypes ) / ( std::pow( mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ), 2 ) * ( mMasterVolume / mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) + mSlaveVolume / mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 ) ) );
             }
         }
 

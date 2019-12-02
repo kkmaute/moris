@@ -40,7 +40,7 @@ namespace moris
 
             // bool for global dof type list and map build
             bool mGlobalDofBuild = true;
-            bool mGlobalDvBuild = true;
+            bool mGlobalDvBuild  = true;
 
             // global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mGlobalDofTypes;
@@ -65,9 +65,6 @@ namespace moris
 
             // dv field interpolators
             moris::Cell< Field_Interpolator* > mDvFI;
-
-            // property type list
-            moris::Cell< fem::Property_Type > mPropTypes;
 
             // properties
             moris::Cell< std::shared_ptr< Property > > mProperties;
@@ -138,26 +135,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set a constitutive type for the constitutive model
-             * @param[ in ] aConstitutiveType a constitutive type
-             */
-            void set_constitutive_type( const fem::Constitutive_Type aConstitutiveType )
-            {
-                mConstitutiveType = aConstitutiveType;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * return a constitutive type for the constitutive model
-             * @param[ out ] mConstitutiveType a constitutive type
-             */
-            const fem::Constitutive_Type & get_constitutive_type() const
-            {
-                return mConstitutiveType;
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * set space dimension
              * @param[ in ] aSpaceDim a spatial dimension
              */
@@ -203,7 +180,10 @@ namespace moris
                 // reset underlying properties
                 for( std::shared_ptr< Property > tProp : mProperties )
                 {
-                    tProp->reset_eval_flags();
+                    if ( tProp != nullptr )
+                    {
+                        tProp->reset_eval_flags();
+                    }
                 }
             }
 
@@ -347,7 +327,7 @@ namespace moris
                 bool tCheckFI = true;
                 for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
                 {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == mGlobalDofTypes( iFI )( 0 ) );
+                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == get_global_dof_type_list()( iFI )( 0 ) );
                 }
                 MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dof_field_interpolators - wrong field interpolator dof type. ");
 
@@ -357,27 +337,30 @@ namespace moris
                 // set field interpolators for properties
                 for( std::shared_ptr< Property > tProp : this->get_properties() )
                 {
-                    // get the list of dof types for the property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-
-                    // get the number of dof type for the property
-                    uint tNumDofTypes = tPropDofTypes.size();
-
-                    // set the size of the field interpolators list for the property
-                    moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                    if (tProp != nullptr )
                     {
-                        // get the dof type index in the CM
-                        uint tDofIndexInCM = this->get_global_dof_type_map()( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+                        // get the list of dof types for the property
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
 
-                        // fill the field interpolators list for the property
-                        tPropFIs( iDof ) = this->get_dof_field_interpolators()( tDofIndexInCM );
+                        // get the number of dof type for the property
+                        uint tNumDofTypes = tPropDofTypes.size();
+
+                        // set the size of the field interpolators list for the property
+                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
+
+                        // loop over the dof types
+                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                        {
+                            // get the dof type index in the CM
+                            uint tDofIndexInCM = this->get_global_dof_type_map()( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+
+                            // fill the field interpolators list for the property
+                            tPropFIs( iDof ) = this->get_dof_field_interpolators()( tDofIndexInCM );
+                        }
+
+                        // set the field interpolators for the property
+                        tProp->set_dof_field_interpolators( tPropFIs );
                     }
-
-                    // set the field interpolators for the property
-                    tProp->set_dof_field_interpolators( tPropFIs );
                 }
             }
 
@@ -391,7 +374,10 @@ namespace moris
                 // set geometry interpolator for properties
                 for( std::shared_ptr< Property > tProp : this->get_properties() )
                 {
-                    tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    if( tProp != nullptr )
+                    {
+                        tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    }
                 }
             }
 //------------------------------------------------------------------------------
@@ -492,6 +478,12 @@ namespace moris
                 mProperties = aProperties;
             }
 
+            virtual void set_property( std::shared_ptr< fem::Property > aProperty,
+                                       std::string                      aPropertyType )
+            {
+                MORIS_ERROR( false, "Constitutive_Model::set_property - This function does nothing." );
+            }
+
 //------------------------------------------------------------------------------
             /**
              * get properties
@@ -516,7 +508,10 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    tCounterMax += tProperty->get_dof_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dof_type_list().size();
+                    }
                 }
                 mGlobalDofTypes.resize( tCounterMax );
                 moris::Cell< sint > tCheckList( tCounterMax, -1 );
@@ -534,24 +529,27 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    // get active dof types
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
-                        {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                        }
+                        // get active dof types
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                         {
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-                            mGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-                            tCounter++;
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                            }
+
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                                mGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -676,7 +674,10 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    tCounterMax += tProperty->get_dv_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dv_type_list().size();
+                    }
                 }
                 mGlobalDvTypes.resize( tCounterMax );
                 moris::Cell< sint > tCheckList( tCounterMax, -1 );
@@ -694,24 +695,27 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    // get active dv types
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                    for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
-                        {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDV )( 0 ) ) );
-                        }
+                        // get active dv types
+                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
+                        for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
                         {
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDV )( 0 ) );
-                            mGlobalDvTypes( tCounter ) = tActiveDvType( iDV );
-                            tCounter++;
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDV )( 0 ) ) );
+                            }
+
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDV )( 0 ) );
+                                mGlobalDvTypes( tCounter ) = tActiveDvType( iDV );
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -839,10 +843,9 @@ namespace moris
                     this->eval_flux();
 
                     // set bool for evaluation
-//                    mFluxEval = false;
+                    mFluxEval = false;
                 }
                 // return the flux value
-//                print(mFlux,"mFlux");
                 return mFlux;
             }
 
@@ -870,7 +873,7 @@ namespace moris
                     this->eval_traction( aNormal );
 
                     // set bool for evaluation
-//                    mTractionEval = false;
+                    mTractionEval = false;
                 }
                 // return the traction value
                 return mTraction;
@@ -1359,7 +1362,7 @@ namespace moris
                         mDofFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();
@@ -1444,7 +1447,7 @@ namespace moris
                         mDofFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();
@@ -1529,7 +1532,7 @@ namespace moris
                         mDvFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();
@@ -1614,7 +1617,7 @@ namespace moris
                         mDvFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();

@@ -29,25 +29,69 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
+
+            enum class SP_Property_Type
+            {
+                MATERIAL,
+                MAX_ENUM
+            };
+
+            // Local string to property enum map
+            std::map< std::string, SP_Property_Type > mPropertyMap;
+
+            enum class SP_Constitutive_Type
+            {
+                MAX_ENUM
+            };
+
+            // Local string to constitutive enum map
+            std::map< std::string, SP_Constitutive_Type > mConstitutiveMap;
+
 //------------------------------------------------------------------------------
             /*
              * constructor
              */
-            SP_Slave_Weight_Interface()
-            {
-                // set the penalty type
-                mStabilizationType = fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE;
-
-                // set the list of cluster measures
-                mClusterMeasures = { fem::Cluster_Measure::MASTER_VOLUME,
-                                     fem::Cluster_Measure::SLAVE_VOLUME };
-            };
+            SP_Slave_Weight_Interface();
 
 //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
             ~SP_Slave_Weight_Interface(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set property
+             * @param[ in ] aProperty       a property pointer
+             * @param[ in ] aPropertyString a string defining the property
+             * @param[ in ] aIsMaster       an enum for master or slave
+             */
+            void set_property( std::shared_ptr< Property > aProperty,
+                               std::string                 aPropertyString,
+                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                // FIXME check that property type makes sense?
+
+                // set the property in the property cell
+                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set constitutive model
+             * @param[ in ] aConstitutiveModel  a constitutive model pointer
+             * @param[ in ] aConstitutiveString a string defining the constitutive model
+             * @param[ in ] aIsMaster           an enum for master or slave
+             */
+            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                                         std::string                           aConstitutiveString,
+                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                // FIXME check that constitutive string makes sense?
+
+                // set the constitutive model in the constitutive model cell
+                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+            }
 
 //------------------------------------------------------------------------------
             /**

@@ -105,19 +105,28 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        enum class Property_Type
+        enum class IQI_Type
         {
             UNDEFINED,
-            TEMP_DIRICHLET,
-            TEMP_NEUMANN,
-            CONDUCTIVITY,
-            TEMP_LOAD,
-            STRUC_DIRICHLET,
-            STRUC_NEUMANN,
-            YOUNGS_MODULUS,
-            POISSONS_RATIO,
-            END_PROPERTY_TYPE
+            VOLUME,         // volume
+            END_IQI_TYPE
         };
+
+//------------------------------------------------------------------------------
+
+//        enum class Property_Type
+//        {
+//            UNDEFINED,
+//            TEMP_DIRICHLET,
+//            TEMP_NEUMANN,
+//            CONDUCTIVITY,
+//            TEMP_LOAD,
+//            STRUC_DIRICHLET,
+//            STRUC_NEUMANN,
+//            YOUNGS_MODULUS,
+//            POISSONS_RATIO,
+//            END_PROPERTY_TYPE
+//        };
 
 //------------------------------------------------------------------------------
 
