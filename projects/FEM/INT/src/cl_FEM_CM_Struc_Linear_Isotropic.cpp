@@ -73,6 +73,26 @@ namespace moris
                     MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_strain - Flattening of strain tensor only implemented in 2 and 3 D");
                 }
             }
+
+            // if thermal expansion
+            if ( mProperties.size() > 2 )
+            {
+                if ( mProperties( 2 )->get_property_type() == fem::Property_Type::CTE )
+//                if ( mGlobalDofTypeMap( static_cast<int>( fem::Property_Type::CTE)) != -1 )
+                {
+                    // build thermal expansion vector
+                    Matrix< DDRMat > tTheramlExpansionVector;
+                    this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+
+                    // get reference Temerature
+                    moris::real tTref = mProperties( 3 )->val()( 0 );
+
+                    moris::real tTgp = mDofFI( 1 )->val()( 0 );
+
+                    // add thermal contribution to the strain
+                    mStrain.matrix_data() += tTheramlExpansionVector * ( - tTgp + tTref );
+                }
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -215,7 +235,8 @@ namespace moris
             if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
             {
                 // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ) = this->constitutive() * this->testStrain();
+//                mdFluxdDof( tDofIndex ) = this->constitutive() * this->testStrain();
+                mdFluxdDof( tDofIndex ) = this->constitutive() * this->dStraindDOF( aDofTypes );
             }
             else
             {
@@ -227,7 +248,7 @@ namespace moris
             if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() += mDofFI( 0 )->gradx( 1 ) * mProperties( 0 )->dPropdDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() += ( 1.0 / mProperties( 0 )->val()( 0 ) ) * this->constitutive() * this->strain() * mProperties( 0 )->dPropdDOF( aDofTypes );
             }
         }
 
@@ -252,9 +273,33 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                                const Matrix< DDRMat >             & aNormal )
+                                                                const Matrix< DDRMat >             & aNormal,
+                                                                const Matrix< DDRMat >             & aJump )
         {
-            MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF - Not implemented.");
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            Matrix< DDRMat > tNormal;
+
+            // flatten normal
+            this->flatten_normal( aNormal, tNormal );
+
+            // if indirect dependency on the dof type
+            if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
+            {
+                mdTestTractiondDof( tDofIndex ).set_size( mDofFI( 0 )->get_number_of_space_time_coefficients(), mDofFI( tDofIndex )->get_number_of_space_bases(), 0.0 );
+
+                // compute derivative with indirect dependency through properties
+                mdTestTractiondDof( tDofIndex ).matrix_data() +=  ( 1.0 / mProperties( 0 )->val()( 0 ) ) * this->testTraction( tNormal ) * trans( aJump )
+                        * mProperties( 0 )->dPropdDOF( aDofTypes );
+            }
+            else
+            {
+                mdTestTractiondDof( tDofIndex ).set_size( mDofFI( 0 )->get_number_of_space_time_coefficients(), mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -267,7 +312,7 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // if direct dependency on the dof type
-            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
+            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 && aDofTypes(0) == MSI::Dof_Type::UX )
             {
                 // compute derivative with direct dependency
                 mdStraindDof( tDofIndex ) = this->testStrain();
@@ -276,6 +321,19 @@ namespace moris
             {
                 // reset the matrix
                 mdStraindDof( tDofIndex ).set_size( 3, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+            }
+
+            // if thermal expansion
+            if ( mProperties.size() > 2 )
+            {
+                if ( mProperties( 2 )->get_property_type() == fem::Property_Type::CTE && aDofTypes(0) == MSI::Dof_Type::TEMP )
+                {
+                    // build thermal expansion vector
+                    Matrix< DDRMat > tTheramlExpansionVector;
+                    this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+
+                    mdStraindDof( tDofIndex ).matrix_data() += (- 1.0) * tTheramlExpansionVector * mDofFI( tDofIndex )->NBuild();
+                }
             }
         }
 
@@ -322,6 +380,50 @@ namespace moris
                 }
             }
         }
+
+        void CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector )
+        {
+            switch ( mSpaceDim )
+            {
+                case ( 2 ):
+                {
+                    uint tPlainStrainOrStress = 1;
+
+                    switch ( tPlainStrainOrStress )
+                    {
+                        case ( 1 ):
+                        {
+                            aTheramlExpansionVector.set_size( 3, 1, 0.0);
+                            aTheramlExpansionVector( 0 ) = mProperties( 2 )->val()( 0 );
+                            aTheramlExpansionVector( 1 ) = mProperties( 2 )->val()( 0 );
+                            break;
+                        }
+                        case ( 2 ):
+                        {
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - plain strain not implemented");
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - In 2D only plain strain or plain stress implemented");
+                        }
+                }
+                break;
+            }
+            case( 3 ):
+            {
+                aTheramlExpansionVector.set_size( 6, 1, 0.0);
+                aTheramlExpansionVector( 0 ) = mProperties( 2 )->val()( 0 );
+                aTheramlExpansionVector( 1 ) = mProperties( 2 )->val()( 0 );
+                aTheramlExpansionVector( 2 ) = mProperties( 2 )->val()( 0 );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - Flattening of strain tensor only implemented in 2 and 3 D");
+            }
+        }
+    }
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

@@ -167,8 +167,9 @@ TEST_CASE( "HMR_Basis_Support" , "[hmr][HMR_Basis_Support]")
 
 TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
 {
-    //------------------------------------------------------------------------------
 
+    if(par_size() == 1)
+    {
     moris::uint tLagrangeMeshIndex = 0;
     moris::uint tBSplineMeshIndex = 0;
 
@@ -221,6 +222,25 @@ TEST_CASE( "HMR Integration Mesh bounding box" , "[hmr],[IG_Mesh_bounding_box]")
                                                           { { 0.9 },{ 1 } ,{ 1 }},
                                                           tNodeIndices);
 
+
+    moris::Matrix< IndexMat > tReferenceInices = { { 241 }, { 301 }, { 430 }, { 431 }, { 639 }, { 638 }, { 747 }, { 748 }, { 302 }, { 432 }, { 640 }, { 749 }, { 433 }, { 400 },
+                                                   { 750 }, { 751 }, { 434 }, { 752 }, { 610 }, { 645 }, { 753 }, { 754 }, { 646 }, { 755 }, { 756 }, { 738 }, { 757 }, { 309 },
+                                                   { 439 }, { 649 }, { 758 }, { 310 }, { 440 }, { 650 }, { 759 }, { 441 }, { 760 }, { 442 }, { 761 }, { 653 }, { 762 }, { 654 },
+                                                   { 763 }, { 764 }, { 765 }, { 443 }, { 402 }, { 766 }, { 741 }, { 454 }, { 455 }, { 767 }, { 768 }, { 456 }, { 769 }, { 457 },
+                                                   { 770 }, { 771 }, { 458 }, { 772 }, { 773 }, { 774 }, { 775 }, { 776 }, { 777 }, { 616 }, { 657 }, { 778 }, { 744 } };
+
+    bool tCheck = true;
+    for( uint Ik = 0; Ik < tReferenceInices.numel(); Ik++)
+    {
+        if( tReferenceInices( Ik ) != tNodeIndices( Ik ) )
+        {
+            tCheck = false;
+            break;
+        }
+    }
+
+    CHECK( tCheck );
+    }
 }
 
 }

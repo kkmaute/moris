@@ -11,6 +11,7 @@
 
 #define protected public
 #define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
 #include "cl_FEM_Set.hpp"         //FEM/INT/src
 #undef protected
@@ -182,16 +183,41 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
 
     tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 1;
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 3;
+
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+
+    tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 8, 15 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 },{ 8, 15 } };
+    tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 },{ 8, 15 } };
+
+    tIWG->mSet->mResidual.set_size( 16, 1 , 0.0 );
+    tIWG->mSet->mJacobian.set_size( 16, 16, 0.0 );
+
+    tIWG->mResidualDofTypeRequested = true;
 
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+    tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::TEMP }};
+
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+
+    tFIManager.mMasterFI = tMasterFIs;
+    tFIManager.mSlaveFI  = tSlaveFIs;
+
     // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( tMasterFIs );
-    tIWG->set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
+    tIWG->mFieldInterpolatorManager = &tFIManager;
+
+    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+    tIWG->set_dof_field_interpolators( mtk::Master_Slave::SLAVE );
 
     // set IWG geometry interpolator
     tIWG->set_geometry_interpolator( &tGI );
@@ -200,8 +226,7 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     // check evaluation of the residual for IWG Helmholtz Bulk ?
     //------------------------------------------------------------------------------
     // evaluate the residual
-    Cell< Matrix< DDRMat > > tResidual;
-    tIWG->compute_residual( tResidual );
+    tIWG->compute_residual( 1.0 );
 
     // check evaluation of the jacobian  by FD
     //------------------------------------------------------------------------------
@@ -210,10 +235,11 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
 
     // check jacobian by FD
-    bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
-                                                       tEpsilon,
-                                                       tJacobians,
-                                                       tJacobiansFD );
+    bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
+                                                tEpsilon,
+                                                1.0,
+                                                tJacobians,
+                                                tJacobiansFD );
 
 //    // print for debug
 //    print( tJacobians( 0 )( 0 ),"tJacobians00");
@@ -231,16 +257,8 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     // require check is true
     REQUIRE( tCheckJacobian );
 
-    for( Field_Interpolator* tFI : tMasterFIs )
-    {
-        delete tFI;
-    }
     tMasterFIs.clear();
 
-    for( Field_Interpolator* tFI : tSlaveFIs )
-    {
-        delete tFI;
-    }
     tSlaveFIs.clear();
 
 }/* END_TEST_CASE */

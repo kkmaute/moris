@@ -1429,11 +1429,9 @@ namespace moris
                                                                          luint                                     aBoundingBoxStartEndIJK[][2],
                                                                          uint                                      alevel )
         {
-            sint tSize = ( aBoundingBoxStartEndIJK[ 0 ][ 1 ] - aBoundingBoxStartEndIJK[ 0 ][ 0 ] ) *
-                         ( aBoundingBoxStartEndIJK[ 1 ][ 1 ] - aBoundingBoxStartEndIJK[ 1 ][ 0 ] ) *
-                         ( aBoundingBoxStartEndIJK[ 2 ][ 1 ] - aBoundingBoxStartEndIJK[ 2 ][ 0 ] );
-
-            aBackgroundElements.resize( tSize, nullptr );
+            aBackgroundElements.resize( ( aBoundingBoxStartEndIJK[ 0 ][ 1 ] - aBoundingBoxStartEndIJK[ 0 ][ 0 ] ) *
+                                        ( aBoundingBoxStartEndIJK[ 1 ][ 1 ] - aBoundingBoxStartEndIJK[ 1 ][ 0 ] ) *
+                                        ( aBoundingBoxStartEndIJK[ 2 ][ 1 ] - aBoundingBoxStartEndIJK[ 2 ][ 0 ] ), nullptr );
 
             luint tCounter = 0;
 

@@ -61,6 +61,15 @@ namespace NLA
            mListOfDofTypes = aListOfDofTypes;
         };
 
+        virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+        {
+            return mListOfDofTypes;
+        };
+
+        void set_secundary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+        {
+        };
+
         // local dimension of the problem
         uint get_max_num_global_dofs(){ return 4; };
 
@@ -70,8 +79,28 @@ namespace NLA
         uint get_num_my_dofs(){ return mNumMyDofs; };
 
         // ----------------------------------------------------------------------------------------------
-        // local-to-global map
         Matrix< DDSMat > get_my_local_global_map()
+        {
+            if( mListOfDofTypes.size() == 1)
+            {
+                mMyGlobalElements.resize(2,1);
+                mMyGlobalElements(0,0)=0;                mMyGlobalElements(1,0)=1;
+            }
+            else if( mListOfDofTypes.size() == 2)
+            {
+                mMyGlobalElements.resize(2,1);
+                mMyGlobalElements(0,0)=2;                mMyGlobalElements(1,0)=3;
+            }
+            else if( mListOfDofTypes.size() == 3)
+            {
+                mMyGlobalElements.resize(4,1);
+                mMyGlobalElements(0,0)=0;                mMyGlobalElements(1,0)=1;
+                mMyGlobalElements(2,0)=2;                mMyGlobalElements(3,0)=3;
+            }
+            return mMyGlobalElements;
+        };
+        // local-to-global map
+        Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes)
         {
             if( mListOfDofTypes.size() == 1)
             {

@@ -150,13 +150,13 @@ namespace moris
         {
             for( uint Ia = 0; Ia<VertexIndOnColor( Ii ).numel(); ++Ia )
             {
-                mNodes( tCounter3 ) = new fem::Node( &mIntegrationMesh->get_mtk_vertex( VertexIndOnColor( Ii )( 0, Ia ) ) );
+                mNodes( tCounter3 ) = new fem::Node( &mIntegrationMesh->get_mtk_vertex( VertexIndOnColor( Ii )( Ia ) ) );
 
                 mNodes( tCounter3 )->set_index( tCounter3 );
 
-                mVertexColorToNodeIndMap( Ii )( VertexIndOnColor( Ii )( 0, Ia ) = tCounter3 );
+                mVertexColorToNodeIndMap( Ii )( VertexIndOnColor( Ii )( Ia ) = tCounter3 );
 
-                mNodeToVertexIndMap( tCounter3++, 0 ) = VertexIndOnColor( Ii )( 0, Ia );
+                mNodeToVertexIndMap( tCounter3++, 0 ) = VertexIndOnColor( Ii )( Ia );
             }
         }
 
@@ -210,14 +210,14 @@ namespace moris
         // Loop over the block colors
         for( uint Ik = 0; Ik < mColorListBlock.size(); Ik++ )
         {
-            Matrix< DDSMat >tVertInds( 1, aNumMaxVertPerColor( Ik ,0 ) );
+            Matrix< DDSMat >tVertInds( aNumMaxVertPerColor( Ik ,0 ), 1 );
             uint tCounter = 0;
 
             // Loop over the blocks
             for( uint Ij = 0; Ij < mColorListBlock( Ik ).length(); Ij++ )
             {
                 //FIXME rewrite for more readability
-                tVertInds( { 0, 0 }, { tCounter, tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 ) - 1 } ) =
+                tVertInds( { tCounter, tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 ) - 1 }, { 0, 0 } ) =
                         mIntegrationMesh->get_block_by_index( mColorListBlock( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block().matrix_data();
 
                 tCounter = tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 );
@@ -227,7 +227,7 @@ namespace moris
             for( uint Ij = 0; Ij < mColorListSideSet( Ik ).length(); Ij++ )
             {
                 //FIXME rewrite for more readability
-                tVertInds( { 0, 0 }, { tCounter, tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 ) - 1 } ) =
+                tVertInds( { tCounter, tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 ) - 1 }, { 0, 0 } ) =
                         mIntegrationMesh->get_block_by_index( mColorListSideSet( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block().matrix_data();
 
                 tCounter = tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 );

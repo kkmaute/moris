@@ -841,10 +841,10 @@ namespace moris
                 // get domain offset
                 Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
 
-
                 bool tCheck = true;
 
                 sint tIJK[ N ];
+
                 luint tBoundingBoxSizeIJK[ N ];
                 luint tBoundingBoxStartEndIJK[ N ][ 2 ];
                 for( uint Ik=0; Ik<N; ++Ik )
@@ -880,7 +880,6 @@ namespace moris
                     {
                         tBoundingBoxStartEndIJK[ Ik ][ 1 ] = mDomain.mDomainIJK[ tLevel ][ Ik ][ 1 ];
                     }
-
                 }
 
 

@@ -89,6 +89,16 @@ namespace NLA
            mListOfDofTypes = aListOfDofTypes;
         };
 
+        virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+        {
+            return mListOfDofTypes;
+        };
+
+        void set_secundary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+        {
+
+        };
+
         // ----------------------------------------------------------------------------------------------
         // local dimension of the problem
         uint get_num_my_dofs(){ return mNumMyDofs; };
@@ -108,8 +118,12 @@ namespace NLA
         moris::Matrix< DDSMat > & get_time_level_Ids_plus();
 
         // ----------------------------------------------------------------------------------------------
+        Matrix< DDSMat > get_my_local_global_map()
+        {
+            return mMyGlobalElements;
+        };
         // local-to-global map
-        Matrix< DDSMat > get_my_local_global_map(){ return mMyGlobalElements; };
+        Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes){ return mMyGlobalElements; };
 
         moris::Matrix< DDSMat > get_my_local_global_overlapping_map( ){return mMyGlobalElementsOverlapping; };
 

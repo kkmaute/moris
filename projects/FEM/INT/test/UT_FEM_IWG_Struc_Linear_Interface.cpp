@@ -11,6 +11,7 @@
 
 #define protected public
 #define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG.hpp"         //FEM/INT/src
 #include "cl_FEM_Set.hpp"         //FEM/INT/src
 #undef protected
@@ -19,7 +20,11 @@
 #include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
 #include "cl_FEM_Property.hpp"                                  //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
-#include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_IWG_Factory.hpp"                               //FEM//INT//src
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"      //FEM//INT//src
+
+#include "op_equal_equal.hpp"
+
 
 
 moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -30,20 +35,36 @@ moris::Matrix< moris::DDRMat > tConstValFunction_UTInterface( moris::Cell< moris
     return aParameters( 0 );
 }
 
+moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+        {
+            return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
+        }
 moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->val();
+    return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
 }
+
+
+moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
+                                                              moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
+                                                              moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
+        {
+            return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
+        }
 
 moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                            moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
-    return aParameters( 0 ) * aDofFI( 0 )->N();
+    return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
 }
 
 using namespace moris;
@@ -189,7 +210,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     // define a perturbation relative size
     real tPerturbation = 1E-4;
 
-    SECTION( "IWG_Spatial_Diffusion : check residual and jacobian with constant property" )
+    SECTION( "IWG_Spatial_Struc : check residual and jacobian with constant property" )
     {
         MSI::Equation_Set * tSet = new fem::Set();
 
@@ -198,17 +219,42 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
         tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 1;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
-        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 3;
+        tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+
+        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+
+        tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+        tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+        tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+        tIWG->mSet->mResDofAssemblyMap( 1 ) = { { 8, 15 } };
+        tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 },{ 8, 15 } };
+        tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, 7 },{ 8, 15 } };
+
+        tIWG->mSet->mResidual.set_size( 32, 1 , 0.0 );
+        tIWG->mSet->mJacobian.set_size( 32, 32, 0.0 );
+
+        tIWG->mResidualDofTypeRequested = true;
 
         // build global dof type list
         tIWG->get_global_dof_type_list();
 
+        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+        tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::UX }};
+
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+        Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+
+        tFIManager.mMasterFI = tMasterFIs;
+        tFIManager.mSlaveFI  = tSlaveFIs;
+
         // set IWG field interpolators
-        tIWG->set_dof_field_interpolators( tMasterFIs );
-        tIWG->set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
+        tIWG->mFieldInterpolatorManager = &tFIManager;
+
+        tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+        tIWG->set_dof_field_interpolators( mtk::Master_Slave::SLAVE );
 
         // set IWG geometry interpolator
         tIWG->set_geometry_interpolator( &tGI );
@@ -217,8 +263,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         // check evaluation of the residual for IWG Helmholtz Bulk ?
         //------------------------------------------------------------------------------
         // evaluate the residual
-        Cell< Matrix< DDRMat > > tResidual;
-        tIWG->compute_residual( tResidual );
+        tIWG->compute_residual( 1.0 );
 
         // check evaluation of the jacobian  by FD
         //------------------------------------------------------------------------------
@@ -227,23 +272,24 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
 
         // check jacobian by FD
-        bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
-                                                           tEpsilon,
-                                                           tJacobians,
-                                                           tJacobiansFD );
+        bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
+                tEpsilon,
+                1.0,
+                tJacobians,
+                tJacobiansFD );
 
-//        // print for debug
-//        print( tJacobians( 0 )( 0 ),"tJacobians00");
-//        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-//
-//        print( tJacobians( 0 )( 1 ),"tJacobians01");
-//        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-//
-//        print( tJacobians( 1 )( 0 ),"tJacobians10");
-//        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-//
-//        print( tJacobians( 1 )( 1 ),"tJacobians11");
-//        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
+        //        // print for debug
+        //        print( tJacobians( 0 )( 0 ),"tJacobians00");
+        //        print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
+        //
+        //        print( tJacobians( 0 )( 1 ),"tJacobians01");
+        //        print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
+        //
+        //        print( tJacobians( 1 )( 0 ),"tJacobians10");
+        //        print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
+        //
+        //        print( tJacobians( 1 )( 1 ),"tJacobians11");
+        //        print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
         // require check is true
         REQUIRE( tCheckJacobian );
@@ -251,16 +297,12 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     }/* END_SECTION */
 
     // clean up
-    for( Field_Interpolator* tFI : tMasterFIs )
-    {
-        delete tFI;
-    }
     tMasterFIs.clear();
 
-    for( Field_Interpolator* tFI : tSlaveFIs )
-    {
-        delete tFI;
-    }
     tSlaveFIs.clear();
 
 }/* END_TEST_CASE */
+
+
+
+

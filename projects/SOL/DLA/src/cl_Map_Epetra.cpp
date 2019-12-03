@@ -83,6 +83,7 @@ Map_Epetra::Map_Epetra( const moris::uint      & aNumMaxDofs,
 
     // build maps
     mFreeEpetraMap = new Epetra_Map( -1, tMyGlobalConstraintDofs.n_rows(), tMyGlobalConstraintDofs.data() , tIndexBase, *mEpetraComm.get_epetra_comm() );
+//    std::cout<<*mFreeEpetraMap<<std::endl;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------

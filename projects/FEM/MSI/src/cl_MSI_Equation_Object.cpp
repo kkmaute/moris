@@ -6,6 +6,9 @@
  */
 #include "cl_MSI_Pdof_Host.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
+#include "cl_MSI_Dof_Manager.hpp"
+
+#include "cl_MSI_Solver_Interface.hpp"
 
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Equation_Set.hpp"
@@ -53,9 +56,10 @@ namespace moris
 //        }
 
         // Resize list containing this equations objects pdof hosts set
-        mMyPdofHosts.resize( mNodeObj.size() );                        //Fixme Add ghost and element numbers
+        mNumPdofSystems = mNodeObj.size();
+        mMyPdofHosts.resize( mNumPdofSystems );                        //Fixme Add ghost and element numbers
 
-        for ( moris::uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
+        for ( moris::uint Ik = 0; Ik < mNumPdofSystems; Ik++ )
         {
             moris::uint tNumMyPdofHosts = mNodeObj( Ik ).size();
 
@@ -134,61 +138,157 @@ namespace moris
             }
         }
 
-//        // Loop over all pdof hosts and dof types. Appending the pdof pointers to the pdof list of this equation object
-//        for ( moris::uint Ik = 0; Ik < tNumMyPdofHosts; Ik++ )
-//        {
-//            // Loop over all pdof types
-//            for ( moris::uint Ij = 0; Ij < ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() ).size(); Ij++ )
-//            {
-//                // Append all time levels of this pdof type
-//                mFreePdofs.append( ( mMyPdofHosts( Ik )->get_pdof_hosts_pdof_list() )( Ij ) );
-//            }
-//        }
+        //----------------------------------------------------------------------------------------------------------
+
+        // Ask the first pdof host for the number of pdof types //FIXME
+        mFreePdofList.resize( mMyPdofHosts.size() );
+
+        for ( moris::uint Ik=0; Ik < mMyPdofHosts.size(); Ik++ )
+        {
+            mFreePdofList( Ik ).resize( mMyPdofHosts( Ik )( 0 )->get_pdof_hosts_pdof_list().size() );
+        }
+
+        for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
+        {
+            // Loop over all pdof hosts and get their number of (free) pdofs
+            for ( moris::uint Ik=0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
+            {
+                uint tNumPdofs = 0;
+
+                for ( moris::uint Ii=0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
+                {
+                    tNumPdofs = tNumPdofs + mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ).size();
+                }
+
+                mFreePdofList( Ia )( Ik ).reserve( tNumPdofs );
+            }
+        }
+
+        for ( moris::uint Ia=0; Ia < mMyPdofHosts.size(); Ia++ )
+        {
+            // Loop over all pdof hosts and get their number of (free) pdofs
+            for ( moris::uint Ik=0; Ik < mMyPdofHosts( Ia )( 0 )->get_pdof_hosts_pdof_list().size(); Ik++ )
+            {
+                for ( moris::uint Ii=0; Ii < mMyPdofHosts( Ia ).size(); Ii++ )
+                {
+                    mFreePdofList( Ia )( Ik ).append( mMyPdofHosts( Ia )( Ii )->get_pdof_hosts_pdof_list()( Ik ) );
+                }
+            }
+        }
     }
 
 //-------------------------------------------------------------------------------------------------
     void Equation_Object::create_my_list_of_adof_ids()
     {
-        // Get MAX number of pdofs for this equation object
-        moris::uint tNumMyPdofs = mFreePdofs.size();
-
-        // Loop over all pdofs to count their adofs
-        moris::uint tNumMyAdofs = 0;
-        for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
         {
-            // Get Number of adofs cooresponding to this pdof
-            moris::uint tNumAdofForThisPdof = ( mFreePdofs( Ij )->mAdofIds ).numel();
-            tNumMyAdofs = tNumMyAdofs + tNumAdofForThisPdof;
+            // Get MAX number of pdofs for this equation object
+            moris::uint tNumMyPdofs = mFreePdofs.size();
+
+            // Loop over all pdofs to count their adofs
+            moris::uint tNumMyAdofs = 0;
+            for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
+            {
+                // Get Number of adofs cooresponding to this pdof
+                moris::uint tNumAdofForThisPdof = ( mFreePdofs( Ij )->mAdofIds ).numel();
+                tNumMyAdofs = tNumMyAdofs + tNumAdofForThisPdof;
+            }
+
+            // Temporary matrix for adofs Ids
+            Matrix< DDSMat > tNonUniqueAdofIds( tNumMyAdofs, 1 );
+
+            moris::uint tAdofPosCounter = 0;
+
+            // Loop over all pdofs to get their adofs and put them into a unique list
+            for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
+            {
+                tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
+
+                // Add number if these adofs to number of assembled adofs
+                tAdofPosCounter = tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel();
+            }
+
+            // make list of unique Ids
+            moris::unique( tNonUniqueAdofIds, mUniqueAdofList );
         }
 
-        // Temporary matrix for adofs Ids
-        Matrix< DDSMat > tNonUniqueAdofIds( tNumMyAdofs, 1 );
+        //---------------------------------------------------------------------------
 
-        moris::uint tAdofPosCounter = 0;
+        mUniqueAdofTypeList.resize( mFreePdofList.size() );
 
-        // Loop over all pdofs to get their adofs and put them into a unique list
-        for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
+        for ( moris::uint Ik=0; Ik < mFreePdofList.size(); Ik++ )
         {
-            tNonUniqueAdofIds ( {tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel() -1 }, { 0, 0} ) = mFreePdofs( Ij )->mAdofIds.matrix_data();
-
-            // Add number if these adofs to number of assembled adofs
-            tAdofPosCounter = tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel();
+            mUniqueAdofTypeList( Ik ).resize( mFreePdofList( Ik ).size() );
         }
 
-        // make list of unique Ids
-        moris::unique( tNonUniqueAdofIds, mUniqueAdofList );
+        for ( moris::uint Ia=0; Ia < mFreePdofList.size(); Ia++ )
+        {
+            for ( moris::uint Ik=0; Ik < mFreePdofList( Ia ).size(); Ik++ )
+            {
+                // Get MAX number of pdofs for this equation object
+                moris::uint tNumMyPdofs = mFreePdofList( Ia )( Ik ).size();
+
+                // Loop over all pdofs to count their adofs
+                moris::uint tNumMyAdofs = 0;
+                for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
+                {
+                    // Get Number of adofs cooresponding to this pdof
+                    moris::uint tNumAdofForThisPdof = ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel();
+                    tNumMyAdofs += tNumAdofForThisPdof;
+                }
+
+                // Temporary matrix for adofs Ids
+                Matrix< DDSMat > tNonUniqueAdofIds( tNumMyAdofs, 1 );
+
+                moris::uint tAdofPosCounter = 0;
+
+                // Loop over all pdofs to get their adofs and put them into a unique list
+                for ( moris::uint Ij=0; Ij < tNumMyPdofs; Ij++ )
+                {
+                    tNonUniqueAdofIds ( { tAdofPosCounter, tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() -1 }, { 0, 0 } )
+                            = mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
+
+                    // Add number if these adofs to number of assembled adofs
+                    tAdofPosCounter += ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel();
+                }
+
+                // make list of unique Ids
+                moris::unique( tNonUniqueAdofIds, mUniqueAdofTypeList( Ia )( Ik ) );
+            }
+        }
     }
 
 //-------------------------------------------------------------------------------------------------
     void Equation_Object::set_unique_adof_map()
     {
-        //Get number of unique adofs of this equation object
-        moris::uint tNumUniqueAdofs = mUniqueAdofList.numel();
-
         // Loop over all unique adofs of this equation object
-        for ( moris::uint Ii = 0; Ii < tNumUniqueAdofs; Ii++ )
+        for ( moris::uint Ii = 0; Ii < mUniqueAdofList.numel(); Ii++ )
         {
             mUniqueAdofMap[ mUniqueAdofList( Ii, 0 ) ] = Ii;
+        }
+
+        //----------------------------------------------------------
+
+        moris::uint tNumAdofLists = mUniqueAdofTypeList.size();
+
+        mUniqueAdofMapList.resize( tNumAdofLists );
+
+        for ( moris::uint Ij = 0; Ij < tNumAdofLists; Ij++ )
+        {
+            //Get number of unique adofs of this equation object
+            moris::uint tNumUniqueAdofsTypes = mUniqueAdofTypeList( Ij ).size();
+
+            mUniqueAdofMapList( Ij ).resize( tNumUniqueAdofsTypes );
+
+            // Loop over all unique adofs tpes of this equation object
+            for ( moris::uint Ii = 0; Ii < tNumUniqueAdofsTypes; Ii++ )
+            {
+                moris::uint tNumUniqueAdofs = mUniqueAdofTypeList( Ij )( Ii ).numel();
+
+                for ( moris::uint Ik = 0; Ik < tNumUniqueAdofs; Ik++ )
+                {
+                    mUniqueAdofMapList( Ij )( Ii )[ mUniqueAdofTypeList( Ij )( Ii )( Ik, 0 ) ] = Ik;
+                }
+            }
         }
     }
 
@@ -205,7 +305,6 @@ namespace moris
          moris::uint tNumMyPdofs = mFreePdofs.size();
 
          MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
-
 
          aPADofMap.set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
@@ -227,9 +326,160 @@ namespace moris
      }
 
 //-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > > & aPADofMap )
+    {
+        aPADofMap.resize( mUniqueAdofTypeList.size() );
+
+        for ( moris::uint Ik = 0; Ik < mUniqueAdofTypeList.size(); Ik++ )
+        {
+            moris::uint tNumUniqueAdofsTypes = mUniqueAdofTypeList( Ik ).size();
+
+            aPADofMap( Ik ).resize( tNumUniqueAdofsTypes, Matrix<DDRMat> ( 0, 0 ) );
+        }
+
+        for ( moris::uint Ik = 0; Ik < mUniqueAdofTypeList.size(); Ik++ )
+        {
+            // Loop over all adof types of this equation object
+            for ( moris::uint Ij = 0; Ij < mUniqueAdofTypeList( Ik ).size(); Ij++ )
+            {
+                //Get number of unique adofs of this equation object
+                moris::uint tNumUniqueAdofs = mUniqueAdofTypeList( Ik )( Ij ).numel();
+
+                MORIS_ASSERT( tNumUniqueAdofs != 0,"Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+
+                // Get MAX number of pdofs for this equation object
+                moris::uint tNumMyPdofs = mFreePdofList( Ik )( Ij ).size();
+
+                MORIS_ASSERT( tNumMyPdofs != 0,"Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+
+                aPADofMap( Ik )( Ij ).set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
+
+                // Loop over all pdofs of this equation object
+                for ( moris::uint Ii = 0; Ii < tNumMyPdofs; Ii++ )
+                {
+                    auto tPdof = mFreePdofList( Ik )( Ij )( Ii );
+
+                    // Loop over all adof Ids of this pdof
+                    for ( moris::uint Ib = 0; Ib < tPdof->mAdofIds.numel(); Ib++ )
+                    {
+                        // Getting tPADofMap column entry for the corresponding value
+                        moris::uint tColumnPos = mUniqueAdofMapList( Ik )( Ij )[ tPdof->mAdofIds( Ib, 0 ) ];
+
+                        // Insert value into pdof-adof-map
+                        aPADofMap( Ik )( Ij )( Ii, tColumnPos ) = ( mFreePdofList( Ik )( Ij )( Ii )->mTmatrix)( Ib, 0 );
+                    }
+                }
+            }
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------
+
+    void Equation_Object::build_PADofMap_1( Matrix< DDRMat > & aPADofMap )
+    {
+        Cell< Cell< Matrix< DDRMat > > > tPADofMapList;
+
+        // get list of all T-Matrices
+        this->build_PADofMap_list( tPADofMapList );
+
+        //get list of requested dof tpes
+        moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes =  mEquationBlock->get_model_solver_interface()
+                                                                              ->get_solver_interface()
+                                                                              ->get_requested_dof_types();
+
+        // initialize column and row counter
+        uint tNumColCounter = 0;
+        uint tNumRowCounter = 0;
+
+        for ( moris::uint Ii = 0; Ii < mNumPdofSystems; Ii++ )
+        {
+            // Loop over all requested dof types and get total number of cols and rows
+            for ( moris::uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                // get index corresponding to this dof type
+                moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()
+                                                          ->get_dof_manager()
+                                                          ->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
+
+                MORIS_ASSERT( tDofTypeIndex != -1,"build_PADofMap_1(), Index for this dof type does not exist in map");
+
+                tNumColCounter += tPADofMapList( Ii )( tDofTypeIndex ).n_cols();
+                tNumRowCounter += tPADofMapList( Ii )( tDofTypeIndex ).n_rows();
+            }
+        }
+
+        aPADofMap.set_size( tNumRowCounter, tNumColCounter, 0.0 );
+
+        // re-initialize column and row counter
+        tNumColCounter = 0;
+        tNumRowCounter = 0;
+
+        for ( moris::uint Ii = 0; Ii < mNumPdofSystems; Ii++ )
+        {
+            // Loop over all requested dof types and insert T-matrices into requested T-matrix
+            for ( moris::uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                // get index corresponding to this dof type
+                moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()
+                                                          ->get_dof_manager()
+                                                          ->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
+
+                uint tNumCols = tPADofMapList( Ii )( tDofTypeIndex ).n_cols();
+                uint tNumRows = tPADofMapList( Ii )( tDofTypeIndex ).n_rows();
+
+                aPADofMap( { tNumRowCounter, tNumRowCounter + tNumRows -1 }, { tNumColCounter, tNumColCounter+ tNumCols - 1 } ) += tPADofMapList( Ii )( tDofTypeIndex ).matrix_data();
+
+                tNumColCounter += tNumCols;
+                tNumRowCounter += tNumRows;
+            }
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------
     moris_index Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
     {
         return mNodeObj( 0 )( aElementLocalNodeIndex )->get_index();
+    }
+
+//-------------------------------------------------------------------------------------------------
+    void Equation_Object::get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
+    {
+        Cell < enum MSI::Dof_Type >  tRequestedDofTypes =  mEquationBlock->get_model_solver_interface()
+                                                                         ->get_solver_interface()
+                                                                         ->get_requested_dof_types();
+
+        Dof_Manager * tDofManager =  mEquationBlock->get_model_solver_interface()->get_dof_manager();
+
+        uint tCounter = 0;
+        for ( moris::uint Ii = 0; Ii < mNumPdofSystems; Ii++ )
+        {
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                moris::sint tDofTypeIndex = tDofManager->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
+
+                tCounter += mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel();
+            }
+        }
+
+        aEqnObjAdofId.set_size( tCounter, 1, -1 );
+
+        tCounter = 0;
+        for ( moris::uint Ii = 0; Ii < mNumPdofSystems; Ii++ )
+        {
+            for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+            {
+                moris::sint tDofTypeIndex = tDofManager->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
+
+                aEqnObjAdofId( { tCounter, tCounter + mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel() - 1 }, { 0, 0 }) = mUniqueAdofTypeList( Ii )( tDofTypeIndex ).matrix_data();
+
+                tCounter += mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel();
+            }
+        }
+
+        MORIS_ASSERT( aEqnObjAdofId.min() != -1, "Equation_Onject::get_equation_obj_dof_ids(), Error while returning adof ids for type" );
+
+//        print (aEqnObjAdofId,"aEqnObjAdofId");
     }
 
 //-------------------------------------------------------------------------------------------------
@@ -239,20 +489,22 @@ namespace moris
     {
         mSolVec = aSolutionVector;
 
-        Matrix< DDRMat > tTMatrix;
-
-        this->build_PADofMap( tTMatrix );
-
+        // compute jacobin
         this->compute_jacobian();
 
-//                print( tTMatrix, "tTMatrix" );
-//                print( mJacobian, "mJacobian" );
 
-//        print( mEquationBlock->mJacobian,"jac");
+        // build T-matrix
+        Matrix< DDRMat > tTMatrix;
+        this->build_PADofMap_1( tTMatrix );
 
-        aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->mJacobian * tTMatrix;
+//        print( tTMatrix,"tTMatrix");
+//        print( tJacobian,"tJacobian");
 
-//                print(aEqnObjMatrix,"aEqnObjMatrix");
+        // project pdof resdiual to adof residual
+        aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->get_jacobian() * tTMatrix;
+
+//        print(aEqnObjMatrix,"aEqnObjMatrix");
+
     }
 
 //-------------------------------------------------------------------------------------------------
@@ -264,15 +516,12 @@ namespace moris
         this->compute_residual();
 
         Matrix< DDRMat > tTMatrix;
+        this->build_PADofMap_1( tTMatrix );
 
-        this->build_PADofMap( tTMatrix );
+        aEqnObjRHS = trans( tTMatrix ) * mEquationBlock->get_residual();
 
-//        print( mEquationBlock->mResidual,"res");
-//        print( tTMatrix ,"tTMatrix");
+//        print(aEqnObjRHS, "aEqnObjRHS");
 
-        aEqnObjRHS = trans( tTMatrix ) * mEquationBlock->mResidual;
-
-//        print(aEqnObjRHS,"aEqnObjRHS");
     }
 
 //-------------------------------------------------------------------------------------------------
@@ -312,7 +561,7 @@ namespace moris
 //            for ( moris::uint Ik = 0; Ik < mMyPdofHosts.size(); Ik++ )
 //            {
 //                // Get dof type index
-//                moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
+//                moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()->get_dof_manager()
 //                                                                 ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 //
 //                MORIS_ERROR( mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
@@ -345,7 +594,7 @@ namespace moris
 //                for ( moris::uint Ik = 0; Ik < mMyPdofHosts.size(); Ik++ )
 //                {
 //                    // Get dof type index
-//                    moris::sint tDofTypeIndex = mModelSolverInterface->get_dof_manager()
+//                    moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()->get_dof_manager()
 //                                                                     ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 //
 //                    // Check if number if time levels on this dof type is smaller than maximal number of time levels on dof type
@@ -405,8 +654,9 @@ namespace moris
             for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
             {
                 // Get dof type index
-                moris::sint tDofTypeIndex = mEquationBlock->mModelSolverInterface->get_dof_manager()
-                                                                 ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+
+                moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()->get_dof_manager()
+                                                          ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                 MORIS_ASSERT( mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) !=0,
                         "Equation_Object::get_my_pdof_values: talk with Mathias about this");                         //FIXME delete this error after a closer look
@@ -440,8 +690,9 @@ namespace moris
                 for ( moris::uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
                 {
                     // Get dof type index
-                    moris::sint tDofTypeIndex = mEquationBlock->mModelSolverInterface->get_dof_manager()
-                                                                     ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
+
+                    moris::sint tDofTypeIndex = mEquationBlock->get_model_solver_interface()->get_dof_manager()
+                                                              ->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                     // Check if number if time levels on this dof type is smaller than maximal number of time levels on dof type
                     if ( (sint)mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )

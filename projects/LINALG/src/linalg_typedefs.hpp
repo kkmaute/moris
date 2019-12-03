@@ -68,9 +68,9 @@ typedef arma::Mat< ncomp >       DDBMat;  // Dense dynamic native Mat (type that
 typedef arma::Mat< nint >        DDNIMat;  // Dense dynamic native int Mat
 typedef arma::Mat< moris_id >    IdMat; // Id Matrix
 typedef arma::Mat< moris_index > IndexMat; // Index Matrix
-typedef arma::Mat< real > F33RMat; // Fixed 3x3 Real Mat (for arma this is the same as DDRMat)
-typedef arma::Mat< real > F31RMat; // Fixed 3x1 Real Mat (for arma this is the same as DDRMat)
-typedef arma::Mat< uint > F31UMat; // Fixed 3x1 Uint Mat (for arma this is the same as DDRMat)
+typedef arma::Mat< real >        F33RMat; // Fixed 3x3 Real Mat (for arma this is the same as DDRMat)
+typedef arma::Mat< real >        F31RMat; // Fixed 3x1 Real Mat (for arma this is the same as DDRMat)
+typedef arma::Mat< uint >        F31UMat; // Fixed 3x1 Uint Mat (for arma this is the same as DDRMat)
 typedef arma::Col<real>        Col_View_Real;
 typedef arma::Col<moris_index> Col_View_Index;
 typedef arma::Col<moris_id>    Col_View_Id;

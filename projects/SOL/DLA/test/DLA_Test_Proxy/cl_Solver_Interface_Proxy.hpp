@@ -60,13 +60,13 @@ public :
 
     // ----------------------------------------------------------------------------------------------
     // number of elements on proc
-    uint get_num_my_blocks(){return 1; };
+    uint get_num_my_blocks(){ return 1; };
 
     // number of elements on proc
-    uint get_num_my_elements(){return mNumElements; };
+    uint get_num_my_elements(){ return mNumElements; };
 
     // number of elements on proc
-    uint get_num_my_elements_on_block( uint aBlockInd){return mNumElements; };
+    uint get_num_my_elements_on_block( uint aBlockInd ){ return mNumElements; };
 
     // ----------------------------------------------------------------------------------------------
     void get_element_matrix(const uint             & aMyElementInd,

@@ -803,24 +803,43 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
                                                                                               0,
                                                                                               1 );
 
-            // output to exodus
-            STK * tSTK = tLagrangeMesh->create_stk_object(0);
-            tSTK->save_to_file( "Bounding_box.g");
-            delete tSTK;
-
             moris::Matrix< IndexMat > tNodeIndices;
 
             tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 0.1 },{ 1.1 } },
                                                                     { { 0.9 },{ 1 } },
                                                                     tNodeIndices );
 
-            print( tNodeIndices, "tNodeIndices" );
+            moris::Matrix< IndexMat > tReferenceInices = { { 0 }, { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }, { 8 }, { 9 }, { 10 }, { 11 }, { 12 }, { 13 },
+                                                           { 36 }, { 37 }, { 38 }, { 39 }, { 40 }, { 41 } };
+
+            bool tCheck = true;
+            for( uint Ik = 0; Ik < tReferenceInices.numel(); Ik++)
+            {
+                if( tReferenceInices( Ik ) != tNodeIndices( Ik ) )
+                {
+                    tCheck = false;
+                    break;
+                }
+            }
+
+            CHECK( tCheck );
 
             tLagrangeMesh->calculate_nodes_indices_in_bounding_box( { { 5.1 },{ 7.1 } },
                                                                     { { 1 },{ 1 } },
                                                                     tNodeIndices );
 
-            print( tNodeIndices, "tNodeIndices" );
+            moris::Matrix< IndexMat > tReferenceInices_1 = { { 88}, { 89 }, { 100 }, { 99 }, { 111 }, { 110 }, { 90 }, { 101 }, { 112 } };
+
+            for( uint Ik = 0; Ik < tReferenceInices_1.numel(); Ik++)
+            {
+                if( tReferenceInices_1( Ik ) != tNodeIndices( Ik ) )
+                {
+                    tCheck = false;
+                    break;
+                }
+            }
+
+            CHECK( tCheck );
 
             // delete mesh
             delete tLagrangeMesh;

@@ -390,6 +390,8 @@ public:
 #include "fn_print.hpp"
 #include "op_minus.hpp"
 #include "op_plus.hpp"
+#include "op_div.hpp"
+#include "op_times.hpp"
 
 
 #endif /* PROJECTS_LINALG_SRC_CL_MATRIX_HPP_ */

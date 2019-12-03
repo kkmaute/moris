@@ -49,14 +49,14 @@ namespace moris
              * compute the residual
              * @param[ in ] aResidual cell of residual vectors to fill
              */
-            void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
+            void compute_residual( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute the jacobian
              * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
-            void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
+            void compute_jacobian( real tWStar );
 
 //------------------------------------------------------------------------------
             /**

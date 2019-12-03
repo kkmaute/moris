@@ -20,6 +20,8 @@ namespace moris
 {
     namespace fem
     {
+    class Set;
+    class Field_Interpolator_Manager;
 
     typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
                                               moris::Cell< fem::Field_Interpolator* > & aDofFI,
@@ -35,6 +37,10 @@ namespace moris
 
             // property type
             fem::Property_Type mPropertyType;
+
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
+            Set * mSet = nullptr;
 
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
@@ -150,6 +156,20 @@ namespace moris
             {
                 mPropertyType = aPropertyType;
             };
+
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -499,7 +519,9 @@ namespace moris
              */
             void eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
 
-            void get_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+//------------------------------------------------------------------------------
+
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
                 // set the size of the dof type list for the set
                 uint tCounter = 0;

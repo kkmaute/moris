@@ -231,6 +231,8 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
 
         moris::Solver_Interface * tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
 
+        tSolverInterface->set_requested_dof_types( { MSI::Dof_Type::L2 } );
+
 //---------------------------------------------------------------------------------------------------------------
 
         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();

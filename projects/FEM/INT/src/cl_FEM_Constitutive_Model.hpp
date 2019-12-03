@@ -20,6 +20,7 @@ namespace moris
 {
     namespace fem
     {
+    class Field_Interpolator_Manager;
 //------------------------------------------------------------------------------
         /**
          * Constitutive model
@@ -35,6 +36,10 @@ namespace moris
 
             // constitutive model type
             fem::Constitutive_Type mConstitutiveType;
+
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
+            Set * mSet = nullptr;
 
             // dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
@@ -157,6 +162,15 @@ namespace moris
             const fem::Constitutive_Type & get_constitutive_type() const
             {
                 return mConstitutiveType;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
             }
 
 //------------------------------------------------------------------------------
@@ -384,6 +398,11 @@ namespace moris
                 }
             }
 
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
 //------------------------------------------------------------------------------
             /**
              * set dof field interpolators
@@ -602,7 +621,9 @@ namespace moris
                 return mGlobalDofTypes;
             };
 
-            void get_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+//------------------------------------------------------------------------------
+
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
                 // set the size of the dof type list for the set
                 uint tCounter = 0;
@@ -1125,7 +1146,7 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             virtual void eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                             const Matrix< DDRMat >             & aNormal )
+                                             const Matrix< DDRMat >             & aNormal)
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTractiondDOF - This function does nothing. " );
             }
@@ -1138,7 +1159,8 @@ namespace moris
              * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
              */
             const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
-                                                        const Matrix< DDRMat >             & aNormal )
+                                                        const Matrix< DDRMat >             & aNormal,
+                                                        const Matrix< DDRMat >             & aJump )
             {
                // if aDofType is not an active dof type for the property
                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTestTractiondDOF - no dependency in this dof type." );
@@ -1150,7 +1172,7 @@ namespace moris
                if( mdTestTractiondDofEval( tDofIndex ) )
                {
                    // evaluate the derivative
-                   this->eval_dTestTractiondDOF( aDofType, aNormal );
+                   this->eval_dTestTractiondDOF( aDofType, aNormal, aJump );
 
                    // set bool for evaluation
                    mdTestTractiondDofEval( tDofIndex ) = false;
@@ -1167,7 +1189,8 @@ namespace moris
              * @param[ in ] adTractiondDOF a matrix to fill with derivative evaluation
              */
             virtual void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                 const Matrix< DDRMat >             & aNormal )
+                                                 const Matrix< DDRMat >             & aNormal,
+                                                 const Matrix< DDRMat >             & aJump )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
             }

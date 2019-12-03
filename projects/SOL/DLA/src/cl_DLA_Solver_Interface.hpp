@@ -75,8 +75,20 @@ public:
 
     virtual void free_block_memory( const uint aBlockInd )         =0;
 
+    virtual void initialize_block( const uint aBlockInd )
+    {  };
+
     virtual void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
     { MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set."); };
+
+    virtual void set_secundary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+    { MORIS_ERROR( false, "Solver_Interface::set_secundary_dof_types: not set."); };
+
+    virtual moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+    {
+        MORIS_ERROR( false, "Solver_Interface::get_requested_dof_types: not set.");
+        return moris::Cell< enum MSI::Dof_Type >(0);
+    };
 
     // local dimension of the problem
     virtual moris::uint get_num_my_dofs()         =0;
@@ -102,6 +114,12 @@ public:
 
     // local-to-global map
     virtual moris::Matrix< DDSMat > get_my_local_global_map() =0;
+
+    virtual moris::Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes )
+    {
+        MORIS_ERROR( false, "Solver_Interface::get_my_local_global_map: not set.");
+        return Matrix< DDSMat>(0,0);
+    }
 
     virtual moris::Matrix< DDSMat > get_my_local_global_overlapping_map( )
     {
