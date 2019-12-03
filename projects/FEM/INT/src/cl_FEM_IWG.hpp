@@ -45,7 +45,6 @@ namespace moris
             // residual dof type
             moris::Cell< MSI::Dof_Type > mResidualDofType;
 
-            moris::Cell< MSI::Dof_Type > mRequestedResidualDofType;
             bool mResidualDofTypeRequested = false;
 
             // master and slave dof type lists
@@ -129,6 +128,16 @@ namespace moris
             {
                 mFieldInterpolatorManager = aFieldInterpolatorManager;
             }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             */
+            void free_memory()
+            {
+                mResidualDofTypeRequested = false;
+            }
+
 
 //------------------------------------------------------------------------------
             /**
@@ -1176,7 +1185,7 @@ namespace moris
             /**
              * build a list of dof types requested by the solver and owned by the IWG
              */
-            void build_requested_dof_type_list();
+            void build_requested_dof_type_list( const bool aItResidual );
 
 //------------------------------------------------------------------------------
 //

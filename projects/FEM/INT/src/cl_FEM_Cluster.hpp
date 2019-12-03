@@ -230,9 +230,6 @@ namespace moris
     private:
 //------------------------------------------------------------------------------
 
-         void reshape_pdof_values( const moris::Cell< Matrix< DDRMat > > & aPdofValues,
-                                         Matrix< DDRMat >                & aReshapedPdofValues);
-
 //------------------------------------------------------------------------------
     };
 

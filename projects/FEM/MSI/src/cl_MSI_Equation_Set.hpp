@@ -40,6 +40,9 @@ namespace mtk
         Matrix< DDRMat > mResidual;
         Matrix< DDRMat > mJacobian;
 
+        // lists of master and slave groups of dof types
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMasterDofTypes;
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSlaveDofTypes;
 
 
         // maps for the master and slave dof type
@@ -177,13 +180,20 @@ namespace mtk
 
                 mResidualExist = false;
             }
+            this->free_memory();
         };
 
 //-------------------------------------------------------------------------------------------------
 
-        virtual void initialize_set()
+        virtual void initialize_set( const bool aIsResidual )
         {
             MORIS_ERROR(false, "initialize_set(), not implemented for virtual memeber function");
+        };
+//-------------------------------------------------------------------------------------------------
+
+        virtual void free_memory()
+        {
+            MORIS_ERROR(false, "free_memory(), not implemented for virtual memeber function");
         };
 
 //-------------------------------------------------------------------------------------------------
@@ -255,6 +265,22 @@ namespace mtk
         {
             return mEqnObjDofTypeList.size();
         }
+
+//------------------------------------------------------------------------------
+
+        virtual moris::Cell < enum MSI::Dof_Type > get_requested_dof_types()
+        {
+            MORIS_ERROR(false, "get_requested_dof_types(), not implemented for virtual memeber function");
+            return moris::Cell< enum MSI::Dof_Type >( 0 );
+        };
+
+//------------------------------------------------------------------------------
+
+        virtual moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secundary_dof_types()
+        {
+            MORIS_ERROR(false, "get_secundary_dof_types(), not implemented for virtual memeber function");
+            return moris::Cell< moris::Cell< enum MSI::Dof_Type > >(0);
+        };
 
 
 //------------------------------------------------------------------------------

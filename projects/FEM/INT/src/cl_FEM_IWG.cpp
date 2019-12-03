@@ -344,34 +344,73 @@ void IWG::build_global_dof_type_list()
     }
 //------------------------------------------------------------------------------
 
-void IWG::build_requested_dof_type_list()
+void IWG::build_requested_dof_type_list( const bool aItResidual )
 {
-    Cell < enum MSI::Dof_Type > tRequestedDofTypes = mSet->get_requested_dof_types();
-
     mRequestedMasterGlobalDofTypes.clear();
     mRequestedSlaveGlobalDofTypes .clear();
 
-    mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
-    mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
-
-    for( auto tDofTypes : tRequestedDofTypes )
+    if ( aItResidual )
     {
-        for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
-        {
-            if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes )
-            {
-                mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tRequestedDofTypes =  mSet->get_secundary_dof_types();
 
-                break;
+        mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
+        mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
+
+        for( auto tDofTypes : tRequestedDofTypes )
+        {
+            for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
+            {
+                if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes( 0 ) )
+                {
+                    mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
+
+                    break;
+                }
+            }
+
+            for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
+            {
+                if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes( 0 ) )
+                {
+                    mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
+
+                    break;
+                }
             }
         }
+    }
+    else
+    {
+        Cell < enum MSI::Dof_Type > tRequestedDofTypes = mSet->get_requested_dof_types();
 
-        for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
+        mRequestedMasterGlobalDofTypes.reserve( tRequestedDofTypes.size() );
+        mRequestedSlaveGlobalDofTypes .reserve( tRequestedDofTypes.size() );
+
+        for( auto tDofTypes : tRequestedDofTypes )
         {
-            if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes )
+            for ( uint Ik = 0; Ik < mMasterGlobalDofTypes.size(); Ik++ )
             {
-                mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
+                if( mMasterGlobalDofTypes( Ik )( 0 ) == tDofTypes )
+                {
+                    mRequestedMasterGlobalDofTypes.push_back( mMasterGlobalDofTypes( Ik ) );
 
+                    break;
+                }
+            }
+
+            for ( uint Ik = 0; Ik < mSlaveGlobalDofTypes.size(); Ik++ )
+            {
+                if( mSlaveGlobalDofTypes( Ik )( 0 ) == tDofTypes )
+                {
+                    mRequestedSlaveGlobalDofTypes.push_back( mSlaveGlobalDofTypes( Ik ) );
+
+                    break;
+                }
+            }
+
+            if( mResidualDofType( 0 ) == tDofTypes )
+            {
+                mResidualDofTypeRequested = true;
                 break;
             }
         }
@@ -379,26 +418,6 @@ void IWG::build_requested_dof_type_list()
 
     mRequestedMasterGlobalDofTypes.shrink_to_fit();
     mRequestedSlaveGlobalDofTypes.shrink_to_fit();
-
-    //---------------------------------------------------------------------------------
-    mRequestedResidualDofType.clear();
-
-    mRequestedResidualDofType.reserve( 1 );  // FIXME resdiual depends only on one set of  dof types right now.
-
-    for( auto tDofTypes : tRequestedDofTypes )
-    {
-        if( mResidualDofType( 0 ) == tDofTypes )
-        {
-//            mRequestedResidualDofType.push_back( mResidualDofType );
-        	mRequestedResidualDofType = mResidualDofType; // FIXME might have to replace this one withline above
-
-            mResidualDofTypeRequested = true;
-            break;
-        }
-    }
-
-    mRequestedResidualDofType.shrink_to_fit();
-
 }
 
 //------------------------------------------------------------------------------

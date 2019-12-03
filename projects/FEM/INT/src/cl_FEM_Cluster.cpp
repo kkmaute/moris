@@ -481,23 +481,5 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
-        void Cluster::reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
-                                                 Matrix< DDRMat >         & aReshapedPdofValues )
-        {
-            MORIS_ASSERT( aPdofValues.size() != 0, "Cluster::reshape_pdof_values(), pdof value vector is empty");
-
-            uint tCols = aPdofValues.size();
-            uint tRows = aPdofValues( 0 ).numel();
-
-            aReshapedPdofValues.set_size( tRows, tCols );
-
-            for( uint Ik = 0; Ik < tCols; Ik++ )
-            {
-                aReshapedPdofValues( { 0, tRows - 1 }, { Ik, Ik } ) = aPdofValues( Ik ).matrix_data();
-            }
-        }
-
-//------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
