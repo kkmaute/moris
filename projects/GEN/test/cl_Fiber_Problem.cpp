@@ -1,197 +1,197 @@
-/*
- * cl_Fiber_Problem.cpp
- *
- *  Created on: Oct 22, 2019
- *      Author: sonne
- */
-
-#include "catch.hpp"
-#include "HDF5_Tools.hpp"
-
-#include "typedefs.hpp"
-
-// LINALG
-#include "fn_norm.hpp"
-
-// HMR includes
-#include "cl_HMR.hpp"
-#include "cl_HMR_Database.hpp"
-#include "cl_HMR_Field.hpp"
-#include "HMR_Globals.hpp"
-
-#include "cl_XTK_Model.hpp"
-#include "cl_XTK_Enriched_Integration_Mesh.hpp"
-#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-
-#include "cl_GE_Geometry_Library.hpp"
-#include "cl_GE_Core.hpp"
-#include "cl_GE_Factory.hpp"
-
-#include "../src/geometry/cl_GEN_Circle.hpp"
-#include "../src/geometry/cl_GEN_Cylinder_With_End_Caps.hpp"
-#include "../src/geometry/cl_GEN_Geom_Data.hpp"
-#include "../src/geometry/cl_GEN_Geom_Field.hpp"
-#include "../src/geometry/cl_GEN_Geometry.hpp"
-#include "../src/geometry/cl_GEN_Multi_Geometry.hpp"
-#include "../src/geomeng/cl_GEN_Geometry_Engine.hpp"
-
-#include "cl_MTK_Vertex.hpp"    //MTK
-#include "cl_MTK_Cell.hpp"
-#include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Mesh.hpp"
-
-#include "cl_Mesh_Factory.hpp"
-#include "cl_MTK_Mesh_Tools.hpp"
-#include "cl_MTK_Mesh_Data_Input.hpp"
-#include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
-#include "cl_MTK_Integration_Mesh.hpp"
-
-#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
-#include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
-#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
-#include "cl_FEM_NodeProxy.hpp"                //FEM/INT/src
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
-
-#include "cl_MDL_Model.hpp"
-
-#include "cl_DLA_Solver_Factory.hpp"
-#include "cl_DLA_Solver_Interface.hpp"
-
-#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
-#include "cl_NLA_Nonlinear_Solver.hpp"
-#include "cl_NLA_Nonlinear_Problem.hpp"
-#include "cl_MSI_Solver_Interface.hpp"
-#include "cl_MSI_Equation_Object.hpp"
-#include "cl_MSI_Model_Solver_Interface.hpp"
-#include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver.hpp"
-
-#include "cl_TSA_Time_Solver_Factory.hpp"
-#include "cl_TSA_Monolithic_Time_Solver.hpp"
-#include "cl_TSA_Time_Solver.hpp"
-
-#include "linalg_typedefs.hpp"
-
-using namespace moris;
-namespace ge
-{
-
-Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
-                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            return aParameters( 0 );
-        }
-
-Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
-                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
-                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
-                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            return aCoeff( 0 );
-        }
-
-
-real testShellFunc( const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell< moris::real > aConst )
-{
-    real thickness = 0.1;
-
-    auto circleSrf = norm( aPoint ) - 1;
-
-    auto shell = moris::ge::shell_tor( circleSrf, -thickness );
-
-    return shell;
-}
-
-int user_defined_refinement(       hmr::Element             * aElement,
-                             const Cell< Matrix< DDRMat > > & aElementLocalValues,
-                                   hmr::ParameterList       & aParameters )
-{
-    int aDoRefine = -1;
-
-    // abs variable field threshold
-    real lsth = 0.0;
-
-    // abs variable field bandwidth (absolute)
-    real lsbwabs = 0.3;
-
-    // maximum refinement level
-    uint maxlevel = 4;
-
-    // min refinement level
-    uint minlevel = 0;
-
-    // max refinement level along interface
-    uint maxifcref = 4;
-
-    // max refinement level in volume
-    uint maxvolref = 0;
-
-    // current refinement level of element
-    uint curlevel = aElement->get_level();
-
-    // refinement strategy
-    if ( aElementLocalValues( 0 ).min() <= lsth + lsbwabs )
-    {
-        // for volume refinement
-        if ( aElementLocalValues( 0 ).min() <= lsth - lsbwabs )
-        {
-            if( curlevel < maxvolref && curlevel < maxlevel )
-            {
-                aDoRefine = 1; // refine
-            }
-            else if ( curlevel ==  maxvolref || curlevel == minlevel )
-            {
-                aDoRefine = 0; // keep
-            }
-            else
-            {
-                aDoRefine = -1; // coarsen
-            }
-        }
-        // for interface refinement
-        else
-        {
-            if( curlevel < maxifcref && curlevel < maxlevel )
-            {
-                aDoRefine = 1; // refine
-            }
-            else if ( curlevel ==  maxifcref || curlevel == minlevel )
-            {
-                aDoRefine = 0; // keep
-            }
-            else
-            {
-                aDoRefine = -1; // coarsen
-            }
-        }
-    }
-    else
-    {
-        if( curlevel <  minlevel )
-        {
-            aDoRefine = 1; // refine
-        }
-        else if ( curlevel == minlevel )
-        {
-            aDoRefine = 0; // keep
-        }
-    }
-
-    return aDoRefine;
-}
-
-TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
-{
+///*
+// * cl_Fiber_Problem.cpp
+// *
+// *  Created on: Oct 22, 2019
+// *      Author: sonne
+// */
+//
+//#include "catch.hpp"
+//#include "HDF5_Tools.hpp"
+//
+//#include "typedefs.hpp"
+//
+//// LINALG
+//#include "fn_norm.hpp"
+//
+//// HMR includes
+//#include "cl_HMR.hpp"
+//#include "cl_HMR_Database.hpp"
+//#include "cl_HMR_Field.hpp"
+//#include "HMR_Globals.hpp"
+//
+//#include "cl_XTK_Model.hpp"
+//#include "cl_XTK_Enriched_Integration_Mesh.hpp"
+//#include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
+//
+//#include "cl_GE_Geometry_Library.hpp"
+//#include "cl_GE_Core.hpp"
+//#include "cl_GE_Factory.hpp"
+//
+//#include "../src/geometry/cl_GEN_Circle.hpp"
+//#include "../src/geometry/cl_GEN_Cylinder_With_End_Caps.hpp"
+//#include "../src/geometry/cl_GEN_Geom_Data.hpp"
+//#include "../src/geometry/cl_GEN_Geom_Field.hpp"
+//#include "../src/geometry/cl_GEN_Geometry.hpp"
+//#include "../src/geometry/cl_GEN_Multi_Geometry.hpp"
+//#include "../src/geomeng/cl_GEN_Geometry_Engine.hpp"
+//
+//#include "cl_MTK_Vertex.hpp"    //MTK
+//#include "cl_MTK_Cell.hpp"
+//#include "cl_MTK_Enums.hpp"
+//#include "cl_MTK_Mesh.hpp"
+//
+//#include "cl_Mesh_Factory.hpp"
+//#include "cl_MTK_Mesh_Tools.hpp"
+//#include "cl_MTK_Mesh_Data_Input.hpp"
+//#include "cl_MTK_Scalar_Field_Info.hpp"
+//#include "cl_MTK_Mesh.hpp"
+//#include "cl_MTK_Mesh_Manager.hpp"
+//#include "cl_MTK_Interpolation_Mesh.hpp"
+//#include "cl_MTK_Integration_Mesh.hpp"
+//
+//#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+//#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
+//#include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
+//#include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
+//#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
+//#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
+//#include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
+//#include "cl_FEM_NodeProxy.hpp"                //FEM/INT/src
+//#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
+//#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
+//
+//#include "cl_MDL_Model.hpp"
+//
+//#include "cl_DLA_Solver_Factory.hpp"
+//#include "cl_DLA_Solver_Interface.hpp"
+//
+//#include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+//#include "cl_NLA_Nonlinear_Solver.hpp"
+//#include "cl_NLA_Nonlinear_Problem.hpp"
+//#include "cl_MSI_Solver_Interface.hpp"
+//#include "cl_MSI_Equation_Object.hpp"
+//#include "cl_MSI_Model_Solver_Interface.hpp"
+//#include "cl_DLA_Linear_Solver_Aztec.hpp"
+//#include "cl_DLA_Linear_Solver.hpp"
+//
+//#include "cl_TSA_Time_Solver_Factory.hpp"
+//#include "cl_TSA_Monolithic_Time_Solver.hpp"
+//#include "cl_TSA_Time_Solver.hpp"
+//
+//#include "linalg_typedefs.hpp"
+//
+//using namespace moris;
+//namespace ge
+//{
+//
+//Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
+//                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
+//                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
+//                                           fem::Geometry_Interpolator              * aGeometryInterpolator )
+//        {
+//            return aParameters( 0 );
+//        }
+//
+//Matrix< DDRMat > tConstValFunction( moris::Cell< Matrix< DDRMat > >         & aCoeff,
+//                                    moris::Cell< fem::Field_Interpolator* > & aDofFieldInterpolator,
+//                                    moris::Cell< fem::Field_Interpolator* > & aDvFieldInterpolator,
+//                                    fem::Geometry_Interpolator              * aGeometryInterpolator )
+//        {
+//            return aCoeff( 0 );
+//        }
+//
+//
+//real testShellFunc( const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell< moris::real > aConst )
+//{
+//    real thickness = 0.1;
+//
+//    auto circleSrf = norm( aPoint ) - 1;
+//
+//    auto shell = moris::ge::shell_tor( circleSrf, -thickness );
+//
+//    return shell;
+//}
+//
+//int user_defined_refinement(       hmr::Element             * aElement,
+//                             const Cell< Matrix< DDRMat > > & aElementLocalValues,
+//                                   hmr::ParameterList       & aParameters )
+//{
+//    int aDoRefine = -1;
+//
+//    // abs variable field threshold
+//    real lsth = 0.0;
+//
+//    // abs variable field bandwidth (absolute)
+//    real lsbwabs = 0.3;
+//
+//    // maximum refinement level
+//    uint maxlevel = 4;
+//
+//    // min refinement level
+//    uint minlevel = 0;
+//
+//    // max refinement level along interface
+//    uint maxifcref = 4;
+//
+//    // max refinement level in volume
+//    uint maxvolref = 0;
+//
+//    // current refinement level of element
+//    uint curlevel = aElement->get_level();
+//
+//    // refinement strategy
+//    if ( aElementLocalValues( 0 ).min() <= lsth + lsbwabs )
+//    {
+//        // for volume refinement
+//        if ( aElementLocalValues( 0 ).min() <= lsth - lsbwabs )
+//        {
+//            if( curlevel < maxvolref && curlevel < maxlevel )
+//            {
+//                aDoRefine = 1; // refine
+//            }
+//            else if ( curlevel ==  maxvolref || curlevel == minlevel )
+//            {
+//                aDoRefine = 0; // keep
+//            }
+//            else
+//            {
+//                aDoRefine = -1; // coarsen
+//            }
+//        }
+//        // for interface refinement
+//        else
+//        {
+//            if( curlevel < maxifcref && curlevel < maxlevel )
+//            {
+//                aDoRefine = 1; // refine
+//            }
+//            else if ( curlevel ==  maxifcref || curlevel == minlevel )
+//            {
+//                aDoRefine = 0; // keep
+//            }
+//            else
+//            {
+//                aDoRefine = -1; // coarsen
+//            }
+//        }
+//    }
+//    else
+//    {
+//        if( curlevel <  minlevel )
+//        {
+//            aDoRefine = 1; // refine
+//        }
+//        else if ( curlevel == minlevel )
+//        {
+//            aDoRefine = 0; // keep
+//        }
+//    }
+//
+//    return aDoRefine;
+//}
+//
+//TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
+//{
 //    uint tLagrangeMeshIndex = 0;
 //    //  HMR Parameters setup
 //    hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
@@ -319,7 +319,7 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 ////    std::string tMeshOutputFile1 = "./fibersGeomCheck.e";
 ////    tIntegMesh11->create_output_mesh(tMeshOutputFile1);
 ////    delete tIntegMesh11;
-////    //============================= end temporary ===========================================
+////    //============================= end temporary ==========================================
 ////    std::string tMeshOutputFile1 = "./output_fibers_29Oct.e";
 ////    tIntegMesh11->create_output_mesh(tMeshOutputFile1);
 //
@@ -334,24 +334,24 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //    //------------------------------------------------------------------------------
 //    // create the material properties
 //    std::shared_ptr< fem::Property > tPropEModPlate = std::make_shared< fem::Property >();
-////    tPropEModPlate->set_parameters( { {{ 1220000 }} } );   // 1.22*10^6 Pa
-//    tPropEModPlate->set_parameters( { {{ 100 }} } );
+//    tPropEModPlate->set_parameters( { {{ 1220000 }} } );   // 1.22*10^6 Pa
+////    tPropEModPlate->set_parameters( { {{ 100 }} } );
 //    tPropEModPlate->set_val_function( tConstValFunction );
 //
 //    std::shared_ptr< fem::Property > tPropNuPlate = std::make_shared< fem::Property >();
-////    tPropNuPlate->set_parameters( { {{ 0.4 }} } );   // Poinson's ratio
-//    tPropNuPlate->set_parameters( { {{ 0.0 }} } );
+//    tPropNuPlate->set_parameters( { {{ 0.4 }} } );   // Poinson's ratio
+////    tPropNuPlate->set_parameters( { {{ 0.0 }} } );
 //    tPropNuPlate->set_val_function( tConstValFunction );
 //
 //
 //    std::shared_ptr< fem::Property > tPropEModFibers = std::make_shared< fem::Property >();
-////    tPropEModFibers->set_parameters( { {{ 1030230000 }} } );  // 1030.23*10^6 Pa
-//    tPropEModFibers->set_parameters( { {{ 100 }} } );
+//    tPropEModFibers->set_parameters( { {{ 1030230000 }} } );  // 1030.23*10^6 Pa
+////    tPropEModFibers->set_parameters( { {{ 100 }} } );
 //    tPropEModFibers->set_val_function( tConstValFunction );
 //
 //    std::shared_ptr< fem::Property > tPropNuFibers = std::make_shared< fem::Property >();
-////    tPropNuFibers->set_parameters( { {{ 0.4 }} } );          // Poinson's ratio
-//    tPropNuFibers->set_parameters( { {{ 0.0 }} } );          // Poinson's ratio
+//    tPropNuFibers->set_parameters( { {{ 0.4 }} } );          // Poinson's ratio
+////    tPropNuFibers->set_parameters( { {{ 0.0 }} } );          // Poinson's ratio
 //    tPropNuFibers->set_val_function( tConstValFunction );
 //
 //    //==============================
@@ -456,38 +456,38 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //    fem::Set_User_Info tSetDirichletFixed01;
 //    tSetDirichletFixed01.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
 //    tSetDirichletFixed01.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
+//    tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx } );
+////    tSetDirichletFixed01.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 //
 //    fem::Set_User_Info tSetDirichletFixed02;
 //    tSetDirichletFixed02.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p1") );
 //    tSetDirichletFixed02.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
+//    tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx } );
+////    tSetDirichletFixed02.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 //
 //    fem::Set_User_Info tSetDirichletFixed03;
 //    tSetDirichletFixed03.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p2") );
 //    tSetDirichletFixed03.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
+//    tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx } );
+////    tSetDirichletFixed03.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 //
 //    fem::Set_User_Info tSetDirichletFixed04;
 //    tSetDirichletFixed04.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p2") );
 //    tSetDirichletFixed04.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
+//    tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUx } );
+////    tSetDirichletFixed04.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 //
 //    fem::Set_User_Info tSetDirichletFixed05;
 //    tSetDirichletFixed05.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
 //    tSetDirichletFixed05.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
+//    tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUx } );
+////    tSetDirichletFixed05.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 //
 //    fem::Set_User_Info tSetDirichletFixed06;
 //    tSetDirichletFixed06.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_c_p3") );
 //    tSetDirichletFixed06.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUx } );
-//    tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
+//    tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUx } );
+////    tSetDirichletFixed06.set_IWGs( { tIWGDirichletFixedUx, tIWGDirichletFixedUz } );
 //
 //    //==============================
 //    // symmetry boundary conditions on side-set 1 ( fix Uy = 0 )
@@ -523,35 +523,35 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //
 //    //==============================
 //    // symmetry boundary conditions on side-set 5 ( fix Uz = 0 )
-////    fem::Set_User_Info tSetDirichletFixed13;
-////    tSetDirichletFixed13.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
-////    tSetDirichletFixed13.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed13.set_IWGs( { tIWGDirichletFixedUz } );
-////
-////    fem::Set_User_Info tSetDirichletFixed14;
-////    tSetDirichletFixed14.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
-////    tSetDirichletFixed14.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed14.set_IWGs( { tIWGDirichletFixedUz } );
-////
-////    fem::Set_User_Info tSetDirichletFixed15;
-////    tSetDirichletFixed15.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p2") );
-////    tSetDirichletFixed15.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed15.set_IWGs( { tIWGDirichletFixedUz } );
-////
-////    fem::Set_User_Info tSetDirichletFixed16;
-////    tSetDirichletFixed16.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p2") );
-////    tSetDirichletFixed16.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed16.set_IWGs( { tIWGDirichletFixedUz } );
-////
-////    fem::Set_User_Info tSetDirichletFixed17;
-////    tSetDirichletFixed17.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p3") );
-////    tSetDirichletFixed17.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed17.set_IWGs( { tIWGDirichletFixedUz } );
-////
-////    fem::Set_User_Info tSetDirichletFixed18;
-////    tSetDirichletFixed18.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p3") );
-////    tSetDirichletFixed18.set_set_type( fem::Element_Type::SIDESET );
-////    tSetDirichletFixed18.set_IWGs( { tIWGDirichletFixedUz } );
+//    fem::Set_User_Info tSetDirichletFixed13;
+//    tSetDirichletFixed13.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p1") );
+//    tSetDirichletFixed13.set_set_type( fem::Element_Type::SIDESET );
+//    tSetDirichletFixed13.set_IWGs( { tIWGDirichletFixedUz } );
+//
+//    fem::Set_User_Info tSetDirichletFixed14;
+//    tSetDirichletFixed14.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p1") );
+//    tSetDirichletFixed14.set_set_type( fem::Element_Type::SIDESET );
+//    tSetDirichletFixed14.set_IWGs( { tIWGDirichletFixedUz } );
+//
+//    fem::Set_User_Info tSetDirichletFixed15;
+//    tSetDirichletFixed15.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p2") );
+//    tSetDirichletFixed15.set_set_type( fem::Element_Type::SIDESET );
+//    tSetDirichletFixed15.set_IWGs( { tIWGDirichletFixedUz } );
+//
+//    fem::Set_User_Info tSetDirichletFixed16;
+//    tSetDirichletFixed16.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p2") );
+//    tSetDirichletFixed16.set_set_type( fem::Element_Type::SIDESET );
+//    tSetDirichletFixed16.set_IWGs( { tIWGDirichletFixedUz } );
+//
+//    fem::Set_User_Info tSetDirichletFixed17;
+//    tSetDirichletFixed17.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_n_p3") );
+//    tSetDirichletFixed17.set_set_type( fem::Element_Type::SIDESET );
+//    tSetDirichletFixed17.set_IWGs( { tIWGDirichletFixedUz } );
+//
+//    fem::Set_User_Info tSetDirichletFixed18;
+//    tSetDirichletFixed18.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_5_c_p3") );
+//    tSetDirichletFixed18.set_set_type( fem::Element_Type::SIDESET );
+//    tSetDirichletFixed18.set_IWGs( { tIWGDirichletFixedUz } );
 //
 //    //==============================
 //    // Neumann load on side-set 2
@@ -577,8 +577,8 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //
 //    //==============================
 //    // create a cell of set info
-////    moris::Cell< fem::Set_User_Info > tSetInfo( 24 );
-//    moris::Cell< fem::Set_User_Info > tSetInfo( 18 );
+//    moris::Cell< fem::Set_User_Info > tSetInfo( 24 );
+////    moris::Cell< fem::Set_User_Info > tSetInfo( 18 );
 //    tSetInfo( 0 )  = tBulkPlate;
 //    tSetInfo( 1 )  = tBulkFibers;
 //    tSetInfo( 2 )  = tSetDirichletFixed01;
@@ -593,20 +593,20 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //    tSetInfo( 11 ) = tSetDirichletFixed10;
 //    tSetInfo( 12 ) = tSetDirichletFixed11;
 //    tSetInfo( 13 ) = tSetDirichletFixed12;
-//    tSetInfo( 14 ) = tSetNeumann01;
-//    tSetInfo( 15 ) = tSetNeumann02;
-//    tSetInfo( 16 ) = tSetNeumann03;
-//    tSetInfo( 17 ) = tSetNeumann04;
-////    tSetInfo( 14 ) = tSetDirichletFixed13;
-////    tSetInfo( 15 ) = tSetDirichletFixed14;
-////    tSetInfo( 16 ) = tSetDirichletFixed15;
-////    tSetInfo( 17 ) = tSetDirichletFixed16;
-////    tSetInfo( 18 ) = tSetDirichletFixed17;
-////    tSetInfo( 19 ) = tSetDirichletFixed18;
-////    tSetInfo( 20 ) = tSetNeumann01;
-////    tSetInfo( 21 ) = tSetNeumann02;
-////    tSetInfo( 22 ) = tSetNeumann03;
-////    tSetInfo( 23 ) = tSetNeumann04;
+////    tSetInfo( 14 ) = tSetNeumann01;
+////    tSetInfo( 15 ) = tSetNeumann02;
+////    tSetInfo( 16 ) = tSetNeumann03;
+////    tSetInfo( 17 ) = tSetNeumann04;
+//    tSetInfo( 14 ) = tSetDirichletFixed13;
+//    tSetInfo( 15 ) = tSetDirichletFixed14;
+//    tSetInfo( 16 ) = tSetDirichletFixed15;
+//    tSetInfo( 17 ) = tSetDirichletFixed16;
+//    tSetInfo( 18 ) = tSetDirichletFixed17;
+//    tSetInfo( 19 ) = tSetDirichletFixed18;
+//    tSetInfo( 20 ) = tSetNeumann01;
+//    tSetInfo( 21 ) = tSetNeumann02;
+//    tSetInfo( 22 ) = tSetNeumann03;
+//    tSetInfo( 23 ) = tSetNeumann04;
 //
 //    //------------------------------------------------------------------------------
 //    // create model
@@ -620,47 +620,67 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //    // STEP 1: create linear solver and algorithm
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
+//    moris::Cell< enum MSI::Dof_Type > tDofTypesU( 3 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;   tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
+//
 //    dla::Solver_Factory  tSolFactory;
 //    std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-//    //            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
 //
 //    tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
 //    tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-//    tLinearSolverAlgorithm->set_param("AZ_max_iter") = 1000;
+//    tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
 //    tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
 //    tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-//    tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 5;
-//
-//    //    tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+//    tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
+//    //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
 //
 //    dla::Linear_Solver tLinSolver;
-//
 //    tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
 //
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //    // STEP 2: create nonlinear solver and algorithm
 //    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//    NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tModel->get_solver_interface(), 0, true, MapType::Epetra );
-////        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tModel->get_solver_interface(), 0, true, MapType::Petsc );
-//
 //    NLA::Nonlinear_Solver_Factory tNonlinFactory;
 //    std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+//    //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 //
-//    tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 100;
-////        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-////        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-////        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+//    tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+//    //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
+//    //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
+//    //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
 //
 //    tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+//    //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
 //
-//    NLA::Nonlinear_Solver tNonlinearSolver;
+//    NLA::Nonlinear_Solver tNonlinearSolverMain;
+//    tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 //
-//    tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 //
-//    tNonlinearSolver.solve( tNonlinearProblem );
+//    tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 //
-//    std::cout<<" Solution Vector "<<std::endl;
-//    tNonlinearProblem->get_full_vector()->print();
+//    // Create solver database
+//    NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+//
+//    tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
+//
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    // STEP 3: create time Solver and algorithm
+//    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    tsa::Time_Solver_Factory tTimeSolverFactory;
+//    std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+//
+//    tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolverMain );
+//
+//    tsa::Time_Solver tTimeSolver;
+//    tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+//    tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+//
+//    tTimeSolver.set_dof_type_list( tDofTypesU );
+//
+//    //------------------------------------------------------------------------------
+//    tTimeSolver.solve();
+//
+////    std::cout<<" Solution Vector "<<std::endl;
+////    tNonlinearProblem->get_full_vector()->print();
 //
 //    // output solution and meshes
 //    xtk::Output_Options tOutputOptions;
@@ -705,6 +725,6 @@ TEST_CASE("fiber_problem_test_04", "[GE],[fiber_test_BCs]")
 //
 //    tIntegMesh1->create_output_mesh(tMeshOutputFile);
 //    delete tIntegMesh1;
-}
-
-}   // ge namespace
+//}
+//
+//}   // ge namespace

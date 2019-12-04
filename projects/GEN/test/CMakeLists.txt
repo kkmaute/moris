@@ -5,7 +5,7 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_Fiber_Problem.cpp
+    #cl_Fiber_Problem.cpp
     cl_GeSDFCore.cpp
     cl_GeSDFGen.cpp
     cl_GeTriangle.cpp
@@ -41,6 +41,22 @@ set(XTK_INCLUDES
 foreach(XTK_INCLUDE ${XTK_INCLUDES})  
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
 endforeach()   
+
+
+    
+# List header dependencies                                                                                                                                                                                                                                                     
+set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "field"
+    "geomeng"
+    "geometry"
+    )
+
+# Include depedency directories
+foreach(GEN_INCLUDE ${GEN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDE})
+endforeach()
+     
 
 # List test dependencies
 set(TEST_DEPENDENCIES

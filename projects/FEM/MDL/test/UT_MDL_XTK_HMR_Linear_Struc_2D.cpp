@@ -1336,8 +1336,6 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tPropNu->set_parameters( { {{ 0.0 }} } );
         tPropNu->set_val_function( tConstValFunction );
 
-
-
         std::shared_ptr< fem::Property > tPropDirichletUX_ss4 = std::make_shared< fem::Property >();    // fix displacement at side-set 4 to be zero in x
         tPropDirichletUX_ss4->set_parameters( { {{ 0.0 }} } );
         tPropDirichletUX_ss4->set_val_function( tConstValFunction );
@@ -1348,8 +1346,6 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tPropDirichletUY_ss4->set_val_function( tConstValFunction );
         tPropDirichletUY_ss4->set_dof_type( MSI::Dof_Type::UY );
 
-
-
         std::shared_ptr< fem::Property > tPropDirichletUX = std::make_shared< fem::Property >();        // allow only for y-displacement at other end (side-set 2)
         tPropDirichletUX->set_parameters( { {{ 0.0 }} } );                                              // fix x-displ. to zero
         tPropDirichletUX->set_val_function( tConstValFunction );
@@ -1359,8 +1355,6 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 //        tPropDirichletUY->set_parameters( { {{ 1.0 }} } );                                              // specify UY displacement
 //        tPropDirichletUY->set_val_function( tConstValFunction );
 //        tPropDirichletUY->set_dof_type( MSI::Dof_Type::UY );
-
-
 
         std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
         tPropNeumann->set_parameters( {{{ 0.0 } , { 10.0 }}} );
@@ -1392,22 +1386,17 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 //        tIWGBulk2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
 //        tIWGBulk2->set_constitutive_models( { tCMStrucLinIso2 }, mtk::Master_Slave::MASTER );
 
-
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichlet->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
-//        tIWGDirichlet->set_properties( { tPropDirichletUX, tPropDirichletUY });
         tIWGDirichlet->set_properties( { tPropDirichletUX });
-
 
         std::shared_ptr< fem::IWG > tIWGDirichletFixed = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET );
         tIWGDirichletFixed->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
         tIWGDirichletFixed->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichletFixed->set_constitutive_models( { tCMStrucLinIso1 }, mtk::Master_Slave::MASTER );
         tIWGDirichletFixed->set_properties( { tPropDirichletUX_ss4, tPropDirichletUY_ss4 });
-
-
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
@@ -1448,16 +1437,10 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tSetBulk4.set_set_type( fem::Element_Type::BULK );
         tSetBulk4.set_IWGs( { tIWGBulk1 } );
 
-
-
-
         fem::Set_User_Info tSetDirichletFixed;
         tSetDirichletFixed.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p1") );
         tSetDirichletFixed.set_set_type( fem::Element_Type::SIDESET );
         tSetDirichletFixed.set_IWGs( { tIWGDirichletFixed } );
-
-
-
 
         fem::Set_User_Info tSetDirichlet;
         tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
@@ -1468,9 +1451,6 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
         tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
         tSetNeumann.set_IWGs( { tIWGNeumann } );
-
-
-
 
 //        fem::Set_User_Info tSetInterface;
 //        tSetInterface.set_mesh_index( tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName) );
@@ -1499,47 +1479,70 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+        tDofTypesU( 0 ) = MSI::Dof_Type::UX;    tDofTypesU( 1 ) = MSI::Dof_Type::UY;
+
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::AZTEC_IMPL );
-        //            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( SolverType::PETSC );
 
         tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
         tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 1000;
+        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
         tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
         tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 5;
-
-        //    tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
+        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
+        //        tLinearSolverAlgorithm->set_param("Use_ML_Prec") = true;
 
         dla::Linear_Solver tLinSolver;
-
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 2: create nonlinear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tModel->get_solver_interface(), 0, true, MapType::Epetra );
-//        NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tModel->get_solver_interface(), 0, true, MapType::Petsc );
-
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+        //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 100;
-//        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-//        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-//        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
+        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
+        //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
+        //        tNonlinearSolverAlgorithmMonolythicU->set_linear_solver( &tLinSolver );
 
-        NLA::Nonlinear_Solver tNonlinearSolver;
+        NLA::Nonlinear_Solver tNonlinearSolverMain;
+        tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-        tNonlinearSolver.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-        tNonlinearSolver.solve( tNonlinearProblem );
+        tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
-        std::cout<<" Solution Vector "<<std::endl;
-        tNonlinearProblem->get_full_vector()->print();
+        // Create solver database
+        NLA::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
+
+        tNonlinearSolverMain       .set_solver_warehouse( &tSolverWarehouse );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 3: create time Solver and algorithm
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        tsa::Time_Solver_Factory tTimeSolverFactory;
+        std::shared_ptr< tsa::Time_Solver_Algorithm > tTimeSolverAlgorithm = tTimeSolverFactory.create_time_solver( tsa::TimeSolverType::MONOLITHIC );
+
+        tTimeSolverAlgorithm->set_nonlinear_solver( &tNonlinearSolverMain );
+
+        tsa::Time_Solver tTimeSolver;
+        tTimeSolver.set_time_solver_algorithm( tTimeSolverAlgorithm );
+        tTimeSolver.set_solver_warehouse( &tSolverWarehouse );
+
+        tTimeSolver.set_dof_type_list( tDofTypesU );
+
+        //------------------------------------------------------------------------------
+        tTimeSolver.solve();
+        //----- print solution vector -----
+//        Matrix< DDRMat > tSolVec;
+//        tNonlinearSolverMain.get_full_solution(tSolVec);
+//        print( tSolVec, " Solution Vector ");
+        //---------------------------------
 
         // output solution and meshes
         xtk::Output_Options tOutputOptions;

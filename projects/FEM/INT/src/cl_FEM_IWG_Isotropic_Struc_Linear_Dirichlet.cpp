@@ -21,7 +21,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real aWStar )
         {
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
@@ -49,7 +49,7 @@ namespace moris
             mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
                     += ( - trans( tFI->N() ) * tConstDofs * mMasterCM( 0 )->traction( mNormal )
                              + mMasterCM( 0 )->testTraction( mNormal ) * tConstDofs * tJump
-                             + mGamma * trans( tFI->N() ) * tConstDofs * tJump ) * tWStar;
+                             + mGamma * trans( tFI->N() ) * tConstDofs * tJump ) * aWStar;
         }
 
 //------------------------------------------------------------------------------
@@ -73,11 +73,11 @@ namespace moris
                         {
                             aJumpMat(0) = mMasterProp( Ik )->val( )(0);
                         }
-                        else if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UY )
+                        if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UY )
                         {
                             aJumpMat(1) = mMasterProp( Ik )->val( )(0);
                         }
-                        else if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UZ )
+                        if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UZ )
                         {
                             aJumpMat(2) = mMasterProp( Ik )->val( )(0);
                         }
@@ -110,11 +110,11 @@ namespace moris
                         {
                             aI(0,0) = 1;
                         }
-                        else if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UY )
+                        if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UY )
                         {
                             aI(1,1) = 1;
                         }
-                        else if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UZ )
+                        if( mMasterProp( Ik )->get_dof_type( ) == MSI::Dof_Type::UZ )
                         {
                             aI(2,2) = 1;
                         }
@@ -124,7 +124,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real aWStar )
         {
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
@@ -152,7 +152,7 @@ namespace moris
                 mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                       { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                                     += ( mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* tFI->N()
-                                        + mGamma * trans( tFI->N() ) *tConstDofs* tFI->N() )              * tWStar;
+                                        + mGamma * trans( tFI->N() ) *tConstDofs* tFI->N() )              * aWStar;
             }
 
             // compute the jacobian for indirect dof dependencies through properties
@@ -172,7 +172,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                             += ( -1.0 * mMasterCM( 0 )->testTraction( mNormal ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType )
-                                 - mGamma * trans( tFI->N() ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType ) )              * tWStar;
+                                 - mGamma * trans( tFI->N() ) *tConstDofs* mMasterProp( 0 )->dPropdDOF( tDofType ) )              * aWStar;
                 }
 
                 // if dependency on the dof type
@@ -182,7 +182,7 @@ namespace moris
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
                             += ( - trans( tFI->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
-                               + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) )              * tWStar;
+                               + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) )              * aWStar;
                 }
             }
         }

@@ -6,38 +6,40 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-	new/additional/cl_GEN_Interpolation.hpp
-	new/additional/cl_GEN_Basis_Function.hpp
-	new/additional/cl_GEN_Edge_Topology.hpp
-	new/additional/cl_GEN_Enums.hpp
-	new/additional/cl_GEN_Hexahedron_8_Topology.hpp
-	new/additional/cl_GEN_Hexahedron_8_Basis_Function.hpp
-	new/additional/cl_GEN_Linear_Basis_Functions.hpp
-	new/additional/cl_GEN_Matrix_Base_Utilities.hpp
-	new/additional/cl_GEN_Pending_Node.hpp
-	new/additional/cl_GEN_Phase_Table.hpp
-	new/additional/cl_GEN_Quad_4_Basis_Function.hpp
-	new/additional/cl_GEN_Quad_4_Topology.hpp
-	new/additional/cl_GEN_Topology.hpp
-	new/additional/fn_GEN_approximatate.hpp
-	new/additional/fn_GEN_bubble_sort.hpp
+	additional/cl_GEN_Interpolation.hpp
+	additional/cl_GEN_Basis_Function.hpp
+	additional/cl_GEN_Edge_Topology.hpp
+	additional/cl_GEN_Enums.hpp
+	additional/cl_GEN_Hexahedron_8_Topology.hpp
+	additional/cl_GEN_Hexahedron_8_Basis_Function.hpp
+	additional/cl_GEN_Linear_Basis_Functions.hpp
+	additional/cl_GEN_Matrix_Base_Utilities.hpp
+	additional/cl_GEN_Pending_Node.hpp
+	additional/cl_GEN_Phase_Table.hpp
+	additional/cl_GEN_Quad_4_Basis_Function.hpp
+	additional/cl_GEN_Quad_4_Topology.hpp
+	additional/cl_GEN_Topology.hpp
+	additional/fn_GEN_approximatate.hpp
+	additional/fn_GEN_bubble_sort.hpp
 	
-	new/field/cl_GEN_Field.hpp
+	field/cl_GEN_Field.hpp
+	field/cl_GEN_Field_User_Defined.hpp
+	field/cl_GEN_Field_Factory.hpp
     
-	new/geomeng/cl_GEN_Enums.hpp
-	new/geomeng/cl_GEN_Geometry_Engine.hpp
-	new/geomeng/cl_GEN_Geometry_Onject_Manager.hpp
-	new/geomeng/cl_GEN_Geometry_Object.hpp
-	new/geomeng/fn_GEN_triangle_geometry.hpp
+	geomeng/cl_GEN_Enums.hpp
+	geomeng/cl_GEN_Geometry_Engine.hpp
+	geomeng/cl_GEN_Geometry_Onject_Manager.hpp
+	geomeng/cl_GEN_Geometry_Object.hpp
+	geomeng/fn_GEN_triangle_geometry.hpp
 	
-	new/geometry/fn_bounding_box.hpp
-	new/geometry/cl_GEN_Circle.hpp
-	new/geometry/cl_GEN_Cylinder_With_End_Caps.hpp
-	new/geometry/cl_GEN_Discrete_Level_Set.hpp
-	new/geometry/cl_GEN_Geometry.hpp
-	new/geometry/cl_GEN_Geom_Data.hpp
-	new/geometry/cl_GEN_Geom_Field.hpp
-	new/geometry/cl_GEN_Sphere.hpp
+	geometry/fn_bounding_box.hpp
+	geometry/cl_GEN_Circle.hpp
+	geometry/cl_GEN_Cylinder_With_End_Caps.hpp
+	geometry/cl_GEN_Discrete_Level_Set.hpp
+	geometry/cl_GEN_Geometry.hpp
+	geometry/cl_GEN_Geom_Data.hpp
+	geometry/cl_GEN_Geom_Field.hpp
+	geometry/cl_GEN_Sphere.hpp
 	
 	cl_GE_Analytic.hpp
 	cl_GE_Core.hpp
@@ -56,7 +58,21 @@ set(HEADERS
 	cl_GE_SDF.hpp
 	
     )
+    
+# List header dependencies                                                                                                                                                                                                                                                     
+set(GEN_INCLUDES                                                                                                                                                                                                                                                               
+    "additional"
+    "field"
+    "geomeng"
+    "geometry"
+    )
 
+# Include depedency directories
+foreach(GEN_INCLUDE ${GEN_INCLUDES})  
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDE})
+endforeach()
+
+include_directories(${MORIS_PACKAGE_DIR}/GEN/include)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Library
 

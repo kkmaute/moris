@@ -21,6 +21,10 @@ namespace ge
         Bisection_Method,
         Newton_Method
     };
+    enum class Field_Type
+    {
+        End_Enum
+    };
 
 }
 
