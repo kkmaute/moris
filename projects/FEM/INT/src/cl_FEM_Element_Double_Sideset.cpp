@@ -134,6 +134,9 @@ namespace moris
 
                     // compute residual at integration point
                     mSet->get_requested_IWGs()( iIWG )->compute_residual( tWStar );
+
+                    // compute jacobian at integration point
+                    mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
                 }
 
             }
@@ -249,7 +252,6 @@ namespace moris
 
                     // compute residual at integration point
                     mSet->get_requested_IWGs()( iIWG )->compute_jacobian( tWStar );
-//                    print( tJacobians(0), "tJacobians" );
 
 //                    real tPerturbation = 1E-6;
 //                    Cell< Matrix< DDRMat > > tJacobiansFD;

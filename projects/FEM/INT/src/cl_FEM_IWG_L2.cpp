@@ -169,10 +169,13 @@ namespace moris
 
             Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // compute Jacobian
-            mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                  { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
-                    += trans( tFI->N() ) * tFI->N() * aWStar;
+            if( mResidualDofTypeRequested )
+            {
+                // compute Jacobian
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
+                        += trans( tFI->N() ) * tFI->N() * aWStar;
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -187,11 +190,14 @@ namespace moris
 
             Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
-            // compute Jacobian
-            mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
-                                  { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
-                    += (   trans( tFI->N() ) * tFI->N()
-                         + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+            if( mResidualDofTypeRequested )
+            {
+                // compute Jacobian
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
+                        += (   trans( tFI->N() ) * tFI->N()
+                             + mAlpha * ( trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 ) ) ) * aWStar;
+            }
         }
 
 //------------------------------------------------------------------------------

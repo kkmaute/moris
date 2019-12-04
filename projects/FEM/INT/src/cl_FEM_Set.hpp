@@ -94,13 +94,6 @@ namespace MSI
 
         enum fem::Element_Type mElementType;
 
-        // lists of master and slave groups of dof types
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMasterDofTypes;
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSlaveDofTypes;
-
-//        // maps for the master and slave dof type
-//        moris::Matrix< DDSMat > mMasterDofTypeMap;
-//        moris::Matrix< DDSMat > mSlaveDofTypeMap;
 
         // integration points
         Matrix< DDRMat > mIntegPoints;
@@ -166,7 +159,11 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        void initialize_set();
+        void initialize_set( const bool aIsResidual );
+
+//------------------------------------------------------------------------------
+
+        void free_memory();
 
 //------------------------------------------------------------------------------
         /**
@@ -370,10 +367,28 @@ namespace MSI
          */
         void set_IWG_geometry_interpolators();
 
+//------------------------------------------------------------------------------
+        /**
+         * create the dof assembly map for the residual/rows
+         */
         void create_residual_dof_assembly_map();
 
+//------------------------------------------------------------------------------
+        /**
+         * create the dof assembly map for the jacobian/cols
+         */
+        void create_dof_assembly_map( const bool aIsResidual );
+
+//------------------------------------------------------------------------------
+        /**
+         * create the dof assembly map for the jacobian/cols.
+         */
         void create_jacobian_dof_assembly_map();
 
+//------------------------------------------------------------------------------
+        /**
+         * create the dof assembly map for the  of diagonal requested jacobian/cols for R = R_0 - A_{01} x_{1}
+         */
         void create_staggered_jacobian_dof_assembly_map();
 
 //------------------------------------------------------------------------------
@@ -382,7 +397,7 @@ namespace MSI
 
 //------------------------------------------------------------------------------
 
-        void build_requested_IWG_dof_type_list();
+        void build_requested_IWG_dof_type_list( const bool aItResidual );
 
 //------------------------------------------------------------------------------
         /**
@@ -551,6 +566,10 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         moris::Cell < enum MSI::Dof_Type > get_requested_dof_types();
+
+//------------------------------------------------------------------------------
+
+        moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secundary_dof_types();
 
 //------------------------------------------------------------------------------
 

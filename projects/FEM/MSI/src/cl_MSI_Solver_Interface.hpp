@@ -102,9 +102,17 @@ namespace mtk
 
 //------------------------------------------------------------------------------
 
-            void initialize_block( const uint aBlockInd )
+            void initialize_block( const uint aBlockInd,
+                                   const bool aIsResidual )
             {
-                mMSI->get_eqn_block( aBlockInd )->initialize_set();
+                mMSI->get_eqn_block( aBlockInd )->initialize_set( aIsResidual );
+            };
+
+//------------------------------------------------------------------------------
+
+            void initiate_output( const uint aOutputIndex )
+            {
+                MORIS_ERROR( false, " connect initiate_output to FEM");
             };
 
 //------------------------------------------------------------------------------
