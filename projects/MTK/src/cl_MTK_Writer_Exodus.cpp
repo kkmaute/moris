@@ -7,19 +7,11 @@
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
-
-// TODO
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
-#include "cl_MTK_Interpolation_Mesh_STK.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
-#include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_Mesh_Tools.hpp"
-#include "cl_MTK_Integration_Mesh_STK.hpp"
-#include "cl_MTK_Sets_Info.hpp"
 
 #include <iostream>
 
@@ -27,6 +19,7 @@ Writer_Exodus::Writer_Exodus(moris::mtk::Mesh* aMeshPointer)
     : mMesh(aMeshPointer)
 {
     mExoid = 0;
+    this->set_error_options(true, true, true);
 }
 
 Writer_Exodus::~Writer_Exodus()
@@ -40,16 +33,77 @@ void Writer_Exodus::set_error_options(bool abort, bool debug, bool verbose)
 void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileName)
 {
     Writer_Exodus::create_file(aFilePath, aFileName);
-    std::cout << "Create" << std::endl;
+//    std::cout << "Create" << std::endl;
     Writer_Exodus::write_nodes();
-    std::cout << "Nodes" << std::endl;
+//    std::cout << "Nodes" << std::endl;
     Writer_Exodus::write_node_sets();
-    std::cout << "Node Sets" << std::endl;
+//    std::cout << "Node Sets" << std::endl;
     Writer_Exodus::write_blocks();
-    std::cout << "Blocks" << std::endl;
+//    std::cout << "Blocks" << std::endl;
     Writer_Exodus::write_side_sets();
-    std::cout << "Side Sets" << std::endl;
-    Writer_Exodus::close_file();
+//    std::cout << "Side Sets" << std::endl;
+}
+
+void Writer_Exodus::set_nodal_fields(moris::Cell<std::string> aFieldNames)
+{
+    // Write the number of nodal fields
+    ex_put_variable_param(mExoid, EX_NODAL, aFieldNames.size());
+
+    // Write the nodal field names and store as a map
+    for (moris::uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++)
+    {
+        ex_put_variable_name(mExoid, EX_NODAL, tFieldIndex + 1, aFieldNames(tFieldIndex).c_str());
+        mNodalFieldNames[aFieldNames(tFieldIndex)] = tFieldIndex + 1;
+    }
+}
+
+void Writer_Exodus::set_elemental_fields(moris::Cell<std::string> aFieldNames)
+{
+    // Write the number of elemental fields
+    ex_put_variable_param(mExoid, EX_ELEM_BLOCK, aFieldNames.size());
+
+    // Write the elemental field names and store as a map
+    for (moris::uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++)
+    {
+        ex_put_variable_name(mExoid, EX_ELEM_BLOCK, tFieldIndex + 1, aFieldNames(tFieldIndex).c_str());
+        mElementalFieldNames[aFieldNames(tFieldIndex)] = tFieldIndex + 1;
+    }
+}
+
+void Writer_Exodus::set_global_variables(moris::Cell<std::string> aVariableNames)
+{
+    // Write the number of global fields
+    ex_put_variable_param(mExoid, EX_GLOBAL, aVariableNames.size());
+
+    // Write the global field names and store as a map
+    for (moris::uint tVariableIndex = 0; tVariableIndex < aVariableNames.size(); tVariableIndex++)
+    {
+        ex_put_variable_name(mExoid, EX_GLOBAL, tVariableIndex + 1, aVariableNames(tVariableIndex).c_str());
+        mGlobalVariableNames[aVariableNames(tVariableIndex)] = tVariableIndex + 1;
+    }
+}
+
+void Writer_Exodus::set_time(moris::real aTimeValue)
+{
+    ex_put_time(mExoid, ++mTimeStep, &aTimeValue);
+}
+
+void Writer_Exodus::write_nodal_field(std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues)
+{
+    int tFieldIndex = mNodalFieldNames[aFieldName];
+    ex_put_var(mExoid, mTimeStep, EX_NODAL, tFieldIndex, 0, aFieldValues.numel(), aFieldValues.data());
+}
+
+void Writer_Exodus::write_elemental_field(moris::uint aBlockIndex, std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues)
+{
+    int tFieldIndex = mElementalFieldNames[aFieldName];
+    ex_put_var(mExoid, mTimeStep, EX_ELEM_BLOCK, tFieldIndex, aBlockIndex + 1, aFieldValues.numel(), aFieldValues.data());
+}
+
+void Writer_Exodus::write_global_variable(std::string aVariableName, moris::real aVariableValue)
+{
+    int tVariableIndex = mGlobalVariableNames[aVariableName];
+    ex_put_var(mExoid, mTimeStep, EX_GLOBAL, tVariableIndex, 0, 1, &aVariableValue);
 }
 
 void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileName)
@@ -75,7 +129,7 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     int tNumSideSets = tSideSetNames.size();
 
     // Create the database
-    int tCPUWordSize = 8, tIOWordSize = 8; // TODO
+    int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
     mExoid = ex_create(mTempFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize);
 
     // Number of dimensions
@@ -99,7 +153,7 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
 
 void Writer_Exodus::open_file(std::string aExodusFileName, float aVersion)
 {
-    int tCPUWordSize = 8, tIOWordSize = 8; // TODO
+    int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
     mExoid = ex_open(aExodusFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize, &aVersion);
 }
 
@@ -169,9 +223,10 @@ void Writer_Exodus::write_node_sets()
 
 void Writer_Exodus::write_blocks()
 {
-    // Start the element map
-    moris::Matrix<moris::IdMat> tElementMap(0, 1, 0);
-    moris::uint tElementMapStartIndex = 0;
+    // Start the element maps
+    mMtkExodusElementIndexMap.set_size(mMesh->get_num_elems(), 1, 0);
+    moris::Matrix<moris::IdMat> tElementIdMap(0, 1, 0);
+    moris::uint tElementIdMapStartIndex = 0;
 
     // All of the block names
     moris::Cell<std::string> tBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
@@ -185,7 +240,7 @@ void Writer_Exodus::write_blocks()
         if (tElementsInBlock.size() > 0)
         {
             // Resize element map
-            tElementMap.resize(tElementMapStartIndex + tElementsInBlock.size(), 1);
+            tElementIdMap.resize(tElementIdMapStartIndex + tElementsInBlock.size(), 1);
 
             // Get the CellTopology of this block
             CellTopology tBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
@@ -220,12 +275,13 @@ void Writer_Exodus::write_blocks()
                     tConnectivityIndex++;
                 }
 
-                // Get the global id of this element and add to element map
-                tElementMap(tElementMapStartIndex + tElementIndex) = tElementsInBlock(tElementIndex)->get_id();
+                // Get the global id and index of this element and add to maps
+                tElementIdMap(tElementIdMapStartIndex + tElementIndex) = tElementsInBlock(tElementIndex)->get_id();
+                mMtkExodusElementIndexMap(tElementsInBlock(tElementIndex)->get_index()) = tElementIdMapStartIndex + tElementIndex;
             }
 
             // Update location in element map
-            tElementMapStartIndex += tElementsInBlock.size();
+            tElementIdMapStartIndex += tElementsInBlock.size();
 
             // Write connectivity
             ex_put_conn(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tConnectivityArray.data(), nullptr, nullptr);
@@ -241,8 +297,8 @@ void Writer_Exodus::write_blocks()
     }
 
     // Write the element map
-    moris::print(tElementMap, "tElementMap");
-    ex_put_id_map(mExoid, EX_ELEM_MAP, tElementMap.data());
+    ex_put_id_map(mExoid, EX_ELEM_MAP, tElementIdMap.data());
+
 }
 
 void Writer_Exodus::write_side_sets()
@@ -258,10 +314,10 @@ void Writer_Exodus::write_side_sets()
         moris::Matrix<moris::IndexMat>  tSideSetOrdinals;
         mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetNum), tSideSetElements, tSideSetOrdinals);
 
-        // Change element and ordinal to be 1-indexed for Exodus
+        // Change element and ordinal to what Exodus wants
         for (moris::uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
         {
-            //tSideSetElements(tElementNum)++;
+            tSideSetElements(tElementNum) = mMtkExodusElementIndexMap(tSideSetElements(tElementNum)) + 1;
             tSideSetOrdinals(tElementNum)++;
         }
 

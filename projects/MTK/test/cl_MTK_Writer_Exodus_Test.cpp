@@ -292,55 +292,58 @@ namespace moris
             Integration_Mesh* tIntegMeshData = moris::mtk::create_integration_mesh( MeshType::STK, tMeshDataInput );
 
 
-            // STK write
-            std::string tSTKOutput = "./test_stk.exo";
-            tIntegMeshData->create_output_mesh(tSTKOutput);
+//            // STK write
+//            std::string tSTKOutput = "./test_stk.exo";
+//            tIntegMeshData->create_output_mesh(tSTKOutput);
 //
 //            // Read
 //            Reader_Exodus reader;
 //            reader.set_error_options(true, true, true);
-//            reader.read_file(tSTKOutput);
+//            reader.read_file("mtk_sideset_ut.exo");
 
-            // My write
+//            // STK write
+//            std::string tSTKOutput = "./mtk_sideset_ut_stk.exo";
+//            reader.mMesh->create_output_mesh(tSTKOutput);
+
+            // Mesh
             Writer_Exodus writer(tIntegMeshData);
             writer.write_mesh("", "test_write.exo");
 
+            // Nodal fields
+            moris::Cell<std::string> tNodalFieldNames(3);
+            tNodalFieldNames(0) = "dispx";
+            tNodalFieldNames(1) = "dispy";
+            tNodalFieldNames(2) = "dispz";
+            moris::Matrix<moris::DDRMat> xField(44, 1, 1);
+            moris::Matrix<moris::DDRMat> yField(44, 1, 2);
+            moris::Matrix<moris::DDRMat> zField(44, 1, 3);
 
+            // Elemental fields
+            moris::Cell<std::string> tElementalFieldNames(1);
+            tElementalFieldNames(0) = "pressure";
+            moris::Matrix<moris::DDRMat> tetField(32, 1, 4);
+            moris::Matrix<moris::DDRMat> hexField(3, 1, 5);
 
+            // Global Fields
+            moris::Cell<std::string> tGlobalVariableNames(2);
+            tGlobalVariableNames(0) = "mass";
+            tGlobalVariableNames(1) = "time";
+            moris::real tMass = 99;
+            moris::real tTime = 1;
 
-
-//            if(par_size() == 2)
-//            {
-//                std::string tPrefix = std::getenv("MORISROOT");
-//                std::string tFileOutput = tPrefix + "projects/MTK/test/Test_Files/mtk_2_proc_test.exo";
-//
-//                // File with element cmap
-//                std::string tFileOutputwElemCmap = tPrefix + "projects/MTK/test/Test_Files/mtk_2_proc_test_elem_cmap.exo";
-//
-//                // initialize exodus io help
-//                Exodus_IO_Helper tExoIO(tFileOutput.c_str());
-//
-//                // element cmap data;
-//                if(par_rank() == 0)
-//                {
-//                    Matrix<IdMat> tElementIdsOnBoundary ={{1}};
-//                    Matrix<IdMat> tSideOrdinalOnBoundary ={{5}};
-//                    Matrix<IdMat> tSideSharedProc ={{1}};
-//                    // Create a new exodus file with element cmaps
-//                    tExoIO.create_new_exo_with_elem_cmaps_from_existing_exo(tFileOutputwElemCmap,tElementIdsOnBoundary,tSideOrdinalOnBoundary,tSideSharedProc);
-//                }
-//                else if(par_rank() == 1)
-//                {
-//                    Matrix<IdMat> tElementIdsOnBoundary ={{1}};
-//                    Matrix<IdMat> tSideOrdinalOnBoundary ={{5}};
-//                    Matrix<IdMat> tSideSharedProc ={{0}};
-//                    // Create a new exodus file with element cmaps
-//                    tExoIO.create_new_exo_with_elem_cmaps_from_existing_exo(tFileOutputwElemCmap,tElementIdsOnBoundary,tSideOrdinalOnBoundary,tSideSharedProc);
-//                }
-//
-//
-//            }
-
+            // Actually write the stuff
+            writer.set_nodal_fields(tNodalFieldNames);
+            writer.set_elemental_fields(tElementalFieldNames);
+            writer.set_global_variables(tGlobalVariableNames);
+            writer.set_time(0.0);
+            writer.write_nodal_field("dispx", xField);
+            writer.write_nodal_field("dispy", yField);
+            writer.write_nodal_field("dispz", zField);
+            writer.write_elemental_field(3, "pressure", tetField);
+            writer.write_elemental_field(4, "pressure", hexField);
+            writer.write_global_variable("mass", tMass);
+            writer.write_global_variable("time", tTime);
+            writer.close_file();
         }
 
     }

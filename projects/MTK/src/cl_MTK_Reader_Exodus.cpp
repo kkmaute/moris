@@ -42,7 +42,7 @@ void Reader_Exodus::open_file(std::string aExodusFileName, float aVersion)
     mExoid = ex_open(aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion);
 }
 
-void Reader_Exodus::close_file(bool aRename)
+void Reader_Exodus::close_file()
 {
     ex_close(mExoid);
 }
@@ -108,7 +108,15 @@ void Reader_Exodus::read_file(std::string aFileName)
         std::cout << "Reading Block..." << std::endl;
         ex_get_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tReadName, &tNumElementsInBlock,
                      &tNumNodesPerElement, &tNumEdgesPerElement, &tNumFacesPerElement, &tNumAttributesPerElement);
-        std::cout << tNumElementsInBlock << ", " << tNumNodesPerElement << ", " << tNumEdgesPerElement << ", " << tNumFacesPerElement <<std::endl;
+
+        // Cell topology
+        mBlockSetInfo(tBlockIndex).mBlockSetTopo = this->get_cell_topology(tReadName);
+        std::cout << static_cast<int>(this->get_cell_topology(tReadName)) << std::endl;
+
+        // Block Name
+        ex_get_name(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tReadName);
+        mBlockDescription(tBlockIndex).assign(tReadName, 100);
+        mBlockSetInfo(tBlockIndex).mBlockSetName = mBlockDescription(tBlockIndex);
 
         // Get connectivity
         moris::Matrix<moris::IndexMat> tBlockNodesVector(tNumElementsInBlock * tNumNodesPerElement, 1, 0);
@@ -135,28 +143,59 @@ void Reader_Exodus::read_file(std::string aFileName)
         // Cell ids
         mBlockSetInfo(tBlockIndex).mCellIdsInSet = mMeshDataInput.LocaltoGlobalElemMap(tBlockIndex);
 
-        // Block name
-        mBlockDescription(tBlockIndex).assign(tReadName, 100);
-        mBlockSetInfo(tBlockIndex).mBlockSetName = mBlockDescription(tBlockIndex);
-
-        // Cell topology
-        mBlockSetInfo(tBlockIndex).mBlockSetTopo = this->get_cell_topology(tNumNodesPerElement);
-
         // Add sets to input data
         mMtkMeshSets.add_block_set(&mBlockSetInfo(tBlockIndex));
 
 
 
 
-        std::cout << "mBlockSetInfo.mBlockSetName: " << mBlockSetInfo(tBlockIndex).mBlockSetName << std::endl;
-        std::cout << "mBlockSetInfo.mBlockSetTopo: " << static_cast<int>(mBlockSetInfo(tBlockIndex).mBlockSetTopo) << std::endl;
-        moris::print(*mBlockSetInfo(tBlockIndex).mCellIdsInSet, "mBlockSetInfo.mCellIdsInSet");
-        moris::print(*mMeshDataInput.LocaltoGlobalElemMap(tBlockIndex), "mMeshDataInput.LocaltoGlobalElemMap");
-        moris::print(*mMeshDataInput.ElemConn(tBlockIndex), "mMeshDataInput.ElemConn");
+//        std::cout << "mBlockSetInfo.mBlockSetName: " << mBlockSetInfo(tBlockIndex).mBlockSetName << std::endl;
+//        std::cout << "mBlockSetInfo.mBlockSetTopo: " << static_cast<int>(mBlockSetInfo(tBlockIndex).mBlockSetTopo) << std::endl;
+//        moris::print(*mBlockSetInfo(tBlockIndex).mCellIdsInSet, "mBlockSetInfo.mCellIdsInSet");
+//        moris::print(*mMeshDataInput.LocaltoGlobalElemMap(tBlockIndex), "mMeshDataInput.LocaltoGlobalElemMap");
+//        moris::print(*mMeshDataInput.ElemConn(tBlockIndex), "mMeshDataInput.ElemConn");
     }
     mMeshDataInput.SetsInfo = &mMtkMeshSets;
 
     std::cout << "Blocks Done" << std::endl;
+
+    // Side sets
+    moris::uint tNumElementsInSideSet;
+    mSideSetInfo.resize(tNumSideSets, moris::mtk::MtkSideSetInfo());
+    mSideSetElements.resize(tNumSideSets, moris::Matrix<moris::IndexMat>(1, 1));
+    mSideSetNames.resize(tNumSideSets, "");
+    moris::Matrix<moris::IndexMat> tSideSetOrdinals;
+
+    std::cout << "Side sets started" << std::endl;
+
+    for (moris::uint tSideSetIndex = 0; tSideSetIndex < tNumSideSets; tSideSetIndex++)
+    {
+        // Get number of entries in this side set and resize matrices
+        ex_get_set_param(mExoid, EX_SIDE_SET, tSideSetIndex + 1, &tNumElementsInSideSet, nullptr);
+        mSideSetElements(tSideSetIndex).set_size(tNumElementsInSideSet, 2);
+        tSideSetOrdinals.set_size(tNumElementsInSideSet, 1);
+        std::cout << "Entries" << std::endl;
+
+        // Get data
+        ex_get_set(mExoid, EX_SIDE_SET, tSideSetIndex + 1, mSideSetElements(tSideSetIndex).data(), tSideSetOrdinals.data());
+        ex_get_name(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tReadName);
+        std::cout << "Get data" << std::endl;
+
+        // Adjust for moris
+        mSideSetNames(tSideSetIndex).assign(tReadName);
+        for (moris::uint tElementNum = 0; tElementNum < tNumElementsInSideSet; tElementNum++)
+        {
+            mSideSetElements(tSideSetIndex)(tElementNum, 1)--;
+            tSideSetOrdinals(tElementNum)--;
+        }
+        mSideSetElements(tSideSetIndex).set_column(1, tSideSetOrdinals);
+        std::cout << "Adjust" << std::endl;
+
+        // Assign data
+        mSideSetInfo(tSideSetIndex).mElemIdsAndSideOrds = &mSideSetElements(tSideSetIndex);
+        mSideSetInfo(tSideSetIndex).mSideSetName = mSideSetNames(tSideSetIndex);
+        mMtkMeshSets.add_side_set(&mSideSetInfo(tSideSetIndex));
+    }
 
 
 
@@ -177,7 +216,7 @@ void Reader_Exodus::read_file(std::string aFileName)
 
     mMesh = moris::mtk::create_integration_mesh(MeshType::STK, mMeshDataInput);
 
-    Reader_Exodus::close_file(false);
+    Reader_Exodus::close_file();
     std::cout << "Close" << std::endl;
 }
 
@@ -191,22 +230,23 @@ void Reader_Exodus::read_file(std::string aFileName)
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-CellTopology Reader_Exodus::get_cell_topology(int aNumNodesPerElement)
+CellTopology Reader_Exodus::get_cell_topology(char* aElementType)
 {
-    switch (aNumNodesPerElement)
-    {
-        case 3:
-            return CellTopology::TRI3;
-        case 4:
-            return CellTopology::TET4; // TODO QUAD4?
-        case 6:
-            return CellTopology::PRISM6;
-        case 8:
-            return CellTopology::HEX8;
-        case 10:
-            return CellTopology::TET10;
-        default:
-            MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
-            return CellTopology::INVALID;
+    std::string tElementType(aElementType);
+    if (tElementType == "tri3")
+        return CellTopology::TRI3;
+    else if (tElementType == "quad4")
+        return CellTopology::QUAD4;
+    else if (tElementType == "tet4")
+        return CellTopology::TET4;
+    else if (tElementType == "tet10")
+        return CellTopology::TET10;
+    else if (tElementType == "hex8")
+        return CellTopology::HEX8;
+    else if (tElementType == "prism6")
+        return CellTopology::PRISM6;
+    else {
+        std::cout << aElementType << std::endl;
+        return CellTopology::INVALID;
     }
 }

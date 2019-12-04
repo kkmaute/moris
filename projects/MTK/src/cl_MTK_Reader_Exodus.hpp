@@ -37,6 +37,9 @@ public:
     moris::Cell<std::string>                    mBlockDescription;
     moris::Cell<moris::Matrix<moris::IndexMat>> mElemConn;
     moris::Cell<moris::Matrix<moris::IdMat>>    mLocaltoGlobalElemMap;
+    moris::Cell<moris::mtk::MtkSideSetInfo>     mSideSetInfo;
+    moris::Cell<moris::Matrix<moris::IndexMat>> mSideSetElements;
+    moris::Cell<std::string>                    mSideSetNames;
 
 
     /**
@@ -73,14 +76,14 @@ private:
      * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
      * must be called in order for the Exodus file to be able to be read properly.
      */
-    void close_file(bool aRename = true);
+    void close_file();
 
     /**
-     * Gets the CellTopology from the number of nodes
-     * @param int The number of nodes per element
+     * Gets the CellTopology from a character array describing the element type.
+     * @param const char* the element type written to the Exodus file from Writer_Exodus
      * @return aCellTopology the type of element in MTK.
      */
-    CellTopology get_cell_topology(int aNumNodesPerElement);
+    CellTopology get_cell_topology(char* aElementType);
 
 protected:
 };
