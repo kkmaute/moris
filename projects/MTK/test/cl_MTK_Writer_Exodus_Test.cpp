@@ -27,8 +27,9 @@ namespace moris
 {
     namespace mtk
     {
-        TEST_CASE("MTK Exodus Writer","[WRITE_EXO]") {
-            if (par_size() == 1)
+        TEST_CASE("MTK Exodus Writer","[WRITE_EXO]")
+        {
+            if (par_size() <= 1)
             {
                 Matrix <DDRMat> tNodeCoordinates = {{0,   0,   0},
                                                     {1,   0,   0},
@@ -370,9 +371,10 @@ namespace moris
                 writer.write_elemental_field(4, "pressure", hexField);
                 writer.write_global_variable("mass", tMass);
                 writer.write_global_variable("time", tTime);
-                writer.
+                writer.close_file();
 
-                close_file();
+
+                delete tIntegMeshData;
             }
         }
     }
