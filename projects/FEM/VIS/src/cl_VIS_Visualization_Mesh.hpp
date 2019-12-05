@@ -30,6 +30,11 @@ class Visualization_Mesh : public mtk::Mesh
 {
 protected:
     moris::Cell< moris::mtk::Set * > mListofBlocks;
+
+    moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnBlock;
+    moris::Cell< moris::Cell< mtk::Vertex * > >  mVerticesOnBlock;
+
+    moris::map< std::string, moris::moris_index > mBlockNameToIndexMap;
 //    moris::Cell< moris::mtk::Set * > mListofSideSets;
 //    moris::Cell< moris::mtk::Set * > mListofDoubleSideSets;
 
@@ -42,152 +47,37 @@ protected:
 //    moris::Cell< Matrix< DDSMat > >             mCellMapOnBlock;
 
 public:
-    Visualization_Mesh(){};
+//    Visualization_Mesh(){};
     // Functions only valid for visualization meshes
 
-    Visualization_Mesh( moris::Cell< moris::mtk::Set * > aListofBlocks ) : mListofBlocks( aListofBlocks )
-    {
 
+
+    Visualization_Mesh( moris::Cell< moris::mtk::Set * >        aListofBlocks,
+                        moris::Cell< moris::Cell< mtk::Cell * > >   aCellsOnBlock,
+                        moris::Cell< moris::Cell< mtk::Vertex * > > mVerticesOnBlock ) : mListofBlocks( aListofBlocks ),
+                                                                                         mCellsOnBlock( aCellsOnBlock ),
+                                                                                         mVerticesOnBlock( mVerticesOnBlock )
+    {
+        this->create_block_name_list();
     }
 
-    Visualization_Mesh( mtk::Mesh_Manager* aMesh,
-                        const uint         aMeshPairIndex )
+    void create_block_name_list()
     {
-//        mListofBlocks.resize( 1, nullptr );
-//        mClustersOnBlock.resize( 1 );
-//        mCellsOnBlock.resize( 1 );
-//        mVerticesOnBlock.resize( 1 );
+        uint tNumBlocks = this->get_num_blocks();
+
+        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+        {
+            moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+
+            mBlockNameToIndexMap[ tSet->get_set_name() ] = Ik;
+        }
+    }
+
+//    Visualization_Mesh( mtk::Mesh_Manager* aMesh,
+//                        const uint         aMeshPairIndex )
+//    {
 //
-//        mVertexMapOnBlock.resize( 1 );
-//        mCellMapOnBlock.resize( 1 );
-//
-//        mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-//        mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-//        aMesh->get_mesh_pair( aMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
-//
-//        moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( 0 );
-//
-//        uint tNumVerticesOnSet = tMeshSet->get_num_vertieces_on_set();
-//
-//        moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_vertieces_inds_on_block();
-//        print(tVertexIndOnBlock,"tVertexIndOnBlock");
-//
-//        mVerticesOnBlock( 0 ).resize( tNumVerticesOnSet, nullptr );
-//        mVertexMapOnBlock( 0 ).set_size( tVertexIndOnBlock.max() + 1, 1, -1 );
-//
-//        moris_index tVertexIndexCounter = 0;
-//        moris_id tVertexIdCounter = 0;
-//
-//        for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
-//        {
-//            mtk::Vertex tIntegrationVertex = tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) );
-//
-//            mVertexMapOnBlock( 0 )( tVertexIndOnBlock( Ik ) ) = Ik;
-//
-//            mVerticesOnBlock( 0 )( Ik ) = new Vertex_Visualization( tVertexIdCounter,
-//                                                                    tVertexIndexCounter,
-//                                                                    &tIntegrationVertex );
-//
-//            tVertexIndexCounter++;
-//            tVertexIdCounter++;
-//        }
-//
-//        std::cout<<"------------------------"<<std::endl;
-////-----------------------------------------------------------------------------------------------------
-//        uint tNumCellsOnSet = tMeshSet->get_num_cells_on_set();
-//
-//        moris::Matrix< DDSMat > tCellIndOnBlock = tMeshSet->get_cell_inds_on_block();
-//
-//        mCellsOnBlock( 0 ).resize( tNumCellsOnSet, nullptr );
-//
-//        mCellMapOnBlock( 0 ).set_size( tCellIndOnBlock.max() + 1, 1, -1 );
-//
-//        moris_index tCellIndexCounter = 0;
-//        moris_id tCellIdCounter = 0;
-//
-//        std::cout<<tNumCellsOnSet<<" tNumCellsOnSet"<<std::endl;
-//        std::cout<<mVertexMapOnBlock( 0 ).numel()<<" tIntegrationVertexInd"<<std::endl;
-//
-//        for( uint Ik = 0; Ik < tNumCellsOnSet; Ik++ )
-//        {
-////            mtk::Cell tIntegrationCell = tIntegrationMesh->get_mtk_cell( tCellIndOnBlock( Ik ) );
-//
-//            Matrix< IndexMat > tIntegrationVertexInd = tIntegrationMesh->get_mtk_cell( tCellIndOnBlock( Ik ) ).get_vertex_inds();
-//
-//            print(tIntegrationVertexInd , "tIntegrationVertexInd");
-//            moris::Cell< mtk::Vertex* > tCellVerices( tIntegrationVertexInd.numel(), nullptr );
-//
-//
-//
-//            for( uint Ii = 0; Ii < tIntegrationVertexInd.numel(); Ii++ )
-//            {
-//                std::cout<<mVertexMapOnBlock( 0 )( tIntegrationVertexInd( Ii ) )<<std::endl;
-//                tCellVerices( Ii ) = mVerticesOnBlock( 0 )( mVertexMapOnBlock( 0 )( tIntegrationVertexInd( Ii ) ) );
-//            }
-//
-//            mCellMapOnBlock( 0 )( tCellIndOnBlock( Ik ) ) = Ik;
-//
-//            mCellsOnBlock( 0 )( Ik ) = new Cell_Visualization( tCellIdCounter,
-//                                                               tCellIndexCounter,
-//                                                               tCellVerices,
-//                                                               &tIntegrationMesh->get_mtk_cell( tCellIndOnBlock( Ik ) ) );
-//
-//           tCellIndexCounter++;
-//           tCellIdCounter++;
-//        }
-//
-////-----------------------------------------------------------------------------------------------------
-//        uint tNumClustersOnSet = tMeshSet->get_num_clusters_on_set();
-//
-//        moris::Cell< mtk::Cluster const * > tClustersOnBlock = tMeshSet->get_clusters_on_set();
-//
-//        mClustersOnBlock( 0 ).resize( tNumClustersOnSet, nullptr );
-//
-//
-//        for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
-//        {
-//            moris::Cell<moris::mtk::Cell const *> tPrimaryCells = tClustersOnBlock( Ik )->get_primary_cells_in_cluster();
-//
-//            moris::Cell< mtk::Cell * > tClusterPrimaryCells( tPrimaryCells.size(), nullptr );
-//
-//            for( uint Ii = 0; Ii < tPrimaryCells.size(); Ii++ )
-//            {
-//                tClusterPrimaryCells( Ii ) = mCellsOnBlock( 0 )( mCellMapOnBlock( 0 )( tPrimaryCells( Ii )->get_index() ) );
-//            }
-//
-//            moris::Cell< moris::mtk::Cell const * > tVoidCells = tClustersOnBlock( Ik )->get_void_cells_in_cluster();
-//
-//            moris::Cell< mtk::Cell * > tClusterVoidCells( tVoidCells.size(), nullptr );
-//
-//            for( uint Ii = 0; Ii < tVoidCells.size(); Ii++ )
-//            {
-//                tClusterVoidCells( Ii ) = mCellsOnBlock( 0 )( mCellMapOnBlock( 0 )( tVoidCells( Ii )->get_index() ) );
-//            }
-//
-//            mClustersOnBlock( 0 )( Ik ) = new Cell_Cluster_Visualization;
-//
-//            if( tVoidCells.size() > 0 )
-//            {
-//                 mClustersOnBlock( 0 )( Ik )->mark_as_nontrivial();
-//            }
-//
-//            mClustersOnBlock( 0 )( Ik )->add_primary_integration_cell( tPrimaryCells );
-//            mClustersOnBlock( 0 )( Ik )->add_void_integration_cell( tVoidCells );
-//            mClustersOnBlock( 0 )( Ik )->set_interpolation_cell( &tClustersOnBlock( Ik )->get_interpolation_cell() );
-//        }
-//
-//        mClustersOnBlock_1.resize( 1 );
-//        mClustersOnBlock_1( 0 ).resize( tNumClustersOnSet, nullptr );
-//
-//        for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
-//        {
-//            mClustersOnBlock_1( 0 )( Ik ) = mClustersOnBlock( 0 )( Ik );
-//        }
-//
-//        mListofBlocks( 0 ) = new moris::mtk::Block( tMeshSet->get_set_name(),
-//                                                    mClustersOnBlock_1( 0 ),
-//                                                    tMeshSet->get_spatial_dim() );
-    };
+//    };
 
     ~Visualization_Mesh()
     {
@@ -197,6 +87,22 @@ public:
     // Cell Cluster Access
     //##############################################
 
+    moris::Cell<std::string> get_set_names(enum EntityRank aSetEntityRank) const
+    {
+        uint tNumBlocks = this->get_num_blocks();
+
+        moris::Cell<std::string> tSetNames;
+
+        tSetNames.resize( tNumBlocks );
+
+        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+        {
+            moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+
+            tSetNames( Ik ) = tSet->get_set_name();
+        }
+        return tSetNames;
+    }
 //    /*
 //     * Get a cell cluster related to an interpolation
 //     * cell
@@ -224,40 +130,118 @@ public:
 //        MORIS_ERROR(0, "get_block_set_label has no default implementation");
 //        return "ERROR";
 //    }
-//
-//    // ----------------------------------------------------------------------------
-//
-//    /*!
-//     * Returns the index given a label
-//     */
-//    virtual
-//    moris_index
-//    get_block_set_index(std::string aBlockSetLabel) const
-//    {
-//        MORIS_ERROR(0, "get_block_set_index has no default implementation");
-//        return MORIS_INDEX_MAX;
-//    }
-//
-//    // ----------------------------------------------------------------------------
-//    /*
-//     * Get number of blocks
-//     */
-//    moris::uint
-//    get_num_blocks() const
-//    {
-//        return mListofBlocks.size();
-//    };
-//
-//    // ----------------------------------------------------------------------------
-//    /*
-//     * Get block by index
-//     */
-//    moris::mtk::Set *
-//    get_block_by_index( moris::uint aBlockIndex) const
-//    {
-//        MORIS_ASSERT(aBlockIndex<mListofBlocks.size(),"Block index out of bounds");
-//        return mListofBlocks(aBlockIndex);
-//    };
+
+    //------------------------------------------------------------------------------
+    /*
+     * Get number of nodes
+     */
+    uint get_num_nodes() const
+    {
+        uint tNumBlocks = this->get_num_blocks();
+
+        uint tNumNodes = 0;
+
+        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+        {
+            moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+
+            tNumNodes += tSet->get_num_vertieces_on_set();
+        }
+        return tNumNodes;
+    }
+
+    uint get_num_elems() const
+    {
+        uint tNumBlocks = this->get_num_blocks();
+
+        uint tNumElems = 0;
+
+        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+        {
+            moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+
+            tNumElems += tSet->get_num_cells_on_set();
+        }
+        return tNumElems;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    /*
+     * Returns the mtk cells in a block set. Contains the aura entities
+     */
+    moris::Cell< mtk::Cell const *> get_block_set_cells( std::string aSetName) const
+    {
+        uint tBlockIndex = mBlockNameToIndexMap.find( aSetName );
+
+        moris::mtk::Set * tSet =this->get_block_by_index( tBlockIndex );
+
+        moris::Cell< const mtk::Cell *> tCellsOnSet( mCellsOnBlock( tBlockIndex ).size() );
+
+        for(uint Ik=0; Ik < mCellsOnBlock( tBlockIndex ).size(); Ik ++)
+        {
+            tCellsOnSet( Ik ) = mCellsOnBlock( tBlockIndex )( Ik );
+        }
+
+        return tCellsOnSet;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    moris::Cell<moris::mtk::Vertex const *> get_all_vertices() const
+    {
+        uint tNumBlocks = this->get_num_blocks();
+
+        moris::Cell<moris::mtk::Vertex const *> tVertices( this->get_num_nodes() );
+
+        std::cout<<this->get_num_nodes()<<std::endl;
+
+        uint tCounter = 0;
+        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+        {
+            for(uint Ii=0; Ii<mVerticesOnBlock( Ik ).size(); Ii ++)
+            {
+            	std::cout<<tCounter<<std::endl;
+                tVertices( tCounter++ ) = mVerticesOnBlock( Ik )( Ii ) ;
+            }
+        }
+
+        return tVertices;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    /*!
+     * Returns the index given a label
+     */
+    virtual
+    moris_index
+    get_block_set_index(std::string aBlockSetLabel) const
+    {
+        MORIS_ERROR(0, "get_block_set_index has no default implementation");
+        return MORIS_INDEX_MAX;
+    }
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get number of blocks
+     */
+    moris::uint
+    get_num_blocks() const
+    {
+        return mListofBlocks.size();
+    };
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by index
+     */
+    moris::mtk::Set *
+    get_block_by_index( moris::uint aBlockIndex) const
+    {
+        MORIS_ASSERT(aBlockIndex<mListofBlocks.size(),"Block index out of bounds");
+        return mListofBlocks( aBlockIndex);
+    };
 //
 //    // ----------------------------------------------------------------------------
 //    /*
@@ -406,11 +390,10 @@ public:
 
     uint get_spatial_dim() const
     {
-        MORIS_ERROR( false, "get_spatial_dim(), not implemented for visualization mesh" );
-        return 0;
+       return this->get_block_by_index( 0 )->get_spatial_dim();
     }
 
-    uint get_num_entities(enum EntityRank aEntityRank) const
+    uint get_num_entities( enum EntityRank aEntityRank ) const
     {
         MORIS_ERROR( false, "get_num_entities(), not implemented for visualization mesh" );
         return 0;

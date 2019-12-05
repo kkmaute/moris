@@ -37,8 +37,9 @@ namespace moris
             Vertex_Visualization( moris_id      aVertexId,
                                   moris_index   aVertexInd,
                                   mtk::Vertex * aIntegrationVertex ) : mVertexId( aVertexId ),
-                                                                         mVertexInd( aVertexInd ),
-                                                                         mIntergrationVertex( aIntegrationVertex )
+                                                                        mVertexInd( aVertexInd ),
+                                                                        mIntergrationVertex( aIntegrationVertex )
+
             {};
 
 //------------------------------------------------------------------------------
@@ -62,6 +63,8 @@ namespace moris
              */
             Matrix< DDRMat > get_coords() const
             {
+                MORIS_ASSERT( mIntergrationVertex!=nullptr, "get_coords(), Integration vertex is nullptr" );
+                std::cout<<mIntergrationVertex<<std::endl;
                 return mIntergrationVertex->get_coords();
             }
 

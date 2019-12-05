@@ -157,7 +157,7 @@ namespace moris
 
             Set(std::string                   aName,
                 moris::Cell<Cluster const *>  aBlockSetClusters,
-                const uint                    aSpatialDim ) : mSetName(aName),
+                const uint                    aSpatialDim ) : mSetName( aName ),
                                                               mSetClusters( aBlockSetClusters ),
                                                               mSpatialDim( aSpatialDim )
             {

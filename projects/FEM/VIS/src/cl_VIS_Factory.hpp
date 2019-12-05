@@ -40,7 +40,7 @@ namespace moris
             moris::Cell< Matrix< DDSMat > >             mVertexMapOnBlock;
             moris::Cell< Matrix< DDSMat > >             mCellMapOnBlock;
 
-            uint mRequestedBlocks = 3;
+            uint mRequestedBlocks = 4;
 
             mtk::Mesh_Manager* mMesh = nullptr;
             const uint         mMeshPairIndex;
@@ -53,7 +53,7 @@ namespace moris
                      const uint         aMeshPairIndex ) : mMesh( aMesh ),
                                                            mMeshPairIndex( aMeshPairIndex )
             {
-                mListOfRequestedBlocks = { { 0, 1, 2} };
+                mListOfRequestedBlocks = { { 0, 1, 2, 3} };
 
                 mRequestedBlocks = mListOfRequestedBlocks.numel();
 
@@ -97,13 +97,13 @@ namespace moris
 
                     for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
                     {
-                        mtk::Vertex tIntegrationVertex = tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) );
+//                        mtk::Vertex tIntegrationVertex = tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) );
 
                         mVertexMapOnBlock( Ij )( tVertexIndOnBlock( Ik ) ) = Ik;
 
                         mVerticesOnBlock( Ij )( Ik ) = new Vertex_Visualization( tVertexIdCounter,
                                                                                  tVertexIndexCounter,
-                                                                                 &tIntegrationVertex );
+                                                                                 &tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) ) );
 
                         tVertexIndexCounter++;
                         tVertexIdCounter++;
@@ -247,7 +247,7 @@ namespace moris
 
             mtk::Mesh * create_visualization_mesh()
             {
-                mtk::Mesh * tMesh = new Visualization_Mesh( mListofBlocks );
+                mtk::Mesh * tMesh = new Visualization_Mesh( mListofBlocks, mCellsOnBlock, mVerticesOnBlock );
 
                 return tMesh;
             };
