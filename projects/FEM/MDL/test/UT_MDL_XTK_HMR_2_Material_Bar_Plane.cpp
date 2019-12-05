@@ -112,8 +112,6 @@ Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >      
 
 TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]")
 {
-
-
     if(par_size() == 1)
     {
         std::string tFieldName = "Geometry";

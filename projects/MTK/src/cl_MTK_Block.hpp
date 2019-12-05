@@ -2,7 +2,7 @@
  * cl_MTK_Element_Block.hpp
  *
  *  Created on: Jul 24, 2019
- *      Author: Achmidt
+ *      Author: Schmidt
  */
 
 #ifndef SRC_MESH_CL_MTK_BLOCK_HPP_
@@ -32,6 +32,9 @@ namespace moris
             uint                              mNumVerticesOnBlock;
             moris::Matrix< DDSMat >           mVerticesOnBlock;
 
+            uint                              mNumCellsOnBlock;
+            moris::Matrix< DDSMat >           mCellsOnBlock;
+
 //------------------------------------------------------------------------------
 
             void calculate_vertices_on_blocks()
@@ -42,8 +45,14 @@ namespace moris
                 {
                     for( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
                     {
-                        tMaxNumVert = tMaxNumVert + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                           ->get_vertex_inds().numel();
+                        tMaxNumVert +=  mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                          ->get_vertex_inds().numel();
+                    }
+
+                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                    {
+                        tMaxNumVert +=  mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                          ->get_vertex_inds().numel();
                     }
                 }
 
@@ -57,12 +66,24 @@ namespace moris
                     {
                         //FIXME rewrite for more readability
                         tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                                        ->get_vertex_inds().numel() - 1 }) =
-                                                                                                mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                       ->get_vertex_inds().matrix_data();
+                                                           ->get_vertex_inds().numel() - 1 }) =
+                                                             mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                                               ->get_vertex_inds().matrix_data();
 
-                        tCounter =tCounter + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-                                                                    ->get_vertex_inds().numel();
+                        tCounter += mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
+                                                      ->get_vertex_inds().numel();
+                    }
+
+                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                    {
+                        //FIXME rewrite for more readability
+                        tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                           ->get_vertex_inds().numel() - 1 }) =
+                                                             mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                                               ->get_vertex_inds().matrix_data();
+
+                        tCounter += mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                      ->get_vertex_inds().numel();
                     }
                 }
 
@@ -79,6 +100,51 @@ namespace moris
 //                print(mVerticesOnBlock,"mNumVerticesOnBlock");
 
                 mNumVerticesOnBlock = mVerticesOnBlock.numel();
+            };
+
+//------------------------------------------------------------------------------
+
+            void calculate_cells_on_blocks()
+            {
+                uint tMaxNumCells = 0;
+
+                for( uint Ik = 0; Ik < mSetClusters.size(); Ik++)
+                {
+                    tMaxNumCells += mSetClusters( Ik )->get_primary_cells_in_cluster().size();
+
+                    tMaxNumCells += mSetClusters( Ik )->get_void_cells_in_cluster().size();
+                }
+
+                moris::Matrix< DDSMat > tCellsOnBlock( tMaxNumCells, 1, -1 );
+
+                uint tCounter = 0;
+
+                for( uint Ik = 0; Ik < mSetClusters.size(); Ik++)
+                {
+                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++ )
+                    {
+                        tCellsOnBlock( tCounter++ ) = mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )->get_index();
+                    }
+
+                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++ )
+                    {
+                        tCellsOnBlock( tCounter++ ) = mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )->get_index();
+                    }
+                }
+
+                //FIXME: Maybe add this to linalg. Armadillo throws if min is called on an empty matrix
+#ifdef DEBUG
+                if(tCellsOnBlock.numel()!=0)
+                {
+                    MORIS_ASSERT( tCellsOnBlock.min() != -1, "calculate_cells_on_blocks(): negative Cell index");
+                }
+#endif
+
+                unique( tCellsOnBlock, mCellsOnBlock);
+
+//                print(mVerticesOnBlock,"mNumVerticesOnBlock");
+
+                mNumCellsOnBlock = mCellsOnBlock.numel();
             };
 
 //------------------------------------------------------------------------------
@@ -111,19 +177,23 @@ namespace moris
              */
             Block( std::string                   aName,
                    moris::Cell<Cluster const *>  aBlockSetClusters,
-				   const uint                    aSpatialDim ) : Set( aName, aBlockSetClusters, aSpatialDim )
+                   const uint                    aSpatialDim ) : Set( aName, aBlockSetClusters, aSpatialDim )
             {
-//                mMyBlockSetClusterInds.set_size( aBlockSetClusters.size(), 1 );
-//
-//                for( uint Ik = 0; Ik < aBlockSetClusters.size(); Ik++)
-//                {
-//                    mMyBlockSetClusterInds( Ik, 0 ) = aBlockSetClusterInd( Ik );
-//                }
-
                 this->calculate_vertices_on_blocks();
+
+                this->calculate_cells_on_blocks();
 
                 this->communicate_ig_geometry_type();
             };
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+            /**
+             * trivial constructor
+             */
+            Block(){};
 
 //------------------------------------------------------------------------------
 
@@ -154,18 +224,30 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              uint
-              get_num_vertieces_on_set() const
+              uint get_num_vertieces_on_set() const
               {
                   return mNumVerticesOnBlock;
               }
 
 //------------------------------------------------------------------------------
 
-              moris::Matrix< DDSMat >
-              get_vertieces_inds_on_block() const
+              moris::Matrix< DDSMat > get_vertieces_inds_on_block() const
               {
                   return mVerticesOnBlock;
+              }
+
+//------------------------------------------------------------------------------
+
+              uint get_num_cells_on_set() const
+              {
+                  return mNumCellsOnBlock;
+              }
+
+//------------------------------------------------------------------------------
+
+              moris::Matrix< DDSMat > get_cell_inds_on_block() const
+              {
+                  return mCellsOnBlock;
               }
 
 //------------------------------------------------------------------------------

@@ -1,0 +1,31 @@
+### Visualization Config File ###
+
+if(@VIS@_CONFIGURED)
+	return()
+endif()
+
+set(@VIS@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@VIS@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@VIS@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@VIS@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@VIS_COMPILE_DEFINITIONS@")
+set(@VIS@_C_FLAGS "@MORIS_C_FLAGS@" "@VIS_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@VIS_CONFIG_TPL_DEPENDENCIES@
+@VIS_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_VIS_CONFIG_INSTALL_DIR@/@VIS@Targets.cmake")
+
+# Library target list
+set(@VIS@_LIBRARIES @VIS@-lib)

@@ -54,6 +54,26 @@ public:
     moris::Cell<moris::mtk::Cell const *> const &
     get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
+    virtual void set_interpolation_cell( moris::mtk::Cell const * aInterpCell )
+    {
+        MORIS_ERROR( false, "set_interpolation_cell(), not implemented for this class" );
+    };
+
+    virtual void add_primary_integration_cell(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell)
+    {
+        MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
+    };
+
+    virtual void add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell)
+    {
+        MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
+    };
+
+    virtual void mark_as_nontrivial()
+    {
+        MORIS_ERROR( false, "mark_as_nontrivial(), not implemented for this class" );
+    };
+
     virtual
     moris::Cell<moris::mtk::Cell const *> const &
     get_void_cells_in_cluster() const

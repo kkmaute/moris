@@ -534,8 +534,8 @@ TEST_CASE("2D XTK WITH HMR Thermal Property 2D","[XTK_HMR_thermal_property_2D]")
 
 TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 {
-//    if(par_size()<=1)
-//    {
+    if(par_size()<=1)
+    {
 //        uint tLagrangeMeshIndex = 0;
 //        std::string tFieldName = "Cylinder";
 //
@@ -584,7 +584,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 //
 //        tHMR.finalize();
 //
-//        // tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+////        // tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
 //
 //        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 //
@@ -612,7 +612,78 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 //        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 //
 //        uint tSpatialDimension = 2;
+
+        //------------------------------------------------------------------------------
+        // create the properties
+//        std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
+//        tPropConductivity1->set_parameters( { {{ 1.0 }} } );
+//        tPropConductivity1->set_val_function( tConstValFunction2MatMDL );
 //
+//        std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
+//        tPropConductivity2->set_parameters( { {{ 5.0 }} } );
+//        tPropConductivity2->set_val_function( tConstValFunction2MatMDL );
+//
+//        std::shared_ptr< fem::Property > tPropDirichletTEMP = std::make_shared< fem::Property >();
+//        tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+//        tPropDirichlet->set_val_function( tConstValFunction2MatMDL );
+//
+//        std::shared_ptr< fem::Property > tPropNeumannTEMP = std::make_shared< fem::Property >();
+//        tPropNeumann->set_parameters( { {{ 20.0 }} } );
+//        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
+//
+//        std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
+//        tPropEMod1->set_parameters( { {{ 1.0 }} } );
+//        tPropEMod1->set_val_function( tConstValFunction );
+//
+//        std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
+//        tPropEMod2->set_parameters( { {{ 1.0 }} } );
+//        tPropEMod2->set_val_function( tConstValFunction );
+//
+//        std::shared_ptr< fem::Property > tPropPoisson = std::make_shared< fem::Property >();
+//        tPropNeumann->set_parameters( { {{ 0.0 }} } );
+//        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
+//
+//        std::shared_ptr< fem::Property > tPropDirichletUX = std::make_shared< fem::Property >();
+//        tPropDirichletUX->set_parameters( { {{ 0.0 }} } );
+//        tPropDirichletUX->set_val_function( tConstValFunction );
+//        tPropDirichletUX->set_dof_type( MSI::Dof_Type::UX );
+//
+//        std::shared_ptr< fem::Property > tPropDirichletUY = std::make_shared< fem::Property >();
+//        tPropDirichletUY->set_parameters( { {{ 0.0 }} } );  // specify UY displacement
+//        tPropDirichletUY->set_val_function( tConstValFunction );
+//        tPropDirichletUY->set_dof_type( MSI::Dof_Type::UY );
+//
+//        std::shared_ptr< fem::Property > tCTE = std::make_shared< fem::Property >();
+//        tPropNeumann->set_parameters( { {{ 0.0 }} } );
+//        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
+//
+//        std::shared_ptr< fem::Property > tTRef = std::make_shared< fem::Property >();
+//        tPropNeumann->set_parameters( { {{ 1.0 }} } );
+//        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
+//
+//        // define constitutive models
+//        fem::CM_Factory tCMFactory;
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+//        tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//        tCMDiffLinIso1->set_properties( { tPropConductivity1 } );
+//        tCMDiffLinIso1->set_space_dim( 2 );
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+//        tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+//        tCMDiffLinIso2->set_properties( { tPropConductivity2 } );
+//        tCMDiffLinIso2->set_space_dim( 2 );
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+//        tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+//        tCMStrucLinIso1->set_properties( { tPropEMod1, tPropNu } );
+//        tCMStrucLinIso1->set_space_dim( 2 );
+//
+//        std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+//        tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+//        tCMStrucLinIso2->set_properties( { tPropEMod2, tPropNu } );
+//        tCMStrucLinIso2->set_space_dim( 2 );
+
 //        // create IWG user defined info
 //        Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 4 );
 //        tIWGUserDefinedInfo( 0 ).resize( 2 );
@@ -904,7 +975,7 @@ TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
 //        delete tIntegMesh1;
 //
 //        delete tModel;
-//    }
+    }
 }
 
 TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2D_staggered]")

@@ -51,7 +51,7 @@ namespace moris
 
         protected :
 
-            moris::Cell<Cluster const *> mSetClusters;
+            moris::Cell< Cluster const * > mSetClusters;
 
             // integration mesh geometry type
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
@@ -176,6 +176,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            std::string get_set_name()
+            {
+                return mSetName;
+            }
+
+//------------------------------------------------------------------------------
+
+            uint get_clusters() const
+            {
+                MORIS_ERROR( !(mSpatialDim < 1) || !(mSpatialDim > 3), "Set::get_spatial_dim(), Spatial dim < 1 or > 3" );
+                return mSpatialDim;
+            }
+
+//------------------------------------------------------------------------------
+
             uint get_spatial_dim() const
             {
                 MORIS_ERROR( !(mSpatialDim < 1) || !(mSpatialDim > 3), "Set::get_spatial_dim(), Spatial dim < 1 or > 3" );
@@ -256,16 +271,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              virtual uint
-              get_num_vertieces_on_set() const = 0;
+              virtual uint get_num_vertieces_on_set() const = 0;
 
 //------------------------------------------------------------------------------
 
-              virtual moris::Matrix< DDSMat >
-              get_vertieces_inds_on_block() const = 0;
+              virtual moris::Matrix< DDSMat > get_vertieces_inds_on_block() const = 0;
 
 //------------------------------------------------------------------------------
 
+              virtual uint get_num_cells_on_set() const = 0;
+
+//------------------------------------------------------------------------------
+
+              virtual moris::Matrix< DDSMat > get_cell_inds_on_block() const = 0;
+
+//------------------------------------------------------------------------------
               virtual moris::uint
               get_num_clusters_on_set() const = 0;
 

@@ -51,6 +51,8 @@ set(BUILD_TSA OFF CACHE BOOL "Build the TSA executable." FORCE)
 
 set(BUILD_TOL OFF CACHE BOOL "Build the tools executable." FORCE)
 
+set(BUILD_VIS OFF CACHE BOOL "Build the visualization executable." FORCE)
+
 set(BUILD_XTK OFF CACHE BOOL "Build the XTK executable." FORCE)
 
 

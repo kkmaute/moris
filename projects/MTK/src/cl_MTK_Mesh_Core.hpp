@@ -1027,10 +1027,10 @@ public:
     Matrix< IndexMat >
     get_set_entity_loc_inds( enum EntityRank aSetEntityRank,
                              std::string     aSetName) const
-                             {
+    {
         MORIS_ERROR(0," get_set_entity_loc_inds has no base implementation");
         return Matrix< IndexMat >(0,0);
-                             }
+    }
 
 
     /*
