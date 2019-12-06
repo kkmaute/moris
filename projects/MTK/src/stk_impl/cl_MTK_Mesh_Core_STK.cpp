@@ -431,7 +431,7 @@ namespace mtk
         {
             moris::moris_index tVertexIndex = this->get_loc_entity_ind_from_entity_glb_id(( moris_id ) mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[iEntity] ),tEntityRank);
 
-            tOutputVertices( iEntity ) = &this->get_mtk_vertex(tVertexIndex);
+            tOutputVertices( tVertexIndex ) = &this->get_mtk_vertex(tVertexIndex);
         }
 
         return tOutputVertices;
@@ -760,8 +760,7 @@ namespace mtk
 
     // ----------------------------------------------------------------------------
 
-    enum CellTopology
-    Mesh_Core_STK::get_blockset_topology(const  std::string & aSetName)
+    enum CellTopology Mesh_Core_STK::get_blockset_topology(const std::string & aSetName )
     {
         // Get pointer to field defined by input name
         stk::mesh::Part* const tSetPart = mSTKMeshData->mMtkMeshMetaData->get_part( aSetName );

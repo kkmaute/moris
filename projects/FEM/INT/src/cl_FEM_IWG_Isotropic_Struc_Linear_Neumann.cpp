@@ -42,7 +42,7 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-            = - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() * tWStar;
+            += - trans( tFI->N() ) * mMasterProp( tNeumannIndex )->val() * tWStar;
         }
 
 //------------------------------------------------------------------------------

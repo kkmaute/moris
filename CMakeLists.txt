@@ -77,6 +77,7 @@ set(STK "STK")
 # set(TIN "TIN")
 set(TOL "TOL")
 set(TSA "TSA")
+set(VIS "VIS")
 set(XTK "XTK")
 
 # Common paths
@@ -246,6 +247,8 @@ option(BUILD_TOL "Build the tools executable." OFF)
 option(BUILD_TSA "Build the time solver algebra executable." OFF)
 
 option(BUILD_TUTORIALS "Build the tutorial executables." OFF)
+
+option(BUILD_VIS "Build the visualization executable." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
@@ -660,6 +663,10 @@ endif()
 
 if(BUILD_TSA)
     include(${MORIS_DEPENDS_DIR}/TSA_Depends.cmake)
+endif()
+
+if(BUILD_VIS)
+    include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
 endif()
 
 if(BUILD_XTK)

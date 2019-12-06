@@ -131,7 +131,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
 
     // create random coefficients
     arma::Mat< double > tMatrix;
-    tMatrix.randu( 8, 3);
+    tMatrix.randu( 8, 3 );
     Matrix< DDRMat > tDOFHat;
     tDOFHat.matrix_data() = 10.0 * tMatrix;
 
@@ -139,7 +139,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     Cell< Field_Interpolator* > tFIs( 1 );
 
     // create the field interpolator
-    tFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+    tFIs( 0 ) = new Field_Interpolator( 3, tFIRule, &tGI, { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
 
     // set the coefficients uHat
     tFIs( 0 )->set_coeff( tDOFHat );
@@ -183,7 +183,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     // evaluate the quantity of interest
     Matrix< DDRMat > aQI;
     tIQI->compute_QI( aQI );
-    print( aQI, "aQI" );
+    //print( aQI, "aQI" );
 
 
 }/*END_TEST_CASE*/

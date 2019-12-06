@@ -1,24 +1,28 @@
 /*
- * cl_MTK_Cell_Cluster_STK.hpp
+ * cl_VIS_Cell_Cluster_Visualization.hpp
  *
- *  Created on: Apr 29, 2019
- *      Author: doble
+ *  Created on: Dec 03, 2019
+ *      Author: schmidt
  */
 
-#ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_CLUSTER_STK_HPP_
-#define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_CLUSTER_STK_HPP_
+#ifndef PROJECTS_VIS_SRC_CL_VIS_CELL_CLUSTER_VISUALIZATION_HPP_
+#define PROJECTS_VIS_SRC_CL_VIS_CELL_CLUSTER_VISUALIZATION_HPP_
 
-#include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_Matrix.hpp"
 #include <unordered_map>
 
+#include "cl_MTK_Cell_Cluster.hpp"
 
 namespace moris
 {
 namespace mtk
 {
-
-class Cell_Cluster_STK: public Cell_Cluster
+    class Cell;
+    class Vertex;
+}
+namespace vis
+{
+class Cell_Cluster_Visualization: public mtk::Cell_Cluster
 {
 private:
     bool                                    mTrivial;
@@ -32,53 +36,54 @@ private:
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
 
 public:
-    Cell_Cluster_STK() : mTrivial(true),
-                         mInterpolationCell(nullptr),
-                         mPrimaryIntegrationCells(0,nullptr),
-                         mVoidIntegrationCells(0,nullptr),
-                         mVerticesInCluster(0,nullptr),
-                         mVertexParamCoords(0,0)
+    Cell_Cluster_Visualization() : mTrivial( true ),
+                                   mInterpolationCell( nullptr ),
+                                   mPrimaryIntegrationCells( 0, nullptr ),
+                                   mVoidIntegrationCells( 0, nullptr ),
+                                   mVerticesInCluster( 0, nullptr ),
+                                   mVertexParamCoords( 0, 0 )
     {};
 
+//    Cell_Cluster_Visualization( bool                     aIsTrivial,
+//                                moris::mtk::Cell const * aInterpolationCell, ) : mTrivial( aIsTrivial ),
+//                                                                                 mInterpolationCell( aInterpolationCell ),
+//                                   mPrimaryIntegrationCells( 0, nullptr ),
+//                                   mVoidIntegrationCells( 0, nullptr ),
+//                                   mVerticesInCluster( 0, nullptr ),
+//                                   mVertexParamCoords( 0, 0 )
+//    {};
+
     //----------------------------------------------------------------
-    bool
-    is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+    bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
     //##############################################
     // Add and setup of cluster
     //##############################################
-    void
-    mark_as_nontrivial();
+    void mark_as_nontrivial();
 
     //----------------------------------------------------------------
 
-    void
-    set_interpolation_cell(moris::mtk::Cell const * aInterpCell);
+    void set_interpolation_cell(moris::mtk::Cell const * aInterpCell);
 
     //----------------------------------------------------------------
 
-    void
-    add_primary_integration_cell(moris::mtk::Cell  const * aIntegrationCell);
+    void add_primary_integration_cell(moris::mtk::Cell  const * aIntegrationCell);
 
     //----------------------------------------------------------------
 
-    void
-    add_primary_integration_cell(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell);
+    void add_primary_integration_cell(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell);
 
     //----------------------------------------------------------------
 
-    void
-    add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell);
+    void add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell);
 
     //----------------------------------------------------------------
 
-    void
-    add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex);
+    void add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex);
 
     //----------------------------------------------------------------
 
-    void
-    add_vertex_local_coordinates_wrt_interp_cell(moris::Matrix<moris::DDRMat> const & aLocalCoords);
+    void add_vertex_local_coordinates_wrt_interp_cell(moris::Matrix<moris::DDRMat> const & aLocalCoords);
 
     //----------------------------------------------------------------
 
@@ -138,4 +143,4 @@ private:
 }
 
 
-#endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_CLUSTER_STK_HPP_ */
+#endif /* PROJECTS_VIS_SRC_CL_VIS_CELL_CLUSTER_VISUALIZATION_HPP_ */
