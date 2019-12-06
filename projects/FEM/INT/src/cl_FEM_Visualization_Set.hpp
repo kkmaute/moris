@@ -35,7 +35,7 @@ namespace moris
             {
                 this->create_visualization_objects();
 
-//                this->create_index_map();
+                this->create_index_map();
             };
 
 //-----------------------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ namespace moris
 
             void create_index_map()
             {
-            	bool tBool = true;
+            	bool tBool = false;
                  mIndexOffset = mMeshSet->get_cell_inds_on_block( tBool ).min();
 
                  Matrix< IndexMat > tIndices = mMeshSet->get_cell_inds_on_block( tBool );
