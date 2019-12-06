@@ -278,7 +278,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 
                 tOutputData.write_mesh();
 
-                tOutputData.write_field();
+//                tOutputData.write_field();
 
 
 

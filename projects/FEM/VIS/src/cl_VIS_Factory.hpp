@@ -55,7 +55,7 @@ namespace moris
                                                            mMeshPairIndex( aMeshPairIndex )
             {
                 mListOfRequestedBlocks = { { 0, 1, 2, 3} };
-				mOnlyPrimary = false;
+				mOnlyPrimary = false ;
 
                 mRequestedBlocks = mListOfRequestedBlocks.numel();
 
@@ -127,6 +127,8 @@ namespace moris
 
                 for( uint Ij = 0; Ij <mRequestedBlocks; Ij++ )
                 {
+                	std::cout<<Ij<<std::endl;
+
                     moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( mListOfRequestedBlocks( Ij ) );
 
                     uint tNumCellsOnSet = tMeshSet->get_num_cells_on_set( mOnlyPrimary );
@@ -154,6 +156,8 @@ namespace moris
                                                                             tCellIndexCounter,
                                                                             tCellVerices,
                                                                             &tIntegrationMesh->get_mtk_cell( tCellIndOnBlock( Ik ) ) );
+
+                    	std::cout<<tCellIdCounter<<std::endl;
 
                         tCellIndexCounter++;
                         tCellIdCounter++;
