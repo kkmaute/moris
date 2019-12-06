@@ -236,7 +236,7 @@ if(par_size()<=1)
 //        std::string tOutputFile = "./ge_finite_diff_ut.exo";
 //        tInterpMesh1->create_output_mesh(tOutputFile);
         // clean up
-        delete tInterpMesh1;
+        //delete tInterpMesh1;
         delete tIntegMesh1;
 }
 }
@@ -403,7 +403,7 @@ TEST_CASE("Finite_Difference_Checks_02","[moris],[GE],[FD_on_sphere]")
 //        std::string tOutputFile = "./ge_finite_diff_ut.exo";
 //        tInterpMesh1->create_output_mesh(tOutputFile);
         // clean up
-        delete tInterpMesh1;
+        //delete tInterpMesh1;
         delete tIntegMesh1;
     }
 }

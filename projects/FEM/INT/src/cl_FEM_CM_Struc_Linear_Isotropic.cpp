@@ -75,23 +75,22 @@ namespace moris
             }
 
             // if thermal expansion
-            if ( mProperties.size() > 2 )
+            uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
+            uint tTempRefIndex = static_cast< uint >( Property_Type::TEMP_REF );
+            if ( mProperties( tCTEIndex ) != nullptr )
             {
-                if ( mProperties( 2 )->get_property_type() == fem::Property_Type::CTE )
-//                if ( mGlobalDofTypeMap( static_cast<int>( fem::Property_Type::CTE)) != -1 )
-                {
-                    // build thermal expansion vector
-                    Matrix< DDRMat > tTheramlExpansionVector;
-                    this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+                // build thermal expansion vector
+                Matrix< DDRMat > tTheramlExpansionVector;
+                this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
 
-                    // get reference Temerature
-                    moris::real tTref = mProperties( 3 )->val()( 0 );
+                // get reference Temperature
+                moris::real tTref = mProperties( tTempRefIndex )->val()( 0 );
 
-                    moris::real tTgp = mDofFI( 1 )->val()( 0 );
+                // get temperature from field interpolator
+                moris::real tTgp = mDofFI( 1 )->val()( 0 );
 
-                    // add thermal contribution to the strain
-                    mStrain.matrix_data() += tTheramlExpansionVector * ( - tTgp + tTref );
-                }
+                // add thermal contribution to the strain
+                mStrain.matrix_data() += tTheramlExpansionVector * ( - tTgp + tTref );
             }
         }
 
@@ -143,8 +142,10 @@ namespace moris
 //------------------------------------------------------------------------------
         void CM_Struc_Linear_Isotropic::eval_const()
         {
-            moris::real tNu = mProperties( 1 )->val()( 0 );
+            uint tNuIndex = static_cast< uint >( Property_Type::NU );
+            moris::real tNu = mProperties( tNuIndex )->val()( 0 );
 
+            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
             switch ( mSpaceDim )
             {
                 case ( 2 ):
@@ -155,7 +156,7 @@ namespace moris
                     {
                         case ( 1 ):
                         {
-                            moris::real tPre = mProperties( 0 )->val()( 0 ) / (1 - std::pow( tNu, 2));
+                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1 - std::pow( tNu, 2));
 
                             // compute conductivity matrix
                             mConst.set_size( 3, 3, 0.0 );
@@ -168,7 +169,7 @@ namespace moris
                         }
                         case ( 2 ):
                         {
-                            moris::real tPre = mProperties( 0 )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
 
                             mConst.set_size( 4, 4, 0.0 );
                             mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -195,7 +196,7 @@ namespace moris
             }
             case( 3 ):
             {
-                moris::real tPre = mProperties( 0 )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
 
                 mConst.set_size( 6, 6, 0.0 );
                 mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -245,10 +246,11 @@ namespace moris
             }
 
             // if indirect dependency on the dof type
-            if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
+            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
+            if ( mProperties( tEModIndex )->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() += ( 1.0 / mProperties( 0 )->val()( 0 ) ) * this->constitutive() * this->strain() * mProperties( 0 )->dPropdDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() += ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->constitutive() * this->strain() * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
             }
         }
 
@@ -288,13 +290,15 @@ namespace moris
             this->flatten_normal( aNormal, tNormal );
 
             // if indirect dependency on the dof type
-            if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
+            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
+            if ( mProperties( tEModIndex )->check_dof_dependency( aDofTypes ) )
             {
                 mdTestTractiondDof( tDofIndex ).set_size( mDofFI( 0 )->get_number_of_space_time_coefficients(), mDofFI( tDofIndex )->get_number_of_space_bases(), 0.0 );
 
                 // compute derivative with indirect dependency through properties
-                mdTestTractiondDof( tDofIndex ).matrix_data() +=  ( 1.0 / mProperties( 0 )->val()( 0 ) ) * this->testTraction( tNormal ) * trans( aJump )
-                        * mProperties( 0 )->dPropdDOF( aDofTypes );
+                mdTestTractiondDof( tDofIndex ).matrix_data()
+                +=  ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->testTraction( tNormal ) * trans( aJump )
+                    * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
             }
             else
             {
@@ -324,16 +328,14 @@ namespace moris
             }
 
             // if thermal expansion
-            if ( mProperties.size() > 2 )
+            uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
+            if ( mProperties( tCTEIndex ) != nullptr && aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
             {
-                if ( mProperties( 2 )->get_property_type() == fem::Property_Type::CTE && aDofTypes(0) == MSI::Dof_Type::TEMP )
-                {
-                    // build thermal expansion vector
-                    Matrix< DDRMat > tTheramlExpansionVector;
-                    this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+                // build thermal expansion vector
+                Matrix< DDRMat > tTheramlExpansionVector;
+                this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
 
-                    mdStraindDof( tDofIndex ).matrix_data() += (- 1.0) * tTheramlExpansionVector * mDofFI( tDofIndex )->NBuild();
-                }
+                mdStraindDof( tDofIndex ).matrix_data() += (- 1.0 ) * tTheramlExpansionVector * mDofFI( tDofIndex )->NBuild();
             }
         }
 
@@ -383,6 +385,8 @@ namespace moris
 
         void CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector )
         {
+            uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
+
             switch ( mSpaceDim )
             {
                 case ( 2 ):
@@ -394,8 +398,8 @@ namespace moris
                         case ( 1 ):
                         {
                             aTheramlExpansionVector.set_size( 3, 1, 0.0);
-                            aTheramlExpansionVector( 0 ) = mProperties( 2 )->val()( 0 );
-                            aTheramlExpansionVector( 1 ) = mProperties( 2 )->val()( 0 );
+                            aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
+                            aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
                             break;
                         }
                         case ( 2 ):
@@ -413,9 +417,9 @@ namespace moris
             case( 3 ):
             {
                 aTheramlExpansionVector.set_size( 6, 1, 0.0);
-                aTheramlExpansionVector( 0 ) = mProperties( 2 )->val()( 0 );
-                aTheramlExpansionVector( 1 ) = mProperties( 2 )->val()( 0 );
-                aTheramlExpansionVector( 2 ) = mProperties( 2 )->val()( 0 );
+                aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
+                aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
+                aTheramlExpansionVector( 2 ) = mProperties( tCTEIndex )->val()( 0 );
                 break;
             }
             default:

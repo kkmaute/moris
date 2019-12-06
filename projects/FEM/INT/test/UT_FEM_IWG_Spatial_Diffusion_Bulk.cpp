@@ -80,7 +80,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     // define the IWGs
@@ -89,8 +89,8 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_properties( { tPropMasterTempLoad }, mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -154,41 +154,53 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     //set the evaluation point xi, tau
     tFIs( 0 )->set_space_time( tParamPoint );
 
+    // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
+    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
-    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
-
+    // set size for the set EqnObjDofTypeList
     tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
-    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    // set size and populate the set dof type map
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
+    // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
+    // set size and fill the set residual assembly map
     tIWG->mSet->mResDofAssemblyMap.resize( 1 );
-    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+
+    // set size and fill the set jacobian assembly map
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
     tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
 
+    // set size and init the set residual and jacobian
     tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
     tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
 
+    // set requested residual dof type flag to true
     tIWG->mResidualDofTypeRequested = true;
 
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
+    // populate the requested master dof type
     tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
+    // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
 
+    // populate the field interpolator manager
     tFIManager.mMasterFI = tFIs;
 
-    // set IWG field interpolators
+    // set IWG field interpolator manager
     tIWG->mFieldInterpolatorManager = &tFIManager;
 
+    // set IWG field interpolators
     tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
 
     // set IWG field interpolators
@@ -239,7 +251,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     // define the IWGs
@@ -248,8 +260,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_properties( { tPropMasterTempLoad }, mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -402,7 +414,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tCMMasterDiffLinIso->set_properties( { tPropMasterConductivity } );
+    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
     tCMMasterDiffLinIso->set_space_dim( 3 );
 
     // define the IWGs
@@ -411,8 +423,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     tIWG->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_models( { tCMMasterDiffLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_properties( { tPropMasterTempLoad }, mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------

@@ -104,7 +104,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * gets the IG cell local coordinates on the side wrt to the IP cell
+         * get the IG cell local coordinates on the side wrt to the IP cell
          * @param[ in ] aCellIndexInCluster index of the IG cell within the cluster
          * @param[ in ] aSideOrdinal        ordinal for the side
          * @param[ in ] aIsMaster           enum for master or slave
@@ -131,7 +131,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
         /**
-         * gets the index of the vertex associated with a given master vertex
+         * get the index of the vertex associated with a given master vertex
          * @param[ in ] aLeftVertex mesh vertex pointer
          */
         moris::mtk::Vertex const * get_left_vertex_pair( moris::mtk::Vertex const * aLeftVertex );

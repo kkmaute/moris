@@ -244,7 +244,7 @@ TEST_CASE("analytic_functionalities_test_01","[GE],[analytic_functionalities_2D]
 //            std::string tOutputFile = "./analytic_functionalities_2D.exo";
 //            tInterpMesh1->create_output_mesh(tOutputFile);
             // clean up
-            delete tInterpMesh1;
+            //delete tInterpMesh1;
             delete tIntegMesh1;
 
         }   // end analytic_functionalities_2D
@@ -359,7 +359,7 @@ TEST_CASE("analytic_functionalities_test_02","[GE],[analytic_functionalities_3D]
 //    std::string tOutputFile = "./ge_analytic_test.exo";
 //    tInterpMesh1->create_output_mesh(tOutputFile);
     // clean up
-    delete tInterpMesh1;
+    //delete tInterpMesh1;
     delete tIntegMesh1;
         }   // end analytic_functionalities_3D
 

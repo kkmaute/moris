@@ -1,6 +1,8 @@
 
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
@@ -12,6 +14,13 @@ namespace moris
 //------------------------------------------------------------------------------
         IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost()
         {
+            // set size for the constitutive model pointer cell
+            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+
+            // populate the constitutive map
+            mConstitutiveMap[ "DiffLinIso" ] = IWG_Constitutive_Type::DIFF_LIN_ISO;
+
             // FIXME set penalty from outside
             // penalty parameter
             mGammaGhost = 1.0;
@@ -19,17 +28,33 @@ namespace moris
             // FIXME set mesh parameter from outside
             // mesh parameter
             mMeshParameter = 1.0;
-
-//            // FIXME set order from outside
-//            // interpolation order
-//            mOrder = 1;
         }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual( real aWStar )
         {
+#ifdef DEBUG
+            // check master and slave field interpolators
+            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
+
+            // get master index for residual dof type
+            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get slave index for residual dof type
+            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // get master field interpolator for the residual dof type
+            Field_Interpolator * tMasterFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get slave field interpolator for the residual dof type
+            Field_Interpolator * tSlaveFI  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
             // FIXME the order should be set differently
-            switch ( mMasterFI( 0 )->get_space_interpolation_order() )
+            switch ( tMasterFI->get_space_interpolation_order() )
             {
                 case( mtk::Interpolation_Order::LINEAR ):
                 {
@@ -56,22 +81,8 @@ namespace moris
             // check, if order is supported
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_residual - order not supported. " );
 
-            // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
-
-            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
-
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
+            // get indices for SP, CM and properties
+            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
 
             if( mOrder >= 1 )
             {
@@ -82,24 +93,42 @@ namespace moris
                 Matrix< DDRMat > tNormalMatrix = this->get_normal_matrix( 1 );
 
                 // compute the jump in traction
-                Matrix< DDRMat > tGradJump = mMasterCM( 0 )->traction( mNormal ) - mSlaveCM( 0 )->traction( mNormal );
+                Matrix< DDRMat > tGradJump = mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) - mSlaveCM( tDiffLinIsoIndex )->traction( mNormal );
 
-                if (mResidualDofTypeRequested)
-                {
                 // compute the residual
                 mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
-                                        +=   tGhostPenalty1 * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * tGradJump * aWStar;
+                +=   tGhostPenalty1 * trans( tMasterFI->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * tGradJump * aWStar;
+
                 mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
-                                        += - tGhostPenalty1 * trans( mSlaveFI( 0 )->dnNdxn( 1 ) )  * trans( tNormalMatrix ) * tGradJump * aWStar;
-                }
+                += - tGhostPenalty1 * trans( tSlaveFI->dnNdxn( 1 ) )  * trans( tNormalMatrix ) * tGradJump * aWStar;
             }
         }
 
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Spatial_Diffusion_Virtual_Work_Ghost::compute_jacobian( real aWStar )
         {
+#ifdef DEBUG
+            // check master and slave field interpolators
+            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
+            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
+            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
+
+            // get master index for residual dof type
+            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get slave index for residual dof type
+            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // get master field interpolator for the residual dof type
+            Field_Interpolator * tMasterFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get slave field interpolator for the residual dof type
+            Field_Interpolator * tSlaveFI  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
             // FIXME the order should be set differently
-            switch ( mMasterFI( 0 )->get_space_interpolation_order() )
+            switch ( tMasterFI->get_space_interpolation_order() )
             {
                 case( mtk::Interpolation_Order::LINEAR ):
                 {
@@ -126,25 +155,11 @@ namespace moris
             // check, if order is supported
             MORIS_ERROR( mOrder < 4, " IWG_Isotropic_Spatial_Diffusion_Ghost::compute_jacobian - Ghost stabilization for this order not supported yet. " );
 
-            // check master and slave field interpolators
-            this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
-            this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
-
-            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
-            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
-
-//            // check master and slave properties
-//            this->check_properties( mtk::Master_Slave::MASTER );
-//            this->check_properties( mtk::Master_Slave::SLAVE );
-//
-//            // check master and slave constitutive models
-//            this->check_constitutive_models( mtk::Master_Slave::MASTER );
-//            this->check_constitutive_models( mtk::Master_Slave::SLAVE );
-
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
+            // get indices for SP, CM and properties
+            uint tDiffLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
 
             // order 1
             if ( mOrder >= 1 )
@@ -161,19 +176,20 @@ namespace moris
                     // get the dof type
                     Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
+                    // get the index for the dof type
                     sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
 
                     // if dependency on the dof type
-                    if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
+                    if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
                         mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
                                               { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
-                                +=   tGhostPenalty * trans( mMasterFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                        +=   tGhostPenalty * trans( tMasterFI->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) * aWStar;
 
-                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
-                                              { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
-                                  += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                        += - tGhostPenalty * trans( tSlaveFI->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
                 }
 
@@ -184,19 +200,20 @@ namespace moris
                     // get dof type
                     Cell< MSI::Dof_Type > tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
 
+                    // get index for the dof type
                     sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
 
                     // if dependency on the dof type
-                    if ( mSlaveCM( 0 )->check_dof_dependency( tDofType ) )
+                    if ( mSlaveCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to jacobian
                         mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
-                                              { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
-                                += - tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
-
-                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
                                               { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
-                                  +=   tGhostPenalty * trans( mSlaveFI( 0 )->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( 0 )->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                        += - tGhostPenalty * trans( tMasterFI->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) * aWStar;
+
+                        mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                              { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                        +=   tGhostPenalty * trans( tSlaveFI->dnNdxn( 1 ) ) * trans( tNormalMatrix ) * mSlaveCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
                 }
             }

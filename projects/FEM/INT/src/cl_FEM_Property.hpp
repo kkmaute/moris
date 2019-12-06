@@ -35,11 +35,10 @@ namespace moris
         {
         protected :
 
-            // property type
-            fem::Property_Type mPropertyType;
-
+            // FIXME used? field interpolator manager pointer
             Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
 
+            // FIXME used? FEM set pointer
             Set * mSet = nullptr;
 
             // active dof types
@@ -91,55 +90,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * trivial constructor
+             * constructor
              */
             Property(){};
-
-            /**
-             * constructor
-             * @param[ in ] aPropertyType property type
-             * @param[ in ] aDofTypes     list of dof types
-             */
-            Property( fem::Property_Type                          aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes ) : mPropertyType( aPropertyType ),
-                                                                                mDofTypes( aDofTypes )
-            {};
-
-            /**
-             * constructor
-             * @param[ in ] aPropertyType         property type
-             * @param[ in ] aDofTypes             list of dof types
-             * @param[ in ] aParameters           list of parameters
-             * @param[ in ] aValFunction          property function for value
-             * @param[ in ] aDofDerFunctions      list of property functions for derivatives wrt to dof types
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointer
-             */
-            Property( fem::Property_Type                          aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                      moris::Cell< moris::Matrix< DDRMat > >      aParameters,
-                      PropertyFunc                                aValFunction,
-                      moris::Cell< PropertyFunc >                 aDofDerFunctions,
-                      Geometry_Interpolator*                      aGeometryInterpolator );
-
-            /**
-             * constructor
-             * @param[ in ] aPropertyType         property type
-             * @param[ in ] aDofTypes             list of dof types
-             * @param[ in ] aDvTypes              list of dv types
-             * @param[ in ] aParameters           list of parameters
-             * @param[ in ] aValFunction          property function for value
-             * @param[ in ] aDofDerFunctions      list of property functions for derivatives wrt to dof types
-             * @param[ in ] aDvDerFunctions       list of property functions for derivatives wrt to dv types
-             * @param[ in ] aGeometryInterpolator geometry interpolator pointer
-             */
-            Property( fem::Property_Type                          aPropertyType,
-                      moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                      moris::Cell< moris::Cell< MSI::Dv_Type > >  aDvTypes,
-                      moris::Cell< moris::Matrix< DDRMat > >      aParameters,
-                      PropertyFunc                                aValFunction,
-                      moris::Cell< PropertyFunc >                 aDofDerFunctions,
-                      moris::Cell< PropertyFunc >                 aDvDerFunctions,
-                      Geometry_Interpolator*                      aGeometryInterpolator );
 
 //------------------------------------------------------------------------------
             /**
@@ -149,14 +102,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set property type
-             * @param[ in ] aPropertyType property types
+             * set field interpolator manager
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
              */
-            void set_property_type( fem::Property_Type aPropertyType )
-            {
-                mPropertyType = aPropertyType;
-            };
-
             void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
             {
                 mFieldInterpolatorManager = aFieldInterpolatorManager;
@@ -165,21 +113,12 @@ namespace moris
 //------------------------------------------------------------------------------
             /*
              * set member set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
              */
             void set_set_pointer( Set * aSetPointer )
             {
                 mSet = aSetPointer;
             }
-
-//------------------------------------------------------------------------------
-            /**
-             * return property type
-             * @param[ out ] mPropertyType property types
-             */
-            fem::Property_Type get_property_type() const
-            {
-                return mPropertyType;
-            };
 
 //------------------------------------------------------------------------------
             /**
@@ -297,26 +236,32 @@ namespace moris
                 uint tNumDofTypes = mDofTypes.size();
 
                 // set mDofDerFunctions size
-                mDofDerFunctions.resize( tNumDofTypes, nullptr );
+                mDofDerFunctions.assign( tNumDofTypes, nullptr );
 
                 // set mPropDofDerEval size
-                mPropDofDerEval.resize( tNumDofTypes, true );
+                mPropDofDerEval.assign( tNumDofTypes, true );
 
                 // set mPropDofDer size
                 mPropDofDer.resize( tNumDofTypes );
             };
-            //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
             /*
-             * @brief get and set functions for the single dof type case
+             * set dof type for the single dof type case
+             * @param[ in ] aDof a dof type
              */
             void set_dof_type( MSI::Dof_Type aDof )
             {
                 mDof = aDof;
             };
 
+//------------------------------------------------------------------------------
+            /*
+             * get dof type for the single dof type case
+             * @param[ out ] mDof a dof type
+             */
             MSI::Dof_Type get_dof_type(  )
             {
-//                MORIS_ERROR( mDof == MSI::Dof_Type::END_ENUM, "cl_FEM_Property::get_dof_type() - the DOF type is not set" );
                 return mDof;
             };
 
@@ -397,7 +342,7 @@ namespace moris
                 mDvDerFunctions.resize( tNumDvTypes, nullptr );
 
                 // set mPropDvDerEval size
-                mPropDvDerEval.resize( tNumDvTypes, true );
+                mPropDvDerEval.assign( tNumDvTypes, true );
 
                 // set mPropdvDer size
                 mPropDvDer.resize( tNumDvTypes );
@@ -520,21 +465,29 @@ namespace moris
             void eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
 
 //------------------------------------------------------------------------------
-
+            /**
+             * get non unique dof type list
+             * @param[ in ] aDofType cell of dof type
+             */
             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
-                // set the size of the dof type list for the set
+                // init counter
                 uint tCounter = 0;
 
+                // loop over dof types
                 for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
                 {
+                    // update counter
                     tCounter += mDofTypes( iDOF ).size();
                 }
 
+                // reserve memory for dof type list
                 aDofTypes.reserve( tCounter );
 
+                // loop over dof types
                 for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
                 {
+                    // populate the dof type list
                     aDofTypes.append( mDofTypes( iDOF ) );
                 }
             }

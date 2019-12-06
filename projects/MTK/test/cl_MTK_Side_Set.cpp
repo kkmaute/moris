@@ -94,7 +94,7 @@ TEST_CASE("MTK Side","[MTK],[MTK_Side]")
         REQUIRE(tVertex1(0,2) == 8);                    REQUIRE(tVertex2(0,2) == 9);
         REQUIRE(tVertex1(0,3) == 9);                    REQUIRE(tVertex2(0,3) == 1);
 
-        delete tInterpMesh;
+        //delete tInterpMesh;
         delete tIntegMesh;
     }
 }

@@ -5,76 +5,6 @@ namespace moris
 {
     namespace fem
     {
-
-//------------------------------------------------------------------------------
-        Property::Property( fem::Property_Type                          aPropertyType,
-                            moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                            moris::Cell< moris::Matrix< DDRMat > >      aParameters,
-                            PropertyFunc                                aValFunction,
-                            moris::Cell< PropertyFunc >                 aDofDerFunctions,
-                            Geometry_Interpolator*                      aGeometryInterpolator )
-        : mPropertyType( aPropertyType ),
-          mDofTypes( aDofTypes ),
-          mParameters( aParameters ),
-          mValFunction( aValFunction ),
-          mDofDerFunctions( aDofDerFunctions ),
-          mGeometryInterpolator( aGeometryInterpolator )
-        {
-            // build a dof type map
-            this->build_dof_type_map();
-
-            // set mDofDerFunctions size
-            mDofDerFunctions.resize( mDofTypes.size(), nullptr );
-
-            // set mPropDofDerEval size
-            mPropDofDerEval.resize( mDofTypes.size(), true );
-
-            // set mPropDofDer size
-            mPropDofDer.resize( mDofTypes.size() );
-        }
-
-        Property::Property( fem::Property_Type                          aPropertyType,
-                            moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                            moris::Cell< moris::Cell< MSI::Dv_Type > >  aDvTypes,
-                            moris::Cell< moris::Matrix< DDRMat > >      aParameters,
-                            PropertyFunc                                aValFunction,
-                            moris::Cell< PropertyFunc >                 aDofDerFunctions,
-                            moris::Cell< PropertyFunc >                 aDvDerFunctions,
-                            Geometry_Interpolator*                      aGeometryInterpolator )
-        : mPropertyType( aPropertyType ),
-          mDofTypes( aDofTypes ),
-          mDvTypes( aDvTypes ),
-          mParameters( aParameters ),
-          mValFunction( aValFunction ),
-          mDofDerFunctions( aDofDerFunctions ),
-          mDvDerFunctions( aDvDerFunctions ),
-          mGeometryInterpolator( aGeometryInterpolator )
-        {
-            // build a dof type map
-            this->build_dof_type_map();
-
-            // build a dv type map
-            this->build_dv_type_map();
-
-            // number of dof types
-            uint tNumDofTypes = mDofTypes.size();
-
-            // number of dv types
-            uint tNumDvTypes = mDvTypes.size();
-
-            // set mDofDerFunctions size
-            mDofDerFunctions.resize( tNumDofTypes, nullptr );
-            mDvDerFunctions.resize( tNumDvTypes, nullptr );
-
-            // set mPropDofDerEval size
-            mPropDofDerEval.resize( tNumDofTypes, true );
-            mPropDvDerEval.resize( tNumDvTypes, true );
-
-            // set mPropDofDer size
-            mPropDofDer.resize( tNumDofTypes );
-            mPropDvDer.resize( tNumDvTypes );
-        }
-
 //------------------------------------------------------------------------------
         void Property::build_dof_type_map()
         {
@@ -140,14 +70,14 @@ namespace moris
         {
             // check field interpolators cell size
             MORIS_ASSERT( mDofFI.size() == mDofTypes.size(),
-                          "Property::check_field_interpolators - wrong FI size. " );
+                          "Property::check_dof_field_interpolators - wrong FI size. " );
 
            // loop over the field interpolator pointers
            for( uint iFI = 0; iFI < mDofTypes.size(); iFI++ )
            {
                // check that the field interpolator was set
                MORIS_ASSERT( mDofFI( iFI ) != nullptr,
-                             "Property::check_field_interpolators - FI missing. " );
+                             "Property::check_dof_field_interpolators - FI missing. " );
            }
         }
 
@@ -251,13 +181,14 @@ namespace moris
         void Property::eval_Prop()
         {
             // check that mValFunc was assigned
-            MORIS_ASSERT( mValFunction != nullptr, "Property::eval_val - mValFunction not assigned. " );
+            MORIS_ASSERT( mValFunction != nullptr, "Property::eval_Prop - mValFunction not assigned. " );
 
             // check that mGeometryInterpolator was assigned
-            MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_val - mGeometryInterpolator not assigned. " );
+            MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_Prop - mGeometryInterpolator not assigned. " );
 
             // check that the field interpolators are set
             this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // use mValFunction to evaluate the property
             mProp = mValFunction( mParameters, mDofFI, mDvFI, mGeometryInterpolator );
@@ -300,6 +231,7 @@ namespace moris
 
             // check that the field interpolators are set
             this->check_dof_field_interpolators();
+            this->check_dv_field_interpolators();
 
             // if so use mDerivativeFunction to compute the derivative
 
@@ -345,10 +277,10 @@ namespace moris
             MORIS_ASSERT( mGeometryInterpolator != nullptr, "Property::eval_dPropdDV - mGeometryInterpolator not assigned. " );
 
             // check that the field interpolators are set
+            this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
 
             // if so use mDerivativeFunction to compute the derivative
-
             mPropDvDer( tDvIndex ) = mDvDerFunctions( tDvIndex )( mParameters,
                                                                   mDofFI,
                                                                   mDvFI,

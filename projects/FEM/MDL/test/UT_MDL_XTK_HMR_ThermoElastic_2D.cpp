@@ -49,10 +49,6 @@
 #include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
-
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"
 
 #include "cl_MDL_Model.hpp"
 

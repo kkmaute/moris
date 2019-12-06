@@ -11,34 +11,56 @@ namespace moris
 {
     namespace fem
     {
+    //------------------------------------------------------------------------------
+        IWG_Isotropic_Struc_Linear_Bulk::IWG_Isotropic_Struc_Linear_Bulk()
+        {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Load" ] = IWG_Property_Type::LOAD;
+
+            // set size for the constitutive model pointer cell
+            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+
+            // populate the constitutive map
+            mConstitutiveMap[ "ElastLinIso" ] = IWG_Constitutive_Type::ELAST_LIN_ISO;
+        }
+
 //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Bulk::compute_residual( real tWStar )
         {
+
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 #endif
 
+            // get index for a given dof type
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
+            // get field interpolator for dof type
             Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
+            // get start and end index for residual assembly
             uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
             uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
+            // get property, CM, SP indices
+            uint tLoadIndex        = static_cast< uint >( IWG_Property_Type::LOAD );
+            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+
             // compute the residual
             mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
-                    += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->flux() * tWStar;
+            += trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * mMasterCM( tElastLinIsoIndex )->flux() * tWStar;
 
             // if body load
-            if ( mMasterProp.size() > 0 )
-            //if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+            if ( mMasterProp( tLoadIndex ) != nullptr )
             {
+                // compute body load contribution
                 mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
-                        += - trans( tFI->N() ) * mMasterProp( 0 )->val()( 0 ) * tWStar;
+                += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->val()( 0 ) * tWStar;
             }
         }
 
@@ -49,13 +71,17 @@ namespace moris
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
-//            this->check_properties();
-//            this->check_constitutive_models();
 #endif
 
+            // get index for given dof type
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
 
+            // get field interpolator for given dof type
             Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get property, CM, SP indices
+            uint tLoadIndex        = static_cast< uint >( IWG_Property_Type::LOAD );
+            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
             // compute the jacobian for direct dof dependencies
             // Here no direct dependencies
@@ -69,27 +95,26 @@ namespace moris
 
                 uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
 
-                // if we have a body load FIXME
-                if ( mMasterProp.size() > 0 )
-                //if ( mMasterGlobalPropTypes( 0 ) == fem::Property_Type::TEMP_LOAD )
+                // if body load
+                if ( mMasterProp( tLoadIndex ) != nullptr )
                 {
                     // if property has dependency on the dof type
-                    if ( mMasterProp( 0 )->check_dof_dependency( tDofType ) )
+                    if ( mMasterProp( tLoadIndex )->check_dof_dependency( tDofType ) )
                     {
                         // compute the jacobian
                         mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                               { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                                += - trans( tFI->N() ) * mMasterProp( 0 )->dPropdDOF( tDofType ) * tWStar;
+                        += - trans( tFI->N() ) * mMasterProp( tLoadIndex )->dPropdDOF( tDofType ) * tWStar;
                     }
                 }
 
                 // if constitutive model has dependency on the dof type
-                if ( mMasterCM( 0 )->check_dof_dependency( tDofType ) )
+                if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
                     // compute the jacobian
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                            += trans( mMasterCM( 0 )->testStrain() ) * mMasterCM( 0 )->dFluxdDOF( tDofType ) * tWStar;
+                    += trans( mMasterCM( tElastLinIsoIndex )->testStrain() ) * mMasterCM( tElastLinIsoIndex )->dFluxdDOF( tDofType ) * tWStar;
                     // fixme add derivative of the test strain
                 }
             }
