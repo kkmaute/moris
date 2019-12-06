@@ -176,93 +176,113 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
                 tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
                 //------------------------------------------------------------------------------
-                        // create the properties
-                        std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-                        tPropConductivity->set_parameters( { {{ 1.0 }} } );
-                        tPropConductivity->set_val_function( tConstValFunction_MDLDIFF );
+                // create the properties
+                std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
+                tPropConductivity->set_parameters( { {{ 1.0 }} } );
+                tPropConductivity->set_val_function( tConstValFunction_MDLDIFF );
 
-                        std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-                        tPropDirichlet->set_parameters( { {{ 5.0 }} } );
-                        tPropDirichlet->set_val_function( tConstValFunction_MDLDIFF );
+                std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
+                tPropDirichlet->set_parameters( { {{ 5.0 }} } );
+                tPropDirichlet->set_val_function( tConstValFunction_MDLDIFF );
 
-                        std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
-                        tPropNeumann->set_parameters( { {{ 20.0 }} } );
-                        tPropNeumann->set_val_function( tConstValFunction_MDLDIFF );
+                std::shared_ptr< fem::Property > tPropNeumann = std::make_shared< fem::Property >();
+                tPropNeumann->set_parameters( { {{ 20.0 }} } );
+                tPropNeumann->set_val_function( tConstValFunction_MDLDIFF );
 
-                        std::shared_ptr< fem::Property > tPropTempLoad = std::make_shared< fem::Property >();
-                        tPropTempLoad->set_parameters( { {{ 0.0 }} } );
-                        tPropTempLoad->set_val_function( tConstValFunction_MDLDIFF );
+                std::shared_ptr< fem::Property > tPropTempLoad = std::make_shared< fem::Property >();
+                tPropTempLoad->set_parameters( { {{ 0.0 }} } );
+                tPropTempLoad->set_val_function( tConstValFunction_MDLDIFF );
 
-                        // define constitutive models
-                        fem::CM_Factory tCMFactory;
+                // define constitutive models
+                fem::CM_Factory tCMFactory;
 
-                        std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-                        tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
-                        tCMDiffLinIso->set_properties( { tPropConductivity } );
-                        tCMDiffLinIso->set_space_dim( 3 );
+                std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+                tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
+                tCMDiffLinIso->set_properties( { tPropConductivity } );
+                tCMDiffLinIso->set_space_dim( 3 );
 
-                        // define the IWGs
-                        fem::IWG_Factory tIWGFactory;
+                // define the IWGs
+                fem::IWG_Factory tIWGFactory;
 
-                        std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
-                        tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-                        tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-                        tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-                        tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
+                std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
+                tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+                tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+                tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+                tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
 
-                        std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
-                        tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-                        tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-                        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-                        tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+                std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
+                tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+                tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+                tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
+                tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
 
-                        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
-                        tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
-                        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-                        tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+                std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
+                tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
+                tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+                tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
 
-                        // define set info
-                        fem::Set_User_Info tSetBulk;
-                        tSetBulk.set_mesh_index( 0 );
-                        tSetBulk.set_set_type( fem::Element_Type::BULK );
-                        tSetBulk.set_IWGs( { tIWGBulk } );
+                // define set info
+                fem::Set_User_Info tSetBulk1;
+                tSetBulk1.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p0") );
+                tSetBulk1.set_set_type( fem::Element_Type::BULK );
+                tSetBulk1.set_IWGs( { tIWGBulk } );
 
-                        fem::Set_User_Info tSetDirichlet;
-                        tSetDirichlet.set_mesh_index( 3 );
-                        tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
-                        tSetDirichlet.set_IWGs( { tIWGDirichlet } );
+                fem::Set_User_Info tSetBulk2;
+                tSetBulk2.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p0") );
+                tSetBulk2.set_set_type( fem::Element_Type::BULK );
+                tSetBulk2.set_IWGs( { tIWGBulk } );
 
-                        fem::Set_User_Info tSetNeumann;
-                        tSetNeumann.set_mesh_index( 5 );
-                        tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
-                        tSetNeumann.set_IWGs( { tIWGNeumann } );
+                fem::Set_User_Info tSetBulk3;
+                tSetBulk3.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_c_p1") );
+                tSetBulk3.set_set_type( fem::Element_Type::BULK );
+                tSetBulk3.set_IWGs( { tIWGBulk } );
 
-                        // create a cell of set info
-                        moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
-                        tSetInfo( 0 ) = tSetBulk;
-                        tSetInfo( 1 ) = tSetDirichlet;
-                        tSetInfo( 2 ) = tSetNeumann;
+                fem::Set_User_Info tSetBulk4;
+                tSetBulk4.set_mesh_index( tEnrIntegMesh.get_block_set_index("HMR_dummy_n_p1") );
+                tSetBulk4.set_set_type( fem::Element_Type::BULK );
+                tSetBulk4.set_IWGs( { tIWGBulk } );
 
-                        // create model
-                        mdl::Model * tModel = new mdl::Model( &tMeshManager,
-                                                               1,
-                                                               tSetInfo );
+                fem::Set_User_Info tSetDirichlet;
+                tSetDirichlet.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_2_n_p1") );
+                tSetDirichlet.set_set_type( fem::Element_Type::SIDESET );
+                tSetDirichlet.set_IWGs( { tIWGDirichlet } );
 
-                        moris::Cell< MSI::Equation_Set * > tEquationSets(tModel->get_equation_sets().size());
-                        for(moris::uint iSet = 0; iSet < tModel->get_equation_sets().size(); iSet++ )
-                        {
-                            tEquationSets( iSet ) = tModel->get_equation_sets()( iSet );
-                        }
+                fem::Set_User_Info tSetNeumann;
+                tSetNeumann.set_mesh_index( tEnrIntegMesh.get_side_set_index("SideSet_4_n_p0") );
+                tSetNeumann.set_set_type( fem::Element_Type::SIDESET );
+                tSetNeumann.set_IWGs( { tIWGNeumann } );
+
+                // create a cell of set info
+                moris::Cell< fem::Set_User_Info > tSetInfo( 6 );
+                tSetInfo( 0 ) = tSetBulk1;
+                tSetInfo( 1 ) = tSetBulk2;
+                tSetInfo( 2 ) = tSetBulk3;
+                tSetInfo( 3 ) = tSetBulk4;
+                tSetInfo( 4 ) = tSetDirichlet;
+                tSetInfo( 5 ) = tSetNeumann;
+
+                // create model
+                mdl::Model * tModel = new mdl::Model( &tMeshManager,
+                        1,
+                        tSetInfo );
+
+                moris::Cell< MSI::Equation_Set * > tEquationSets(tModel->get_equation_sets().size());
+                for(moris::uint iSet = 0; iSet < tModel->get_equation_sets().size(); iSet++ )
+                {
+                    tEquationSets( iSet ) = tModel->get_equation_sets()( iSet );
+                }
 
                 Output_Data tOutputData( tEquationSets,
-                                         &tMeshManager,
-                                         0 );
+                        &tMeshManager,
+                        0 );
 
                 tOutputData.write_mesh();
 
+                tOutputData.write_field();
 
 
-                //----------------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------------
 
 ////                mtk::Mesh* tMesh11 = new Visualization_Mesh( &tMeshManager, 0 );
 //
@@ -282,7 +302,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 //
 //                for(uint Ik = 0; Ik<tNumElements;Ik++)
 //                {
-//                	tetField( Ik ) = Ik;
+//                    tetField( Ik ) = Ik;
 //                }
 //
 //                writer.set_elemental_fields(tElementalFieldNames);
@@ -290,7 +310,7 @@ TEST_CASE(" Output Data","[VIS],[Output_Data]")
 //                writer.write_elemental_field(0, "pressure", tetField);
 //
 //                writer.close_file();
-    }
+            }
     }
     }
 }

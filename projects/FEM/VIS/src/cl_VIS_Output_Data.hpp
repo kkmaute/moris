@@ -51,7 +51,7 @@ namespace moris
                                                                                        mMesh( aMesh ),
                                                                                        mMeshPairIndex( aMeshPairIndex )
             {
-                mListOfRequestedBlocks = { { 0 } };
+                mListOfRequestedBlocks = { { 0, 1, 2, 3 } };
                 mOnlyPrimary = true;
 
                 this->create_visualization_meshes();
@@ -118,21 +118,31 @@ namespace moris
             {
             	mWriter->open_file("/data/schmidt/codes/moris/build/Vis_Mesh_3.exo");
 
+                moris::Cell<std::string> tElementalFieldNames(1);
+                tElementalFieldNames(0) = "pressure";
+
+                //-------------------------------------------------------------------------------------------
+
                 moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mVisMesh( 0 )->get_block_set_cells("HMR_dummy_c_p0");
 
                 uint tNumElements = tElementsInBlock.size();
                 moris::Matrix<moris::DDRMat> tetField(tNumElements, 1, 4);
-                moris::Cell<std::string> tElementalFieldNames(1);
-                tElementalFieldNames(0) = "pressure";
+
 
                 for(uint Ik = 0; Ik<tNumElements;Ik++)
                 {
                 	tetField( Ik ) = Ik;
                 }
 
-                mWriter->set_elemental_fields(tElementalFieldNames);
-                mWriter->set_time(0.0);
-                mWriter->write_elemental_field(0, "pressure", tetField);
+                //-------------------------------------------------------------------------------------------
+                for ( uint Ik = 0; Ik<tNumElements;Ik++ )
+                {
+                    moris::Matrix<moris::DDRMat> tetField = mVisualizationSets( 0 )( Ik )->calculate_elemental_values();
+
+                    mWriter->set_elemental_fields(tElementalFieldNames);
+                    mWriter->set_time(0.0);
+                    mWriter->write_elemental_field( Ik, "pressure", tetField);
+                }
 
                 mWriter->close_file();
             }

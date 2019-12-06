@@ -54,7 +54,7 @@ namespace moris
                      const uint         aMeshPairIndex ) : mMesh( aMesh ),
                                                            mMeshPairIndex( aMeshPairIndex )
             {
-                mListOfRequestedBlocks = { { 0} };
+                mListOfRequestedBlocks = { { 0, 1, 2, 3} };
 				mOnlyPrimary = true;
 
                 mRequestedBlocks = mListOfRequestedBlocks.numel();
