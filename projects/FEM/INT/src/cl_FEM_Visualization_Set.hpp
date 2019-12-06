@@ -35,7 +35,7 @@ namespace moris
             {
                 this->create_visualization_objects();
 
-                this->create_index_map();
+//                this->create_index_map();
             };
 
 //-----------------------------------------------------------------------------------------------------------

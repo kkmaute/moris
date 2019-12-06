@@ -127,30 +127,30 @@ namespace moris
 
                 //-------------------------------------------------------------------------------------------
 
-//                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mVisMesh( 0 )->get_block_set_cells("HMR_dummy_c_p0");
-//
-//                uint tNumElements = tElementsInBlock.size();
-//                moris::Matrix<moris::DDRMat> tetField(tNumElements, 1, 4);
-//
-//
-//                for(uint Ik = 0; Ik<tNumElements;Ik++)
-//                {
-//                	tetField( Ik ) = Ik;
-//                }
+                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mVisMesh( 0 )->get_block_set_cells("HMR_dummy_c_p0");
 
-                //-------------------------------------------------------------------------------------------
-                for ( uint Ik = 0; Ik<4;Ik++ )
+                uint tNumElements = tElementsInBlock.size();
+                moris::Matrix<moris::DDRMat> tetField(tNumElements, 1, 4);
+
+
+                for(uint Ik = 0; Ik<tNumElements;Ik++)
                 {
-                    moris::Matrix<moris::DDRMat> tetField = mVisualizationSets( 0 )( Ik )->calculate_elemental_values();
-
-                    mWriter->set_elemental_fields(tElementalFieldNames);
-                    mWriter->set_time(0.0);
-                    mWriter->write_elemental_field( Ik, "pressure", tetField);
+                	tetField( Ik ) = Ik;
                 }
 
-//                mWriter->set_elemental_fields(tElementalFieldNames);
-//                mWriter->set_time(0.0);
-//                mWriter->write_elemental_field( 0, "pressure", tetField);
+                //-------------------------------------------------------------------------------------------
+//                for ( uint Ik = 0; Ik<4;Ik++ )
+//                {
+//                    moris::Matrix<moris::DDRMat> tetField = mVisualizationSets( 0 )( Ik )->calculate_elemental_values();
+//
+//                    mWriter->set_elemental_fields(tElementalFieldNames);
+//                    mWriter->set_time(0.0);
+//                    mWriter->write_elemental_field( Ik, "pressure", tetField);
+//                }
+
+                mWriter->set_elemental_fields(tElementalFieldNames);
+                mWriter->set_time(0.0);
+                mWriter->write_elemental_field( 0, "pressure", tetField);
 
                 mWriter->close_file();
             }
