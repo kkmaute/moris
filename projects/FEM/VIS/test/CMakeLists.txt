@@ -4,7 +4,8 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_VSI_Visualization_Mesh.cpp
+    UT_VSI_Visualization_Mesh.cpp
+    UT_VSI_Output_Data.cpp
     )
 
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               

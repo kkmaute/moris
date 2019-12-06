@@ -192,7 +192,6 @@ void Writer_Exodus::write_nodes()
         // Get coordinates
         moris::Matrix<moris::DDRMat> tNodeCoordinates = tNodes(tNodeIndex)->get_coords();
 
-        moris::print(tNodeCoordinates, "tNodeCoordinates");
         // Place in coordinate arrays
         tXCoordinates(tNodeIndex, 0) = tNodeCoordinates(0);
         tYCoordinates(tNodeIndex, 0) = tNodeCoordinates(1 * tYDim) * tYDim;
@@ -258,6 +257,7 @@ void Writer_Exodus::write_blocks()
             {
             	tBlockTopology = CellTopology::QUAD4;
             }
+
             const char* tBlockDescription = this->get_exodus_block_description(tBlockTopology);
 
             // Get the number of nodes/edges/faces/attributes per element

@@ -151,6 +151,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * get equation sets for test
+             */
+            moris::Cell< fem::Set * > get_equation_sets( )
+            {
+                return mFemSets;
+            };
+
+//------------------------------------------------------------------------------
+            /**
              * gets the solver interface
              */
             MSI::MSI_Solver_Interface * get_solver_interface()

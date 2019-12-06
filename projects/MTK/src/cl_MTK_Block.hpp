@@ -35,9 +35,12 @@ namespace moris
             uint                              mNumCellsOnBlock;
             moris::Matrix< DDSMat >           mCellsOnBlock;
 
+            bool mOnlyPrimaryVertCheck = false;
+            bool mOnlyPrimaryCellCheck = false;
+
 //------------------------------------------------------------------------------
 
-            void calculate_vertices_on_blocks()
+            void calculate_vertices_on_blocks( const bool aOnlyPrimary )
             {
                 uint tMaxNumVert = 0;
 
@@ -49,10 +52,13 @@ namespace moris
                                                           ->get_vertex_inds().numel();
                     }
 
-                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                    if( !aOnlyPrimary )
                     {
-                        tMaxNumVert +=  mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                                          ->get_vertex_inds().numel();
+                        for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                        {
+                            tMaxNumVert +=  mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                              ->get_vertex_inds().numel();
+                        }
                     }
                 }
 
@@ -74,16 +80,19 @@ namespace moris
                                                       ->get_vertex_inds().numel();
                     }
 
-                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                    if( !aOnlyPrimary )
                     {
-                        //FIXME rewrite for more readability
-                        tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                                           ->get_vertex_inds().numel() - 1 }) =
-                                                             mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                                                               ->get_vertex_inds().matrix_data();
+                        for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++)
+                        {
+                            //FIXME rewrite for more readability
+                            tVerticesOnBlock( { 0, 0 },{ tCounter, tCounter + mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                               ->get_vertex_inds().numel() - 1 }) =
+                                                                 mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                                                   ->get_vertex_inds().matrix_data();
 
-                        tCounter += mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
-                                                      ->get_vertex_inds().numel();
+                            tCounter += mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )
+                                                          ->get_vertex_inds().numel();
+                        }
                     }
                 }
 
@@ -104,15 +113,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            void calculate_cells_on_blocks()
+            void calculate_cells_on_blocks( const bool aOnlyPrimary )
             {
                 uint tMaxNumCells = 0;
 
                 for( uint Ik = 0; Ik < mSetClusters.size(); Ik++)
                 {
                     tMaxNumCells += mSetClusters( Ik )->get_primary_cells_in_cluster().size();
-
-                    tMaxNumCells += mSetClusters( Ik )->get_void_cells_in_cluster().size();
+                    if( !aOnlyPrimary )
+                    {
+                        tMaxNumCells += mSetClusters( Ik )->get_void_cells_in_cluster().size();
+                    }
                 }
 
                 moris::Matrix< DDSMat > tCellsOnBlock( tMaxNumCells, 1, -1 );
@@ -126,9 +137,12 @@ namespace moris
                         tCellsOnBlock( tCounter++ ) = mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )->get_index();
                     }
 
-                    for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++ )
+                    if( !aOnlyPrimary )
                     {
-                        tCellsOnBlock( tCounter++ ) = mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )->get_index();
+                        for( uint Ij = 0; Ij < mSetClusters( Ik )->get_void_cells_in_cluster().size(); Ij++ )
+                        {
+                            tCellsOnBlock( tCounter++ ) = mSetClusters( Ik )->get_void_cells_in_cluster()( Ij )->get_index();
+                        }
                     }
                 }
 
@@ -179,9 +193,9 @@ namespace moris
                    moris::Cell<Cluster const *>  aBlockSetClusters,
                    const uint                    aSpatialDim ) : Set( aName, aBlockSetClusters, aSpatialDim )
             {
-                this->calculate_vertices_on_blocks();
+                this->calculate_vertices_on_blocks( mOnlyPrimaryVertCheck );
 
-                this->calculate_cells_on_blocks();
+                this->calculate_cells_on_blocks( false );
 
                 this->communicate_ig_geometry_type();
             };
@@ -224,29 +238,47 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              uint get_num_vertieces_on_set() const
+              uint get_num_vertieces_on_set( const bool aOnlyPrimary )
               {
+                  if ( mOnlyPrimaryVertCheck != aOnlyPrimary )
+                  {
+                      this->calculate_vertices_on_blocks( aOnlyPrimary );
+                  }
+
                   return mNumVerticesOnBlock;
               }
 
 //------------------------------------------------------------------------------
 
-              moris::Matrix< DDSMat > get_vertieces_inds_on_block() const
+              moris::Matrix< DDSMat > get_vertieces_inds_on_block( const bool aOnlyPrimary )
               {
+                  if ( mOnlyPrimaryVertCheck != aOnlyPrimary )
+                  {
+                      this->calculate_vertices_on_blocks( aOnlyPrimary );
+                  }
+
                   return mVerticesOnBlock;
               }
 
 //------------------------------------------------------------------------------
 
-              uint get_num_cells_on_set() const
+              uint get_num_cells_on_set( const bool aOnlyPrimary )
               {
+                  if ( mOnlyPrimaryCellCheck != aOnlyPrimary )
+                  {
+                      this->calculate_cells_on_blocks( aOnlyPrimary );
+                  }
                   return mNumCellsOnBlock;
               }
 
 //------------------------------------------------------------------------------
 
-              moris::Matrix< DDSMat > get_cell_inds_on_block() const
+              moris::Matrix< DDSMat > get_cell_inds_on_block( const bool aOnlyPrimary )
               {
+                  if ( mOnlyPrimaryCellCheck != aOnlyPrimary )
+                  {
+                      this->calculate_cells_on_blocks( aOnlyPrimary );
+                  }
                   return mCellsOnBlock;
               }
 

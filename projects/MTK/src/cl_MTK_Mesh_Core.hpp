@@ -29,6 +29,7 @@ class Lagrange_Mesh_Base;
 
 namespace mtk
 {
+class Set;
 class Mesh :  public std::enable_shared_from_this< Mesh >
 {
 protected:
@@ -89,6 +90,17 @@ public:
     uint
     get_num_entities(
             enum EntityRank aEntityRank) const = 0;
+
+    // ----------------------------------------------------------------------------
+    /*
+     * Get block by index
+     */
+    virtual moris::mtk::Set *
+    get_block_by_index( moris::uint aBlockIndex) const
+    {
+        MORIS_ASSERT( false ,"get_block_by_index(), not implemented for base class");
+        return nullptr;
+    };
 
     //------------------------------------------------------------------------------
     // end of pure virtual functions in section 1

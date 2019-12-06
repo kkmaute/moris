@@ -104,6 +104,13 @@ public:
     void write_global_variable(std::string aVariableName, moris::real aVariableValue);
 
     /**
+     *  Opens an Exodus file and stores the ID for future operations
+     *  @param aExodusFileName Name of the Exodus file.
+     *  @param aVersion Version of the database. Current version is 4.72 as of programming.
+     */
+    void open_file(std::string aExodusFileName, float aVersion = 4.72);
+
+    /**
      * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
      * must be called in order for the Exodus file to be able to be read properly.
      */
@@ -118,13 +125,6 @@ private:
      * (e.g. number of nodes).
      */
     void create_file(std::string aFilePath, const std::string& aFileName);
-
-    /**
-     *  Opens an Exodus file and stores the ID for future operations
-     *  @param aExodusFileName Name of the Exodus file.
-     *  @param aVersion Version of the database. Current version is 4.72 as of programming.
-     */
-    void open_file(std::string aExodusFileName, float aVersion = 4.72);
 
     /**
      * Writes the coordinates of the nodes in the MTK mesh to Exodus.

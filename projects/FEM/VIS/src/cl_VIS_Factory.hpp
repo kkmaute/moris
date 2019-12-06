@@ -40,7 +40,8 @@ namespace moris
             moris::Cell< Matrix< DDSMat > >             mVertexMapOnBlock;
             moris::Cell< Matrix< DDSMat > >             mCellMapOnBlock;
 
-            uint mRequestedBlocks = 4;
+            uint mRequestedBlocks;
+			bool mOnlyPrimary = false;
 
             mtk::Mesh_Manager* mMesh = nullptr;
             const uint         mMeshPairIndex;
@@ -53,7 +54,8 @@ namespace moris
                      const uint         aMeshPairIndex ) : mMesh( aMesh ),
                                                            mMeshPairIndex( aMeshPairIndex )
             {
-                mListOfRequestedBlocks = { { 0, 1, 2, 3} };
+                mListOfRequestedBlocks = { { 0} };
+				mOnlyPrimary = true;
 
                 mRequestedBlocks = mListOfRequestedBlocks.numel();
 
@@ -88,17 +90,15 @@ namespace moris
                 {
                     moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( mListOfRequestedBlocks( Ij ) );
 
-                    uint tNumVerticesOnSet = tMeshSet->get_num_vertieces_on_set();
+                    uint tNumVerticesOnSet = tMeshSet->get_num_vertieces_on_set( mOnlyPrimary );
 
-                    moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_vertieces_inds_on_block();
+                    moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_vertieces_inds_on_block( mOnlyPrimary );
 
                     mVerticesOnBlock( Ij ).resize( tNumVerticesOnSet, nullptr );
                     mVertexMapOnBlock( Ij ).set_size( tVertexIndOnBlock.max() + 1, 1, -1 );
 
                     for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
                     {
-//                        mtk::Vertex tIntegrationVertex = tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) );
-
                         mVertexMapOnBlock( Ij )( tVertexIndOnBlock( Ik ) ) = Ik;
 
                         mVerticesOnBlock( Ij )( Ik ) = new Vertex_Visualization( tVertexIdCounter,
@@ -129,9 +129,9 @@ namespace moris
                 {
                     moris::mtk::Set * tMeshSet = tIntegrationMesh->get_block_by_index( mListOfRequestedBlocks( Ij ) );
 
-                    uint tNumCellsOnSet = tMeshSet->get_num_cells_on_set();
+                    uint tNumCellsOnSet = tMeshSet->get_num_cells_on_set( mOnlyPrimary );
 
-                    moris::Matrix< DDSMat > tCellIndOnBlock = tMeshSet->get_cell_inds_on_block();
+                    moris::Matrix< DDSMat > tCellIndOnBlock = tMeshSet->get_cell_inds_on_block( mOnlyPrimary );
 
                     mCellsOnBlock( Ij ).resize( tNumCellsOnSet, nullptr );
 
@@ -155,8 +155,8 @@ namespace moris
                                                                             tCellVerices,
                                                                             &tIntegrationMesh->get_mtk_cell( tCellIndOnBlock( Ik ) ) );
 
-                       tCellIndexCounter++;
-                       tCellIdCounter++;
+                        tCellIndexCounter++;
+                        tCellIdCounter++;
                     }
                 }
             }
@@ -196,16 +196,20 @@ namespace moris
 
                         moris::Cell< moris::mtk::Cell const * > tVoidCells = tClustersOnBlock( Ik )->get_void_cells_in_cluster();
 
-                        moris::Cell< mtk::Cell * > tClusterVoidCells( tVoidCells.size(), nullptr );
-
-                        for( uint Ii = 0; Ii < tVoidCells.size(); Ii++ )
+                        if( !mOnlyPrimary )
                         {
-                            tClusterVoidCells( Ii ) = mCellsOnBlock( Ij )( mCellMapOnBlock( Ij )( tVoidCells( Ii )->get_index() ) );
+                            moris::Cell< mtk::Cell * > tClusterVoidCells( tVoidCells.size(), nullptr );
+
+                            for( uint Ii = 0; Ii < tVoidCells.size(); Ii++ )
+                            {
+                                tClusterVoidCells( Ii ) = mCellsOnBlock( Ij )( mCellMapOnBlock( Ij )( tVoidCells( Ii )->get_index() ) );
+                             }
                         }
 
                         mClustersOnBlock( Ij )( Ik ) = new Cell_Cluster_Visualization;
 
-                        if( tVoidCells.size() > 0 )
+
+                        if( tVoidCells.size() > 0 && !mOnlyPrimary )
                         {
                              mClustersOnBlock( Ij )( Ik )->mark_as_nontrivial();
 
@@ -247,7 +251,7 @@ namespace moris
 
             mtk::Mesh * create_visualization_mesh()
             {
-                mtk::Mesh * tMesh = new Visualization_Mesh( mListofBlocks, mCellsOnBlock, mVerticesOnBlock );
+                mtk::Mesh * tMesh = new Visualization_Mesh( mListofBlocks, mCellsOnBlock, mVerticesOnBlock, mOnlyPrimary );
 
                 return tMesh;
             };

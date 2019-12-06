@@ -158,6 +158,7 @@ set(LIB_DEPENDENCIES
     ${LINALG}-lib
     ${MTK}-lib
     ${MSI}-lib
+    ${VIS}-lib
     )
 
 # Set the output path for library

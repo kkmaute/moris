@@ -246,7 +246,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
                 mtk::Mesh * tVisMesh = tVisFactory.create_visualization_mesh();
 
                 Writer_Exodus writer(tVisMesh);
-                writer.write_mesh("/data/schmidt/codes/moris/build/", "Vis_Mesh.exo");
+                writer.write_mesh("/data/schmidt/codes/moris/build/", "Vis_Mesh_2.exo");
 
                 moris::Cell<const moris::mtk::Cell*> tElementsInBlock = tVisMesh->get_block_set_cells("HMR_dummy_c_p0");
 

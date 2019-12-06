@@ -271,19 +271,19 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              virtual uint get_num_vertieces_on_set() const = 0;
+              virtual uint get_num_vertieces_on_set( const bool aOnlyPrimary ) = 0;
 
 //------------------------------------------------------------------------------
 
-              virtual moris::Matrix< DDSMat > get_vertieces_inds_on_block() const = 0;
+              virtual moris::Matrix< DDSMat > get_vertieces_inds_on_block( const bool aOnlyPrimary ) = 0;
 
 //------------------------------------------------------------------------------
 
-              virtual uint get_num_cells_on_set() const = 0;
+              virtual uint get_num_cells_on_set( const bool aOnlyPrimary ) = 0;
 
 //------------------------------------------------------------------------------
 
-              virtual moris::Matrix< DDSMat > get_cell_inds_on_block() const = 0;
+              virtual moris::Matrix< DDSMat > get_cell_inds_on_block( const bool aOnlyPrimary ) = 0;
 
 //------------------------------------------------------------------------------
               virtual moris::uint
