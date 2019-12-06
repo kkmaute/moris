@@ -15,7 +15,6 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-
         enum class Interpolation_Type
         {
             UNDEFINED,
@@ -25,7 +24,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class Integration_Type
         {
             UNDEFINED,
@@ -34,7 +32,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class Integration_Order
         {
             UNDEFINED,
@@ -68,7 +65,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class Element_Type
         {
             UNDEFINED,
@@ -80,7 +76,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class IWG_Type
         {
             UNDEFINED,
@@ -104,29 +99,13 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class IQI_Type
         {
             UNDEFINED,
             VOLUME,         // volume
+            STRAIN_ENERGY,
             END_IQI_TYPE
         };
-
-//------------------------------------------------------------------------------
-
-//        enum class Property_Type
-//        {
-//            UNDEFINED,
-//            TEMP_DIRICHLET,
-//            TEMP_NEUMANN,
-//            CONDUCTIVITY,
-//            TEMP_LOAD,
-//            STRUC_DIRICHLET,
-//            STRUC_NEUMANN,
-//            YOUNGS_MODULUS,
-//            POISSONS_RATIO,
-//            END_PROPERTY_TYPE
-//        };
 
 //------------------------------------------------------------------------------
 
@@ -139,7 +118,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class Stabilization_Type
         {
             UNDEFINED,
@@ -153,7 +131,6 @@ namespace moris
         };
 
 //------------------------------------------------------------------------------
-
         enum class Cluster_Measure
         {
             UNDEFINED,
@@ -162,6 +139,16 @@ namespace moris
             INTERFACE_SURFACE,
             ELEMENT_SIZE,
             END_CLUSTER_MEASURE
+        };
+
+//------------------------------------------------------------------------------
+        enum class IQ_Compute_Type
+        {
+            UNDEFINED,
+            GLOBAL,
+            NODAL,
+            ELEMENTAL,
+            END_IQ_COMPUTE_TYPE,
         };
 
 //------------------------------------------------------------------------------

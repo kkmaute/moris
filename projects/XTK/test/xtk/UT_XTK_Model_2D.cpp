@@ -5,16 +5,15 @@
  *      Author: ryan
  */
 
-
 #include "catch.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_XTK_Model.hpp"
 
+#include "../projects/GEN/src/geometry/cl_GEN_Circle.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 //#include "cl_Circle.hpp"
 //#include "cl_MGE_Geometry_Engine.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Circle.hpp"
 
 using namespace moris;
 

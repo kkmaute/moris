@@ -188,6 +188,34 @@ using namespace tsa;
 
     //-------------------------------------------------------------------------------------------------------
 
+    void Time_Solver::set_output( const uint aOutputIndex,
+                                        Output_Criteria aOutputCriteria)
+    {
+        mOutputIndices.push_back( aOutputIndex );
+        mOutputCriteriaPointer.push_back( aOutputCriteria );
+    }
+
+    //-------------------------------------------------------------------------------------------------------
+
+    void Time_Solver::check_for_outputs()
+    {
+         uint tCounter = 0;
+
+        for( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
+        {
+            bool tIsOutput = tOutputCriterias( this );
+
+            if( tIsOutput )
+            {
+                mSolverInterface->initiate_output( mOutputIndices( tCounter ) );
+            }
+
+            tCounter++;
+        }
+    }
+
+    //-------------------------------------------------------------------------------------------------------
+
     void Time_Solver::solve( Dist_Vector * aFullVector )
     {
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();

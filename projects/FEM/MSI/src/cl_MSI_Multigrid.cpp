@@ -37,10 +37,10 @@ namespace moris
     void Multigrid::multigrid_initialize()
     {
         // get list of owned adofs
-        moris::Cell < Adof * > tOwnedAdofList = mModelSolverInterface->get_dof_manager()->get_owned_adofs();
+        Cell< moris::Cell < Adof * > > tOwnedAdofList = mModelSolverInterface->get_dof_manager()->get_owned_adofs();
 
-        // get number of owned adofs
-        moris::uint tNumOwnedAdofs = tOwnedAdofList.size();
+        // get number of owned adofs                                                                      //FIXME has to be adjusted for only a subset of adofs ( types or time)
+        moris::uint tNumOwnedAdofs = mModelSolverInterface->get_dof_manager()->get_num_owned_adofs();
 
         // List which relates every adof to its external index. For fines level
         mListAdofExtIndMap         .resize( mMultigridLevels + 1 );
@@ -52,12 +52,14 @@ namespace moris
         mListAdofTypeTimeIdentifier( 0 ).set_size( tNumOwnedAdofs, 1 );
 
         // Loop over all adofs on fines mesh. Fill lists witrh external adof indices and type/time identifier
-        moris::uint Ik = 0;
-        for ( Adof* tAdof : tOwnedAdofList )
+        for ( uint Ik = 0; Ik < tOwnedAdofList.size(); Ik ++ )
         {
-            mListAdofExtIndMap( 0 )( Ik, 0) = tAdof->get_adof_external_ind();
+            for ( Adof* tAdof : tOwnedAdofList( Ik ) )
+            {
+                mListAdofExtIndMap( 0 )( Ik, 0 ) = tAdof->get_adof_external_ind();
 
-            mListAdofTypeTimeIdentifier( 0 )( Ik++, 0) = tAdof->get_adof_type_time_identifier();
+                mListAdofTypeTimeIdentifier( 0 )( Ik++, 0) = tAdof->get_adof_type_time_identifier();
+            }
         }
 
         // get number if type/time identifiers

@@ -6,12 +6,21 @@
 
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp"                                //FEM//INT/src
+
+#include "op_equal_equal.hpp"
+
+#define protected public
+#define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
+#undef protected
+#undef private
+
 #include "cl_FEM_Field_Interpolator.hpp"                   //FEM//INT//src
 #include "cl_FEM_Property.hpp"                   //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                   //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                   //FEM//INT//src
-
-#include "op_equal_equal.hpp"
 
 moris::Matrix< moris::DDRMat > tConstValFunction_UTIWGDIFFBULK( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                                 moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
@@ -145,11 +154,54 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     //set the evaluation point xi, tau
     tFIs( 0 )->set_space_time( tParamPoint );
 
+    // set a fem set pointer
+    MSI::Equation_Set * tSet = new fem::Set();
+    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+
+    // set size for the set EqnObjDofTypeList
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+    // set size and populate the set dof type map
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+    // set size and populate the set master dof type map
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+    // set size and fill the set residual assembly map
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+
+    // set size and fill the set jacobian assembly map
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+
+    // set size and init the set residual and jacobian
+    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+
+    // set requested residual dof type flag to true
+    tIWG->mResidualDofTypeRequested = true;
+
     // build global dof type list
-    tIWG->build_global_dof_type_list();
+    tIWG->get_global_dof_type_list();
+
+    // populate the requested master dof type
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+
+    // create a field interpolator manager
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+
+    // populate the field interpolator manager
+    tFIManager.mMasterFI = tFIs;
+
+    // set IWG field interpolator manager
+    tIWG->mFieldInterpolatorManager = &tFIManager;
 
     // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( tFIs );
+    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
 
     // set IWG field interpolators
     tIWG->set_geometry_interpolator( &tGI );
@@ -157,8 +209,7 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
     // evaluate the residual
-    Cell< Matrix< DDRMat > > tResidual;
-    tIWG->compute_residual( tResidual );
+    tIWG->compute_residual( 1.0 );
 
     // check evaluation of the jacobian  by FD
     //------------------------------------------------------------------------------
@@ -169,17 +220,12 @@ TEST_CASE( "IWG_Diffusion_Bulk", "[moris],[fem],[IWG_Diff_Bulk_Const_Prop]" )
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
                                                 tEpsilon,
+                                                1.0,
                                                 tJacobians,
                                                 tJacobiansFD );
+
     // require check is true
     REQUIRE( tCheckJacobian );
-
-    // clean up
-    for( Field_Interpolator* tFI : tFIs )
-    {
-        delete tFI;
-    }
-    tFIs.clear();
 
 }/*END_TEST_CASE*/
 
@@ -279,11 +325,42 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     //set the evaluation point xi, tau
     tFIs( 0 )->set_space_time( tParamPoint );
 
+    MSI::Equation_Set * tSet = new fem::Set();
+
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+
+    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+
+    tIWG->mResidualDofTypeRequested = true;
+
     // build global dof type list
-    tIWG->build_global_dof_type_list();
+    tIWG->get_global_dof_type_list();
+
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+
+    tFIManager.mMasterFI = tFIs;
 
     // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( tFIs );
+    tIWG->mFieldInterpolatorManager = &tFIManager;
+
+    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
 
     // set IWG geometry interpolators
     tIWG->set_geometry_interpolator( &tGI );
@@ -291,8 +368,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
     // evaluate the residual
-    Cell< Matrix< DDRMat > > tResidual;
-    tIWG->compute_residual( tResidual );
+    tIWG->compute_residual( 1.0 );
 
     // check evaluation of the jacobian  by FD
     //------------------------------------------------------------------------------
@@ -303,16 +379,13 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
                                                 tEpsilon,
+                                                1.0,
                                                 tJacobians,
                                                 tJacobiansFD );
     // require check is true
     REQUIRE( tCheckJacobian );
 
     // clean up
-    for( Field_Interpolator* tFI : tFIs )
-    {
-        delete tFI;
-    }
     tFIs.clear();
 
 }/* END_TEST_CASE */
@@ -415,20 +488,50 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     //set the evaluation point xi, tau
     tFIs( 0 )->set_space_time( tParamPoint );
 
+    MSI::Equation_Set * tSet = new fem::Set();
+
+    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+    tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+    tIWG->mSet->mDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+
+    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+
+    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
+    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
+    tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, 7 } };
+
+    tIWG->mSet->mResidual.set_size( 8, 1, 0.0 );
+    tIWG->mSet->mJacobian.set_size( 8, 8, 0.0 );
+
+    tIWG->mResidualDofTypeRequested = true;
+
     // build global dof type list
-    tIWG->build_global_dof_type_list();
+    tIWG->get_global_dof_type_list();
+
+    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+
+    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+
+    tFIManager.mMasterFI = tFIs;
 
     // set IWG field interpolators
-    tIWG->set_dof_field_interpolators( tFIs );
+    tIWG->mFieldInterpolatorManager = &tFIManager;
 
-    // set IWG geometry interpolator
+    tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+
+    // set IWG geometry interpolators
     tIWG->set_geometry_interpolator( &tGI );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
     // evaluate the residual
-    Cell< Matrix< DDRMat > > tResidual;
-    tIWG->compute_residual( tResidual );
+    tIWG->compute_residual( 1.0 );
 
     // check evaluation of the jacobian  by FD
     //------------------------------------------------------------------------------
@@ -439,16 +542,13 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dof_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dof_Prop
     // check jacobian by FD
     bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
                                                 tEpsilon,
+                                                1.0,
                                                 tJacobians,
                                                 tJacobiansFD );
     // require check is true
     REQUIRE( tCheckJacobian );
 
     // clean up
-    for( Field_Interpolator* tFI : tFIs )
-    {
-        delete tFI;
-    }
     tFIs.clear();
 
 }/* END_TEST_CASE */

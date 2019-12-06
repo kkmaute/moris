@@ -13,6 +13,7 @@
 
 #include "cl_MTK_Enums.hpp"                 //FEM/INT/src
 
+
 #include "fn_trans.hpp"
 #include "op_times.hpp"
 
@@ -30,6 +31,7 @@ class Dist_Vector;
         class Pdof;
         class Pdof_Host;
         class Equation_Set;
+        class Dof_Manager;
         class Equation_Object
         {
 //-------------------------------------------------------------------------------------------------
@@ -39,9 +41,13 @@ class Dist_Vector;
             moris::Cell< moris::Cell< Pdof_Host * > >             mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
 
             moris::Cell< Pdof* >                    mFreePdofs;         // List of the pdof pointers of this equation obj
+            moris::Cell< moris::Cell< moris::Cell< Pdof* > > >     mFreePdofList;         // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
 
             Matrix< DDSMat >                        mUniqueAdofList;    // Unique adof list for this equation object
+            moris::Cell< moris::Cell< Matrix< DDSMat > > >         mUniqueAdofTypeList;
             moris::map < moris::uint, moris::uint > mUniqueAdofMap;     // Map to
+
+            moris::Cell< moris::Cell< moris::map < moris::uint, moris::uint > > > mUniqueAdofMapList;     // Map to
 
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
@@ -50,13 +56,13 @@ class Dist_Vector;
 
             Dist_Vector * mSolVec = nullptr;
 
-            Model_Solver_Interface * mModelSolverInterface = nullptr;
-
             moris::uint mEqnObjInd;
 
             Matrix< DDRMat > mTime;
 
             Equation_Set * mEquationBlock;
+
+            moris::uint mNumPdofSystems = 0;
 
             friend class fem::Element;
 
@@ -82,13 +88,6 @@ class Dist_Vector;
             {
                 mTime = aTime;
             }
-
-//-------------------------------------------------------------------------------------------------
-
-            void set_model_solver_interface_pointer( Model_Solver_Interface * aModelSolverInterface)
-            {
-                mModelSolverInterface = aModelSolverInterface;
-            };
 
 //-------------------------------------------------------------------------------------------------
 
@@ -172,6 +171,12 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+            void build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > > & aPADofMap );
+
+            void build_PADofMap_1( Matrix< DDRMat > & aPADofMap );
+
+//-------------------------------------------------------------------------------------------------
+
             /**
              * @brief Compute function for the pdof values of this particular equation object
              *
@@ -192,6 +197,11 @@ class Dist_Vector;
 
 //-------------------------------------------------------------------------------------------------
 
+            void reshape_pdof_values( const Cell< Matrix< DDRMat > > & aPdofValues,
+                                            Matrix< DDRMat >         & aReshapedPdofValues );
+
+//-------------------------------------------------------------------------------------------------
+
             void set_vector_entry_number_of_pdof();
 
 //-------------------------------------------------------------------------------------------------
@@ -205,10 +215,18 @@ class Dist_Vector;
                                             Dist_Vector * aSolutionVector );
 
 //-------------------------------------------------------------------------------------------------
-            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
-            {
-                aEqnObjAdofId = mUniqueAdofList;
-            };
+
+            void add_staggered_contribution_to_residual( Matrix< DDRMat > & aElementResidual );
+
+//-------------------------------------------------------------------------------------------------
+//            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId )
+//            {
+//                aEqnObjAdofId = mUniqueAdofList;
+//            };
+
+//-------------------------------------------------------------------------------------------------
+            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId );
+
 //-------------------------------------------------------------------------------------------------
 
             /**

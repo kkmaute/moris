@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Isotropic_Spatial_Diffusion_Interface.hpp"
+#include "cl_FEM_Set.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
@@ -28,171 +30,240 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_residual( real tWStar )
         {
+#ifdef DEBUG
             // check master and slave field interpolators
             this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
 
-            // set residual cell size
-            this->set_residual_double( aResidual );
+            // FIXME this should not happen
+            MORIS_ASSERT( &mMasterCM( 0 ) != &mSlaveCM( 0 ), "Master and Slave constitutive model are the same. This will cause problems ");
+
+            // get master index for residual dof type
+            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get slave index for residual dof type
+            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // get the master field interpolator for the residual dof type
+            Field_Interpolator * tFIMaster = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get the slave field interpolator for the residual dof type
+            Field_Interpolator * tFISlave  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // get indices for SP, CM, property
+            uint tDiffLinIsoIndex   = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
+            uint tNitscheIndex      = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            uint tMasterWeightIndex = static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+            uint tSlaveWeightIndex  = static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
 
             // evaluate average traction
-            Matrix< DDRMat > tTraction = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->val()( 0 ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->traction( mNormal )
-                                       + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->val()( 0 ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) )->traction( mNormal );
+            Matrix< DDRMat > tTraction = mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal )
+                                       + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->traction( mNormal );
 
             // evaluate temperature jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
+            Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute master residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tTraction
-                             + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->val()( 0 ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * tJump
-                             + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tJump;
+            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) }, { 0, 0 } )
+            += ( - trans( tFIMaster->N() ) * tTraction
+                 + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
+                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tJump ) *tWStar ;
+
             // compute slave residual
-            aResidual( 1 ) =   trans( mSlaveFI( 0 )->N() ) * tTraction
-                             + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->val()( 0 ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * tJump
-                             - mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->val()( 0 ) * trans( mSlaveFI( 0 )->N() ) * tJump;
+            mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) }, { 0, 0 } )
+            += (   trans( tFISlave->N() ) * tTraction
+                 + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump
+                 - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFISlave->N() ) * tJump ) * tWStar;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Isotropic_Spatial_Diffusion_Interface::compute_jacobian( real tWStar )
         {
+#ifdef DEBUG
             // check master and slave field interpolators
             this->check_dof_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dof_field_interpolators( mtk::Master_Slave::SLAVE );
             this->check_dv_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+#endif
 
-            // set the jacobian cell size
-            this->set_jacobian_double( aJacobians );
+            // get master index for the residual dof type
+            uint tDofIndexMaster = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get slave index for the residual dof type
+            uint tDofIndexSlave  = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // get master field interpolator for the residual dof type
+            Field_Interpolator * tFIMaster = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get slave field interpolator for the residual dof type
+            Field_Interpolator * tFISlave  = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::SLAVE );
+
+            // get indices SP, CM and properties
+            uint tDiffLinIsoIndex   = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
+            uint tNitscheIndex      = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            uint tMasterWeightIndex = static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+            uint tSlaveWeightIndex  = static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
 
             // get number of master dof dependencies
-            uint tMasterNumDofDependencies = mMasterGlobalDofTypes.size();
+            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // evaluate temperature jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mSlaveFI( 0 )->val();
+            Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 )
-            =   mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->val()( 0 ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * mMasterFI( 0 )->N()
-              + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mMasterFI( 0 )->N();
+            if ( mResidualDofTypeRequested )
+            {
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexMaster, 1 ) } )
+                +=  (   mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFIMaster->N()
+                      + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tFIMaster->N() ) * tWStar;
 
-            aJacobians( 0 )( tMasterNumDofDependencies )
-            = - mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->val()( 0 ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
-              - mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * mSlaveFI( 0 )->N();
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tDofIndexSlave, 1 ) } )
+                += ( - mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFISlave->N()
+                     - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFIMaster->N() ) * tFISlave->N() ) * tWStar;
 
-            aJacobians( 1 )( 0 )
-            =   mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->val()( 0 ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * mMasterFI( 0 )->N()
-              - mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->val()( 0 ) * trans( mSlaveFI( 0 )->N() ) * mMasterFI( 0 )->N();
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexMaster, 1 ) } )
+                += (   mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFIMaster->N()
+                     - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFISlave->N() ) * tFIMaster->N() ) * tWStar;
 
-            aJacobians( 1 )( tMasterNumDofDependencies )
-            = - mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->val()( 0 ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * mSlaveFI( 0 )->N()
-              + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->val()( 0 ) * trans( mSlaveFI( 0 )->N() ) * mSlaveFI( 0 )->N();
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tDofIndexSlave, 1 ) } )
+                += ( - mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tFISlave->N()
+                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFISlave->N() ) * tFISlave->N() ) * tWStar;
+            }
 
             // compute the jacobian for indirect dof dependencies through master constitutive models
             for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+
+                // get the index for the dof type
+                sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
 
                 // if dependency of constitutive models on the dof type
-                if ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->check_dof_dependency( tDofType ) )
+                if ( mMasterCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->val()( 0 ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->dTractiondDOF( tDofType, mNormal )
-                       + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->val()( 0 ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( - trans( tFIMaster->N() ) * mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
+                       + mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ) * tWStar;
 
-                    aJacobians( 1 )( iDOF ).matrix_data()
-                    += trans( mSlaveFI( 0 )->N() ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->val()( 0 ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->dTractiondDOF( tDofType, mNormal );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += trans( tFISlave->N() ) * mStabilizationParam( tMasterWeightIndex )->val()( 0 ) * mMasterCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) * tWStar;
                 }
 
                 // if dependency of stabilization parameters on the dof type
-                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                if ( mStabilizationParam( tNitscheIndex )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += trans( mMasterFI( 0 )->N() ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->dSPdMasterDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( trans( tFIMaster->N() ) * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
 
-                    aJacobians( 1 )( iDOF ).matrix_data()
-                    += - trans( mSlaveFI( 0 )->N() ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->dSPdMasterDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += ( - trans( tFISlave->N() ) * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
                 }
 
-                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                if ( mStabilizationParam( tMasterWeightIndex )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->dSPdMasterDOF( tDofType )
-                       + mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->dSPdMasterDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( - trans( tFIMaster->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tMasterWeightIndex )->dSPdMasterDOF( tDofType )
+                         + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tMasterWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
 
-                    aJacobians( 1 )( iDOF ).matrix_data()
-                    += trans( mSlaveFI( 0 )->N() ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->dSPdMasterDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += ( trans( tFISlave->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tMasterWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
                 }
 
-                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                if ( mStabilizationParam( tSlaveWeightIndex )->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->dSPdMasterDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( - trans( tFIMaster->N() ) * mSlaveCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tSlaveWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
 
-                    aJacobians( 1 )( iDOF ).matrix_data()
-                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->dSPdMasterDOF( tDofType )
-                       + mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->dSPdMasterDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += (   trans( tFISlave->N() ) * mSlaveCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tSlaveWeightIndex )->dSPdMasterDOF( tDofType )
+                         + mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tSlaveWeightIndex )->dSPdMasterDOF( tDofType ) ) * tWStar;
                 }
             }
 
             // compute the jacobian for indirect dof dependencies through slave constitutive models
-            uint tSlaveNumDofDependencies = mSlaveGlobalDofTypes.size();
+            uint tSlaveNumDofDependencies = mRequestedSlaveGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                Cell< MSI::Dof_Type > tDofType = mSlaveGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+
+                // get index for the dof type
+                sint tIndexDep = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
 
                 // if dependency on the dof type
-                if ( mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->check_dof_dependency( tDofType ) )
+                if ( mSlaveCM( tDiffLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->val()( 0 ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->dTractiondDOF( tDofType, mNormal );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( - trans( tFIMaster->N() ) * mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) ) * tWStar;
 
-                    aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    +=   trans( mSlaveFI( 0 )->N() ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->val()( 0 ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->dTractiondDOF( tDofType, mNormal )
-                       + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->val()( 0 ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += (   trans( tFISlave->N() ) * mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->dTractiondDOF( tDofType, mNormal )
+                         + mStabilizationParam( tSlaveWeightIndex )->val()( 0 ) * mSlaveCM( tDiffLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tJump( 0 ) ) * tWStar;
                 }
 
                 // if dependency of stabilization parameters on the dof type
-                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                if ( mStabilizationParam( tNitscheIndex )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += trans( mMasterFI( 0 )->N() ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->dSPdSlaveDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( trans( tFIMaster->N() ) * tJump * mStabilizationParam( tNitscheIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
 
-                    aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += - trans( mSlaveFI( 0 )->N() ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) )->dSPdSlaveDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += ( - trans( tFISlave->N() ) * tJump * mStabilizationParam( tNitscheIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
                 }
 
-                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                if ( mStabilizationParam( tMasterWeightIndex )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->dSPdSlaveDOF( tDofType )
-                       + mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->dSPdSlaveDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( - trans( tFIMaster->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tMasterWeightIndex )->dSPdSlaveDOF( tDofType )
+                         + mMasterCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tMasterWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
 
-                    aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += trans( mSlaveFI( 0 )->N() ) * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::MASTER_WEIGHT_INTERFACE ) )->dSPdSlaveDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += ( trans( tFISlave->N() ) * mMasterCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tMasterWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
                 }
 
-                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                if ( mStabilizationParam( tSlaveWeightIndex )->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->dSPdSlaveDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexMaster )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexMaster )( tIndexDep, 1 ) } )
+                    += ( - trans( tFIMaster->N() ) * mSlaveCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tSlaveWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
 
-                    aJacobians( 1 )( tMasterNumDofDependencies + iDOF ).matrix_data()
-                    +=   trans( mSlaveFI( 0 )->N() ) * mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->traction( mNormal ) * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->dSPdSlaveDOF( tDofType )
-                       + mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO) )->testTraction( mNormal ) * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) )->dSPdSlaveDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndexSlave )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndexSlave )( tIndexDep, 1 ) } )
+                    += (   trans( tFISlave->N() ) * mSlaveCM( tDiffLinIsoIndex )->traction( mNormal ) * mStabilizationParam( tSlaveWeightIndex )->dSPdSlaveDOF( tDofType )
+                         + mSlaveCM( tDiffLinIsoIndex )->testTraction( mNormal ) * tJump * mStabilizationParam( tSlaveWeightIndex )->dSPdSlaveDOF( tDofType ) ) * tWStar;
                 }
             }
         }

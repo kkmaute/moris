@@ -97,10 +97,16 @@ namespace moris{
 		    }
 		    //------------------------------------------------------------------------------
 	        void
-	        set_my_mesh(mtk::Mesh_Manager* aMesh)
+	        set_my_mesh(std::shared_ptr< moris::hmr::Mesh > aMesh)
 	        {
-	            mMesh = aMesh;
+	            mMesh_HMR = aMesh;
 	        }
+            //------------------------------------------------------------------------------
+            void
+            set_my_mesh(mtk::Mesh_Manager* aMesh)
+            {
+                mMesh = aMesh;
+            }
 	        //------------------------------------------------------------------------------
 	        void
 	        set_my_interpolation_rules( fem::Interpolation_Type  aSpaceInterpType,
@@ -144,6 +150,13 @@ namespace moris{
 	            MORIS_ASSERT( mMesh != nullptr, "ge::Geometry::get_my_mesh(): the associated mesh has not been set" );
 	            return mMesh;
 	        }
+
+	        std::shared_ptr< moris::hmr::Mesh >
+            get_my_mesh_HMR()
+            {
+                MORIS_ASSERT( mMesh_HMR != nullptr, "ge::Geometry::get_my_mesh(): the associated mesh has not been set" );
+                return mMesh_HMR;
+            }
 			/*
 			 * *****************************************************************************
 			 * pass in a user-defined function
@@ -515,6 +528,8 @@ namespace moris{
 
         private:
 			mtk::Mesh_Manager*  mMesh = nullptr;
+
+			std::shared_ptr< moris::hmr::Mesh >  mMesh_HMR = nullptr;               //FIXME delete this one
 
             fem::Interpolation_Type  mMySpaceInterpType;
             mtk::Interpolation_Order mMySpaceInterpOrder;

@@ -68,10 +68,10 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Plane.hpp"
-
 #include "fn_norm.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Plane.hpp"
 
 namespace moris
 {
@@ -356,7 +356,7 @@ TEST_CASE("XTK Cut Diffusion Model","[XTK_DIFF]")
         std::string tOutputInteg = "./mdl_exo/xtk_mdl_enr_integ.exo";
         tIntegMesh1->create_output_mesh(tOutputInteg);
 
-        delete tInterpMesh1;
+        //delete tInterpMesh1;
         delete tModel;
         delete tIntegMesh1;
     }
@@ -605,7 +605,7 @@ TEST_CASE("XTK STK Cut Diffusion Model","[XTK_STK_DIFF]")
         std::string tMeshOutputFile = "./mdl_exo/xtk_bar_mesh.e";
         tIntegMesh1->create_output_mesh(tMeshOutputFile);
 
-        delete tInterpMesh1;
+        //delete tInterpMesh1;
         delete tIntegMesh1;
         delete tModel;
     }

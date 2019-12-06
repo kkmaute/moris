@@ -30,14 +30,13 @@ namespace moris
             real mAlpha;
 
             void
-            ( IWG_L2:: * mComputeFunction )( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                             moris::Cell< Matrix< DDRMat > >                & aResidual );
+            ( IWG_L2:: * mComputeFunction )( real aWStar );
 
             void
-            ( IWG_L2:: * mComputeJacFunction )( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
+            ( IWG_L2:: * mComputeJacFunction )( real aWStar );
 
             void
-            ( IWG_L2:: * mComputeResFunction )( moris::Cell< Matrix< DDRMat > > & aResidual );
+            ( IWG_L2:: * mComputeResFunction )( real aWStar );
 
 //------------------------------------------------------------------------------
         public:
@@ -69,20 +68,19 @@ namespace moris
             /**
              * compute jacobian and residual
              */
-            void compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobian,
-                                                moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute jacobian
              */
-            void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
+            void compute_jacobian( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * compute residual
              */
-            void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
+            void compute_residual( real aWStar );
 
 //------------------------------------------------------------------------------
 //            /**
@@ -99,34 +97,32 @@ namespace moris
             /**
              * j = N'*N, r =
              */
-            void compute_jacobian_and_residual_without_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                              moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual_without_alpha( real aWStar );
 //------------------------------------------------------------------------------
             /**
              * j = N'*N + alpha * B'*B
              */
-            void compute_jacobian_and_residual_with_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                           moris::Cell< Matrix< DDRMat > >                & aResidual );
+            void compute_jacobian_and_residual_with_alpha( real aWStar );
 
 //------------------------------------------------------------------------------
             /**
              * j = N'*N
              */
-            void compute_jacobian_without_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
+            void compute_jacobian_without_alpha( real aWStar);
 
 //------------------------------------------------------------------------------
             /**
              * j = N'*N + alpha * B'*B
              */
-            void compute_jacobian_with_alpha( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
+            void compute_jacobian_with_alpha( real aWStar );
 
 //------------------------------------------------------------------------------
 
-            void compute_residual_without_alpha( moris::Cell< Matrix< DDRMat > > & aResidual );
+            void compute_residual_without_alpha( real aWStar );
 
 //------------------------------------------------------------------------------
 
-            void compute_residual_with_alpha( moris::Cell< Matrix< DDRMat > > & aResidual );
+            void compute_residual_with_alpha( real aWStar );
 
 //------------------------------------------------------------------------------
 //            real

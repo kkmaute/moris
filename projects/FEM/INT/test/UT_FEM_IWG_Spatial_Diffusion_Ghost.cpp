@@ -2,11 +2,20 @@
 #include <catch.hpp>
 #include "assert.hpp"
 
+#define protected public
+#define private   public
+#include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
+#include "cl_FEM_IWG.hpp"         //FEM/INT/src
+#include "cl_FEM_Set.hpp"         //FEM/INT/src
+#undef protected
+#undef private
+
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_FEM_Enums.hpp"                                 //FEM//INT/src
 #include "cl_FEM_IWG_Factory.hpp"                            //FEM//INT/src
 #include "cl_FEM_CM_Factory.hpp"                            //FEM//INT/src
 #include "cl_FEM_SP_Factory.hpp"                            //FEM//INT/src
+
 
 #include "op_equal_equal.hpp"
 
@@ -142,7 +151,6 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
         {
-
             // field interpolators
             //------------------------------------------------------------------------------
             // create an interpolation order
@@ -152,6 +160,9 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             arma::Mat< double > tMasterMatrix;
             arma::Mat< double > tSlaveMatrix;
 
+            // get number of dof
+            int tNumDof;
+
             // switch on interpolation order
             switch( iInterpOrder )
             {
@@ -159,6 +170,9 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
                 {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+
+                    // get number of dof
+                    tNumDof = tNumCoeffs( 0 );
 
                     // create random coefficients for master FI
                     tMasterMatrix.randu( tNumCoeffs( 0 ), 1 );
@@ -172,6 +186,9 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
 
+                    // get number of dof
+                    tNumDof = tNumCoeffs( 1 );
+
                     // create random coefficients for master FI
                     tMasterMatrix.randu( tNumCoeffs( 1 ), 1 );
 
@@ -183,6 +200,9 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
                 {
                     // set interpolation type
                     tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
+
+                    // get number of dof
+                    tNumDof = tNumCoeffs( 2 );
 
                     // create random coefficients for master FI
                     tMasterMatrix.randu( tNumCoeffs( 2 ), 1 );
@@ -281,12 +301,61 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             // set IWG normal
             tIWG->set_normal( tNormal );
 
+            // create and set the fem set for the IWG
+            MSI::Equation_Set * tSet = new fem::Set();
+            tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+
+            // set size for the set EqnObjDofTypeList
+            tIWG->mSet->mEqnObjDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+
+            // set size and populate the set dof type map
+            tIWG->mSet->mDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+            tIWG->mSet->mDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+
+            // set size and populate the set master and slave dof type map
+            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+            tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+
+            // set size and fill the set residual assembly map
+            tIWG->mSet->mResDofAssemblyMap.resize( 2 );
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDof-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDof, (2*tNumDof)-1 } };
+
+            // set size and fill the set jacobian assembly map
+            tIWG->mSet->mJacDofAssemblyMap.resize( 2 );
+            tIWG->mSet->mJacDofAssemblyMap( 0 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
+            tIWG->mSet->mJacDofAssemblyMap( 1 ) = { { 0, tNumDof-1 },{ tNumDof, (2*tNumDof)-1 } };
+
+            // set size and init the set residual and jacobian
+            tIWG->mSet->mResidual.set_size( 2*tNumDof, 1 , 0.0 );
+            tIWG->mSet->mJacobian.set_size( 2*tNumDof, 2*tNumDof, 0.0 );
+
+            // set requested residual dof type flag to true
+            tIWG->mResidualDofTypeRequested = true;
+
             // build global property type list
             tIWG->build_global_dof_type_list();
 
+            // populate the requested master dof type
+            tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+            tIWG->mRequestedSlaveGlobalDofTypes  = {{ MSI::Dof_Type::TEMP }};
+
+            // create a field interpolator manager
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Field_Interpolator_Manager tFIManager( tDummy, tDummy, tSet );
+
+            // populate the field interpolator manager
+            tFIManager.mMasterFI = tMasterFIs;
+            tFIManager.mSlaveFI  = tSlaveFIs;
+
+            // set IWG field interpolator manager
+            tIWG->mFieldInterpolatorManager = &tFIManager;
+
             // set IWG field interpolators
-            tIWG->set_dof_field_interpolators( tMasterFIs );
-            tIWG->set_dof_field_interpolators( tSlaveFIs, mtk::Master_Slave::SLAVE );
+            tIWG->set_dof_field_interpolators( mtk::Master_Slave::MASTER );
+            tIWG->set_dof_field_interpolators( mtk::Master_Slave::SLAVE );
 
             // set IWG geometry interpolator
             tIWG->set_geometry_interpolator( &tGI );
@@ -295,8 +364,7 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             // check evaluation of the residual
             //------------------------------------------------------------------------------
             // evaluate the residual
-            Cell< Matrix< DDRMat > > tResidual;
-            tIWG->compute_residual( tResidual );
+            tIWG->compute_residual( 1.0 );
 
             // check evaluation of the jacobian  by FD
             //------------------------------------------------------------------------------
@@ -307,40 +375,31 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             // check jacobian by FD
             bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
                                                                tEpsilon,
+                                                               1.0,
                                                                tJacobians,
                                                                tJacobiansFD );
 
-//            // print for debug
-//            print( tJacobians( 0 )( 0 ),"tJacobians00");
-//            print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
-//
-//            print( tJacobians( 0 )( 1 ),"tJacobians01");
-//            print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
-//
-//            print( tJacobians( 1 )( 0 ),"tJacobians10");
-//            print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
-//
-//            print( tJacobians( 1 )( 1 ),"tJacobians11");
-//            print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
+            // print for debug
+            //print( tJacobians( 0 )( 0 ),"tJacobians00");
+            //print( tJacobiansFD( 0 )( 0 ),"tJacobiansFD00");
+
+            //print( tJacobians( 0 )( 1 ),"tJacobians01");
+            //print( tJacobiansFD( 0 )( 1 ),"tJacobiansFD01");
+
+            //print( tJacobians( 1 )( 0 ),"tJacobians10");
+            //print( tJacobiansFD( 1 )( 0 ),"tJacobiansFD10");
+
+            //print( tJacobians( 1 )( 1 ),"tJacobians11");
+            //print( tJacobiansFD( 1 )( 1 ),"tJacobiansFD11");
 
 //            // print the treated case
 //            std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<std::endl;
-
 
             // require check is true
             REQUIRE( tCheckJacobian );
 
             // clean up
-            for( Field_Interpolator* tFI : tMasterFIs )
-            {
-                delete tFI;
-            }
             tMasterFIs.clear();
-
-            for( Field_Interpolator* tFI : tSlaveFIs )
-            {
-                delete tFI;
-            }
             tSlaveFIs.clear();
         }
     }

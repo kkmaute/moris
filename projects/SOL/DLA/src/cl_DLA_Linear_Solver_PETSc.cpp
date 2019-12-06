@@ -136,6 +136,7 @@ void Linear_Solver_PETSc::build_multigrid_preconditioner( Linear_Problem * aLine
     PCMGSetLevels( mpc, tLevels, NULL );
     PCMGSetType( mpc, PC_MG_MULTIPLICATIVE );
     PCMGSetGalerkin( mpc, PC_MG_GALERKIN_BOTH );
+//     PCMGSetGalerkin( mpc, PETSC_TRUE );
 
     moris::Cell< Mat > tTransposeOperators( tProlongationList.size() );
     for ( moris::uint Ik = 0; Ik < tProlongationList.size(); Ik++ )

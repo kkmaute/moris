@@ -38,6 +38,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spatial_Diffusion_Virtual_Work_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Interface.cpp
+    UT_FEM_IQI_Strain_Energy.cpp
     )
 
 # List test dependencies

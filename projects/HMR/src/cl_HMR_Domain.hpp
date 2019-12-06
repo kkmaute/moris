@@ -39,6 +39,7 @@ namespace moris
 
             // frame of elements within domain, local ijk
             luint mFrameIJK[ gMaxNumberOfLevels ][ N ][ 2 ];
+
 //--------------------------------------------------------------------------------
         public:
 //--------------------------------------------------------------------------------

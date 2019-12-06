@@ -19,6 +19,7 @@
 #include "cl_FEM_Element_Factory.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -221,7 +222,7 @@ namespace moris
         else
         {
             tCommTable.set_size( 1, 1, 0 );
-            tMaxNumAdofs = 1000000;
+            tMaxNumAdofs = 15000000;
         }
         //--------------------------END FIXME--------------------------------
 
@@ -498,7 +499,8 @@ namespace moris
                             }
 
                             // get the field interpolator
-                            fem::Field_Interpolator* tFieldInterp = tFemSet->get_dof_type_field_interpolators(tDofType);
+                            fem::Field_Interpolator_Manager * tFIM= tFemSet->get_field_interpolators_manager();
+                            fem::Field_Interpolator* tFieldInterp = tFIM->get_field_interpolators_for_type(tDofType);
 
                             // iterate through clusters in set
                             for(moris::uint iCl = 0; iCl < tCellClustersInSet.size(); iCl++)

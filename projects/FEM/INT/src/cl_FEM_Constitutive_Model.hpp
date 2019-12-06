@@ -20,6 +20,7 @@ namespace moris
 {
     namespace fem
     {
+    class Field_Interpolator_Manager;
 //------------------------------------------------------------------------------
         /**
          * Constitutive model
@@ -27,10 +28,18 @@ namespace moris
         class Constitutive_Model
         {
 
+        private:
+
+            bool mFluxEval = true;
+
         protected :
 
             // constitutive model type
             fem::Constitutive_Type mConstitutiveType;
+
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
+            Set * mSet = nullptr;
 
             // dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
@@ -73,7 +82,6 @@ namespace moris
             uint mSpaceDim;
 
             // flag for evaluation
-            bool mFluxEval = true;
             moris::Cell< bool > mdFluxdDofEval;
             moris::Cell< bool > mdFluxdDvEval;
 
@@ -132,6 +140,16 @@ namespace moris
              * virtual destructor
              */
             virtual ~Constitutive_Model(){};
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -364,6 +382,11 @@ namespace moris
                 }
             }
 
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
 //------------------------------------------------------------------------------
             /**
              * set dof field interpolators
@@ -469,15 +492,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set properties
-             * @param[ in ] aProperties cell of property pointers
+             * set property
+             * @param[ in ] aProperty a property pointer
+             * @param[ in ] aPropertyString a string describing the property
              */
-            void set_properties( moris::Cell< std::shared_ptr< Property > > aProperties )
-            {
-                // set properties
-                mProperties = aProperties;
-            }
-
             virtual void set_property( std::shared_ptr< fem::Property > aProperty,
                                        std::string                      aPropertyType )
             {
@@ -532,7 +550,8 @@ namespace moris
                     if( tProperty != nullptr )
                     {
                         // get active dof types
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
+                        = tProperty->get_dof_type_list();
 
                         for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                         {
@@ -596,6 +615,68 @@ namespace moris
 
                 return mGlobalDofTypes;
             };
+
+//------------------------------------------------------------------------------
+            /**
+             * get non unique list of dof type for the constitutive model
+             * @param[ in ] aDofTypes a cell of dof type to fill
+             */
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                // init dof counter
+                uint tCounter = 0;
+
+                // loop over direct dof dependencies
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    // update counter
+                    tCounter += mDofTypes( iDOF ).size();
+                }
+
+                // loop over properties
+                for ( std::shared_ptr< Property > tProperty : mProperties )
+                {
+                    if ( tProperty != nullptr )
+                    {
+                        // get property dof type list
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                        // loop over property dof types
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                        {
+                            // update counter
+                            tCounter += tActiveDofType( iDOF ).size();
+                        }
+                    }
+                }
+
+                // reserve memory for the non unique dof type list
+                aDofTypes.reserve( tCounter );
+
+                // loop over direct dof dependencies
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    // populate the dof type list
+                    aDofTypes.append( mDofTypes( iDOF ) );
+                }
+
+                // loop over the properties
+                for ( std::shared_ptr< Property > tProperty : mProperties )
+                {
+                    if ( tProperty != nullptr )
+                    {
+                        // get property dof type list
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                        // loop over property dof types
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                        {
+                            // populate te dof type list
+                            aDofTypes.append( tActiveDofType( iDOF ) );
+                        }
+                    }
+                }
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -1082,7 +1163,7 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             virtual void eval_dTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                             const Matrix< DDRMat >             & aNormal )
+                                             const Matrix< DDRMat >             & aNormal)
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTractiondDOF - This function does nothing. " );
             }
@@ -1097,6 +1178,50 @@ namespace moris
             const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
                                                         const Matrix< DDRMat >             & aNormal )
             {
+                // if aDofType is not an active dof type for the property
+                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTestTractiondDOF - no dependency in this dof type." );
+
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+                // if the derivative has not been evaluated yet
+                if( mdTestTractiondDofEval( tDofIndex ) )
+                {
+                    // evaluate the derivative
+                    this->eval_dTestTractiondDOF( aDofType, aNormal );
+
+                    // set bool for evaluation
+                    mdTestTractiondDofEval( tDofIndex ) = false;
+                }
+
+                // return the derivative
+                return mdTestTractiondDof( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test traction derivative wrt to a dof type
+             * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
+             * @param[ in ] adTractiondDOF a matrix to fill with derivative evaluation
+             */
+            virtual void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                 const Matrix< DDRMat >             & aNormal )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * FIXME this is not a test traction, used for elast lin iso!!!!
+             * get the derivative of the test traction wrt dof
+             * @param[ in ]  aDofType           group of dof type
+             * @param[ in ]  aNormal            normal
+             * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
+             */
+            const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
+                                                        const Matrix< DDRMat >             & aNormal,
+                                                        const Matrix< DDRMat >             & aJump )
+            {
                // if aDofType is not an active dof type for the property
                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTestTractiondDOF - no dependency in this dof type." );
 
@@ -1107,7 +1232,7 @@ namespace moris
                if( mdTestTractiondDofEval( tDofIndex ) )
                {
                    // evaluate the derivative
-                   this->eval_dTestTractiondDOF( aDofType, aNormal );
+                   this->eval_dTestTractiondDOF( aDofType, aNormal, aJump );
 
                    // set bool for evaluation
                    mdTestTractiondDofEval( tDofIndex ) = false;
@@ -1119,12 +1244,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * FIXME this is not a test traction, used for elast lin iso!!!!
              * evaluate the constitutive model test traction derivative wrt to a dof type
              * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
              * @param[ in ] adTractiondDOF a matrix to fill with derivative evaluation
              */
             virtual void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                 const Matrix< DDRMat >             & aNormal )
+                                                 const Matrix< DDRMat >             & aNormal,
+                                                 const Matrix< DDRMat >             & aJump )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
             }

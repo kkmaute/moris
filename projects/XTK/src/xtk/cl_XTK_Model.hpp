@@ -55,7 +55,7 @@
 #include "fn_tet_volume.hpp"
 
 // general geometry engine class
-#include "../projects/GEN/src/ripped/geomeng/cl_GEN_Geometry_Engine.hpp"
+#include "../projects/GEN/src/geomeng/cl_GEN_Geometry_Engine.hpp"
 
 namespace xtk
 {

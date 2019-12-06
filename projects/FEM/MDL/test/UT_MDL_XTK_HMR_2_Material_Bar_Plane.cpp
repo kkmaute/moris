@@ -70,11 +70,10 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-
-
 #include "fn_norm.hpp"
+
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 moris::real
 Plane2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -368,7 +367,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         NLA::Nonlinear_Solver_Factory tNonlinFactory;
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        //        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
         //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
         //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
         //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;

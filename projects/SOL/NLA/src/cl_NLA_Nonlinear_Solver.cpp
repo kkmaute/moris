@@ -18,7 +18,8 @@
 using namespace moris;
 using namespace NLA;
 
-    Nonlinear_Solver::Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType ) : mNonLinSolverType( aNonLinSolverType )
+    Nonlinear_Solver::Nonlinear_Solver( const enum NonlinearSolverType aNonLinSolverType ) : mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
+                                                                                             mNonLinSolverType( aNonLinSolverType )
     {
         // create solver factory
         Nonlinear_Solver_Factory  tSolFactory;
@@ -39,7 +40,8 @@ using namespace NLA;
 
     //--------------------------------------------------------------------------------------------------
     Nonlinear_Solver::Nonlinear_Solver(       moris::Cell< std::shared_ptr<Nonlinear_Algorithm > > & aNonlinerSolverList,
-                                        const enum NonlinearSolverType                            aNonLinSolverType ) : mNonLinSolverType( aNonLinSolverType )
+                                        const enum NonlinearSolverType                            aNonLinSolverType ) : mSecundaryDofTypeList( Cell<Cell<enum MSI::Dof_Type>>(0)),
+                                                                                                                        mNonLinSolverType( aNonLinSolverType )
     {
         mNonlinearSolverAlgorithmList = aNonlinerSolverList;
 
@@ -57,6 +59,17 @@ using namespace NLA;
                                               const moris::sint                       aLevel )
     {
         mStaggeredDofTypeList.push_back( aStaggeredDofTypeList );
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    void Nonlinear_Solver::set_secondiry_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList)
+    {
+        if ( mSecundaryDofTypeList.size() == 0 )
+        {
+            mSecundaryDofTypeList.clear();
+        }
+
+        mSecundaryDofTypeList.push_back( aStaggeredDofTypeList );
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -219,6 +232,8 @@ using namespace NLA;
         moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
         mSolverInput->set_requested_dof_types( tDofTypeUnion );
+
+        mSolverInput->set_secundary_dof_types( mSecundaryDofTypeList );
 
         if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
         {

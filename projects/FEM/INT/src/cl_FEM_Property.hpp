@@ -20,6 +20,8 @@ namespace moris
 {
     namespace fem
     {
+    class Set;
+    class Field_Interpolator_Manager;
 
     typedef std::function< Matrix< DDRMat > ( moris::Cell< Matrix< DDRMat > >         & aCoeff,
                                               moris::Cell< fem::Field_Interpolator* > & aDofFI,
@@ -33,8 +35,17 @@ namespace moris
         {
         protected :
 
+            // FIXME used? field interpolator manager pointer
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
+
+            // FIXME used? FEM set pointer
+            Set * mSet = nullptr;
+
             // active dof types
             moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
+
+            // single dof type
+            MSI::Dof_Type mDof = MSI::Dof_Type::END_ENUM;
 
             // active dof type map
             Matrix< DDSMat > mDofTypeMap;
@@ -88,6 +99,26 @@ namespace moris
              * virtual destructor
              */
             virtual ~Property(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set field interpolator manager
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             */
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -212,6 +243,26 @@ namespace moris
 
                 // set mPropDofDer size
                 mPropDofDer.resize( tNumDofTypes );
+            };
+
+//------------------------------------------------------------------------------
+            /*
+             * set dof type for the single dof type case
+             * @param[ in ] aDof a dof type
+             */
+            void set_dof_type( MSI::Dof_Type aDof )
+            {
+                mDof = aDof;
+            };
+
+//------------------------------------------------------------------------------
+            /*
+             * get dof type for the single dof type case
+             * @param[ out ] mDof a dof type
+             */
+            MSI::Dof_Type get_dof_type(  )
+            {
+                return mDof;
             };
 
 //------------------------------------------------------------------------------
@@ -412,6 +463,34 @@ namespace moris
              * @param[ in ] aDvType cell of dv type
              */
             void eval_dPropdDV( const moris::Cell< MSI::Dv_Type > aDvType );
+
+//------------------------------------------------------------------------------
+            /**
+             * get non unique dof type list
+             * @param[ in ] aDofType cell of dof type
+             */
+            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
+            {
+                // init counter
+                uint tCounter = 0;
+
+                // loop over dof types
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    // update counter
+                    tCounter += mDofTypes( iDOF ).size();
+                }
+
+                // reserve memory for dof type list
+                aDofTypes.reserve( tCounter );
+
+                // loop over dof types
+                for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
+                {
+                    // populate the dof type list
+                    aDofTypes.append( mDofTypes( iDOF ) );
+                }
+            }
 
 //------------------------------------------------------------------------------
         };

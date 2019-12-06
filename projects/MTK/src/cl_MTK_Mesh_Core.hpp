@@ -509,6 +509,15 @@ public:
         MORIS_ERROR(0,"get_elements_in_support_of_basis not implemented");
     }
 
+    virtual
+    void
+    get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+                                       const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+                                             moris::Matrix< IndexMat > & aNodeIndices )
+    {
+        MORIS_ERROR(0,"get_nodes_in_bounding_box(), not implemented");
+    }
+
     //------------------------------------------------------------------------------
     //##############################################
     // Coordinate Field Functions
@@ -1179,6 +1188,16 @@ public:
             aCells(i) = &this->get_mtk_cell(aCellInds(i));
         }
     }
+
+//    virtual
+//    void get_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
+//                                            const moris::Matrix< DDRMat >   & aBoundingBoxSize,
+//                                                  moris::Matrix< IndexMat > & aNodeIndices )
+//    {
+//         MORIS_ERROR(false, "get_nodes_indices_in_bounding_box(), not implemented for this mesh");
+//    }
+
+
 };
 }
 }

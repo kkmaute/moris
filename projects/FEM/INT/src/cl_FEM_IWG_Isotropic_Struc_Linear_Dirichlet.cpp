@@ -1,5 +1,7 @@
 
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Set.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
@@ -9,26 +11,6 @@ namespace moris
 {
     namespace fem
     {
-        // default selection matrix value function
-        moris::Matrix< moris::DDRMat > tMValFunction( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                                                      moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
-                                                      moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
-                                                      moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            // get spatial dimension
-            uint tSpaceDim = aParameters( 0 ).numel();
-
-            // build selection matrix
-            Matrix< DDRMat > tM( tSpaceDim, tSpaceDim, 0.0 );
-
-            // populate selection matrix
-            for ( uint i = 0; i < tSpaceDim; i++ )
-            {
-                tM( i, i ) = aParameters( 0 )( i );
-            }
-
-            return tM;
-        }
 
         IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet()
         {
@@ -50,121 +32,149 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
-
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real tWStar )
         {
+#ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
+#endif
+
+            // get index for given dof type
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get field interpolator for given dof type
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get SP, CM and property indices
+            uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
+            uint tDirichletIndex   = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+            uint tNitscheIndex     = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
 
             // selection matrix
             Matrix< DDRMat > tM;
 
-            // set a default selection matrix
-            if ( mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) ) == nullptr )
+            // set a default selection matrix if needed
+            if ( mMasterProp( tSelectIndex ) == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = mMasterFI( 0 )->get_dof_type().size();
+                uint tSpaceDim = tFI->get_dof_type().size();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
             else
             {
-                tM = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) )->val();
+                tM = mMasterProp( tSelectIndex )->val();
             }
 
             // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->val();
+            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
 
-            // set residual size
-            this->set_residual( aResidual );
+            // get start and end indices for residual assembly
+            uint tStartRow = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+            uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // compute the residual
-            aResidual( 0 ) = - trans( mMasterFI( 0 )->N() ) * tM * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->traction( mNormal )
-                             + mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->testTraction( mNormal ) * tM * tJump
-                             + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tM * tJump;
+            mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
+            += ( - trans( tFI->N() ) * tM * mMasterCM( tElastLinIsoIndex )->traction( mNormal )
+                 + mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tJump
+                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * tWStar;
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real tWStar )
         {
+#ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
+#endif
 
-//            // set a default selection matrix
-//            if ( mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) ) == nullptr )
-//            {
-//                // default selection matrix
-//                std::shared_ptr< fem::Property > tPropSelect = std::make_shared< fem::Property >();
-//                Matrix< DDRMat > tMDiag( 1, mMasterFI( 0 )->get_dof_type().size(), 1.0 );
-//                tPropSelect->set_parameters( { tMDiag } );
-//                tPropSelect->set_val_function( tMValFunction );
-//                mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) ) = tPropSelect;
-//            }
+            // get index for a given dof type
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get field interpolator for a given dof type
+            Field_Interpolator * tFI = mFieldInterpolatorManager->get_field_interpolators_for_type( mResidualDofType( 0 ), mtk::Master_Slave::MASTER );
+
+            // get SP, CM and property indices
+            uint tSelectIndex      = static_cast< uint >( IWG_Property_Type::SELECT );
+            uint tDirichletIndex   = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+            uint tElastLinIsoIndex = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
+            uint tNitscheIndex     = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
 
             // selection matrix
             Matrix< DDRMat > tM;
 
             // set a default selection matrix
-            if ( mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) ) == nullptr )
+            if ( mMasterProp( tSelectIndex ) == nullptr )
             {
                 // get spatial dimension
-                uint tSpaceDim = mMasterFI( 0 )->get_dof_type().size();
+                uint tSpaceDim = tFI->get_dof_type().size();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
             else
             {
-                tM = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) )->val();
+                tM = mMasterProp( tSelectIndex )->val();
             }
 
             // compute jump
-            Matrix< DDRMat > tJump = mMasterFI( 0 )->val() - mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->val();
-
-            // set the jacobian size
-            this->set_jacobian( aJacobians );
+            Matrix< DDRMat > tJump = tFI->val() - mMasterProp( tDirichletIndex )->val();
 
             // compute the jacobian for direct dof dependencies
-            aJacobians( 0 )( 0 ) = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->testTraction( mNormal ) * tM * mMasterFI( 0 )->N()
-                                 + mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tM * mMasterFI( 0 )->N();
+            if ( mResidualDofTypeRequested )
+            {
+                // compute the jacobian for direct dof dependencies
+                mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                      { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
+                += (   mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tFI->N()
+                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * tWStar;
+            }
 
             // compute the jacobian for indirect dof dependencies through properties
-            uint tNumDofDependencies = mMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+
+                // get the index for this dof type
+                uint tIndexDep = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
 
                 // if dependency on the dof type
-                if ( mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->check_dof_dependency( tDofType ) )
+                if ( mMasterProp( tDirichletIndex )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += -1.0 * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->testTraction( mNormal ) * tM * mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->dPropdDOF( tDofType )
-                       - mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->val()( 0 ) * trans( mMasterFI( 0 )->N() ) * tM * mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) )->dPropdDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+                    += -1.0 * mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType )
+                       - mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * mMasterProp( tDirichletIndex )->dPropdDOF( tDofType );
                 }
 
                 // if dependency on the dof type
-                if ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->check_dof_dependency( tDofType ) )
+                if ( mMasterCM( tElastLinIsoIndex )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += - trans( mMasterFI( 0 )->N() ) *  tM * mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->dTractiondDOF( tDofType, mNormal ) ;
-                    // + mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->dTestTractiondDOF( tDofType, mNormal ) * tM * tJump;
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+                   += ( - trans( tFI->N() ) *  tM * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) ) * tWStar;
+//                        + mMasterCM( tElastLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tM * tJump ) * tWStar;
                 }
 
                 // if dependency on the dof type
-                if ( mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->check_dof_dependency( tDofType ) )
+                if ( mStabilizationParam( tNitscheIndex )->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    aJacobians( 0 )( iDOF ).matrix_data()
-                    += trans( mMasterFI( 0 )->N() ) * tM * tJump * mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) )->dSPdMasterDOF( tDofType );
+                    mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
+                                          { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
+                    += trans( tFI->N() ) * tM * tJump * mStabilizationParam( tNitscheIndex )->dSPdMasterDOF( tDofType );
                 }
             }
         }

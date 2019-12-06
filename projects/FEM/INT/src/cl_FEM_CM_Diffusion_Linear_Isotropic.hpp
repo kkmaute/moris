@@ -156,6 +156,16 @@ namespace moris
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                          const Matrix< DDRMat >             & aNormal );
 
+            /**
+             * evaluate the constitutive model test traction derivative wrt to a dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             * @param[ in ] aNormal   normal
+             * dTestTractiondDOF ( numDof x numDerDof )
+             */
+            void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                         const Matrix< DDRMat >             & aNormal,
+                                         const Matrix< DDRMat >             & aJump );
+
 //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain derivative wrt to a dof type

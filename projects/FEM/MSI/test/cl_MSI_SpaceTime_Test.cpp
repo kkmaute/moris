@@ -162,7 +162,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // Clean up -----------------------------------------------------------------
 
         // delete mesh pointer
-        delete tInterpMesh;
+        //delete tInterpMesh;
         delete tIntegMesh;
 
         // delete node pointers

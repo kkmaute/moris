@@ -11,7 +11,6 @@ using namespace fem;
 
 TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
 {
-
     // define an epsilon environment
     real tEpsilon = 1E-12;
 
@@ -558,7 +557,6 @@ TEST_CASE( "FI_vectorialField", "[moris],[fem],[FI_vectorialField]" )
         }
     }
     REQUIRE( tCheckTestN );
-
 }
 
 

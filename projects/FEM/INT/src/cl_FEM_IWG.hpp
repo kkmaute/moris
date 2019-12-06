@@ -8,9 +8,9 @@
 #define SRC_FEM_CL_FEM_IWG_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
-#include "linalg_typedefs.hpp"              //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_Matrix.hpp"                    //LNA/src
+#include "linalg_typedefs.hpp"              //MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Property.hpp"              //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
@@ -24,13 +24,18 @@ namespace moris
 {
     namespace fem
     {
+        class Set;
+        class Field_Interpolator_Manager;
 //------------------------------------------------------------------------------
         /**
          * Integrand of Weak Form of Governing Equations
          */
         class IWG
-       {
+        {
         protected :
+
+            // FEM set pointer
+            fem::Set * mSet = nullptr;
 
             // nodal weak BCs
             Matrix< DDRMat > mNodalWeakBCs;
@@ -40,6 +45,9 @@ namespace moris
 
             // residual dof type
             moris::Cell< MSI::Dof_Type > mResidualDofType;
+
+            // bool true if residual dof type requested
+            bool mResidualDofTypeRequested = false;
 
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
@@ -53,13 +61,15 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
 
-            // master and slave global dof type maps
-            Matrix< DDSMat > mMasterGlobalDofTypeMap;
-            Matrix< DDSMat > mSlaveGlobalDofTypeMap;
+            // master and slave global dof type lists
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
             // master and slave dof field interpolators
             moris::Cell< Field_Interpolator* > mMasterFI;
             moris::Cell< Field_Interpolator* > mSlaveFI;
+
+            Field_Interpolator_Manager * mFieldInterpolatorManager = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
@@ -102,6 +112,35 @@ namespace moris
              * virtual destructor
              */
             virtual ~IWG(){};
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set member set pointer
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             */
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFieldInterpolatorManager = aFieldInterpolatorManager;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * free memory
+             */
+            void free_memory()
+            {
+                mResidualDofTypeRequested = false;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -274,117 +313,8 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * set dof field interpolators
-             * @param[ in ] aFieldInterpolators cell of dof field interpolator pointers
-             * @param[ in ] aIsMaster           enum for master or slave
              */
-            void set_dof_field_interpolators( moris::Cell< Field_Interpolator* > & aFieldInterpolators,
-                                              mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // get input size
-                uint tInputNumFI = aFieldInterpolators.size();
-
-                // check input size
-                MORIS_ASSERT( tInputNumFI == this->get_global_dof_type_list( aIsMaster ).size(),
-                              "IWG::set_dof_field_interpolators - wrong input size. " );
-
-                // check dof field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < tInputNumFI; iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == this->get_global_dof_type_list( aIsMaster )( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "IWG::set_dof_field_interpolators - wrong field interpolator dof type. ");
-
-                // set field interpolators
-                this->get_dof_field_interpolators( aIsMaster ) = aFieldInterpolators;
-
-                // set field interpolators for the SP
-                for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-                {
-                    if( tSP != nullptr )
-                    {
-                        // get the list of dof types for the SP
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tSPDofTypes = tSP->get_global_dof_type_list( aIsMaster );
-
-                        // get the number of dof type for the SP
-                        uint tNumDofTypes = tSPDofTypes.size();
-
-                        // set the size of the field interpolators list for the SP
-                        moris::Cell< Field_Interpolator* > tSPFIs( tNumDofTypes, nullptr );
-
-                        // loop over the dof types
-                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                        {
-                            // get the dof type index in set
-                            uint tDofIndexInSet = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tSPDofTypes( iDof )( 0 ) ) );
-
-                            // fill the field interpolators list for the SP
-                            tSPFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSet );
-                        }
-
-                        // set the field interpolators for the SP
-                        tSP->set_dof_field_interpolators( tSPFIs, aIsMaster );
-                    }
-                }
-
-                // set field interpolators for constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
-                {
-                    if( tCM != nullptr )
-                    {
-                        // get the list of dof types for the CM
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tCMDofTypes = tCM->get_global_dof_type_list();
-
-                        // get the number of dof type for the CM
-                        uint tNumDofTypes = tCMDofTypes.size();
-
-                        // set the size of the field interpolators list for the CM
-                        moris::Cell< Field_Interpolator* > tCMFIs( tNumDofTypes, nullptr );
-
-                        // loop over the dof types
-                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                        {
-                            // get the dof type index in set
-                            uint tDofIndexInSet = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tCMDofTypes( iDof )( 0 ) ) );
-
-                            // fill the field interpolators list for the CM
-                            tCMFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSet );
-                        }
-
-                        // set the field interpolators for the CM
-                        tCM->set_dof_field_interpolators( tCMFIs );
-                    }
-                }
-
-                // set field interpolators for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
-                {
-                    if( tProp != nullptr )
-                    {
-                        // get the list of dof types for the property
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-
-                        // get the number of dof type for the property
-                        uint tNumDofTypes = tPropDofTypes.size();
-
-                        // set the size of the field interpolators list for the property
-                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                        // loop over the dof types
-                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
-                        {
-                            // get the dof type index in set
-                            uint tDofIndexInSet = this->get_global_dof_type_map( aIsMaster )( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
-
-                            // fill the field interpolators list for the property
-                            tPropFIs( iDof ) = this->get_dof_field_interpolators( aIsMaster )( tDofIndexInSet );
-                        }
-
-                        // set the field interpolators for the property
-                        tProp->set_dof_field_interpolators( tPropFIs );
-                    }
-                }
-            }
+            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster );
 
 //------------------------------------------------------------------------------
             /**
@@ -393,7 +323,7 @@ namespace moris
              * @param[ in ] aIsMaster             enum for master or slave
              */
             void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                            mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER )
+                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // set geometry interpolator for the SP
                 for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
@@ -425,55 +355,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * get dof field interpolators
-             * @param[ in ]  aIsMaster           enum master or slave
-             * @param[ out ] aFieldInterpolators cell of dof field interpolator pointers
-             */
-            moris::Cell< Field_Interpolator* > & get_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master field interpolator pointers
-                        return mMasterFI;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave field interpolator pointers
-                        return mSlaveFI;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IWG::set_dof_field_interpolators - can only be master or slave." );
-                        return mMasterFI;
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * check that dof field interpolators were assigned
              * @param[ in ]  aIsMaster enum master or slave
              */
-             void check_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 // check field interpolators cell size
-                 MORIS_ASSERT( this->get_dof_field_interpolators( aIsMaster ).size() == this->get_global_dof_type_list( aIsMaster ).size(),
-                               "IWG::check_dof_field_interpolators - wrong FI size. " );
-
-                // loop over the field interpolator pointers
-                for( uint iFI = 0; iFI < this->get_global_dof_type_list( aIsMaster ).size(); iFI++ )
-                {
-                    // check that the field interpolator was set
-                    MORIS_ASSERT( this->get_dof_field_interpolators( aIsMaster )( iFI ) != nullptr,
-                                  "IWG::check_dof_field_interpolators - FI missing. " );
-                }
-             }
+             void check_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 //------------------------------------------------------------------------------
             /**
@@ -529,7 +414,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "IWG::set_dv_field_interpolators - can only be master or slave." );
+                        MORIS_ASSERT( false, "IWG::get_dv_field_interpolators - can only be master or slave." );
                         return mMasterDvFI;
                     }
                 }
@@ -557,22 +442,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
              /**
-              * set properties
-              * @param[ in ] aProperties cell of property pointers
-              * @param[ in ]  aIsMaster   enum master or slave
-              */
-             void set_properties( moris::Cell< std::shared_ptr< Property > > aProperties,
-                                  mtk::Master_Slave                          aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 // set properties
-                 this->get_properties( aIsMaster ) = aProperties;
-             }
-
-//------------------------------------------------------------------------------
-             /**
               * set property
-              * @param[ in ] aProperty       a property pointers
-              * @param[ in ] aPropertyString a property string
+              * @param[ in ] aProperty       a property pointer
+              * @param[ in ] aPropertyString a string describing the property
               * @param[ in ] aIsMaster       enum master or slave
               */
               virtual void set_property( std::shared_ptr< Property > aProperty,
@@ -612,19 +484,6 @@ namespace moris
                          return mMasterProp;
                      }
                  }
-             }
-
-//------------------------------------------------------------------------------
-             /**
-              * set constitutive models
-              * @param[ in ] aConstitutiveModels cell of constitutive model pointers
-              * @param[ in ] aIsMaster           enum master or slave
-              */
-             void set_constitutive_models( moris::Cell< std::shared_ptr< Constitutive_Model > > aConstitutiveModels,
-                                           mtk::Master_Slave                                    aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 // set constitutive models
-                 this->get_constitutive_models( aIsMaster ) = aConstitutiveModels;
              }
 
 //------------------------------------------------------------------------------
@@ -674,17 +533,6 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
-             /**
-              * set stabilization parameters
-              * @param[ in ] aStabilizationParameters cell of stabilization parameter pointers
-              */
-             void set_stabilization_parameters( moris::Cell< std::shared_ptr< Stabilization_Parameter > > aStabilizationParameters )
-             {
-                 // set stabilization parameters
-                 mStabilizationParam = aStabilizationParameters;
-             }
-
-//------------------------------------------------------------------------------
             /**
              * set stabilization parameter
              * @param[ in ] aStabilizationParameter a stabilization parameter pointer
@@ -708,417 +556,19 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
-              /**
-               * create a global dof type list including IWG, property and constitutive dependencies
-               */
-              void build_global_dof_type_list()
-              {
-                  // MASTER-------------------------------------------------------
-                  // get the size of the dof type list
-                  uint tCounterMax = 0;
-
-                  // get number of dof types from IWG
-                  tCounterMax += mMasterDofTypes.size();
-
-                  // get number of dof types from properties
-                  for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                  {
-                      if ( tProperty != nullptr )
-                      {
-                          tCounterMax += tProperty->get_dof_type_list().size();
-                      }
-                  }
-
-                  // get number of dof types from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                  {
-                      if( tCM != nullptr )
-                      {
-                          tCounterMax += tCM->get_global_dof_type_list().size();
-                      }
-                  }
-
-                  // get number of dof types from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      if( tSP != nullptr )
-                      {
-                          tCounterMax += tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER ).size();
-                      }
-                  }
-
-                  // set size for the global dof type list
-                  mMasterGlobalDofTypes.resize( tCounterMax );
-
-                  // set a size for the checkList (used to avoid repeating a dof type)
-                  moris::Cell< sint > tCheckList( tCounterMax, -1 );
-
-                  // init total dof counter
-                  uint tCounter = 0;
-
-                  // get dof type from penalty parameter
-                  for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
-                  {
-                      // put the dof type in the checklist
-                      tCheckList( tCounter ) = static_cast< uint >( mMasterDofTypes( iDOF )( 0 ) );
-
-                      // put the dof type in the global type list
-                      mMasterGlobalDofTypes( tCounter ) = mMasterDofTypes( iDOF );
-
-                      // update the dof counter
-                      tCounter++;
-                  }
-
-                  // get dof type from properties
-                  for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                  {
-                      if ( tProperty != nullptr )
-                      {
-                          // get dof types for property
-                          moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                          // loop on property dof type
-                          for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                          {
-                              // check enum is not already in the list
-                              bool tCheck = false;
-                              for( uint i = 0; i < tCounter; i++ )
-                              {
-                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                              }
-
-                              // if dof enum not in the list
-                              if ( !tCheck )
-                              {
-                                  // put the dof type in the checklist
-                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                  // put the dof type in the global type list
-                                  mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                  // update dof counter
-                                  tCounter++;
-                              }
-                          }
-                      }
-                  }
-
-                  // get dof type from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                  {
-                      if( tCM != nullptr )
-                      {
-                          // get dof types for constitutive model
-                          moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                          // loop on property dof type
-                          for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                          {
-                              // check enum is not already in the list
-                              bool tCheck = false;
-                              for( uint i = 0; i < tCounter; i++ )
-                              {
-                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                              }
-
-                              // if dof enum not in the list
-                              if ( !tCheck )
-                              {
-                                  // put the dof type in the checklist
-                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                  // put the dof type in the global type list
-                                  mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                  // update dof counter
-                                  tCounter++;
-                              }
-                          }
-                      }
-                  }
-
-                  // get dof type from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      if( tSP != nullptr )
-                      {
-                          // get dof types for constitutive model
-                          moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
-
-                          // loop on property dof type
-                          for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                          {
-                              // check enum is not already in the list
-                              bool tCheck = false;
-                              for( uint i = 0; i < tCounter; i++ )
-                              {
-                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                              }
-
-                              // if dof enum not in the list
-                              if ( !tCheck )
-                              {
-                                  // put the dof type in the checklist
-                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                  // put the dof type in the global type list
-                                  mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                  // update dof counter
-                                  tCounter++;
-                              }
-                          }
-                      }
-                  }
-
-                  // get the number of unique dof type groups for the penalty parameter
-                  mMasterGlobalDofTypes.resize( tCounter );
-
-                  // SLAVE--------------------------------------------------------
-                  // get the size of the dof type list
-                  tCounterMax = 0;
-
-                  // get number of dof types from penalty parameter
-                  tCounterMax += mSlaveDofTypes.size();
-
-                  // get number of dof types from properties
-                  for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                  {
-                      if( tProperty != nullptr )
-                      {
-                          tCounterMax += tProperty->get_dof_type_list().size();
-                      }
-                  }
-
-                  // get number of dof types from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                  {
-                      if( tCM != nullptr )
-                      {
-                          tCounterMax += tCM->get_global_dof_type_list().size();
-                      }
-                  }
-
-                  // get number of dof types from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      if( tSP != nullptr )
-                      {
-                          tCounterMax += tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-                      }
-                  }
-
-                  // set size for the global dof type list
-                  mSlaveGlobalDofTypes.resize( tCounterMax );
-
-                  // set a size for the checkList (used to avoid repeating a dof type)
-                  tCheckList.resize( tCounterMax, -1 );
-
-                  // init total dof counter
-                  tCounter = 0;
-
-                  // get dof type from penalty parameter
-                  for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
-                  {
-                      // put the dof type in the checklist
-                      tCheckList( tCounter ) = static_cast< uint >( mSlaveDofTypes( iDOF )( 0 ) );
-
-                      // put the dof type in the global type list
-                      mSlaveGlobalDofTypes( tCounter ) = mSlaveDofTypes( iDOF );
-
-                      // update the dof counter
-                      tCounter++;
-                  }
-
-                  // get dof type from properties
-                  for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                  {
-                      if( tProperty != nullptr )
-                      {
-                          // get dof types for property
-                          moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                          // loop on property dof type
-                          for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                          {
-                              // check enum is not already in the list
-                              bool tCheck = false;
-                              for( uint i = 0; i < tCounter; i++ )
-                              {
-                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                              }
-
-                              // if dof enum not in the list
-                              if ( !tCheck )
-                              {
-                                  // put the dof type in the checklist
-                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                  // put the dof type in the global type list
-                                  mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                  // update dof counter
-                                  tCounter++;
-                              }
-                          }
-                      }
-                  }
-
-                  // get dof type from constitutive models
-                  for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                  {
-                      if( tCM != nullptr )
-                      {
-                          // get dof types for constitutive model
-                          moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                          // loop on property dof type
-                          for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                          {
-                              // check enum is not already in the list
-                              bool tCheck = false;
-                              for( uint i = 0; i < tCounter; i++ )
-                              {
-                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                              }
-
-                              // if dof enum not in the list
-                              if ( !tCheck )
-                              {
-                                  // put the dof type in the checklist
-                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                  // put the dof type in the global type list
-                                  mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                  // update dof counter
-                                  tCounter++;
-                              }
-                          }
-                      }
-                  }
-
-                  // get dof type from stabilization parameters
-                  for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                  {
-                      if( tSP != nullptr )
-                      {
-                          // get dof types for constitutive model
-                          moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-
-                          // loop on property dof type
-                          for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                          {
-                              // check enum is not already in the list
-                              bool tCheck = false;
-                              for( uint i = 0; i < tCounter; i++ )
-                              {
-                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                              }
-
-                              // if dof enum not in the list
-                              if ( !tCheck )
-                              {
-                                  // put the dof type in the checklist
-                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                  // put the dof type in the global type list
-                                  mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                  // update dof counter
-                                  tCounter++;
-                              }
-                          }
-                      }
-                  }
-
-                  // get the number of unique dof type groups for the penalty parameter
-                  mSlaveGlobalDofTypes.resize( tCounter );
-              };
+             /**
+              * create a global dof type list including
+              * IWG, property, constitutive and stabilization dependencies
+              */
+             void build_global_dof_type_list();
 
 //------------------------------------------------------------------------------
-            /**
-             * build global dof type map
-             */
-            void build_global_dof_type_map()
-            {
-                // MASTER-------------------------------------------------------
-                // get number of global dof types
-                uint tNumDofTypes = mMasterGlobalDofTypes.size();
-
-                // determine the max Dof_Type enum
-                sint tMaxEnum = 0;
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterGlobalDofTypes( iDOF )( 0 ) ) );
-                }
-                tMaxEnum++;
-
-                // set the Dof_Type map size
-                mMasterGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
-
-                // fill the Dof_Type map
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    // fill the property map
-                    mMasterGlobalDofTypeMap( static_cast< int >( mMasterGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
-                }
-
-                // SLAVE-------------------------------------------------------
-                // get number of global dof types
-                tNumDofTypes = mSlaveGlobalDofTypes.size();
-
-                // determine the max Dof_Type enum
-                tMaxEnum = 0;
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveGlobalDofTypes( iDOF )( 0 ) ) );
-                }
-                tMaxEnum++;
-
-                // set the dof type map size
-                mSlaveGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
-
-                // fill the dof type map
-                for( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
-                {
-                    // fill the property map
-                    mSlaveGlobalDofTypeMap( static_cast< int >( mSlaveGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * get global dof type map
-             */
-            const Matrix< DDSMat > & get_global_dof_type_map( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master global dof type map
-                        return mMasterGlobalDofTypeMap;
-                        break;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave global dof type map
-                        return mSlaveGlobalDofTypeMap;
-                        break;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "Penalty_Parameter::get_global_dof_type_map - can only be master or slave." );
-                        return mMasterGlobalDofTypeMap;
-                        break;
-                    }
-                }
-            }
+             /**
+              * get a non unique list of dof type including
+              * IWG, property, constitutive and stabilization dependencies
+              * for both master and slave
+              */
+             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
               /**
@@ -1549,9 +999,6 @@ namespace moris
                       // build the stabilization parameter global dof type list
                       this->build_global_dof_type_list();
 
-                      // build the stabilization parameter global dof type map
-                      this->build_global_dof_type_map();
-
                       // update build flag
                       mGlobalDofBuild = false;
                   }
@@ -1636,20 +1083,14 @@ namespace moris
              * evaluate the residual
              * @param[ in ] aResidual matrix to fill with residual
              */
-            virtual void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
-            {
-                MORIS_ERROR( false, "IWG::compute_residual - This function does nothing. " );
-            }
+            virtual void compute_residual( real tWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the Jacobian
              * @param[ in ] aJacobians cell of matrices to fill with Jacobians
              */
-            virtual void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
-            {
-                MORIS_ERROR( false, "IWG::compute_jacobian - This function does nothing. " );
-            }
+            virtual void compute_jacobian( real tWStar ) = 0;
 
 //------------------------------------------------------------------------------
             /**
@@ -1668,94 +1109,30 @@ namespace moris
              * check the Jacobian with FD
              * @param[ in ] aPerturbation real to perturb for FD
              * @param[ in ] aEpsilon      real for check
+             * @param[ in ] aWStar        real weight associated to evaluation point
              * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
              * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
              */
             bool check_jacobian( real                                             aPerturbation,
                                  real                                             aEpsilon,
+                                 real                                             aWStar,
                                  moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                 moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians_FD )
-            {
-                // set jacobian size
-                this->set_jacobian( aJacobians );
-
-                // compute jacobian with IWG
-                this->compute_jacobian( aJacobians );
-
-                // set jacobian size
-                this->set_jacobian( aJacobians_FD );
-
-                // compute jacobian by FD
-                this->compute_jacobian_FD( aJacobians_FD, aPerturbation );
-
-                //define a boolean for check
-                bool tCheckJacobian = true;
-
-                // check each components
-                for ( uint iJac = 0; iJac < aJacobians.size(); iJac++ )
-                {
-                    for( uint jJac = 0; jJac < aJacobians( iJac ).size(); jJac++ )
-                    {
-                        for( uint iiJac = 0; iiJac < aJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                        {
-                            for( uint jjJac = 0; jjJac < aJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                            {
-                                tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( jJac )( iiJac, jjJac ) - aJacobians_FD( iJac )( jJac )( iiJac, jjJac ) < aEpsilon );
-                            }
-                        }
-                    }
-                }
-
-                // return bool
-                return tCheckJacobian;
-            }
+                                 moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
              * check the Jacobian with FD double
              * @param[ in ] aPerturbation real to perturb for FD
              * @param[ in ] aEpsilon      real for check
+             * @param[ in ] aWStar        real weight associated to evaluation point
              * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
              * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
              */
-            bool check_jacobian_double( real aPerturbation,
-                                        real aEpsilon,
+            bool check_jacobian_double( real                                             aPerturbation,
+                                        real                                             aEpsilon,
+                                        real                                             aWStar,
                                         moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians_FD )
-            {
-                // set jacobian size
-                this->set_jacobian_double( aJacobians );
-
-                // compute jacobian with IWG
-                this->compute_jacobian( aJacobians );
-
-                // set jacobian size
-                this->set_jacobian_double( aJacobians_FD );
-
-                // compute jacobian by FD
-                this->compute_jacobian_FD_double( aJacobians_FD, aPerturbation );
-
-                //define a boolean for check
-                bool tCheckJacobian = true;
-
-                // check each components
-                for ( uint iJac = 0; iJac < aJacobians.size(); iJac++ )
-                {
-                    for( uint jJac = 0; jJac < aJacobians( iJac ).size(); jJac++ )
-                    {
-                        for( uint iiJac = 0; iiJac < aJacobians( iJac )( jJac ).n_rows(); iiJac++ )
-                        {
-                            for( uint jjJac = 0; jjJac < aJacobians( iJac )( jJac ).n_cols(); jjJac++ )
-                            {
-                                tCheckJacobian = tCheckJacobian && ( aJacobians( iJac )( jJac )( iiJac, jjJac ) - aJacobians_FD( iJac )( jJac )( iiJac, jjJac ) < aEpsilon );
-                            }
-                        }
-                    }
-                }
-
-                // return bool
-                return tCheckJacobian;
-            }
+                                        moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFDs );
 
 //------------------------------------------------------------------------------
             /**
@@ -1808,313 +1185,31 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * evaluate the Jacobian by finite difference
-             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
              * @param[ in ] aPerturbation real to perturb for FD
-             */
-            virtual void compute_jacobian_FD( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD,
-                                              real                                             aPerturbation )
-            {
-                // get master number of dof types
-                uint tNumDofType = this->get_global_dof_type_list().size();
-
-                // set the jacobian size
-                this->set_jacobian( aJacobiansFD );
-
-                // loop over the IWG dof types
-                for( uint iFI = 0; iFI < tNumDofType; iFI++ )
-                {
-                    // get number of master FI bases and fields
-                    uint tDerNumBases  = mMasterFI( iFI )->get_number_of_space_time_bases();
-                    uint tDerNumFields = mMasterFI( iFI )->get_number_of_fields();
-
-                    // coefficients for dof type wrt which derivative is computed
-                    Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
-
-                    // init dof counter
-                    uint tDofCounter = 0;
-
-                    // loop over the coefficient column
-                    for( uint iCoeffCol = 0; iCoeffCol< tDerNumFields; iCoeffCol++ )
-                    {
-                        // loop over the coefficient row
-                        for( uint iCoeffRow = 0; iCoeffRow< tDerNumBases; iCoeffRow++  )
-                        {
-                            // perturbation of the coefficent
-                            Matrix< DDRMat > tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                            // setting the perturbed coefficients
-                            mMasterFI( iFI )->set_coeff( tCoeffPert );
-
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
-
-                            // evaluate the residual
-                            moris::Cell< Matrix< DDRMat > > tResidual_Plus;
-                            this->set_residual( tResidual_Plus );
-                            this->compute_residual( tResidual_Plus );
-
-                            // perturbation of the coefficent
-                            tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                            // setting the perturbed coefficients
-                            mMasterFI( iFI )->set_coeff( tCoeffPert );
-
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
-
-                            // evaluate the residual
-                            moris::Cell< Matrix< DDRMat > > tResidual_Minus;
-                            this->set_residual( tResidual_Minus );
-                            this->compute_residual( tResidual_Minus );
-
-                            // evaluate Jacobian
-                            aJacobiansFD( 0 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                            // update dof counter
-                            tDofCounter++;
-                        }
-                    }
-                    // reset the coefficients values
-                    mMasterFI( iFI )->set_coeff( tCoeff );
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * evaluate the Jacobian by finite difference double
+             * @param[ in ] aWStar        weight associated to evaluation point
              * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
-             * @param[ in ] aPerturbation real to perturb for FD
-             * @param[ in ] aIsMaster     enum master or slave
              */
-            virtual void compute_jacobian_FD_double( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD,
-                                                     real                                             aPerturbation )
-            {
-                // get master and slave number of dof types
-                uint tMasterNumDofType = this->get_global_dof_type_list().size();
-                uint tSlaveNumDofType  = this->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-
-                // set the jacobian size
-                this->set_jacobian_double( aJacobiansFD );
-
-                // loop over the master dof types
-                for( uint iFI = 0; iFI < tMasterNumDofType; iFI++ )
-                {
-                    // get number of master FI bases and fields
-                    uint tDerNumBases  = mMasterFI( iFI )->get_number_of_space_time_bases();
-                    uint tDerNumFields = mMasterFI( iFI )->get_number_of_fields();
-
-                    // coefficients for dof type wrt which derivative is computed
-                    Matrix< DDRMat > tCoeff = mMasterFI( iFI )->get_coeff();
-
-                    // init dof counter
-                    uint tDofCounter = 0;
-
-                    // loop over the coefficients column
-                    for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-                    {
-                        // loop over the coefficients row
-                        for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-                        {
-                            // perturbation of the coefficent
-                            Matrix< DDRMat > tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                            // setting the perturbed coefficients
-                            mMasterFI( iFI )->set_coeff( tCoeffPert );
-
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
-
-                            // evaluate the residual
-                            moris::Cell< Matrix< DDRMat > > tResidual_Plus;
-                            this->set_residual_double( tResidual_Plus );
-                            this->compute_residual( tResidual_Plus );
-
-                            // perturbation of the coefficent
-                            tCoeffPert = tCoeff;
-
-                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                            // setting the perturbed coefficients
-                            mMasterFI( iFI )->set_coeff( tCoeffPert );
-
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
-
-                            // evaluate the residual
-                            moris::Cell< Matrix< DDRMat > > tResidual_Minus;
-                            this->set_residual_double( tResidual_Minus );
-                            this->compute_residual( tResidual_Minus );
-
-                            // evaluate Jacobian
-                            aJacobiansFD( 0 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                            aJacobiansFD( 1 )( iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) )/ ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                            // update dof counter
-                            tDofCounter++;
-                        }
-                    }
-                    // reset the coefficients values
-                    mMasterFI( iFI )->set_coeff( tCoeff );
-                }
-
-                // loop over the slave dof types
-                for( uint iFI = 0; iFI < tSlaveNumDofType; iFI++ )
-                {
-                    // get number of master FI bases and fields
-                    uint tDerNumBases  = mSlaveFI( iFI )->get_number_of_space_time_bases();
-                    uint tDerNumFields = mSlaveFI( iFI )->get_number_of_fields();
-
-                    // coefficients for dof type wrt which derivative is computed
-                    Matrix< DDRMat > tCoeff = mSlaveFI( iFI )->get_coeff();
-
-                    // init dof counter
-                    uint tDofCounter = 0;
-
-                    // loop over the coefficients columns
-                    for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
-                    {
-                        // loop over the coefficients rows
-                        for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
-                        {
-                            // perturbation of the coefficent
-                            Matrix< DDRMat > tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) + aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                            // setting the perturbed coefficients
-                            mSlaveFI( iFI )->set_coeff( tCoeffPert );
-
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
-
-                            // evaluate the residual
-                            moris::Cell< Matrix< DDRMat > > tResidual_Plus;
-                            this->set_residual_double( tResidual_Plus );
-                            this->compute_residual( tResidual_Plus );
-
-                            // perturbation of the coefficent
-                            tCoeffPert = tCoeff;
-                            tCoeffPert( iCoeffRow, iCoeffCol ) = tCoeffPert( iCoeffRow, iCoeffCol ) - aPerturbation * tCoeffPert( iCoeffRow, iCoeffCol );
-
-                            // setting the perturbed coefficients
-                            mSlaveFI( iFI )->set_coeff( tCoeffPert );
-
-                            // reset properties, CM and SP for IWG
-                            this->reset_eval_flags();
-
-                            // evaluate the residual
-                            moris::Cell< Matrix< DDRMat > > tResidual_Minus;
-                            this->set_residual_double( tResidual_Minus );
-                            this->compute_residual( tResidual_Minus );
-
-                            // evaluate Jacobian
-                            aJacobiansFD( 0 )( tMasterNumDofType + iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 0 ) - tResidual_Minus( 0 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-                            aJacobiansFD( 1 )( tMasterNumDofType + iFI ).get_column( tDofCounter ) = ( tResidual_Plus( 1 ) - tResidual_Minus( 1 ) ) / ( 2.0 * aPerturbation * tCoeff( iCoeffRow, iCoeffCol ) );
-
-                            // update dof counter
-                            tDofCounter++;
-                        }
-                    }
-                    // reset the coefficients values
-                    mSlaveFI( iFI )->set_coeff( tCoeff );
-                }
-            }
+            void compute_jacobian_FD( real                                             aWStar,
+                                      real                                             aPerturbation,
+                                      moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
-             * set the residual size
-             * @param[ in ] aResidual matrix to fill with residual
-             */
-            void set_residual( moris::Cell< Matrix< DDRMat > > & aResidual )
-            {
-                // set the size of the residual cell
-                aResidual.resize( 1 );
-
-                // set size of each residual matrix
-                aResidual( 0 ).set_size( mMasterFI( 0 )->get_number_of_space_time_coefficients(), 1, 0.0 );
-            }
+            * evaluate the Jacobian by finite difference
+            * @param[ in ] aWStar        weight associated with evaluation point
+            * @param[ in ] aPerturbation real to perturb for FD
+            * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
+            */
+            void compute_jacobian_FD_double( real                                             aWStar,
+                                             real                                             aPerturbation,
+                                             moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
-             * set the residual size double
-             * @param[ in ] aResidual matrix to fill with residual
+             * build a list of dof types requested by the solver and owned by the IWG
+             * @param[ in ] aItResidual bool true if ???
              */
-            void set_residual_double( moris::Cell< Matrix< DDRMat > > & aResidual )
-            {
-                // set the size of the residual cell
-                aResidual.resize( 2 );
-
-                // set size of each residual matrix
-                aResidual( 0 ).set_size( mMasterFI( 0 )->get_number_of_space_time_coefficients(), 1, 0.0 );
-                aResidual( 1 ).set_size( mSlaveFI( 0 )->get_number_of_space_time_coefficients(), 1, 0.0 );
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * set the Jacobian size
-             * @param[ in ] aJacobians cell of matrices to fill with Jacobians
-             */
-            void set_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
-            {
-                // get number of dof types for the IWG
-                uint tNumDofType = this->get_global_dof_type_list().size();
-
-                // set the size of the jacobian cell
-                aJacobians.resize( 1 );
-                aJacobians( 0 ).resize( tNumDofType );
-
-                // get residual dof type number of dofs
-                uint tNumResDof = mMasterFI( 0 )->get_number_of_space_time_coefficients();
-
-                // loop over the master dof dependencies
-                for( uint iDOF = 0; iDOF < tNumDofType; iDOF++ )
-                {
-                    // set size for each jacobian matrix
-                    aJacobians( 0 )( iDOF ).set_size( tNumResDof, mMasterFI( iDOF )->get_number_of_space_time_coefficients(), 0.0 );
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-              * set the Jacobian size double
-              * @param[ in ] aJacobians cell of matrices to fill with Jacobians
-              */
-             void set_jacobian_double( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians )
-             {
-                 // get number of dof types for the IWG
-                 uint tMasterNumDofType = this->get_global_dof_type_list().size();
-                 uint tSlaveNumDofType  = this->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-                 uint tNumDofType = tMasterNumDofType + tSlaveNumDofType;
-
-                 // get master residual number of dofs
-                 uint tMasterNumResDof = mMasterFI( 0 )->get_number_of_space_time_coefficients();
-
-                 // get slave residual number of dofs
-                 uint tSlaveNumResDof = mSlaveFI( 0 )->get_number_of_space_time_coefficients();
-
-                 // set the size of the jacobian cell
-                 aJacobians.resize( 2 );
-                 aJacobians( 0 ).resize( tNumDofType );
-                 aJacobians( 1 ).resize( tNumDofType );
-
-                 // loop over the master dof dependencies
-                 for( uint iMasterDOF = 0; iMasterDOF < tMasterNumDofType; iMasterDOF++ )
-                 {
-                     // set size for each residual matrix
-                     aJacobians( 0 )( iMasterDOF ).set_size( tMasterNumResDof, mMasterFI( iMasterDOF )->get_number_of_space_time_coefficients(), 0.0 );
-                     aJacobians( 1 )( iMasterDOF ).set_size( tSlaveNumResDof,  mMasterFI( iMasterDOF )->get_number_of_space_time_coefficients(), 0.0 );
-                 }
-
-                 // loop over the slave dof dependencies
-                 for( uint iSlaveDOF = 0; iSlaveDOF < tSlaveNumDofType; iSlaveDOF++ )
-                 {
-                     // set size for each residual matrix
-                     aJacobians( 0 )( tMasterNumDofType + iSlaveDOF ).set_size( tMasterNumResDof, mSlaveFI( iSlaveDOF )->get_number_of_space_time_coefficients(), 0.0 );
-                     aJacobians( 1 )( tMasterNumDofType + iSlaveDOF ).set_size( tSlaveNumResDof,  mSlaveFI( iSlaveDOF )->get_number_of_space_time_coefficients(), 0.0 );
-                 }
-             }
+            void build_requested_dof_type_list( const bool aItResidual );
 
 //------------------------------------------------------------------------------
 //
@@ -2138,6 +1233,8 @@ namespace moris
 
         };
 //------------------------------------------------------------------------------
+
+
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_IWG_HPP_ */

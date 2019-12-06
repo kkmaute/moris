@@ -35,6 +35,7 @@ namespace mtk
                 Matrix< DDRMat>  mTime;
 
                 moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
+                Cell< moris::Cell< enum MSI::Dof_Type > > mListOfSecundaryDofTypes;
 
         public:
             MSI_Solver_Interface( )
@@ -47,6 +48,9 @@ namespace mtk
                                                                                 mDofMgn( mMSI->get_dof_manager() )
             {
                 mTime = { {0.0}, {1.0} };
+
+                mMSI->set_solver_interface( this );
+
             };
 
 //------------------------------------------------------------------------------
@@ -98,9 +102,45 @@ namespace mtk
 
 //------------------------------------------------------------------------------
 
+            void initialize_block( const uint aBlockInd,
+                                   const bool aIsResidual )
+            {
+                mMSI->get_eqn_block( aBlockInd )->initialize_set( aIsResidual );
+            };
+
+//------------------------------------------------------------------------------
+
+            void initiate_output( const uint aOutputIndex )
+            {
+                MORIS_ERROR( false, " connect initiate_output to FEM");
+            };
+
+//------------------------------------------------------------------------------
+
             void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
             {
                mListOfDofTypes = aListOfDofTypes;
+            };
+
+//------------------------------------------------------------------------------
+
+            void set_secundary_dof_types( const Cell< moris::Cell< enum MSI::Dof_Type > > aListOfDofTypes )
+            {
+               mListOfSecundaryDofTypes = aListOfDofTypes;
+            };
+
+//------------------------------------------------------------------------------
+
+            moris::Cell< enum MSI::Dof_Type > get_requested_dof_types()
+            {
+                return mListOfDofTypes;
+            };
+
+//------------------------------------------------------------------------------
+
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > get_secundary_dof_types()
+            {
+                return mListOfSecundaryDofTypes;
             };
 
 //------------------------------------------------------------------------------
@@ -138,15 +178,15 @@ namespace mtk
 
              moris::uint get_num_my_dofs()
              {
-                 return mDofMgn->get_num_adofs();
+                 return mDofMgn->get_num_owned_adofs();
              };
 
 //------------------------------------------------------------------------------
 
              moris::uint get_max_num_global_dofs()
              {
-                 moris::uint tNumMyDofs        = mDofMgn->get_num_adofs();
-                 moris::uint tMaxNumGlobalDofs = mDofMgn->get_num_adofs();
+                 moris::uint tNumMyDofs        = mDofMgn->get_num_owned_adofs();
+                 moris::uint tMaxNumGlobalDofs = mDofMgn->get_num_owned_adofs();
 
                  // sum up all distributed dofs
                  sum_all( tNumMyDofs, tMaxNumGlobalDofs );
@@ -158,7 +198,6 @@ namespace mtk
              // local-to-global map
              moris::Matrix< DDSMat > get_my_local_global_map()
              {
-//                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids();
                  return mDofMgn->get_local_adof_ids();
              };
 
@@ -166,7 +205,6 @@ namespace mtk
 
              moris::Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum Dof_Type > & aListOfDofTypes )
              {
-//                 Matrix< DDSMat > tLocalAdofIds = mDofMgn->get_local_adof_ids( aListOfDofTypes );
                  return mDofMgn->get_local_adof_ids( aListOfDofTypes );
              };
 
@@ -207,12 +245,14 @@ namespace mtk
                  mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_dof_ids( aElementTopology );
              };
 
-
+//------------------------------------------------------------------------------
              void  get_element_topology( const moris::uint      & aMyBlockInd,
                                          const moris::uint      & aMyElementInd,
                                                Matrix< DDSMat > & aElementTopology )
              {
                  mMSI->get_eqn_block( aMyBlockInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_dof_ids( aElementTopology );
+//                 mMSI->get_eqn_block( aMyBlockInd )->get_equation_object_list()( aMyElementInd )
+//                                                   ->get_equation_obj_dof_ids( aElementTopology, mListOfDofTypes, mDofMgn );
              };
 
 //------------------------------------------------------------------------------

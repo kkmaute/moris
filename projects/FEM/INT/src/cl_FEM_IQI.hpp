@@ -8,22 +8,24 @@
 #define SRC_FEM_CL_FEM_IQI_HPP_
 
 #include "typedefs.hpp"                     //MRS/COR/src
-#include "linalg_typedefs.hpp"              //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 #include "cl_Matrix.hpp"                    //LNA/src
-
-#include "cl_FEM_Field_Interpolator.hpp"      //FEM/INT/src
-#include "cl_FEM_Property.hpp"                //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"      //FEM/INT/src
-#include "cl_FEM_Stabilization_Parameter.hpp" //FEM/INT/src
-
+#include "linalg_typedefs.hpp"              //MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Property.hpp"              //FEM/INT/src
+#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
+#include "cl_FEM_Stabilization_Parameter.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
+
+#include "fn_reshape.hpp"
 
 namespace moris
 {
     namespace fem
     {
+        class Set;
+        class Field_Interpolator_Manager;
 //------------------------------------------------------------------------------
         /**
          * Integrand of a quantity of interest
@@ -31,6 +33,9 @@ namespace moris
         class IQI
         {
         protected :
+
+            // FEM set pointer
+            fem::Set * mSet = nullptr;
 
             // master and slave dof type lists
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
@@ -40,9 +45,11 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
             moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
 
-            // master and slave field interpolators
-            moris::Cell< fem::Field_Interpolator* > mMasterDofFI;
-            moris::Cell< fem::Field_Interpolator* > mSlaveDofFI;
+            // flag for building global dof type list
+            bool mGlobalDofBuild = true;
+
+            // field interpolator manager pointer
+            Field_Interpolator_Manager * mFIManager = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterDvTypes;
@@ -52,9 +59,8 @@ namespace moris
             moris::Cell< moris::Cell< MSI::Dv_Type > > mMasterGlobalDvTypes;
             moris::Cell< moris::Cell< MSI::Dv_Type > > mSlaveGlobalDvTypes;
 
-            // master and slave field interpolators
-            moris::Cell< fem::Field_Interpolator* > mMasterDvFI;
-            moris::Cell< fem::Field_Interpolator* > mSlaveDvFI;
+            // flag for building global dv type list
+            bool mGlobalDvBuild = true;
 
             // master and slave properties
             moris::Cell< std::shared_ptr< fem::Property > > mMasterProp;
@@ -78,9 +84,29 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * virtual destructor
+             * destructor
              */
             ~IQI(){};
+
+//------------------------------------------------------------------------------
+            /*
+             * set fel set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
+             */
+            void set_set_pointer( Set * aSetPointer )
+            {
+                mSet = aSetPointer;
+            }
+
+//------------------------------------------------------------------------------
+            /*
+             * set field interpolator manager pointer
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             */
+            void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
+            {
+                mFIManager = aFieldInterpolatorManager;
+            }
 
 //------------------------------------------------------------------------------
             /**
@@ -144,6 +170,72 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * get a non unique list of dof type including
+             * IQI, property, constitutive and stabilization dependencies
+             * for both master and slave
+             */
+            void get_non_unique_global_dof_type_list( moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+//------------------------------------------------------------------------------
+            /**
+             * get a unique global dof type list including
+             * IQI, property, constitutive and stabilization dependencies
+             * @param[ in ] aIsMaster enum master or slave
+             */
+            moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                // if the global list was not yet built
+                if( mGlobalDofBuild )
+                {
+                    // build global dof type list
+                    this->build_global_dof_type_list();
+
+                    // update build flag
+                    mGlobalDofBuild = false;
+                }
+
+                // switch on master/slave
+                switch( aIsMaster )
+                {
+                    // if master
+                    case( mtk::Master_Slave::MASTER ):
+                    {
+                        // return master global dof type list
+                        return mMasterGlobalDofTypes;
+                    }
+                    // if slave
+                    case( mtk::Master_Slave::SLAVE ):
+                    {
+                        // return slave global dof type list
+                        return mSlaveGlobalDofTypes;
+                    }
+                    // if none
+                    default:
+                    {
+                        MORIS_ASSERT( false, "IQI::get_global_dof_type_list - can only be master or slave." );
+                        return mMasterGlobalDofTypes;
+                    }
+                }
+            };
+
+//------------------------------------------------------------------------------
+            /**
+             * build a global dof type list including
+             * IQI, property, constitutive and stabilization dependencies
+             * ( a list for master and a list for slave do types )
+             */
+            void build_global_dof_type_list();
+
+//------------------------------------------------------------------------------
+            /**
+             * set master or slave dof field interpolators for the IQI
+             * properties, constitutive models and stabilization parameters
+             * @param[ in ] aIsMaster an enum for master or slave
+             */
+            void set_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /**
              * set dv types
              * @param[ in ] aDvTypes  a cell of cell of dv types
              * @param[ in ] aIsMaster enum for master or slave
@@ -196,7 +288,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "Opt_IWG::get_dv_type_list - can only be master or slave." );
+                        MORIS_ASSERT( false, "IQI::get_dv_type_list - can only be master or slave." );
                         return mMasterDvTypes;
                     }
                 }
@@ -204,137 +296,91 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set dof field interpolators
-             * @param[ in ] aFieldInterpolators cell of field interpolator pointers
-             * @param[ in ] aIsMaster           enum for master or slave
+             * get a non unique list of dv type including
+             * IQI, property, constitutive and stabilization dependencies
+             * @param[ in ] aGlobalDvTypeList a non unique list of dv types to fill
              */
-            void set_dof_field_interpolators( moris::Cell< fem::Field_Interpolator* > & aFieldInterpolators,
-                                              mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // check input size
-                MORIS_ASSERT( aFieldInterpolators.size() == this->get_global_dof_type_list( aIsMaster ).size(),
-                              "IQI::set_dof_field_interpolators - wrong input size. " );
-
-                // check field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == this->get_global_dof_type_list( aIsMaster )( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "IQI::set_dof_field_interpolators - wrong field interpolator dof type. ");
-
-                // set field interpolators
-                this->get_dof_field_interpolators( aIsMaster ) = aFieldInterpolators;
-            }
+            void get_non_unique_global_dv_type_list( moris::Cell< MSI::Dv_Type > & aGlobalDvTypeList );
 
 //------------------------------------------------------------------------------
             /**
-             * get dof field interpolators
-             * @param[ in ]  aIsMaster           enum master or slave
-             * @param[ out ] aFieldInterpolators cell of field interpolator pointers
+             * get a unique global dv type list including
+             * IQI, property, constitutive and stabilization dependencies
+             * @param[ in ] aIsMaster enum master or slave
              */
-            moris::Cell< Field_Interpolator* > & get_dof_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            moris::Cell< moris::Cell< MSI::Dv_Type > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // if the global list was not yet built
+                if( mGlobalDvBuild )
+                {
+                    // build global dv type list
+                    this->build_global_dv_type_list();
+
+                    // update build flag
+                    mGlobalDvBuild = false;
+                }
+
                 // switch on master/slave
                 switch( aIsMaster )
                 {
                     // if master
                     case( mtk::Master_Slave::MASTER ):
                     {
-                        // return master field interpolator pointers
-                        return mMasterDofFI;
+                        // return master global dv type list
+                        return mMasterGlobalDvTypes;
                     }
                     // if slave
                     case( mtk::Master_Slave::SLAVE ):
                     {
-                        // return slave field interpolator pointers
-                        return mSlaveDofFI;
+                        // return slave global dv type list
+                        return mSlaveGlobalDvTypes;
                     }
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "IQI::get_dof_field_interpolators - can only be master or slave." );
-                        return mMasterDofFI;
+                        MORIS_ASSERT( false, "IQI::get_global_dv_type_list - can only be master or slave." );
+                        return mMasterGlobalDvTypes;
                     }
                 }
-            }
+            };
 
 //------------------------------------------------------------------------------
             /**
-             * set dv field interpolators
-             * @param[ in ] aFieldInterpolators cell of field interpolator pointers
-             * @param[ in ] aIsMaster           enum for master or slave
+             * build a global dv type list including
+             * IQI, property, constitutive and stabilization dependencies
              */
-            void set_dv_field_interpolators( moris::Cell< fem::Field_Interpolator* > & aFieldInterpolators,
-                                             mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER )
+            void build_global_dv_type_list();
+
+//------------------------------------------------------------------------------
+            /**
+             * set master or slave dv field interpolators for the IQI
+             * properties, constitutive models and stabilization parameters
+             * @param[ in ] aIsMaster an enum for master or slave
+             */
+            void set_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /**
+             * set geometry interpolator
+             * @param[ in ] aGeometryInterpolator geometry interpolator pointers
+             * @param[ in ] aIsMaster             enum for master or slave
+             */
+            void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
+                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER );
+
+//------------------------------------------------------------------------------
+            /**
+             * set property
+             * @param[ in ] aProperty       a property pointer
+             * @param[ in ] aPropertyString a string describing the property
+             * @param[ in ] aIsMaster       enum master or slave
+             */
+            virtual void set_property( std::shared_ptr< Property > aProperty,
+                                       std::string                 aPropertyString,
+                                       mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
-                // check input size
-                MORIS_ASSERT( aFieldInterpolators.size() == this->get_global_dv_type_list( aIsMaster ).size(),
-                              "IQI::set_dv_field_interpolators - wrong input size. " );
-
-                // check field interpolator type
-                bool tCheckFI = true;
-                for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
-                {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dv_type()( 0 ) == this->get_global_dv_type_list( aIsMaster )( iFI )( 0 ) );
-                }
-                MORIS_ASSERT( tCheckFI, "IQI::set_dv_field_interpolators - wrong field interpolator dof type. ");
-
-                // set field interpolators
-                this->get_dv_field_interpolators( aIsMaster ) = aFieldInterpolators;
+                MORIS_ERROR( false, "IQI::set_property - This function does nothing.");
             }
-
-//------------------------------------------------------------------------------
-            /**
-             * get dv field interpolators
-             * @param[ in ]  aIsMaster           enum master or slave
-             * @param[ out ] aFieldInterpolators cell of field interpolator pointers
-             */
-            moris::Cell< Field_Interpolator* > & get_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-            {
-                // switch on master/slave
-                switch( aIsMaster )
-                {
-                    // if master
-                    case( mtk::Master_Slave::MASTER ):
-                    {
-                        // return master dv field interpolator pointers
-                        return mMasterDvFI;
-                    }
-                    // if slave
-                    case( mtk::Master_Slave::SLAVE ):
-                    {
-                        // return slave dv lator pointers
-                        return mSlaveDvFI;
-                    }
-                    // if none
-                    default:
-                    {
-                        MORIS_ASSERT( false, "IQI::set_dv_field_interpolators - can only be master or slave." );
-                        return mMasterDvFI;
-                    }
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * check that dv field interpolators were assigned
-             * @param[ in ]  aIsMaster enum master or slave
-             */
-             void check_dv_field_interpolators( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 // check field interpolators cell size
-                 MORIS_ASSERT( this->get_dv_field_interpolators( aIsMaster ).size() == this->get_dv_type_list( aIsMaster ).size(),
-                               "IQI::check_dv_field_interpolators - wrong FI size. " );
-
-                // loop over the field interpolator pointers
-                for( uint iFI = 0; iFI < this->get_dv_type_list( aIsMaster ).size(); iFI++ )
-                {
-                    // check that the field interpolator was set
-                    MORIS_ASSERT( this->get_dv_field_interpolators( aIsMaster )( iFI ) != nullptr,
-                                  "IQI::check_dv_field_interpolators - FI missing. " );
-                }
-             }
 
 //------------------------------------------------------------------------------
              /**
@@ -370,6 +416,19 @@ namespace moris
 
 //------------------------------------------------------------------------------
              /**
+              * set constitutive model
+              * @param[ in ] aConstitutiveModel  a constitutive model pointer
+              * @param[ in ] aConstitutiveString a string describing the constitutive model
+              * @param[ in ] aIsMaster           an enum for master or slave
+              */
+             virtual void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                                                  std::string                           aConstitutiveString,
+                                                  mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
+             {
+                 MORIS_ERROR( false, "IQI::set_constitutive_model - This function does nothing." );
+             }
+//------------------------------------------------------------------------------
+             /**
               * get master or slave constitutive models
               * @param[ in ]  aIsMaster           enum master or slave
               * @param[ out ] aConstitutiveModels cell of constitutive model pointers
@@ -401,6 +460,18 @@ namespace moris
              }
 
 //------------------------------------------------------------------------------
+             /**
+              * set stabilization parameter
+              * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+              * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+              */
+             virtual void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                                                       std::string                                aStabilizationString )
+             {
+                 MORIS_ERROR( false, "IQI::set_stabilization_parameter - This function does nothing." );
+             }
+
+//------------------------------------------------------------------------------
             /**
              * get stabilization parameters
              * @param[ out ] mStabilizationParam cell of stabilization parameter pointers
@@ -410,728 +481,6 @@ namespace moris
                 // return stabilization parameter pointers
                 return mStabilizationParam;
             }
-
-//------------------------------------------------------------------------------
-            /**
-             * create a global dof type list including IWG, property and constitutive dependencies
-             */
-            void build_global_dof_type_list()
-            {
-                // MASTER-------------------------------------------------------
-                // get the size of the dof type list
-                uint tCounterMax = 0;
-
-                // get number of dof types from IWG
-                tCounterMax += mMasterDofTypes.size();
-
-                // get number of dof types from properties
-                for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                {
-                    if( tProperty != nullptr )
-                    {
-                        tCounterMax += tProperty->get_dof_type_list().size();
-                    }
-                }
-
-                // get number of dof types from constitutive models
-                for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                {
-                    if( tCM != nullptr )
-                    {
-                        tCounterMax += tCM->get_global_dof_type_list().size();
-                    }
-                }
-
-                // get number of dof types from stabilization parameters
-                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                {
-                    if( tSP != nullptr )
-                    {
-                        tCounterMax += tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER ).size();
-                    }
-                }
-
-                // set size for the global dof type list
-                mMasterGlobalDofTypes.resize( tCounterMax );
-
-                // set a size for the checkList (used to avoid repeating a dof type)
-                moris::Cell< sint > tCheckList( tCounterMax, -1 );
-
-                // init total dof counter
-                uint tCounter = 0;
-
-                // get dof type from penalty parameter
-                for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
-                {
-                    // put the dof type in the checklist
-                    tCheckList( tCounter ) = static_cast< uint >( mMasterDofTypes( iDOF )( 0 ) );
-
-                    // put the dof type in the global type list
-                    mMasterGlobalDofTypes( tCounter ) = mMasterDofTypes( iDOF );
-
-                    // update the dof counter
-                    tCounter++;
-                }
-
-                // get dof type from properties
-                for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                {
-                    if( tProperty != nullptr )
-                    {
-                        // get dof types for property
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                        // loop on property dof type
-                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                        {
-                            // check enum is not already in the list
-                            bool tCheck = false;
-                            for( uint i = 0; i < tCounter; i++ )
-                            {
-                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                            }
-
-                            // if dof enum not in the list
-                            if ( !tCheck )
-                            {
-                                // put the dof type in the checklist
-                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                // put the dof type in the global type list
-                                mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                // update dof counter
-                                tCounter++;
-                            }
-                        }
-                    }
-                }
-
-                // get dof type from constitutive models
-                for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                {
-                    if( tCM != nullptr )
-                    {
-                        // get dof types for constitutive model
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                        // loop on property dof type
-                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                        {
-                            // check enum is not already in the list
-                            bool tCheck = false;
-                            for( uint i = 0; i < tCounter; i++ )
-                            {
-                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                            }
-
-                            // if dof enum not in the list
-                            if ( !tCheck )
-                            {
-                                // put the dof type in the checklist
-                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                // put the dof type in the global type list
-                                mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                // update dof counter
-                                tCounter++;
-                            }
-                        }
-                    }
-                }
-
-                // get dof type from stabilization parameters
-                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                {
-                    if ( tSP != nullptr )
-                    {
-                        // get dof types for constitutive model
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tSP->get_global_dof_type_list( mtk::Master_Slave::MASTER );
-
-                        // loop on property dof type
-                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                        {
-                            // check enum is not already in the list
-                            bool tCheck = false;
-                            for( uint i = 0; i < tCounter; i++ )
-                            {
-                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                            }
-
-                            // if dof enum not in the list
-                            if ( !tCheck )
-                            {
-                                // put the dof type in the checklist
-                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                // put the dof type in the global type list
-                                mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                // update dof counter
-                                tCounter++;
-                            }
-                        }
-                    }
-                }
-
-                // get the number of unique dof type groups for the penalty parameter
-                mMasterGlobalDofTypes.resize( tCounter );
-
-                // SLAVE--------------------------------------------------------
-                // get the size of the dof type list
-                tCounterMax = 0;
-
-                // get number of dof types from penalty parameter
-                tCounterMax += mSlaveDofTypes.size();
-
-                // get number of dof types from properties
-                for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                {
-                    if( tProperty != nullptr )
-                    {
-                        tCounterMax += tProperty->get_dof_type_list().size();
-                    }
-                }
-
-                // get number of dof types from constitutive models
-                for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                {
-                    if ( tCM != nullptr )
-                    {
-                        tCounterMax += tCM->get_global_dof_type_list().size();
-                    }
-                }
-
-                // get number of dof types from stabilization parameters
-                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                {
-                    if( tSP != nullptr )
-                    {
-                        tCounterMax += tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE ).size();
-                    }
-                }
-
-                // set size for the global dof type list
-                mSlaveGlobalDofTypes.resize( tCounterMax );
-
-                // set a size for the checkList (used to avoid repeating a dof type)
-                tCheckList.resize( tCounterMax, -1 );
-
-                // init total dof counter
-                tCounter = 0;
-
-                // get dof type from penalty parameter
-                for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
-                {
-                    // put the dof type in the checklist
-                    tCheckList( tCounter ) = static_cast< uint >( mSlaveDofTypes( iDOF )( 0 ) );
-
-                    // put the dof type in the global type list
-                    mSlaveGlobalDofTypes( tCounter ) = mSlaveDofTypes( iDOF );
-
-                    // update the dof counter
-                    tCounter++;
-                }
-
-                // get dof type from properties
-                for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                {
-                    if ( tProperty != nullptr )
-                    {
-                        // get dof types for property
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                        // loop on property dof type
-                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                        {
-                            // check enum is not already in the list
-                            bool tCheck = false;
-                            for( uint i = 0; i < tCounter; i++ )
-                            {
-                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                            }
-
-                            // if dof enum not in the list
-                            if ( !tCheck )
-                            {
-                                // put the dof type in the checklist
-                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                // put the dof type in the global type list
-                                mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                // update dof counter
-                                tCounter++;
-                            }
-                        }
-                    }
-                }
-
-                // get dof type from constitutive models
-                for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                {
-                    if( tCM != nullptr )
-                    {
-                        // get dof types for constitutive model
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tCM->get_global_dof_type_list();
-
-                        // loop on property dof type
-                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                        {
-                            // check enum is not already in the list
-                            bool tCheck = false;
-                            for( uint i = 0; i < tCounter; i++ )
-                            {
-                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                            }
-
-                            // if dof enum not in the list
-                            if ( !tCheck )
-                            {
-                                // put the dof type in the checklist
-                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                // put the dof type in the global type list
-                                mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                // update dof counter
-                                tCounter++;
-                            }
-                        }
-                    }
-                }
-
-                // get dof type from stabilization parameters
-                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                {
-                    if ( tSP != nullptr )
-                    {
-                        // get dof types for constitutive model
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tSP->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-
-                        // loop on property dof type
-                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
-                        {
-                            // check enum is not already in the list
-                            bool tCheck = false;
-                            for( uint i = 0; i < tCounter; i++ )
-                            {
-                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                            }
-
-                            // if dof enum not in the list
-                            if ( !tCheck )
-                            {
-                                // put the dof type in the checklist
-                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-
-                                // put the dof type in the global type list
-                                mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-
-                                // update dof counter
-                                tCounter++;
-                            }
-                        }
-                    }
-                }
-
-                // get the number of unique dof type groups for the penalty parameter
-                mSlaveGlobalDofTypes.resize( tCounter );
-            };
-
-//------------------------------------------------------------------------------
-              /**virtual
-               * get global dof type list
-               * @param[ in ] aIsMaster enum master or slave
-               */
-              moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-              {
-                  // switch on master/slave
-                  switch( aIsMaster )
-                  {
-                      // if master
-                      case( mtk::Master_Slave::MASTER ):
-                      {
-                          // return master global dof type list
-                          return mMasterGlobalDofTypes;
-                      }
-                      // if slave
-                      case( mtk::Master_Slave::SLAVE ):
-                      {
-                          // return slave global dof type list
-                          return mSlaveGlobalDofTypes;
-                      }
-                      // if none
-                      default:
-                      {
-                          MORIS_ASSERT( false, "Opt_IWG::get_global_dof_type_list - can only be master or slave." );
-                          return mMasterGlobalDofTypes;
-                      }
-                  }
-              };
-
-//------------------------------------------------------------------------------
-                            /**
-                             * create a global dv type list including IWG, property and constitutive dependencies
-                             * @param[ in ] aIsMaster enum master or slave
-                             */
-                            void build_global_dv_type_list()
-                            {
-                                // MASTER-------------------------------------------------------
-                                // get the size of the dv type list
-                                uint tCounterMax = 0;
-
-                                // get number of dv types from IWG
-                                tCounterMax += mMasterDvTypes.size();
-
-                                // get number of dv types from properties
-                                for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                                {
-                                    if( tProperty != nullptr )
-                                    {
-                                        tCounterMax += tProperty->get_dv_type_list().size();
-                                    }
-                                }
-
-                                // get number of dv types from constitutive models
-                                for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                                {
-                                    if( tCM != nullptr )
-                                    {
-                                        tCounterMax += tCM->get_global_dv_type_list().size();
-                                    }
-                                }
-
-                                // get number of dv types from stabilization parameters
-                                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                                {
-                                    if( tSP != nullptr )
-                                    {
-                                        tCounterMax += tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER ).size();
-                                    }
-                                }
-
-                                // set size for the global dv type list
-                                mMasterGlobalDvTypes.resize( tCounterMax );
-
-                                // set a size for the checkList (used to avoid repeating a dv type)
-                                moris::Cell< sint > tCheckList( tCounterMax, -1 );
-
-                                // init total dv counter
-                                uint tCounter = 0;
-
-                                // get dv type from penalty parameter
-                                for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
-                                {
-                                    // put the dv type in the checklist
-                                    tCheckList( tCounter ) = static_cast< uint >( mMasterDvTypes( iDv )( 0 ) );
-
-                                    // put the dv type in the global type list
-                                    mMasterGlobalDvTypes( tCounter ) = mMasterDvTypes( iDv );
-
-                                    // update the dv counter
-                                    tCounter++;
-                                }
-
-                                // get dv type from properties
-                                for ( std::shared_ptr< Property > tProperty : mMasterProp )
-                                {
-                                    if ( tProperty != nullptr )
-                                    {
-                                    // get dv types for property
-                                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                                    // loop on property dv type
-                                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                                    {
-                                        // check enum is not already in the list
-                                        bool tCheck = false;
-                                        for( uint i = 0; i < tCounter; i++ )
-                                        {
-                                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                                        }
-
-                                        // if dv enum not in the list
-                                        if ( !tCheck )
-                                        {
-                                            // put the dv type in the checklist
-                                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                                            // put the dv type in the global type list
-                                            mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                                            // update dv counter
-                                            tCounter++;
-                                        }
-                                    }
-                                }
-                            }
-
-                                // get dv type from constitutive models
-                                for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
-                                {
-                                    if( tCM != nullptr )
-                                    {
-                                    // get dv types for constitutive model
-                                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
-
-                                    // loop on property dv type
-                                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                                    {
-                                        // check enum is not already in the list
-                                        bool tCheck = false;
-                                        for( uint i = 0; i < tCounter; i++ )
-                                        {
-                                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                                        }
-
-                                        // if dv enum not in the list
-                                        if ( !tCheck )
-                                        {
-                                            // put the dv type in the checklist
-                                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                                            // put the dv type in the global type list
-                                            mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                                            // update dv counter
-                                            tCounter++;
-                                        }
-                                    }
-                                    }
-                                }
-
-                                // get dv type from stabilization parameters
-                                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                                {
-                                    if( tSP != nullptr )
-                                    {
-                                    // get dv types for constitutive model
-                                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
-
-                                    // loop on property dv type
-                                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                                    {
-                                        // check enum is not already in the list
-                                        bool tCheck = false;
-                                        for( uint i = 0; i < tCounter; i++ )
-                                        {
-                                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                                        }
-
-                                        // if dv enum not in the list
-                                        if ( !tCheck )
-                                        {
-                                            // put the dv type in the checklist
-                                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                                            // put the dv type in the global type list
-                                            mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                                            // update dv counter
-                                            tCounter++;
-                                        }
-                                    }
-                                    }
-                                }
-
-                                // get the number of unique dv type groups for the penalty parameter
-                                mMasterGlobalDvTypes.resize( tCounter );
-
-                                // SLAVE--------------------------------------------------------
-                                // get the size of the dv type list
-                                tCounterMax = 0;
-
-                                // get number of dv types from penalty parameter
-                                tCounterMax += mSlaveDvTypes.size();
-
-                                // get number of dv types from properties
-                                for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                                {
-                                    if( tProperty != nullptr )
-                                    {
-                                        tCounterMax += tProperty->get_dv_type_list().size();
-                                    }
-                                }
-
-                                // get number of dv types from constitutive models
-                                for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                                {
-                                    if (tCM != nullptr )
-                                    {
-                                    tCounterMax += tCM->get_global_dv_type_list().size();
-                                    }
-                                }
-
-                                // get number of dv types from stabilization parameters
-                                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                                {
-                                    if( tSP != nullptr )
-                                    {
-                                        tCounterMax += tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE ).size();
-                                    }
-                                }
-
-
-                                // set size for the global dv type list
-                                mSlaveGlobalDvTypes.resize( tCounterMax );
-
-                                // set a size for the checkList (used to avoid repeating a dv type)
-                                tCheckList.resize( tCounterMax, -1 );
-
-                                // init total dv counter
-                                tCounter = 0;
-
-                                // get dv type from penalty parameter
-                                for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
-                                {
-                                    // put the dv type in the checklist
-                                    tCheckList( tCounter ) = static_cast< uint >( mSlaveDvTypes( iDv )( 0 ) );
-
-                                    // put the dv type in the global type list
-                                    mSlaveGlobalDvTypes( tCounter ) = mSlaveDvTypes( iDv );
-
-                                    // update the dv counter
-                                    tCounter++;
-                                }
-
-                                // get dv type from properties
-                                for ( std::shared_ptr< Property > tProperty : mSlaveProp )
-                                {
-                                    if( tProperty != nullptr )
-                                    {
-                                    // get dv types for property
-                                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                                    // loop on property dv type
-                                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                                    {
-                                        // check enum is not already in the list
-                                        bool tCheck = false;
-                                        for( uint i = 0; i < tCounter; i++ )
-                                        {
-                                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                                        }
-
-                                        // if dv enum not in the list
-                                        if ( !tCheck )
-                                        {
-                                            // put the dv type in the checklist
-                                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                                            // put the dv type in the global type list
-                                            mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                                            // update dv counter
-                                            tCounter++;
-                                        }
-                                    }
-                                    }
-                                }
-
-                                // get dv type from constitutive models
-                                for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
-                                {
-                                    if( tCM != nullptr )
-                                    {
-                                    // get dv types for constitutive model
-                                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
-
-                                    // loop on property dv type
-                                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                                    {
-                                        // check enum is not already in the list
-                                        bool tCheck = false;
-                                        for( uint i = 0; i < tCounter; i++ )
-                                        {
-                                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                                        }
-
-                                        // if dv enum not in the list
-                                        if ( !tCheck )
-                                        {
-                                            // put the dv type in the checklist
-                                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                                            // put the dv type in the global type list
-                                            mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                                            // update dv counter
-                                            tCounter++;
-                                        }
-                                    }
-                                    }
-                                }
-
-                                // get dv type from stabilization parameters
-                                for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-                                {
-                                    if( tSP != nullptr )
-                                    {
-                                    // get dv types for constitutive model
-                                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
-
-                                    // loop on property dv type
-                                    for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
-                                    {
-                                        // check enum is not already in the list
-                                        bool tCheck = false;
-                                        for( uint i = 0; i < tCounter; i++ )
-                                        {
-                                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                                        }
-
-                                        // if dv enum not in the list
-                                        if ( !tCheck )
-                                        {
-                                            // put the dv type in the checklist
-                                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
-
-                                            // put the dv type in the global type list
-                                            mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
-
-                                            // update dv counter
-                                            tCounter++;
-                                        }
-                                    }
-                                    }
-                                }
-
-                                // get the number of unique dv type groups for the penalty parameter
-                                mSlaveGlobalDvTypes.resize( tCounter );
-                            };
-
-//------------------------------------------------------------------------------
-              /**
-               * gets global dv type list
-               * @param[ in ] aIsMaster enum master or slave
-               */
-              moris::Cell< moris::Cell< MSI::Dv_Type > > & get_global_dv_type_list( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
-              {
-                  // switch on master/slave
-                  switch( aIsMaster )
-                  {
-                      // if master
-                      case( mtk::Master_Slave::MASTER ):
-                      {
-                          // return master global dv type list
-                          return mMasterGlobalDvTypes;
-                      }
-                      // if slave
-                      case( mtk::Master_Slave::SLAVE ):
-                      {
-                          // return slave global dv type list
-                          return mSlaveGlobalDvTypes;
-                      }
-                      // if none
-                      default:
-                      {
-                          MORIS_ASSERT( false, "Opt_IWG::get_global_dv_type_list - can only be master or slave." );
-                          return mMasterGlobalDvTypes;
-                      }
-                  }
-              };
 
 //------------------------------------------------------------------------------
             /**
@@ -1162,6 +511,8 @@ namespace moris
             {
                 MORIS_ERROR( false, "IQI::compute_dIQIdDv - This function does nothing. " );
             }
+
+//------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
     } /* namespace fem */

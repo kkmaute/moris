@@ -5,15 +5,11 @@
  *      Author: doble
  */
 
-
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
 
 //#include "cl_Geom_Field.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-
 #include "typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -32,8 +28,6 @@
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 
-
-
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
@@ -44,6 +38,8 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
 
 #include "fn_norm.hpp"
 

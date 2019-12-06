@@ -32,6 +32,8 @@ namespace moris
             {
                 EMOD,
                 NU,
+                CTE,
+                TEMP_REF,
                 MAX_ENUM
             };
 
@@ -51,8 +53,10 @@ namespace moris
                 mProperties.resize( static_cast< uint >( CM_Struc_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
 
                 // populate the map
-                mPropertyMap[ "YoungsModulus" ] = CM_Struc_Linear_Isotropic::Property_Type::EMOD;
-                mPropertyMap[ "PoissonRatio" ]  = CM_Struc_Linear_Isotropic::Property_Type::NU;
+                mPropertyMap[ "YoungsModulus" ]         = CM_Struc_Linear_Isotropic::Property_Type::EMOD;
+                mPropertyMap[ "PoissonRatio" ]          = CM_Struc_Linear_Isotropic::Property_Type::NU;
+                mPropertyMap[ "CTE" ]                   = CM_Struc_Linear_Isotropic::Property_Type::CTE;
+                mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
 
             };
 
@@ -149,7 +153,8 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                         const Matrix< DDRMat >             & aNormal );
+                                         const Matrix< DDRMat >             & aNormal,
+                                         const Matrix< DDRMat >             & aJump );
 
 //------------------------------------------------------------------------------
             /**
@@ -171,6 +176,10 @@ namespace moris
 
             void flatten_normal( const Matrix< DDRMat > & aNormal,
                                        Matrix< DDRMat > & aFlattenedNormal );
+
+//------------------------------------------------------------------------------
+
+            void get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector );
 
 //------------------------------------------------------------------------------
         };

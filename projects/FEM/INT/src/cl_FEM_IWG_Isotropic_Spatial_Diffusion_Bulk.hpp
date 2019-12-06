@@ -77,6 +77,10 @@ namespace moris
                                std::string                 aPropertyString,
                                mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
             {
+                // check no slave allowed
+                MORIS_ERROR( aIsMaster == mtk::Master_Slave::MASTER,
+                             "IWG_Isotropic_Spatial_Diffusion_Bulk::set_property - No slave allowed" );
+
                 // FIXME check that property type makes sense?
 
                 // set the property in the property cell
@@ -121,7 +125,7 @@ namespace moris
              * r =
              * @param[ in ] aResidual residual vector to fill
              */
-            void compute_residual( moris::Cell< Matrix< DDRMat > > & aResidual );
+            void compute_residual( real tWStar );
 
 //------------------------------------------------------------------------------
             /**
@@ -129,7 +133,7 @@ namespace moris
              * j =
              * @param[ in ] aJacobians list of jacobian matrices to fill
              */
-            void compute_jacobian( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians );
+            void compute_jacobian( real tWStar );
 
 //------------------------------------------------------------------------------
             /**

@@ -449,6 +449,15 @@ namespace moris
                                         const uint                       & aPattern );
 
 // -----------------------------------------------------------------------------
+
+            void user_defined_flagging( int (*aFunction)(        Element                    * aElement,
+                                                           const Cell< Matrix< DDRMat > >   & aElementLocalValues,
+                                                                 ParameterList              & aParameters ),
+                                        Cell< Matrix< DDRMat > >         & aFields,
+                                        ParameterList                    & aParameters,
+                                        const uint                       & aPattern );
+
+// -----------------------------------------------------------------------------
         }; /* HMR */
 
     } /* namespace hmr */

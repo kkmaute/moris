@@ -70,8 +70,8 @@
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
 
 #include "fn_norm.hpp"
 
@@ -289,7 +289,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
          moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-         tXTKModel.mVerbose = true;
+         tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
@@ -352,7 +352,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivty" );
+        tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
         tCMDiffLinIso2->set_space_dim( 2 );
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2bis = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
@@ -468,8 +468,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
         std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
 
-        std::cout<<"tDblInterfaceSideSetName01 = "<<tDblInterfaceSideSetName01<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01)<<std::endl;
-        std::cout<<"tDblInterfaceSideSetName02 = "<<tDblInterfaceSideSetName02<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02)<<std::endl;
+        //std::cout<<"tDblInterfaceSideSetName01 = "<<tDblInterfaceSideSetName01<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01)<<std::endl;
+        //std::cout<<"tDblInterfaceSideSetName02 = "<<tDblInterfaceSideSetName02<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02)<<std::endl;
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -650,7 +650,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         Matrix<DDRMat> tFullSol;
         tTimeSolver.get_full_solution(tFullSol);
 
-
         // Declare the fields related to enrichment strategy in output options
         // output solution and meshes
         xtk::Output_Options tOutputOptions;
@@ -698,7 +697,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
 TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PLANE_BAR_HOLE_3D]")
 {
 
-
     if(par_size() == 1)
     {
         std::string tFieldName = "Geometry";
@@ -742,7 +740,7 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
          moris::ge::GEN_Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
          moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
          xtk::Model           tXTKModel(tModelDimension,tInterpMesh.get(),tGeometryEngine);
-         tXTKModel.mVerbose = true;
+         tXTKModel.mVerbose = false;
 
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
@@ -923,8 +921,8 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
         std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
 
-        std::cout<<"tDblInterfaceSideSetName01 = "<<tDblInterfaceSideSetName01<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01)<<std::endl;
-        std::cout<<"tDblInterfaceSideSetName02 = "<<tDblInterfaceSideSetName02<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02)<<std::endl;
+        //std::cout<<"tDblInterfaceSideSetName01 = "<<tDblInterfaceSideSetName01<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName01)<<std::endl;
+        //std::cout<<"tDblInterfaceSideSetName02 = "<<tDblInterfaceSideSetName02<<" | Index = "<<tEnrIntegMesh.get_double_sided_set_index(tDblInterfaceSideSetName02)<<std::endl;
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -1077,22 +1075,22 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
 
         tTimeSolver.solve();
 
-//
-//        // verify solution
-//        moris::Matrix<DDRMat> tGoldSolution =
-//        {{ 5.000000e+00},
-//         { 2.500000e+01},
-//         { 4.500000e+01},
-//         { 6.500000e+01},
-//         { 5.000000e+00},
-//         { 2.500000e+01},
-//         { 4.500000e+01},
-//         { 6.500000e+01}};
-//
+////
+////        // verify solution
+////        moris::Matrix<DDRMat> tGoldSolution =
+////        {{ 5.000000e+00},
+////         { 2.500000e+01},
+////         { 4.500000e+01},
+////         { 6.500000e+01},
+////         { 5.000000e+00},
+////         { 2.500000e+01},
+////         { 4.500000e+01},
+////         { 6.500000e+01}};
+////
         Matrix<DDRMat> tFullSol;
         tTimeSolver.get_full_solution(tFullSol);
 
-        print(tFullSol,"tFullSol");
+        //print(tFullSol,"tFullSol");
 
 
         // Declare the fields related to enrichment strategy in output options

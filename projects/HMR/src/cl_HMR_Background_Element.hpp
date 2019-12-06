@@ -566,8 +566,6 @@ namespace moris
                                                       Cell< Background_Element_Base * > & aNeighbors );
 
 //--------------------------------------------------------------------------------
-
-
             void delete_facets()
             {
                 // loop over all faces
@@ -575,13 +573,15 @@ namespace moris
                 {
                     if( mFacetOwnFlags.test( f ) )
                     {
-                        delete mFacets[ f ];
-                        mFacets[ f ] = nullptr;
-                        mFacetOwnFlags.reset( f );
+                        if(mFacets[ f ] != nullptr)
+                        {
+                            delete mFacets[ f ];
+                            mFacets[ f ] = nullptr;
+                            mFacetOwnFlags.reset( f );
+                        }
                     }
                 }
             }
-
 //--------------------------------------------------------------------------------
 
             void delete_edges()
@@ -591,9 +591,12 @@ namespace moris
                 {
                     if( mEdgeOwnFlags.test( e ) )
                     {
-                        delete mEdges[ e ];
-                        mEdges[ e ] = nullptr;
-                        mEdgeOwnFlags.reset( e );
+                        if(mEdges[ e ] != nullptr)
+                        {
+                            delete mEdges[ e ];
+                            mEdges[ e ] = nullptr;
+                            mEdgeOwnFlags.reset( e );
+                        }
                     }
 
                 }
@@ -605,7 +608,7 @@ namespace moris
              */
             void create_facets()
             {
-                // this->delete_facets();
+                //                 this->delete_facets();
 
                 // Index on neighbor element
                 uint tIndexOnOther[ 6 ] = { 2, 3, 0, 1, 5, 4 } ;

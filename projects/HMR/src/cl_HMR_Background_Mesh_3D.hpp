@@ -1423,6 +1423,37 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        template<>
+        void
+        Background_Mesh< 3 >::collect_coarsest_elements_in_bounding_box( moris::Cell< Background_Element_Base* > & aBackgroundElements,
+                                                                         luint                                     aBoundingBoxStartEndIJK[][2],
+                                                                         uint                                      alevel )
+        {
+            aBackgroundElements.resize( ( aBoundingBoxStartEndIJK[ 0 ][ 1 ] - aBoundingBoxStartEndIJK[ 0 ][ 0 ] ) *
+                                        ( aBoundingBoxStartEndIJK[ 1 ][ 1 ] - aBoundingBoxStartEndIJK[ 1 ][ 0 ] ) *
+                                        ( aBoundingBoxStartEndIJK[ 2 ][ 1 ] - aBoundingBoxStartEndIJK[ 2 ][ 0 ] ), nullptr );
+
+            luint tCounter = 0;
+
+            for( luint Ik = aBoundingBoxStartEndIJK[ 0 ][ 0 ]; Ik < aBoundingBoxStartEndIJK[ 0 ][ 1 ]; ++Ik )
+            {
+                for( luint Ii = aBoundingBoxStartEndIJK[ 1 ][ 0 ]; Ii < aBoundingBoxStartEndIJK[ 1 ][ 1 ]; ++Ii )
+                {
+                    for( luint Ij = aBoundingBoxStartEndIJK[ 2 ][ 0 ]; Ij < aBoundingBoxStartEndIJK[ 2 ][ 1 ]; ++Ij )
+                    {
+                        uint tId = calc_subdomain_id_of_element( alevel,
+                                                                Ik,
+                                                                Ii,
+                                                                Ij );
+
+                        aBackgroundElements( tCounter++ ) = mCoarsestElementsIncludingAura( tId );
+                    }
+                }
+            }
+        }
+
+//-------------------------------------------------------------------------------
+
     } /* namespace hmr */
 }
 

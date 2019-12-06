@@ -10,9 +10,9 @@
 //#include "cl_SphereBox.hpp"
 #include "cl_XTK_Model.hpp"
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Multi_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere_Box.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Multi_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere_Box.hpp"
 
 using namespace moris;
 namespace xtk

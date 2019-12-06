@@ -73,6 +73,25 @@ namespace moris
                     MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::eval_strain - Flattening of strain tensor only implemented in 2 and 3 D");
                 }
             }
+
+            // if thermal expansion
+            uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
+            uint tTempRefIndex = static_cast< uint >( Property_Type::TEMP_REF );
+            if ( mProperties( tCTEIndex ) != nullptr )
+            {
+                // build thermal expansion vector
+                Matrix< DDRMat > tTheramlExpansionVector;
+                this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+
+                // get reference Temperature
+                moris::real tTref = mProperties( tTempRefIndex )->val()( 0 );
+
+                // get temperature from field interpolator
+                moris::real tTgp = mDofFI( 1 )->val()( 0 );
+
+                // add thermal contribution to the strain
+                mStrain.matrix_data() += tTheramlExpansionVector * ( - tTgp + tTref );
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -123,8 +142,10 @@ namespace moris
 //------------------------------------------------------------------------------
         void CM_Struc_Linear_Isotropic::eval_const()
         {
-            moris::real tNu = mProperties( static_cast< uint >( Property_Type::NU ) )->val()( 0 );
+            uint tNuIndex = static_cast< uint >( Property_Type::NU );
+            moris::real tNu = mProperties( tNuIndex )->val()( 0 );
 
+            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
             switch ( mSpaceDim )
             {
                 case ( 2 ):
@@ -135,7 +156,7 @@ namespace moris
                     {
                         case ( 1 ):
                         {
-                            moris::real tPre = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 ) / (1 - std::pow( tNu, 2));
+                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1 - std::pow( tNu, 2));
 
                             // compute conductivity matrix
                             mConst.set_size( 3, 3, 0.0 );
@@ -148,7 +169,7 @@ namespace moris
                         }
                         case ( 2 ):
                         {
-                            moris::real tPre = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                            moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
 
                             mConst.set_size( 4, 4, 0.0 );
                             mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -175,7 +196,7 @@ namespace moris
             }
             case( 3 ):
             {
-                moris::real tPre = mProperties( static_cast< uint >( Property_Type::EMOD ) )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
+                moris::real tPre = mProperties( tEModIndex )->val()( 0 ) / (1.0 + tNu ) / (1.0 - 2.0 * tNu ) ;
 
                 mConst.set_size( 6, 6, 0.0 );
                 mConst( 0, 0 ) = tPre * ( 1.0 - tNu );
@@ -215,7 +236,8 @@ namespace moris
             if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
             {
                 // compute derivative with direct dependency
-                mdFluxdDof( tDofIndex ) = this->constitutive() * this->testStrain();
+//                mdFluxdDof( tDofIndex ) = this->constitutive() * this->testStrain();
+                mdFluxdDof( tDofIndex ) = this->constitutive() * this->dStraindDOF( aDofTypes );
             }
             else
             {
@@ -224,10 +246,11 @@ namespace moris
             }
 
             // if indirect dependency on the dof type
-            if ( mProperties( static_cast< uint >( Property_Type::EMOD ) )->check_dof_dependency( aDofTypes ) )
+            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
+            if ( mProperties( tEModIndex )->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() += mDofFI( 0 )->gradx( 1 ) * mProperties( static_cast< uint >( Property_Type::EMOD ) )->dPropdDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() += ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->constitutive() * this->strain() * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
             }
         }
 
@@ -252,9 +275,35 @@ namespace moris
 
 //------------------------------------------------------------------------------
         void CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                                                                const Matrix< DDRMat >             & aNormal )
+                                                                const Matrix< DDRMat >             & aNormal,
+                                                                const Matrix< DDRMat >             & aJump )
         {
-            MORIS_ERROR( false, "CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF - Not implemented.");
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            Matrix< DDRMat > tNormal;
+
+            // flatten normal
+            this->flatten_normal( aNormal, tNormal );
+
+            // if indirect dependency on the dof type
+            uint tEModIndex = static_cast< uint >( Property_Type::EMOD );
+            if ( mProperties( tEModIndex )->check_dof_dependency( aDofTypes ) )
+            {
+                mdTestTractiondDof( tDofIndex ).set_size( mDofFI( 0 )->get_number_of_space_time_coefficients(), mDofFI( tDofIndex )->get_number_of_space_bases(), 0.0 );
+
+                // compute derivative with indirect dependency through properties
+                mdTestTractiondDof( tDofIndex ).matrix_data()
+                +=  ( 1.0 / mProperties( tEModIndex )->val()( 0 ) ) * this->testTraction( tNormal ) * trans( aJump )
+                    * mProperties( tEModIndex )->dPropdDOF( aDofTypes );
+            }
+            else
+            {
+                mdTestTractiondDof( tDofIndex ).set_size( mDofFI( 0 )->get_number_of_space_time_coefficients(), mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+            }
         }
 
 //------------------------------------------------------------------------------
@@ -267,7 +316,7 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // if direct dependency on the dof type
-            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 )
+            if( tDofType < mDofTypeMap.numel() && mDofTypeMap( tDofType ) != -1 && aDofTypes(0) == MSI::Dof_Type::UX )
             {
                 // compute derivative with direct dependency
                 mdStraindDof( tDofIndex ) = this->testStrain();
@@ -276,6 +325,17 @@ namespace moris
             {
                 // reset the matrix
                 mdStraindDof( tDofIndex ).set_size( 3, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
+            }
+
+            // if thermal expansion
+            uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
+            if ( mProperties( tCTEIndex ) != nullptr && aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
+            {
+                // build thermal expansion vector
+                Matrix< DDRMat > tTheramlExpansionVector;
+                this->get_isotropic_thermal_expansion_vector( tTheramlExpansionVector );
+
+                mdStraindDof( tDofIndex ).matrix_data() += (- 1.0 ) * tTheramlExpansionVector * mDofFI( tDofIndex )->NBuild();
             }
         }
 
@@ -322,6 +382,52 @@ namespace moris
                 }
             }
         }
+
+        void CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector( Matrix< DDRMat > & aTheramlExpansionVector )
+        {
+            uint tCTEIndex     = static_cast< uint >( Property_Type::CTE );
+
+            switch ( mSpaceDim )
+            {
+                case ( 2 ):
+                {
+                    uint tPlainStrainOrStress = 1;
+
+                    switch ( tPlainStrainOrStress )
+                    {
+                        case ( 1 ):
+                        {
+                            aTheramlExpansionVector.set_size( 3, 1, 0.0);
+                            aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
+                            aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
+                            break;
+                        }
+                        case ( 2 ):
+                        {
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - plain strain not implemented");
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - In 2D only plain strain or plain stress implemented");
+                        }
+                }
+                break;
+            }
+            case( 3 ):
+            {
+                aTheramlExpansionVector.set_size( 6, 1, 0.0);
+                aTheramlExpansionVector( 0 ) = mProperties( tCTEIndex )->val()( 0 );
+                aTheramlExpansionVector( 1 ) = mProperties( tCTEIndex )->val()( 0 );
+                aTheramlExpansionVector( 2 ) = mProperties( tCTEIndex )->val()( 0 );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR(false, "CM_Struc_Linear_Isotropic::get_isotropic_thermal_expansion_vector - Flattening of strain tensor only implemented in 2 and 3 D");
+            }
+        }
+    }
 
 //------------------------------------------------------------------------------
     } /* namespace fem */

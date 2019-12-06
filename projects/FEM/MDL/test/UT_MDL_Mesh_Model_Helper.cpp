@@ -84,7 +84,7 @@ namespace moris
 
 
 
-                delete tInterpMesh;
+                //delete tInterpMesh;
                 delete tIntegMesh;
             }
         }

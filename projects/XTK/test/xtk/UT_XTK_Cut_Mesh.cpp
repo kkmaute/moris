@@ -18,7 +18,6 @@
 
 #include "cl_Matrix.hpp"
 
-
 #include "cl_MGE_Geometry_Engine.hpp"
 #include "cl_Gyroid.hpp"
 #include "cl_Sphere.hpp"
@@ -37,9 +36,9 @@
 #include "fn_compute_xtk_model_volumes.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geometry.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Geom_Field.hpp"
-#include "../projects/GEN/src/ripped/geometry/cl_GEN_Sphere.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geom_Field.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Geometry.hpp"
+#include "../projects/GEN/src/geometry/cl_GEN_Sphere.hpp"
 
 namespace xtk
 {
