@@ -107,7 +107,9 @@ namespace moris
 
             void write_mesh()
             {
-            	mWriter->write_mesh("/data/schmidt/codes/moris/build/", "Vis_Mesh_3.exo");
+                std::string tPrefix = std::getenv("MORISROOT");
+                std::string tMeshFilePath = tPrefix + "build";
+            	mWriter->write_mesh(tMeshFilePath, "Vis_Mesh_3.exo");
 
             	mWriter->close_file();
             }
@@ -116,7 +118,9 @@ namespace moris
 
             void write_field()
             {
-            	mWriter->open_file("/data/schmidt/codes/moris/build/Vis_Mesh_3.exo");
+                std::string tPrefix = std::getenv("MORISROOT");
+                std::string tMeshFileName = tPrefix + "build/Vis_Mesh_3.exo";
+            	mWriter->open_file(tMeshFileName);
 
                 moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mVisMesh( 0 )->get_block_set_cells("HMR_dummy_c_p0");
 

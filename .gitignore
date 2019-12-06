@@ -28,3 +28,4 @@ CMakeCache.txt
 
 # Used by individual developers
 mains/
+/CMakeFiles/clion-log.txt
