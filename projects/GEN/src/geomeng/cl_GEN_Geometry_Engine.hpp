@@ -376,11 +376,13 @@ public:
      * @param[in] aInterfaceNodeIndices - Interface Node Indices (should be interface nodes wrt geometry index provided)
      * @param[in] aNodeCoords -  Node coordinates with location corresponding to indices of aIntefaceNodeIndices.
      * @param[in] aGeomIndex - Geometry Index
+     * @param[in] aGlbCoord  - bool to calculate the global coordinate of the intersection point
      */
     void
     compute_interface_sensitivity( Matrix< IndexMat > const & aInterfaceNodeIndices,
                                    Matrix< DDRMat >   const & aNodeCoords,
-                                   moris_index                aGeomIndex )
+                                   moris_index                aGeomIndex,
+                                   bool               const   aGlbCoord = false )
     {
         // Figure out how many entities to compute sensitivity for
         uint tNumEntities = aInterfaceNodeIndices.numel();
@@ -423,7 +425,7 @@ public:
                                       tIntersectLocalCoordinate,
                                       tIntersectGlobalCoordinate,
                                       true,
-                                      false);
+                                      aGlbCoord);
 
 
             // FIXME: Parent edge nodes need to not be the ADVs
@@ -546,14 +548,20 @@ public:
         MORIS_ASSERT(tNumNodes == 2,"Currently, this function is only supported on edges");
 
         // Initialize
-        Cell<moris::Matrix< moris::DDRMat >> tDPhiiDp = {moris::Matrix< moris::DDRMat >(0,0),
-                                                moris::Matrix< moris::DDRMat >(0,0)};
+        moris::Cell< moris::Matrix< moris::DDRMat > > tDPhiiDp(2);// = { moris::Matrix< moris::DDRMat >(0,0), moris::Matrix< moris::DDRMat >(0,0) };
 
-        moris::Matrix< moris::DDRMat > tEntityNodeCoordinates(2,3);
+
+        uint tDim = aGlobalNodeCoordinates.n_cols();
+
+        moris::Matrix< moris::DDRMat > tEntityNodeCoordinates( tNumNodes,tDim );
 
         // Assemble the entity local coordinates
-        replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityNodeCoordinates);
-        replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityNodeCoordinates);
+        //        replace_row(aEntityNodeIndices(0,0), aGlobalNodeCoordinates,0,tEntityNodeCoordinates);
+        //        replace_row(aEntityNodeIndices(0,1), aGlobalNodeCoordinates,1,tEntityNodeCoordinates);
+        for( uint i=0; i<tNumNodes; i++ )
+        {
+            tEntityNodeCoordinates.set_row( i, aGlobalNodeCoordinates.get_row(i) );
+        }
 
         // Get information from a analytic geometry
         if(ActiveGeometry().is_analytic())
@@ -853,8 +861,9 @@ public:
     }
     //------------------------------------------------------------------------------
     /*
-     * @brief calculates the field values at all nodal points
+     * @brief calculates the field values at all nodes
      */
+    //fixme set the field up in a similar way as the geometries (phase value table, field object manager, etc.)
     void calc_field_vals_at_nodes( moris_index        aMeshIndex,
                                    moris_index        aFieldIndex,
                                    Matrix< DDRMat > & aNodeVals,
@@ -865,8 +874,7 @@ public:
 
         for( uint k=0; k<tNumNodes; ++k )
         {
-            uint tSize = mFields.size(); uint tCheck = (aFieldIndex+1); // variables used for the assertion below
-            MORIS_ASSERT( tSize >= tCheck,"GEN_Geometry_Engine::calc_field_vals_at_nodes() - field index out of bounds " );
+            MORIS_ASSERT( (uint)mFields.size() >= (uint)(aFieldIndex+1),"GEN_Geometry_Engine::calc_field_vals_at_nodes() - field index out of bounds " );
 
             aNodeVals(k) = mFields( aFieldIndex )->eval_function( mMesh( aMeshIndex )->get_interpolation_mesh( aMeshIndexInManager )->get_node_coordinate(k) );
         }

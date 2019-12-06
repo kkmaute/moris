@@ -11,13 +11,13 @@ set(TEST_SOURCES
     cl_GeTriangle.cpp
     cl_GE_test.cpp
     UT_Bounding_Box.cpp
-    UT_Finite_Difference_Checks.cpp
+    #UT_Finite_Difference_Checks.cpp
     UT_GE_HMR_Interaction.cpp
     UT_GE_Properties.cpp
     
-    geometry_classes/cl_GE_test_analytic.cpp
-    geometry_classes/cl_GE_test_discrete.cpp
-    geometry_classes/cl_GE_test_sdf.cpp
+    #geometry_classes/cl_GE_test_analytic.cpp
+    #geometry_classes/cl_GE_test_discrete.cpp
+    #geometry_classes/cl_GE_test_sdf.cpp
 
 	new_impl_test/cl_General_Functionalities.cpp
     )

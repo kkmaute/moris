@@ -1503,7 +1503,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
         //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithmMonolythicU = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
-        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 3;
+        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_hard_break") = false;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_max_lin_solver_restarts") = 2;
         //        tNonlinearSolverAlgorithmMonolythic->set_param("NLA_rebuild_jacobian") = true;
@@ -1538,11 +1538,11 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 
         //------------------------------------------------------------------------------
         tTimeSolver.solve();
-        //----- print solution vector -----
+        //-----  print solution vector -----
 //        Matrix< DDRMat > tSolVec;
 //        tNonlinearSolverMain.get_full_solution(tSolVec);
 //        print( tSolVec, " Solution Vector ");
-        //---------------------------------
+        //----------------------------------
 
         // output solution and meshes
         xtk::Output_Options tOutputOptions;
@@ -1576,10 +1576,10 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
         tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
 
-        std::string tMeshOutputFile = "./mdl_exo/symmetry_boundary_condition_test_Dirichlet_X0_ss2_Neuman_y.e";
-
-        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
+        // -------------- output solution mesh -----------------------
+//        std::string tMeshOutputFile = "./mdl_exo/symmetry_boundary_condition_test_beam.e";
+//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+        // -----------------------------------------------------------
         delete tIntegMesh1;
 
         delete tModel;

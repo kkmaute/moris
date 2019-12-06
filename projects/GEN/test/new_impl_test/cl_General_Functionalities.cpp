@@ -26,6 +26,7 @@
 
 // XTK include ----------------------------------
 #include "cl_XTK_Model.hpp"
+#include "cl_XTK_Edge_Topology.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 //------------------------------------------------------------------------------
@@ -93,7 +94,7 @@ TEST_CASE("general_test_01","[GE],[field_evaluation]")
      * create geometry engine, register mesh and field
      */
     Matrix< DDRMat >tCoeff{ {5, 2} };
-    moris::ge::GEN_Field_User_Defined* tUserDefField = new moris::ge::GEN_Field_User_Defined( tSimpleFunction, tCoeff );
+    moris::ge::GEN_Field* tUserDefField = new moris::ge::GEN_Field_User_Defined( tSimpleFunction, tCoeff );
 
     moris::ge::GEN_Geometry_Engine tGeomEng;
     moris_index tFieldIndex  = tGeomEng.register_field( tUserDefField );
@@ -108,6 +109,7 @@ TEST_CASE("general_test_01","[GE],[field_evaluation]")
 
     bool tMatrixMatch = all_true( tNodeVals == aSolVec );
     CHECK( tMatrixMatch );
+
     //-----------------------------------------------------------------------------
 //    std::string tOutputFile = "./general_test.exo";
 //    tInterpMesh1->create_output_mesh(tOutputFile);
@@ -115,34 +117,15 @@ TEST_CASE("general_test_01","[GE],[field_evaluation]")
     // clean up
     delete tInterpMesh;
     delete tIntegMesh;
-
-    delete tUserDefField;
+//    delete tUserDefField;
     }
 }
 
 //-----------------------------------------------------------------------------
-TEST_CASE("general_test_02","[GE],[property_class]")
+TEST_CASE("general_test_02","[GE],[basic_functions]")
 {
     if(par_size()<=1)
     {
-        /*
-         * Steps for FD check:
-         *  (1) at initial configuration, compute and store:
-         *          xgamma
-         *          dxgamma/dphi
-         *
-         *  (2) perturb up:
-         *          phi_1 = phi_1_0 + epsilon
-         *          store xgamma_u
-         *
-         *  (3) perturb down:
-         *          phi_1 = phi_1_0 - epsilon
-         *          store xgamma_d
-         *
-         *  (4) dxgamma/dphi (FD) = (xgamma_u - xgamma_d)/2*epsilon
-         *
-         *  (5) compare dxgamma/dphi to dxgamma/dphi (FD)
-         */
         uint tNumElemTypes = 1;     // quad
         uint tNumDim = 2;           // specify number of spatial dimensions
 
@@ -168,18 +151,18 @@ TEST_CASE("general_test_02","[GE],[property_class]")
         tMeshData.LocaltoGlobalNodeMap = & tNodeLocalToGlobal;
         //------------------------------------------------------------------------------
         // declare scalar node field for the circle LS
-//        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
-//        std::string tFieldName = "circle";
-//        tNodeField1.set_field_name(tFieldName);
-//        tNodeField1.set_field_entity_rank(EntityRank::NODE);
-//
-//        // initialize field information container
-//        moris::mtk::MtkFieldsInfo tFieldsInfo;
-//        // Place the node field into the field info container
-//        add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
-//
-//        // declare some supplementary fields
-//        tMeshData.FieldsInfo = &tFieldsInfo;
+        moris::mtk::Scalar_Field_Info<DDRMat> tNodeField1;
+        std::string tFieldName = "circle";
+        tNodeField1.set_field_name(tFieldName);
+        tNodeField1.set_field_entity_rank(EntityRank::NODE);
+
+        // initialize field information container
+        moris::mtk::MtkFieldsInfo tFieldsInfo;
+        // Place the node field into the field info container
+        add_field_for_mesh_input(&tNodeField1,tFieldsInfo);
+
+        // declare some supplementary fields
+        tMeshData.FieldsInfo = &tFieldsInfo;
 
         // create mesh pair
         mtk::Interpolation_Mesh* tInterpMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
@@ -201,12 +184,13 @@ TEST_CASE("general_test_02","[GE],[property_class]")
         uint tNumNodes = tInterpMesh->get_num_nodes();
         tGENGeometryEngine.initialize_geometry_objects_for_background_mesh_nodes( tNumNodes );
 
-        Matrix< DDRMat > tNodeCoord;
+        Matrix< DDRMat > tLSVals( tNumNodes,1 );
         for( uint i=0; i<tNumNodes; i++ )
         {
-            tNodeCoord = tInterpMesh->get_node_coordinate( i );
-            tGENGeometryEngine.initialize_geometry_object_phase_values( tNodeCoord );
+            tGENGeometryEngine.initialize_geometry_object_phase_values( tCoords );
+            tLSVals(i) = tGENGeometryEngine.get_entity_phase_val( i,0 );
         }
+        tInterpMesh->add_mesh_field_real_scalar_data_loc_inds(tFieldName, EntityRank::NODE, tLSVals);
 
         moris::Matrix< moris::IndexMat > tNodetoEdgeConnectivity(4, 2);
         // Edge 0
@@ -226,17 +210,49 @@ TEST_CASE("general_test_02","[GE],[property_class]")
         tGENGeometryEngine.is_intersected( tCoords, tNodetoEdgeConnectivity, (size_t) 1, tGeometryObjects );
 
         size_t tNumIntersections = tGeometryObjects.size();
-//        std::cout<<tNumIntersections<<std::endl;
         //======================================
-//        CHECK( tNumIntersections == 2 );  // there should be two intersected edges
+        REQUIRE( tNumIntersections == 2 );  // there should be two intersected edges
         //======================================
+        Matrix< DDRMat >   tLclCoord( tNumIntersections,1 );
+        Matrix< DDRMat >   tNodeCoords( tNumIntersections,tNumDim );
+        for( uint i=0; i<tNumIntersections; i++ )
+        {
+            tLclCoord(i) = tGeometryObjects(i).get_interface_lcl_coord();
+            tNodeCoords.set_row( i,tGeometryObjects(i).get_interface_glb_coord() );
+        }
+        //======================================
+        REQUIRE( tLclCoord(0) =  0.2 );
+        REQUIRE( tLclCoord(1) = -0.2 );
+        REQUIRE( tNodeCoords(0,0) = 0.6 );
+        REQUIRE( tNodeCoords(1,1) = 0.6 );
+        //======================================
+        Matrix< moris::IndexMat > tEdgeIndices00{{ 0,1 }};
+        std::shared_ptr< xtk::Topology > tTop00 = std::make_shared< xtk::Edge_Topology >( tEdgeIndices00 );
+        Matrix< moris::IndexMat > tEdgeIndices01{{ 0,1 }};
+        std::shared_ptr< xtk::Topology > tTop01 = std::make_shared< xtk::Edge_Topology >( tEdgeIndices01 );
+        moris::Cell< xtk::Topology* > tTopCell(2);
+        tTopCell(0) = tTop00.get();          tTopCell(1) = tTop01.get();
 
+        moris::Cell< moris_index > tIndices(2);
+        tIndices(0) = 78;   tIndices(1) = 99;
+        moris::Cell< Matrix<DDRMat> > tLocalCoords(2);
+        tLocalCoords(0) = {{0.2}};  tLocalCoords(1) = {{-0.2}};
+        moris::Cell< Matrix<DDRMat> > tGlbCoords(2);
+        tGlbCoords(0) = tNodeCoords.get_row(0); tGlbCoords(1) = tNodeCoords.get_row(1);
+
+        tGENGeometryEngine.create_new_node_geometry_objects( tIndices, true, tTopCell, tLocalCoords, tGlbCoords );
+
+        Matrix< IndexMat > tInd{{ tIndices(0),tIndices(1) }};
+        tGENGeometryEngine.compute_interface_sensitivity( tInd, tNodeCoords, (moris_index)0 );
+
+        GEN_Geometry_Object tGeomObj01 = tGENGeometryEngine.get_geometry_object( tIndices(0) );
+        moris::Matrix< moris::DDRMat >tSens01 = tGeomObj01.get_sensitivity_dx_dp();
+//print( tSens01,"tSens01" );
         //================================== end ===============================================
 
-//        xtk::Model                      tXTKModel( tNumDim, tInterpMesh, tGENGeometryEngine );
-//        tXTKModel.mVerbose = false;
-//        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_HIERARCHY_TET4};
-//        tXTKModel.decompose(tDecompositionMethods);
+        //------------------------------------------------------------------------------
+//        std::string tOutputFile = "./testing_output.exo";
+//        tInterpMesh->create_output_mesh(tOutputFile);
         //------------------------------------------------------------------------------
 
     }

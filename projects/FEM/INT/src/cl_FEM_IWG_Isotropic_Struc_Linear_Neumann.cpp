@@ -26,10 +26,8 @@ namespace moris
 
             // compute the residual r_U
             mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
-                    - trans( tFI->N() ) * mMasterProp( 0 )->val() * tWStar;
+                    += - trans( tFI->N() ) * mMasterProp( 0 )->val() * tWStar;
 
-print( mSet->get_residual()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } ),"set residual" );
-print( trans( tFI->N() ) * mMasterProp( 0 )->val() * tWStar, "subtraction term" );
         }
 
 //------------------------------------------------------------------------------

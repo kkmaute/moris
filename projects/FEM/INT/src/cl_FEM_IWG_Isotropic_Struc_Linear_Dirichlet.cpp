@@ -16,7 +16,7 @@ namespace moris
     IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet()
         {
             // FIXME set a penalty
-            mGamma = 1000.0;
+            mGamma = 1000000.0;
 
         }
 
@@ -181,7 +181,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                            += ( - trans( tFI->N() ) *  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
+                            += ( - trans( tFI->N() ) *tConstDofs*  mMasterCM( 0 )->dTractiondDOF( tDofType, mNormal )
                                + mMasterCM( 0 )->dTestTractiondDOF( tDofType, mNormal, tJump ) )              * aWStar;
                 }
             }
