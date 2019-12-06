@@ -108,7 +108,7 @@ public:
      *  @param aExodusFileName Name of the Exodus file.
      *  @param aVersion Version of the database. Current version is 4.72 as of programming.
      */
-    void open_file(std::string aExodusFileName, float aVersion = 4.72);
+    void open_file(std::string aExodusFileName, bool aReadOnly = true, float aVersion = 4.72);
 
     /**
      * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
