@@ -153,10 +153,17 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     ex_put_init(mExoid, "MTK", tNumDimensions, tNumNodes, tNumElements, tNumElementBlocks, tNumNodeSets, tNumSideSets);
 }
 
-void Writer_Exodus::open_file(std::string aExodusFileName, float aVersion)
+void Writer_Exodus::open_file(std::string aExodusFileName, bool aReadOnly, float aVersion)
 {
     int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
-    mExoid = ex_open(aExodusFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize, &aVersion);
+    if (aReadOnly)
+    {
+        mExoid = ex_open(aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion);
+    }
+    else
+    {
+        mExoid = ex_open(aExodusFileName.c_str(), EX_WRITE, &tCPUWordSize, &tIOWordSize, &aVersion);
+    }
 }
 
 void Writer_Exodus::close_file(bool aRename)
