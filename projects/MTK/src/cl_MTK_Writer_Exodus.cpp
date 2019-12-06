@@ -254,15 +254,22 @@ void Writer_Exodus::write_blocks()
             // Get the CellTopology of this block
             //CellTopology tBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
 
-            // Get a description of the type of elements in this block
+            // Get a description of the type of elements in this block FIXME once we always have a CellTopology on the mesh
             CellTopology tBlockTopology;
-            if (tElementsInBlock(0)->get_vertex_inds().numel() == 3)
+            if (mMesh->get_spatial_dim() == 2)
             {
-            	tBlockTopology = CellTopology::TRI3;
+                if (tElementsInBlock(0)->get_vertex_inds().numel() == 3)
+                {
+                    tBlockTopology = CellTopology::TRI3;
+                }
+                else
+                {
+                    tBlockTopology = CellTopology::QUAD4;
+                }
             }
             else
             {
-            	tBlockTopology = CellTopology::QUAD4;
+                tBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
             }
 
             const char* tBlockDescription = this->get_exodus_block_description(tBlockTopology);
