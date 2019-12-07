@@ -27,9 +27,10 @@ private:
     std::string                     mTempFileName;
     moris::uint                     mTimeStep = 0;
     moris::Matrix<moris::IndexMat>  mMtkExodusElementIndexMap;
-    moris::map<std::string, int>    mNodalFieldNames;
-    moris::map<std::string, int>    mElementalFieldNames;
-    moris::map<std::string, int>    mGlobalVariableNames;
+    moris::map<std::string, int>    mBlockNamesMap;
+    moris::map<std::string, int>    mNodalFieldNamesMap;
+    moris::map<std::string, int>    mElementalFieldNamesMap;
+    moris::map<std::string, int>    mGlobalVariableNamesMap;
 
 public:
     /**
@@ -97,11 +98,11 @@ public:
     /**
      *  Writes a field to the mesh elements at the current time step.
      *
-     *  @param aBlockIndex The index of the block that will receive the field
+     *  @param aBlockName The name of the block that will receive the field
      *  @param aFieldName The name of the field being written
      *  @param aFieldValues Matrix of values to write
      */
-    void write_elemental_field(moris::uint aBlockIndex, std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues);
+    void write_elemental_field(std::string aBlockName, std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues);
 
     /**
      *  Writes a global variable at the current time step.

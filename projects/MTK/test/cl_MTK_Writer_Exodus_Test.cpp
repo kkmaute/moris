@@ -290,12 +290,9 @@ namespace moris
             tMeshDataInput.SetsInfo = &tMtkMeshSets;
             tMeshDataInput.MarkNoBlockForIO = false;
 
-//                // Create Mesh ---------------------------------
-//                moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName);
-
             Integration_Mesh *tIntegMeshData = moris::mtk::create_integration_mesh(MeshType::STK, tMeshDataInput);
 
-            // Mesh
+            // Write mesh
             Writer_Exodus writer(tIntegMeshData);
             writer.write_mesh("", "test_write.exo");
 
@@ -327,7 +324,7 @@ namespace moris
             moris::real tMass = 99;
             moris::real tTime = 1;
 
-            // Actually write the stuff
+            // Write the fields
             writer.set_nodal_fields(tNodalFieldNames);
             writer.set_elemental_fields(tElementalFieldNames);
             writer.set_global_variables(tGlobalVariableNames);
@@ -335,13 +332,11 @@ namespace moris
             writer.write_nodal_field("ux", xField);
             writer.write_nodal_field("uy", yField);
             writer.write_nodal_field("uz", zField);
-            writer.write_elemental_field(3, "pressure", tetField);
-            writer.write_elemental_field(4, "pressure", hexField);
+            writer.write_elemental_field("Omega_0_tets", "pressure", tetField);
+            writer.write_elemental_field("Omega_0_hex", "pressure", hexField);
             writer.write_global_variable("mass", tMass);
             writer.write_global_variable("time", tTime);
-            writer.
-
-            close_file();
+            writer.close_file();
 
             delete tIntegMeshData;
         }
