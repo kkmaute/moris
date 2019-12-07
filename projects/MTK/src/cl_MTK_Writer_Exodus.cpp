@@ -247,7 +247,7 @@ void Writer_Exodus::write_blocks()
         // Get the block elements
         moris::Cell<const moris::mtk::Cell*> tElementsInBlock = mMesh->get_block_set_cells(tBlockNames(tBlockIndex));
 
-        if (tElementsInBlock.size() > 0)
+        if (tElementsInBlock.size() > 0) // Block has at least 1 element
         {
             // Resize element map
             tElementIdMap.resize(tElementIdMapStartIndex + tElementsInBlock.size(), 1);
@@ -276,14 +276,15 @@ void Writer_Exodus::write_blocks()
             const char* tExodusBlockTopology = this->get_exodus_block_topology(tMorisBlockTopology);
 
             // Get the number of nodes/edges/faces/attributes per element
-            int tNumNodesPerElement = tElementsInBlock(0)->get_vertex_inds().numel();
+            int tNumNodesPerElement = this->get_nodes_per_element(tMorisBlockTopology);
             int tNumEdgesPerElement = 0;
             int tNumFacesPerElement = 0;
             int tNumAttributesPerElement = 0;
 
-            // Make a block
+            // Make a block and name it
 	        ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tExodusBlockTopology, tElementsInBlock.size(),
 	                tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement);
+            ex_put_name(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockNames(tBlockIndex).c_str());
 
             // Construct matrix of node indices per element
             moris::Matrix<moris::IndexMat> tConnectivityArray(tNumNodesPerElement * tElementsInBlock.size(), 1, 0);
@@ -317,10 +318,8 @@ void Writer_Exodus::write_blocks()
         else // Block has no elements
         {
             ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, "N/A", 0, 0, 0, 0, 0);
+            ex_put_name(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockNames(tBlockIndex).c_str());
         }
-
-        // Name the block sets
-        ex_put_names(mExoid, EX_ELEM_BLOCK, this->string_cell_to_char_array(tBlockNames));
     }
 
     // Write the element map
@@ -334,12 +333,12 @@ void Writer_Exodus::write_side_sets()
     moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(moris::EntityRank::FACE);
 
     // Write side sets
-    for (moris::uint tSideSetNum = 0; tSideSetNum < tSideSetNames.size(); tSideSetNum++)
+    for (moris::uint tSideSetIndex = 0; tSideSetIndex < tSideSetNames.size(); tSideSetIndex++)
     {
         // Get the side set element ids
         moris::Matrix<moris::IndexMat>  tSideSetElements;
         moris::Matrix<moris::IndexMat>  tSideSetOrdinals;
-        mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetNum), tSideSetElements, tSideSetOrdinals);
+        mMesh->get_sideset_elems_loc_inds_and_ords(tSideSetNames(tSideSetIndex), tSideSetElements, tSideSetOrdinals);
 
         // Change element and ordinal to what Exodus wants
         for (moris::uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++)
@@ -349,12 +348,10 @@ void Writer_Exodus::write_side_sets()
         }
 
         // Write the side set
-        ex_put_set_param(mExoid, EX_SIDE_SET, tSideSetNum + 1, tSideSetElements.numel(), 0);
-        ex_put_set(mExoid, EX_SIDE_SET, tSideSetNum + 1, tSideSetElements.data(), tSideSetOrdinals.data());
+        ex_put_set_param(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tSideSetElements.numel(), 0);
+        ex_put_set(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tSideSetElements.data(), tSideSetOrdinals.data());
+        ex_put_name(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tSideSetNames(tSideSetIndex).c_str());
     }
-
-    // Name the side sets
-    ex_put_names(mExoid, EX_SIDE_SET, this->string_cell_to_char_array(tSideSetNames));
 }
 
 
@@ -409,18 +406,4 @@ int Writer_Exodus::get_nodes_per_element(CellTopology aCellTopology)
             MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
             return 0;
     }
-}
-
-char** Writer_Exodus::string_cell_to_char_array(moris::Cell<std::string> aStringCell)
-{
-    unsigned long i;
-    char** tCharacterArray = new char*[aStringCell.size()];
-
-    for (i = 0; i < aStringCell.size(); i++)
-    {
-        tCharacterArray[i] = new char[aStringCell(i).size()];
-        tCharacterArray[i] = const_cast<char *>(aStringCell(i).data());
-    }
-
-    return tCharacterArray;
 }

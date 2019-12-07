@@ -173,14 +173,6 @@ private:
      */
     int get_nodes_per_element(CellTopology aCellTopology);
 
-    /**
-     * Converts a moris::Cell of std::string's to char**
-     *
-     * @param aStringCell Cell of strings to be converted.
-     * @return The corresponding character array.
-     */
-    char** string_cell_to_char_array(moris::Cell<std::string> aStringCell);
-
 protected:
 };
 
