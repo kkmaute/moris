@@ -158,20 +158,12 @@ private:
     void write_side_sets();
 
     /**
-     * Gets an exodus element type from an MTK geometry type.
-     *
-     * @param aCellTopology The type of element in MTK.
-     * @return Character string of an element type that Exodus can recognize.
-     */
-    const char* get_exodus_element_type(CellTopology aCellTopology);
-
-    /**
      * Gets a more detailed description of the elements in the block for exodus from the MTK CellTopology.
      *
      * @param aCellTopology The type of element in MTK.
      * @return Character string describing the Exodus element block.
      */
-    const char* get_exodus_block_description(CellTopology aCellTopology);
+    const char* get_exodus_block_topology(CellTopology aCellTopology);
 
     /**
      * Gets the number of nodes in a given element type.

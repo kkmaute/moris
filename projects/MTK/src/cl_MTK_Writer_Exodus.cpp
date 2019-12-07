@@ -34,9 +34,9 @@ void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileNa
 {
     Writer_Exodus::create_file(aFilePath, aFileName);
     Writer_Exodus::write_nodes();
-//    Writer_Exodus::write_node_sets();
+    Writer_Exodus::write_node_sets();
     Writer_Exodus::write_blocks();
-//    Writer_Exodus::write_side_sets();
+    Writer_Exodus::write_side_sets();
 }
 
 void Writer_Exodus::set_nodal_fields(moris::Cell<std::string> aFieldNames)
@@ -118,8 +118,6 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
         mPermFileName += "." + std::to_string(moris::par_size()) + "." + std::to_string(moris::par_rank());
     }
 
-    std::cout << mPermFileName << std::endl;
-
     // Element Blocks
     moris::Cell<std::string> tElementBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
     int tNumElementBlocks = tElementBlockNames.size();
@@ -127,12 +125,10 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     // Node Sets
     moris::Cell<std::string> tNodeSetNames = mMesh->get_set_names(moris::EntityRank::NODE);
     int tNumNodeSets = tNodeSetNames.size();
-    tNumNodeSets = 0; //TODO
 
     // Side Sets
     moris::Cell<std::string> tSideSetNames = mMesh->get_set_names(moris::EntityRank::FACE);
     int tNumSideSets = tSideSetNames.size();
-    tNumSideSets = 0;
 
     // Create the database
     int tCPUWordSize = sizeof(moris::real), tIOWordSize = 8;
@@ -223,14 +219,15 @@ void Writer_Exodus::write_node_sets()
 {
     // Get the number of node sets and their names
     moris::Cell<std::string> tNodeSetNames = mMesh->get_set_names(moris::EntityRank::NODE);
-    int tNumNodeSets = tNodeSetNames.size();
+    moris::uint tNumNodeSets = tNodeSetNames.size();
 
     // Write each node set
-    for (int tNodeSetId = 1; tNodeSetId <= tNumNodeSets; tNodeSetId++)
+    for (moris::uint tNodeSetIndex = 0; tNodeSetIndex < tNumNodeSets; tNodeSetIndex++)
     {
         moris::Matrix<moris::IndexMat> tNodeIndices = mMesh->get_set_entity_loc_inds(moris::EntityRank::NODE,
-                tNodeSetNames(tNodeSetId));
-        ex_put_set(mExoid, EX_NODE_SET, tNodeSetId, tNodeIndices.data(), NULL);
+                tNodeSetNames(tNodeSetIndex));
+        ex_put_set_param(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.numel(), 0);
+        ex_put_set(mExoid, EX_NODE_SET, tNodeSetIndex + 1, tNodeIndices.data(), nullptr);
     }
 }
 
@@ -256,27 +253,27 @@ void Writer_Exodus::write_blocks()
             tElementIdMap.resize(tElementIdMapStartIndex + tElementsInBlock.size(), 1);
 
             // Get the CellTopology of this block
-            //CellTopology tBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
+            //CellTopology tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
 
             // Get a description of the type of elements in this block FIXME once we always have a CellTopology on the mesh
-            CellTopology tBlockTopology;
+            CellTopology tMorisBlockTopology;
             if (mMesh->get_spatial_dim() == 2)
             {
                 if (tElementsInBlock(0)->get_vertex_inds().numel() == 3)
                 {
-                    tBlockTopology = CellTopology::TRI3;
+                    tMorisBlockTopology = CellTopology::TRI3;
                 }
                 else
                 {
-                    tBlockTopology = CellTopology::QUAD4;
+                    tMorisBlockTopology = CellTopology::QUAD4;
                 }
             }
             else
             {
-                tBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
+                tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
             }
 
-            const char* tBlockDescription = this->get_exodus_block_description(tBlockTopology);
+            const char* tExodusBlockTopology = this->get_exodus_block_topology(tMorisBlockTopology);
 
             // Get the number of nodes/edges/faces/attributes per element
             int tNumNodesPerElement = tElementsInBlock(0)->get_vertex_inds().numel();
@@ -285,7 +282,7 @@ void Writer_Exodus::write_blocks()
             int tNumAttributesPerElement = 0;
 
             // Make a block
-	        ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockDescription, tElementsInBlock.size(),
+	        ex_put_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tExodusBlockTopology, tElementsInBlock.size(),
 	                tNumNodesPerElement, tNumEdgesPerElement, tNumFacesPerElement, tNumAttributesPerElement);
 
             // Construct matrix of node indices per element
@@ -370,29 +367,7 @@ void Writer_Exodus::write_side_sets()
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-const char* Writer_Exodus::get_exodus_element_type(CellTopology aCellTopology)
-{
-    switch (aCellTopology)
-    {
-        case CellTopology::TRI3:
-            return "TRIANGLE";
-        case CellTopology::QUAD4:
-            return "QUAD";
-        case CellTopology::TET4:
-            return "TETRA";
-        case CellTopology::TET10:
-            return "TETRA";
-        case CellTopology::HEX8:
-            return "HEX";
-        case CellTopology::PRISM6:
-            return "WEDGE";
-        default:
-            MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
-            return "";
-    }
-}
-
-const char* Writer_Exodus::get_exodus_block_description(CellTopology aCellTopology)
+const char* Writer_Exodus::get_exodus_block_topology(CellTopology aCellTopology)
 {
     switch (aCellTopology)
     {
