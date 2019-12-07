@@ -33,15 +33,10 @@ void Writer_Exodus::set_error_options(bool abort, bool debug, bool verbose)
 void Writer_Exodus::write_mesh(std::string aFilePath, const std::string& aFileName)
 {
     Writer_Exodus::create_file(aFilePath, aFileName);
-//    std::cout << "Create" << std::endl;
     Writer_Exodus::write_nodes();
-//    std::cout << "Nodes" << std::endl;
 //    Writer_Exodus::write_node_sets();
-//    std::cout << "Node Sets" << std::endl;
     Writer_Exodus::write_blocks();
-//    std::cout << "Blocks" << std::endl;
 //    Writer_Exodus::write_side_sets();
-//    std::cout << "Side Sets" << std::endl;
 }
 
 void Writer_Exodus::set_nodal_fields(moris::Cell<std::string> aFieldNames)
@@ -108,13 +103,22 @@ void Writer_Exodus::write_global_variable(std::string aVariableName, moris::real
 
 void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileName)
 {
-    // Construct temporary and permanent file paths
+    // Add temporary and permanent file names to file paths
     if (!aFilePath.empty())
     {
         aFilePath += "/";
     }
     mTempFileName = aFilePath + "temp.exo";
     mPermFileName = aFilePath + aFileName;
+
+    // Make file name parallel, if necessary
+    if (moris::par_size() > 1)
+    {
+        mTempFileName += "." + std::to_string(moris::par_size()) + "." + std::to_string(moris::par_rank());
+        mPermFileName += "." + std::to_string(moris::par_size()) + "." + std::to_string(moris::par_rank());
+    }
+
+    std::cout << mPermFileName << std::endl;
 
     // Element Blocks
     moris::Cell<std::string> tElementBlockNames = mMesh->get_set_names(moris::EntityRank::ELEMENT);
@@ -131,7 +135,7 @@ void Writer_Exodus::create_file(std::string aFilePath, const std::string& aFileN
     tNumSideSets = 0;
 
     // Create the database
-    int tCPUWordSize = sizeof(moris::real), tIOWordSize = 0;
+    int tCPUWordSize = sizeof(moris::real), tIOWordSize = 8;
     mExoid = ex_create(mTempFileName.c_str(), EX_CLOBBER, &tCPUWordSize, &tIOWordSize);
 
     // Number of dimensions

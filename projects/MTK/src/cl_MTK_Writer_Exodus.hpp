@@ -34,6 +34,7 @@ private:
 public:
     /**
     * Constructor
+     *
     * @param  aMeshPointer Pointer to an MTK mesh
     * @param  aFilePath File path where temporary and permanent files are saved
     * @param  aFileName Name of the final file to be saved
@@ -45,6 +46,7 @@ public:
 
     /**
      * Changes how Exodus handles errors
+     *
      * @param abort Causes fatal errors to force program exit.
      * @param debug Causes certain messages to print for debugging use.
      * @param verbose Causes all error messages to print when true, otherwise no error messages will print.
@@ -58,24 +60,29 @@ public:
 
     /**
      * Sets the number of variables to be written for nodal data
+     *
      * @param aFieldNames The names of the fields that can be written
      */
     void set_nodal_fields(moris::Cell<std::string> aFieldNames);
 
     /**
      * Sets the number of variables to be written for elemental data
+     *
      * @param aFieldNames The names of the fields that can be written
      */
     void set_elemental_fields(moris::Cell<std::string> aFieldNames);
 
     /**
      * Sets the number of variables to be written globally
+     *
      * @param aFieldNames The names of the fields that can be written
      */
     void set_global_variables(moris::Cell<std::string> aFieldNames);
 
     /**
      *  Writes a time to be used for subsequent fields
+     *
+     *  @param aTimeValue the time for the next time index
      */
     void set_time(moris::real aTimeValue);
 
@@ -90,8 +97,9 @@ public:
     /**
      *  Writes a field to the mesh elements at the current time step.
      *
+     *  @param aBlockIndex The index of the block that will receive the field
      *  @param aFieldName The name of the field being written
-     *  @param aFieldValues Matrix of values to write for this field.
+     *  @param aFieldValues Matrix of values to write
      */
     void write_elemental_field(moris::uint aBlockIndex, std::string aFieldName, moris::Matrix<moris::DDRMat> aFieldValues);
 
@@ -105,6 +113,7 @@ public:
 
     /**
      *  Opens an Exodus file and stores the ID for future operations
+     *
      *  @param aExodusFileName Name of the Exodus file.
      *  @param aVersion Version of the database. Current version is 4.72 as of programming.
      */
@@ -133,7 +142,8 @@ private:
 
     /**
      * Writes the node sets in the MTK mesh.
-     * @warning This will probably not work, I need a way to get the node ids in a set first.
+     *
+     * @warning This will probably not work, it hasn't been tested yet (I need a mesh with node sets)
      */
     void write_node_sets();
 
@@ -149,6 +159,7 @@ private:
 
     /**
      * Gets an exodus element type from an MTK geometry type.
+     *
      * @param aCellTopology The type of element in MTK.
      * @return Character string of an element type that Exodus can recognize.
      */
@@ -156,6 +167,7 @@ private:
 
     /**
      * Gets a more detailed description of the elements in the block for exodus from the MTK CellTopology.
+     *
      * @param aCellTopology The type of element in MTK.
      * @return Character string describing the Exodus element block.
      */
@@ -163,6 +175,7 @@ private:
 
     /**
      * Gets the number of nodes in a given element type.
+     *
      * @param aCellTopology The type of element in MTK.
      * @return The number of nodes per element of this topology.
      */
@@ -170,6 +183,7 @@ private:
 
     /**
      * Converts a moris::Cell of std::string's to char**
+     *
      * @param aStringCell Cell of strings to be converted.
      * @return The corresponding character array.
      */
