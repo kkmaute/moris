@@ -373,8 +373,7 @@ public:
 
     MeshType get_mesh_type() const
     {
-        MORIS_ERROR( false, "get_mesh_type(), not implemented for visualization mesh" );
-        return MeshType::END_ENUM;
+        return MeshType::VIS;
     };
 
     Matrix< IdMat > get_communication_table() const

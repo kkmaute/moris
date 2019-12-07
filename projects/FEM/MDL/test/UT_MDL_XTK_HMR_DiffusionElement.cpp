@@ -47,10 +47,8 @@
 #include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Property_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_IWG_User_Defined_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Constitutive_User_Defined_Info.hpp"      //FEM/INT/src
 
 #include "cl_MDL_Model.hpp"
 
@@ -272,8 +270,14 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
 
         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
-        tCMDiffLinIso->set_properties( { tPropConductivity } );
+        tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 3 );
+
+        // define stabilization parameters
+        fem::SP_Factory tSPFactory;
+        std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+        tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+        tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -281,19 +285,20 @@ TEST_CASE("HMR Interpolation STK Cut Diffusion Model Lag Order 2","[XTK_HMR_STK_
         std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-        tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
+        tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-        tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
         // define set info
         fem::Set_User_Info tSetBulk1;
@@ -544,8 +549,14 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
          std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
          tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
-         tCMDiffLinIso->set_properties( { tPropConductivity } );
+         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
          tCMDiffLinIso->set_space_dim( 3 );
+
+         // define stabilization parameters
+         fem::SP_Factory tSPFactory;
+         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+         tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+         tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
 
          // define the IWGs
          fem::IWG_Factory tIWGFactory;
@@ -553,19 +564,20 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
          std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
          tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
          tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-         tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-         tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
+         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 
          std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
          tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
          tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+         tIWGDirichlet->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 
          std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
          tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
          tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-         tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 
          // define set info
          fem::Set_User_Info tSetBulk1;
@@ -725,7 +737,8 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Lag Order 2","[XTK_HMR_DIFF
 
 TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_MULTIGRID]")
 {
-    //FIXME Timesolver for petsc
+//    //FIXME Timesolver for petsc
+//
 //    if( par_size() == 1 )
 //    {
 //        gLogger.set_severity_level( 0 );
@@ -854,8 +867,14 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //
 //         std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
 //         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} ); // FIXME through the factory?
-//         tCMDiffLinIso->set_properties( { tPropConductivity } );
+//         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
 //         tCMDiffLinIso->set_space_dim( 3 );
+//
+//         // define stabilization parameters
+//         fem::SP_Factory tSPFactory;
+//         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
+//         tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
+//         tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
 //
 //         // define the IWGs
 //         fem::IWG_Factory tIWGFactory;
@@ -863,19 +882,20 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //         std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
 //         tIWGBulk->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 //         tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//         tIWGBulk->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-//         tIWGBulk->set_properties( { tPropTempLoad }, mtk::Master_Slave::MASTER );
+//         tIWGBulk->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+//         tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
 //
 //         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET );
 //         tIWGDirichlet->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 //         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//         tIWGDirichlet->set_constitutive_models( { tCMDiffLinIso }, mtk::Master_Slave::MASTER );
-//         tIWGDirichlet->set_properties( { tPropDirichlet }, mtk::Master_Slave::MASTER );
+//         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
+//         tIWGDirichlet->set_constitutive_model( tCMDiffLinIso, "DiffLinIso", mtk::Master_Slave::MASTER );
+//         tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
 //
 //         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
 //         tIWGNeumann->set_residual_dof_type( { MSI::Dof_Type::TEMP } );
 //         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-//         tIWGNeumann->set_properties( { tPropNeumann }, mtk::Master_Slave::MASTER );
+//         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
 //
 //         // define set info
 //         fem::Set_User_Info tSetBulk1;
@@ -983,7 +1003,7 @@ TEST_CASE("HMR Interpolation XTK Cut Diffusion Model Multigrid","[XTK_HMR_DIFF_M
 //        CHECK( equal_to( tSolution( 382, 0 ), 51.10753242793825, 1.0e+08 ) );
 //        CHECK( equal_to( tSolution( 461, 0 ), 17.06241419810062, 1.0e+08 ) );
 //        CHECK( equal_to( tSolution( 505, 0 ), 29.33523440842293, 1.0e+08 ) );
-//
+
 ////        // start timer
 ////        tic tTimer_XTK1;
 ////

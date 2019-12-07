@@ -28,6 +28,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
         public:
+            enum class Property_Type
+            {
+                EMOD,
+                NU,
+                CTE,
+                TEMP_REF,
+                MAX_ENUM
+            };
+
+            // Local string to property enum map
+            std::map< std::string, CM_Struc_Linear_Isotropic::Property_Type > mPropertyMap;
+
 //------------------------------------------------------------------------------
             /*
              * trivial constructor
@@ -36,6 +48,16 @@ namespace moris
             {
                 // set the constitutive type
                 mConstitutiveType = fem::Constitutive_Type::STRUC_LIN_ISO;
+
+                // set the property pointer cell size
+                mProperties.resize( static_cast< uint >( CM_Struc_Linear_Isotropic::Property_Type::MAX_ENUM ), nullptr );
+
+                // populate the map
+                mPropertyMap[ "YoungsModulus" ]         = CM_Struc_Linear_Isotropic::Property_Type::EMOD;
+                mPropertyMap[ "PoissonRatio" ]          = CM_Struc_Linear_Isotropic::Property_Type::NU;
+                mPropertyMap[ "CTE" ]                   = CM_Struc_Linear_Isotropic::Property_Type::CTE;
+                mPropertyMap[ "ReferenceTemperature" ]  = CM_Struc_Linear_Isotropic::Property_Type::TEMP_REF;
+
             };
 
 //------------------------------------------------------------------------------
@@ -43,6 +65,21 @@ namespace moris
              * trivial destructor
              */
             ~CM_Struc_Linear_Isotropic(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set a property pointer
+             * @param[ in ] aProperty     a property pointer
+             * @param[ in ] aPropertyType a string defining the property
+             */
+             void set_property( std::shared_ptr< fem::Property > aProperty,
+                                std::string                      aPropertyString )
+             {
+                 // FIXME check that property type make sense?
+
+                 // set the property in the property cell
+                 mProperties( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+             };
 
 //------------------------------------------------------------------------------
             /**

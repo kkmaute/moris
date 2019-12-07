@@ -54,7 +54,7 @@ namespace moris
             eye( mSpaceDim, mSpaceDim, I );
 
             // compute conductivity matrix
-            mConst = mProperties( 0 )->val()( 0 ) * I;
+            mConst = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 ) * I;
         }
 
 //------------------------------------------------------------------------------
@@ -79,10 +79,10 @@ namespace moris
             }
 
             // if indirect dependency on the dof type
-            if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
+            if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdFluxdDof( tDofIndex ).matrix_data() += mDofFI( 0 )->gradx( 1 ) * mProperties( 0 )->dPropdDOF( aDofTypes );
+                mdFluxdDof( tDofIndex ).matrix_data() += mDofFI( 0 )->gradx( 1 ) * mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->dPropdDOF( aDofTypes );
             }
         }
 
@@ -101,6 +101,19 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+        void CM_Diffusion_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                                    const Matrix< DDRMat >             & aNormal )
+        {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // compute derivative
+            mdTestTractiondDof( tDofIndex ) = trans( mDofFI( 0 )->dnNdxn( 1 ) ) * aNormal * this->dConstdDOF( aDofTypes );
+        }
+
         void CM_Diffusion_Linear_Isotropic::eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
                                                                     const Matrix< DDRMat >             & aNormal,
                                                                     const Matrix< DDRMat >             & aJump )
@@ -150,10 +163,10 @@ namespace moris
             mdConstdDof( tDofIndex ).set_size( 1, mDofFI( tDofIndex )->get_number_of_space_time_coefficients(), 0.0 );
 
             // if indirect dependency on the dof type
-            if ( mProperties( 0 )->check_dof_dependency( aDofTypes ) )
+            if ( mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdConstdDof( tDofIndex ) = mProperties( 0 )->dPropdDOF( aDofTypes );
+                mdConstdDof( tDofIndex ) = mProperties( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->dPropdDOF( aDofTypes );
             }
         }
 

@@ -89,7 +89,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
         void Element_Bulk::compute_residual()
         {
             // set the geometry interpolator physical space and time coefficients for integration cell

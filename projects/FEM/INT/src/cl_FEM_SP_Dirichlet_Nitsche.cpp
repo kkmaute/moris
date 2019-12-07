@@ -14,14 +14,27 @@ namespace moris
     namespace fem
     {
 //------------------------------------------------------------------------------
-        void SP_Dirichlet_Nitsche::eval_PP()
+        SP_Dirichlet_Nitsche::SP_Dirichlet_Nitsche()
         {
-            // compute penalty parameter value
-            mPPVal = mMasterProp( 0 )->val() * mMasterProp( 1 )->val() / mElementSize;
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Material" ] = SP_Property_Type::MATERIAL;
+
+            // set the list of cluster measures
+            mClusterMeasures = { fem::Cluster_Measure::ELEMENT_SIZE };
+    }
+
+//------------------------------------------------------------------------------
+        void SP_Dirichlet_Nitsche::eval_SP()
+        {
+            // compute stabilization parameter value
+            mPPVal = mParameters( 0 ) * mMasterProp( 0 )->val() / mElementSize;
         }
 
 //------------------------------------------------------------------------------
-        void SP_Dirichlet_Nitsche::eval_dPPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void SP_Dirichlet_Nitsche::eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
