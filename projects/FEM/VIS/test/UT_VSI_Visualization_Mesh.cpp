@@ -264,7 +264,7 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
 
                 writer.set_elemental_fields(tElementalFieldNames);
                 writer.set_time(0.0);
-                writer.write_elemental_field(0, "pressure", tetField);
+                writer.write_elemental_field("HMR_dummy_c_p0", "pressure", tetField);
 
                 writer.close_file();
     }
