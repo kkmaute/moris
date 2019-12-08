@@ -210,14 +210,12 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::delete_pointers()
     {
-//FIXME intruduce Field_Interolator_Manager->delete_pointers();
+        //FIXME introduce Field_Interolator_Manager->delete_pointers();
     }
 
 //------------------------------------------------------------------------------
-
     void Set::initialize_set( const bool aIsResidual )
     {
         if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
@@ -238,7 +236,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::free_memory()
     {
         for(  std::shared_ptr< IWG > tIWG : mIWGs )
@@ -248,7 +245,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     moris::Cell < enum MSI::Dof_Type > Set::get_requested_dof_types()
     {
         return mModelSolverInterface->get_solver_interface()
@@ -256,7 +252,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > Set::get_secundary_dof_types()
     {
         return mModelSolverInterface->get_solver_interface()
@@ -274,27 +269,22 @@ namespace moris
 
         // set field interpolators for the IWGs
         this->set_IWG_field_interpolators();
-
-//        // set field interpolators for the properties
-//        this->set_properties_field_interpolators();
-//
-//        // set field interpolators for the contitutive models
-//        this->set_CM_field_interpolators();
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_unique_dof_type_list()
     {
-        // set the size of the dof type list for the set
+        // init dof type counter
         uint tCounter = 0;
 
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
+            // get an IWG non unique dof type list
             moris::Cell< MSI::Dof_Type >  tActiveDofType;
             tIWG->get_non_unique_dof_types( tActiveDofType );
 
+            // update dof type counter
             tCounter += tActiveDofType.size();
         }
 
@@ -304,13 +294,15 @@ namespace moris
         // loop over the IWGs
         for ( std::shared_ptr< IWG > tIWG : mIWGs )
         {
+            // get non unique dof type list
             moris::Cell< MSI::Dof_Type > tActiveDofType;
             tIWG->get_non_unique_dof_types( tActiveDofType );
 
+            // populate the corresponding EqnObj dof type list
             mEqnObjDofTypeList.append( tActiveDofType );
         }
 
-        // make the dof type list unique
+        // make the EqnObj dof type list unique
         std::sort( ( mEqnObjDofTypeList.data() ).data(),
                    ( mEqnObjDofTypeList.data() ).data() + mEqnObjDofTypeList.size());
         auto last = std::unique( ( mEqnObjDofTypeList.data() ).data(),
@@ -320,7 +312,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_dof_type_list()
     {
         uint tNumDofTypes = this->get_num_dof_types();
@@ -443,9 +434,7 @@ namespace moris
         mFieldInterpolatorManager->create_field_interpolators( aModelSolverInterface );
     }
 
-
 //------------------------------------------------------------------------------
-
     void Set::set_IWG_field_interpolators()
     {
         // loop over the IWGs
@@ -481,7 +470,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_residual_dof_assembly_map()
     {
         // get list of requested dof types
@@ -552,7 +540,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_dof_assembly_map( const bool aIsResidual )
     {
         if( aIsResidual )
@@ -566,7 +553,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_jacobian_dof_assembly_map()
     {
         // get list of requested dof types
@@ -688,7 +674,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_staggered_jacobian_dof_assembly_map()
     {
         // get list of requested dof types
@@ -833,7 +818,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::create_requested_IWG_list()
     {
         // get List of requested dof types
@@ -862,7 +846,6 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     void Set::build_requested_IWG_dof_type_list( const bool aItResidual )
     {
         for( auto tIWG : mRequestedIWGs )
@@ -911,7 +894,7 @@ namespace moris
         }
     }
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     void Set::initialize_mResidual()
     {
         if ( !mResidualExist )
@@ -951,9 +934,9 @@ namespace moris
         }
     }
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
     mtk::Interpolation_Order Set::get_auto_interpolation_order( const moris::uint        aNumVertices,
-            const mtk::Geometry_Type aGeometryType )
+                                                                const mtk::Geometry_Type aGeometryType )
     {
         switch( aGeometryType )
         {
@@ -963,6 +946,7 @@ namespace moris
                    case( 1 ) :
                        return mtk::Interpolation_Order::UNDEFINED;
                        break;
+
                    case( 2 ) :
                        return mtk::Interpolation_Order::LINEAR;
                        break;
@@ -1063,11 +1047,13 @@ namespace moris
           case( 1 ) :
               return Interpolation_Type::CONSTANT;
               break;
+
           case( 2 ) :
           case( 3 ) :
           case( 4 ) :
               return Interpolation_Type::LAGRANGE;
               break;
+
           default :
               MORIS_ERROR( false, " Element::get_auto_time_interpolation_type - not defined this number of time vertices. ");
               return Interpolation_Type::UNDEFINED;
@@ -1114,10 +1100,9 @@ namespace moris
     }
 
 //------------------------------------------------------------------------------
-
     moris::uint Set::get_num_dof_types()
     {
-        return  this->get_unique_dof_type_list().size();
+        return this->get_unique_dof_type_list().size();
     }
 
 //------------------------------------------------------------------------------

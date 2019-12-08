@@ -49,7 +49,7 @@ namespace moris
 
             // bool for global dof type list and map build
             bool mGlobalDofBuild = true;
-            bool mGlobalDvBuild = true;
+            bool mGlobalDvBuild  = true;
 
             // global dof type list
             moris::Cell< moris::Cell< MSI::Dof_Type > > mGlobalDofTypes;
@@ -74,9 +74,6 @@ namespace moris
 
             // dv field interpolators
             moris::Cell< Field_Interpolator* > mDvFI;
-
-            // property type list
-            moris::Cell< fem::Property_Type > mPropTypes;
 
             // properties
             moris::Cell< std::shared_ptr< Property > > mProperties;
@@ -145,28 +142,9 @@ namespace moris
             virtual ~Constitutive_Model(){};
 
 //------------------------------------------------------------------------------
-            /**
-             * set a constitutive type for the constitutive model
-             * @param[ in ] aConstitutiveType a constitutive type
-             */
-            void set_constitutive_type( const fem::Constitutive_Type aConstitutiveType )
-            {
-                mConstitutiveType = aConstitutiveType;
-            }
-
-//------------------------------------------------------------------------------
-            /**
-             * return a constitutive type for the constitutive model
-             * @param[ out ] mConstitutiveType a constitutive type
-             */
-            const fem::Constitutive_Type & get_constitutive_type() const
-            {
-                return mConstitutiveType;
-            }
-
-//------------------------------------------------------------------------------
             /*
              * set member set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
              */
             void set_set_pointer( Set * aSetPointer )
             {
@@ -220,7 +198,10 @@ namespace moris
                 // reset underlying properties
                 for( std::shared_ptr< Property > tProp : mProperties )
                 {
-                    tProp->reset_eval_flags();
+                    if ( tProp != nullptr )
+                    {
+                        tProp->reset_eval_flags();
+                    }
                 }
             }
 
@@ -364,7 +345,7 @@ namespace moris
                 bool tCheckFI = true;
                 for( uint iFI = 0; iFI < aFieldInterpolators.size(); iFI++ )
                 {
-                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == mGlobalDofTypes( iFI )( 0 ) );
+                    tCheckFI = tCheckFI && ( aFieldInterpolators( iFI )->get_dof_type()( 0 ) == get_global_dof_type_list()( iFI )( 0 ) );
                 }
                 MORIS_ASSERT( tCheckFI, "Constitutive_Model::set_dof_field_interpolators - wrong field interpolator dof type. ");
 
@@ -374,27 +355,30 @@ namespace moris
                 // set field interpolators for properties
                 for( std::shared_ptr< Property > tProp : this->get_properties() )
                 {
-                    // get the list of dof types for the property
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
-
-                    // get the number of dof type for the property
-                    uint tNumDofTypes = tPropDofTypes.size();
-
-                    // set the size of the field interpolators list for the property
-                    moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
-
-                    // loop over the dof types
-                    for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                    if (tProp != nullptr )
                     {
-                        // get the dof type index in the CM
-                        uint tDofIndexInCM = this->get_global_dof_type_map()( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+                        // get the list of dof types for the property
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tPropDofTypes = tProp->get_dof_type_list();
 
-                        // fill the field interpolators list for the property
-                        tPropFIs( iDof ) = this->get_dof_field_interpolators()( tDofIndexInCM );
+                        // get the number of dof type for the property
+                        uint tNumDofTypes = tPropDofTypes.size();
+
+                        // set the size of the field interpolators list for the property
+                        moris::Cell< Field_Interpolator* > tPropFIs( tNumDofTypes, nullptr );
+
+                        // loop over the dof types
+                        for( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+                        {
+                            // get the dof type index in the CM
+                            uint tDofIndexInCM = this->get_global_dof_type_map()( static_cast< uint >( tPropDofTypes( iDof )( 0 ) ) );
+
+                            // fill the field interpolators list for the property
+                            tPropFIs( iDof ) = this->get_dof_field_interpolators()( tDofIndexInCM );
+                        }
+
+                        // set the field interpolators for the property
+                        tProp->set_dof_field_interpolators( tPropFIs );
                     }
-
-                    // set the field interpolators for the property
-                    tProp->set_dof_field_interpolators( tPropFIs );
                 }
             }
 
@@ -413,7 +397,10 @@ namespace moris
                 // set geometry interpolator for properties
                 for( std::shared_ptr< Property > tProp : this->get_properties() )
                 {
-                    tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    if( tProp != nullptr )
+                    {
+                        tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    }
                 }
             }
 //------------------------------------------------------------------------------
@@ -505,13 +492,14 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set properties
-             * @param[ in ] aProperties cell of property pointers
+             * set property
+             * @param[ in ] aProperty a property pointer
+             * @param[ in ] aPropertyString a string describing the property
              */
-            void set_properties( moris::Cell< std::shared_ptr< Property > > aProperties )
+            virtual void set_property( std::shared_ptr< fem::Property > aProperty,
+                                       std::string                      aPropertyType )
             {
-                // set properties
-                mProperties = aProperties;
+                MORIS_ERROR( false, "Constitutive_Model::set_property - This function does nothing." );
             }
 
 //------------------------------------------------------------------------------
@@ -538,7 +526,10 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    tCounterMax += tProperty->get_dof_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dof_type_list().size();
+                    }
                 }
                 mGlobalDofTypes.resize( tCounterMax );
                 moris::Cell< sint > tCheckList( tCounterMax, -1 );
@@ -556,24 +547,28 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    // get active dof types
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
-                        {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
-                        }
+                        // get active dof types
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType
+                        = tProperty->get_dof_type_list();
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                         {
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
-                            mGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
-                            tCounter++;
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDofType( iDOF )( 0 ) ) );
+                            }
+
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
+                                mGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -622,46 +617,65 @@ namespace moris
             };
 
 //------------------------------------------------------------------------------
-
+            /**
+             * get non unique list of dof type for the constitutive model
+             * @param[ in ] aDofTypes a cell of dof type to fill
+             */
             void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes )
             {
-                // set the size of the dof type list for the set
+                // init dof counter
                 uint tCounter = 0;
 
+                // loop over direct dof dependencies
                 for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
                 {
+                    // update counter
                     tCounter += mDofTypes( iDOF ).size();
                 }
 
+                // loop over properties
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if ( tProperty != nullptr )
                     {
-                        tCounter += tActiveDofType( iDOF ).size();
+                        // get property dof type list
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                        // loop over property dof types
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                        {
+                            // update counter
+                            tCounter += tActiveDofType( iDOF ).size();
+                        }
                     }
                 }
 
-
+                // reserve memory for the non unique dof type list
                 aDofTypes.reserve( tCounter );
 
+                // loop over direct dof dependencies
                 for ( uint iDOF = 0; iDOF < mDofTypes.size(); iDOF++ )
                 {
+                    // populate the dof type list
                     aDofTypes.append( mDofTypes( iDOF ) );
                 }
 
-
+                // loop over the properties
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
-
-                    for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                    if ( tProperty != nullptr )
                     {
-                        aDofTypes.append( tActiveDofType( iDOF ) );
+                        // get property dof type list
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tActiveDofType = tProperty->get_dof_type_list();
+
+                        // loop over property dof types
+                        for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
+                        {
+                            // populate te dof type list
+                            aDofTypes.append( tActiveDofType( iDOF ) );
+                        }
                     }
                 }
-
             }
 
 //------------------------------------------------------------------------------
@@ -741,7 +755,10 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    tCounterMax += tProperty->get_dv_type_list().size();
+                    if( tProperty != nullptr )
+                    {
+                        tCounterMax += tProperty->get_dv_type_list().size();
+                    }
                 }
                 mGlobalDvTypes.resize( tCounterMax );
                 moris::Cell< sint > tCheckList( tCounterMax, -1 );
@@ -759,24 +776,27 @@ namespace moris
 
                 for ( std::shared_ptr< Property > tProperty : mProperties )
                 {
-                    // get active dv types
-                    moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                    for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
+                    if( tProperty != nullptr )
                     {
-                        // check enum is not already in the list
-                        bool tCheck = false;
-                        for( uint i = 0; i < tCounter; i++ )
-                        {
-                            tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDV )( 0 ) ) );
-                        }
+                        // get active dv types
+                        moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
 
-                        // if dof enum not in the list
-                        if ( !tCheck )
+                        for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
                         {
-                            tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDV )( 0 ) );
-                            mGlobalDvTypes( tCounter ) = tActiveDvType( iDV );
-                            tCounter++;
+                            // check enum is not already in the list
+                            bool tCheck = false;
+                            for( uint i = 0; i < tCounter; i++ )
+                            {
+                                tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDV )( 0 ) ) );
+                            }
+
+                            // if dof enum not in the list
+                            if ( !tCheck )
+                            {
+                                tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDV )( 0 ) );
+                                mGlobalDvTypes( tCounter ) = tActiveDvType( iDV );
+                                tCounter++;
+                            }
                         }
                     }
                 }
@@ -903,12 +923,10 @@ namespace moris
                     // evaluate the flux
                     this->eval_flux();
 
-                    //set eval flag to false
+                    // set bool for evaluation
                     mFluxEval = false;
-
                 }
                 // return the flux value
-//                print(mFlux,"mFlux");
                 return mFlux;
             }
 
@@ -936,7 +954,6 @@ namespace moris
                     this->eval_traction( aNormal );
 
                     // set bool for evaluation
-
                     mTractionEval = false;
                 }
                 // return the traction value
@@ -1159,6 +1176,49 @@ namespace moris
              * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
              */
             const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
+                                                        const Matrix< DDRMat >             & aNormal )
+            {
+                // if aDofType is not an active dof type for the property
+                MORIS_ERROR( this->check_dof_dependency( aDofType ), "Constitutive_Model::dTestTractiondDOF - no dependency in this dof type." );
+
+                // get the dof index
+                uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+                // if the derivative has not been evaluated yet
+                if( mdTestTractiondDofEval( tDofIndex ) )
+                {
+                    // evaluate the derivative
+                    this->eval_dTestTractiondDOF( aDofType, aNormal );
+
+                    // set bool for evaluation
+                    mdTestTractiondDofEval( tDofIndex ) = false;
+                }
+
+                // return the derivative
+                return mdTestTractiondDof( tDofIndex );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test traction derivative wrt to a dof type
+             * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
+             * @param[ in ] adTractiondDOF a matrix to fill with derivative evaluation
+             */
+            virtual void eval_dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                                 const Matrix< DDRMat >             & aNormal )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dTestTractiondDOF - This function does nothing. " );
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * FIXME this is not a test traction, used for elast lin iso!!!!
+             * get the derivative of the test traction wrt dof
+             * @param[ in ]  aDofType           group of dof type
+             * @param[ in ]  aNormal            normal
+             * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
+             */
+            const Matrix< DDRMat > & dTestTractiondDOF( const moris::Cell< MSI::Dof_Type > & aDofType,
                                                         const Matrix< DDRMat >             & aNormal,
                                                         const Matrix< DDRMat >             & aJump )
             {
@@ -1184,6 +1244,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
+             * FIXME this is not a test traction, used for elast lin iso!!!!
              * evaluate the constitutive model test traction derivative wrt to a dof type
              * @param[ in ] aDofTypes      a dof type wrt which the derivative is evaluated
              * @param[ in ] adTractiondDOF a matrix to fill with derivative evaluation
@@ -1428,7 +1489,7 @@ namespace moris
                         mDofFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();
@@ -1513,7 +1574,7 @@ namespace moris
                         mDofFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();
@@ -1598,7 +1659,7 @@ namespace moris
                         mDvFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();
@@ -1683,7 +1744,7 @@ namespace moris
                         mDvFI( iFI )->set_coeff( tCoeffPert );
 
                         // reset properties
-                        uint tNumProps = mPropTypes.size();
+                        uint tNumProps = mProperties.size();
                         for ( uint iProp = 0; iProp < tNumProps; iProp++ )
                         {
                             mProperties( iProp )->reset_eval_flags();

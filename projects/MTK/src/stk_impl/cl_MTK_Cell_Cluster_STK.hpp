@@ -32,13 +32,12 @@ private:
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
 
 public:
-    Cell_Cluster_STK():
-        mTrivial(true),
-        mInterpolationCell(nullptr),
-        mPrimaryIntegrationCells(0,nullptr),
-        mVoidIntegrationCells(0,nullptr),
-        mVerticesInCluster(0,nullptr),
-        mVertexParamCoords(0,0)
+    Cell_Cluster_STK() : mTrivial(true),
+                         mInterpolationCell(nullptr),
+                         mPrimaryIntegrationCells(0,nullptr),
+                         mVoidIntegrationCells(0,nullptr),
+                         mVerticesInCluster(0,nullptr),
+                         mVertexParamCoords(0,0)
     {};
 
     //----------------------------------------------------------------

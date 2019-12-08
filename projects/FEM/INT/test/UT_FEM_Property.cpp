@@ -123,26 +123,34 @@ namespace moris
 
             // create a property object
             fem::Property tProperty;
-            fem::Property_Type tPropType = fem::Property_Type::TEMP_DIRICHLET;
-            tProperty.set_property_type( tPropType );
+
+            // set dof types
             Cell< Cell< MSI::Dof_Type > > tDofTypes = {{ MSI::Dof_Type::TEMP }};
             tProperty.set_dof_type_list( tDofTypes );
+
+            //set dv types
             Cell< Cell< MSI::Dv_Type > > tDvTypes;
             tProperty.set_dv_type_list( tDvTypes );
+
+            // set parameter
             tProperty.set_parameters( tCoeff );
+
+            //set value function
             tProperty.set_val_function( tValFunction );
+
+            // set dof derivative functions
             Cell< PropertyFunc > tDofDerFunc = { tDerFunction };
             tProperty.set_dof_derivative_functions( tDofDerFunc );
+
+            // set dv derivative function
             Cell< PropertyFunc > tDvDerFunc;
             tProperty.set_dv_derivative_functions( tDvDerFunc );
-            tProperty.set_geometry_interpolator( tGeomInterpolator );
 
-            // check property type
-            CHECK( equal_to( static_cast< uint >( tProperty.get_property_type() ), 1 ) );
+            // set geometry interpolator
+            tProperty.set_geometry_interpolator( tGeomInterpolator );
 
             //check dof dependencies
             CHECK( equal_to( static_cast< uint >( tProperty.get_dof_type_list()( 0 )( 0 ) ), 3 ) );
-
 
             // set field interpolators
             Cell< Field_Interpolator* > tFieldInterpolator( 1 );
@@ -208,14 +216,32 @@ namespace moris
             tCoeff( 2 ) = {{ 3.0 }};
 
             // create a property object
-            fem::Property tProperty( fem::Property_Type::CONDUCTIVITY,
-                                     {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
-                                     Cell< Cell< MSI::Dv_Type > >( 0 ),
-                                     tCoeff,
-                                     tValFunction2,
-                                     { tDerFunction2, tDerFunction3 },
-                                     Cell< PropertyFunc >( 0 ),
-                                     tGeomInterpolator );
+             fem::Property tProperty;
+
+             // set dof types
+             Cell< Cell< MSI::Dof_Type > > tDofTypes = {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }};
+             tProperty.set_dof_type_list( tDofTypes );
+
+             // set dv types
+             Cell< Cell< MSI::Dv_Type > > tDvTypes;
+             tProperty.set_dv_type_list( tDvTypes );
+
+             // set parameters
+             tProperty.set_parameters( tCoeff );
+
+             // set the value function
+             tProperty.set_val_function( tValFunction2 );
+
+             // set dof derivative functions
+             Cell< PropertyFunc > tDofDerFunc = { tDerFunction2, tDerFunction3 };
+             tProperty.set_dof_derivative_functions( tDofDerFunc );
+
+             // set dv derivative functions
+             Cell< PropertyFunc > tDvDerFunc;
+             tProperty.set_dv_derivative_functions( tDvDerFunc );
+
+             // set geometry interpolator
+             tProperty.set_geometry_interpolator( tGeomInterpolator );
 
             // create an interpolation rule
             Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
@@ -316,14 +342,32 @@ namespace moris
             tCoeff( 2 ) = {{ 3.0 }};
 
             // create a property object
-            fem::Property tProperty( fem::Property_Type::CONDUCTIVITY,
-                                     {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
-                                     {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }},
-                                     tCoeff,
-                                     tValFunction3,
-                                     { tDerFunction3_TEMP, tDerFunction3_UX },
-                                     { tDerFunction3_LS1, tDerFunction3_LS2 },
-                                     tGeomInterpolator );
+            fem::Property tProperty;
+
+            // set dof types
+            Cell< Cell< MSI::Dof_Type > > tDofTypes = {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }};
+            tProperty.set_dof_type_list( tDofTypes );
+
+            // set dv types
+            Cell< Cell< MSI::Dv_Type > > tDvTypes = {{ MSI::Dv_Type::LS1 }, { MSI::Dv_Type::LS2 }};
+            tProperty.set_dv_type_list( tDvTypes );
+
+            // set parameters
+            tProperty.set_parameters( tCoeff );
+
+            // set value function
+            tProperty.set_val_function( tValFunction3 );
+
+            // set dof derivative functions
+            Cell< PropertyFunc > tDofDerFunc = { tDerFunction3_TEMP, tDerFunction3_UX };
+            tProperty.set_dof_derivative_functions( tDofDerFunc );
+
+            // set dv derivative functions
+            Cell< PropertyFunc > tDvDerFunc = { tDerFunction3_LS1, tDerFunction3_LS2 };
+            tProperty.set_dv_derivative_functions( tDvDerFunc );
+
+            // set geometry interpolator
+            tProperty.set_geometry_interpolator( tGeomInterpolator );
 
             // create an interpolation rule
             Interpolation_Rule tInterpolationRule ( mtk::Geometry_Type::QUAD,
@@ -468,17 +512,32 @@ namespace moris
             tCoeff( 0 ) = {{ 1.0 }};
 
             // create a property object
-            fem::Property tProperty( fem::Property_Type::TEMP_DIRICHLET,
-                                     {{ MSI::Dof_Type::TEMP }},
-                                     Cell< Cell< MSI::Dv_Type > >( 0 ),
-                                     tCoeff,
-                                     tGeoValFunction,
-                                     Cell< PropertyFunc >( 0 ),
-                                     Cell< PropertyFunc >( 0 ),
-                                     tGeomInterpolator );
+            fem::Property tProperty;
 
-            // check property type
-            CHECK( equal_to( static_cast< uint >( tProperty.get_property_type() ), 1 ) );
+            // set dof types
+            Cell< Cell< MSI::Dof_Type > > tDofTypes = {{ MSI::Dof_Type::TEMP }};
+            tProperty.set_dof_type_list( tDofTypes );
+
+            // set dv types
+            Cell< Cell< MSI::Dv_Type > > tDvTypes;
+            tProperty.set_dv_type_list( tDvTypes );
+
+            // set parameters
+            tProperty.set_parameters( tCoeff );
+
+            // set value function
+            tProperty.set_val_function( tGeoValFunction );
+
+            // set dof derivative functions
+            Cell< PropertyFunc > tDofDerFunc;
+            tProperty.set_dof_derivative_functions( tDofDerFunc );
+
+            // set dv derivative functions
+            Cell< PropertyFunc > tDvDerFunc;
+            tProperty.set_dv_derivative_functions( tDvDerFunc );
+
+            // set geomrty interpolator
+            tProperty.set_geometry_interpolator( tGeomInterpolator );
 
             //check dof dependencies
             CHECK( equal_to( static_cast< uint >( tProperty.get_dof_type_list()( 0 )( 0 ) ), 3 ) );

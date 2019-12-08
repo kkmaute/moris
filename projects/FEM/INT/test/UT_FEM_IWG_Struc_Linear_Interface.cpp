@@ -7,8 +7,6 @@
 #include "cl_FEM_Enums.hpp"                                     //FEM//INT/src
                                //FEM//INT//src
 
-#include "op_equal_equal.hpp"
-
 #define protected public
 #define private   public
 #include "cl_FEM_Field_Interpolator_Manager.hpp"                   //FEM//INT//src
@@ -20,6 +18,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"                        //FEM//INT//src
 #include "cl_FEM_Property.hpp"                                  //FEM//INT//src
 #include "cl_FEM_CM_Factory.hpp"                                //FEM//INT//src
+#include "cl_FEM_SP_Factory.hpp"                                //FEM//INT//src
 #include "cl_FEM_IWG_Factory.hpp"                               //FEM//INT//src
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"      //FEM//INT//src
 
@@ -39,9 +38,10 @@ moris::Matrix< moris::DDRMat > tFIValFunction_STRUCDIRICHLET( moris::Cell< moris
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
-        }
+{
+    return aParameters( 0 ) + aParameters( 1 ) * ( aParameters( 2 ) - aDofFI( 0 )->val() );
+}
+
 moris::Matrix< moris::DDRMat > tFIValFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
@@ -55,9 +55,9 @@ moris::Matrix< moris::DDRMat > tFIDerFunction_STRUCDIRICHLET( moris::Cell< moris
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
                                                               moris::Cell< moris::fem::Field_Interpolator* > & aDvFI,
                                                               moris::fem::Geometry_Interpolator              * aGeometryInterpolator )
-        {
-            return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
-        }
+{
+    return -1.0 * aParameters( 1 ) * aDofFI( 0 )->N();
+}
 
 moris::Matrix< moris::DDRMat > tFIDerFunction_UTInterface( moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                                                            moris::Cell< moris::fem::Field_Interpolator* > & aDofFI,
@@ -94,13 +94,31 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMMasterStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMMasterStrucLinIso->set_properties( { tPropMasterEMod, tPropMasterNu } );
+    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
+    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_space_dim( 2 );
 
     std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
     tCMSlaveStrucLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-    tCMSlaveStrucLinIso->set_properties( { tPropSlaveEMod, tPropSlaveNu } );
+    tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
+    tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
     tCMSlaveStrucLinIso->set_space_dim( 2 );
+
+    // define stabilization parameters
+    fem::SP_Factory tSPFactory;
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
+    tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+    tSPNitscheInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPNitscheInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPMasterWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE );
+    tSPMasterWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPMasterWeightInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
+
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSlaveWeightInterface = tSPFactory.create_SP( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE );
+    tSPSlaveWeightInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPSlaveWeightInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -109,8 +127,11 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     tIWG->set_residual_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }}, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_models( { tCMMasterStrucLinIso }, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_models( { tCMSlaveStrucLinIso }, mtk::Master_Slave::SLAVE );
+    tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
+    tIWG->set_stabilization_parameter( tSPMasterWeightInterface, "MasterWeightInterface" );
+    tIWG->set_stabilization_parameter( tSPSlaveWeightInterface, "SlaveWeightInterface" );
+    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveStrucLinIso, "ElastLinIso", mtk::Master_Slave::SLAVE );
 
     // set the normal
     Matrix< DDRMat > tNormal = {{1.0},{0.0},{0.0}};
@@ -272,11 +293,11 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
         Cell< Cell< Matrix< DDRMat > > > tJacobiansFD;
 
         // check jacobian by FD
-        bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
-                tEpsilon,
-                1.0,
-                tJacobians,
-                tJacobiansFD );
+        bool tCheckJacobian = tIWG->check_jacobian_double( tPerturbation,
+                                                           tEpsilon,
+                                                           1.0,
+                                                           tJacobians,
+                                                           tJacobiansFD );
 
         //        // print for debug
         //        print( tJacobians( 0 )( 0 ),"tJacobians00");

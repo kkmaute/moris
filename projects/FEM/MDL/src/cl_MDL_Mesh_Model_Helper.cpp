@@ -53,7 +53,7 @@ namespace moris
         // Loop over the blocks
         for( uint Ik = 0; Ik < tNumBlocks; Ik++ )
         {
-            mVerticesOnBlock( Ik ) = mIntegrationMesh->get_block_by_index( Ik )->get_num_vertieces_on_set();
+            mVerticesOnBlock( Ik ) = mIntegrationMesh->get_block_by_index( Ik )->get_num_vertieces_on_set( true );
         }
 
         //==========================================================================
@@ -66,7 +66,7 @@ namespace moris
         // Loop over the side sets
         for( uint Ik = 0; Ik < tNumSideSets; Ik++ )
         {
-            mVerticesOnSideSet( Ik ) = mIntegrationMesh->get_side_set_by_index( Ik )->get_num_vertieces_on_set();
+            mVerticesOnSideSet( Ik ) = mIntegrationMesh->get_side_set_by_index( Ik )->get_num_vertieces_on_set( true);
         }
 
         MORIS_ASSERT( mVerticesOnBlock.min() != -1, "negative number of vertices on block");
@@ -218,7 +218,7 @@ namespace moris
             {
                 //FIXME rewrite for more readability
                 tVertInds( { tCounter, tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 ) - 1 }, { 0, 0 } ) =
-                        mIntegrationMesh->get_block_by_index( mColorListBlock( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block().matrix_data();
+                        mIntegrationMesh->get_block_by_index( mColorListBlock( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block( true ).matrix_data();
 
                 tCounter = tCounter + mVerticesOnBlock( mColorListBlock( Ik )( Ij, 0 ), 0 );
             }
@@ -228,7 +228,7 @@ namespace moris
             {
                 //FIXME rewrite for more readability
                 tVertInds( { tCounter, tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 ) - 1 }, { 0, 0 } ) =
-                        mIntegrationMesh->get_block_by_index( mColorListSideSet( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block().matrix_data();
+                        mIntegrationMesh->get_block_by_index( mColorListSideSet( Ik )( Ij, 0 ) )->get_vertieces_inds_on_block( true ).matrix_data();
 
                 tCounter = tCounter + mVerticesOnSideSet( mColorListSideSet( Ik )( Ij, 0 ), 0 );
             }

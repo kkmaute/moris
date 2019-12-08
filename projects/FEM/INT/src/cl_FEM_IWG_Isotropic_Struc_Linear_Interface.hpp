@@ -1,7 +1,7 @@
 /*
  * cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
  *
- *  Created on: Okt 10, 2019
+ *  Created on: Oct 10, 2019
  *      Author: schmidt
  */
 
@@ -25,20 +25,39 @@ namespace moris
 
         class IWG_Isotropic_Struc_Linear_Interface : public IWG
         {
-            // penalty parameter
-            real mGammaInterface;
 
-            // weight master parameter
-            real mMasterWeight;
-
-            // weight slave parameter
-            real mSlaveWeight;
-
-//------------------------------------------------------------------------------
         public:
+            enum class IWG_Property_Type
+            {
+                MAX_ENUM
+            };
+
+            // Local string to property enum map
+            std::map< std::string, IWG_Property_Type > mPropertyMap;
+
+            enum class IWG_Constitutive_Type
+            {
+                ELAST_LIN_ISO,
+                MAX_ENUM
+            };
+
+            // Local string to constitutive enum map
+            std::map< std::string, IWG_Constitutive_Type > mConstitutiveMap;
+
+            enum class IWG_Stabilization_Type
+            {
+                NITSCHE_INTERFACE,
+                MASTER_WEIGHT_INTERFACE,
+                SLAVE_WEIGHT_INTERFACE,
+                MAX_ENUM
+            };
+
+            // Local string to constitutive enum map
+            std::map< std::string, IWG_Stabilization_Type > mStabilizationMap;
+
 //------------------------------------------------------------------------------
             /*
-             *  constructor
+             * constructor
              */
             IWG_Isotropic_Struc_Linear_Interface();
 
@@ -47,6 +66,55 @@ namespace moris
              * trivial destructor
              */
             ~IWG_Isotropic_Struc_Linear_Interface(){};
+
+//------------------------------------------------------------------------------
+            /**
+             * set property
+             * @param[ in ] aProperty       a property pointer
+             * @param[ in ] aPropertyString a string defining the property
+             * @param[ in ] aIsMaster       an enum for master or slave
+             */
+            void set_property( std::shared_ptr< Property > aProperty,
+                               std::string                 aPropertyString,
+                               mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                // FIXME check that property type makes sense?
+
+                // set the property in the property cell
+                this->get_properties( aIsMaster )( static_cast< uint >( mPropertyMap[ aPropertyString ] ) ) = aProperty;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set constitutive model
+             * @param[ in ] aConstitutiveModel  a constitutive model pointer
+             * @param[ in ] aConstitutiveString a string defining the constitutive model
+             * @param[ in ] aIsMaster           an enum for master or slave
+             */
+            void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                                         std::string                           aConstitutiveString,
+                                         mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
+            {
+                // FIXME check that constitutive string makes sense?
+
+                // set the constitutive model in the constitutive model cell
+                this->get_constitutive_models( aIsMaster )( static_cast< uint >( mConstitutiveMap[ aConstitutiveString ] ) ) = aConstitutiveModel;
+            }
+
+//------------------------------------------------------------------------------
+            /**
+             * set stabilization parameter
+             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+             */
+            void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                                              std::string                                aStabilizationString )
+            {
+                // FIXME check that stabilization string makes sense?
+
+                // set the stabilization parameter in the stabilization parameter cell
+                this->get_stabilization_parameters()( static_cast< uint >( mStabilizationMap[ aStabilizationString ] ) ) = aStabilizationParameter;
+            }
 
 //------------------------------------------------------------------------------
             /**

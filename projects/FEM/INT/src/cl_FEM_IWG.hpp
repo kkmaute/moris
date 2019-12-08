@@ -34,6 +34,7 @@ namespace moris
         {
         protected :
 
+            // FEM set pointer
             fem::Set * mSet = nullptr;
 
             // nodal weak BCs
@@ -45,6 +46,7 @@ namespace moris
             // residual dof type
             moris::Cell< MSI::Dof_Type > mResidualDofType;
 
+            // bool true if residual dof type requested
             bool mResidualDofTypeRequested = false;
 
             // master and slave dof type lists
@@ -114,6 +116,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /*
              * set member set pointer
+             * @param[ in ] aSetPointer a FEM set pointer
              */
             void set_set_pointer( Set * aSetPointer )
             {
@@ -123,6 +126,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /*
              * set member set pointer
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
              */
             void set_field_interpolator_manager( Field_Interpolator_Manager * aFieldInterpolatorManager )
             {
@@ -131,13 +135,12 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /*
-             * set member set pointer
+             * free memory
              */
             void free_memory()
             {
                 mResidualDofTypeRequested = false;
             }
-
 
 //------------------------------------------------------------------------------
             /**
@@ -315,74 +318,38 @@ namespace moris
 
 //------------------------------------------------------------------------------
             /**
-             * set only field interpolator manager and set to properties and CM
-             */
-            void set_dof_field_interpolators()
-            {
-                // set field interpolators for the SP
-                for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
-                {
-                    tSP->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    tSP->set_set_pointer( mSet );
-                }
-
-                // set field interpolators for constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( mtk::Master_Slave::MASTER  ) )
-                {
-                    tCM->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    tCM->set_set_pointer( mSet );
-                }
-                // set field interpolators for constitutive models
-                for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( mtk::Master_Slave::SLAVE ) )
-                {
-                    tCM->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    tCM->set_set_pointer( mSet );
-                }
-
-                // set field interpolators for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( mtk::Master_Slave::MASTER ) )
-                {
-                    tProp->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    tProp->set_set_pointer( mSet );
-                }
-                // set field interpolators for properties
-                for( std::shared_ptr< Property > tProp : this->get_properties( mtk::Master_Slave::SLAVE ) )
-                {
-                    tProp->set_field_interpolator_manager( mFieldInterpolatorManager );
-
-                    tProp->set_set_pointer( mSet );
-                }
-            }
-
-//------------------------------------------------------------------------------
-            /**
              * set geometry interpolator
              * @param[ in ] aGeometryInterpolator geometry interpolator pointers
              * @param[ in ] aIsMaster             enum for master or slave
              */
             void set_geometry_interpolator( Geometry_Interpolator* aGeometryInterpolator,
-                                              mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER )
+                                            mtk::Master_Slave      aIsMaster = mtk::Master_Slave::MASTER )
             {
                 // set geometry interpolator for the SP
                 for( std::shared_ptr< Stabilization_Parameter > tSP : this->get_stabilization_parameters() )
                 {
-                    tSP->set_geometry_interpolator( aGeometryInterpolator, aIsMaster );
+                    if( tSP != nullptr )
+                    {
+                        tSP->set_geometry_interpolator( aGeometryInterpolator, aIsMaster );
+                    }
                 }
 
                 // set geometry interpolator for constitutive models
                 for( std::shared_ptr< Constitutive_Model > tCM : this->get_constitutive_models( aIsMaster ) )
                 {
-                    tCM->set_geometry_interpolator( aGeometryInterpolator );
+                    if( tCM != nullptr )
+                    {
+                        tCM->set_geometry_interpolator( aGeometryInterpolator );
+                    }
                 }
 
                 // set geometry interpolator for properties
                 for( std::shared_ptr< Property > tProp : this->get_properties( aIsMaster ) )
                 {
-                    tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    if( tProp != nullptr )
+                    {
+                        tProp->set_geometry_interpolator( aGeometryInterpolator );
+                    }
                 }
             }
 
@@ -447,7 +414,7 @@ namespace moris
                     // if none
                     default:
                     {
-                        MORIS_ASSERT( false, "IWG::set_dv_field_interpolators - can only be master or slave." );
+                        MORIS_ASSERT( false, "IWG::get_dv_field_interpolators - can only be master or slave." );
                         return mMasterDvFI;
                     }
                 }
@@ -475,16 +442,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
              /**
-              * set properties
-              * @param[ in ] aProperties cell of property pointers
-              * @param[ in ]  aIsMaster   enum master or slave
+              * set property
+              * @param[ in ] aProperty       a property pointer
+              * @param[ in ] aPropertyString a string describing the property
+              * @param[ in ] aIsMaster       enum master or slave
               */
-             void set_properties( moris::Cell< std::shared_ptr< Property > > aProperties,
-                                  mtk::Master_Slave                          aIsMaster = mtk::Master_Slave::MASTER )
-             {
-                 // set properties
-                 this->get_properties( aIsMaster ) = aProperties;
-             }
+              virtual void set_property( std::shared_ptr< Property > aProperty,
+                                         std::string                 aPropertyString,
+                                         mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER )
+              {
+                  MORIS_ASSERT( false, "IWG::set_property - This function does nothing.");
+              }
 
 //------------------------------------------------------------------------------
              /**
@@ -502,36 +470,34 @@ namespace moris
                      {
                          // return master property pointers
                          return mMasterProp;
-                         break;
                      }
                      // if slave
                      case( mtk::Master_Slave::SLAVE ):
                      {
                          // return slave property pointers
                          return mSlaveProp;
-                         break;
                      }
                      // if none
                      default:
                      {
                          MORIS_ASSERT( false, "IWG::get_properties - can only be master or slave." );
                          return mMasterProp;
-                         break;
                      }
                  }
              }
 
 //------------------------------------------------------------------------------
              /**
-              * set constitutive models
-              * @param[ in ] aConstitutiveModels cell of constitutive model pointers
-              * @param[ in ] aIsMaster           enum master or slave
+              * set constitutive model
+              * @param[ in ] aConstitutiveModel  a constitutive model pointer
+              * @param[ in ] aConstitutiveString a string defining the constitutive model
+              * @param[ in ] aIsMaster           an enum for master or slave
               */
-             void set_constitutive_models( moris::Cell< std::shared_ptr< Constitutive_Model > > aConstitutiveModels,
-                                           mtk::Master_Slave                                    aIsMaster = mtk::Master_Slave::MASTER )
+             virtual void set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel,
+                                                  std::string                           aConstitutiveString,
+                                                  mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER )
              {
-                 // set constitutive models
-                 this->get_constitutive_models( aIsMaster ) = aConstitutiveModels;
+                 MORIS_ERROR( false, "IWG::set_constitutive_model - This function does nothing." );
              }
 
 //------------------------------------------------------------------------------
@@ -550,35 +516,33 @@ namespace moris
                      {
                          // return master property pointers
                          return mMasterCM;
-                         break;
                      }
                      // if slave
                      case( mtk::Master_Slave::SLAVE ):
                      {
                          // return slave property pointers
                          return mSlaveCM;
-                         break;
                      }
                      // if none
                      default:
                      {
                          MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be master or slave." );
                          return mMasterCM;
-                         break;
                      }
                  }
              }
 
 //------------------------------------------------------------------------------
-             /**
-              * set stabilization parameters
-              * @param[ in ] aStabilizationParameters cell of stabilization parameter pointers
-              */
-             void set_stabilization_parameters( moris::Cell< std::shared_ptr< Stabilization_Parameter > > aStabilizationParameters )
-             {
-                 // set stabilization parameters
-                 mStabilizationParam = aStabilizationParameters;
-             }
+            /**
+             * set stabilization parameter
+             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
+             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
+             */
+            virtual void set_stabilization_parameter( std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
+                                                      std::string                                aStabilizationString )
+            {
+                MORIS_ERROR( false, "IWG::set_stabilization_parameter - This function does nothing." );
+            }
 
 //------------------------------------------------------------------------------
              /**
@@ -593,12 +557,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
              /**
-              * create a global dof type list including IWG, property and constitutive dependencies
+              * create a global dof type list including
+              * IWG, property, constitutive and stabilization dependencies
               */
              void build_global_dof_type_list();
 
 //------------------------------------------------------------------------------
-
+             /**
+              * get a non unique list of dof type including
+              * IWG, property, constitutive and stabilization dependencies
+              * for both master and slave
+              */
              void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
 
 //------------------------------------------------------------------------------
@@ -618,19 +587,28 @@ namespace moris
                   // get number of dv types from properties
                   for ( std::shared_ptr< Property > tProperty : mMasterProp )
                   {
-                      tCounterMax += tProperty->get_dv_type_list().size();
+                      if( tProperty != nullptr )
+                      {
+                          tCounterMax += tProperty->get_dv_type_list().size();
+                      }
                   }
 
                   // get number of dv types from constitutive models
                   for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                   {
-                      tCounterMax += tCM->get_global_dv_type_list().size();
+                      if( tCM != nullptr )
+                      {
+                          tCounterMax += tCM->get_global_dv_type_list().size();
+                      }
                   }
 
                   // get number of dv types from stabilization parameters
                   for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
                   {
-                      tCounterMax += tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER ).size();
+                      if( tSP != nullptr )
+                      {
+                          tCounterMax += tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER ).size();
+                      }
                   }
 
                   // set size for the global dv type list
@@ -658,30 +636,33 @@ namespace moris
                   // get dv type from properties
                   for ( std::shared_ptr< Property > tProperty : mMasterProp )
                   {
-                      // get dv types for property
-                      moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                      // loop on property dv type
-                      for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                      if( tProperty != nullptr )
                       {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
+                          // get dv types for property
+                          moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
+
+                          // loop on property dv type
+                          for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                           {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                          }
+                              // check enum is not already in the list
+                              bool tCheck = false;
+                              for( uint i = 0; i < tCounter; i++ )
+                              {
+                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                              }
 
-                          // if dv enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dv type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                              // if dv enum not in the list
+                              if ( !tCheck )
+                              {
+                                  // put the dv type in the checklist
+                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                              // put the dv type in the global type list
-                              mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                  // put the dv type in the global type list
+                                  mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                              // update dv counter
-                              tCounter++;
+                                  // update dv counter
+                                  tCounter++;
+                              }
                           }
                       }
                   }
@@ -689,30 +670,33 @@ namespace moris
                   // get dv type from constitutive models
                   for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                   {
-                      // get dv types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
-
-                      // loop on property dv type
-                      for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                      if( tCM != nullptr )
                       {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
+                          // get dv types for constitutive model
+                          moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+
+                          // loop on property dv type
+                          for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                           {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                          }
+                              // check enum is not already in the list
+                              bool tCheck = false;
+                              for( uint i = 0; i < tCounter; i++ )
+                              {
+                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                              }
 
-                          // if dv enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dv type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                              // if dv enum not in the list
+                              if ( !tCheck )
+                              {
+                                  // put the dv type in the checklist
+                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                              // put the dv type in the global type list
-                              mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                  // put the dv type in the global type list
+                                  mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                              // update dv counter
-                              tCounter++;
+                                  // update dv counter
+                                  tCounter++;
+                              }
                           }
                       }
                   }
@@ -720,30 +704,33 @@ namespace moris
                   // get dv type from stabilization parameters
                   for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
                   {
-                      // get dv types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
-
-                      // loop on property dv type
-                      for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                      if( tSP != nullptr )
                       {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
+                          // get dv types for constitutive model
+                          moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::MASTER );
+
+                          // loop on property dv type
+                          for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                           {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                          }
+                              // check enum is not already in the list
+                              bool tCheck = false;
+                              for( uint i = 0; i < tCounter; i++ )
+                              {
+                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                              }
 
-                          // if dv enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dv type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                              // if dv enum not in the list
+                              if ( !tCheck )
+                              {
+                                  // put the dv type in the checklist
+                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                              // put the dv type in the global type list
-                              mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                  // put the dv type in the global type list
+                                  mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                              // update dv counter
-                              tCounter++;
+                                  // update dv counter
+                                  tCounter++;
+                              }
                           }
                       }
                   }
@@ -761,19 +748,28 @@ namespace moris
                   // get number of dv types from properties
                   for ( std::shared_ptr< Property > tProperty : mSlaveProp )
                   {
-                      tCounterMax += tProperty->get_dv_type_list().size();
+                      if( tProperty != nullptr )
+                      {
+                          tCounterMax += tProperty->get_dv_type_list().size();
+                      }
                   }
 
                   // get number of dv types from constitutive models
                   for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
                   {
-                      tCounterMax += tCM->get_global_dv_type_list().size();
+                      if( tCM != nullptr )
+                      {
+                          tCounterMax += tCM->get_global_dv_type_list().size();
+                      }
                   }
 
                   // get number of dv types from stabilization parameters
                   for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
                   {
-                      tCounterMax += tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE ).size();
+                      if( tSP != nullptr )
+                      {
+                          tCounterMax += tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE ).size();
+                      }
                   }
 
                   // set size for the global dv type list
@@ -801,30 +797,33 @@ namespace moris
                   // get dv type from properties
                   for ( std::shared_ptr< Property > tProperty : mSlaveProp )
                   {
-                      // get dv types for property
-                      moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
-
-                      // loop on property dv type
-                      for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                      if( tProperty != nullptr )
                       {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
+                          // get dv types for property
+                          moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tProperty->get_dv_type_list();
+
+                          // loop on property dv type
+                          for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                           {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                          }
+                              // check enum is not already in the list
+                              bool tCheck = false;
+                              for( uint i = 0; i < tCounter; i++ )
+                              {
+                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                              }
 
-                          // if dv enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dv type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                              // if dv enum not in the list
+                              if ( !tCheck )
+                              {
+                                  // put the dv type in the checklist
+                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                              // put the dv type in the global type list
-                              mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                  // put the dv type in the global type list
+                                  mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                              // update dv counter
-                              tCounter++;
+                                  // update dv counter
+                                  tCounter++;
+                              }
                           }
                       }
                   }
@@ -832,30 +831,33 @@ namespace moris
                   // get dv type from constitutive models
                   for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
                   {
-                      // get dv types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
-
-                      // loop on property dv type
-                      for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                      if( tCM != nullptr )
                       {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
+                          // get dv types for constitutive model
+                          moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tCM->get_global_dv_type_list();
+
+                          // loop on property dv type
+                          for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                           {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                          }
+                              // check enum is not already in the list
+                              bool tCheck = false;
+                              for( uint i = 0; i < tCounter; i++ )
+                              {
+                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                              }
 
-                          // if dv enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dv type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                              // if dv enum not in the list
+                              if ( !tCheck )
+                              {
+                                  // put the dv type in the checklist
+                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                              // put the dv type in the global type list
-                              mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                  // put the dv type in the global type list
+                                  mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                              // update dv counter
-                              tCounter++;
+                                  // update dv counter
+                                  tCounter++;
+                              }
                           }
                       }
                   }
@@ -863,30 +865,33 @@ namespace moris
                   // get dv type from stabilization parameters
                   for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
                   {
-                      // get dv types for constitutive model
-                      moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
-
-                      // loop on property dv type
-                      for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
+                      if( tSP != nullptr )
                       {
-                          // check enum is not already in the list
-                          bool tCheck = false;
-                          for( uint i = 0; i < tCounter; i++ )
+                          // get dv types for constitutive model
+                          moris::Cell< moris::Cell< MSI::Dv_Type > > tActiveDvType = tSP->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+
+                          // loop on property dv type
+                          for ( uint iDv = 0; iDv < tActiveDvType.size(); iDv++ )
                           {
-                              tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
-                          }
+                              // check enum is not already in the list
+                              bool tCheck = false;
+                              for( uint i = 0; i < tCounter; i++ )
+                              {
+                                  tCheck = tCheck || equal_to( tCheckList( i ), static_cast< uint >( tActiveDvType( iDv )( 0 ) ) );
+                              }
 
-                          // if dv enum not in the list
-                          if ( !tCheck )
-                          {
-                              // put the dv type in the checklist
-                              tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
+                              // if dv enum not in the list
+                              if ( !tCheck )
+                              {
+                                  // put the dv type in the checklist
+                                  tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
-                              // put the dv type in the global type list
-                              mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                                  // put the dv type in the global type list
+                                  mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
-                              // update dv counter
-                              tCounter++;
+                                  // update dv counter
+                                  tCounter++;
+                              }
                           }
                       }
                   }
@@ -1104,6 +1109,7 @@ namespace moris
              * check the Jacobian with FD
              * @param[ in ] aPerturbation real to perturb for FD
              * @param[ in ] aEpsilon      real for check
+             * @param[ in ] aWStar        real weight associated to evaluation point
              * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
              * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
              */
@@ -1118,6 +1124,7 @@ namespace moris
              * check the Jacobian with FD double
              * @param[ in ] aPerturbation real to perturb for FD
              * @param[ in ] aEpsilon      real for check
+             * @param[ in ] aWStar        real weight associated to evaluation point
              * @param[ in ] aJacobians    cell of cell of matrices to fill with Jacobians
              * @param[ in ] aJacobians_FD cell of cell of matrices to fill with Jacobians by FD
              */
@@ -1136,47 +1143,63 @@ namespace moris
                 // reset properties
                 for ( std::shared_ptr< Property > tProp : mMasterProp )
                 {
-                    tProp->reset_eval_flags();
+                    if ( tProp != nullptr )
+                    {
+                        tProp->reset_eval_flags();
+                    }
                 }
                 for ( std::shared_ptr< Property > tProp : mSlaveProp )
                 {
-                    tProp->reset_eval_flags();
+                    if( tProp != nullptr )
+                    {
+                        tProp->reset_eval_flags();
+                    }
                 }
 
                 // reset constitutive models
                 for ( std::shared_ptr< Constitutive_Model > tCM : mMasterCM )
                 {
-                    tCM->reset_eval_flags();
+                    if( tCM != nullptr )
+                    {
+                        tCM->reset_eval_flags();
+                    }
                 }
                 for ( std::shared_ptr< Constitutive_Model > tCM : mSlaveCM )
                 {
-                    tCM->reset_eval_flags();
+                    if( tCM != nullptr )
+                    {
+                        tCM->reset_eval_flags();
+                    }
                 }
 
                 // reset stabilization parameters
                 for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
                 {
-                    tSP->reset_eval_flags();
+                    if( tSP != nullptr )
+                    {
+                        tSP->reset_eval_flags();
+                    }
                 }
             }
 
 //------------------------------------------------------------------------------
             /**
              * evaluate the Jacobian by finite difference
-             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
              * @param[ in ] aPerturbation real to perturb for FD
+             * @param[ in ] aWStar        weight associated to evaluation point
+             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
              */
-             void compute_jacobian_FD( real                                             aWStar,
-                                       real                                             aPerturbation,
-                                       moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
+            void compute_jacobian_FD( real                                             aWStar,
+                                      real                                             aPerturbation,
+                                      moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
 
 //------------------------------------------------------------------------------
             /**
-             * evaluate the Jacobian by finite difference double
-             * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
-             * @param[ in ] aPerturbation real to perturb for FD
-             * @param[ in ] aIsMaster     enum master or slave
-             */
+            * evaluate the Jacobian by finite difference
+            * @param[ in ] aWStar        weight associated with evaluation point
+            * @param[ in ] aPerturbation real to perturb for FD
+            * @param[ in ] aJacobiansFD  cell of cell of matrices to fill with Jacobians evaluated by FD
+            */
             void compute_jacobian_FD_double( real                                             aWStar,
                                              real                                             aPerturbation,
                                              moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobiansFD );
@@ -1184,6 +1207,7 @@ namespace moris
 //------------------------------------------------------------------------------
             /**
              * build a list of dof types requested by the solver and owned by the IWG
+             * @param[ in ] aItResidual bool true if ???
              */
             void build_requested_dof_type_list( const bool aItResidual );
 

@@ -31,6 +31,9 @@ namespace moris
             uint                              mNumVerticesOnSet;
             moris::Matrix< DDSMat >           mVerticesOnSet;
 
+            uint                              mNumCellsOnBlock;
+            moris::Matrix< DDSMat >           mCellsOnBlock;
+
 //------------------------------------------------------------------------------
 
             void calculate_vertices_on_set()
@@ -148,7 +151,7 @@ namespace moris
 //------------------------------------------------------------------------------
 
               uint
-              get_num_vertieces_on_set() const
+              get_num_vertieces_on_set( const bool aOnlyPrimary )
               {
                   return mNumVerticesOnSet;
               }
@@ -156,9 +159,25 @@ namespace moris
 //------------------------------------------------------------------------------
 
               moris::Matrix< DDSMat >
-              get_vertieces_inds_on_block() const
+              get_vertieces_inds_on_block(const bool aOnlyPrimary )
               {
                   return mVerticesOnSet;
+              }
+
+//------------------------------------------------------------------------------
+
+              uint get_num_cells_on_set( const bool aOnlyPrimary )
+              {
+                  MORIS_ERROR( false, "not implemented");
+                  return mNumCellsOnBlock;
+              }
+
+//------------------------------------------------------------------------------
+
+              moris::Matrix< DDSMat > get_cell_inds_on_block( const bool aOnlyPrimary )
+              {
+                  MORIS_ERROR( false, "not implemented");
+                  return mCellsOnBlock;
               }
 
 //------------------------------------------------------------------------------
