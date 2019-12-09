@@ -100,11 +100,11 @@ void Writer_Exodus::write_nodal_field(std::string aFieldName, moris::Matrix<mori
     // Field name to index
     moris::uint tMapSize = mNodalFieldNamesMap.size();
     int tFieldIndex = mNodalFieldNamesMap[aFieldName];
-    MORIS_ASSERT(mNodalFieldNamesMap.size() == tMapSize, aFieldName.append(
+    MORIS_ERROR(mNodalFieldNamesMap.size() == tMapSize, aFieldName.append(
             " is not a nodal field name on this mesh!").c_str());
 
     // Check number of field values = number of nodes
-    MORIS_ASSERT(aFieldValues.numel() == mMesh->get_num_nodes(), aFieldName.append(
+    MORIS_ERROR(aFieldValues.numel() == mMesh->get_num_nodes(), aFieldName.append(
             " field was attempted to be written with " + std::to_string(aFieldValues.numel()) + " values, but there are " +
             std::to_string(mMesh->get_num_nodes()) + " nodes in this mesh.").c_str());
 
@@ -120,17 +120,17 @@ void Writer_Exodus::write_elemental_field(std::string aBlockName, std::string aF
     // Block name to index
     moris::uint tMapSize = mBlockNamesMap.size();
     int tBlockIndex = mBlockNamesMap[aBlockName];
-    MORIS_ASSERT(mBlockNamesMap.size() == tMapSize, aBlockName.append(
+    MORIS_ERROR(mBlockNamesMap.size() == tMapSize, aBlockName.append(
             " is not a block name on this mesh!").c_str());
 
     // Field name to index
     tMapSize = mElementalFieldNamesMap.size();
     int tFieldIndex = mElementalFieldNamesMap[aFieldName];
-    MORIS_ASSERT(mElementalFieldNamesMap.size() == tMapSize, aFieldName.append(
+    MORIS_ERROR(mElementalFieldNamesMap.size() == tMapSize, aFieldName.append(
             " is not an elemental field name on this mesh!").c_str());
 
     // Check number of field values = number of elements
-    MORIS_ASSERT(aFieldValues.numel() == mMesh->get_block_set_cells(aBlockName).size(), aFieldName.append(
+    MORIS_ERROR(aFieldValues.numel() == mMesh->get_block_set_cells(aBlockName).size(), aFieldName.append(
             " field was attempted to be written with " + std::to_string(aFieldValues.numel()) + " values, but there are " +
             std::to_string(mMesh->get_block_set_cells(aBlockName).size()) + " elements in block " + aBlockName +
             ".").c_str());
@@ -147,7 +147,7 @@ void Writer_Exodus::write_global_variable(std::string aVariableName, moris::real
     // Variable name to index
     moris::uint tMapSize = mGlobalVariableNamesMap.size();
     int tVariableIndex = mGlobalVariableNamesMap[aVariableName];
-    MORIS_ASSERT(mGlobalVariableNamesMap.size() == tMapSize, aVariableName.append(
+    MORIS_ERROR(mGlobalVariableNamesMap.size() == tMapSize, aVariableName.append(
             " is not a global variable name on this mesh!").c_str());
 
     // Write the variable
@@ -246,7 +246,7 @@ void Writer_Exodus::write_nodes()
     bool tZDim = tSpatialDim >= 3;
 
     // Set up coordinate and node map arrays based on the number of vertices
-    MORIS_ASSERT(tNodes.size() > 0, "Invalid Node Map size");
+    MORIS_ERROR(tNodes.size() > 0, "Invalid Node Map size");
     moris::Matrix<moris::IdMat> tNodeMap(tNodes.size(), 1, 0);
 
     // Coordinate arrays
@@ -444,7 +444,7 @@ const char* Writer_Exodus::get_exodus_block_topology(CellTopology aCellTopology)
         case CellTopology::PRISM6:
             return "PRISM6";
         default:
-            MORIS_ASSERT(0, "This element is invalid or it hasn't been implemented yet!");
+            MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
             return "";
     }
 }
@@ -468,7 +468,7 @@ int Writer_Exodus::get_nodes_per_element(CellTopology aCellTopology)
         case CellTopology::PRISM6:
             return 6;
         default:
-            MORIS_ASSERT(0, "This element is invalid or it hasn't been implemented yet!");
+            MORIS_ERROR(0, "This element is invalid or it hasn't been implemented yet!");
             return 0;
     }
 }
