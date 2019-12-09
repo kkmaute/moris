@@ -1,5 +1,5 @@
 /*
- * cl_Circle.hpp
+ * cl_GEN_Circle.hpp
  *
  *  Created on: Aug 7, 2019
  *      Author: ryan
@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "cl_Matrix.hpp"
+#include "fn_norm.hpp"
 #include "../geometry/cl_GEN_Geometry.hpp"
 
 namespace moris
@@ -50,23 +51,32 @@ public:
                                               moris::Matrix< moris::DDRMat > const & aCoordinates) const
     {
 
-        moris::real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
-                            + (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter)
-                              - (mRadius * mRadius);
+//        moris::real tFunctionValue = (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter)
+//                            + (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter)
+//                              - (mRadius * mRadius);
+        /*
+         * the below form linearlizes the circle equation
+         */
+        Matrix< DDRMat > tCoord( 1,2 );
+        tCoord(0) = aCoordinates(aRowIndex, 0); tCoord(1) = aCoordinates(aRowIndex, 1);
+        Matrix< DDRMat > tCenter( 1,2 );
+        tCenter(0) = mXCenter; tCenter(1) = mYCenter;
 
+        moris::real tFunctionValue = norm( tCoord-tCenter ) - mRadius;
         return tFunctionValue;
     }
 
 
-    moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate( moris::size_t const & aRowIndex,
-                                                                        moris::Matrix< moris::DDRMat > const & aCoordinates) const
+    moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp_with_coordinate( moris::size_t                  const & aRowIndex,
+                                                                                 moris::Matrix< moris::DDRMat > const & aCoordinates ) const
     {
         moris::Matrix< moris::DDRMat > tSensitivityDxDp(3, 2, 0.0);
 
         moris::real sign = 0.0;
 
-        // dx/dr
-        moris::real tSqrt = mRadius * mRadius - (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter);
+        // dx/dr = r/sqrt(r^2 - (y-yc)^2)
+//        moris::real tSqrt = mRadius * mRadius - (aCoordinates(aRowIndex, 1) - mYCenter) * (aCoordinates(aRowIndex, 1) - mYCenter);
+        moris::real tSqrt = mRadius * mRadius - std::pow((aCoordinates(aRowIndex, 1) - mYCenter),2);
 
         if(tSqrt < 0.0)
         {
@@ -83,8 +93,9 @@ public:
 
         (tSensitivityDxDp)(0, 0) = sign * mRadius / std::sqrt(std::abs(tSqrt));
 
-        //dy/dr
-        tSqrt = mRadius * mRadius - (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter);
+        //dy/dr = r/sqrt(r^2 - (x-xc)^2)
+//        tSqrt = mRadius * mRadius - (aCoordinates(aRowIndex, 0) - mXCenter) * (aCoordinates(aRowIndex, 0) - mXCenter);
+        tSqrt = mRadius * mRadius - std::pow((aCoordinates(aRowIndex, 0) - mXCenter),2);
 
         if(tSqrt < 0.0)
         {
@@ -104,7 +115,7 @@ public:
         tSensitivityDxDp(1,1) = 0.0; // dy/dxc
         tSensitivityDxDp(2,0) = 0.0; // dx/dyc
         tSensitivityDxDp(2,1) = 1.0; // dy/dyc
-
+print(tSensitivityDxDp,"tSensitivityDxDp");
         return tSensitivityDxDp;
     }
 

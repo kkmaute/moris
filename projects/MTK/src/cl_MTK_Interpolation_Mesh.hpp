@@ -23,6 +23,8 @@ class Interpolation_Mesh: public virtual Mesh
 public:
     Interpolation_Mesh(){};
 
+    ~Interpolation_Mesh(){};
+
 };
 }
 }

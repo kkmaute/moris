@@ -150,7 +150,7 @@ namespace moris
 
                 mWriter->set_elemental_fields(tElementalFieldNames);
                 mWriter->set_time(0.0);
-                mWriter->write_elemental_field( 0, "pressure", tetField);
+                mWriter->write_elemental_field("HMR_dummy_c_p0", "pressure", tetField);
 
                 mWriter->close_file();
             }

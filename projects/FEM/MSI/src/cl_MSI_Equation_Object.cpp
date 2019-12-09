@@ -504,6 +504,7 @@ namespace moris
         aEqnObjMatrix = trans( tTMatrix ) * mEquationBlock->get_jacobian() * tTMatrix;
 
 //        print(aEqnObjMatrix,"aEqnObjMatrix");
+
     }
 
 //-------------------------------------------------------------------------------------------------
@@ -524,6 +525,7 @@ namespace moris
         aEqnObjRHS = trans( tTMatrix ) * tElementalResidual;
 
 //        print(aEqnObjRHS, "aEqnObjRHS");
+
     }
 
 //-------------------------------------------------------------------------------------------------

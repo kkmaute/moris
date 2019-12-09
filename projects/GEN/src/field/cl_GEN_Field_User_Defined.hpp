@@ -23,8 +23,8 @@ namespace ge{
 //                                          moris::Cell< fem::Field_Interpolator* > & aDvFI,
 //                                          fem::Geometry_Interpolator              * aGeometryInterpolator ) > PropertyFunc;
 
-typedef std::function< real ( Matrix< DDRMat > & aCoeff,
-                              Matrix< DDRMat > & aParam ) > PropertyFunction_noFieldInterp;
+typedef std::function< real ( Matrix< DDRMat > const & aCoeff,
+                              Matrix< DDRMat > const & aParam ) > PropertyFunction_noFieldInterp;
 
 
 class GEN_Field_User_Defined    :   public GEN_Field
@@ -39,7 +39,6 @@ private:
 public:
     GEN_Field_User_Defined(  )
     {
-
     }
 
     GEN_Field_User_Defined( PropertyFunction_noFieldInterp aValFunc,
@@ -48,7 +47,6 @@ public:
                                 mCoeffList( aCoeff )
 
     {
-
     }
 
     ~GEN_Field_User_Defined(  )
@@ -56,8 +54,12 @@ public:
 
     }
     //------------------------------------------------------------------------------
-
-    real eval_function( Matrix< DDRMat > & aParam )
+    void set_coeff_list( Matrix< DDRMat > & aCoeff )
+    {
+        mCoeffList = aCoeff;
+    }
+    //------------------------------------------------------------------------------
+    real eval_function( Matrix< DDRMat > const & aParam )
     {
         return mValFunc( mCoeffList, aParam );
     }

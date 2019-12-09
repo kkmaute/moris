@@ -20,17 +20,20 @@ namespace ge{
 class GEN_Field
 {
 public:
-    GEN_Field(  )
-    {
+//    GEN_Field(  )
+//    {    }
 
-    }
-
+    virtual
     ~GEN_Field(  )
-    {
+    {    }
 
+    //------------------------------------------------------------------------------
+    virtual void set_coeff_list( Matrix< DDRMat > & aCoeff )
+    {
+        MORIS_ASSERT( false, "GEN_Field::set_coeff_list() - function not implemented in child class" );
     }
     //------------------------------------------------------------------------------
-    virtual real eval_function( Matrix< DDRMat > aParam )
+    virtual real eval_function( Matrix< DDRMat > const & aParam )
     {
         MORIS_ASSERT( false, "GEN_Field::eval_function() - field not created, returning 0" );
         return 0;

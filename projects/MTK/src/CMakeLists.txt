@@ -67,6 +67,7 @@ stk_impl/cl_MTK_Vertex_STK.hpp )
 set( LIB_SOURCES
 stk_impl/cl_MTK_Mesh_Core_STK.cpp
 stk_impl/cl_MTK_Integration_Mesh_STK.cpp
+stk_impl/cl_MTK_Interpolation_Mesh_STK.cpp
 stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
 stk_impl/cl_MTK_Cell_Cluster_STK.cpp
 stk_impl/cl_MTK_Side_Cluster_STK.cpp

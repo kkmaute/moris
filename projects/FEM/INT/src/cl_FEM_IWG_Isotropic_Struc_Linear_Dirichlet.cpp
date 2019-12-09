@@ -14,6 +14,7 @@ namespace moris
 
         IWG_Isotropic_Struc_Linear_Dirichlet::IWG_Isotropic_Struc_Linear_Dirichlet()
         {
+
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
@@ -32,10 +33,11 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "DirichletNitsche" ] = IWG_Stabilization_Type::DIRICHLET_NITSCHE;
+
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
@@ -58,12 +60,12 @@ namespace moris
             // selection matrix
             Matrix< DDRMat > tM;
 
+
             // set a default selection matrix if needed
             if ( mMasterProp( tSelectIndex ) == nullptr )
             {
                 // get spatial dimension
                 uint tSpaceDim = tFI->get_dof_type().size();
-
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
             }
@@ -87,7 +89,7 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real tWStar )
+        void IWG_Isotropic_Struc_Linear_Dirichlet::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models

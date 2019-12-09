@@ -66,18 +66,21 @@ public:
 	
     moris::Cell<std::string> get_set_names(enum EntityRank aSetEntityRank) const
     {
-        uint tNumBlocks = this->get_num_blocks();
-
         moris::Cell<std::string> tSetNames;
-
-        tSetNames.resize( tNumBlocks );
-
-        for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+        if (aSetEntityRank == EntityRank::ELEMENT)
         {
-            moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+            uint tNumBlocks = this->get_num_blocks();
 
-            tSetNames( Ik ) = tSet->get_set_name();
+            tSetNames.resize( tNumBlocks );
+
+            for(uint Ik=0; Ik<tNumBlocks; Ik ++)
+            {
+                moris::mtk::Set * tSet = this->get_block_by_index( Ik);
+
+                tSetNames( Ik ) = tSet->get_set_name();
+            }
         }
+
         return tSetNames;
     }
 	
