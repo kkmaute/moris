@@ -42,6 +42,8 @@ namespace moris
         // pointer to the mesh cluster
         const mtk::Cluster* mMeshCluster = nullptr;
 
+        mtk::Cluster * mVisMeshCluster = nullptr;
+
         // time sideset information
         Matrix< IndexMat > mListOfTimeOrdinals;
 

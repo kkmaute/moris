@@ -51,6 +51,8 @@ namespace MSI
     private:
         moris::mtk::Set * mMeshSet = nullptr;
 
+        moris::mtk::Set * mVisMeshSet = nullptr;
+
         //! Mesh cluster
         moris::Cell< mtk::Cluster const* > mMeshClusterList;
 
@@ -164,6 +166,13 @@ namespace MSI
 //------------------------------------------------------------------------------
 
         void free_memory();
+
+//------------------------------------------------------------------------------
+
+        void set_vis_set( moris::mtk::Set * aVisMeshSet )
+        {
+             mVisMeshSet = aVisMeshSet;
+        };
 
 //------------------------------------------------------------------------------
         /**
