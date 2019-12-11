@@ -85,7 +85,7 @@ namespace moris
             mSet->get_residual()( { tStartRow, tEndRow }, { 0, 0 } )
             += ( - trans( tFI->N() ) * tM * mMasterCM( tElastLinIsoIndex )->traction( mNormal )
                  + mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tJump
-                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * tWStar;
+                 + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tJump ) * aWStar;
         }
 
 //------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ namespace moris
                 mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                       { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )
                 += (   mMasterCM( tElastLinIsoIndex )->testTraction( mNormal ) * tM * tFI->N()
-                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * tWStar;
+                     + mStabilizationParam( tNitscheIndex )->val()( 0 ) * trans( tFI->N() ) * tM * tFI->N() ) * aWStar;
             }
 
             // compute the jacobian for indirect dof dependencies through properties
@@ -166,7 +166,7 @@ namespace moris
                     // add contribution to jacobian
                     mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                           { mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tIndexDep, 1 ) } )
-                   += ( - trans( tFI->N() ) *  tM * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) ) * tWStar;
+                   += ( - trans( tFI->N() ) *  tM * mMasterCM( tElastLinIsoIndex )->dTractiondDOF( tDofType, mNormal ) ) * aWStar;
 //                        + mMasterCM( tElastLinIsoIndex )->dTestTractiondDOF( tDofType, mNormal ) * tM * tJump ) * tWStar;
                 }
 

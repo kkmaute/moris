@@ -42,7 +42,7 @@ namespace moris
         // pointer to the mesh cluster
         const mtk::Cluster* mMeshCluster = nullptr;
 
-        mtk::Cluster * mVisMeshCluster = nullptr;
+        const mtk::Cluster * mVisMeshCluster = nullptr;
 
         // time sideset information
         Matrix< IndexMat > mListOfTimeOrdinals;
@@ -203,6 +203,15 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
+
+        void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
+        {
+            mVisMeshCluster = aVisMeshCluster;
+
+
+        }
+
+//------------------------------------------------------------------------------
     protected:
 //------------------------------------------------------------------------------
         /**
@@ -227,6 +236,14 @@ namespace moris
           * @Brief set the initial sizes and values for mResidual
           */
          void initialize_mResidual();
+
+//------------------------------------------------------------------------------
+
+         void compute_quantitiy_of_interest( enum vis::Output_Type aOutputType,
+                                             enum vis::Field_Type  aFieldType )
+         {
+
+         }
 
 
 //------------------------------------------------------------------------------

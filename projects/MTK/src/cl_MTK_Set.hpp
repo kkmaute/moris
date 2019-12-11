@@ -266,8 +266,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-              virtual const Cluster  *
-              get_clusters_by_index( moris_index aCellClusterIndex ) const = 0;
+              virtual const Cluster * get_clusters_by_index( moris_index aCellClusterIndex ) const = 0;
 
 //------------------------------------------------------------------------------
 

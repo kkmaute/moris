@@ -1107,5 +1107,62 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+    void Set::set_visualization_set( moris::mtk::Set * aVisMeshSet )
+    {
+         // set vis mesh pointer
+         mVisMeshSet = aVisMeshSet;
+
+         uint tNumClustersOnSets = mVisMeshSet->get_num_clusters_on_set();
+
+         // set vis clusters to clusters
+         for( uint Ik = 0; Ik < tNumClustersOnSets; Ik++ )
+         {
+             mEquationObjList( Ik )->set_visualization_cluster( mVisMeshSet->get_clusters_by_index( Ik ) );
+         }
+
+         // build set element map
+         uint tNumCells = mVisMeshSet->get_num_cells_on_set( false );
+
+         moris::Matrix< DDSMat > tCellIndex = mVisMeshSet->get_cell_inds_on_block( false );
+
+         sint tMaxIndex = tCellIndex.max();
+//         sint tMinIndex = tCellIndex.min();
+
+         mCellAssemblyMap.set_size( tMaxIndex + 1, 1, -1 );
+
+         for( uint Ik = 0; Ik < tNumCells; Ik++ )
+         {
+             mCellAssemblyMap( tCellIndex( Ik ) ) = Ik;
+         }
+    }
+
+//------------------------------------------------------------------------------
+
+    void Set::compute_quantitiy_of_interest( Matrix< DDRMat >      * aElementFieldValues,
+                                             Matrix< DDRMat >      * aNodalFieldValues,
+                                             moris::real           * aGlobalScalar,
+                                             enum vis::Output_Type   aOutputType,
+                                             enum vis::Field_Type    aFieldType )
+    {
+        mSetElementalValues = aElementFieldValues;
+        mSetNodalValues     = aNodalFieldValues;
+        mSetGlobalValues    = aGlobalScalar;
+
+        uint tNumCells = mVisMeshSet->get_num_cells_on_set( false );
+
+        mSetElementalValues->set_size( tNumCells, 1, 0.0 );
+
+        for( uint Ik = 0; Ik < mEquationObjList.size(); Ik++ )
+        {
+            mEquationObjList( Ik )->compute_quantitiy_of_interest( aOutputType, aFieldType );
+        }
+    }
+
+//------------------------------------------------------------------------------
+
+
+
+//------------------------------------------------------------------------------
+
     } /* namespace fem */
 } /* namespace moris */

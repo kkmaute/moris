@@ -5,7 +5,7 @@
 set(TEST_SOURCES
     test_main.cpp
     UT_VSI_Visualization_Mesh.cpp
-    UT_VSI_Output_Data.cpp
+    UT_VSI_Output_Manager.cpp
     )
 
 set(XTK_INCLUDES                                                                                                                                                                                                                                                               
